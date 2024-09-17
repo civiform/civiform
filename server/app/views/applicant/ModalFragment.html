@@ -87,8 +87,10 @@
   <!--/* Create an invisible button that we will use to trigger this modal on load */-->
   <a
     th:href="${'#' + dialogId}"
-    class="usa-button is-hidden"
+    class="is-hidden"
     th:aria-controls="${dialogId}"
+    aria-hidden="true"
+    tabindex="-1"
     data-open-modal
     >Login</a
   >
@@ -168,3 +170,59 @@
     </button>
   </div>
 </dialog>
+
+<div th:fragment="blockValidation">
+  <dialog
+    class="usa-modal"
+    id="validation-modal"
+    aria-labelledby="validation-modal-heading"
+    aria-describedby="validation-modal-heading"
+  >
+    <div class="usa-modal__content">
+      <div class="usa-modal__main">
+        <h2
+          class="usa-modal__heading"
+          id="validation-modal-heading"
+          th:text="#{modal.errorSaving.previous.title}"
+        ></h2>
+        <p th:text="#{modal.errorSaving.previous.content}"></p>
+
+        <button
+          type="button"
+          th:data-redirect-to="${previousWithoutSaving}"
+          data-close-modal
+          th:text="#{modal.errorSaving.previous.noSaveButton}"
+          class="usa-button usa-button--outline margin-y-2"
+        ></button>
+
+        <button
+          type="button"
+          th:text="#{modal.errorSaving.stayAndFixButton}"
+          data-close-modal
+          class="usa-button margin-y-2"
+        ></button>
+      </div>
+
+      <button
+        type="button"
+        class="usa-button usa-modal__close"
+        th:aria-label="#{button.close}"
+        data-close-modal
+      >
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+        ></svg>
+      </button>
+    </div>
+  </dialog>
+  <!--/* Create an invisible button that we will use to trigger this modal on load */-->
+  <a
+    id="invisible-validation-modal-button"
+    href="#validation-modal"
+    class="is-hidden"
+    th:aria-controls="validation-modal"
+    aria-hidden="true"
+    tabindex="-1"
+    data-open-modal
+  ></a>
+</div>

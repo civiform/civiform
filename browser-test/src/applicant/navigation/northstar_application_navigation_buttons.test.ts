@@ -1,5 +1,11 @@
 import {test} from '../../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, logout} from '../../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  logout,
+  validateAccessibility,
+  validateScreenshot,
+} from '../../support'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.describe('navigation with five blocks', () => {
@@ -97,8 +103,29 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
       })
-    })
 
-    // TODO(#8065): Add tests for clicking on previous button and showing an error modal
+      test('clicking previous with some missing answers shows error modal', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+        // There is also a date question, and it's intentionally not answered
+        await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+
+        await applicantQuestions.clickBack()
+
+        // The date question is required, so expect the error modal.
+        await applicantQuestions.expectErrorOnPreviousModal(
+          /* northStarEnabled= */ true,
+        )
+
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'northstar-error-on-previous-modal',
+          /* fullPage= */ false,
+        )
+      })
+    })
   })
 })
