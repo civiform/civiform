@@ -220,7 +220,8 @@ public final class ProgramTranslationForm {
               Optional<String> optionalBlockName = getStringFormField(localizedScreenName(blockId));
               Optional<String> optionalBlockDescription =
                   getStringFormField(localizedScreenDescription(blockId));
-              Optional<String> optionalBlockMessage = getStringFormField(localizedEligibilityMessage(blockId));
+              Optional<String> optionalBlockMessage =
+                  getStringFormField(localizedEligibilityMessage(blockId));
               if (optionalBlockName.isEmpty() || optionalBlockDescription.isEmpty()) {
                 return Optional.<LocalizationUpdate.ScreenUpdate>empty();
               }

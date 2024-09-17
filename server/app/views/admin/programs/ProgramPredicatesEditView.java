@@ -14,6 +14,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import forms.EligibilityMessageForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -21,6 +22,7 @@ import j2html.tags.specialized.LabelTag;
 import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
+import play.data.Form;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
@@ -46,6 +48,7 @@ import views.style.ReferenceClasses;
 public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   private final AdminLayout layout;
+  private static final String ELIGIBILITY_MESSAGE_FORM_ID = "eligibility-message-form";
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -189,13 +192,20 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
 
+    System.out.println("kekeke");
+    System.out.println(blockDefinition.localizedMessage().toString());
+
     // Text input field for custom eligibility message
-        FieldWithLabel eligibilityMessage =  
+    FieldWithLabel eligibilityMessage =
         FieldWithLabel.textArea()
-            .setId("custom-eligibility-message")
             .setFieldName("eligibility-message")
+            .setId("custom-eligibility-message")
             .setLabelText("Eligibility Message")
-            .setRequired(false);
+            .setRequired(false)
+            .setValue(
+                blockDefinition.localizedMessage().isPresent()
+                    ? blockDefinition.localizedMessage().toString()
+                    : "");
 
     DivTag content =
         div()
@@ -270,6 +280,32 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private DivTag createEligibilityMessageForm() {
+    // need to get exisitng eligibility message form first
+    Form<EligibilityMessageForm> form;
+
+    DivTag buttonDiv = div().withClass("flex");
+    buttonDiv.with(
+        submitButton("Save eligibility message")
+            .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+
+    return div()
+        .with(
+            form()
+                .withId(ELIGIBILITY_MESSAGE_FORM_ID)
+                .withMethod("POST")
+                .withAction("some action to be made")
+                .with(
+                    FieldWithLabel.input()
+                        .setFieldName(EligibilityMessageForm.ELIGIBILITY_MESSAGE)
+                        .setLabelText("Eligibility Message")
+                        .setRequired(false)
+                        .setValue(form.value().get().getEligibilityMessage())
+                        .getInputTag()))
+        .with(buttonDiv);
   }
 
   private static LabelTag renderPredicateQuestionCheckBoxRow(
