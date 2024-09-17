@@ -17,22 +17,35 @@
         </h2>
         <div class="display-flex flex-column">
           <p>Log in as:</p>
-          <a th:href="${fakeCiviformAdminUrl}" class="usa-button margin-y-2"
+          <a
+            th:href="${fakeCiviformAdminUrl}"
+            class="usa-button margin-y-2"
+            id="admin"
             >Civiform Admin</a
           >
-          <a th:href="${fakeProgramAdminUrl}" class="usa-button margin-y-2"
+          <a
+            th:href="${fakeProgramAdminUrl}"
+            class="usa-button margin-y-2"
+            id="program-admin"
             >Program Admin</a
           >
-          <a th:href="${fakeDualAdminUrl}" class="usa-button margin-y-2"
+          <a
+            th:href="${fakeDualAdminUrl}"
+            class="usa-button margin-y-2"
+            id="dual-admin"
             >Program and Civiform Admin</a
           >
           <a
             th:href="${fakeTrustedIntermediaryUrl}"
             class="usa-button margin-y-2"
+            id="trusted-intermediary"
             >Trusted Intermediary</a
           >
           <p>Other:</p>
-          <a th:href="${additionalToolsUrl}" class="usa-button margin-y-2"
+          <a
+            th:href="${additionalToolsUrl}"
+            class="usa-button margin-y-2"
+            id="additional-tools"
             >Additional tools</a
           >
         </div>
