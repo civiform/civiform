@@ -84,7 +84,7 @@ public final class ApplicationEventRepository {
           .update(ApplicationModel.class)
           .set("latest_note", note.note())
           .where()
-          .eq("application_id", application.id)
+          .eq("id", application.id)
           .update();
       application.save();
       transaction.commit();
