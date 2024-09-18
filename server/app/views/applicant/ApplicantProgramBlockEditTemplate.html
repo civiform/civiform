@@ -9,10 +9,12 @@
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${applicationParams.programTitle()}, ${applicationParams.programDescription()})}"
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
+          ${applicationParams.programTitle()},
+          ${applicationParams.programDescription()})}"
       ></div>
 
-      <div class="grid-container section">
+      <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
             <form
@@ -23,9 +25,11 @@
             >
               <input hidden th:value="${csrfToken}" name="csrfToken" />
 
-              <div
-                th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-              ></div>
+              <div class="section-external">
+                <div
+                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+                ></div>
+              </div>
 
               <div
                 th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
@@ -35,33 +39,38 @@
                 th:each="question: ${applicationParams.block().getQuestions()}"
               >
                 <div
-                  th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams.get(question.getQuestionDefinition().getId())}, ${stateAbbreviations})}"
+                  th:replace="~{questiontypes/QuestionFragment :: applicant-question(
+                    ${question},
+                    ${questionRendererParams.get(question.getQuestionDefinition().getId())},
+                    ${stateAbbreviations})}"
                 ></div>
               </div>
 
-              <div class="margin-bottom-2">
-                <!-- This div acts like a boolean. Its presence indicates an error modal should be shown on page load. -->
-                <div th:if="${showErrorModal}" id="show-error-modal"></div>
+              <div class="section-external">
+                <div>
+                  <!-- The "show-error-modal" div acts like a boolean. Its presence indicates an error modal should be shown on page load. -->
+                  <div th:if="${showErrorModal}" id="show-error-modal"></div>
 
+                  <button
+                    type="submit"
+                    th:formaction="${previousFormAction}"
+                    class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
+                    th:text="#{button.back}"
+                  ></button>
+                  <button
+                    type="submit"
+                    class="usa-button margin-bottom-1 zero-top-margin"
+                    th:text="#{button.continue}"
+                  ></button>
+                </div>
                 <button
                   type="submit"
-                  th:formaction="${previousFormAction}"
-                  class="usa-button usa-button--outline margin-bottom-1"
-                  th:text="#{button.back}"
-                ></button>
-                <button
-                  type="submit"
-                  class="usa-button margin-bottom-1"
-                  th:text="#{button.continue}"
+                  th:formaction="${reviewFormAction}"
+                  id="review-application-button"
+                  class="usa-button usa-button--unstyled margin-bottom-4"
+                  th:text="#{button.saveAndExit}"
                 ></button>
               </div>
-              <button
-                type="submit"
-                th:formaction="${reviewFormAction}"
-                id="review-application-button"
-                class="usa-button usa-button--unstyled margin-bottom-4"
-                th:text="#{button.saveAndExit}"
-              ></button>
             </form>
           </div>
         </div>
