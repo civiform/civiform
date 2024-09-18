@@ -172,7 +172,7 @@ public class ApplicationModel extends BaseModel {
   /**
    * Returns the latest application note value associated with the application.
    *
-   * <p>This value is updated by Porgram Admins who want to add more details to the application.
+   * <p>This value is updated by Program Admins who want to add more details to the application.
    */
   public Optional<String> getLatestNote() {
     return Optional.ofNullable(latestNote);

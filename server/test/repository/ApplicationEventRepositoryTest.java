@@ -158,24 +158,54 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
-    application.setLatestNote("initial note");
-    application.save();
 
     repo.setNote(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
 
     // Execute
-    ImmutableList<ApplicationEventModel> gotEvents =
+    ImmutableList<ApplicationEventModel> applicationEvents =
         repo.getEventsOrderByCreateTimeDesc(application.id);
 
     // Verify
-    assertThat(gotEvents).hasSize(1);
-    ApplicationEventModel gotEvent = gotEvents.get(0);
+    assertThat(applicationEvents).hasSize(1);
+    ApplicationEventModel gotEvent = applicationEvents.get(0);
     // Generated values.
     assertThat(gotEvent.id).isNotNull();
     assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
     application.refresh();
-    // Data is stored in application as well and old note is rewritten
+    // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
+  }
+
+  @Test
+  public void test_oldNoteOverwritten() {
+    // Setup
+    Instant startInstant = Instant.now();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
+    application.setLatestNote("initial note");
+    application.save();
+    assertThat(application.getLatestNote()).isNotEmpty();
+    assertThat(application.getLatestNote().get()).isEqualTo("initial note");
+
+    repo.setNote(application, ApplicationEventDetails.NoteEvent.create("new note"), actor);
+
+    // Execute
+    ImmutableList<ApplicationEventModel> applicationEvents =
+        repo.getEventsOrderByCreateTimeDesc(application.id);
+
+    // Verify
+    assertThat(applicationEvents).hasSize(1);
+    ApplicationEventModel gotEvent = applicationEvents.get(0);
+    // Generated values.
+    assertThat(gotEvent.id).isNotNull();
+    assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
+    application.refresh();
+    // old note is rewritten
+    assertThat(application.getLatestNote()).isNotEmpty();
+    assertThat(application.getLatestNote().get()).isNotEqualTo("initial note");
+    assertThat(application.getLatestNote().get()).isEqualTo("new note");
   }
 }
