@@ -219,6 +219,51 @@ test.describe('applicant program index page', () => {
     })
   })
 
+  test('Do not show program details anchor if no external link is present', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const programWithoutExternalLink = 'No Link Program'
+    const programWithLink = 'Program With Link'
+
+    await loginAsAdmin(page)
+
+    await test.step('Create a new program without an external link', async () => {
+      await adminPrograms.addProgram(
+        programWithoutExternalLink,
+        'program description',
+        '' /* no external link */,
+      )
+    })
+
+    await test.step('Create a new program without an external link', async () => {
+      await adminPrograms.addProgram(
+        programWithLink,
+        'program description',
+        'https://www.civiform.us',
+      )
+    })
+
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await test.step('Assert that program details button is hidden', async () => {
+      const cardWithoutLink = page.locator('.cf-application-card', {
+        has: page.getByText(programWithoutExternalLink),
+      })
+      await expect(cardWithoutLink.getByText('Program details')).toBeHidden()
+    })
+
+    await test.step('Assert that program details button is present for card with link', async () => {
+      const cardWithLink = page.locator('.cf-application-card', {
+        has: page.getByText(programWithLink),
+      })
+      await expect(cardWithLink.getByText('Program details')).toBeVisible()
+    })
+
+    await validateScreenshot(page, 'program-details-visibility')
+  })
+
   test('common intake form not present', async ({page}) => {
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
