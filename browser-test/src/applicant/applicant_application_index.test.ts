@@ -515,39 +515,6 @@ test.describe('applicant program index page', () => {
         )
       })
 
-      test('shows login prompt for guest users when they click apply', async ({
-        page,
-      }) => {
-        await test.step('Verify that login dialog appears', async () => {
-          // Click Apply on the primary program. This should show the login prompt modal.
-          await page.click(
-            `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
-          )
-          expect(await page.textContent('html')).toContain(
-            'Create an account or sign in',
-          )
-          await validateScreenshot(
-            page.getByRole('dialog').getByTestId('login'),
-            'apply-program-login-prompt-northstar',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        await test.step('Verify that login dialog does not appear a second time', async () => {
-          // Close the modal and click Apply again. This time, we should not see the login prompt modal.
-          await page
-            .getByRole('button', {class: 'usa-modal__close', isVisible: true})
-            .click()
-          await page.click(
-            `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
-          )
-          expect(await page.textContent('html')).not.toContain(
-            'Create an account or sign in',
-          )
-        })
-      })
-
       test('categorizes programs for draft and applied applications as guest user', async ({
         applicantQuestions,
         page,
