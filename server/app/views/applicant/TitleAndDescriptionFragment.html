@@ -1,5 +1,5 @@
 <th:block th:fragment="titleAndDescriptionFragment(title, description)">
-  <div class="grid-container container">
+  <section class="grid-container section">
     <div class="grid-row">
       <div class="tablet:grid-col-8 usa-prose">
         <h1 th:text="${title}"></h1>
@@ -7,7 +7,7 @@
         <span th:text="${description}"></span>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Separator -->
   <div class="border-t border-base-lighter"></div>
