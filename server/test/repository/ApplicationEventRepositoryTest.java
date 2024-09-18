@@ -167,10 +167,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     // Verify
     assertThat(applicationEvents).hasSize(1);
-    ApplicationEventModel gotEvent = applicationEvents.get(0);
+    ApplicationEventModel firstAppEvent = applicationEvents.get(0);
     // Generated values.
-    assertThat(gotEvent.id).isNotNull();
-    assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
+    assertThat(firstAppEvent.id).isNotNull();
+    assertThat(firstAppEvent.getCreateTime()).isAfter(startInstant);
     application.refresh();
     // Data is stored in application as well
     assertThat(application.getLatestNote()).isNotEmpty();
@@ -198,10 +198,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     // Verify
     assertThat(applicationEvents).hasSize(1);
-    ApplicationEventModel gotEvent = applicationEvents.get(0);
+    ApplicationEventModel firstAppEvent = applicationEvents.get(0);
     // Generated values.
-    assertThat(gotEvent.id).isNotNull();
-    assertThat(gotEvent.getCreateTime()).isAfter(startInstant);
+    assertThat(firstAppEvent.id).isNotNull();
+    assertThat(firstAppEvent.getCreateTime()).isAfter(startInstant);
     application.refresh();
     // old note is rewritten
     assertThat(application.getLatestNote()).isNotEmpty();
