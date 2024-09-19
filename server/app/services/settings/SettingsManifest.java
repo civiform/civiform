@@ -753,15 +753,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Overrides the default configuration for the content security policy. If set to true, the
-   * browser reports content security policy violations but does not enforce the policy. If set to
-   * false, the browser enforces the policy.
-   */
-  public boolean getCspReportOnly() {
-    return getBool("CSP_REPORT_ONLY");
-  }
-
-  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -2152,14 +2143,5 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " deployments, this value is 1.",
                       /* isRequired= */ false,
                       SettingType.INT,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "CSP_REPORT_ONLY",
-                      "Overrides the default configuration for the content security policy. If set"
-                          + " to true, the browser reports content security policy violations but"
-                          + " does not enforce the policy. If set to false, the browser enforces"
-                          + " the policy.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))));
+                      SettingMode.ADMIN_READABLE))));
 }
