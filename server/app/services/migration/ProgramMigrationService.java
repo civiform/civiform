@@ -54,7 +54,7 @@ public final class ProgramMigrationService {
     try {
       String programJson =
           objectMapper
-              .writerWithDefaultPrettyPrinter()
+              // .writerWithDefaultPrettyPrinter()
               .writeValueAsString(new ProgramMigrationWrapper(program, questions));
       return ErrorAnd.of(programJson);
     } catch (JsonProcessingException e) {
