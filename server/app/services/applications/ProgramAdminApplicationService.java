@@ -112,7 +112,7 @@ public final class ProgramAdminApplicationService {
     }
     Status statusDef = statusDefMaybe.get();
 
-    eventRepository.setStatus(application, admin, newStatusEvent);
+    eventRepository.setStatus(application, Optional.of(admin), newStatusEvent);
 
     // Send email if requested and present.
     if (sendEmail) {
