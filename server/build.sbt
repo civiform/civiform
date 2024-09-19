@@ -163,10 +163,6 @@ lazy val root = (project in file("."))
     // page speed and also browser tests speed.
     Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
 
-    // Make verbose tests
-    Test / testOptions := Seq(
-      Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
-    ),
     // Allow tests to print to stdout when running in forking mode (default)
     Test / outputStrategy := Some(StdoutOutput),
     // Use test config for tests
@@ -176,9 +172,31 @@ lazy val root = (project in file("."))
     Test / javaOptions += "-Dtestserver.port=9000",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
     // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
-    // since running in non-forked mode causes javaOptions to not be propagated, which
-    // causes the configuration override above not to have an effect.
+    // since running in non-forked mode means we have to pass in javaOptions a bit awkwardly,
+    // can only pass in system properties (which is all we're doing right now), and we haven't
+    // extensively tested that tests run the same way that they do in forked mode.
     // Test / fork := false,
+
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
+    ),
+
+    // When forking is disabled, we need to pass system properties to the running JVM.
+    // We can only pass system properties (-D), not ones like -Xmx.
+    Test / testOptions ++= Def.task {
+      if (!(Test / fork).value) {
+        Seq(Tests.Setup { _ =>
+          (Test / javaOptions).value
+            .collect { case opt if opt.startsWith("-D") => opt.substring(2) }
+            .foreach { prop =>
+              val Array(key, value @ _*) = prop.split("=", 2)
+              System.setProperty(key, value.headOption.getOrElse(""))
+            }
+        })
+      } else {
+        Seq.empty
+      }
+    }.value,
 
     // Add the code-coverage folder to the list of things that will be cleaned when running `sbt clean`
     cleanFiles += baseDirectory.value / "code-coverage",
