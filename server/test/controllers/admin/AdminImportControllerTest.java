@@ -694,6 +694,25 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
     assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
+
+    Long eligibilityAddressQuestionId =
+        programDefinition
+            .getBlockDefinition(3)
+            .eligibilityDefinition()
+            .get()
+            .predicate()
+            .rootNode()
+            .getLeafAddressNode()
+            .questionId();
+    Long savedAddressQuestionId =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Address")
+            .findOne()
+            .getQuestionDefinition()
+            .getId();
+    assertThat(eligibilityAddressQuestionId).isEqualTo(savedAddressQuestionId);
   }
 
   @Test
@@ -752,6 +771,25 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
     assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
+
+    Long eligibilityAddressQuestionId =
+        programDefinition
+            .getBlockDefinition(3)
+            .eligibilityDefinition()
+            .get()
+            .predicate()
+            .rootNode()
+            .getLeafAddressNode()
+            .questionId();
+    Long savedAddressQuestionId =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "Address")
+            .findOne()
+            .getQuestionDefinition()
+            .getId();
+    assertThat(eligibilityAddressQuestionId).isEqualTo(savedAddressQuestionId);
   }
 
   @Test
@@ -1305,7 +1343,7 @@ public class AdminImportControllerTest extends ResetPostgres {
   public static final String PROGRAM_JSON_WITH_PREDICATES =
       "{\n"
           + "  \"program\" : {\n"
-          + "    \"id\" : 6,\n"
+          + "    \"id\" : 1,\n"
           + "    \"adminName\" : \"visibility-eligibility\",\n"
           + "    \"adminDescription\" : \"\",\n"
           + "    \"externalLink\" : \"\",\n"
@@ -1349,45 +1387,45 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "      \"hidePredicate\" : null,\n"
           + "      \"eligibilityDefinition\" : {\n"
           + "        \"predicate\" : {\n"
-          + "        \"rootNode\" : { \n"
-          + "          \"node\" : { \n"
-          + "            \"type\" : \"or\", \n"
-          + "            \"children\" : [ { \n"
-          + "              \"node\" : { \n"
-          + "                \"type\" : \"and\", \n"
-          + "                \"children\" : [ { \n"
-          + "                  \"node\" : { \n"
-          + "                    \"type\" : \"leaf\", \n"
-          + "                    \"questionId\" : 11, \n"
-          + "                    \"scalar\" : \"SELECTIONS\", \n"
-          + "                    \"operator\" : \"ANY_OF\", \n"
-          + "                    \"value\" : { \n"
-          + "                      \"value\" : \"[\\\"0\\\", \\\"9\\\", \\\"11\\\"]\", \n"
-          + "                      \"type\" : \"LIST_OF_STRINGS\" \n"
-          + "                    } \n"
-          + "                  } \n"
-          + "                }, { \n"
-          + "                  \"node\" : { \n"
-          + "                    \"type\" : \"leaf\", \n"
-          + "                    \"questionId\" : 11, \n"
-          + "                    \"scalar\" : \"SELECTION\", \n"
-          + "                    \"operator\" : \"IN\", \n"
-          + "                    \"value\" : { \n"
-          + "                      \"value\" : \"[\\\"1\\\"]\", \n"
-          + "                      \"type\" : \"LIST_OF_STRINGS\" \n"
-          + "                    } \n"
-          + "                  } \n"
-          + "                } ] \n"
-          + "              } \n"
-          + "            } ] \n"
-          + "          } \n"
-          + "        }, \n"
+          + "          \"rootNode\" : {\n"
+          + "            \"node\" : {\n"
+          + "              \"type\" : \"or\",\n"
+          + "              \"children\" : [ {\n"
+          + "                \"node\" : {\n"
+          + "                  \"type\" : \"and\",\n"
+          + "                  \"children\" : [ {\n"
+          + "                    \"node\" : {\n"
+          + "                      \"type\" : \"leaf\",\n"
+          + "                      \"questionId\" : 3,\n"
+          + "                      \"scalar\" : \"SELECTIONS\",\n"
+          + "                      \"operator\" : \"ANY_OF\",\n"
+          + "                      \"value\" : {\n"
+          + "                        \"value\" : \"[\\\"0\\\", \\\"9\\\", \\\"11\\\"]\",\n"
+          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
+          + "                      }\n"
+          + "                    }\n"
+          + "                  }, {\n"
+          + "                    \"node\" : {\n"
+          + "                      \"type\" : \"leaf\",\n"
+          + "                      \"questionId\" : 3,\n"
+          + "                      \"scalar\" : \"SELECTION\",\n"
+          + "                      \"operator\" : \"IN\",\n"
+          + "                      \"value\" : {\n"
+          + "                        \"value\" : \"[\\\"1\\\"]\",\n"
+          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
+          + "                      }\n"
+          + "                    }\n"
+          + "                  } ]\n"
+          + "                }\n"
+          + "              } ]\n"
+          + "            }\n"
+          + "          },\n"
           + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
           + "        }\n"
           + "      },\n"
           + "      \"optionalPredicate\" : null,\n"
           + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 11,\n"
+          + "        \"id\" : 3,\n"
           + "        \"optional\" : false,\n"
           + "        \"addressCorrectionEnabled\" : false\n"
           + "      } ]\n"
@@ -1412,7 +1450,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "        \"rootNode\" : {\n"
           + "          \"node\" : {\n"
           + "            \"type\" : \"leaf\",\n"
-          + "            \"questionId\" : 11,\n"
+          + "            \"questionId\" : 3,\n"
           + "            \"scalar\" : \"ID\",\n"
           + "            \"operator\" : \"EQUAL_TO\",\n"
           + "            \"value\" : {\n"
@@ -1425,21 +1463,55 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "      },\n"
           + "      \"optionalPredicate\" : null,\n"
           + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 12,\n"
+          + "        \"id\" : 4,\n"
           + "        \"optional\" : false,\n"
           + "        \"addressCorrectionEnabled\" : false\n"
           + "      } ]\n"
+          + "    }, {\n"
+          + "      \"id\" : 3,\n"
+          + "      \"name\" : \"Screen 3\",\n"
+          + "      \"description\" : \"Screen 3 description\",\n"
+          + "      \"localizedName\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 3\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"localizedDescription\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 3 description\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"repeaterId\" : null,\n"
+          + "      \"hidePredicate\" : null,\n"
+          + "      \"eligibilityDefinition\" : {\n"
+          + "        \"predicate\" : {\n"
+          + "          \"rootNode\" : {\n"
+          + "            \"node\" : {\n"
+          + "              \"type\" : \"leafAddressServiceArea\",\n"
+          + "              \"questionId\" : 5,\n"
+          + "              \"serviceAreaId\" : \"Seattle\",\n"
+          + "              \"operator\" : \"IN_SERVICE_AREA\"\n"
+          + "            }\n"
+          + "          },\n"
+          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
+          + "        }\n"
+          + "      },\n"
+          + "      \"optionalPredicate\" : null,\n"
+          + "      \"questionDefinitions\" : [ {\n"
+          + "        \"id\" : 5,\n"
+          + "        \"optional\" : false,\n"
+          + "        \"addressCorrectionEnabled\" : true\n"
+          + "      } ]\n"
           + "    } ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    },\n"
           + "    \"programType\" : \"DEFAULT\",\n"
           + "    \"eligibilityIsGating\" : true,\n"
           + "    \"acls\" : {\n"
           + "      \"tiProgramViewAcls\" : [ ]\n"
           + "    },\n"
-          + "    \"categories\" : [ ], \n"
-          + "    \"localizedSummaryImageDescription\" : null\n"
+          + "    \"localizedSummaryImageDescription\" : null,\n"
+          + "    \"categories\" : [ ]\n"
           + "  },\n"
           + "  \"questions\" : [ {\n"
           + "    \"type\" : \"id\",\n"
@@ -1461,7 +1533,7 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "        \"minLength\" : null,\n"
           + "        \"maxLength\" : null\n"
           + "      },\n"
-          + "      \"id\" : 11,\n"
+          + "      \"id\" : 3,\n"
           + "      \"universal\" : false,\n"
           + "      \"primaryApplicantInfoTags\" : [ ]\n"
           + "    }\n"
@@ -1485,12 +1557,36 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "        \"minLength\" : null,\n"
           + "        \"maxLength\" : null\n"
           + "      },\n"
-          + "      \"id\" : 12,\n"
+          + "      \"id\" : 4,\n"
+          + "      \"universal\" : false,\n"
+          + "      \"primaryApplicantInfoTags\" : [ ]\n"
+          + "    }\n"
+          + "  }, {\n"
+          + "    \"type\" : \"address\",\n"
+          + "    \"config\" : {\n"
+          + "      \"name\" : \"Address\",\n"
+          + "      \"description\" : \"\",\n"
+          + "      \"questionText\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"What is your address?\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"questionHelpText\" : {\n"
+          + "        \"translations\" : { },\n"
+          + "        \"isRequired\" : false\n"
+          + "      },\n"
+          + "      \"validationPredicates\" : {\n"
+          + "        \"type\" : \"address\",\n"
+          + "        \"disallowPoBox\" : false\n"
+          + "      },\n"
+          + "      \"id\" : 5,\n"
           + "      \"universal\" : false,\n"
           + "      \"primaryApplicantInfoTags\" : [ ]\n"
           + "    }\n"
           + "  } ]\n"
           + "}";
+
   public static final String PROGRAM_JSON_WITH_PAI_TAGS =
       "{\n"
           + "  \"program\" : {\n"
