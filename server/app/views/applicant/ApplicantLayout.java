@@ -373,7 +373,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * Shows authentication status and a button to take actions.
    *
    * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
-   * logged in, we show a "Logout" button.
+   * logged in, we show a "Logout" button. If there is no guest user created yet (landed on the home
+   * page but hasn't tried applying to anything yet), we don't show the "End session" link.
    */
   private DivTag authDisplaySection(
       ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
@@ -396,10 +397,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
           div(
               span(loggedInAsMessage).withClasses("text-sm"),
               text(" "),
-              a(endSessionMessage)
-                  .withHref(endSessionLink)
-                  .withClasses(ApplicantStyles.LINK)
-                  .withId("logout-button"),
+              profile.isPresent()
+                  ? a(endSessionMessage)
+                      .withHref(endSessionLink)
+                      .withClasses(ApplicantStyles.LINK)
+                      .withId("logout-button")
+                  : a(),
               br(),
               a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
               text("  |  "),
