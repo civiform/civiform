@@ -128,15 +128,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     return render(
         messages,
         request,
-        Optional.empty()
-        /* applicantId= */ ,
+        /* applicantId= */ Optional.empty(),
         ApplicantPersonalInfo.ofGuestUser(),
         applicationPrograms,
         selectedCategoriesFromParams,
-        Optional.empty()
-        /* bannerMessage= */ ,
-        Optional.empty()
-        /* profile= */ );
+        /* bannerMessage= */ Optional.empty(),
+        /* profile= */ Optional.empty());
   }
 
   private DivTag topContent(

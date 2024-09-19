@@ -101,13 +101,17 @@ public final class ProgramCardsSectionParamsFactory {
 
       // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
       // whatever else our current cards do.
+      String detailsUrl = program.externalLink();
+      if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
+        detailsUrl =
+            profile.isPresent() && applicantId.isPresent()
+                ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
+                : applicantRoutes.show(program.id()).url();
+      }
       cardBuilder
           .setTitle(program.localizedName().getOrDefault(preferredLocale))
           .setBody(program.localizedDescription().getOrDefault(preferredLocale))
-          .setDetailsUrl(
-              program.externalLink().isEmpty()
-                  ? applicantRoutes.show(profile, applicantId, program.id()).url()
-                  : program.externalLink())
+          .setDetailsUrl(detailsUrl)
           .setActionUrl(actionUrl)
           .setIsGuest(isGuest)
           .setActionText(messages.at(buttonText.getKeyName()));
