@@ -112,13 +112,7 @@ public final class ProgramAdminApplicationService {
     }
     Status statusDef = statusDefMaybe.get();
 
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(newStatusEvent)
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(admin), details);
+    eventRepository.setStatus(application, admin, newStatusEvent);
 
     // Send email if requested and present.
     if (sendEmail) {
@@ -147,8 +141,6 @@ public final class ProgramAdminApplicationService {
         throw new AccountHasNoEmailException(applicant.getAccount().id);
       }
     }
-
-    eventRepository.insertSync(event);
   }
 
   private void sendApplicantEmail(

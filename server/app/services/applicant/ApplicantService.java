@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicantModel;
-import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -466,7 +465,7 @@ public final class ApplicantService {
    * @param application the application on which to set the status
    * @param status the status to set the application to
    */
-  private CompletionStage<ApplicationEventModel> setApplicationStatus(
+  private CompletableFuture<ApplicationModel> setApplicationStatus(
       ApplicationModel application, StatusDefinitions.Status status) {
     // Set the status for the application automatically to the default status
     ApplicationEventDetails.StatusEvent statusEvent =
@@ -474,14 +473,11 @@ public final class ApplicantService {
             .setStatusText(status.statusText())
             .setEmailSent(true)
             .build();
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(statusEvent)
-            .build();
+
     // Because we are doing this automatically, set the Account to empty.
-    return applicationEventRepository.insertAsync(
-        new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
+    applicationEventRepository.setStatus(application, /* creator= */ Optional.empty(), statusEvent);
+
+    return CompletableFuture.completedFuture(application);
   }
 
   /**
@@ -595,7 +591,7 @@ public final class ApplicantService {
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
 
-          CompletableFuture<ApplicationEventModel> updateStatusFuture =
+          CompletableFuture<ApplicationModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
                   .orElse(CompletableFuture.completedFuture(null));
