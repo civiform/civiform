@@ -253,6 +253,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void previous_toAnExistingBlock_rendersTheBlock() {
     Request request =
         fakeRequestBuilder()
+          .addCiviFormSetting("FASTFORWARD_ENABLED", "true")
             .call(
                 routes.ApplicantProgramBlocksController.previousWithApplicantId(
                     applicant.id, program.id, 0, true))
