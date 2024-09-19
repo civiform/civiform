@@ -97,11 +97,13 @@ public abstract class NorthStarBaseView {
     // that will be embedded in the guest alert in the header.
     context.setVariable(
         "endSessionLinkHtml",
-        "<a id=\"logout-button\" class=\"usa-link\" href=\""
-            + logoutLink
-            + "\">"
-            + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
-            + "</a>");
+        profile.isPresent()
+            ? "<a id=\"logout-button\" class=\"usa-link\" href=\""
+                + logoutLink
+                + "\">"
+                + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
+                + "</a>"
+            : messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
