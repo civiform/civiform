@@ -323,14 +323,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                         input()
                                             .withClasses(
                                                 "usa-checkbox__input usa-checkbox__input--tile")
-                                            .withId("check-category-" + category.getDefaultName())
+                                            .withId(
+                                                "checkbox-category-" + category.getDefaultName())
                                             .withType("checkbox")
                                             .withName("categories" + Path.ARRAY_SUFFIX)
                                             .withValue(String.valueOf(category.getId()))
                                             .withCondChecked(categories.contains(category.getId())),
                                         label(category.getDefaultName())
                                             .withClasses("usa-checkbox__label")
-                                            .withFor("check-category-" + category.getDefaultName()))
+                                            .withFor(
+                                                "checkbox-category-" + category.getDefaultName()))
                                     .withClasses(
                                         "usa-checkbox", "grid-col-12", "tablet:grid-col-6")))
                         .withClasses("grid-row", "grid-gap-md"))

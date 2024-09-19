@@ -36,7 +36,6 @@ import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
-import views.components.Icons;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -594,11 +593,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                                         .withCondChecked(
                                             selectedCategoriesFromParams.contains(category))
                                         .withClasses("sr-only"),
-                                    Icons.svg(Icons.CHECK)
-                                        .withClasses(
-                                            "inline", "align-baseline", "w-4", "h-4", "hidden")
-                                        .attr("focusable", false),
-                                    label(category).withFor("check-category-" + category))))
+                                    label(category)
+                                        .withClasses("px-4", "py-2")
+                                        .withFor("check-category-" + category))))
                 .withClasses("flex", "mb-10", "flex-wrap", "ml-4"));
   }
 }
