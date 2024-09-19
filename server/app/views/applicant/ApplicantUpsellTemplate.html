@@ -73,40 +73,9 @@
                 <p th:text="${customConfirmationMessage}"></p>
               </section>
 
-              <div class="usa-alert usa-alert--info">
-                <div class="usa-alert__body">
-                  <h2
-                    class="usa-alert__heading"
-                    th:text="#{alert.createAccount}"
-                  ></h2>
-
-                  <p
-                    class="usa-alert__text"
-                    th:text="#{alert.createAccountDescription}"
-                  ></p>
-
-                  <div class="content-spacing"></div>
-
-                  <button
-                    type="button"
-                    class="usa-button usa-button--inverse"
-                    th:text="#{button.createAnAccount}"
-                    id="create-account"
-                    th:attr="data-redirect-to=${createAccountLink}"
-                  ></button>
-
-                  <div class="text-medium-spacing"></div>
-
-                  <p>
-                    <a
-                      class="usa-link"
-                      href="javascript:void(0);"
-                      th:text="#{content.loginToExistingAccount}"
-                      >linktext</a
-                    >
-                  </p>
-                </div>
-              </div>
+              <div
+                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount}"
+              ></div>
 
               <div>
                 <a
