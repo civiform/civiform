@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+rm -rf /tmp/servers.json
+
 # DOC: Loads the pgadmin gui tool and connects to the dev environment database
 
 source bin/lib.sh
