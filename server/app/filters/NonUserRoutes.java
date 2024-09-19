@@ -1,7 +1,7 @@
 package filters;
 
 import com.google.common.collect.ImmutableList;
-import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 
 /**
  * Path prefixes and static paths for HTTP routes that may not involve a user session and can be
@@ -13,17 +13,12 @@ final class NonUserRoutes {
       ImmutableList.of(
           "/api/", "/assets/", "/dev/", "/favicon", "/apple-touch-icon", "/playIndex", "/metrics");
 
-  public static ImmutableList<String> staticRoutes = ImmutableList.of("/", "/programs");
-
-  public static boolean anyMatch(Http.RequestHeader requestHeader) {
-    // Because both / and /programs are prefixes to routes where we DO want a user present,
-    // we check for these paths specifically as well.
+  public static boolean anyMatch(RequestHeader requestHeader) {
     String path = requestHeader.path();
-    return prefixes.stream().anyMatch(path::startsWith)
-        || staticRoutes.stream().anyMatch(path::equals);
+    return prefixes.stream().anyMatch(path::startsWith);
   }
 
-  public static boolean noneMatch(Http.RequestHeader requestHeader) {
+  public static boolean noneMatch(RequestHeader requestHeader) {
     return !anyMatch(requestHeader);
   }
 }

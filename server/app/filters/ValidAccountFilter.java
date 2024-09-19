@@ -45,6 +45,11 @@ public class ValidAccountFilter extends EssentialFilter {
   /**
    * Return true if the endpoint does not require a profile. Logout url is necessary here to avoid
    * infinite redirect.
+   *
+   * <p>NOTE: You might think we'd also want an OptionalProfileRoutes check here. However, this is
+   * currently only called after checking if a profile is present and valid. If the profile isn't
+   * present, we never make it here anyway. If the profile is invalid, we don't want to allow
+   * hitting those endpoints with an invalid profile, so we don't add that check here.
    */
   private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
     return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
