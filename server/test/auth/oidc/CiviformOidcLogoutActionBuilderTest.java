@@ -46,7 +46,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   private static final int oidcPort = 3390;
   private static final String clientId = "test-client-id";
   private static final String targetUrl = "http://example.com/target";
-  private static final String sessionId = "test-session-id";
   private static final long accountId = 1L;
 
   private IdTokensFactory idTokensFactory;
@@ -104,7 +103,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
     AccountModel account = new AccountModel();
     SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
+        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
     account.setSerializedIdTokens(serializedIdTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
@@ -138,14 +137,11 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig =
         ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
 
-    // Store the session id in the profile.
-    civiFormProfileData.addAttribute(CiviformOidcProfileCreator.SESSION_ID, sessionId);
-
     // Set up an admin account. Associate the session ID with the ID token for logout.
     AccountModel account = new AccountModel();
     account.setGlobalAdmin(true);
     SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
+        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
     account.setSerializedIdTokens(serializedIdTokens);
     when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
@@ -189,7 +185,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
     AccountModel account = new AccountModel();
     SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
+        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
     account.setSerializedIdTokens(serializedIdTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
