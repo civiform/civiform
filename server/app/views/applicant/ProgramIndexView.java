@@ -431,7 +431,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 request,
                 messages,
                 personalInfo,
-                Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION),
+                Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION_V2),
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
