@@ -11,7 +11,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Date;
-import java.util.HashMap;
 import org.junit.Test;
 
 public class IdTokensTest {
@@ -26,9 +25,7 @@ public class IdTokensTest {
 
   @Test
   public void testStoreAndRemove() {
-    Clock clock = Clock.fixed(Instant.ofEpochSecond(100), ZoneOffset.UTC);
-    SerializedIdTokens serializedIdTokens = new SerializedIdTokens(new HashMap<>());
-    IdTokens idTokens = new IdTokens(clock, serializedIdTokens);
+    SerializedIdTokens idTokens = new SerializedIdTokens();
 
     // We can use fake values for the tokens since these operations don't need to parse them.
     idTokens.storeIdToken("session1", "token1");
@@ -44,8 +41,7 @@ public class IdTokensTest {
   @Test
   public void testPurgeExpiredTokens() {
     Clock clock = Clock.fixed(Instant.ofEpochSecond(100), ZoneOffset.UTC);
-    SerializedIdTokens serializedIdTokens = new SerializedIdTokens(new HashMap<>());
-    IdTokens idTokens = new IdTokens(clock, serializedIdTokens);
+    SerializedIdTokens idTokens = new SerializedIdTokens();
 
     idTokens.storeIdToken("session1", getJwtWithExpiration(90).serialize());
     idTokens.storeIdToken("session2", getJwtWithExpiration(99).serialize());
@@ -55,7 +51,7 @@ public class IdTokensTest {
     assertThat(idTokens.getIdToken("session2")).isNotEmpty();
     assertThat(idTokens.getIdToken("session3")).isNotEmpty();
 
-    idTokens.purgeExpiredIdTokens();
+    idTokens.purgeExpiredIdTokens(clock);
     assertThat(idTokens.getIdToken("session1")).isEmpty();
     assertThat(idTokens.getIdToken("session2")).isEmpty();
     assertThat(idTokens.getIdToken("session3")).isNotEmpty();

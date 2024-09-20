@@ -5,8 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
-import auth.oidc.IdTokens;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.SerializedIdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -18,6 +16,7 @@ import io.ebean.Database;
 import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
+import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -46,14 +45,13 @@ public final class AccountRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
-  private final IdTokensFactory idTokensFactory;
+  private final Clock clock;
 
   @Inject
-  public AccountRepository(
-      DatabaseExecutionContext executionContext, IdTokensFactory idTokensFactory) {
+  public AccountRepository(DatabaseExecutionContext executionContext, Clock clock) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
-    this.idTokensFactory = checkNotNull(idTokensFactory);
+    this.clock = clock;
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -491,9 +489,8 @@ public final class AccountRepository {
       serializedIdTokens = new SerializedIdTokens();
       account.setSerializedIdTokens(serializedIdTokens);
     }
-    IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
-    idTokens.purgeExpiredIdTokens();
-    idTokens.storeIdToken(sessionId, idToken);
+    serializedIdTokens.purgeExpiredIdTokens(clock);
+    serializedIdTokens.storeIdToken(sessionId, idToken);
     account.save();
   }
 }

@@ -6,7 +6,6 @@ import static support.FakeRequestBuilder.fakeRequest;
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -36,14 +35,12 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -52,9 +49,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)),
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
             ImmutableList.of(

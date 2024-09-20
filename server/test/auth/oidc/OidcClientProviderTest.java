@@ -28,7 +28,6 @@ import support.CfTestHelpers;
 public class OidcClientProviderTest extends ResetPostgres {
   private OidcClientProvider oidcClientProvider;
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
@@ -39,7 +38,6 @@ public class OidcClientProviderTest extends ResetPostgres {
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
@@ -56,10 +54,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test
@@ -116,10 +111,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     OidcClientProvider oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
 
     OidcClient client = oidcClientProvider.get();
 
@@ -190,7 +182,6 @@ public class OidcClientProviderTest extends ResetPostgres {
                       OidcClientProviderParams.create(
                           bad_secret_config,
                           profileFactory,
-                          idTokensFactory,
                           CfTestHelpers.userRepositoryProvider(accountRepository)));
               badOidcClientProvider.get();
             })
