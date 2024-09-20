@@ -90,6 +90,7 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
+    context.setVariable("hasProfile", profile.isPresent());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
@@ -97,13 +98,11 @@ public abstract class NorthStarBaseView {
     // that will be embedded in the guest alert in the header.
     context.setVariable(
         "endSessionLinkHtml",
-        profile.isPresent()
-            ? "<a id=\"logout-button\" class=\"usa-link\" href=\""
-                + logoutLink
-                + "\">"
-                + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
-                + "</a>"
-            : messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
+        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+            + logoutLink
+            + "\">"
+            + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
+            + "</a>");
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(

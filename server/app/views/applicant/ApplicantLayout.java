@@ -393,22 +393,25 @@ public class ApplicantLayout extends BaseHtmlLayout {
       String createAnAccountMessage = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
       String createAnAccountLink = routes.LoginController.register().url();
 
-      return outsideDiv.with(
+      DivTag loggedInAsDiv =
           div(
               span(loggedInAsMessage).withClasses("text-sm"),
               text(" "),
-              profile.isPresent()
-                  ? a(endSessionMessage)
-                      .withHref(endSessionLink)
-                      .withClasses(ApplicantStyles.LINK)
-                      .withId("logout-button")
-                  : a(),
-              br(),
-              a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
-              text("  |  "),
-              a(createAnAccountMessage)
-                  .withHref(createAnAccountLink)
-                  .withClasses(ApplicantStyles.LINK)));
+              a(endSessionMessage)
+                  .withHref(endSessionLink)
+                  .withClasses(ApplicantStyles.LINK)
+                  .withId("logout-button"),
+              br());
+
+      return outsideDiv.with(
+          div()
+              .condWith(profile.isPresent(), loggedInAsDiv)
+              .with(
+                  a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
+                  text("  |  "),
+                  a(createAnAccountMessage)
+                      .withHref(createAnAccountLink)
+                      .withClasses(ApplicantStyles.LINK)));
     }
 
     // For TIs we use the account email rather than first and last name because

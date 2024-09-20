@@ -134,6 +134,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         settingsManifest.getApplicantPortalName(request).get());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
+    context.setVariable("hasProfile", profile.isPresent());
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
