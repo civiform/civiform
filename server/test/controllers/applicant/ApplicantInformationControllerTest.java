@@ -90,6 +90,21 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void setLangFromSwitcherWithoutApplicant_redirectsToProgramIndex_withNonEnglishLocale() {
+    Http.Request request =
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcherWithoutApplicant())
+            .bodyForm(ImmutableMap.of("locale", "es-US"))
+            .build();
+
+    Result result =
+        controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.cookie("PLAY_LANG").get().value()).isEqualTo("es-US");
+  }
+
+  @Test
   public void setLangFromSwitcher_ignoresExistingLangCookie() {
     Http.Request request =
         fakeRequestBuilder()

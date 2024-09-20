@@ -130,6 +130,14 @@ public class ResourceCreator {
     return ProgramBuilder.newDisabledActiveProgram(name).build();
   }
 
+  public ProgramModel insertActiveTiOnlyProgram(String name) {
+    return ProgramBuilder.newTiOnlyActiveProgram(name).build();
+  }
+
+  public ProgramModel insertActiveHiddenInIndexProgram(String name) {
+    return ProgramBuilder.newHiddenInIndexActiveProgram(name).build();
+  }
+
   public ProgramModel insertActiveProgram(Locale locale, String name) {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }

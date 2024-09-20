@@ -2098,6 +2098,47 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void relevantProgramsForNoApplicant() {
+    // Note that setup() creates a test-program program in addition to these.
+    ProgramModel commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+    ProgramModel program1 =
+        ProgramBuilder.newActiveProgram("program_one")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+    ProgramModel program2 =
+        ProgramBuilder.newActiveProgram("program_two")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+    ProgramModel program3 = ProgramBuilder.newActiveProgram("program_three").withBlock().build();
+
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsForNoApplicant(createRequestWithFastForwardDisabled())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.inProgress().size()).isEqualTo(0);
+    assertThat(result.submitted().size()).isEqualTo(0);
+    assertThat(result.unapplied().size()).isEqualTo(4);
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(program1.id, program2.id, program3.id, programDefinition.id());
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.allPrograms().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(
+            commonIntakeForm.id, program1.id, program2.id, program3.id, programDefinition.id());
+  }
+
+  @Test
   public void relevantProgramsForApplicant_noCommonIntakeForm() {
     ApplicantModel applicant = createTestApplicant();
     ProgramModel programForDraft =
