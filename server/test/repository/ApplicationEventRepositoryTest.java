@@ -159,7 +159,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
-    repo.setNote(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
+    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("some note"), actor);
 
     // Execute
     ImmutableList<ApplicationEventModel> applicationEvents =
@@ -190,7 +190,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("initial note");
 
-    repo.setNote(application, ApplicationEventDetails.NoteEvent.create("new note"), actor);
+    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("new note"), actor);
 
     // Execute
     ImmutableList<ApplicationEventModel> applicationEvents =

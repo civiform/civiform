@@ -192,7 +192,7 @@ public class ApplicationModel extends BaseModel {
    * ApplicationEventRepository.
    */
   @VisibleForTesting
-  public void setLatestNote(String applicationNote) {
+  void setLatestNoteForTest(String applicationNote) {
     this.latestNote = applicationNote;
   }
 

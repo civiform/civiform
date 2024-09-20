@@ -219,7 +219,7 @@ public final class ProgramAdminApplicationService {
    * @param admin The Account that instigated the change.
    */
   public void setNote(ApplicationModel application, NoteEvent note, AccountModel admin) {
-    eventRepository.setNote(application, note, admin);
+    eventRepository.insertNoteEvent(application, note, admin);
   }
 
   /* Returns the note content for {@code application}. */

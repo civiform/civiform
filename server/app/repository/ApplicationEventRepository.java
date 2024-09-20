@@ -68,7 +68,7 @@ public final class ApplicationEventRepository {
             .findList());
   }
 
-  public void setNote(
+  public void insertNoteEvent(
       ApplicationModel application, ApplicationEventDetails.NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
         services.application.ApplicationEventDetails.builder()
