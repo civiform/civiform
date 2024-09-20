@@ -735,8 +735,8 @@
         "type": "bool"
       },
       "STAGING_DISABLE_DEMO_MODE_LOGINS": {
-        "mode": "HIDDEN",
-        "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
+        "mode": "ADMIN_WRITEABLE",
+        "description": "If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need to log in through the admin authenticator to get back to this settings page",
         "type": "bool"
       },
       "API_GENERATED_DOCS_ENABLED": {

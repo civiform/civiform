@@ -80,7 +80,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final LanguageUtils languageUtils;
   private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
-  private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
@@ -103,8 +102,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageSelector = checkNotNull(languageSelector);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.disableDemoModeLogins =
-        this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
   }
@@ -114,10 +111,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
-
-    if (isDevOrStaging && !disableDemoModeLogins) {
-      bundle.addModals(DEBUG_CONTENT_MODAL);
-    }
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
@@ -153,6 +146,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean includeAdminLogin,
       Long applicantId) {
     bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
+
+    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
+      bundle.addModals(DEBUG_CONTENT_MODAL);
+    }
 
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageUtils.getPreferredLanguage(request).code();
@@ -272,7 +269,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(redirectInput)
                 .with(languageDropdown)
                 .condWith(
-                    isDevOrStaging && !disableDemoModeLogins,
+                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
                     div()
                         .withClasses("w-full", "flex", "justify-center")
                         .with(

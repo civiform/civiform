@@ -884,11 +884,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
-   * buttons are not shown on the login page.
+   * If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN
+   * AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need
+   * to log in through the admin authenticator to get back to this settings page
    */
-  public boolean getStagingDisableDemoModeLogins() {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
+  public boolean getStagingDisableDemoModeLogins(RequestHeader request) {
+    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
   }
 
   /** Enables the API docs tab on CiviForm. */
@@ -1932,11 +1933,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_DISABLE_DEMO_MODE_LOGINS",
-                      "If this is a staging deployment and this variable is set to true, the 'DEMO"
-                          + " MODE. LOGIN AS:' buttons are not shown on the login page.",
+                      "If this is a staging or demo deployment and this variable is set to true,"
+                          + " the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page."
+                          + " Warning: if you turn on this flag, you will need to log in through"
+                          + " the admin authenticator to get back to this settings page",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "API_GENERATED_DOCS_ENABLED",
                       "Enables the API docs tab on CiviForm.",
