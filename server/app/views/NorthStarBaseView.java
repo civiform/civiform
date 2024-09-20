@@ -110,7 +110,7 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
+    boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
     context.setVariable("showDebugTools", showDebugTools);
     if (showDebugTools) {
       context.setVariable(

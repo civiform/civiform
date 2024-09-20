@@ -80,7 +80,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final LanguageUtils languageUtils;
   private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
-  private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
@@ -103,19 +102,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageSelector = checkNotNull(languageSelector);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.disableDemoModeLogins =
-        this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
   }
 
   @Override
-  public Content render(HtmlBundle bundle) {
+  public Content render(HtmlBundle bundle, Http.Request request) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
 
-    if (isDevOrStaging && !disableDemoModeLogins) {
+    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
       bundle.addModals(DEBUG_CONTENT_MODAL);
     }
 
@@ -272,7 +269,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(redirectInput)
                 .with(languageDropdown)
                 .condWith(
-                    isDevOrStaging && !disableDemoModeLogins,
+                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
                     div()
                         .withClasses("w-full", "flex", "justify-center")
                         .with(
