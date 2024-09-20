@@ -107,14 +107,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   @Override
-  public Content render(HtmlBundle bundle, Http.Request request) {
+  public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
-
-    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
-      bundle.addModals(DEBUG_CONTENT_MODAL);
-    }
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
@@ -150,6 +146,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean includeAdminLogin,
       Long applicantId) {
     bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
+
+    if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
+      bundle.addModals(DEBUG_CONTENT_MODAL);
+    }
 
     String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageUtils.getPreferredLanguage(request).code();
