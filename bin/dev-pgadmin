@@ -5,6 +5,8 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
+[[ -d "/tmp/servers.json" ]] && rmdir /tmp/servers.json
+
 # The servers.json file is used to automatically configure
 # our database to show up in the pgadmin server tree
 tee /tmp/servers.json >/dev/null <<EOT
