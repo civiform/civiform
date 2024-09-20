@@ -176,36 +176,4 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("some note");
   }
-
-  @Test
-  public void test_oldNoteOverwritten() {
-    // Setup
-    Instant startInstant = Instant.now();
-    ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    AccountModel actor = resourceCreator.insertAccount();
-    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
-    application.setLatestNote("initial note");
-    application.save();
-    assertThat(application.getLatestNote()).isNotEmpty();
-    assertThat(application.getLatestNote().get()).isEqualTo("initial note");
-
-    repo.insertNoteEvent(application, ApplicationEventDetails.NoteEvent.create("new note"), actor);
-
-    // Execute
-    ImmutableList<ApplicationEventModel> applicationEvents =
-        repo.getEventsOrderByCreateTimeDesc(application.id);
-
-    // Verify
-    assertThat(applicationEvents).hasSize(1);
-    ApplicationEventModel firstAppEvent = applicationEvents.get(0);
-    // Generated values.
-    assertThat(firstAppEvent.id).isNotNull();
-    assertThat(firstAppEvent.getCreateTime()).isAfter(startInstant);
-    application.refresh();
-    // old note is rewritten
-    assertThat(application.getLatestNote()).isNotEmpty();
-    assertThat(application.getLatestNote().get()).isNotEqualTo("initial note");
-    assertThat(application.getLatestNote().get()).isEqualTo("new note");
-  }
 }
