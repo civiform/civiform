@@ -188,15 +188,6 @@ public class ApplicationModel extends BaseModel {
   }
 
   /**
-   * The latest note is never directly set. It is only set using update query from the
-   * ApplicationEventRepository.
-   */
-  @VisibleForTesting
-  void setLatestNoteForTest(String applicationNote) {
-    this.latestNote = applicationNote;
-  }
-
-  /**
    * Point the application to a new {@link ProgramModel}.
    *
    * <p>This typically doesn't need to be done aside from when we want to migrate an application to
