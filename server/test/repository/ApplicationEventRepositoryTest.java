@@ -192,6 +192,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     repo.insertNoteEvent(
         application, ApplicationEventDetails.NoteEvent.create("initial note"), actor);
+    application.refresh();
 
     assertThat(application.getLatestNote()).isNotEmpty();
     assertThat(application.getLatestNote().get()).isEqualTo("initial note");
