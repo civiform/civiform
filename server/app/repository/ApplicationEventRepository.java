@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -81,12 +82,22 @@ public final class ApplicationEventRepository {
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       insertSync(event);
       // save the latest note on the applications table too
-      database
+      if(Strings.isNullOrEmpty(newStatusEvent.statusText())) {
+        database
+          .update(ApplicationModel.class)
+          .set("latest_status", null)
+          .where()
+          .eq("id", application.id)
+          .update();
+      }
+      else {
+        database
           .update(ApplicationModel.class)
           .set("latest_status", newStatusEvent.statusText())
           .where()
           .eq("id", application.id)
           .update();
+      }
       application.save();
       transaction.commit();
     }

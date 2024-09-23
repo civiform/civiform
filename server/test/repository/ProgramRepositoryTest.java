@@ -58,6 +58,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
   private ApplicationStatusesRepository appRepo;
+  private ApplicationEventRepository eventRepo;
 
   @Before
   public void setup() {
@@ -66,6 +67,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
     appRepo = instanceOf(ApplicationStatusesRepository.class);
+    eventRepo = instanceOf(ApplicationEventRepository.class);
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
@@ -719,15 +721,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
       String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
-      ApplicationEventDetails details =
-          ApplicationEventDetails.builder()
-              .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-              .setStatusEvent(
-                  StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
-              .build();
-      ApplicationEventModel event =
-          new ApplicationEventModel(application, Optional.of(actorAccount), details);
-      event.save();
+      eventRepo.setStatus(application,Optional.of(actorAccount),StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build());
 
       // When persisting models with @WhenModified fields, EBean
       // truncates the persisted timestamp to milliseconds:
