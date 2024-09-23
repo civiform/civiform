@@ -8,14 +8,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import forms.EligibilityMessageForm;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -378,5 +383,53 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             routes.AdminProgramBlockPredicatesController.editEligibility(
                 programId, blockDefinitionId))
         .flashing(FlashKey.SUCCESS, "Removed the eligibility condition for this screen.");
+  }
+
+  /** POST endpoint for updating eligibility message. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateEligibilityMessage(
+      Http.Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    Form<EligibilityMessageForm> form =
+        formFactory
+            .form(EligibilityMessageForm.class)
+            .bindFromRequest(request, EligibilityMessageForm.FIELD_NAMES.toArray(new String[0]));
+    String newMessage = form.get().getEligibilityMessage();
+
+    String toastType;
+    String toastMessage;
+    System.out.println(
+        "------------------------------------AdminProgramBlockPredicatesController----------------------");
+    System.out.println("block id from updateEligibilityMessage  " + blockDefinitionId);
+    try {
+      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+      BlockDefinition blockDefinition =
+          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+              .setLocalizedMessage(LocalizedStrings.of(Locale.US, newMessage))
+              .build();
+
+      System.out.println("Hi from AdminProgramBlockPredicatesController line 404");
+      System.out.println(newMessage);
+      System.out.println(blockDefinition.localizedMessage());
+
+      System.out.println("----------------------------------------------------------");
+
+      toastType = "success";
+      if (newMessage.isBlank()) {
+        toastMessage = "Eligibility message removed";
+      } else {
+        toastMessage = "Eligibility message set to " + newMessage;
+      }
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.toString());
+    }
+
+    final String indexUrl =
+        routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
+            .url();
+    return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 }

@@ -23,8 +23,10 @@ import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
 import play.data.Form;
+import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -47,8 +49,10 @@ import views.style.ReferenceClasses;
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramPredicatesEditView extends ProgramBaseView {
 
-  private final AdminLayout layout;
   private static final String ELIGIBILITY_MESSAGE_FORM_ID = "eligibility-message-form";
+
+  private final AdminLayout layout;
+  private final FormFactory formFactory;
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -58,9 +62,12 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   @Inject
   public ProgramPredicatesEditView(
-      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory,
+      SettingsManifest settingsManifest,
+      FormFactory formFactory) {
     super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   /**
@@ -192,21 +199,6 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
 
-    System.out.println("kekeke");
-    System.out.println(blockDefinition.localizedMessage().toString());
-
-    // Text input field for custom eligibility message
-    FieldWithLabel eligibilityMessage =
-        FieldWithLabel.textArea()
-            .setFieldName("eligibility-message")
-            .setId("custom-eligibility-message")
-            .setLabelText("Eligibility Message")
-            .setRequired(false)
-            .setValue(
-                blockDefinition.localizedMessage().isPresent()
-                    ? blockDefinition.localizedMessage().toString()
-                    : "");
-
     DivTag content =
         div()
             .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
@@ -238,7 +230,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
-            .with(eligibilityMessage.getUSWDSInputTag())
+            .with(createEligibilityMessageForm(request, blockDefinition, programDefinition.id()))
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
@@ -282,9 +274,34 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag createEligibilityMessageForm() {
+  private String getExisitngEligibilityMessage(BlockDefinition block) {
+    System.out.println("View line 278");
+    System.out.println(block.localizedName());
+    System.out.println(block.localizedMessage());
+    System.out.println(block.localizedMessage().map(LocalizedStrings::getDefault));
+
+    return block.localizedMessage().map(LocalizedStrings::getDefault).orElse("");
+  }
+
+  private DivTag createEligibilityMessageForm(
+      Http.Request request, BlockDefinition block, long programId) {
+
+    System.out.println(
+        "-----------------------------ProgramPredicatesEditViews-----------------------------");
+    System.out.println("block id from createEligibilityMessageForm  " + block.id());
+    System.out.println("createEligibilityMessageForm line 285");
     // need to get exisitng eligibility message form first
-    Form<EligibilityMessageForm> form;
+    String existingEligibilityMessage = getExisitngEligibilityMessage(block);
+    EligibilityMessageForm existingEligibilityMessageForm =
+        new EligibilityMessageForm(existingEligibilityMessage);
+
+    System.out.println("createEligibilityMessageForm line 289");
+    System.out.println(existingEligibilityMessage);
+
+    System.out.println("----------------------------------------------------------");
+
+    Form<EligibilityMessageForm> form =
+        formFactory.form(EligibilityMessageForm.class).fill(existingEligibilityMessageForm);
 
     DivTag buttonDiv = div().withClass("flex");
     buttonDiv.with(
@@ -292,13 +309,18 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
             .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
 
+    final String updateMessageUrl =
+        routes.AdminProgramBlockPredicatesController.updateEligibilityMessage(programId, block.id())
+            .url();
+
     return div()
         .with(
             form()
                 .withId(ELIGIBILITY_MESSAGE_FORM_ID)
                 .withMethod("POST")
-                .withAction("some action to be made")
+                .withAction(updateMessageUrl)
                 .with(
+                    makeCsrfTokenInputTag(request),
                     FieldWithLabel.input()
                         .setFieldName(EligibilityMessageForm.ELIGIBILITY_MESSAGE)
                         .setLabelText("Eligibility Message")
