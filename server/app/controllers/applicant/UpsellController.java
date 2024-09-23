@@ -165,6 +165,9 @@ public final class UpsellController extends CiviFormController {
                 UpsellParams.Builder paramsBuilder =
                     UpsellParams.builder()
                         .setRequest(request)
+                        .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
+                        .setProgramDescription(
+                            roApplicantProgramService.join().getProgramDescription())
                         .setProfile(profile)
                         .setApplicantPersonalInfo(applicantPersonalInfo.join())
                         .setApplicationId(applicationId)
@@ -185,9 +188,6 @@ public final class UpsellController extends CiviFormController {
                 } else {
                   UpsellParams upsellParams =
                       paramsBuilder
-                          .setProgramTitle(roApplicantProgramService.join().getProgramTitle())
-                          .setProgramDescription(
-                              roApplicantProgramService.join().getProgramDescription())
                           .setEligiblePrograms(
                               relevantProgramsFuture.join().unappliedAndPotentiallyEligible())
                           .build();

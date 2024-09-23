@@ -262,6 +262,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Apply to another program"')
   }
 
+  async clickApplyToProgramsButton() {
+    await this.page.click('text="Apply to programs"')
+  }
+
   async clickBack() {
     await this.page.click('text="Back"')
   }
