@@ -67,9 +67,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)),
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
             ImmutableList.of(NAME_ATTRIBUTE));
