@@ -7,9 +7,13 @@ import autovalue.shaded.com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -53,8 +57,12 @@ public class AccountModel extends BaseModel {
   private String authorityId;
   private String emailAddress;
 
+  // TODO(#6975): Drop this field once active_sessions has been rolled out in prod for some time
   @DbJsonB(name = "id_tokens")
   private IdTokens idTokens;
+
+  @DbJsonB(name = "active_sessions")
+  private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
   private String tiNote;
 
@@ -186,5 +194,41 @@ public class AccountModel extends BaseModel {
         .max(Comparator.comparing(ApplicantModel::getWhenCreated))
         .map(u -> u.getApplicantData().getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
+  }
+
+  public Optional<SessionDetails> getActiveSession(String sessionId) {
+    return Optional.ofNullable(activeSessions.get(sessionId));
+  }
+
+  public void addActiveSession(String sessionId, Clock clock) {
+    SessionDetails sessionDetails = new SessionDetails();
+    sessionDetails.setCreationTime(clock.instant());
+    activeSessions.put(sessionId, sessionDetails);
+  }
+
+  /** Stores the ID token for the given sessionId. */
+  public void storeIdTokenInActiveSession(String sessionId, String idToken) {
+    // Session should always exist already
+    SessionDetails sessionDetails = getActiveSession(sessionId).orElseThrow();
+    sessionDetails.setIdToken(idToken);
+    activeSessions.put(sessionId, sessionDetails);
+  }
+
+  /** Remove the given session. */
+  public void removeActiveSession(String sessionId) {
+    activeSessions.remove(sessionId);
+  }
+
+  /** Removes any sessions that have exceeded the given max session length. */
+  public void removeExpiredActiveSessions(Clock clock, Duration maxSessionLength) {
+    activeSessions
+        .entrySet()
+        .removeIf(
+            entry ->
+                entry
+                    .getValue()
+                    .getCreationTime()
+                    .plus(maxSessionLength)
+                    .isBefore(clock.instant()));
   }
 }
