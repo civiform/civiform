@@ -2,7 +2,7 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import auth.oidc.SerializedIdTokens;
+import auth.oidc.IdTokens;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import org.junit.Before;
@@ -74,22 +74,19 @@ public class AccountModelTest extends ResetPostgres {
   }
 
   @Test
-  public void manageSerializedIdTokens() {
+  public void manageIdTokens() {
     AccountModel accountToSave = new AccountModel();
     String email = "fake email";
     accountToSave.setEmailAddress(email);
 
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of("session1", "token1", "session2", "token2"));
-    accountToSave.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of("session1", "token1", "session2", "token2"));
+    accountToSave.setIdTokens(idTokens);
     accountToSave.save();
 
     Optional<AccountModel> restoredAccount = repository.lookupAccountByEmail(email);
     assertThat(restoredAccount).isNotEmpty();
 
-    assertThat(restoredAccount.get().getSerializedIdTokens().getIdToken("session1"))
-        .hasValue("token1");
-    assertThat(restoredAccount.get().getSerializedIdTokens().getIdToken("session2"))
-        .hasValue("token2");
+    assertThat(restoredAccount.get().getIdTokens().getIdToken("session1")).hasValue("token1");
+    assertThat(restoredAccount.get().getIdTokens().getIdToken("session2")).hasValue("token2");
   }
 }
