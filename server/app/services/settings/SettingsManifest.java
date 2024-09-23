@@ -987,12 +987,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
   }
 
-  /** Enables suffix dropdown field in name question. */
+  /** (NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
-  /** Enables showing new UI with an updated user experience in Applicant flows */
+  /**
+   * (NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant
+   * flows
+   */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
@@ -2077,13 +2080,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NAME_SUFFIX_DROPDOWN_ENABLED",
-                      "Enables suffix dropdown field in name question.",
+                      "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user"
+                          + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),

@@ -836,12 +836,12 @@
       },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables suffix dropdown field in name question.",
+        "description": "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       }
     }
