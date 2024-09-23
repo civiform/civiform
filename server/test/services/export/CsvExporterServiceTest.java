@@ -209,7 +209,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
-    assertThat(records.get(0).get("Admin Note")).isEqualTo("Test program");
+    assertThat(records.get(1).get("Admin Note")).isEqualTo("admin_note");
 
     // Check list for multiselect in default locale
     QuestionModel checkboxQuestion =
