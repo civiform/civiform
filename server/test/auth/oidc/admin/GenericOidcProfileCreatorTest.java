@@ -6,7 +6,6 @@ import static support.FakeRequestBuilder.fakeRequest;
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -26,14 +25,12 @@ import support.CfTestHelpers;
 public class GenericOidcProfileCreatorTest extends ResetPostgres {
   private GenericOidcProfileCreator genericOidcProfileCreator;
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     Config serverConfig =
@@ -49,7 +46,6 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             OidcClientProviderParams.create(
                 serverConfig,
                 profileFactory,
-                idTokensFactory,
                 CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 

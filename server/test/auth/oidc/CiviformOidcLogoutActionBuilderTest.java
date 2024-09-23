@@ -48,7 +48,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   private static final String targetUrl = "http://example.com/target";
   private static final long accountId = 1L;
 
-  private IdTokensFactory idTokensFactory;
   private OidcConfiguration oidcConfig;
   private CiviFormProfileData civiFormProfileData;
   private String idToken;
@@ -58,7 +57,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
     civiFormProfileData = new CiviFormProfileData(accountId);
 
@@ -108,8 +106,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
@@ -147,8 +144,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
@@ -190,8 +186,7 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);

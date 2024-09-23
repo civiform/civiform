@@ -429,10 +429,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();
     // Expired token
-    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId1")).isNull();
+    assertThat(retrievedAccount.get().getSerializedIdTokens().getIdToken("sessionId1")).isEmpty();
     // Valid token
-    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
-        .isEqualTo(validJwt.serialize());
+    assertThat(retrievedAccount.get().getSerializedIdTokens().getIdToken("sessionId2"))
+        .hasValue(validJwt.serialize());
   }
 
   @Test

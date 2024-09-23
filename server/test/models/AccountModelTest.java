@@ -87,8 +87,9 @@ public class AccountModelTest extends ResetPostgres {
     Optional<AccountModel> restoredAccount = repository.lookupAccountByEmail(email);
     assertThat(restoredAccount).isNotEmpty();
 
-    assertThat(restoredAccount.get().getSerializedIdTokens().size()).isEqualTo(2);
-    assertThat(restoredAccount.get().getSerializedIdTokens().get("session1")).isEqualTo("token1");
-    assertThat(restoredAccount.get().getSerializedIdTokens().get("session2")).isEqualTo("token2");
+    assertThat(restoredAccount.get().getSerializedIdTokens().getIdToken("session1"))
+        .hasValue("token1");
+    assertThat(restoredAccount.get().getSerializedIdTokens().getIdToken("session2"))
+        .hasValue("token2");
   }
 }
