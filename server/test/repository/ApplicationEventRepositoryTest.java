@@ -190,8 +190,13 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
 
-    repo.insertNoteEvent(
-        application, ApplicationEventDetails.NoteEvent.create("initial note"), actor);
+    database
+        .update(ApplicationModel.class)
+        .set("latest_note", "initial note")
+        .where()
+        .eq("id", application.id)
+        .update();
+    application.save();
     application.refresh();
 
     assertThat(application.getLatestNote()).isNotEmpty();
