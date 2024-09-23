@@ -91,7 +91,6 @@ test.describe('applicant program index page', () => {
       'Create account',
     )
     await applicantQuestions.gotoApplicantHomePage()
-    await logout(page)
   })
 
   test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
