@@ -35,7 +35,6 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
-import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -150,18 +149,10 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     var container = div();
 
     container.with(
-        div()
-            .with(
-                h2(settingsSection.sectionName())
-                    .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
-                    .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4"))
-            .condWith(
-                !settingsSection.sectionDescription().isBlank(),
-                div(
-                    rawHtml(
-                        TextFormatter.formatTextToSanitizedHTML(
-                            settingsSection.sectionDescription(), false, false))))
-            .withClasses("mt-4", "pb-4", "mb-4", "border-b-2"));
+        h2(settingsSection.sectionName())
+            .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
+            .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"));
+
     return renderSectionContents(request, errorMessages, settingsSection, container);
   }
 
