@@ -67,7 +67,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             /* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS, ImmutableList.of());
     context.setVariable("successAlertSettings", successAlertSettings);
 
-    String applicantName = params.profile().getApplicant().join().getAccount().getApplicantName();
+    String applicantName =
+        params.profile().getApplicant().join().getAccount().getApplicantDisplayName();
     context.setVariable("applicantName", applicantName);
 
     context.setVariable("dateSubmitted", params.dateSubmitted());

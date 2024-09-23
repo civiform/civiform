@@ -370,7 +370,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
-            applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
+            applicantUtils.getApplicantNameEnUs(
+                application.getApplicantData().getApplicantDisplayName()),
             application.id);
     String viewLinkText = "View →";
 

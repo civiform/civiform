@@ -816,7 +816,7 @@ test.describe('view program statuses', () => {
       await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        await adminPrograms.viewApplicationForApplicant(otherTestUserEmail)
       })
 
       const [acccountEmailsBefore, applicantEmailsBefore] =

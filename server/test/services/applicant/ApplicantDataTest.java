@@ -59,15 +59,6 @@ public class ApplicantDataTest extends ResetPostgres {
     assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
   }
 
-  // TODO (#5503): Remove this when we remove this check from ApplicantData#getApplicantName
-  @Test
-  public void getApplicantName_fallsBackToWKPWhenNameIsEmail() {
-    ApplicantData data = createNewApplicantData();
-    data.setUserName("test@email.com");
-    data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "first");
-    assertThat(data.getApplicantName().get()).isEqualTo("first");
-  }
-
   @Test
   public void getApplicantName_withMiddleNameWithoutSuffix_exists() {
     ApplicantData data = createNewApplicantData();
@@ -97,6 +88,36 @@ public class ApplicantDataTest extends ResetPostgres {
   public void getApplicantName_noName() {
     ApplicantData data = createNewApplicantData();
     assertThat(data.getApplicantName()).isEmpty();
+  }
+
+  @Test
+  public void getApplicantDisplayName() {
+    ApplicantData data = createNewApplicantData();
+    data.setUserName("First Middle Last Jr.");
+    assertThat(data.getApplicantDisplayName()).isEqualTo(Optional.of("Last, First"));
+  }
+
+  @Test
+  public void getApplicantDisplayName_fallsBackToEmail() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("myemail@email.com");
+    account.save();
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(new ApplicantData(applicant).getApplicantDisplayName())
+        .isEqualTo(Optional.of("myemail@email.com"));
+  }
+
+  @Test
+  public void getApplicantDisplayName_empty() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.save();
+    applicant.setAccount(account);
+    applicant.save();
+    assertThat(new ApplicantData(applicant).getApplicantDisplayName()).isEmpty();
   }
 
   @Test
