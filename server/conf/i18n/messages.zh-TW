@@ -517,10 +517,14 @@ button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.commonIntakeConfirmation=您可能有資格參加的計畫
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=您的客戶可能有資格參加的計畫
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
