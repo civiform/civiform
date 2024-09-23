@@ -109,6 +109,9 @@ public abstract class AnswerData {
   // TODO(#4872): remove this attribute and rely on getJsonEntries on a per-question basis.
   public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
 
+  public abstract long scalarAnswerTimer();
+  public abstract long addDataToBuilderInnerLoopTimer();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setProgramId(Long programId);
@@ -150,6 +153,10 @@ public abstract class AnswerData {
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
 
     public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
+
+    public abstract Builder setScalarAnswerTimer(long time);
+
+    public abstract Builder setAddDataToBuilderInnerLoopTimer(long time);
 
     public abstract AnswerData build();
   }

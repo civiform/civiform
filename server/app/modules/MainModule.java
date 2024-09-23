@@ -19,6 +19,9 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.AccountRepository;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
+import com.jayway.jsonpath.spi.cache.LRUCache;
+import com.jayway.jsonpath.spi.cache.NOOPCache;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -31,6 +34,12 @@ import repository.AccountRepository;
 public class MainModule extends AbstractModule {
 
   public static final Slugify SLUGIFIER = Slugify.builder().build();
+
+  @Override
+  protected void configure() {
+      // CacheProvider.setCache(new NOOPCache());
+      // CacheProvider.setCache(new LRUCache(10000));
+  }
 
   @Provides
   @EnUsLang

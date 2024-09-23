@@ -7,12 +7,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import services.program.ProgramQuestionDefinition;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -30,7 +33,10 @@ import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -331,7 +337,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getBlocks((block) -> true);
-    addDataToBuilder(blocks, builder, /* showAnswerText */ true);
+    addDataToBuilder(blocks, builder, /* showAnswerText */ true, new AtomicLong(),  new AtomicLong());
     return builder.build();
   }
 
@@ -340,7 +346,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> activeBlocks = getAllActiveBlocks();
-    addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true);
+    addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true, new AtomicLong(),  new AtomicLong());
     return builder.build();
   }
 
@@ -349,7 +355,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> hiddenBlocks = getAllHiddenBlocks();
-    addDataToBuilder(hiddenBlocks, builder, /* showAnswerText= */ false);
+    addDataToBuilder(hiddenBlocks, builder, /* showAnswerText= */ false, new AtomicLong(), new AtomicLong());
     return builder.build();
   }
 
@@ -363,13 +369,25 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * @param showAnswerText whether to include the answer text in the result. If {@code false},
    *     answers are replaced with "N/A".
    */
-  private void addDataToBuilder(
+  public void addDataToBuilder(
       ImmutableList<Block> blocks,
       ImmutableList.Builder<AnswerData> builder,
-      boolean showAnswerText) {
+      boolean showAnswerText,
+      AtomicLong getQuestionsTimer,
+      AtomicLong insideTimer) {
+    Clock clock = Clock.systemDefaultZone();
+    var start = clock.millis();
+
     for (Block block : blocks) {
+      var beforeGetQuestions = clock.millis();
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
+      var afterGetQuestions = clock.millis();
+      getQuestionsTimer.addAndGet(afterGetQuestions - beforeGetQuestions);
+
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+
+        var startOfAddDataToBuilderInnerLoop = clock.millis();
+
         ApplicantQuestion applicantQuestion = questions.get(questionIndex);
         // Don't include static content in summary data.
         if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
@@ -409,20 +427,33 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
+
+        // var temp = new ApplicantQuestion(new ProgramQuestionDefinition(), new ApplicantData(), Optional.of())
+        var beforeScalarAnswers = clock.millis();
+        var scalarAnswers = getScalarAnswers(applicantQuestion);
+        var afterScalarAnswers = clock.millis();
+
+        Path contextualizedPath = applicantQuestion.getContextualizedPath();
+        QuestionDefinition questionDefinition = applicantQuestion.getQuestionDefinition();
+        Optional<RepeatedEntity> repeatedEntity = block.getRepeatedEntity();
+        boolean eligibilityIsGating = programDefinition.eligibilityIsGating();
+
+        var endOfAddDataToBuilderInnerLoop = clock.millis();
+
         AnswerData data =
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
-                .setContextualizedPath(applicantQuestion.getContextualizedPath())
-                .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
+                .setContextualizedPath(contextualizedPath)
+                .setQuestionDefinition(questionDefinition)
                 .setApplicantQuestion(applicantQuestion)
-                .setRepeatedEntity(block.getRepeatedEntity())
+                .setRepeatedEntity(repeatedEntity)
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
                 .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
-                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
+                .setEligibilityIsGating(eligibilityIsGating)
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setEncodedFileKeys(encodedFileKeys)
@@ -430,11 +461,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
+                .setScalarAnswersInDefaultLocale(scalarAnswers)
+                .setScalarAnswerTimer(afterScalarAnswers - beforeScalarAnswers)
+                .setAddDataToBuilderInnerLoopTimer(endOfAddDataToBuilderInnerLoop - startOfAddDataToBuilderInnerLoop)
                 .build();
         builder.add(data);
+        // builder.add(AnswerData.builder().build());
       }
     }
+    var end = clock.millis();
+    insideTimer.addAndGet(end - start);
   }
 
   /**

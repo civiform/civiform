@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -34,7 +35,9 @@ import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
+import services.applicant.Block;
 import services.applicant.ApplicantData;
+import services.applicant.ReadOnlyApplicantProgramServiceImpl;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
@@ -50,6 +53,10 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicLong;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
 
 /**
  * ExporterService generates CSV files for applications to a program or demographic information
@@ -62,6 +69,8 @@ public final class CsvExporterService {
   private final ApplicantService applicantService;
   private final Config config;
   private final DateConverter dateConverter;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporterService.class);
+  private final Clock clock;
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
@@ -86,23 +95,29 @@ public final class CsvExporterService {
       ApplicantService applicantService,
       Config config,
       DateConverter dateConverter,
-      ExportServiceRepository exportServiceRepository) {
+      ExportServiceRepository exportServiceRepository,
+      Clock clock) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
     this.config = checkNotNull(config);
     this.dateConverter = dateConverter;
     this.exportServiceRepository = checkNotNull(exportServiceRepository);
+    this.clock = checkNotNull(clock);
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
       throws ProgramNotFoundException {
+
+        LOGGER.info(String.format("atlee start_getProgramAllVersions. time: %s", clock.millis()));
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
             .collect(ImmutableMap.toImmutableMap(ProgramDefinition::id, pd -> pd));
     ProgramDefinition currentProgram = programDefinitionsForAllVersions.get(programId);
 
+
+    LOGGER.info(String.format("atlee after_pd_cache_before_application_fetch. time: %s", clock.millis()));
     ImmutableList<ApplicationModel> applications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
@@ -111,17 +126,30 @@ public final class CsvExporterService {
                 filters)
             .getPageContents();
 
+
+
+
+    LOGGER.info(String.format("atlee after_application_fetch_before_generateExportConfig. time: %s", clock.millis()));
+
     CsvExportConfig exportConfig =
         generateCsvConfig(
             applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
 
-    return exportCsv(
+
+    LOGGER.info(String.format("atlee after_exportConfig_before_exportCsv. time: %s", clock.millis()));
+
+    var toExport = exportCsv(
         exportConfig,
         applications,
         // Use our local program definition cache when exporting applications,
         // it's faster then the cache in the ProgramRepository.
         programDefinitionsForAllVersions::get,
         Optional.of(currentProgram));
+
+
+    LOGGER.info(String.format("atlee after_exportCsv. time: %s", clock.millis()));
+
+    return toExport;
   }
 
   private CsvExportConfig generateCsvConfig(
@@ -131,18 +159,66 @@ public final class CsvExporterService {
       throws ProgramNotFoundException {
     Map<Path, AnswerData> answerMap = new HashMap<>();
 
+    LOGGER.info(String.format("atlee in_generateExportConfig_before_generating_answerMap. time: %s", clock.millis()));
+
+    var createApplicantServiceTimer = new AtomicLong(0);
+    // var getSummaryDataTimer = new AtomicLong(0);
+    var getActiveBlocksTimer = new AtomicLong(0);
+    var addDataToBuilderTimer = new AtomicLong(0);
+    var addDataToBuilderInsideTimer = new AtomicLong(0);
+    var getQuestionsTimer = new AtomicLong(0);
+    var totalScalarAnswers = new AtomicLong(0);
+    var totalAddDataToBuilderInnerLoop = new AtomicLong(0);
+
     applications.stream()
         .flatMap(
-            app ->
-                applicantService
+            app -> {
+                var beforeAppService = clock.millis();
+                var roAppService = (ReadOnlyApplicantProgramServiceImpl)applicantService
                     .getReadOnlyApplicantProgramService(
-                        app, programDefinitionsForAllVersions.get(app.getProgram().id))
-                    .getSummaryDataOnlyActive()
-                    .stream())
+                        app, programDefinitionsForAllVersions.get(app.getProgram().id));
+
+                // var beforeApplicantData = clock.millis();
+                // var dataStream = roAppService
+                //     .getSummaryDataOnlyActive()
+                //     .stream();
+
+                ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
+
+                var beforeGetActiveBlocks = clock.millis();
+                ImmutableList<Block> activeBlocks = roAppService.getAllActiveBlocks();
+
+                var beforeAddDataToBuilder = clock.millis();
+                roAppService.addDataToBuilder(activeBlocks, builder, /* showAnswerText= */ true, getQuestionsTimer, addDataToBuilderInsideTimer);
+                var ads = builder.build();
+
+                var beforeReturn = clock.millis();
+
+                createApplicantServiceTimer.addAndGet(beforeGetActiveBlocks - beforeAppService);
+                getActiveBlocksTimer.addAndGet(beforeAddDataToBuilder - beforeGetActiveBlocks);
+                addDataToBuilderTimer.addAndGet(beforeReturn - beforeAddDataToBuilder);
+                // getSummaryDataTimer.addAndGet(beforeReturn - beforeApplicantData);
+
+                return ads.stream();
+            })
         .forEach(
             data -> {
+              totalScalarAnswers.addAndGet(data.scalarAnswerTimer());
+              totalAddDataToBuilderInnerLoop.addAndGet(data.addDataToBuilderInnerLoopTimer());
               answerMap.putIfAbsent(data.contextualizedPath(), data);
             });
+
+    LOGGER.info(String.format("atlee cache provider: %s", CacheProvider.getCache().getClass().getName()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_createApplicantServiceTotal. time: %s", createApplicantServiceTimer.get()));
+    // LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryDataTotal. time: %s", getSummaryDataTimer.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_getActiveBlocksTotal. time: %s", getActiveBlocksTimer.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_addDataToBuilderTotal. time: %s", addDataToBuilderTimer.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_addDataToBuilderInsideTotal. time: %s", addDataToBuilderInsideTimer.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_addDataToBuilder_getQuestionsTotal. time: %s", getQuestionsTimer.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_addDataToBuilder_scalarAnswersInDefaultLocaleTotal. time: %s", totalScalarAnswers.get()));
+    LOGGER.info(String.format("atlee in_generateCsvConfig_getSummaryData_addDataToBuilder_innerLoopTotal. time: %s", totalAddDataToBuilderInnerLoop.get()));
+
+    LOGGER.info(String.format("atlee in_generateExportConfig_before_sorting_answers. time: %s", clock.millis()));
 
     // Get the list of all answers, sorted by block ID, then question index, and finally
     // contextualized path in string form.
@@ -154,7 +230,14 @@ public final class CsvExporterService {
                     .thenComparing(answerData -> answerData.contextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(answers, showEligibilityColumn);
+
+    LOGGER.info(String.format("atlee in_generateExportConfig_before_buildColumnHeaders. time: %s", clock.millis()));
+
+    var toReturn = buildColumnHeaders(answers, showEligibilityColumn);
+
+    LOGGER.info(String.format("atlee in_generateExportConfig_before_returning. time: %s", clock.millis()));
+
+    return toReturn;
   }
 
   /**
@@ -181,22 +264,47 @@ public final class CsvExporterService {
         boolean shouldCheckEligibility =
             currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
 
+        var fetchProgramDefTimer = 0;
+        var getRoApplicantServiceTimer = 0;
+        var getEligibilityStatusTimer = 0;
+        var exportRecordTimer = 0;
+
         for (ApplicationModel application : applications) {
+
+          var beforeProgramDef = clock.millis();
           ProgramDefinition programDefForApplication =
               getProgramDefinition.apply(application.getProgram().id);
+
+          var beforeRoApplicantService = clock.millis();
           ReadOnlyApplicantProgramService roApplicantService =
               applicantService.getReadOnlyApplicantProgramService(
                   application, programDefForApplication);
 
+          var beforeEligibilityStatus = clock.millis();
           Optional<Boolean> optionalEligibilityStatus =
               shouldCheckEligibility
                   ? applicantService.getApplicationEligibilityStatus(
                       application, programDefForApplication)
                   : Optional.empty();
 
+          var beforeExportRecord = clock.millis();
           csvExporter.exportRecord(
               application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
+
+          var beforeReturn = clock.millis();
+
+          // update timers
+          fetchProgramDefTimer += beforeRoApplicantService - beforeProgramDef;
+          getRoApplicantServiceTimer += beforeEligibilityStatus - beforeRoApplicantService;
+          getEligibilityStatusTimer += beforeExportRecord - beforeEligibilityStatus;
+          exportRecordTimer += beforeReturn - beforeExportRecord;
         }
+
+        LOGGER.info(String.format("atlee in_exportCsv_fetchProgramDefTotal. time: %s", fetchProgramDefTimer));
+        LOGGER.info(String.format("atlee in_exportCsv_getRoApplicantServiceTotal. time: %s", getRoApplicantServiceTimer));
+        LOGGER.info(String.format("atlee in_exportCsv_getEligibilityStatusTotal. time: %s", getEligibilityStatusTimer));
+        LOGGER.info(String.format("atlee in_exportCsv_exportRecordTotal. time: %s", exportRecordTimer));
+
       }
     } catch (IOException e) {
       // Since it's an in-memory writer, this shouldn't happen.  Catch so that callers don't
