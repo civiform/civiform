@@ -35,6 +35,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -62,7 +63,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           "Data Export API",
           "Observability",
           "External Services",
-          "Miscellaneous");
+          "Miscellaneous",
+          "Experimental");
 
   @Inject
   public AdminSettingsIndexView(
@@ -148,9 +150,18 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     var container = div();
 
     container.with(
-        h2(settingsSection.sectionName())
-            .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
-            .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"));
+        div()
+            .with(
+                h2(settingsSection.sectionName())
+                    .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
+                    .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4"))
+            .condWith(
+                !settingsSection.sectionDescription().isBlank(),
+                div(
+                    rawHtml(
+                        TextFormatter.formatTextToSanitizedHTML(
+                            settingsSection.sectionDescription(), false, false))))
+            .withClasses("mt-4", "pb-4", "mb-4", "border-b-2"));
     return renderSectionContents(request, errorMessages, settingsSection, container);
   }
 
@@ -160,7 +171,9 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       SettingsSection settingsSection) {
     var container = div();
 
-    container.with(h3(settingsSection.sectionName()).withClasses("text-l font-bold py-2 mt-4"));
+    container.with(
+        h3(settingsSection.sectionName())
+            .withClasses("text-l font-bold py-2 mt-4 underline underline-offset-2"));
     return renderSectionContents(request, errorMessages, settingsSection, container);
   }
 
@@ -303,6 +316,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   private static DivTag renderBoolInput(
       SettingDescription settingDescription, Optional<String> value) {
     boolean isTrue = value.map("TRUE"::equals).orElse(false);
+    String readonlyClass = settingDescription.isReadOnly() ? "bg-gray-100 text-gray-500" : "";
 
     return div(div(
                 FieldWithLabel.radio()
@@ -311,6 +325,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                     .setChecked(isTrue)
                     .setValue("true")
                     .addStyleClass("mr-4")
+                    .addStyleClass(readonlyClass)
                     .setDisabled(settingDescription.isReadOnly())
                     .getRadioTag()
                     .withData(
@@ -319,6 +334,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                     .setFieldName(settingDescription.variableName())
                     .setLabelText("False")
                     .setChecked(!isTrue)
+                    .addStyleClass(readonlyClass)
                     .setValue("false")
                     .setDisabled(settingDescription.isReadOnly())
                     .getRadioTag()
