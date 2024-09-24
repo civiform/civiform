@@ -100,9 +100,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig = ConfigFactory.parseMap(ImmutableMap.of());
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
@@ -137,9 +136,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     // Set up an admin account. Associate the session ID with the ID token for logout.
     AccountModel account = new AccountModel();
     account.setGlobalAdmin(true);
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
@@ -180,9 +178,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             ImmutableMap.of("auth.oidc_post_logout_param", "custom_target_url_parameter_name"));
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
