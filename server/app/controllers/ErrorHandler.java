@@ -84,6 +84,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     this.messagesApi = checkNotNull(messagesApi);
     this.environment = checkNotNull(environment);
 
+    // Provides extra support to the thymeleaf custom error page if we ever configure it. Standard
+    // requirement of the Play error page.
     this.playEditor =
         scala.Option.apply(config.hasPath("play.editor") ? config.getString("play.editor") : null);
   }
