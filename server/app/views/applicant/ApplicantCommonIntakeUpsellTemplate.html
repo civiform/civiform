@@ -49,35 +49,22 @@
                 </div>
               </th:block>
 
-              <div class="section-internal">
-                <a
-                  th:if="${!isGuest}"
-                  href="/"
-                  class="usa-button usa-button--outline margin-bottom-1"
-                  id="another-program"
-                  th:text="#{button.applyToPrograms}"
-                ></a>
-                <a
-                  th:if="${isGuest}"
-                  href="#login-dialog-upsell"
-                  aria-controls="login-dialog-upsell"
-                  class="usa-button usa-button--outline margin-bottom-1"
-                  id="another-program"
-                  th:text="#{button.applyToPrograms}"
-                  data-open-modal
-                ></a>
-
-                <a
-                  th:if="${eligiblePrograms.size() eq 0}"
-                  href="/"
-                  class="usa-button margin-bottom-1"
-                  role="button"
-                  id="go-back"
-                  th:text="#{button.editMyResponses}"
-                  th:href="${goBackHref}"
-                >
-                </a>
-              </div>
+              <a
+                th:if="${!isGuest}"
+                href="/"
+                class="usa-button usa-button--outline"
+                id="another-program"
+                th:text="#{button.applyToPrograms}"
+              ></a>
+              <a
+                th:if="${isGuest}"
+                href="#login-dialog-upsell"
+                aria-controls="login-dialog-upsell"
+                class="usa-button usa-button--outline"
+                id="another-program"
+                th:text="#{button.applyToPrograms}"
+                data-open-modal
+              ></a>
             </section>
 
             <section class="section-external" th:if="${isGuest}">

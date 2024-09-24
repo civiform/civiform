@@ -102,9 +102,6 @@ test.describe(
         ),
       ).toBeVisible()
 
-      // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX.
-      // Then return to the common intake ineligible page
-
       await test.step('Click "Apply to Programs" and return to homepage', async () => {
         await applicantQuestions.clickApplyToProgramsButton()
         await applicantQuestions.expectProgramsPage()
@@ -128,11 +125,7 @@ test.describe(
 
       await applicantQuestions.clickApplyToProgramsButton()
 
-      await validateScreenshot(
-        page,
-        'upsell-north-star-common-intake-login',
-        /* fullPage= */ false,
-      )
+      await validateScreenshot(page, 'upsell-north-star-common-intake-login')
 
       await validateAccessibility(page)
     })
@@ -219,8 +212,6 @@ test.describe(
           'The pre-screener could not find programs your client may qualify for at this time',
         ),
       ).toBeVisible()
-
-      // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX
     })
   },
 )

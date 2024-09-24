@@ -38,9 +38,6 @@ public abstract class UpsellParams {
   // Will be non-empty if programTitle is used
   abstract Optional<String> programDescription();
 
-  // Program ID of the program that was just applied to
-  abstract long programId();
-
   abstract LocalizedStrings customConfirmationMessage();
 
   // Localized string for the date the application was submitted
@@ -69,8 +66,6 @@ public abstract class UpsellParams {
         ImmutableList<ApplicantProgramData> eligiblePrograms);
 
     public abstract Builder setProgramDescription(String programDescription);
-
-    public abstract Builder setProgramId(long programId);
 
     public abstract Builder setCustomConfirmationMessage(
         LocalizedStrings customConfirmationMessage);
