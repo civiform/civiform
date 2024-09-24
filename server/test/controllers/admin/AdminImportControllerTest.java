@@ -695,7 +695,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
     assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
 
-    Long eligibilityAddressQuestionId =
+    Long eligibilityInServiceAreaAddressQuestionId =
         programDefinition
             .getBlockDefinition(3)
             .eligibilityDefinition()
@@ -704,7 +704,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             .rootNode()
             .getLeafAddressNode()
             .questionId();
-    Long savedAddressQuestionId =
+    Long savedInServiceAreaAddressQuestionId =
         database
             .find(QuestionModel.class)
             .where()
@@ -712,7 +712,28 @@ public class AdminImportControllerTest extends ResetPostgres {
             .findOne()
             .getQuestionDefinition()
             .getId();
-    assertThat(eligibilityAddressQuestionId).isEqualTo(savedAddressQuestionId);
+    assertThat(eligibilityInServiceAreaAddressQuestionId)
+        .isEqualTo(savedInServiceAreaAddressQuestionId);
+
+    Long eligibilityNotInServiceAreaAddressQuestionId =
+        programDefinition
+            .getBlockDefinition(4)
+            .eligibilityDefinition()
+            .get()
+            .predicate()
+            .rootNode()
+            .getLeafAddressNode()
+            .questionId();
+    Long savedNotInServiceAreaAddressQuestionId =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "second-address")
+            .findOne()
+            .getQuestionDefinition()
+            .getId();
+    assertThat(eligibilityNotInServiceAreaAddressQuestionId)
+        .isEqualTo(savedNotInServiceAreaAddressQuestionId);
   }
 
   @Test
@@ -772,7 +793,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(eligibilityQuestionId).isEqualTo(savedQuestionId);
     assertThat(visibilityQuestionId).isEqualTo(savedQuestionId);
 
-    Long eligibilityAddressQuestionId =
+    Long eligibilityInServiceAreaAddressQuestionId =
         programDefinition
             .getBlockDefinition(3)
             .eligibilityDefinition()
@@ -781,7 +802,7 @@ public class AdminImportControllerTest extends ResetPostgres {
             .rootNode()
             .getLeafAddressNode()
             .questionId();
-    Long savedAddressQuestionId =
+    Long savedInServiceAreaAddressQuestionId =
         database
             .find(QuestionModel.class)
             .where()
@@ -789,7 +810,28 @@ public class AdminImportControllerTest extends ResetPostgres {
             .findOne()
             .getQuestionDefinition()
             .getId();
-    assertThat(eligibilityAddressQuestionId).isEqualTo(savedAddressQuestionId);
+    assertThat(eligibilityInServiceAreaAddressQuestionId)
+        .isEqualTo(savedInServiceAreaAddressQuestionId);
+
+    Long eligibilityNotInServiceAreaAddressQuestionId =
+        programDefinition
+            .getBlockDefinition(4)
+            .eligibilityDefinition()
+            .get()
+            .predicate()
+            .rootNode()
+            .getLeafAddressNode()
+            .questionId();
+    Long savedNotInServiceAreaAddressQuestionId =
+        database
+            .find(QuestionModel.class)
+            .where()
+            .eq("name", "second-address")
+            .findOne()
+            .getQuestionDefinition()
+            .getId();
+    assertThat(eligibilityNotInServiceAreaAddressQuestionId)
+        .isEqualTo(savedNotInServiceAreaAddressQuestionId);
   }
 
   @Test
@@ -1504,6 +1546,43 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "        \"optional\" : false,\n"
           + "        \"addressCorrectionEnabled\" : true\n"
           + "      } ]\n"
+          + "    }, {\n"
+          + "      \"id\" : 4,\n"
+          + "      \"name\" : \"Screen 4\",\n"
+          + "      \"description\" : \"Screen 4 description\",\n"
+          + "      \"localizedName\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 4\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"localizedDescription\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 4 description\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"repeaterId\" : null,\n"
+          + "      \"hidePredicate\" : null,\n"
+          + "      \"eligibilityDefinition\" : {\n"
+          + "        \"predicate\" : {\n"
+          + "          \"rootNode\" : {\n"
+          + "            \"node\" : {\n"
+          + "              \"type\" : \"leafAddressServiceArea\",\n"
+          + "              \"questionId\" : 6,\n"
+          + "              \"serviceAreaId\" : \"Seattle\",\n"
+          + "              \"operator\" : \"NOT_IN_SERVICE_AREA\"\n"
+          + "            }\n"
+          + "          },\n"
+          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
+          + "        }\n"
+          + "      },\n"
+          + "      \"optionalPredicate\" : null,\n"
+          + "      \"questionDefinitions\" : [ {\n"
+          + "        \"id\" : 6,\n"
+          + "        \"optional\" : false,\n"
+          + "        \"addressCorrectionEnabled\" : true\n"
+          + "      } ]\n"
           + "    } ],\n"
           + "    \"programType\" : \"DEFAULT\",\n"
           + "    \"eligibilityIsGating\" : true,\n"
@@ -1581,6 +1660,31 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "        \"disallowPoBox\" : false\n"
           + "      },\n"
           + "      \"id\" : 5,\n"
+          + "      \"universal\" : false,\n"
+          + "      \"primaryApplicantInfoTags\" : [ ]\n"
+          + "    }\n"
+          + "  }, {\n"
+          + "    \"type\" : \"address\",\n"
+          + "    \"config\" : {\n"
+          + "      \"name\" : \"second-address\",\n"
+          + "      \"description\" : \"\",\n"
+          + "      \"questionText\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Second address question\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"questionHelpText\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Second address question\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"validationPredicates\" : {\n"
+          + "        \"type\" : \"address\",\n"
+          + "        \"disallowPoBox\" : false\n"
+          + "      },\n"
+          + "      \"id\" : 6,\n"
           + "      \"universal\" : false,\n"
           + "      \"primaryApplicantInfoTags\" : [ ]\n"
           + "    }\n"
