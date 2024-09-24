@@ -64,10 +64,6 @@ public abstract class BlockDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
-  /** Eligibility message of a Block used to label it for the user. */
-  @JsonProperty("localizedMessage")
-  public abstract Optional<LocalizedStrings> localizedMessage();
-
   /**
    * An enumerator block definition is a block definition that contains a {@link QuestionDefinition}
    * that is of type {@link QuestionType#ENUMERATOR}. Enumerator questions provide a variable list
@@ -165,6 +161,10 @@ public abstract class BlockDefinition {
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
+
+  /** Eligibility message of a Block used to label it for the user. */
+  @JsonProperty("localizedMessage")
+  public abstract Optional<LocalizedStrings> localizedMessage();
 
   /**
    * An {@link EligibilityDefinition} that determines whether this block can be continued on from or
@@ -266,9 +266,6 @@ public abstract class BlockDefinition {
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
-    @JsonProperty("localizedMessage")
-    public abstract Builder setLocalizedMessage(Optional<LocalizedStrings> localizedMessage);
-
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
@@ -278,6 +275,9 @@ public abstract class BlockDefinition {
     public Builder setVisibilityPredicate(PredicateDefinition predicate) {
       return this.setVisibilityPredicate(Optional.of(predicate));
     }
+
+    @JsonProperty("localizedMessage")
+    public abstract Builder setLocalizedMessage(Optional<LocalizedStrings> localizedMessage);
 
     @JsonProperty("eligibilityDefinition")
     public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> eligibility);

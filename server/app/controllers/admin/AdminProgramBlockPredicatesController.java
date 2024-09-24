@@ -8,7 +8,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
-import forms.EligibilityMessageForm;
+import forms.admin.BlockEligibilityMessageForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -391,29 +391,25 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       Http.Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    Form<EligibilityMessageForm> form =
+    Form<BlockEligibilityMessageForm> form =
         formFactory
-            .form(EligibilityMessageForm.class)
-            .bindFromRequest(request, EligibilityMessageForm.FIELD_NAMES.toArray(new String[0]));
+            .form(BlockEligibilityMessageForm.class)
+            .bindFromRequest(
+                request, BlockEligibilityMessageForm.FIELD_NAMES.toArray(new String[0]));
+
     String newMessage = form.get().getEligibilityMessage();
 
     String toastType;
     String toastMessage;
-    System.out.println(
-        "------------------------------------AdminProgramBlockPredicatesController----------------------");
-    System.out.println("block id from updateEligibilityMessage  " + blockDefinitionId);
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       BlockDefinition blockDefinition =
           programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-              .setLocalizedMessage(LocalizedStrings.of(Locale.US, newMessage))
+              .setLocalizedMessage(Optional.of(LocalizedStrings.of(Locale.US, newMessage)))
               .build();
 
-      System.out.println("Hi from AdminProgramBlockPredicatesController line 404");
-      System.out.println(newMessage);
-      System.out.println(blockDefinition.localizedMessage());
-
-      System.out.println("----------------------------------------------------------");
+      programService.setBlockEligibilityMessage(
+          programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
 
       toastType = "success";
       if (newMessage.isBlank()) {
@@ -425,11 +421,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
+    } catch (IllegalPredicateOrderingException e) {
+      return notFound(e.toString());
     }
 
     final String indexUrl =
         routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
             .url();
+
     return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 }
