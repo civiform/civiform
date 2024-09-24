@@ -69,10 +69,14 @@ function get_modified_md_files() {
 function get_modified_html_files() {
   # Zero matches in grep returns a 1, but we want to treat as empty which is
   # why the `|| true` is there
+  #
+  # While we don't typically use twirl, the .scala.html template types, if there
+  # are any Prettier doesn't format them well and will break embedded scala. So
+  # exclude any .scala.html file extensions.
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E ".+\.(html)$" || true
+  ) | grep -E ".+\.(html)$" | grep -E -v ".+\.scala.html$" || true
 }
 
 function get_modified_scss_files() {

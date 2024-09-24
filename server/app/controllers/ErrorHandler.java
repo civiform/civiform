@@ -14,8 +14,10 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.thymeleaf.exceptions.TemplateInputException;
 import play.Environment;
 import play.api.OptionalSourceMapper;
+import play.api.PlayException;
 import play.api.UsefulException;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
@@ -46,6 +48,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
+  private final Environment environment;
+  private final scala.Option<String> playEditor;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
@@ -64,6 +68,9 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private static final ImmutableSet<Class<? extends Exception>>
       UNAUTHORIZED_REQUEST_EXCEPTION_TYPES = ImmutableSet.of(UnauthorizedApiRequestException.class);
 
+  private static final ImmutableSet<Class<? extends Exception>> THYMELEAF_EXCEPTION_TYPES =
+      ImmutableSet.of(TemplateInputException.class);
+
   @Inject
   public ErrorHandler(
       Config config,
@@ -75,6 +82,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     super(config, environment, sourceMapper, routes);
     this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
+    this.environment = checkNotNull(environment);
+
+    this.playEditor =
+        scala.Option.apply(config.hasPath("play.editor") ? config.getString("play.editor") : null);
   }
 
   @Override
@@ -97,6 +108,18 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.unauthorized());
+    }
+
+    match = findThrowableByTypes(exception, THYMELEAF_EXCEPTION_TYPES);
+
+    if (environment.isDev() && match.isPresent()) {
+      return CompletableFuture.completedFuture(
+          Results.internalServerError(
+              views.html.thymeleafDevErrorPage.render(
+                  playEditor,
+                  new PlayException(
+                      "Thymeleaf Compilation Error", exception.getMessage(), exception),
+                  request.asScala())));
     }
 
     return super.onServerError(request, exception);
