@@ -264,6 +264,7 @@ export class ApplicantQuestions {
 
   async clickApplyToProgramsButton() {
     await this.page.click('text="Apply to programs"')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickBack() {
@@ -552,6 +553,7 @@ export class ApplicantQuestions {
     await this.expectProgramsPage()
   }
 
+  // Expect the program index (home) page
   async expectProgramsPage() {
     await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')

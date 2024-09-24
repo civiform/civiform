@@ -59,10 +59,10 @@ test.describe(
       })
 
       await test.step('Verify output', async () => {
-        expect(await page.textContent('html')).toContain(
-          'Programs you may qualify for',
-        )
-        expect(await page.textContent('html')).toContain(eligibleProgram1)
+        await expect(page.getByText(eligibleProgram1)).toBeVisible()
+        await expect(
+          page.getByText('Programs you may qualify for'),
+        ).toBeVisible()
 
         await validateScreenshot(
           page,
@@ -72,6 +72,11 @@ test.describe(
         )
 
         await validateAccessibility(page)
+      })
+
+      await test.step('Click "Apply to Programs" and return to homepage', async () => {
+        await applicantQuestions.clickApplyToProgramsButton()
+        await applicantQuestions.expectProgramsPage()
       })
     })
 
@@ -91,9 +96,16 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
-        'The pre-screener could not find programs you may qualify for at this time',
-      )
+      await expect(
+        page.getByText(
+          'The pre-screener could not find programs you may qualify for at this time',
+        ),
+      ).toBeVisible()
+
+      await test.step('Click "Apply to Programs" and return to homepage', async () => {
+        await applicantQuestions.clickApplyToProgramsButton()
+        await applicantQuestions.expectProgramsPage()
+      })
     })
 
     test('As a guest, clicking on apply to more programs brings up login dialog', async ({
@@ -156,10 +168,10 @@ test.describe(
       })
 
       await test.step('Verify output', async () => {
-        expect(await page.textContent('html')).toContain(
-          'Programs your client may qualify for',
-        )
-        expect(await page.textContent('html')).toContain(eligibleProgram1)
+        await expect(
+          page.getByText('Programs your client may qualify for'),
+        ).toBeVisible()
+        await expect(page.getByText(eligibleProgram1)).toBeVisible()
       })
     })
 
@@ -195,9 +207,11 @@ test.describe(
         )
       })
 
-      expect(await page.textContent('html')).toContain(
-        'The pre-screener could not find programs your client may qualify for at this time',
-      )
+      await expect(
+        page.getByText(
+          'The pre-screener could not find programs your client may qualify for at this time',
+        ),
+      ).toBeVisible()
     })
   },
 )
