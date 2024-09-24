@@ -81,7 +81,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     // TODO: Update this to point to the new northstar details page.
     String linkHref =
         program.externalLink().isEmpty()
-            ? applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url()
+            ? applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url()
             : program.externalLink();
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
