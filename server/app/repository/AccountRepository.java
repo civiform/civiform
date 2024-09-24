@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
-import auth.oidc.SerializedIdTokens;
+import auth.oidc.IdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -483,14 +483,14 @@ public final class AccountRepository {
    *
    * <p>Also purges any expired ID tokens as a side effect.
    */
-  public void updateSerializedIdTokens(AccountModel account, String sessionId, String idToken) {
-    SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
-    if (serializedIdTokens == null) {
-      serializedIdTokens = new SerializedIdTokens();
-      account.setSerializedIdTokens(serializedIdTokens);
+  public void updateIdTokens(AccountModel account, String sessionId, String idToken) {
+    IdTokens idTokens = account.getIdTokens();
+    if (idTokens == null) {
+      idTokens = new IdTokens();
+      account.setIdTokens(idTokens);
     }
-    serializedIdTokens.purgeExpiredIdTokens(clock);
-    serializedIdTokens.storeIdToken(sessionId, idToken);
+    idTokens.purgeExpiredIdTokens(clock);
+    idTokens.storeIdToken(sessionId, idToken);
     account.save();
   }
 }

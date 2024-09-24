@@ -16,18 +16,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Class that manages the mapping between a jsonb db column and a Java Map. */
-public final class SerializedIdTokens {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SerializedIdTokens.class);
+public final class IdTokens {
+  private static final Logger LOGGER = LoggerFactory.getLogger(IdTokens.class);
 
   @JsonProperty("idTokens")
   private Map<String, String> idTokens;
 
-  public SerializedIdTokens() {
+  public IdTokens() {
     this.idTokens = new HashMap<>();
   }
 
   @JsonCreator
-  public SerializedIdTokens(@Nullable @JsonProperty("idTokens") Map<String, String> idTokens) {
+  public IdTokens(@Nullable @JsonProperty("idTokens") Map<String, String> idTokens) {
     if (idTokens == null) {
       this.idTokens = new HashMap<>();
     } else {

@@ -25,7 +25,7 @@ public class IdTokensTest {
 
   @Test
   public void testStoreAndRemove() {
-    SerializedIdTokens idTokens = new SerializedIdTokens();
+    IdTokens idTokens = new IdTokens();
 
     // We can use fake values for the tokens since these operations don't need to parse them.
     idTokens.storeIdToken("session1", "token1");
@@ -41,7 +41,7 @@ public class IdTokensTest {
   @Test
   public void testPurgeExpiredTokens() {
     Clock clock = Clock.fixed(Instant.ofEpochSecond(100), ZoneOffset.UTC);
-    SerializedIdTokens idTokens = new SerializedIdTokens();
+    IdTokens idTokens = new IdTokens();
 
     idTokens.storeIdToken("session1", getJwtWithExpiration(90).serialize());
     idTokens.storeIdToken("session2", getJwtWithExpiration(99).serialize());
