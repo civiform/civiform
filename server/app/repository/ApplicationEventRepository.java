@@ -74,23 +74,22 @@ public final class ApplicationEventRepository {
       Optional<AccountModel> optionalAdmin,
       ApplicationEventDetails.StatusEvent newStatusEvent) {
     ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(newStatusEvent)
-            .build();
+      ApplicationEventDetails.builder()
+        .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+        .setStatusEvent(newStatusEvent)
+        .build();
     ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       insertSync(event);
       // save the latest note on the applications table too
-      if(Strings.isNullOrEmpty(newStatusEvent.statusText())) {
+      if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
         database
           .update(ApplicationModel.class)
           .set("latest_status", null)
           .where()
           .eq("id", application.id)
           .update();
-      }
-      else {
+      } else {
         database
           .update(ApplicationModel.class)
           .set("latest_status", newStatusEvent.statusText())
@@ -98,6 +97,28 @@ public final class ApplicationEventRepository {
           .eq("id", application.id)
           .update();
       }
+      application.save();
+      transaction.commit();
+    }
+  }
+  public void insertNoteEvent(
+      ApplicationModel application, ApplicationEventDetails.NoteEvent note, AccountModel admin) {
+    ApplicationEventDetails details =
+        services.application.ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
+            .setNoteEvent(note)
+            .build();
+    ApplicationEventModel event =
+        new ApplicationEventModel(application, Optional.of(admin), details);
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      insertSync(event);
+      // save the latest note on the applications table too
+      database
+          .update(ApplicationModel.class)
+          .set("latest_note", note.note())
+          .where()
+          .eq("id", application.id)
+          .update();
       application.save();
       transaction.commit();
     }

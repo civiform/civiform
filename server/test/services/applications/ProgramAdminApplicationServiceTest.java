@@ -174,6 +174,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     // Execute, verify.
     assertThat(service.getNote(application)).contains(note);
+    assertThat(application.getLatestNote().get()).isEqualTo(note);
   }
 
   @Test

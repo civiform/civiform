@@ -116,7 +116,7 @@ it is around the label */
 }
 
 .section {
-  @include u-padding-y(3);
+  @include u-margin-y(3);
 }
 
 .section-spacing {
@@ -124,11 +124,15 @@ it is around the label */
 }
 
 .container {
-  @include u-padding-y(2);
+  @include u-margin-y(2);
 }
 
 .text-medium-spacing {
   @include u-height(1);
+}
+
+.cf-zero-top-margin {
+  margin-top: 0;
 }
 
 .usa-form .usa-button.zero-top-margin {

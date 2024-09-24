@@ -105,7 +105,7 @@ public final class TrustedIntermediaryController {
         PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
 
     Optional<String> applicantName =
-        civiformProfile.getApplicant().join().getApplicantData().getApplicantName();
+        civiformProfile.getApplicant().join().getApplicantData().getApplicantDisplayName();
 
     return ok(
         tiClientListView.render(
@@ -132,7 +132,7 @@ public final class TrustedIntermediaryController {
     }
 
     Optional<String> applicantName =
-        civiformProfile.getApplicant().join().getApplicantData().getApplicantName();
+        civiformProfile.getApplicant().join().getApplicantData().getApplicantDisplayName();
 
     return ok(
         tiAccountSettingsView.render(
@@ -179,7 +179,8 @@ public final class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-    String applicantName = accountRepository.lookupAccount(accountId).get().getApplicantName();
+    String applicantName =
+        accountRepository.lookupAccount(accountId).get().getApplicantDisplayName();
     return ok(
         editTiClientView.render(
             /* tiGroup= */ trustedIntermediaryGroup.get(),

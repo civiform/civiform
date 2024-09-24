@@ -34,7 +34,6 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected final OidcClientProviderParams params;
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
-  protected final IdTokensFactory idTokensFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
   protected final SettingsManifest settingsManifest;
@@ -43,7 +42,6 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     this.params = params;
     this.civiformConfig = checkNotNull(params.configuration());
     this.profileFactory = checkNotNull(params.profileFactory());
-    this.idTokensFactory = checkNotNull(params.idTokensFactory());
     this.accountRepositoryProvider = checkNotNull(params.accountRepositoryProvider());
 
     this.baseUrl =

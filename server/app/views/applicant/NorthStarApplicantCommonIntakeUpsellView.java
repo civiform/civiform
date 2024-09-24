@@ -43,6 +43,9 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
             params.applicantPersonalInfo(),
             params.messages());
 
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programDescription", params.programDescription().orElse(""));
+
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
     context.setVariable("upsellBypassUrl", applyToProgramsUrl);
