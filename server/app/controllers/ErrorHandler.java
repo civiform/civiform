@@ -117,7 +117,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     if (environment.isDev() && match.isPresent()) {
       return CompletableFuture.completedFuture(
           Results.internalServerError(
-              views.html.thymeleafDevErrorPage.render(
+              views.html.errors.thymeleafDevErrorPage.render(
                   playEditor,
                   new PlayException(
                       "Thymeleaf Compilation Error", exception.getMessage(), exception),
