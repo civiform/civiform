@@ -1063,7 +1063,7 @@ public final class ApplicantService {
    * @param request - The request object from loading the page
    * @return - CompletionStage of the relevant programs
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsForNoApplicant(Request request) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
     CompletionStage<VersionModel> versionFuture = versionRepository.getActiveVersionAsync();
     return versionFuture.thenApplyAsync(
         version -> {

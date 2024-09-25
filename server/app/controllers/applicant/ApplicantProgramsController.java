@@ -154,10 +154,8 @@ public final class ApplicantProgramsController extends CiviFormController {
    * viewable programs.
    */
   public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
-    // get the programs for the active version
-    // turn them into applicationPrograms
     CompletableFuture<ApplicationPrograms> programsFuture =
-        applicantService.relevantProgramsForNoApplicant(request).toCompletableFuture();
+        applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
 
     return programsFuture.thenApplyAsync(
         programs -> {

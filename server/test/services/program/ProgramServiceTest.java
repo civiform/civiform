@@ -184,7 +184,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDisabledActiveProgram("program2")
+    ProgramBuilder.newActiveDisabledProgram("program2")
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()

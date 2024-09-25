@@ -2098,7 +2098,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForNoApplicant() {
+  public void relevantProgramsWithoutApplicant() {
     // Note that setup() creates a test-program program in addition to these.
     ProgramModel commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
@@ -2119,7 +2119,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantService.ApplicationPrograms result =
         subject
-            .relevantProgramsForNoApplicant(createRequestWithFastForwardDisabled())
+            .relevantProgramsWithoutApplicant(fakeRequestBuilder().build())
             .toCompletableFuture()
             .join();
 

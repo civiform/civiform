@@ -227,6 +227,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "grow",
                             StyleUtils.responsiveMedium("grow-0")))
                 .with(maybeRenderTiButton(profile, messages))
+                .condWith(
+                    isDevOrStaging && !disableDemoModeLogins,
+                    div()
+                        .withClasses("place-content-center")
+                        .with(
+                            a("DevTools")
+                                .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
+                                .withClasses(ApplicantStyles.LINK)
+                                .withStyle("cursor:pointer")))
                 .with(
                     div(
                             getLanguageForm(request, messages, applicantId),
@@ -273,15 +282,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(csrfInput)
                 .with(redirectInput)
                 .with(languageDropdown)
-                .condWith(
-                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
-                    div()
-                        .withClasses("w-full", "flex", "justify-center")
-                        .with(
-                            a("DevTools")
-                                .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                .withClasses(ApplicantStyles.LINK)
-                                .withStyle("cursor:pointer")))
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     return languageFormDiv;
   }

@@ -152,7 +152,7 @@ public abstract class NorthStarBaseView {
     if (isTi) {
       // CommonProfile.getEmail() can return null, so we guard that with a generic
       // display string.
-      // If it's a TI, there will definitely be a profile. TODO: Add check.
+      // If it's a TI, there will definitely be a profile.
       String email =
           Optional.ofNullable(profile.get().getProfileData().getEmail())
               .orElse("Trusted Intermediary");

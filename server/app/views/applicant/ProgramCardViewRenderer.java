@@ -223,12 +223,12 @@ public final class ProgramCardViewRenderer {
     programData.with(title, description);
 
     // Use external link if it is present else use the default Program details page
+    String defaultLink =
+        profile.isPresent() && applicantId.isPresent()
+            ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
+            : applicantRoutes.show(program.id()).url();
     String programDetailsLink =
-        program.externalLink().isEmpty()
-            ? profile.isPresent() && applicantId.isPresent()
-                ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
-                : applicantRoutes.show(program.id()).url()
-            : program.externalLink();
+        program.externalLink().isEmpty() ? defaultLink : program.externalLink();
     ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")

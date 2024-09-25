@@ -157,7 +157,7 @@ public class ProgramBuilder {
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
    * blank description and disabled.
    */
-  public static ProgramBuilder newDisabledActiveProgram(String name) {
+  public static ProgramBuilder newActiveDisabledProgram(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
@@ -170,7 +170,7 @@ public class ProgramBuilder {
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
    * blank description and hidden in index.
    */
-  public static ProgramBuilder newHiddenInIndexActiveProgram(String name) {
+  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
@@ -183,7 +183,7 @@ public class ProgramBuilder {
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
    * blank description and visible only to Trusted Intermediaries.
    */
-  public static ProgramBuilder newTiOnlyActiveProgram(String name) {
+  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
