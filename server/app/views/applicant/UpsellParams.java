@@ -39,7 +39,7 @@ public abstract class UpsellParams {
   abstract Optional<String> programDescription();
 
   // Program ID of the program that was just applied to
-  abstract long programId();
+  abstract long completedProgramId();
 
   abstract LocalizedStrings customConfirmationMessage();
 
@@ -70,7 +70,7 @@ public abstract class UpsellParams {
 
     public abstract Builder setProgramDescription(String programDescription);
 
-    public abstract Builder setProgramId(long programId);
+    public abstract Builder setCompletedProgramId(long programId);
 
     public abstract Builder setCustomConfirmationMessage(
         LocalizedStrings customConfirmationMessage);

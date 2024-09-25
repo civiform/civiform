@@ -61,7 +61,9 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
     String goBackHref =
-        applicantRoutes.review(params.profile(), params.applicantId(), params.programId()).url();
+        applicantRoutes
+            .review(params.profile(), params.applicantId(), params.completedProgramId())
+            .url();
     context.setVariable("goBackHref", goBackHref);
 
     if (params.eligiblePrograms().isPresent()) {
