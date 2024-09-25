@@ -9,7 +9,7 @@ const configuration = {
       response_mode: ['form_post'],
       grant_types: ['implicit'],
       application_type: 'web',
-      scopes: ['openid', 'profile'],
+      scopes: ['openid', 'profile', 'phone'],
       // Note: The invalidate function is overridden on the server in order to allow redirect URLs
       // on the localhost domain as well as an insecure domain.
       redirect_uris: [
@@ -49,7 +49,7 @@ const configuration = {
       response_mode: ['form_post'],
       grant_types: ['implicit'],
       application_type: 'web',
-      scopes: ['openid', 'profile'],
+      scopes: ['openid', 'profile', 'phone'],
       // Note: The invalidate function is overridden on the server in order to allow redirect URLs
       // on the localhost domain as well as an insecure domain.
       redirect_uris: [
@@ -85,37 +85,39 @@ const configuration = {
   // Required method, we fake the account details.
   async findAccount(ctx, id) {
     const email = `${id}@example.com`
-    if (ctx.oidc.client.clientId == 'idcs-fake-oidc-client') {
-      return {
-        accountId: id,
-        async claims() {
-          return {
-            sub: id,
-            // pretend to be IDCS which uses this key for user email.
-            user_emailid: email,
-            // lie about verification for tests.
-            email_verified: true,
-            // The display name is what appears in the UI when logged in. The CiviForm server
-            // supports display name with multiple components (e.g. "first middle last") as well as a
-            // single component (e.g. foo@example.com). For simplicity, the email address is used
-            // since there's only a single "id" field available at this point.
-            user_displayname: email,
-          }
-        },
-      }
-    }
+  
     return {
-      // Standard OIDC-complient response
       accountId: id,
-      async claims() {
-        return {
+      async claims(use, scope) {
+        const claims = {
           sub: id,
-          email: email,
-          name: email,
-          picture:
-            'https://www.gravatar.com/avatar/00000000000000000000000000000000.png',
-          email_verified: true,
+          // lie about verification for tests.
+          email_verified: true
+        };
+
+        if (ctx.oidc.client.clientId == 'idcs-fake-oidc-client') {
+          // pretend to be IDCS which uses this key for user email.
+          claims.user_emailid = email;
+          // The display name is what appears in the UI when logged in. The CiviForm server
+          // supports display name with multiple components (e.g. "first middle last") as well as a
+          // single component (e.g. foo@example.com). For simplicity, the email address is used
+          // since there's only a single "id" field available at this point.
+          claims.user_displayname = email;
+        } else {
+          claims.email = email;
+          claims.name = email;
+          claims.picture = 'https://www.gravatar.com/avatar/00000000000000000000000000000000.png';
         }
+
+
+        // Include if 'phone' scope is requested
+        if (scope.includes('phone')) {
+          // Using area code 253 so that it passes the phone validation
+          claims.phone_number = '2538675309';
+          claims.phone_number_verified = true;
+        }
+
+        return claims;
       },
     }
   },
@@ -123,6 +125,7 @@ const configuration = {
     openid: ['sub'],
     email: ['user_emailid', 'email_verified', 'email'],
     profile: ['name', 'picture', 'user_displayname'],
+    phone: ['phone_number', 'phone_number_verified']
   },
   responseTypes: [
     'code id_token token',
@@ -161,6 +164,11 @@ process.on('SIGINT', () => {
   console.info('Interrupted')
   process.exit(0)
 })
+
+// This will print any server errors out. Otherwise there's no visibility into what's going on.
+oidc.on('server_error', (ctx, error) => {
+  console.error('Server error occurred:', error);
+});
 
 oidc.listen(oidcPort, () => {
   console.log(
