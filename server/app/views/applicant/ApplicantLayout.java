@@ -228,7 +228,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             StyleUtils.responsiveMedium("grow-0")))
                 .with(maybeRenderTiButton(profile, messages))
                 .condWith(
-                    isDevOrStaging && !disableDemoModeLogins,
+                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
                     div()
                         .withClasses("place-content-center")
                         .with(
