@@ -13,4 +13,5 @@ public final class FlashKey {
   public static String REDIRECTED_FROM_PROGRAM_SLUG = "redirected-from-program-slug";
   public static String SHOW_FAST_FORWARDED_MESSAGE = "showFastForwardedMessage";
   public static String SUCCESS_BANNER = "success-banner";
+  public static String DUPLICATE_SUBMISSION = "duplicate-submission";
 }

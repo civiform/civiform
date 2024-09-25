@@ -426,6 +426,16 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinueEditing() {
+    await this.page.click('text="Continue editing"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickExitApplication() {
+    await this.page.click('text="Exit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
