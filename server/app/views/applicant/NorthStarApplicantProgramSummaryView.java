@@ -48,8 +48,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
     context.setVariable("programTitle", params.programTitle());

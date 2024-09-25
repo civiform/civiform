@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -90,6 +91,6 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
         applicantService.getPersonalInfo(applicantId).toCompletableFuture().join(),
         messages,
         bundle,
-        applicantId);
+        Optional.of(applicantId));
   }
 }

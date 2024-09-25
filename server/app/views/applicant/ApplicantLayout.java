@@ -128,7 +128,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo personalInfo,
       Messages messages,
       HtmlBundle bundle,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     return renderWithNav(
         request,
         personalInfo,
@@ -144,7 +144,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Messages messages,
       HtmlBundle bundle,
       boolean includeAdminLogin,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
 
     if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
@@ -209,7 +209,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     return nav()
@@ -245,12 +245,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag<?> getLanguageForm(
-      Http.Request request, Messages messages, Long applicantId) {
+      Http.Request request, Messages messages, Optional<Long> applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
     String updateLanguageAction =
-        controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(applicantId)
-            .url();
+        applicantId.isPresent()
+            ? controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
+                    applicantId.get())
+                .url()
+            : controllers.applicant.routes.ApplicantInformationController
+                .setLangFromSwitcherWithoutApplicant()
+                .url();
 
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");

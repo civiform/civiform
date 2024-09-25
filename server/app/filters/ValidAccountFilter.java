@@ -47,7 +47,7 @@ public class ValidAccountFilter extends EssentialFilter {
    * infinite redirect.
    */
   private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
-    return NonUserRoutePrefixes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
+    return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
   }
 
   /** Return true if the request is to the logout endpoint. */

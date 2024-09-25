@@ -51,8 +51,8 @@ public abstract class NorthStarBaseView {
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
       Request request,
-      Long applicantId,
-      CiviFormProfile profile,
+      Optional<Long> applicantId,
+      Optional<CiviFormProfile> profile,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
@@ -85,7 +85,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("requestUri", request.uri());
 
     // Add auth parameters.
-    boolean isTi = profile.isTrustedIntermediary();
+    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
     boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
 
     context.setVariable("isTrustedIntermediary", isTi);
@@ -142,7 +142,7 @@ public abstract class NorthStarBaseView {
 
   private String getAccountIdentifier(
       boolean isTi,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     // For TIs we use the account email rather than first and last name because
@@ -151,8 +151,10 @@ public abstract class NorthStarBaseView {
     if (isTi) {
       // CommonProfile.getEmail() can return null, so we guard that with a generic
       // display string.
+      // If it's a TI, there will definitely be a profile. TODO: Add check.
       String email =
-          Optional.ofNullable(profile.getProfileData().getEmail()).orElse("Trusted Intermediary");
+          Optional.ofNullable(profile.get().getProfileData().getEmail())
+              .orElse("Trusted Intermediary");
 
       // To ensure a consistent string with browser snapshots, we override the
       // display email.
@@ -172,9 +174,13 @@ public abstract class NorthStarBaseView {
                 lang -> lang, lang -> languageUtils.getDisplayString(lang.locale())));
   }
 
-  private String getUpdateLanguageAction(Long applicantId) {
-    return controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
-            applicantId)
-        .url();
+  private String getUpdateLanguageAction(Optional<Long> applicantId) {
+    return applicantId.isPresent()
+        ? controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
+                applicantId.get())
+            .url()
+        : controllers.applicant.routes.ApplicantInformationController
+            .setLangFromSwitcherWithoutApplicant()
+            .url();
   }
 }

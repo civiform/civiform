@@ -28,6 +28,7 @@ import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -86,8 +87,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> indexWithApplicantId(
       Request request,
-      long applicantId, /* The selected program categories */
-      List<String> categories) {
+      long applicantId,
+      List<String> categories /* The selected program categories */) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
@@ -110,11 +111,11 @@ public final class ApplicantProgramsController extends CiviFormController {
                     ok(northStarProgramIndexView.render(
                             messagesApi.preferred(request),
                             request,
-                            applicantId,
+                            Optional.of(applicantId),
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
                             bannerMessage,
-                            requesterProfile))
+                            Optional.of(requesterProfile)))
                         .as(Http.MimeTypes.HTML);
               } else {
                 result =
@@ -122,12 +123,12 @@ public final class ApplicantProgramsController extends CiviFormController {
                         programIndexView.render(
                             messagesApi.preferred(request),
                             request,
-                            applicantId,
+                            Optional.of(applicantId),
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
                             ImmutableList.copyOf(categories),
                             banner,
-                            requesterProfile));
+                            Optional.of(requesterProfile)));
               }
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
@@ -148,18 +149,49 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  @Secure
+  /**
+   * When the user is not logged in or tied to a guest account, show them the list of publicly
+   * viewable programs.
+   */
+  public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
+    // get the programs for the active version
+    // turn them into applicationPrograms
+    CompletableFuture<ApplicationPrograms> programsFuture =
+        applicantService.relevantProgramsForNoApplicant(request).toCompletableFuture();
+
+    return programsFuture.thenApplyAsync(
+        programs -> {
+          return settingsManifest.getNorthStarApplicantUi(request)
+              ? ok(northStarProgramIndexView.render(
+                      messagesApi.preferred(request),
+                      request,
+                      Optional.empty(),
+                      ApplicantPersonalInfo.ofGuestUser(),
+                      programsFuture.join(),
+                      request.flash().get(FlashKey.BANNER),
+                      Optional.empty()))
+                  .as(Http.MimeTypes.HTML)
+              : ok(
+                  programIndexView.renderWithoutApplicant(
+                      messagesApi.preferred(request),
+                      request,
+                      programs,
+                      ImmutableList.copyOf(categories)));
+        });
+  }
+
   public CompletionStage<Result> index(Request request) {
+    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+      return indexWithoutApplicantId(request, ImmutableList.of());
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
-      return CompletableFuture.completedFuture(redirectToHome());
+      return indexWithoutApplicantId(request, ImmutableList.of());
     }
-    return indexWithApplicantId(
-        request,
-        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-        ImmutableList.of());
+    return indexWithApplicantId(request, applicantId.get(), ImmutableList.of());
   }
 
   @Secure

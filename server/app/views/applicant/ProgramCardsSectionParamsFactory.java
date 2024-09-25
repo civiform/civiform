@@ -52,8 +52,8 @@ public final class ProgramCardsSectionParamsFactory {
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
-      CiviFormProfile profile,
-      Long applicantId,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
 
     ProgramSectionParams.Builder sectionBuilder =
@@ -84,8 +84,8 @@ public final class ProgramCardsSectionParamsFactory {
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
-      CiviFormProfile profile,
-      Long applicantId,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
     ImmutableList.Builder<ProgramCardParams> cardsListBuilder = ImmutableList.builder();
 
@@ -94,7 +94,10 @@ public final class ProgramCardsSectionParamsFactory {
       ProgramDefinition program = programDatum.program();
 
       boolean isGuest = personalInfo.getType() == GUEST;
-      String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
+      String actionUrl =
+          profile.isPresent() && applicantId.isPresent()
+              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
+              : applicantRoutes.review(program.id()).url();
 
       // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
       // whatever else our current cards do.

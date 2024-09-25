@@ -341,13 +341,13 @@ public final class ProgramImageView extends BaseHtmlView {
             // that the "Apply" button on the preview card takes them to the full program preview.
             ApplicantPersonalInfo.ApplicantType.LOGGED_IN,
             card,
-            applicantId,
+            Optional.of(applicantId),
             messages.lang().toLocale(),
             MessageKey.BUTTON_APPLY,
             MessageKey.BUTTON_APPLY_SR,
             /* nestedUnderSubheading= */ false,
             layout.getBundle(request),
-            profile.get(),
+            profile,
             zoneId,
             /* isInMyApplicationsSection= */ false);
     return currentProgramCardSection.with(programCard);

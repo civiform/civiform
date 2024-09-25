@@ -107,13 +107,13 @@ public final class ProgramCardViewRenderer {
       ApplicantPersonalInfo personalInfo,
       Optional<MessageKey> sectionTitle,
       String cardContainerStyles,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       boolean isMyApplicationsSection) {
     String sectionHeaderId = Modal.randomModalId();
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
@@ -168,13 +168,13 @@ public final class ProgramCardViewRenderer {
       Messages messages,
       ApplicantPersonalInfo.ApplicantType applicantType,
       ApplicantService.ApplicantProgramData cardData,
-      Long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
       boolean nestedUnderSubheading,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       ZoneId zoneId,
       boolean isInMyApplicationsSection) {
     ProgramDefinition program = cardData.program();
@@ -225,7 +225,9 @@ public final class ProgramCardViewRenderer {
     // Use external link if it is present else use the default Program details page
     String programDetailsLink =
         program.externalLink().isEmpty()
-            ? applicantRoutes.show(profile, applicantId, program.id()).url()
+            ? profile.isPresent() && applicantId.isPresent()
+                ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
+                : applicantRoutes.show(program.id()).url()
             : program.externalLink();
     ATag infoLink =
         new LinkElement()
@@ -262,7 +264,11 @@ public final class ProgramCardViewRenderer {
     }
 
     String actionUrl =
-        applicantRoutes.review(profile, applicantId, cardData.currentApplicationProgramId()).url();
+        profile.isPresent() && applicantId.isPresent()
+            ? applicantRoutes
+                .review(profile.get(), applicantId.get(), cardData.currentApplicationProgramId())
+                .url()
+            : applicantRoutes.review(cardData.currentApplicationProgramId()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(
