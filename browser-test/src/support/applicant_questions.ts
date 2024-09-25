@@ -262,6 +262,11 @@ export class ApplicantQuestions {
     await this.page.click('text="Apply to another program"')
   }
 
+  async clickApplyToProgramsButton() {
+    await this.page.click('text="Apply to programs"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickBack() {
     await this.page.click('text="Back"')
   }
@@ -422,6 +427,16 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinueEditing() {
+    await this.page.click('text="Continue editing"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickExitApplication() {
+    await this.page.click('text="Exit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
@@ -549,6 +564,7 @@ export class ApplicantQuestions {
     await this.expectProgramsPage()
   }
 
+  // Expect the program index (home) page
   async expectProgramsPage() {
     await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')

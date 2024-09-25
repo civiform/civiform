@@ -66,6 +66,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
 
+    // Modals
+    Optional<String> duplicateFlashValue = request.flash().get(FlashKey.DUPLICATE_SUBMISSION);
+    context.setVariable("duplicateSubmission", duplicateFlashValue);
+    context.setVariable("exitHref", "/");
+
     // Eligibility Alerts
     context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());
 

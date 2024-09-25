@@ -43,6 +43,9 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
             params.applicantPersonalInfo(),
             params.messages());
 
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programDescription", params.programDescription().orElse(""));
+
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
     context.setVariable("upsellBypassUrl", applyToProgramsUrl);
@@ -56,6 +59,12 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
+
+    String goBackHref =
+        applicantRoutes
+            .review(params.profile(), params.applicantId(), params.completedProgramId())
+            .url();
+    context.setVariable("goBackHref", goBackHref);
 
     if (params.eligiblePrograms().isPresent()) {
       Locale userLocale = params.messages().lang().toLocale();

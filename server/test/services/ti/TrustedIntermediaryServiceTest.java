@@ -288,7 +288,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(returnedForm.errors()).isEmpty();
     AccountModel account =
         tiGroup.getManagedAccounts().stream()
-            .filter(acct -> acct.getApplicantName().equals("Email, No"))
+            .filter(acct -> acct.getApplicantDisplayName().equals("Email, No"))
             .findFirst()
             .get();
     assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
@@ -429,7 +429,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     TrustedIntermediarySearchResult tiResult =
         service.getManagedAccounts(searchParameters, tiGroup);
     assertThat(tiResult.accounts().size()).isEqualTo(1);
-    assertThat(tiResult.accounts().get(0).getApplicantName()).contains("Bobo");
+    assertThat(tiResult.accounts().get(0).getApplicantDisplayName()).contains("Bobo");
   }
 
   @Test

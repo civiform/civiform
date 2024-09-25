@@ -220,7 +220,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                     .with(
                         each(
                             managedAccounts.stream()
-                                .sorted(Comparator.comparing(AccountModel::getApplicantName))
+                                .sorted(Comparator.comparing(AccountModel::getApplicantDisplayName))
                                 .collect(Collectors.toList()),
                             account -> renderClientCard(account, messages))));
 
@@ -250,7 +250,7 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
                         .with(
                             div(
                                     div(
-                                            renderSubHeader(account.getApplicantName())
+                                            renderSubHeader(account.getApplicantDisplayName())
                                                 .withClass("usa-card__heading"),
                                             u(renderEditClientLink(account.id, messages))
                                                 .withClass("ml-2"))

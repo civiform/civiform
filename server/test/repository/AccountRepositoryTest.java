@@ -406,7 +406,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void updateSerializedIdTokens() {
+  public void updateIdTokens() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
@@ -418,21 +418,21 @@ public class AccountRepositoryTest extends ResetPostgres {
     Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
 
-    repo.updateSerializedIdTokens(account, "sessionId1", expiredJwt.serialize());
+    repo.updateIdTokens(account, "sessionId1", expiredJwt.serialize());
 
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
-    repo.updateSerializedIdTokens(account, "sessionId2", validJwt.serialize());
+    repo.updateIdTokens(account, "sessionId2", validJwt.serialize());
 
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();
     // Expired token
-    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId1")).isNull();
+    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId1")).isEmpty();
     // Valid token
-    assertThat(retrievedAccount.get().getSerializedIdTokens().get("sessionId2"))
-        .isEqualTo(validJwt.serialize());
+    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
+        .hasValue(validJwt.serialize());
   }
 
   @Test

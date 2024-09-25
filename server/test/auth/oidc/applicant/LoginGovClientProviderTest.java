@@ -5,7 +5,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -45,7 +44,6 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   public void setup() {
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
-    IdTokensFactory idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -59,10 +57,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     loginGovProvider =
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test

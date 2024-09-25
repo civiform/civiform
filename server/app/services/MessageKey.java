@@ -143,7 +143,10 @@ public enum MessageKey {
   CONTENT_DOES_NOT_QUALIFY("content.doesNotQualify"),
   CONTENT_DISABLED_PROGRAM_INFO("content.disabledProgramInfo"),
   CONTENT_COMMON_INTAKE_CONFIRMATION("content.commonIntakeConfirmation"),
+  CONTENT_COMMON_INTAKE_CONFIRMATION_V2("content.commonIntakeConfirmation.v2"), // North Star only
   CONTENT_COMMON_INTAKE_CONFIRMATION_TI("content.commonIntakeConfirmationTi"),
+  CONTENT_COMMON_INTAKE_CONFIRMATION_TI_V2(
+      "content.commonIntakeConfirmationTi.v2"), // North Star only
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS("content.commonIntakeNoMatchingPrograms"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(

@@ -41,14 +41,12 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static OidcProfile profile;
 
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
 
     profile = new OidcProfile();
     profile.addAttribute("user_emailid", EMAIL);
@@ -72,7 +70,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         OidcClientProviderParams.create(
             civiformConfig,
             profileFactory,
-            idTokensFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
@@ -212,11 +209,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Additional validations for enhanced logout behavior.
     AccountModel account = maybeApplicant.get().getAccount();
-    SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
-    assertThat(serializedIdTokens).isNotNull();
-    assertThat(serializedIdTokens.size()).isEqualTo(1);
-    assertThat(serializedIdTokens.entrySet().iterator().next().getValue())
-        .isEqualTo(ID_TOKEN_STRING);
+    IdTokens idTokens = account.getIdTokens();
+    assertThat(idTokens.getIdToken(profileData.getSessionId())).hasValue(ID_TOKEN_STRING);
   }
 
   @Test

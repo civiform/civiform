@@ -5,50 +5,86 @@
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main>
-      <div class="grid-container section">
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+      ></div>
+      <div class="grid-container">
         <div class="grid-row">
-          <div class="tablet:grid-col-8">
+          <div class="tablet:grid-col-8 usa-prose">
             <div th:replace="~{components/ToastFragment :: upsellToasts}"></div>
-            <h1>
-              <th:block
-                th:text="${isTrustedIntermediary} ? #{title.commonIntakeConfirmationTi} : #{title.commonIntakeConfirmation}"
-              ></th:block>
-            </h1>
 
-            <div th:if="${eligiblePrograms.size() eq 0}" class="margin-y-2">
-              <!-- utext is necessary to insert a hyperlink into a localized string. -->
-              <p
-                th:utext="${isTrustedIntermediary} ? #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} : #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
-              ></p>
-            </div>
+            <section class="usa-prose section-external">
+              <h2>
+                <th:block
+                  th:text="${isTrustedIntermediary} ?
+                  #{title.commonIntakeConfirmationTi} :
+                  #{title.commonIntakeConfirmation}"
+                ></th:block>
+              </h2>
 
-            <div th:if="${eligiblePrograms.size() neq 0}" class="margin-y-2">
-              <p
-                th:text="${isTrustedIntermediary} ? #{content.commonIntakeConfirmationTi} : #{content.commonIntakeConfirmation}"
-              ></p>
-
-              <div th:each="ep : ${eligiblePrograms}" class="margin-y-2">
-                <h2 th:text="${ep.getTitle()}"></h2>
-                <p th:text="${ep.getDescription()}"></p>
+              <div th:if="${eligiblePrograms.size() eq 0}">
+                <!-- utext is necessary to insert a hyperlink into a localized string. -->
+                <p
+                  th:utext="${isTrustedIntermediary} ?
+                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
+                  #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
+                ></p>
               </div>
-            </div>
 
-            <a
-              th:if="${!isGuest}"
-              href="/"
-              class="usa-button"
-              id="another-program"
-              th:text="#{link.applyToAnotherProgram}"
-            ></a>
-            <a
-              th:if="${isGuest}"
-              href="#login-dialog-upsell"
-              aria-controls="login-dialog-upsell"
-              class="usa-button"
-              id="another-program"
-              th:text="#{link.applyToAnotherProgram}"
-              data-open-modal
-            ></a>
+              <th:block
+                th:if="${eligiblePrograms.size() neq 0}"
+                class="usa-prose"
+              >
+                <p
+                  th:text="${isTrustedIntermediary} ?
+                    #{content.commonIntakeConfirmationTi.v2} :
+                    #{content.commonIntakeConfirmation.v2}"
+                  class="content"
+                ></p>
+
+                <div th:each="ep : ${eligiblePrograms}">
+                  <!-- We need h4 style for the headings, but accessibility checker doesn't allow skipping from h2 to h4 -->
+                  <h3 th:text="${ep.getTitle()}" class="cf-prose-h4"></h3>
+                  <p th:text="${ep.getDescription()}"></p>
+                </div>
+              </th:block>
+
+              <div class="section-internal">
+                <a
+                  th:if="${!isGuest}"
+                  href="/"
+                  class="usa-button usa-button--outline margin-bottom-1"
+                  id="another-program"
+                  th:text="#{button.applyToPrograms}"
+                ></a>
+                <a
+                  th:if="${isGuest}"
+                  href="#login-dialog-upsell"
+                  aria-controls="login-dialog-upsell"
+                  class="usa-button usa-button--outline margin-bottom-1"
+                  id="another-program"
+                  th:text="#{button.applyToPrograms}"
+                  data-open-modal
+                ></a>
+
+                <a
+                  th:if="${eligiblePrograms.size() eq 0}"
+                  href="/"
+                  class="usa-button margin-bottom-1"
+                  role="button"
+                  id="go-back"
+                  th:text="#{button.editMyResponses}"
+                  th:href="${goBackHref}"
+                >
+                </a>
+              </div>
+            </section>
+
+            <section class="section-external" th:if="${isGuest}">
+              <div
+                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount}"
+              ></div>
+            </section>
           </div>
         </div>
       </div>
