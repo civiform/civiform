@@ -118,6 +118,28 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('Validate login link in alert', async ({page, applicantQuestions}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
+    })
+
+    await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+      await expect(
+        page.getByText(
+          'Create an account to save your application information',
+        ),
+      ).toBeVisible()
+
+      await loginAsTestUser(page, 'a:has-text("Login to an existing account")')
+      await applicantQuestions.expectProgramsPage()
+    })
+  })
+
   test('Page does not show programs the user already applied to', async ({
     page,
     adminPrograms,
