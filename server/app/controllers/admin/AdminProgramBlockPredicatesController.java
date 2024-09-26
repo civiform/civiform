@@ -402,12 +402,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     String toastType;
     String toastMessage;
     try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition =
-          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-              .setLocalizedMessage(Optional.of(LocalizedStrings.of(Locale.US, newMessage)))
-              .build();
-
       programService.setBlockEligibilityMessage(
           programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
 
