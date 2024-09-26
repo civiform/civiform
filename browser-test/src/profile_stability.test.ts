@@ -75,7 +75,7 @@ test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
     await test.step('Simulate going to a user route by going to the callback', async () => {
       await page.goto('/callback?client_name=GuestClient')
     })
-    
+
     await test.step('Verify profile data', async () => {
       await page.goto('/dev/profile')
       const content = await page.content()

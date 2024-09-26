@@ -13,7 +13,11 @@ test.describe('Header', () => {
   /**
    * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
    */
-  test('Check screenshots and validate accessibility', async ({page, adminPrograms, adminQuestions, applicantQuestions}) => {
+  test('Check screenshots and validate accessibility', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
     await test.step('Take a screenshot with no profile/account', async () => {
       await validateScreenshot(page.getByRole('navigation'), 'not-logged-in')
     })
