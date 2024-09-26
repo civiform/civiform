@@ -54,18 +54,30 @@ test.describe('User HTTP sessions', {tag: ['@parallel-candidate']}, () => {
     })
   })
 
-  test('Ensures that an initial request gets a user profile', async ({
+  test('Ensures that an initial request does not get a user profile, but hitting a user route does', async ({
     page,
   }) => {
-    // Load a page that corresponds to a user-facing route in order to get a profile.
-    await expect(page.getByRole('button', {name: 'Log in'})).toHaveText(
-      'Log in',
-    )
+    // Load the index, which should not need a profile
+    await test.step('Load the index, which should not need a profile', async () => {
+      await page.goto('/')
+      await expect(page.getByRole('button', {name: 'Log in'})).toHaveText(
+        'Log in',
+      )
+    })
 
-    // Now validate that a user profile is present.
-    await page.goto('/dev/profile')
+    await test.step('Validate that no user profile is present', async () => {
+      await page.goto('/dev/profile')
+      const content = await page.content()
+      const matches = content.match(/No profile present/s)
+      expect(matches).not.toBeNull()
+    })
 
+    await test.step('Simulate going to a user route by going to the callback', async () => {
+      await page.goto('/callback?client_name=GuestClient')
+    })
+    
     await test.step('Verify profile data', async () => {
+      await page.goto('/dev/profile')
       const content = await page.content()
       const matches = content.match(/{.*}/s)
 
