@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import play.i18n.Lang;

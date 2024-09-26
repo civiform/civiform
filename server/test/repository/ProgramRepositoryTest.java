@@ -16,7 +16,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -36,7 +35,6 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -721,7 +719,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
       String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
-      eventRepo.setStatus(application,Optional.of(actorAccount),StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build());
+      eventRepo.setStatus(
+          application,
+          Optional.of(actorAccount),
+          StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build());
 
       // When persisting models with @WhenModified fields, EBean
       // truncates the persisted timestamp to milliseconds:

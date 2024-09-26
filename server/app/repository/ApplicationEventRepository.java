@@ -74,35 +74,37 @@ public final class ApplicationEventRepository {
       Optional<AccountModel> optionalAdmin,
       ApplicationEventDetails.StatusEvent newStatusEvent) {
     ApplicationEventDetails details =
-      ApplicationEventDetails.builder()
-        .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-        .setStatusEvent(newStatusEvent)
-        .build();
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(newStatusEvent)
+            .build();
     ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       insertSync(event);
       // Saves the latest note on the applications table too
-      // If the statuses are removed from an application, then the latest_status column needs to be set to null
+      // If the statuses are removed from an application, then the latest_status column needs to be
+      // set to null
       // to indicate the applications has no status and not a status with empty string.
       if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
         database
-          .update(ApplicationModel.class)
-          .set("latest_status", null)
-          .where()
-          .eq("id", application.id)
-          .update();
+            .update(ApplicationModel.class)
+            .set("latest_status", null)
+            .where()
+            .eq("id", application.id)
+            .update();
       } else {
         database
-          .update(ApplicationModel.class)
-          .set("latest_status", newStatusEvent.statusText())
-          .where()
-          .eq("id", application.id)
-          .update();
+            .update(ApplicationModel.class)
+            .set("latest_status", newStatusEvent.statusText())
+            .where()
+            .eq("id", application.id)
+            .update();
       }
       application.save();
       transaction.commit();
     }
   }
+
   public void insertNoteEvent(
       ApplicationModel application, ApplicationEventDetails.NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =

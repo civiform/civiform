@@ -475,7 +475,8 @@ public final class ApplicantService {
             .build();
 
     // Because we are doing this automatically, set the Account to empty.
-    applicationEventRepository.setStatus(application, /* optionalAdmin= */ Optional.empty(), statusEvent);
+    applicationEventRepository.setStatus(
+        application, /* optionalAdmin= */ Optional.empty(), statusEvent);
 
     return CompletableFuture.completedFuture(application);
   }
