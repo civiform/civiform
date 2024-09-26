@@ -82,7 +82,7 @@
 
             <section class="section-external" th:if="${isGuest}">
               <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount}"
+                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
               ></div>
             </section>
           </div>

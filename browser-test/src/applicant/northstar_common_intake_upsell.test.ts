@@ -80,6 +80,41 @@ test.describe(
       })
     })
 
+    test('As guest, validate login link in alert', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('Setup: publish one program', async () => {
+        await adminPrograms.addProgram(eligibleProgram1)
+        await adminPrograms.publishProgram(eligibleProgram1)
+        await logout(page)
+      })
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await test.step('Setup: submit application', async () => {
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+        await expect(
+          page.getByText(
+            'Create an account to save your application information',
+          ),
+        ).toBeVisible()
+
+        await loginAsTestUser(
+          page,
+          'a:has-text("Login to an existing account")',
+        )
+        await applicantQuestions.expectProgramsPage()
+      })
+    })
+
     test('view application submitted page with zero eligible programs', async ({
       page,
       applicantQuestions,

@@ -74,7 +74,7 @@
               </section>
 
               <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount}"
+                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
               ></div>
 
               <div class="section-internal">

@@ -66,6 +66,9 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
             .url();
     context.setVariable("goBackHref", goBackHref);
 
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
     if (params.eligiblePrograms().isPresent()) {
       Locale userLocale = params.messages().lang().toLocale();
 
