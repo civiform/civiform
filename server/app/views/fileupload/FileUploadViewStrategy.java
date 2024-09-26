@@ -23,6 +23,7 @@ import play.mvc.Http.RequestHeader;
 import services.AlertType;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageUploadRequest;
 import views.AlertComponent;
 import views.CspUtil;
@@ -51,6 +52,11 @@ public abstract class FileUploadViewStrategy {
   /** Returns the action attribute appended to the <form> element for a file upload question. */
   public String formAction(StorageUploadRequest request) {
     return null;
+  }
+
+  /** Returns the file name for a given file key. */
+  public String getFileName(String fileKey) {
+    return FileUploadQuestion.getFileName(fileKey);
   }
 
   /**

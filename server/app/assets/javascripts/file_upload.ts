@@ -53,10 +53,12 @@ export function init() {
       uploadedDiv.innerText = uploadText.replace('{0}', file.name)
     }
 
+    console.log('change')
     // If we don't have the div showing the latest file upload (from the older single-file upload
     // behavior), then multiple file upload feature is enabled, in that case, submit the form
     // as soon as the applicant selects a file so it immediately uploads the file.
     if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+      console.log('submit')
       blockForm.submit()
     }
   })
