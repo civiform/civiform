@@ -1,5 +1,5 @@
 <div
-  th:fragment="file-upload(question, questionRendererParams, fileUploadViewStrategy)"
+  th:fragment="file-upload(question, applicationParams, questionRendererParams, fileUploadViewStrategy)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)}"
@@ -24,13 +24,6 @@
     th:name="${inputValues.key}"
     th:value="${inputValues.value}"
   />
-
-  <div
-    th:with="alreadyUploadedText=#{input.fileAlreadyUploaded(${fileUploadQuestion.getFilename().orElse('')})}"
-    th:text="${fileUploadQuestion.getFilename().isEmpty() ? '' : alreadyUploadedText}"
-    th:attr="data-upload-text=#{input.fileAlreadyUploaded}"
-    aria-live="polite"
-  ></div>
 
   <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
   <div
@@ -67,6 +60,34 @@
     accept="image/*,.pdf"
     th:data-file-limit-mb="${maxFileSizeMb}"
   />
+
+  <ul
+    th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
+    th:attr="aria-label=#{label.uploadedFiles}"
+    class="grid"
+  >
+    <li
+      th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+      class="grid-row"
+    >
+      <span
+        th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+        class="overflow-hidden grid-col flex-fill"
+      ></span>
+      <a
+        th:text="#{link.removeFile}"
+        th:href="${applicationParams.applicantRoutes().removeFile(
+          applicationParams.profile(),
+          applicationParams.applicantId(),
+          applicationParams.programId(),
+          applicationParams.block().id,
+          fileKey,
+          applicationParams.inReview()
+        ).url()}"
+        class="usa-button usa-button--unstyled margin-x-2"
+      ></a>
+    </li>
+  </ul>
 </div>
 
 <!--/* Fragment for rendering file key fields within hidden inputs */-->
