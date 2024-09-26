@@ -2,7 +2,7 @@
 
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS latest_note varchar;
 
--- Update historical data from application events table
+# -- Update historical data from application events table
 UPDATE applications
 SET latest_note = match_applications.latest_note
   FROM (

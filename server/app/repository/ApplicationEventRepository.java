@@ -81,7 +81,9 @@ public final class ApplicationEventRepository {
     ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       insertSync(event);
-      // save the latest note on the applications table too
+      // Saves the latest note on the applications table too
+      // If the statuses are removed from an application, then the latest_status column needs to be set to null
+      // to indicate the applications has no status and not a status with empty string.
       if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
         database
           .update(ApplicationModel.class)
