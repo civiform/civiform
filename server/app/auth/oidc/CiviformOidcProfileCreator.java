@@ -158,7 +158,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               account -> {
                 accountRepositoryProvider
                     .get()
-                    .updateIdTokens(
+                    .addIdTokenAndPrune(
                         account,
                         civiformProfile.getProfileData().getSessionId(),
                         oidcProfile.getIdTokenString());
