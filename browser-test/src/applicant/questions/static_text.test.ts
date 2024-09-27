@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -27,6 +28,8 @@ test.describe('Static text question for applicant flow', () => {
 
   test.describe('With north star flag disabled', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await setUpForSingleQuestion(
         programName,
         page,

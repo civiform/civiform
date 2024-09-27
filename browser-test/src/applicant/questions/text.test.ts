@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -12,6 +13,8 @@ test.describe('Text question for applicant flow', () => {
     const programName = 'Test program for single text q'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
 

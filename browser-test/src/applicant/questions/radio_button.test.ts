@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -15,6 +16,8 @@ test.describe('Radio button question for applicant flow', () => {
     const programName = 'Test program for single radio button'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await setUpForSingleQuestion(
         programName,
         page,

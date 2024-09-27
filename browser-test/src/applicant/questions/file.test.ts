@@ -1,5 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -20,6 +21,8 @@ test.describe('file upload applicant flow', () => {
     const fileUploadQuestionText = 'Required file upload question'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await loginAsAdmin(page)
 
       await adminQuestions.addFileUploadQuestion({

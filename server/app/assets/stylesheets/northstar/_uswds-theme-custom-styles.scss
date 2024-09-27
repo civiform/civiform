@@ -287,3 +287,15 @@ main {
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
 }
+
+.not-production-banner {
+  background-color: red;
+  color: white;
+  justify-content: center;
+  text-align: center;
+  text-justify: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  @include u-padding(2);
+}

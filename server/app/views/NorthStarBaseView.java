@@ -111,6 +111,23 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    if (settingsManifest.getShowNotProductionBannerEnabled(request)) {
+      context.setVariable(
+          "showNotProductionBannerEnabled",
+          settingsManifest.getShowNotProductionBannerEnabled(request));
+
+      // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+      // difficult to add HTML within a message. So we have to manually build the html for a link
+      // that will be embedded in the banner.
+      Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
+      Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
+      if (linkHref.isPresent() && linkText.isPresent()) {
+        String linkHtml =
+            "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
+        context.setVariable("notProductionBannerLinkHtml", linkHtml);
+      }
+    }
+
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
     context.setVariable("showDebugTools", showDebugTools);

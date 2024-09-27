@@ -4,6 +4,7 @@ import {
   AdminPrograms,
   AdminQuestions,
   enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -15,6 +16,8 @@ test.describe('Checkbox question for applicant flow', () => {
     const programName = 'Test program for single checkbox'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await setUpForSingleQuestion(
         programName,
         page,

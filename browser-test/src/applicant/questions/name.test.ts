@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -18,6 +19,8 @@ test.describe('name applicant flow', () => {
     const programName = 'Test program for single name'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await setUpSingleRequiredQuestion(
         programName,
         page,

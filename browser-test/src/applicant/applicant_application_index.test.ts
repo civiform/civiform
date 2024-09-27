@@ -3,6 +3,7 @@ import {
   ApplicantQuestions,
   AdminPrograms,
   enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -25,6 +26,8 @@ test.describe('applicant program index page', () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
