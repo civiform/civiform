@@ -17,7 +17,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/java:1.6.0": {
+    "ghcr.io/devcontainers/features/java:1.6.1": {
       "version": "17",
       "jdkDistro": "tem", // Eclipse Adoptium Temurin per https://sdkman.io/jdks#tem See also: whichjdk.com
       "installMaven": "true",
