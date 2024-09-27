@@ -2,9 +2,6 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Optional;
@@ -17,6 +14,7 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 import services.geo.esri.EsriTestHelper.TestType;
+import services.geo.esri.models.Attributes;
 
 public class EsriClientTest {
   private EsriTestHelper helper;
@@ -184,81 +182,62 @@ public class EsriClientTest {
   }
 
   @Test
-  public void verifyMappingAddressFromJsonAttributes_useRegionAbbrField()
-      throws JsonProcessingException {
-    String json =
-        "{\"attributes\": {"
-            + "  \"SubAddr\": \"line2-expected\","
-            + "  \"Address\": \"street-expected\","
-            + "  \"City\": \"city-expected\","
-            + "  \"Region\": null,"
-            + "  \"RegionAbbr\": \"WA\","
-            + "  \"Postal\": \"11111-expected\""
-            + "}}";
+  public void verifyMappingAddressFromJsonAttributes_useRegionAbbrField() {
+    Attributes attributes =
+        new Attributes(
+            "line2-expected", "street-expected", "city-expected", null, "WA", "11111-expected");
 
     runMapAddressAttributesJsonAndAssertResults(
-        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+        attributes, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
   }
 
   @Test
-  public void verifyMappingAddressFromJsonAttributes_useRegionField()
-      throws JsonProcessingException {
-    String json =
-        "{\"attributes\": {"
-            + "  \"SubAddr\": \"line2-expected\","
-            + "  \"Address\": \"street-expected\","
-            + "  \"City\": \"city-expected\","
-            + "  \"Region\": \"WA\","
-            + "  \"RegionAbbr\": \"Washington\","
-            + "  \"Postal\": \"11111-expected\""
-            + "}}";
+  public void verifyMappingAddressFromJsonAttributes_useRegionField() {
+    Attributes attributes =
+        new Attributes(
+            "line2-expected",
+            "street-expected",
+            "city-expected",
+            "WA",
+            "Washington",
+            "11111-expected");
 
     runMapAddressAttributesJsonAndAssertResults(
-        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+        attributes, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
   }
 
   @Test
-  public void verifyMappingAddressFromJsonAttributes_bothRegionFieldsAreLongStrings()
-      throws JsonProcessingException {
-    String json =
-        "{\"attributes\": {"
-            + "  \"SubAddr\": \"line2-expected\","
-            + "  \"Address\": \"street-expected\","
-            + "  \"City\": \"city-expected\","
-            + "  \"Region\": \"Washington\","
-            + "  \"RegionAbbr\": \"Washington\","
-            + "  \"Postal\": \"11111-expected\""
-            + "}}";
+  public void verifyMappingAddressFromJsonAttributes_bothRegionFieldsAreLongStrings() {
+    Attributes attributes =
+        new Attributes(
+            "line2-expected",
+            "street-expected",
+            "city-expected",
+            "Washington",
+            "Washington",
+            "11111-expected");
 
     runMapAddressAttributesJsonAndAssertResults(
-        json, "street-expected", "line2-expected", "city-expected", "CA", "11111-expected");
+        attributes, "street-expected", "line2-expected", "city-expected", "CA", "11111-expected");
   }
 
   @Test
-  public void verifyMappingAddressFromJsonAttributes_useLine2AsEnteredIfNull()
-      throws JsonProcessingException {
-    String json =
-        "{\"attributes\": {"
-            + "  \"SubAddr\": null,"
-            + "  \"Address\": \"street-expected\","
-            + "  \"City\": \"city-expected\","
-            + "  \"Region\": \"WA\","
-            + "  \"RegionAbbr\": \"Washington\","
-            + "  \"Postal\": \"11111-expected\""
-            + "}}";
+  public void verifyMappingAddressFromJsonAttributes_useLine2AsEnteredIfNull() {
+    Attributes attributes =
+        new Attributes(
+            null, "street-expected", "city-expected", "WA", "Washington", "11111-expected");
 
     runMapAddressAttributesJsonAndAssertResults(
-        json, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
+        attributes, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
   }
 
   private void runMapAddressAttributesJsonAndAssertResults(
-      String json,
+      Attributes attributes,
       String streetExpected,
       String line2Expected,
       String cityExpected,
       String stateExpected,
-      String zipExpected)
-      throws JsonProcessingException {
+      String zipExpected) {
     Address userEnteredAddress =
         Address.builder()
             .setStreet("street-user")
@@ -268,9 +247,7 @@ public class EsriClientTest {
             .setZip("11111-user")
             .build();
 
-    JsonNode jsonNode = new ObjectMapper().readTree(json);
-
-    Address result = EsriClient.mapAddressAttributesJson(jsonNode, userEnteredAddress);
+    Address result = EsriClient.mapAddressAttributesJson(attributes, userEnteredAddress);
 
     assertThat(result.getStreet()).isEqualTo(streetExpected);
     assertThat(result.getLine2()).isEqualTo(line2Expected);
