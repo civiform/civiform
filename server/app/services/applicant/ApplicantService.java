@@ -1113,6 +1113,16 @@ public final class ApplicantService {
         : Optional.empty();
   }
 
+  public ApplicationPrograms relevantProgramsForNoApplicant(Request request) {
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
+            .map(p -> programRepository.getShallowProgramDefinition(p))
+            .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+            .collect(ImmutableList.toImmutableList());
+    return relevantProgramsForApplicantInternal(
+        activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+  }
+
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,

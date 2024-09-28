@@ -91,7 +91,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // statement.
     if (settingsManifest.getProgramFilteringEnabled(request)) {
       bundle.addMainContent(
-          topContent(request, messages, personalInfo),
+          topContent(request, messages, Optional.of(personalInfo)),
           mainContentWithProgramFiltersEnabled(
               request,
               messages,
@@ -104,7 +104,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               profile));
     } else {
       bundle.addMainContent(
-          topContent(request, messages, personalInfo),
+          topContent(request, messages, Optional.of(personalInfo)),
           mainContent(
               request,
               messages,
@@ -120,12 +120,74 @@ public final class ProgramIndexView extends BaseHtmlView {
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
   }
 
+  public Content renderWithoutApplicant(
+      Messages messages,
+      Http.Request request,
+      ApplicantService.ApplicationPrograms applicationPrograms
+      //   ImmutableList<String> selectedCategoriesFromParams,
+      ) {
+    HtmlBundle bundle = layout.getBundle(request);
+    bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+    bundle.addMainContent(topContent(request, messages, Optional.empty()), div("no cookies!"));
+    // bundle.addMainContent(
+    //       topContent(request, messages, Optional.empty()),
+    //       mainContent(
+    //           request,
+    //           messages,
+    //           personalInfo,
+    //           applicationPrograms,
+    //           applicantId,
+    //           messages.lang().toLocale(),
+    //           bundle,
+    //           profile));
+    return layout.render(bundle);
+  }
+
+//   private DivTag mainContentNoApplicant(
+//       ApplicantService.ApplicationPrograms relevantPrograms,
+//       Messages messages,
+//       Http.Request request) {
+//     DivTag content =
+//         div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
+
+//     // The different program card containers should have the same styling, by using the program
+//     // count of the larger set of programs
+//     String cardContainerStyles =
+//         programCardViewRenderer.programCardsContainerStyles(
+//             Math.max(
+//                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
+//                 relevantPrograms.inProgress().size()));
+
+//     // will need to handle case where there is a common intake form
+//     content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
+
+//     content.with(
+//         programCardViewRenderer.programCardsSection(
+//             request,
+//             messages,
+//             personalInfo,
+//             Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
+//             cardContainerStyles,
+//             applicantId,
+//             preferredLocale,
+//             relevantPrograms.unapplied(),
+//             MessageKey.BUTTON_APPLY,
+//             MessageKey.BUTTON_APPLY_SR,
+//             bundle,
+//             profile,
+//             /* isMyApplicationsSection= */ false));
+
+//     return div().withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER).with(content);
+//   }
+
   private DivTag topContent(
-      Http.Request request, Messages messages, ApplicantPersonalInfo personalInfo) {
+      Http.Request request, Messages messages, Optional<ApplicantPersonalInfo> personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
-    if (personalInfo.getType() == GUEST) {
+    boolean shouldShowGuestView = personalInfo.isEmpty() || personalInfo.get().getType() == GUEST;
+
+    if (shouldShowGuestView) {
       // "Save time finding and applying for programs and services"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
@@ -171,7 +233,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             "items-center")
         .with(programIndexH1, infoDiv)
         .condWith(
-            personalInfo.getType() == GUEST,
+            shouldShowGuestView,
             // Log in and Create account buttons if user is a guest.
             div()
                 .with(

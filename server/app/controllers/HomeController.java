@@ -48,6 +48,12 @@ public class HomeController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
+
+    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+      // redirect to applicant programs page
+      return CompletableFuture.completedFuture(
+          redirect(controllers.applicant.routes.ApplicantProgramsController.index()));
+    }
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     if (profile.isCiviFormAdmin()) {
