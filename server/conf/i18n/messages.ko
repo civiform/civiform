@@ -211,21 +211,15 @@ title.inProgressProgramsUpdated=진행 중
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=시작 안 함
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=유용한 서비스 찾기
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=서비스 찾기
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=내 신청 프로그램({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=다른 프로그램({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=프로그램({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=추천 프로그램({0})
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=섹션 완료됨
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -562,7 +556,7 @@ alert.createAccountDescription=계정을 사용하면 다시 로그인하여 지
 content.loginToExistingAccount=기존 계정에 로그인
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave={0}에 저장할 변경사항이 없습니다.
