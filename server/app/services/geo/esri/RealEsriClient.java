@@ -2,8 +2,9 @@ package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -13,7 +14,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import services.AddressField;
 import services.geo.AddressLocation;
+import services.geo.esri.models.FindAddressCandidatesResponse;
 import services.settings.SettingsManifest;
 
 /**
@@ -40,9 +41,7 @@ import services.settings.SettingsManifest;
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
-
-  private static final String CANDIDATES_NODE_NAME = "candidates";
-  private static final String SCORE_NODE_NAME = "score";
+  private final ObjectMapper mapper = new ObjectMapper();
 
   private static final Counter ESRI_REQUEST_C0UNT =
       Counter.build()
@@ -142,7 +141,8 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
 
   @Override
   @VisibleForTesting
-  CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
+  CompletionStage<Optional<FindAddressCandidatesResponse>> fetchAddressSuggestions(
+      ObjectNode addressJson) {
     return processAddressSuggestionUrlsSequentially(
         addressJson, ESRI_FIND_ADDRESS_CANDIDATES_URLS, Optional.empty());
   }
@@ -161,10 +161,11 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
    * @return The CompletionStage for result of findAddressCandidates, if any. The `candidates` array
    *     will be the merged results of multiple endpoints if more than one is called.
    */
-  private CompletionStage<Optional<JsonNode>> processAddressSuggestionUrlsSequentially(
-      ObjectNode addressJson,
-      ImmutableList<String> urls,
-      Optional<JsonNode> optionalPreviousRootNode) {
+  private CompletionStage<Optional<FindAddressCandidatesResponse>>
+      processAddressSuggestionUrlsSequentially(
+          ObjectNode addressJson,
+          ImmutableList<String> urls,
+          Optional<FindAddressCandidatesResponse> optionalPreviousRootNode) {
     // Base case: All URLs processed or no valid URLs left
     if (urls.isEmpty()) {
       return CompletableFuture.completedFuture(optionalPreviousRootNode);
@@ -176,30 +177,33 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     // Perform the request and handle response
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenCompose(
-            response -> {
-              ESRI_REQUEST_C0UNT.labels(String.valueOf(response.getStatus())).inc();
+            wsResponse -> {
+              ESRI_REQUEST_C0UNT.labels(String.valueOf(wsResponse.getStatus())).inc();
               // Skip the first url which we've just called, send the rest to the next recursive
               // call
               var nextSetOfUrls = urls.stream().skip(1).collect(ImmutableList.toImmutableList());
 
-              if (response.getStatus() != 200) {
+              if (wsResponse.getStatus() != 200) {
                 // If request fails, proceed to the next URL
                 return processAddressSuggestionUrlsSequentially(
                     addressJson, nextSetOfUrls, Optional.empty());
               } else {
                 // Process the successful response
-                JsonNode rootNode = response.asJson();
+                JsonNode rootNode = wsResponse.asJson();
+
+                FindAddressCandidatesResponse response;
+                try {
+                  response =
+                      mapper.readValue(rootNode.toString(), FindAddressCandidatesResponse.class);
+                } catch (JsonProcessingException e) {
+                  LOGGER.error("Unable to parse JSON from wsResponse", e);
+                  return processAddressSuggestionUrlsSequentially(
+                      addressJson, nextSetOfUrls, Optional.empty());
+                }
 
                 // If we have data from a previous call we'll stitch the candidate records together
-                if (optionalPreviousRootNode.isPresent()
-                    && hasCandidatesArray(optionalPreviousRootNode.get())
-                    && hasCandidatesArray(rootNode)) {
-                  optionalPreviousRootNode
-                      .get()
-                      .get(CANDIDATES_NODE_NAME)
-                      .forEach(
-                          candidateNode ->
-                              ((ArrayNode) rootNode.get(CANDIDATES_NODE_NAME)).add(candidateNode));
+                if (optionalPreviousRootNode.isPresent()) {
+                  response.addCandidates(optionalPreviousRootNode.get().candidates());
                 }
 
                 // This will check that all results are under the score threshold.
@@ -210,24 +214,21 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
                 // Reason for doing this is to not make more external calls than are needed. This
                 // is both for performance and billing reasons.
                 boolean hasAnyNodesUnderTheScoreThreshold =
-                    StreamSupport.stream(rootNode.get(CANDIDATES_NODE_NAME).spliterator(), false)
-                        .anyMatch(
-                            candidateNode ->
-                                candidateNode.path(SCORE_NODE_NAME).asDouble() < SCORE_THRESHOLD);
+                    response.candidates().stream()
+                        .anyMatch(candidate -> candidate.score() < SCORE_THRESHOLD);
 
                 // If there are no results from this url we definitely want to check the next
                 // available url to see if there are any there.
-                boolean hasNoResults =
-                    hasCandidatesArray(rootNode) && rootNode.get(CANDIDATES_NODE_NAME).isEmpty();
+                boolean hasNoResults = response.candidates().isEmpty();
 
                 boolean loadAnotherUrl = hasAnyNodesUnderTheScoreThreshold || hasNoResults;
 
                 if (loadAnotherUrl == true) {
                   return processAddressSuggestionUrlsSequentially(
-                      addressJson, nextSetOfUrls, Optional.of(rootNode));
+                      addressJson, nextSetOfUrls, Optional.of(response));
                 }
 
-                return CompletableFuture.completedFuture(Optional.of(rootNode));
+                return CompletableFuture.completedFuture(Optional.of(response));
               }
             });
   }
@@ -291,13 +292,6 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
    */
   private static boolean isArcGisOnlineService(String url) {
     return url.contains("arcgis.com");
-  }
-
-  /** Determines if the node has a candidates property that is an array */
-  private static Boolean hasCandidatesArray(JsonNode rootNode) {
-    return rootNode != null
-        && rootNode.get(CANDIDATES_NODE_NAME) != null
-        && rootNode.get(CANDIDATES_NODE_NAME).isArray();
   }
 
   @Override

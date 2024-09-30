@@ -16,7 +16,7 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class FindAddressCandidatesResponse {
   private final Optional<SpatialReference> spatialReference;
-  private final ImmutableList<Candidate> candidates;
+  private ImmutableList<Candidate> candidates;
 
   public FindAddressCandidatesResponse(
       @JsonProperty("spatialReference") SpatialReference spatialReference,
@@ -31,5 +31,14 @@ public final class FindAddressCandidatesResponse {
 
   public ImmutableList<Candidate> candidates() {
     return candidates;
+  }
+
+  public void addCandidates(ImmutableList<Candidate> newCandidates) {
+    if (newCandidates == null) {
+      return;
+    }
+
+    candidates =
+        ImmutableList.<Candidate>builder().addAll(candidates).addAll(newCandidates).build();
   }
 }
