@@ -211,21 +211,15 @@ title.inProgressProgramsUpdated=Đang diễn ra
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Chưa bắt đầu
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Tìm dịch vụ có thể giúp bạn
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Tìm dịch vụ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Đơn đăng ký của tôi ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Chương trình khác ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Chương trình ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Chương trình được đề xuất ({0})
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Mục đã hoàn thành
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -562,7 +556,7 @@ alert.createAccountDescription=Sử dụng một tài khoản để đăng nhậ
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=Không có thay đổi nào cần lưu đối với {0}
