@@ -1,5 +1,6 @@
 package services.geo.esri.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * href="https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm">Find
  * Address Candidates</a>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class SpatialReference {
   private final int wkid;
   private final int latestWkid;

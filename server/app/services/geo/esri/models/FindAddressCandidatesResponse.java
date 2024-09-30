@@ -1,6 +1,6 @@
 package services.geo.esri.models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.Optional;
  * href="https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm">Find
  * Address Candidates</a>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class FindAddressCandidatesResponse {
   private final Optional<SpatialReference> spatialReference;
   private final ImmutableList<Candidate> candidates;
@@ -24,7 +25,6 @@ public final class FindAddressCandidatesResponse {
     this.candidates = candidates != null ? ImmutableList.copyOf(candidates) : ImmutableList.of();
   }
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   public Optional<SpatialReference> spatialReference() {
     return spatialReference;
   }
