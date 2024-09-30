@@ -60,6 +60,15 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
+    String goBackHref =
+        applicantRoutes
+            .review(params.profile(), params.applicantId(), params.completedProgramId())
+            .url();
+    context.setVariable("goBackHref", goBackHref);
+
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
     if (params.eligiblePrograms().isPresent()) {
       Locale userLocale = params.messages().lang().toLocale();
 

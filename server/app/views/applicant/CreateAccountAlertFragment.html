@@ -1,6 +1,9 @@
 <!-- Element that looks similar to a USWDS alert. It has more customization,
      such as the "Create account" button. -->
-<div th:fragment="createAccount" class="usa-alert usa-alert--info">
+<div
+  th:fragment="createAccount(createAccountLink, loginLink)"
+  class="usa-alert usa-alert--info"
+>
   <div class="usa-alert__body">
     <h2 class="usa-alert__heading" th:text="#{alert.createAccount}"></h2>
 
@@ -8,7 +11,6 @@
 
     <div class="content-spacing"></div>
 
-    <!-- TODO(#8588): Trigger create account flow (this is broken) -->
     <button
       type="button"
       class="usa-button usa-button--inverse"
@@ -24,8 +26,8 @@
         class="usa-link"
         href="javascript:void(0);"
         th:text="#{content.loginToExistingAccount}"
-        >linktext</a
-      >
+        th:href="${loginLink}"
+      ></a>
     </p>
   </div>
 </div>

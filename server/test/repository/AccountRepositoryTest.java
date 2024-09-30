@@ -406,7 +406,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void updateIdTokens() {
+  public void addIdTokenAndPrune() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
@@ -418,13 +418,13 @@ public class AccountRepositoryTest extends ResetPostgres {
     Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
 
-    repo.updateIdTokens(account, "sessionId1", expiredJwt.serialize());
+    repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
 
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
-    repo.updateIdTokens(account, "sessionId2", validJwt.serialize());
+    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
 
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();

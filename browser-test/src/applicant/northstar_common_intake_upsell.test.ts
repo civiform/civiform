@@ -80,6 +80,41 @@ test.describe(
       })
     })
 
+    test('As guest, validate login link in alert', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('Setup: publish one program', async () => {
+        await adminPrograms.addProgram(eligibleProgram1)
+        await adminPrograms.publishProgram(eligibleProgram1)
+        await logout(page)
+      })
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await test.step('Setup: submit application', async () => {
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+        await expect(
+          page.getByText(
+            'Create an account to save your application information',
+          ),
+        ).toBeVisible()
+
+        await loginAsTestUser(
+          page,
+          'a:has-text("Login to an existing account")',
+        )
+        await applicantQuestions.expectProgramsPage()
+      })
+    })
+
     test('view application submitted page with zero eligible programs', async ({
       page,
       applicantQuestions,
@@ -101,6 +136,9 @@ test.describe(
           'The pre-screener could not find programs you may qualify for at this time',
         ),
       ).toBeVisible()
+
+      // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX.
+      // Then return to the common intake ineligible page
 
       await test.step('Click "Apply to Programs" and return to homepage', async () => {
         await applicantQuestions.clickApplyToProgramsButton()
@@ -125,7 +163,11 @@ test.describe(
 
       await applicantQuestions.clickApplyToProgramsButton()
 
-      await validateScreenshot(page, 'upsell-north-star-common-intake-login')
+      await validateScreenshot(
+        page,
+        'upsell-north-star-common-intake-login',
+        /* fullPage= */ false,
+      )
 
       await validateAccessibility(page)
     })
@@ -212,6 +254,8 @@ test.describe(
           'The pre-screener could not find programs your client may qualify for at this time',
         ),
       ).toBeVisible()
+
+      // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX
     })
   },
 )

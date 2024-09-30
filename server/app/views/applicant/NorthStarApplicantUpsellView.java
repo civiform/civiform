@@ -88,6 +88,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
     context.setVariable("downloadHref", downloadHref);
 
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
     ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(
             params.request(),

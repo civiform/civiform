@@ -478,12 +478,11 @@ public final class AccountRepository {
   }
 
   /**
-   * Associates the ID token from the profile with the provided session id and persists this
-   * association to the provided account.
+   * Adds a mapping of sessionId -> idToken to the provided account.
    *
-   * <p>Also purges any expired ID tokens as a side effect.
+   * <p>Also prunes any expired ID tokens as a side effect.
    */
-  public void updateIdTokens(AccountModel account, String sessionId, String idToken) {
+  public void addIdTokenAndPrune(AccountModel account, String sessionId, String idToken) {
     IdTokens idTokens = account.getIdTokens();
     if (idTokens == null) {
       idTokens = new IdTokens();

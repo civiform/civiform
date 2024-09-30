@@ -839,6 +839,11 @@
         "description": "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
         "type": "bool"
       },
+      "SESSION_REPLAY_PROTECTION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
+        "type": "bool"
+      },
       "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
