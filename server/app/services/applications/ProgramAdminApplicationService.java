@@ -111,8 +111,6 @@ public final class ProgramAdminApplicationService {
     }
     Status statusDef = statusDefMaybe.get();
 
-    eventRepository.setStatus(application, Optional.of(admin), newStatusEvent);
-
     // Send email if requested and present.
     if (sendEmail) {
       if (statusDef.localizedEmailBodyText().isEmpty()) {
@@ -140,6 +138,7 @@ public final class ProgramAdminApplicationService {
         throw new AccountHasNoEmailException(applicant.getAccount().id);
       }
     }
+    eventRepository.insertStatusEvent(application, Optional.of(admin), newStatusEvent);
   }
 
   private void sendApplicantEmail(

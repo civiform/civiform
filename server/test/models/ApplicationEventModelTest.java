@@ -53,7 +53,7 @@ public class ApplicationEventModelTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    applicationEventRepository.setStatus(
+    applicationEventRepository.insertStatusEvent(
         application,
         Optional.of(adminAccount),
         StatusEvent.builder().setStatusText("approved").setEmailSent(false).build());
@@ -62,7 +62,7 @@ public class ApplicationEventModelTest extends ResetPostgres {
     assertThat(application.getLatestStatus()).isEqualTo(Optional.of("approved"));
 
     // Create another event transitioning to empty and ensure that the result is empty.
-    applicationEventRepository.setStatus(
+    applicationEventRepository.insertStatusEvent(
         application,
         Optional.of(adminAccount),
         StatusEvent.builder().setStatusText("").setEmailSent(false).build());
@@ -79,7 +79,7 @@ public class ApplicationEventModelTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    applicationEventRepository.setStatus(
+    applicationEventRepository.insertStatusEvent(
         application,
         Optional.empty(),
         StatusEvent.builder().setStatusText("approved").setEmailSent(false).build());

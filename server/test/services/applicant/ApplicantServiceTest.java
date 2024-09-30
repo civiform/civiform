@@ -3438,7 +3438,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    applicationEventRepository.setStatus(
+    applicationEventRepository.insertStatusEvent(
         application,
         Optional.of(actorAccount),
         StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build());

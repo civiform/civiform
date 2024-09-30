@@ -719,7 +719,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
       String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
-      eventRepo.setStatus(
+      eventRepo.insertStatusEvent(
           application,
           Optional.of(actorAccount),
           StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build());

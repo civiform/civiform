@@ -69,7 +69,7 @@ public final class ApplicationEventRepository {
             .findList());
   }
 
-  public void setStatus(
+  public void insertStatusEvent(
       ApplicationModel application,
       Optional<AccountModel> optionalAdmin,
       ApplicationEventDetails.StatusEvent newStatusEvent) {
