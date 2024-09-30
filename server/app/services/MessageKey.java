@@ -106,6 +106,7 @@ public enum MessageKey {
   BUTTON_PRINT("button.print"), // North Star only
   BUTTON_BACK("button.back"),
   BUTTON_SAVE_AND_EXIT("button.saveAndExit"),
+  BUTTON_REVIEW_AND_EXIT_V2("button.reviewAndExit.v2"),
   BUTTON_REVIEW("button.review"),
   BUTTON_DELETE_FILE("button.deleteFile"),
   BUTTON_KEEP_ACCT("button.keepAcct"),
