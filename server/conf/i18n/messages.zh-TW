@@ -211,21 +211,13 @@ title.inProgressProgramsUpdated=進行中
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=未開始
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=尋找可協助您的服務
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=尋找服務
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=我的申請書 ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=其他計畫 ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=其他計畫和服務 ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=計畫 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
-# Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=建議 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=此部分已填寫完畢
 # Subtitle for the list of programs for which the applicant has already submitted an application

@@ -504,7 +504,9 @@ test.describe('applicant program index page', () => {
         )
         // Check the program count in the section headings
         await expect(
-          page.getByRole('heading', {name: 'Recommended (1)'}),
+          page.getByRole('heading', {
+            name: 'Programs based on your selections (1)',
+          }),
         ).toBeVisible()
         await expect(
           page.getByRole('heading', {name: 'Other programs and services (2)'}),
