@@ -128,7 +128,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo personalInfo,
       Messages messages,
       HtmlBundle bundle,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     return renderWithNav(
         request,
         personalInfo,
@@ -144,7 +144,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Messages messages,
       HtmlBundle bundle,
       boolean includeAdminLogin,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     bundle.addPageNotProductionBanner(pageNotProductionBanner.render(request, messages));
 
     if (isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request)) {
@@ -209,7 +209,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages,
-      Long applicantId) {
+      Optional<Long> applicantId) {
     Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     return nav()
@@ -227,6 +227,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
                             "grow",
                             StyleUtils.responsiveMedium("grow-0")))
                 .with(maybeRenderTiButton(profile, messages))
+                .condWith(
+                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
+                    div()
+                        .withClasses("place-content-center")
+                        .with(
+                            a("DevTools")
+                                .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
+                                .withClasses(ApplicantStyles.LINK)
+                                .withStyle("cursor:pointer")))
                 .with(
                     div(
                             getLanguageForm(request, messages, applicantId),
@@ -245,12 +254,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag<?> getLanguageForm(
-      Http.Request request, Messages messages, Long applicantId) {
+      Http.Request request, Messages messages, Optional<Long> applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
     String updateLanguageAction =
-        controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(applicantId)
-            .url();
+        applicantId.isPresent()
+            ? controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
+                    applicantId.get())
+                .url()
+            : controllers.applicant.routes.ApplicantInformationController
+                .setLangFromSwitcherWithoutApplicant()
+                .url();
 
     String csrfToken = CSRF.getToken(request.asScala()).value();
     InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
@@ -268,15 +282,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(csrfInput)
                 .with(redirectInput)
                 .with(languageDropdown)
-                .condWith(
-                    isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request),
-                    div()
-                        .withClasses("w-full", "flex", "justify-center")
-                        .with(
-                            a("DevTools")
-                                .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                .withClasses(ApplicantStyles.LINK)
-                                .withStyle("cursor:pointer")))
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     return languageFormDiv;
   }
@@ -368,7 +373,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * Shows authentication status and a button to take actions.
    *
    * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
-   * logged in, we show a "Logout" button.
+   * logged in, we show a "Logout" button. If there is no guest user created yet (landed on the home
+   * page but hasn't tried applying to anything yet), we don't show the "End session" link.
    */
   private DivTag authDisplaySection(
       ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
@@ -387,7 +393,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       String createAnAccountMessage = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
       String createAnAccountLink = routes.LoginController.register().url();
 
-      return outsideDiv.with(
+      DivTag loggedInAsDiv =
           div(
               span(loggedInAsMessage).withClasses("text-sm"),
               text(" "),
@@ -395,12 +401,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withHref(endSessionLink)
                   .withClasses(ApplicantStyles.LINK)
                   .withId("logout-button"),
-              br(),
-              a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
-              text("  |  "),
-              a(createAnAccountMessage)
-                  .withHref(createAnAccountLink)
-                  .withClasses(ApplicantStyles.LINK)));
+              br());
+
+      return outsideDiv.with(
+          div()
+              .condWith(profile.isPresent(), loggedInAsDiv)
+              .with(
+                  a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
+                  text("  |  "),
+                  a(createAnAccountMessage)
+                      .withHref(createAnAccountLink)
+                      .withClasses(ApplicantStyles.LINK)));
     }
 
     // For TIs we use the account email rather than first and last name because

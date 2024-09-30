@@ -51,8 +51,8 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
     QuestionDefinition questionDefinition;

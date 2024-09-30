@@ -14,6 +14,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Locale;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -145,6 +146,6 @@ public final class IneligibleBlockView extends ApplicationBaseView {
         applicantService.getPersonalInfo(applicantId).toCompletableFuture().join(),
         messages,
         bundle,
-        applicantId);
+        Optional.of(applicantId));
   }
 }

@@ -122,6 +122,25 @@ public final class ApplicantInformationController extends CiviFormController {
   }
 
   /**
+   * When choosing a language from the switcher on the home page without being logged in, we simply
+   * redirect back with the appropriate locale set, without saving it to any particular user.
+   */
+  public CompletionStage<Result> setLangFromSwitcherWithoutApplicant(Http.Request request) {
+    Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
+
+    if (form.hasErrors()) {
+      return supplyAsync(Results::badRequest);
+    }
+
+    ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
+    String redirectLocation = infoForm.getRedirectLink();
+    Locale locale = infoForm.getLocale();
+
+    return CompletableFuture.completedFuture(
+        redirect(redirectLocation).withLang(locale, messagesApi));
+  }
+
+  /**
    * Sets the applicant's preferred language based on their language form selection, then redirects
    * them.
    */

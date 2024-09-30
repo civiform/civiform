@@ -7,6 +7,8 @@ import {
   logout,
   loginAsAdmin,
   validateAccessibility,
+  validateToastMessage,
+  seedProgramsAndCategories,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
@@ -23,13 +25,44 @@ test.describe('Applicant auth', () => {
     ).toBeAttached()
   })
 
-  test('Applicant can login as guest', async ({page}) => {
-    await validateScreenshot(page, 'logged-in-guest')
+  test('No guest user shown in banner when viewing index page', async ({
+    page,
+  }) => {
+    await validateScreenshot(page, 'no-user')
 
+    await expect(page.getByRole('banner')).not.toContainText(
+      "You're a guest user.",
+    )
+    await expect(
+      page.getByRole('banner').getByRole('link', {name: 'End session'}),
+    ).not.toBeAttached()
+  })
+
+  test('Guest user can end session after starting an application and toast is shown', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    await seedProgramsAndCategories(page)
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await applicantQuestions.applyProgram('Minimal Sample Program')
     await expect(page.getByRole('banner')).toContainText("You're a guest user.")
     await expect(
       page.getByRole('banner').getByRole('link', {name: 'End session'}),
     ).toBeAttached()
+
+    await page
+      .getByRole('banner')
+      .getByRole('link', {name: 'End session'})
+      .click()
+    expect(await page.title()).toContain('Find programs')
+
+    await validateToastMessage(page, 'Your session has ended.')
+    await validateScreenshot(page, 'guest-just-ended-session')
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
@@ -72,23 +105,12 @@ test.describe('Applicant auth', () => {
     )
   })
 
-  test('Applicant can logout (end session) from guest', async ({page}) => {
-    await expect(page.getByRole('banner')).toContainText("You're a guest user.")
-    await page
-      .getByRole('banner')
-      .getByRole('link', {name: 'End session'})
-      .click()
-    expect(await page.title()).toContain('Find programs')
-  })
-
-  test('Toast is shown when either guest or logged-in user end their session', async ({
+  test('Toast is shown when logged-in user end their session', async ({
     page,
   }) => {
-    await logout(page, /* closeToast=*/ false)
-    await validateScreenshot(page, 'guest-just-ended-session')
-
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
+    await validateToastMessage(page, 'Your session has ended.')
     await validateScreenshot(page, 'user-just-ended-session')
 
     await validateAccessibility(page)

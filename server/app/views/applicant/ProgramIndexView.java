@@ -71,12 +71,12 @@ public final class ProgramIndexView extends BaseHtmlView {
   public Content render(
       Messages messages,
       Http.Request request,
-      long applicantId,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       ImmutableList<String> selectedCategoriesFromParams,
       Optional<ToastMessage> bannerMessage,
-      CiviFormProfile profile) {
+      Optional<CiviFormProfile> profile) {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
@@ -118,6 +118,22 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     return layout.renderWithNav(
         request, personalInfo, messages, bundle, /* includeAdminLogin= */ true, applicantId);
+  }
+
+  public Content renderWithoutApplicant(
+      Messages messages,
+      Http.Request request,
+      ApplicantService.ApplicationPrograms applicationPrograms,
+      ImmutableList<String> selectedCategoriesFromParams) {
+    return render(
+        messages,
+        request,
+        /* applicantId= */ Optional.empty(),
+        ApplicantPersonalInfo.ofGuestUser(),
+        applicationPrograms,
+        selectedCategoriesFromParams,
+        /* bannerMessage= */ Optional.empty(),
+        /* profile= */ Optional.empty());
   }
 
   private DivTag topContent(
@@ -205,10 +221,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
-      CiviFormProfile profile) {
+      Optional<CiviFormProfile> profile) {
     DivTag content =
         div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
 
@@ -304,10 +320,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
       ImmutableList<String> selectedCategoriesFromParams,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
-      CiviFormProfile profile) {
+      Optional<CiviFormProfile> profile) {
     DivTag content =
         div().withId("main-content").withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER);
 
@@ -416,10 +432,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       Messages messages,
       ApplicantPersonalInfo personalInfo,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       DivTag content,
       String cardContainerStyles,
       ImmutableList<ApplicantService.ApplicantProgramData> filteredPrograms,
@@ -468,10 +484,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       DivTag content,
       String cardContainerStyles) {
     // Intake form
@@ -515,10 +531,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
       String cardContainerStyles,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       HtmlBundle bundle,
-      CiviFormProfile profile) {
+      Optional<CiviFormProfile> profile) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
@@ -564,16 +580,20 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private FormTag renderCategoryFilterChips(
-      long applicantId,
+      Optional<Long> applicantId,
       ImmutableList<String> relevantCategories,
       ImmutableList<String> selectedCategoriesFromParams,
       Messages messages) {
     return form()
         .withId("category-filter-form")
         .withAction(
-            controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                    applicantId, ImmutableList.of())
-                .url())
+            applicantId.isPresent()
+                ? controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
+                        applicantId.get(), ImmutableList.of())
+                    .url()
+                : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
+                        ImmutableList.of())
+                    .url())
         .withMethod("GET")
         .with(
             fieldset(

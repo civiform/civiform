@@ -39,7 +39,7 @@ test.describe('Admin can manage translations', () => {
     await adminPrograms.publishProgram(programName)
     await logout(page)
 
-    // Log in as an applicant and view the translated question
+    // View the translated program details on index without an account
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
 
@@ -49,6 +49,9 @@ test.describe('Admin can manage translations', () => {
     ).toContain('Detalles del programa')
 
     await applicantQuestions.applyProgram(programName)
+    // Set the language for this particular guest applicant
+    await selectApplicantLanguage(page, 'Español')
+    await applicantQuestions.validateHeader('es-US')
 
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
       'ingrese\n1.nombre\n2.segundo nombre\n3.apellido',
@@ -90,10 +93,9 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
-
-    await applicantQuestions.applyProgram(programName)
 
     await validateScreenshot(
       page.locator('.cf-applicant-question-text'),
@@ -139,8 +141,8 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'Español')
 
     expect(await page.innerText('main form')).toContain('uno')
     expect(await page.innerText('main form')).toContain('dos')
@@ -175,8 +177,8 @@ test.describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'Español')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
   })
