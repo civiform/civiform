@@ -226,17 +226,17 @@ public class AdminImportController extends CiviFormController {
       questions = ImmutableList.copyOf(updatedQuestionsMap.values());
     }
 
-    ImmutableSet<CiviFormError> questionErrors =
-        questions.stream()
-            .map(question -> question.validate())
-            .flatMap(errors -> errors.stream())
-            .collect(ImmutableSet.toImmutableSet());
-    if (!questionErrors.isEmpty()) {
-      return ok(
-          adminImportViewPartial
-              .renderError("One or more question errors occured:", joinErrors(questionErrors))
-              .render());
-    }
+    // ImmutableSet<CiviFormError> questionErrors =
+    //     questions.stream()
+    //         .map(question -> question.validate())
+    //         .flatMap(errors -> errors.stream())
+    //         .collect(ImmutableSet.toImmutableSet());
+    // if (!questionErrors.isEmpty()) {
+    //   return ok(
+    //       adminImportViewPartial
+    //           .renderError("One or more question errors occured:", joinErrors(questionErrors))
+    //           .render());
+    // }
 
     ErrorAnd<String, String> serializeResult =
         programMigrationService.serialize(program, questions);

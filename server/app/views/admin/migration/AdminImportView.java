@@ -39,7 +39,7 @@ public class AdminImportView extends BaseHtmlView {
    * character length, which will likely result in JSON parsing errors. TODO(#7087): Make that
    * truncation obvious to admins.
    */
-  private static final int MAX_TEXT_LENGTH = 100000;
+  private static final int MAX_TEXT_LENGTH = 256000;
 
   private final AdminLayout layout;
 
