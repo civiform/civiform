@@ -211,21 +211,15 @@ title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Maghanap ng mga serbisyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Iba pang program ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Mga Program ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Inirerekomenda ({0})
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Natapos na ang seksyon
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -562,7 +556,7 @@ alert.createAccountDescription=Gumamit ng account para mag-log in ulit para ting
 content.loginToExistingAccount=Mag-log in sa kasalukuyang account
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=Walang pagbabagong ise-save para sa {0}
