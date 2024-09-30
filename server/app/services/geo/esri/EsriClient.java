@@ -189,13 +189,11 @@ public abstract class EsriClient {
    * fallback to using the state that was originally set by the user.
    */
   private static String getStateAbbreviationFromAttributes(Attributes attributes, Address address) {
-    String result = attributes.stateAbbreviation();
-
-    if (result.length() != 2) {
-      result = address.getState();
+    if (attributes.stateAbbreviation().isPresent()) {
+      return attributes.stateAbbreviation().get();
     }
 
-    return result;
+    return address.getState();
   }
 
   /**

@@ -55,16 +55,22 @@ public final class Attributes {
    * Get the state abbreviation from the attributes JSON node. On Public ESRI this is under the
    * RegionAbbr field, but some custom implementations may have it under the Region field.
    */
-  public String stateAbbreviation() {
+  public Optional<String> stateAbbreviation() {
     // Start with getting the value from the RegionAbbr, this is the default used by ESRI for
     // state abbreviations. Use if two characters.
     if (regionAbbr.length() == 2) {
-      return regionAbbr;
+      return Optional.of(regionAbbr);
     }
 
     // If regionAbbr is not two characters it is either empty or the full state name so pull
-    // from the region value. We don't use this be default because some custom implementations
+    // from the region value. We don't use this by default because some custom implementations
     // use region.
-    return region;
+
+    if (region.length() == 2) {
+      return Optional.of(region);
+    }
+
+    // Let the caller deal with no value
+    return Optional.empty();
   }
 }
