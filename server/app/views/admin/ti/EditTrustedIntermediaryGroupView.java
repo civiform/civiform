@@ -117,7 +117,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderInfoCell(AccountModel ti) {
-    return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
+    return td().with(div(ti.getApplicantDisplayName()).withClasses("font-semibold"))
         .with(div(ti.getEmailAddress()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }

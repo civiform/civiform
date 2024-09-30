@@ -14,28 +14,22 @@ public abstract class OidcClientProviderParams {
   public static OidcClientProviderParams create(
       Config configuration,
       ProfileFactory profileFactory,
-      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
     return new AutoValue_OidcClientProviderParams(
-        configuration, profileFactory, idTokensFactory, accountRepositoryProvider);
+        configuration, profileFactory, accountRepositoryProvider);
   }
 
   // Our tests have paths like:
   //   /usr/src/server/test/auth/ProfileMergeTest.java
   @RestrictedApi(explanation = "Only allow for tests", allowedOnPath = ".*/test/.*")
   public static OidcClientProviderParams create(
-      ProfileFactory profileFactory,
-      IdTokensFactory idTokensFactory,
-      Provider<AccountRepository> accountRepositoryProvider) {
-    return create(
-        ConfigFactory.empty(), profileFactory, idTokensFactory, accountRepositoryProvider);
+      ProfileFactory profileFactory, Provider<AccountRepository> accountRepositoryProvider) {
+    return create(ConfigFactory.empty(), profileFactory, accountRepositoryProvider);
   }
 
   public abstract Config configuration();
 
   abstract ProfileFactory profileFactory();
-
-  abstract IdTokensFactory idTokensFactory();
 
   abstract Provider<AccountRepository> accountRepositoryProvider();
 }

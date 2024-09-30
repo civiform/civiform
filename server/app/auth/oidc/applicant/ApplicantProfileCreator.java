@@ -56,6 +56,16 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
             .filter(s -> !Strings.isNullOrEmpty(s))
             .collect(Collectors.joining(" "));
 
+    // Special case for https://github.com/civiform/civiform/issues/8344, Auth0 (and possibly other
+    // auth providers) will put in the user's email for the "name" attribute, if no name is
+    // specified.
+    //
+    // Since we actually care about whether a real name was provided or not, return empty
+    // if it matches the email.
+    if (name.equals(oidcProfile.getAttribute(emailAttributeName()))) {
+      return Optional.empty();
+    }
+
     return Optional.ofNullable(Strings.emptyToNull(name));
   }
 

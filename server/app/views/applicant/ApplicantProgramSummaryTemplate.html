@@ -102,6 +102,12 @@
     <div th:if="${isGuest and redirectedFromProgramSlug.isPresent()}">
       <div th:replace="~{applicant/ModalFragment:: reviewLogin}"></div>
     </div>
+    <div th:if="${duplicateSubmission.isPresent()}">
+      <div id="show-duplicate-submission-modal"></div>
+      <th:block
+        th:replace="~{applicant/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
+      ></th:block>
+    </div>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

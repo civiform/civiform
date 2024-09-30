@@ -10,15 +10,17 @@
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
       ></div>
 
-      <div class="grid-container section">
+      <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
             <div
               th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
             ></div>
-            <div
-              th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-            ></div>
+            <div class="section-external">
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+              ></div>
+            </div>
 
             <div class="usa-prose">
               <h2 th:text="#{title.confirmAddress}"></h2>
@@ -76,7 +78,7 @@
               </fieldset>
 
               <!--/* Bottom nav buttons */-->
-              <div class="section">
+              <div class="section-external">
                 <button
                   class="usa-button usa-button--outline margin-bottom-1"
                   th:text="#{button.goBackAndEdit}"

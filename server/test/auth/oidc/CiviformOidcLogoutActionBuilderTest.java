@@ -46,10 +46,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   private static final int oidcPort = 3390;
   private static final String clientId = "test-client-id";
   private static final String targetUrl = "http://example.com/target";
-  private static final String sessionId = "test-session-id";
   private static final long accountId = 1L;
 
-  private IdTokensFactory idTokensFactory;
   private OidcConfiguration oidcConfig;
   private CiviFormProfileData civiFormProfileData;
   private String idToken;
@@ -59,7 +57,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
     civiFormProfileData = new CiviFormProfileData(accountId);
 
@@ -103,14 +100,12 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig = ConfigFactory.parseMap(ImmutableMap.of());
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
@@ -138,21 +133,16 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig =
         ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
 
-    // Store the session id in the profile.
-    civiFormProfileData.addAttribute(CiviformOidcProfileCreator.SESSION_ID, sessionId);
-
     // Set up an admin account. Associate the session ID with the ID token for logout.
     AccountModel account = new AccountModel();
     account.setGlobalAdmin(true);
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
@@ -188,14 +178,12 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             ImmutableMap.of("auth.oidc_post_logout_param", "custom_target_url_parameter_name"));
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);

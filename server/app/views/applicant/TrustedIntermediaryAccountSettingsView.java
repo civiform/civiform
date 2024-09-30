@@ -89,7 +89,7 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
                 tbody(
                     each(
                         tiGroup.getTrustedIntermediaries().stream()
-                            .sorted(Comparator.comparing(AccountModel::getApplicantName))
+                            .sorted(Comparator.comparing(AccountModel::getApplicantDisplayName))
                             .collect(Collectors.toList()),
                         this::renderOrgMembersTableRow))));
   }
@@ -121,7 +121,7 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
   }
 
   private TdTag renderNameCell(AccountModel ti) {
-    return td(ti.getApplicantName());
+    return td(ti.getApplicantDisplayName());
   }
 
   private TdTag renderEmailCell(AccountModel ti) {

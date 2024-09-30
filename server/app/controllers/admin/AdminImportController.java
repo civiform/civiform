@@ -31,6 +31,8 @@ import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.LeafExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
@@ -517,19 +519,33 @@ public class AdminImportController extends CiviFormController {
                 .collect(ImmutableList.toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(andNodeChildren));
       case LEAF_ADDRESS_SERVICE_AREA:
-        // TODO(#8450): Ensure we support service area validation.
+        LeafAddressServiceAreaExpressionNode leafAddressNode =
+            predicateExpressionNode.getLeafAddressNode();
+        return PredicateExpressionNode.create(
+            leafAddressNode.toBuilder()
+                .setQuestionId(
+                    getNewQuestionid(leafAddressNode, questionsOnJsonById, updatedQuestionsMap))
+                .build());
       case LEAF_OPERATION:
         LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafOperationNode();
-        Long oldQuestionId = leafNode.questionId();
-        String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
-        Long newQuestionId = updatedQuestionsMap.get(questionAdminName).getId();
         return PredicateExpressionNode.create(
-            leafNode.toBuilder().setQuestionId(newQuestionId).build());
+            leafNode.toBuilder()
+                .setQuestionId(getNewQuestionid(leafNode, questionsOnJsonById, updatedQuestionsMap))
+                .build());
       default:
         throw new IllegalStateException(
             String.format(
                 "Unsupported predicate expression type for import: %s",
                 predicateExpressionNode.getType()));
     }
+  }
+
+  private Long getNewQuestionid(
+      LeafExpressionNode leafNode,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
+    Long oldQuestionId = leafNode.questionId();
+    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
+    return updatedQuestionsMap.get(questionAdminName).getId();
   }
 }

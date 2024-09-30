@@ -462,50 +462,75 @@
       "ESRI Address Validation": {
         "group_description": "Configuration options for the ESRI GIS client and address validation/correction feature.",
         "members": {
-          "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
-            "mode": "ADMIN_READABLE",
-            "description": "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
-            "type": "string"
+          "Address Correction": {
+            "group_description": "Address Correction Settings",
+            "members": {
+              "ESRI_ADDRESS_CORRECTION_ENABLED": {
+                "mode": "ADMIN_WRITEABLE",
+                "description": "Enables the feature that allows address correction for address questions.",
+                "type": "bool"
+              },
+              "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
+                "mode": "ADMIN_READABLE",
+                "description": "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+                "type": "string"
+              },
+              "ESRI_FIND_ADDRESS_CANDIDATES_URLS": {
+                "mode": "ADMIN_READABLE",
+                "description": "The list of URLs CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). These are used sequentially and not all of them may need to be used for every correction. If any results have a score of 90 or higher, lower priority urls will not be called.",
+                "type": "index-list"
+              }
+            }
           },
-          "ESRI_FIND_ADDRESS_CANDIDATES_URLS": {
-            "mode": "ADMIN_READABLE",
-            "description": "The list of URLs CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). These are used sequentially and not all of them may need to be used for every correction. If any results have a score of 90 or higher, lower priority urls will not be called.",
-            "type": "index-list"
+          "Service Area Validation": {
+            "group_description": "Service Area Validation Settings",
+            "members": {
+              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
+                "mode": "ADMIN_WRITEABLE",
+                "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+                "type": "bool"
+              },
+              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
+                "mode": "ADMIN_READABLE",
+                "description": "Human readable labels used to present the service area validation options in CiviForm’s admin UI.",
+                "type": "index-list"
+              },
+              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS": {
+                "mode": "ADMIN_READABLE",
+                "description": "The value CiviForm uses to validate if an address is in a service area.",
+                "type": "index-list"
+              },
+              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS": {
+                "mode": "ADMIN_READABLE",
+                "description": "The URL CiviForm will use to call Esri’s [map query service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm) for service area validation.",
+                "type": "index-list"
+              },
+              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES": {
+                "mode": "ADMIN_READABLE",
+                "description": "The attribute CiviForm checks from the service area validation response to get the service area validation ID.",
+                "type": "index-list"
+              }
+            }
           },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
-            "mode": "ADMIN_READABLE",
-            "description": "Human readable labels used to present the service area validation options in CiviForm’s admin UI.",
-            "type": "index-list"
-          },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS": {
-            "mode": "ADMIN_READABLE",
-            "description": "The value CiviForm uses to validate if an address is in a service area.",
-            "type": "index-list"
-          },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS": {
-            "mode": "ADMIN_READABLE",
-            "description": "The URL CiviForm will use to call Esri’s [map query service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm) for service area validation.",
-            "type": "index-list"
-          },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES": {
-            "mode": "ADMIN_READABLE",
-            "description": "The attribute CiviForm checks from the service area validation response to get the service area validation ID.",
-            "type": "index-list"
-          },
-          "ESRI_EXTERNAL_CALL_TRIES": {
-            "mode": "ADMIN_READABLE",
-            "description": "The number of tries CiviForm will attempt requests to external Esri services.",
-            "type": "int"
-          },
-          "ESRI_WELLKNOWN_ID_OVERRIDE": {
-            "mode": "ADMIN_READABLE",
-            "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
-            "type": "int"
-          },
-          "ESRI_ARCGIS_API_TOKEN": {
-            "mode": "HIDDEN",
-            "description": "A secret token value from Esri's arcgis.com online service created by your arcgis.com account for accessing the API.",
-            "type": "string"
+          "General ESRI Settings": {
+            "group_description": "",
+            "members": {
+              "ESRI_EXTERNAL_CALL_TRIES": {
+                "mode": "ADMIN_READABLE",
+                "description": "The number of tries CiviForm will attempt requests to external Esri services.",
+                "type": "int"
+              },
+              "ESRI_WELLKNOWN_ID_OVERRIDE": {
+                "mode": "ADMIN_READABLE",
+                "description": "Forces calls to Esri services to use the specified spatial reference wellKnownId value for the [coordinate system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm). If not set the default configuration from the Esri server is used. Setting this may be needed if using the results of the findAddressCandidates service return spatial references in a format different from one or more of the map query service endpoints.",
+                "type": "int"
+              },
+              "ESRI_ARCGIS_API_TOKEN": {
+                "mode": "HIDDEN",
+                "description": "A secret token value from Esri's arcgis.com online service created by your arcgis.com account for accessing the API.",
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -692,7 +717,7 @@
     }
   },
   "Feature Flags": {
-    "group_description": "Configuration options to enable or disable optional or in-development features.",
+    "group_description": "Configuration options to enable or disable optional features.",
     "members": {
       "APPLICATION_EXPORTABLE": {
         "mode": "ADMIN_WRITEABLE",
@@ -702,16 +727,6 @@
       "DISABLED_VISIBILITY_CONDITION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows programs to be disabled from CiviForm",
-        "type": "bool"
-      },
-      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
-        "type": "bool"
-      },
-      "ESRI_ADDRESS_CORRECTION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the feature that allows address correction for address questions.",
         "type": "bool"
       },
       "CF_OPTIONAL_QUESTIONS": {
@@ -735,8 +750,8 @@
         "type": "bool"
       },
       "STAGING_DISABLE_DEMO_MODE_LOGINS": {
-        "mode": "HIDDEN",
-        "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
+        "mode": "ADMIN_WRITEABLE",
+        "description": "If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need to log in through the admin authenticator to get back to this settings page",
         "type": "bool"
       },
       "API_GENERATED_DOCS_ENABLED": {
@@ -779,14 +794,24 @@
         "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
       },
-      "NAME_SUFFIX_DROPDOWN_ENABLED": {
+      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables suffix dropdown field in name question.",
+        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
       },
-      "NORTH_STAR_APPLICANT_UI": {
+      "FASTFORWARD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables showing new UI with an updated user experience in Applicant flows",
+        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
+        "type": "bool"
+      }
+    }
+  },
+  "Experimental": {
+    "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
+    "members": {
+      "BULK_STATUS_UPDATE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
         "type": "bool"
       },
       "PROGRAM_MIGRATION_ENABLED": {
@@ -809,19 +834,19 @@
         "description": "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions.",
         "type": "bool"
       },
-      "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
+      "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
+        "description": "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
         "type": "bool"
       },
-      "FASTFORWARD_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
+      "SESSION_REPLAY_PROTECTION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
         "type": "bool"
       },
-      "BULK_STATUS_UPDATE_ENABLED": {
+      "NORTH_STAR_APPLICANT_UI": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
+        "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
       }
     }

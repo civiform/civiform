@@ -3,6 +3,7 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
+import java.util.UUID;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
@@ -17,6 +18,7 @@ import repository.DatabaseExecutionContext;
  * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
 public class CiviFormProfileData extends CommonProfile {
+  public static final String SESSION_ID = "sessionId";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
   // to be honored and in-progress applications are not lost.
@@ -31,6 +33,7 @@ public class CiviFormProfileData extends CommonProfile {
 
   public CiviFormProfileData() {
     super();
+    addAttribute(SESSION_ID, UUID.randomUUID().toString());
   }
 
   public CiviFormProfileData(Long accountId) {
@@ -56,6 +59,11 @@ public class CiviFormProfileData extends CommonProfile {
    */
   public boolean hasCanonicalEmail() {
     return getAttributes().containsKey(CommonProfileDefinition.EMAIL);
+  }
+
+  /** Returns the session ID for this profile. */
+  public String getSessionId() {
+    return getAttributeAsString(SESSION_ID);
   }
 
   /**

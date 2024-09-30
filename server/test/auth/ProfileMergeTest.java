@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static support.FakeRequestBuilder.fakeRequest;
 
-import auth.oidc.IdTokensFactory;
 import auth.oidc.InvalidOidcProfileException;
 import auth.oidc.OidcClientProviderParams;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
@@ -34,7 +33,6 @@ public class ProfileMergeTest extends ResetPostgres {
   private IdcsApplicantProfileCreator idcsApplicantProfileCreator;
   private SamlProfileCreator samlProfileCreator;
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
   private Database database;
   private WebContext context;
@@ -47,7 +45,6 @@ public class ProfileMergeTest extends ResetPostgres {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     accountRepository = instanceOf(AccountRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
@@ -57,9 +54,7 @@ public class ProfileMergeTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)));
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration= */ null,

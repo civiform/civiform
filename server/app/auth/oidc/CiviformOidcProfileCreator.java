@@ -11,7 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.ApplicantModel;
@@ -38,8 +37,6 @@ import services.settings.SettingsManifest;
  * implementations of the two abstract methods.
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
-
-  public static final String SESSION_ID = "sessionId";
   private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
@@ -152,9 +149,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
-    String sessionId = UUID.randomUUID().toString();
-    civiformProfile.getProfileData().addAttribute(SESSION_ID, sessionId);
-
     if (enhancedLogoutEnabled()) {
       // Save the id_token from the returned OidcProfile in the account so that it can be
       // retrieved at logout time.
@@ -164,7 +158,10 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               account -> {
                 accountRepositoryProvider
                     .get()
-                    .updateSerializedIdTokens(account, sessionId, oidcProfile.getIdTokenString());
+                    .addIdTokenAndPrune(
+                        account,
+                        civiformProfile.getProfileData().getSessionId(),
+                        oidcProfile.getIdTokenString());
               })
           .join();
     }

@@ -273,7 +273,7 @@ public final class TrustedIntermediaryService {
                             .equals(maybeDOB.get()))
                     || (!missingParams.contains(SearchParameters.ParamTypes.NAME)
                         && account
-                            .getApplicantName()
+                            .getApplicantDisplayName()
                             .toLowerCase(Locale.ROOT)
                             .contains(
                                 searchParameters.nameQuery().get().toLowerCase(Locale.ROOT)))))

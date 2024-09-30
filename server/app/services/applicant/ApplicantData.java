@@ -84,6 +84,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     this.preferredLocale = Optional.of(locale);
   }
 
+  /** Gets a formatted version of the applicant's name, or their email if no name is provided. */
+  public Optional<String> getApplicantDisplayName() {
+    return getApplicantName().isPresent() ? getApplicantName() : getApplicantEmail();
+  }
+
   /**
    * Gets a formatted version of the applicant's name. If only the first name is defined, returns
    * the first name. If both first and last are defined, returns "last, first".
@@ -94,30 +99,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     Optional<String> firstName =
         Optional.ofNullable(applicant).flatMap(ApplicantModel::getFirstName);
     Optional<String> lastName = Optional.ofNullable(applicant).flatMap(ApplicantModel::getLastName);
-    Optional<String> accountEmail = getAccountEmail();
     if (firstName.isEmpty()) {
       // TODO (#5503): Return Optional.empty() when removing the feature flag
       return getApplicantNameAtWellKnownPath();
     }
-    /* TODO (#5503): Probably remove this.
-     * When the OIDC provider doesn't include the user's name, it inserts
-     * the email address as the name. When the CiviFormProfile is merged with
-     * the OidcProfile, the applicant name gets set to the OidcProfile name,
-     * which can be the email address.
-     * https://github.com/civiform/civiform/blob/eaa46a7edb4628b56e298e88aeb2dcfd8ffebeb2/server/app/auth/oidc/applicant/ApplicantProfileCreator.java#L112
-     * In this case, we want to check if there is a real name at the
-     * Well Known Path (answer to the preseeded question) and use that. If there
-     * isn't one there, then go ahead and use the email address as that's all we have.
-     * When we remove Well Known Paths in favor of Primary Applicant Info, we can
-     * probably remove this, since we expect there to be a name PAI question
-     * that will overwrite the email address in the PAI first name column.
-     * Additionally, the DurableJob we will create to move data from the WKP
-     * to the PAI columns will do this check and overwrite an email address
-     * in the first name field.
-     */
-    if (accountEmail.isPresent() && firstName.get().equals(accountEmail.get())) {
-      return Optional.of(getApplicantNameAtWellKnownPath().orElse(firstName.get()));
-    }
+
     return lastName.isEmpty()
         ? Optional.of(firstName.get())
         : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));

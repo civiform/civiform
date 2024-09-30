@@ -105,8 +105,18 @@ it is around the label */
   @include u-height('105');
 }
 
+// Between sections
+.section-external {
+  @include u-margin-top(4);
+}
+
+// Between elements within a section
+.section-internal {
+  @include u-margin-top(3);
+}
+
 .section {
-  @include u-padding-y(3);
+  @include u-margin-y(3);
 }
 
 .section-spacing {
@@ -114,11 +124,19 @@ it is around the label */
 }
 
 .container {
-  @include u-padding-y(2);
+  @include u-margin-y(2);
 }
 
 .text-medium-spacing {
   @include u-height(1);
+}
+
+.cf-zero-top-margin {
+  margin-top: 0;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
 }
 
 // This should only be used to override styling.

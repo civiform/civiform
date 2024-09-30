@@ -46,6 +46,7 @@ Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
 - [ ] Manually evaluated tab order
+- [ ] Manually tested with a screen reader if the feature is applicant-facing. See [screen reader testing](https://github.com/civiform/civiform/wiki/Testing#screen-reader-testing)
 
 #### New Features
 

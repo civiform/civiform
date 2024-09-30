@@ -67,7 +67,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             /* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS, ImmutableList.of());
     context.setVariable("successAlertSettings", successAlertSettings);
 
-    String applicantName = params.profile().getApplicant().join().getAccount().getApplicantName();
+    String applicantName =
+        params.profile().getApplicant().join().getAccount().getApplicantDisplayName();
     context.setVariable("applicantName", applicantName);
 
     context.setVariable("dateSubmitted", params.dateSubmitted());
@@ -86,6 +87,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     String downloadHref =
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
     context.setVariable("downloadHref", downloadHref);
+
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
     ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(

@@ -65,24 +65,6 @@
 </div>
 
 <div
-  th:fragment="programIndexLogin"
-  id="modal-container"
-  class="display-none position-fixed height-viewport width-full z-100"
->
-  <div th:each="programIdAndLoginBypassUrl: ${programIdsToLoginBypassUrls}">
-    <div
-      th:replace="~{this :: loginPromptModal(${'login-dialog-' + programIdAndLoginBypassUrl.key},
-                                             ${programIdAndLoginBypassUrl.value},
-                                             ${programIdsToLoginUrls.get(programIdAndLoginBypassUrl.key)},
-                                             #{content.initialLoginModalPrompt(${authProviderName})},
-                                             #{button.continueToApplication},
-                                             'login-prompt',
-                                             false)}"
-    ></div>
-  </div>
-</div>
-
-<div
   th:fragment="reviewLogin"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
@@ -234,6 +216,72 @@
     href="#validation-modal"
     class="is-hidden"
     th:aria-controls="validation-modal"
+    aria-hidden="true"
+    tabindex="-1"
+    data-open-modal
+  ></a>
+</div>
+
+<!-- TODO(#8707): Modal sometimes flashes in incorrect position -->
+<div th:fragment="preventDuplicateSubmission (programTitle, exitHref)">
+  <dialog
+    class="usa-modal is-hidden"
+    id="duplicate-submission-modal"
+    aria-labelledby="duplicate-submission-modal-heading"
+    aria-describedby="duplicate-submission-modal-heading"
+  >
+    <div class="usa-modal__content">
+      <div class="usa-modal__main">
+        <h2
+          class="usa-modal__heading"
+          id="duplicate-submission-modal-heading"
+          th:text="#{title.noChangesToSave(${programTitle})}"
+        ></h2>
+        <p th:text="#{content.noChanges}"></p>
+
+        <div class="usa-modal__footer">
+          <ul class="usa-button-group">
+            <li class="usa-button-group__item">
+              <button
+                type="button"
+                class="usa-button"
+                data-close-modal
+                th:text="#{button.continueEditing}"
+                id="continue-editing-button"
+              ></button>
+            </li>
+            <li class="usa-button-group__item">
+              <button
+                type="button"
+                class="usa-button usa-button--unstyled padding-105 text-center"
+                th:text="#{button.exitApplication}"
+                th:data-redirect-to="${exitHref}"
+                data-close-modal
+                id="exit-application-button"
+              ></button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="usa-button usa-modal__close"
+        th:aria-label="#{button.close}"
+        data-close-modal
+      >
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+        ></svg>
+      </button>
+    </div>
+  </dialog>
+  <!--/* Create an invisible button that we will use to trigger this modal on load */-->
+  <a
+    id="invisible-duplicate-submission-modal-button"
+    href="#duplicate-submission-modal"
+    class="is-hidden"
+    th:aria-controls="duplicate-submission-modal"
     aria-hidden="true"
     tabindex="-1"
     data-open-modal

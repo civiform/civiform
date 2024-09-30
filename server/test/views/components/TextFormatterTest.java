@@ -324,4 +324,12 @@ public class TextFormatterTest extends ResetPostgres {
                 + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
                 + " <code>inline code</code></p>\n");
   }
+
+  @Test
+  public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false)).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false)).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true)).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true)).isEmpty();
+  }
 }
