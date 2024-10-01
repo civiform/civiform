@@ -5,12 +5,15 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.NorthStarProgramCardPreviewController;
 import controllers.admin.routes;
 import forms.admin.ProgramImageDescriptionForm;
 import j2html.tags.specialized.ATag;
@@ -24,6 +27,8 @@ import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -40,6 +45,7 @@ import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -66,6 +72,8 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String PAGE_TITLE = "Image upload";
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProgramImageView.class);
+
   private final AdminLayout layout;
   private final String baseUrl;
   private final FormFactory formFactory;
@@ -75,6 +83,8 @@ public final class ProgramImageView extends BaseHtmlView {
   private final ProgramCardViewRenderer programCardViewRenderer;
   private final PublicStorageClient publicStorageClient;
   private final ZoneId zoneId;
+  private final SettingsManifest settingsManifest;
+  private final NorthStarProgramCardPreviewController northStarProgramCardPreviewController;
 
   @Inject
   public ProgramImageView(
@@ -86,7 +96,9 @@ public final class ProgramImageView extends BaseHtmlView {
       ProfileUtils profileUtils,
       ProgramCardViewRenderer programCardViewRenderer,
       PublicStorageClient publicStorageClient,
-      ZoneId zoneId) {
+      ZoneId zoneId,
+      SettingsManifest settingsManifest,
+      NorthStarProgramCardPreviewController northStarProgramCardPreviewController) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.formFactory = checkNotNull(formFactory);
@@ -96,6 +108,9 @@ public final class ProgramImageView extends BaseHtmlView {
     this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.zoneId = checkNotNull(zoneId);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.northStarProgramCardPreviewController =
+        checkNotNull(northStarProgramCardPreviewController);
   }
 
   /**
@@ -135,7 +150,21 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag formsAndCurrentCardContainer =
         div().withClasses("grid", "grid-cols-2", "gap-10", "w-full");
     formsAndCurrentCardContainer.with(formsContainer);
-    formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
+
+    if (settingsManifest.getNorthStarApplicantUi(request)) {
+      DivTag cardPreview;
+      try {
+        String content =
+            northStarProgramCardPreviewController.cardPreview(request, programDefinition.id());
+        cardPreview = div(rawHtml(content));
+      } catch (InterruptedException | ExecutionException e) {
+        LOGGER.error("Error generating card preview: " + e.getLocalizedMessage());
+        cardPreview = div(text("Error generating card preview")).withClass("text-center");
+      }
+      formsAndCurrentCardContainer.with(cardPreview);
+    } else {
+      formsAndCurrentCardContainer.with(renderCurrentProgramCard(request, programDefinition));
+    }
 
     mainContent.with(titleContainer, formsAndCurrentCardContainer);
 
