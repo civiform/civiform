@@ -1,4 +1,8 @@
 <th:block th:fragment="pageHeader">
+  <div
+    th:replace="~{applicant/NotProductionBannerFragment :: notProductionBanner}"
+    th:if="${showNotProductionBannerEnabled}"
+  ></div>
   <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">

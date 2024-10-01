@@ -8,6 +8,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  disableFeatureFlag,
 } from '../../support'
 
 test.describe('Date question for applicant flow', () => {
@@ -15,6 +16,8 @@ test.describe('Date question for applicant flow', () => {
     const programName = 'Test program for single date'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await setUpSingleDateQuestion(
         programName,
         page,

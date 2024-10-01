@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -20,6 +21,8 @@ test.describe(
     const eligibleProgram1 = 'Eligible Program 1'
 
     test.beforeEach(async ({page, adminPrograms}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await loginAsAdmin(page)
 
       await test.step('Setup: Publish common intake program', async () => {

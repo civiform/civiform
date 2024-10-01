@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -18,6 +19,8 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
   test.beforeEach(
     async ({page, adminQuestions, adminPrograms, adminPredicates}) => {
       await test.step('Setup: Create program with eligibility condition', async () => {
+        await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
         await loginAsAdmin(page)
 
         await adminQuestions.addNumberQuestion({

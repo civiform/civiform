@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -14,6 +15,7 @@ test.describe('navigating to a deep link', () => {
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     // Arrange
+    await disableFeatureFlag(page, 'show_not_production_banner_enabled')
     await loginAsAdmin(page)
 
     await adminQuestions.addAddressQuestion({

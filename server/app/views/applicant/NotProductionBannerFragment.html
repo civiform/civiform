@@ -1,0 +1,12 @@
+<!--/* A banner that tells the user this is not a real (production) site,
+ and they should not enter personal information. */-->
+<div th:fragment="notProductionBanner">
+  <div class="usa-prose not-production-banner" role="alert">
+    <h1 th:text="#{banner.notForProductionBannerLine1}"></h1>
+    <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
+    <p
+      th:if="${notProductionBannerLinkHtml}"
+      th:utext="#{banner.notForProductionBannerLine2(${notProductionBannerLinkHtml})}"
+    ></p>
+  </div>
+</div>

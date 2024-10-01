@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -16,6 +17,8 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
+
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

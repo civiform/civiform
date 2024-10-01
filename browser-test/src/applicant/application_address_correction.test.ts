@@ -387,6 +387,7 @@ test.describe('address correction', () => {
 
   test.describe('with North Star flag enabled', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page}) => {
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
       await enableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
     })

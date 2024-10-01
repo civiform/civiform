@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
@@ -19,6 +20,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const relatedProgramName = 'Related program'
 
   test.beforeEach(async ({page, adminPrograms}) => {
+    await disableFeatureFlag(page, 'show_not_production_banner_enabled')
     await loginAsAdmin(page)
 
     await test.step('Setup: Publish program as admin', async () => {

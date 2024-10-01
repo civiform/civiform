@@ -1,5 +1,6 @@
 import {test} from '../../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -20,6 +21,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
+      await disableFeatureFlag(page, 'show_not_production_banner_enabled')
       await enableFeatureFlag(
         page,
         'suggest_programs_on_application_confirmation_page',
