@@ -1,5 +1,6 @@
 package services;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
@@ -26,6 +27,17 @@ public abstract class Address {
 
   @JsonProperty("zip")
   public abstract String getZip();
+
+  @JsonIgnore
+  @Override
+  public final String toString() {
+    // Examples
+    //   700 5th Ave, Seattle, WA, 98104
+    //   700 5th Ave, Suite 123, Seattle, WA, 98104
+    return String.format(
+        "%s%s, %s, %s, %s",
+        getStreet(), hasLine2() ? ", " + getLine2() : "", getCity(), getState(), getZip());
+  }
 
   public Boolean hasLine2() {
     return !getLine2().isEmpty();

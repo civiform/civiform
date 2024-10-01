@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +22,8 @@ import org.junit.runner.RunWith;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import services.geo.esri.EsriTestHelper.TestType;
+import services.geo.esri.models.Candidate;
+import services.geo.esri.models.FindAddressCandidatesResponse;
 import services.settings.SettingsManifest;
 
 @RunWith(JUnitParamsRunner.class)
@@ -41,12 +42,11 @@ public class RealEsriClientTest {
     helper = new EsriTestHelper(TestType.STANDARD);
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
-    assertThat(candidates).hasSize(5);
+    FindAddressCandidatesResponse resp = optionalResponse.get();
+    assertThat(resp.spatialReference().get().wkid()).isEqualTo(4326);
+    assertThat(resp.candidates()).hasSize(5);
   }
 
   @Test
@@ -57,12 +57,11 @@ public class RealEsriClientTest {
     helper = new EsriTestHelper(TestType.LEGACY_SINGLE_URL_CONFIG_SETTING);
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
-    assertThat(candidates).hasSize(5);
+    FindAddressCandidatesResponse resp = optionalResponse.get();
+    assertThat(resp.spatialReference().get().wkid()).isEqualTo(4326);
+    assertThat(resp.candidates()).hasSize(5);
   }
 
   @Test
@@ -71,13 +70,12 @@ public class RealEsriClientTest {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
     addressJson.put("line2", "Apt 123");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    JsonNode resp = maybeResp.get();
+    FindAddressCandidatesResponse resp = optionalResponse.get();
 
-    JsonNode nodeWithLine2 = resp.get("candidates").get(0);
-    String actualLine2Value = nodeWithLine2.get("attributes").get("SubAddr").asText();
-    assertThat(actualLine2Value).isEqualTo("Apt 123");
+    Candidate nodeWithLine2 = resp.candidates().get(0);
+    assertThat(nodeWithLine2.attributes().subAddr().get()).isEqualTo("Apt 123");
   }
 
   @Test
@@ -85,11 +83,10 @@ public class RealEsriClientTest {
     helper = new EsriTestHelper(TestType.NO_CANDIDATES);
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertThat(candidates).isEmpty();
+    FindAddressCandidatesResponse resp = optionalResponse.get();
+    assertThat(resp.candidates()).isEmpty();
   }
 
   @Test
@@ -97,9 +94,9 @@ public class RealEsriClientTest {
     helper = new EsriTestHelper(TestType.ERROR);
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    assertThat(maybeResp.isPresent()).isFalse();
+    assertThat(optionalResponse.isPresent()).isFalse();
   }
 
   @Test
@@ -109,28 +106,27 @@ public class RealEsriClientTest {
     helper = new EsriTestHelper(TestType.MULTIPLE_ENDPOINTS);
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "380 New York St");
-    Optional<JsonNode> maybeResp =
+    Optional<FindAddressCandidatesResponse> optionalResponse =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    JsonNode resp = maybeResp.get();
-    ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    FindAddressCandidatesResponse resp = optionalResponse.get();
+    assertThat(resp.spatialReference().get().wkid()).isEqualTo(4326);
 
     // For this test this value is the merged combination of candidate results
     // from multiple endpoints.
     int expectedNumberOfCandidates = 8;
-    assertThat(candidates).hasSize(expectedNumberOfCandidates);
+    assertThat(resp.candidates()).hasSize(expectedNumberOfCandidates);
   }
 
   @Test
   public void fetchServiceAreaFeatures() throws Exception {
     helper = new EsriTestHelper(TestType.SERVICE_AREA_VALIDATION);
-    Optional<JsonNode> maybeResp =
+    Optional<JsonNode> optionalResponse =
         helper
             .getClient()
             .fetchServiceAreaFeatures(EsriTestHelper.LOCATION, "/query")
             .toCompletableFuture()
             .join();
-    JsonNode resp = maybeResp.get();
+    JsonNode resp = optionalResponse.get();
     ReadContext ctx = JsonPath.parse(resp.toString());
     List<String> features = ctx.read("features[*].attributes.CITYNAME");
     Optional<String> feature = features.stream().filter(val -> "Seattle".equals(val)).findFirst();
