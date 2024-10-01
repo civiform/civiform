@@ -603,10 +603,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                         relevantCategories,
                         category ->
                             div()
-                                .withId("filter-chip")
+                                .withId("filter-chip-" + category.replace(' ', '-'))
                                 .with(
                                     input()
-                                        .withId("check-category-" + category)
+                                        .withId("check-category-" + category.replace(' ', '-'))
                                         .withType("checkbox")
                                         .withName("categories")
                                         .withValue(category)
@@ -615,7 +615,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                         .withClasses("sr-only"),
                                     label(category)
                                         .withClasses("px-4", "py-2")
-                                        .withFor("check-category-" + category))))
+                                        .withFor("check-category-" + category.replace(' ', '-')))))
                 .withClasses("flex", "mb-10", "flex-wrap", "ml-4"));
   }
 }
