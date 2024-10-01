@@ -29,6 +29,9 @@ class EsriMockWebService(WebService):
         elif address == "Empty Response":
             return self.return_json_response_from_file(
                 self.file_root + "findAddressCandidatesEmptyResponse.json")
+        elif address == "Esri Error Response":
+            return self.return_json_response_from_file(
+                self.file_root + "esriErrorResponse.json")
         else:
             raise Exception("Invalid mock request")
 
