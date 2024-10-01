@@ -84,6 +84,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Create a totally new Applicant CiviForm profile informed by the provided OidcProfile. */
   @Override
   public final CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
+    // System.out.println("ssandbekkhaug createEmptyCiviFormProfile");
     return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 

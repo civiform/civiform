@@ -45,6 +45,7 @@ public class CiviFormProfile {
     this.profileData = Preconditions.checkNotNull(profileData);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
+    // System.out.println("ssandbekkhaug created profile");
   }
 
   /** Get the latest {@link ApplicantModel} associated with the profile. */

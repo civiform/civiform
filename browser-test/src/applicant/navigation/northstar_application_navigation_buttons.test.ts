@@ -94,14 +94,15 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     })
 
     test.describe('previous button', () => {
-      test('clicking previous on first block goes to summary page', async ({
+      test('clicking previous on first block goes to home page', async ({
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickBack()
 
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        // await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+        await applicantQuestions.expectProgramsPage()
       })
 
       test('clicking previous with some missing answers shows error modal', async ({

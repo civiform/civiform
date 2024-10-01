@@ -41,6 +41,14 @@ public final class CiviFormProfileFilter extends Filter {
    * </ul>
    */
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
+    // TODO ssandbekkhaug clean up
+    // System.out.println("=====NonUserRoutes.noneMatch(requestHeader): " + NonUserRoutes.noneMatch(requestHeader));
+    // System.out.println("=====OptionalProfileRoutes.noneMatch(requestHeader): " + OptionalProfileRoutes.noneMatch(requestHeader));
+    // System.out.println("=====!requestHeader.path().startsWith(\"/callback\"): " + !requestHeader.path().startsWith("/callback"));
+    // System.out.println("=====(requestHeader.method().equals(\"GET\") || requestHeader.method().equals(\"HEAD\")): " + (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD")));
+    // System.out.println("=====profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty(): " + profileUtils.optionalCurrentUserProfile(requestHeader).isEmpty());
+
+
     return NonUserRoutes.noneMatch(requestHeader)
         && OptionalProfileRoutes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
