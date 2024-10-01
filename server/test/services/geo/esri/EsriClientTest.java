@@ -113,6 +113,7 @@ public class EsriClientTest {
     // First item is guaranteed to be here since the response is taken from the JSON file.
     // This also tests that we are rejecting the responses that do not include a number
     // in the street address or any street address at all.
+    assertThat(suggestions).hasSizeGreaterThan(0);
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
@@ -158,6 +159,26 @@ public class EsriClientTest {
         helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
     assertThat(suggestions).isEmpty();
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
+  }
+
+  @Test
+  public void getAddressSuggestionsWithEmptyResponse() throws Exception {
+    helper = new EsriTestHelper(TestType.EMPTY_RESPONSE);
+    Address address =
+        Address.builder()
+            .setStreet("380 New York St")
+            .setLine2("")
+            .setCity("Redlands")
+            .setState("CA")
+            .setZip("92373")
+            .build();
+
+    AddressSuggestionGroup group =
+        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+    ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
     assertThat(group.getOriginalAddress()).isEqualTo(address);
   }
 

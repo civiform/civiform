@@ -1,6 +1,8 @@
 package services.geo.esri;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import services.AddressField;
 import services.geo.AddressLocation;
+import services.geo.esri.models.FindAddressCandidatesResponse;
 
 /**
  * Provides overide methods for {@link EsriClient} to illiminate the need for calling the external
@@ -28,6 +31,7 @@ public final class FakeEsriClient extends EsriClient {
   private JsonNode serviceAreaNoFeatures;
   private JsonNode serviceAreaNotInArea;
   private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   public FakeEsriClient(
@@ -52,9 +56,10 @@ public final class FakeEsriClient extends EsriClient {
    * </ul>
    */
   @Override
-  CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
+  CompletionStage<Optional<FindAddressCandidatesResponse>> fetchAddressSuggestions(
+      ObjectNode addressJson) {
     String address = addressJson.findPath(AddressField.STREET.getValue()).textValue();
-    Optional<JsonNode> maybeJson = Optional.empty();
+    Optional<FindAddressCandidatesResponse> optionalResponse = Optional.empty();
     File resource;
     FileInputStream inputStream;
 
@@ -62,28 +67,28 @@ public final class FakeEsriClient extends EsriClient {
       case "Address In Area":
       case "Legit Address":
         if (addressCandidates != null) {
-          maybeJson = Optional.of(addressCandidates);
+          optionalResponse = mapJsonNodeToResponse(addressCandidates);
           break;
         }
         try {
           resource = new File(jsonResources + "findAddressCandidates.json");
           inputStream = new FileInputStream(resource);
           addressCandidates = Json.parse(inputStream);
-          maybeJson = Optional.of(addressCandidates);
+          optionalResponse = mapJsonNodeToResponse(addressCandidates);
         } catch (FileNotFoundException e) {
           LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "Bogus Address":
         if (noAddressCandidates != null) {
-          maybeJson = Optional.of(noAddressCandidates);
+          optionalResponse = mapJsonNodeToResponse(noAddressCandidates);
           break;
         }
         try {
           resource = new File(jsonResources + "findAddressCandidatesNoCandidates.json");
           inputStream = new FileInputStream(resource);
           noAddressCandidates = Json.parse(inputStream);
-          maybeJson = Optional.of(noAddressCandidates);
+          optionalResponse = mapJsonNodeToResponse(noAddressCandidates);
         } catch (FileNotFoundException e) {
           LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
@@ -96,7 +101,18 @@ public final class FakeEsriClient extends EsriClient {
         throw new InvalidFakeAddressException(address);
     }
 
-    return CompletableFuture.completedFuture(maybeJson);
+    return CompletableFuture.completedFuture(optionalResponse);
+  }
+
+  /** Parse json to response pojo */
+  private Optional<FindAddressCandidatesResponse> mapJsonNodeToResponse(JsonNode jsonNode) {
+    try {
+      FindAddressCandidatesResponse response =
+          mapper.readValue(jsonNode.toString(), FindAddressCandidatesResponse.class);
+      return Optional.of(response);
+    } catch (JsonProcessingException e) {
+      return Optional.empty();
+    }
   }
 
   @Override

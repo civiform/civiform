@@ -2,9 +2,7 @@ package services.geo.esri;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -36,7 +34,6 @@ public abstract class EsriClient {
   final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private final ObjectMapper mapper = new ObjectMapper();
 
   private static final Histogram ESRI_LOOKUP_TIME =
       Histogram.build()
@@ -75,7 +72,8 @@ public abstract class EsriClient {
    * to the configured ESRI_EXTERNAL_CALL_TRIES. If ESRI_EXTERNAL_CALL_TRIES is not configured, the
    * tries default to 3.
    */
-  abstract CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson);
+  abstract CompletionStage<Optional<FindAddressCandidatesResponse>> fetchAddressSuggestions(
+      ObjectNode addressJson);
 
   /**
    * Calls an external Esri service to get address suggestions given the provided {@link Address}.
@@ -95,11 +93,11 @@ public abstract class EsriClient {
     Histogram.Timer timer = ESRI_LOOKUP_TIME.startTimer();
     return fetchAddressSuggestions(addressJson)
         .thenApply(
-            (maybeJson) -> {
-              if (maybeJson.isEmpty()) {
+            (optionalFindAddressCandidatesResponse) -> {
+              if (optionalFindAddressCandidatesResponse.isEmpty()) {
                 logger.error(
-                    "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
-                        + " EsriClient.getAddressSuggestions. Address = {}",
+                    "Received an empty JSON response when searching for address candidates for"
+                        + " address: [{}]",
                     address);
                 ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
                 return AddressSuggestionGroup.empty(address);
@@ -107,8 +105,7 @@ public abstract class EsriClient {
 
               try {
                 FindAddressCandidatesResponse response =
-                    mapper.readValue(
-                        maybeJson.get().toString(), FindAddressCandidatesResponse.class);
+                    optionalFindAddressCandidatesResponse.get();
 
                 if (response.spatialReference().isEmpty()) {
                   return AddressSuggestionGroup.empty(address);
@@ -160,11 +157,10 @@ public abstract class EsriClient {
                 // Record the execution time of the esri lookup process.
                 timer.observeDuration();
                 return addressCandidates;
-              } catch (JsonProcessingException e) {
-                logger.error(
-                    "EsriClient.fetchAddressSuggestions could not parse JSON response. Called by"
-                        + " EsriClient.getAddressSuggestions. Address = {}",
-                    address);
+              } catch (RuntimeException e) {
+                String errmsg =
+                    String.format("Could not parse JSON response for address: [%s]", address);
+                logger.error(errmsg, e);
                 ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
                 return AddressSuggestionGroup.empty(address);
               }
