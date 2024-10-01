@@ -346,6 +346,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
+        .setTop(Modal.Top.QUARTER)
         .build();
   }
 
