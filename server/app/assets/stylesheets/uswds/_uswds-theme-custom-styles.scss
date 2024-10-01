@@ -25,7 +25,7 @@ See the radio-option below as an example.
 }
 
 // Put the focus outline around the chip instead of the underlying checkbox
-#filter-chip:focus-within {
+[id^='filter-chip-']:focus-within {
   @include u-outline('05');
   @include u-outline-color('blue-40v');
   outline-offset: 4px;
