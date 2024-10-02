@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12.6-slim
+FROM python:3.12.7-slim
 
 RUN useradd --create-home appuser --no-log-init
 
