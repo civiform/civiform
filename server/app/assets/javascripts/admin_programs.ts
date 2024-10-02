@@ -21,6 +21,32 @@ class AdminPrograms {
       },
     )
   }
+
+  // When the common intake checkbox is selected,
+  // the program category checkboxes should be disabled and unchecked.
+  static attachCommonIntakeChangeListener() {
+    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
+      const commonIntakeCheckbox = <HTMLInputElement>(
+        document.querySelector('#common-intake-checkbox')
+      )
+
+      const programCategoryCheckboxes = document.querySelectorAll(
+        '[id^="checkbox-category"]',
+      )
+
+      programCategoryCheckboxes.forEach((checkbox) => {
+        const category = checkbox as HTMLInputElement
+
+        if (commonIntakeCheckbox.checked) {
+          category.disabled = true
+          category.checked = false
+        } else {
+          category.disabled = false
+        }
+      })
+    })
+  }
+
   static attachEventListenersToEditTIButton() {
     addEventListenerToElements(
       '#program-display-mode-select-ti-only',
@@ -118,6 +144,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
+  AdminPrograms.attachCommonIntakeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
