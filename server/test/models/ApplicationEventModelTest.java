@@ -53,19 +53,25 @@ public class ApplicationEventModelTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    applicationEventRepository.insertStatusEvent(
-        application,
-        Optional.of(adminAccount),
-        StatusEvent.builder().setStatusText("approved").setEmailSent(false).build());
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(adminAccount),
+            StatusEvent.builder().setStatusText("approved").setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
 
     application.refresh();
     assertThat(application.getLatestStatus()).isEqualTo(Optional.of("approved"));
 
     // Create another event transitioning to empty and ensure that the result is empty.
-    applicationEventRepository.insertStatusEvent(
-        application,
-        Optional.of(adminAccount),
-        StatusEvent.builder().setStatusText("").setEmailSent(false).build());
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(adminAccount),
+            StatusEvent.builder().setStatusText("").setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
     assertThat(application.getLatestStatus()).isEmpty();
   }
@@ -79,10 +85,13 @@ public class ApplicationEventModelTest extends ResetPostgres {
             resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
-    applicationEventRepository.insertStatusEvent(
-        application,
-        Optional.empty(),
-        StatusEvent.builder().setStatusText("approved").setEmailSent(false).build());
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.empty(),
+            StatusEvent.builder().setStatusText("approved").setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
 
     application.refresh();
     assertThat(application.getLatestStatus()).isEqualTo(Optional.of("approved"));

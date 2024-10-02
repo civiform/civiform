@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicantModel;
+import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -466,7 +467,7 @@ public final class ApplicantService {
    * @param application the application on which to set the status
    * @param status the status to set the application to
    */
-  private CompletableFuture<ApplicationModel> setApplicationStatus(
+  private CompletionStage<ApplicationEventModel> setApplicationStatus(
       ApplicationModel application, StatusDefinitions.Status status) {
     // Set the status for the application automatically to the default status
     ApplicationEventDetails.StatusEvent statusEvent =
@@ -474,12 +475,9 @@ public final class ApplicantService {
             .setStatusText(status.statusText())
             .setEmailSent(true)
             .build();
-
     // Because we are doing this automatically, set the Account to empty.
-    applicationEventRepository.insertStatusEvent(
+    return applicationEventRepository.insertStatusEvent(
         application, /* optionalAdmin= */ Optional.empty(), statusEvent);
-
-    return CompletableFuture.completedFuture(application);
   }
 
   /**
@@ -593,7 +591,7 @@ public final class ApplicantService {
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
 
-          CompletableFuture<ApplicationModel> updateStatusFuture =
+          CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
                   .orElse(CompletableFuture.completedFuture(null));

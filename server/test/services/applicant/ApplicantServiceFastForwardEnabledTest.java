@@ -3362,10 +3362,13 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
   private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    applicationEventRepository.insertStatusEvent(
-        application,
-        Optional.of(actorAccount),
-        StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build());
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(actorAccount),
+            StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
   }
 

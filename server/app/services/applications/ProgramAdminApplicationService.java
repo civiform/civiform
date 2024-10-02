@@ -138,7 +138,10 @@ public final class ProgramAdminApplicationService {
         throw new AccountHasNoEmailException(applicant.getAccount().id);
       }
     }
-    eventRepository.insertStatusEvent(application, Optional.of(admin), newStatusEvent);
+    eventRepository
+        .insertStatusEvent(application, Optional.of(admin), newStatusEvent)
+        .toCompletableFuture()
+        .join();
   }
 
   private void sendApplicantEmail(

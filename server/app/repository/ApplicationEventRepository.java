@@ -40,17 +40,6 @@ public final class ApplicationEventRepository {
     return event;
   }
 
-  /** Insert a new {@link ApplicationEventModel} record asynchronously. */
-  public CompletionStage<ApplicationEventModel> insertAsync(ApplicationEventModel event) {
-    return supplyAsync(
-        () -> {
-          database.insert(event);
-          event.refresh();
-          return event;
-        },
-        executionContext.current());
-  }
-
   /**
    * Returns all {@link ApplicationEventModel} records for the {@link ApplicationModel} with id
    * {@code applicationId} synchronously.
@@ -69,7 +58,7 @@ public final class ApplicationEventRepository {
             .findList());
   }
 
-  public void insertStatusEvent(
+  public CompletionStage<ApplicationEventModel> insertStatusEvent(
       ApplicationModel application,
       Optional<AccountModel> optionalAdmin,
       ApplicationEventDetails.StatusEvent newStatusEvent) {
@@ -79,30 +68,36 @@ public final class ApplicationEventRepository {
             .setStatusEvent(newStatusEvent)
             .build();
     ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
-    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
-      insertSync(event);
-      // Saves the latest note on the applications table too
-      // If the statuses are removed from an application, then the latest_status column needs to be
-      // set to null
-      // to indicate the applications has no status and not a status with empty string.
-      if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
-        database
-            .update(ApplicationModel.class)
-            .set("latest_status", null)
-            .where()
-            .eq("id", application.id)
-            .update();
-      } else {
-        database
-            .update(ApplicationModel.class)
-            .set("latest_status", newStatusEvent.statusText())
-            .where()
-            .eq("id", application.id)
-            .update();
-      }
-      application.save();
-      transaction.commit();
-    }
+    return supplyAsync(
+        () -> {
+          try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+            insertSync(event);
+            // Saves the latest note on the applications table too
+            // If the statuses are removed from an application, then the latest_status column needs
+            // to be
+            // set to null
+            // to indicate the applications has no status and not a status with empty string.
+            if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
+              database
+                  .update(ApplicationModel.class)
+                  .set("latest_status", null)
+                  .where()
+                  .eq("id", application.id)
+                  .update();
+            } else {
+              database
+                  .update(ApplicationModel.class)
+                  .set("latest_status", newStatusEvent.statusText())
+                  .where()
+                  .eq("id", application.id)
+                  .update();
+            }
+            application.save();
+            transaction.commit();
+          }
+          return event;
+        },
+        executionContext.current());
   }
 
   public void insertNoteEvent(

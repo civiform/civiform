@@ -3,12 +3,14 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ApplicationEventRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.application.ApplicationEventDetails;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
@@ -26,6 +28,41 @@ public class ApplicationModelTest extends ResetPostgres {
   public void setUp() {
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     applicationEventRepository = instanceOf(ApplicationEventRepository.class);
+  }
+
+  @Test
+  public void staleLatestStatusIsNotPersisted() {
+    // Tests a case where an Application (and its associated latest_status value has been loaded
+    // in-memory, a new ApplicationEventDetails is added (causing the trigger to execute), and the
+    // Application is persisted.
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(),
+        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(application.getLatestStatus()).isEmpty();
+
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(adminAccount),
+            ApplicationEventDetails.StatusEvent.builder()
+                .setStatusText(APPROVED_STATUS.statusText())
+                .setEmailSent(false)
+                .build())
+        .toCompletableFuture()
+        .join();
+
+    // Trigger an update in the application.
+    application.setSubmitTimeToNow();
+    applicationEventRepository.insertNoteEvent(
+        application, ApplicationEventDetails.NoteEvent.create("some note"), adminAccount);
+    application.refresh();
+    assertThat(application.getLatestStatus()).isEqualTo(Optional.of(APPROVED_STATUS.statusText()));
   }
 
   @Test

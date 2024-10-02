@@ -719,10 +719,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
       String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
-      eventRepo.insertStatusEvent(
-          application,
-          Optional.of(actorAccount),
-          StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build());
+      eventRepo
+          .insertStatusEvent(
+              application,
+              Optional.of(actorAccount),
+              StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
+          .toCompletableFuture()
+          .join();
 
       // When persisting models with @WhenModified fields, EBean
       // truncates the persisted timestamp to milliseconds:
