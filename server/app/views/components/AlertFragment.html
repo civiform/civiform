@@ -32,7 +32,13 @@
       th:text="${alertSettings.title.get()}"
     ></h6>
 
-    <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
+    <!-- TODO ssandbekkhaug fix why both texts appear -->
+    <div th:if="${alertSettings.unescapedDescription()} == true">
+      <p class="usa-alert__text" th:utext="${alertSettings.text}"></p>
+    </div>
+    <div th:if="${alertSettings.unescapedDescription()} == false">
+      <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
+    </div>
 
     <!-- padding-left-205 indents the list -->
     <ul
