@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import org.unbescape.html.HtmlEscape;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
@@ -78,10 +79,17 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     // Manually construct a hyperlink with a runtime href and localized string. The hyperlink will
     // be inserted into another localized string in the Thymeleaf template.
-    String linkHref =
-        program.externalLink().isEmpty()
-            ? applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url()
-            : program.externalLink();
+    // http://localhost:9000/programs/102
+    // String linkHref =
+    //     program.externalLink().isEmpty()
+    //         ? applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url()
+    //         : program.externalLink();
+
+    String linkHref = "javascript:alert('XSS example')";
+    System.out.println("before: " + linkHref);
+    linkHref = HtmlEscape.escapeHtml5(linkHref);
+    System.out.println("after : " + linkHref);
+
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
     String linkHtml =
