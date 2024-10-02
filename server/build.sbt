@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.14",
+    scalaVersion := "2.13.15",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -23,15 +23,15 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.3.0-jre",
+      "com.google.guava" % "guava" % "33.3.1-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.17.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.17.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.17.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.18.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.18.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.28.5",
-      "software.amazon.awssdk" % "ses" % "2.28.5",
+      "software.amazon.awssdk" % "s3" % "2.28.11",
+      "software.amazon.awssdk" % "ses" % "2.28.11",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.13.3",
@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.26.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.3.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.3.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
       "org.checkerframework" % "dataflow-errorprone" % "3.47.0",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.11.0",
+      "org.apache.commons" % "commons-csv" % "1.12.0",
       "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
@@ -278,9 +278,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.17.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.17.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

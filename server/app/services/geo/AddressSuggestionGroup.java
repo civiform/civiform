@@ -20,6 +20,15 @@ public abstract class AddressSuggestionGroup {
 
   public abstract Address getOriginalAddress();
 
+  /** Returns an empty instance of an AddressSuggestionGroup */
+  public static AddressSuggestionGroup empty(Address originalAddress) {
+    return AddressSuggestionGroup.builder()
+        .setWellKnownId(0)
+        .setOriginalAddress(originalAddress)
+        .setAddressSuggestions(ImmutableList.of())
+        .build();
+  }
+
   /**
    * returns a list of address suggestions ordered from highest scoring (most likely match) to
    * lowest scoring (least likely match).

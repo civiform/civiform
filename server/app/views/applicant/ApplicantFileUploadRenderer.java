@@ -113,7 +113,10 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     JsonArray uploadedFileNames = new JsonArray();
 
     if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
+      int i = 0;
       for (String fileKey : fileUploadQuestion.getFileKeyListValue().get()) {
+        i++;
+        String fileNameId = "uploaded-file-" + i;
         String fileName = FileUploadQuestion.getFileName(fileKey);
 
         uploadedFileNames.add(fileName);
@@ -132,10 +135,12 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         result.with(
             li().withClass("flex justify-between mb-2")
                 .withText(fileName)
+                .withId(fileNameId)
                 .with(
                     TagCreator.a()
                         .withText(params.messages().at(MessageKey.LINK_REMOVE_FILE.getKeyName()))
                         .withHref(removeUrl)
+                        .attr("aria-labelledby", fileNameId)
                         .withClasses(
                             BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "underline")));
       }

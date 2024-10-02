@@ -40,6 +40,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
 import models.StoredFileModel;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -1053,6 +1054,28 @@ public final class ApplicantService {
                   activeProgramDefinitions, applications, allPrograms, request);
             },
             classLoaderExecutionContext.current());
+  }
+
+  /**
+   * Get all active programs that are publicly visible, as if it was a brand new guest account, but
+   * without requiring the account to be created yet.
+   *
+   * @param request - The request object from loading the page
+   * @return - CompletionStage of the relevant programs
+   */
+  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
+    CompletionStage<VersionModel> versionFuture = versionRepository.getActiveVersionAsync();
+    return versionFuture.thenApplyAsync(
+        version -> {
+          ImmutableList<ProgramDefinition> activeProgramDefinitions =
+              versionRepository.getProgramsForVersion(version).stream()
+                  .map(p -> programRepository.getShallowProgramDefinition(p))
+                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+                  .collect(ImmutableList.toImmutableList());
+          return relevantProgramsForApplicantInternal(
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+        },
+        classLoaderExecutionContext.current());
   }
 
   /**

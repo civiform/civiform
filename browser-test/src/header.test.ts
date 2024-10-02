@@ -1,19 +1,37 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  loginAsAdmin,
   loginAsTestUser,
+  logout,
   validateScreenshot,
   validateAccessibility,
-  logout,
   enableFeatureFlag,
+  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', () => {
   /**
    * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
    */
-  test('Check screenshots and validate accessibility', async ({page}) => {
+  test('Check screenshots and validate accessibility', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    await test.step('Take a screenshot with no profile/account', async () => {
+      await validateScreenshot(page.getByRole('navigation'), 'not-logged-in')
+    })
+
     await test.step('Take a screenshot as a guest', async () => {
+      // Since a guest account is not created until you start applying for something,
+      // we have to make a program.
+      await seedProgramsAndCategories(page)
+      await page.goto('/')
+      await loginAsAdmin(page)
+      await adminPrograms.publishAllDrafts()
       await logout(page)
+
+      await applicantQuestions.applyProgram('Minimal Sample Program')
       await validateScreenshot(
         page.getByRole('navigation'),
         'not-logged-in-guest-mode-enabled',

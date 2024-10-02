@@ -47,7 +47,6 @@ import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.applicant.NorthStarApplicantIneligibleView;
 import views.applicant.NorthStarApplicantProgramSummaryView;
-import views.applicant.NorthStarPreventDuplicateSubmissionView;
 import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
@@ -70,7 +69,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final NorthStarApplicantIneligibleView northStarApplicantIneligibleView;
   private final IneligibleBlockView ineligibleBlockView;
   private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
-  private final NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
@@ -86,7 +84,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       NorthStarApplicantIneligibleView northStarApplicantIneligibleView,
       IneligibleBlockView ineligibleBlockView,
       PreventDuplicateSubmissionView preventDuplicateSubmissionView,
-      NorthStarPreventDuplicateSubmissionView northStarPreventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -102,8 +99,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.northStarApplicantIneligibleView = checkNotNull(northStarApplicantIneligibleView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
-    this.northStarPreventDuplicateSubmissionView =
-        checkNotNull(northStarPreventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.applicantRoutes = checkNotNull(applicantRoutes);
@@ -393,10 +388,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof DuplicateApplicationException) {
                   return renderPreventDuplicateSubmissionPage(
                       request,
-                      profileUtils.currentUserProfile(request),
+                      submittingProfile,
                       applicantId,
-                      applicantPersonalInfo.join(),
-                      readOnlyApplicantProgramServiceFuture.join());
+                      readOnlyApplicantProgramServiceFuture.join(),
+                      programId);
                 }
                 throw new RuntimeException(cause);
               }
@@ -441,19 +436,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request,
       CiviFormProfile profile,
       long applicantId,
-      ApplicantPersonalInfo applicantPersonalInfo,
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      long programId) {
     if (settingsManifest.getNorthStarApplicantUi(request)) {
-      NorthStarPreventDuplicateSubmissionView.Params params =
-          NorthStarPreventDuplicateSubmissionView.Params.builder()
-              .setRequest(request)
-              .setApplicantId(applicantId)
-              .setApplicantPersonalInfo(applicantPersonalInfo)
-              .setProfile(profile)
-              .setRoApplicantProgramService(roApplicantProgramService)
-              .setMessages(messagesApi.preferred(request))
-              .build();
-      return ok(northStarPreventDuplicateSubmissionView.render(params)).as(Http.MimeTypes.HTML);
+      Call reviewPage = applicantRoutes.review(profile, applicantId, programId);
+      return found(reviewPage).flashing(FlashKey.DUPLICATE_SUBMISSION, "true");
     } else {
       return ok(
           preventDuplicateSubmissionView.render(

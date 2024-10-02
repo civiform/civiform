@@ -10,6 +10,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.EligibilityAlertSettingsCalculator;
 import java.util.Locale;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -51,8 +52,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
     ProgramDefinition program = params.programDefinition();

@@ -16,8 +16,8 @@
     "@types/dompurify": "3.0.5",
     "@types/jest": "29.5.13",
     "@types/markdown-it": "14.1.2",
-    "@typescript-eslint/eslint-plugin": "8.6.0",
-    "@typescript-eslint/parser": "8.6.0",
+    "@typescript-eslint/eslint-plugin": "8.7.0",
+    "@typescript-eslint/parser": "8.7.0",
     "autoprefixer": "^10.4.16",
     "css-loader": "^7.0.0",
     "eslint": "8.57.1",
@@ -28,19 +28,19 @@
     "mini-css-extract-plugin": "^2.7.6",
     "postcss": "8.4.47",
     "postcss-loader": "^8.0.0",
-    "sass-embedded": "1.79.2",
+    "sass-embedded": "1.79.4",
     "sass-loader": "16.0.2",
     "tailwindcss": "^3.4.1",
     "ts-jest": "29.2.5",
     "ts-loader": "9.5.1",
     "typescript": "5.6.2",
-    "webpack": "5.94.0",
+    "webpack": "5.95.0",
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
-    "dompurify": "3.1.6",
+    "dompurify": "3.1.7",
     "markdown-it": "14.1.0"
   },
   "browserslist": [

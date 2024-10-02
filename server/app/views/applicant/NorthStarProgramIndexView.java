@@ -53,11 +53,11 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
   public String render(
       Messages messages,
       Request request,
-      long applicantId,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<String> bannerMessage,
-      CiviFormProfile profile) {
+      Optional<CiviFormProfile> profile) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
@@ -134,6 +134,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         settingsManifest.getApplicantPortalName(request).get());
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
+    context.setVariable("hasProfile", profile.isPresent());
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
@@ -145,8 +146,8 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
       Messages messages,
       Request request,
       ApplicantProgramData commonIntakeForm,
-      CiviFormProfile profile,
-      long applicantId,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         commonIntakeForm.latestApplicationLifecycleStage();

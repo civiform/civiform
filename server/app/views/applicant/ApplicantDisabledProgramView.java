@@ -32,7 +32,7 @@ public final class ApplicantDisabledProgramView extends BaseHtmlView {
     HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle("Disabled Program");
     bundle.addMainContent(mainContent(messages));
-    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
+    return layout.renderWithNav(request, personalInfo, messages, bundle, Optional.of(applicantId));
   }
 
   private DivTag mainContent(Messages messages) {

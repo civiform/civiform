@@ -264,6 +264,7 @@ export class ApplicantQuestions {
 
   async clickApplyToProgramsButton() {
     await this.page.click('text="Apply to programs"')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickBack() {
@@ -359,8 +360,9 @@ export class ApplicantQuestions {
     let gotProgramsAndServicesNames
 
     if (filtersOn) {
-      gotRecommendedProgramNames =
-        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames = await this.programNamesForSection(
+        'Programs based on your selections',
+      )
       gotRecommendedProgramNames.sort()
       gotOtherProgramNames = await this.programNamesForSection(
         'Other programs and services',
@@ -422,6 +424,16 @@ export class ApplicantQuestions {
 
   async clickContinue() {
     await this.page.click('text="Continue"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickContinueEditing() {
+    await this.page.click('text="Continue editing"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickExitApplication() {
+    await this.page.click('text="Exit application"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -552,6 +564,7 @@ export class ApplicantQuestions {
     await this.expectProgramsPage()
   }
 
+  // Expect the program index (home) page
   async expectProgramsPage() {
     await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')

@@ -48,8 +48,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
     context.setVariable("programTitle", params.programTitle());
@@ -65,6 +65,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
     context.setVariable("successBannerMessage", params.successBannerMessage());
     context.setVariable("notEligibleBannerMessage", params.notEligibleBannerMessage());
     context.setVariable("errorBannerMessage", request.flash().get(FlashKey.ERROR));
+
+    // Modals
+    Optional<String> duplicateFlashValue = request.flash().get(FlashKey.DUPLICATE_SUBMISSION);
+    context.setVariable("duplicateSubmission", duplicateFlashValue);
+    context.setVariable("exitHref", "/");
 
     // Eligibility Alerts
     context.setVariable("eligibilityAlertSettings", params.eligibilityAlertSettings());

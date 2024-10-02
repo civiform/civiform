@@ -134,7 +134,8 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
 
     if (!settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(request)) {
-      return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
+      return layout.renderWithNav(
+          request, personalInfo, messages, htmlBundle, Optional.of(applicantId));
     }
 
     var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
@@ -156,16 +157,17 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                               /* sectionTitle= */ Optional.empty(),
                               ProgramCardViewRenderer.programCardsContainerStyles(
                                   relevantPrograms.size()),
-                              applicantId,
+                              Optional.of(applicantId),
                               locale,
                               relevantPrograms,
                               MessageKey.BUTTON_APPLY,
                               MessageKey.BUTTON_APPLY_SR,
                               htmlBundle,
-                              profile,
+                              Optional.of(profile),
                               /* isMyApplicationsSection= */ false))));
     }
 
-    return layout.renderWithNav(request, personalInfo, messages, htmlBundle, applicantId);
+    return layout.renderWithNav(
+        request, personalInfo, messages, htmlBundle, Optional.of(applicantId));
   }
 }

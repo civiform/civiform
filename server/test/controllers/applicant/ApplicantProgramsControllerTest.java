@@ -235,6 +235,40 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void indexWithoutApplicantId_showsAllPubliclyVisiblePrograms_doesNotShowEndSession() {
+    // We don't want to provide a profile when ProfileUtils functions are called
+    resetMocks();
+
+    ProgramModel activeProgram = resourceCreator().insertActiveProgram("program");
+    ProgramModel disabledProgram = resourceCreator().insertActiveDisabledProgram("disabled");
+    ProgramModel hiddenInIndexProgram =
+        resourceCreator().insertActiveHiddenInIndexProgram("hidden");
+    ProgramModel tiOnlyProgram = resourceCreator().insertActiveTiOnlyProgram("tiOnly");
+
+    Result result =
+        controller
+            .indexWithoutApplicantId(fakeRequest(), ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(content)
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(activeProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(disabledProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(hiddenInIndexProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(tiOnlyProgram.id)).url());
+    assertThat(content).doesNotContain("End session");
+    assertThat(content).doesNotContain("You're a guest user");
+  }
+
+  @Test
   public void showWithApplicantId_includesApplyButton() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 

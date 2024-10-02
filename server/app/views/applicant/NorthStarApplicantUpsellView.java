@@ -48,8 +48,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
 
@@ -88,6 +88,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
     context.setVariable("downloadHref", downloadHref);
 
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
     ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(
             params.request(),
@@ -96,8 +99,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             MessageKey.BUTTON_APPLY,
             params.eligiblePrograms().get(),
             /* preferredLocale= */ params.messages().lang().toLocale(),
-            params.profile(),
-            params.applicantId(),
+            Optional.of(params.profile()),
+            Optional.of(params.applicantId()),
             params.applicantPersonalInfo());
     context.setVariable("cardsSection", cardsSection);
 

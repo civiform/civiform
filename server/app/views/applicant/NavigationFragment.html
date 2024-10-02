@@ -140,7 +140,7 @@
   </svg>
 </span>
 
-<nav th:fragment="guestSessionAlert" th:if="${isGuest}">
+<nav th:fragment="guestSessionAlert" th:if="${isGuest and hasProfile}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
   >

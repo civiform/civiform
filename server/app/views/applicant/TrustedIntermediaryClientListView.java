@@ -116,7 +116,8 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
       bundle.addToastMessages(
           ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
     }
-    return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
+    return layout.renderWithNav(
+        request, personalInfo, messages, bundle, Optional.of(currentTisApplicantId));
   }
 
   private ATag renderAddNewClientButton(Messages messages, Long tiGroupId) {

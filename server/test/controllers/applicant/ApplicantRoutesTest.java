@@ -164,6 +164,18 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
+  public void testShowRoute_withoutApplicant() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    String expectedShowUrl = String.format("/programs/%d", PROGRAM_ID);
+    assertThat(new ApplicantRoutes().show(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
   public void testEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
@@ -273,6 +285,18 @@ public class ApplicantRoutesTest extends ResetPostgres {
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);
     assertThat(after.absent).isEqualTo(before.absent + 1);
+  }
+
+  @Test
+  public void testReviewRoute_withoutApplicant() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    String expectedShowUrl = String.format("/programs/%d/review", PROGRAM_ID);
+    assertThat(new ApplicantRoutes().review(PROGRAM_ID).url()).isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent);
   }
 
   @Test

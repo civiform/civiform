@@ -7,6 +7,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
@@ -53,8 +54,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
-            applicationParams.applicantId(),
-            applicationParams.profile(),
+            Optional.of(applicationParams.applicantId()),
+            Optional.of(applicationParams.profile()),
             applicationParams.applicantPersonalInfo(),
             applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
@@ -66,6 +67,12 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable(
         "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
 
+    /* Expected flow:
+     * 1. On block edit page, user has invalid form
+     * 2. User clicks "Back"
+     * 3. Block edit page reloads via routes (see getFormAction(...))
+     * 4. Block edit page needs to show a modal
+     */
     boolean showErrorModal =
         questionParams.values().stream().anyMatch(param -> param.shouldShowErrorsWithModal());
     context.setVariable("showErrorModal", showErrorModal);

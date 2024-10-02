@@ -56,6 +56,13 @@ public abstract class ApplicantPersonalInfo {
 
   public abstract Representation tiPartiallyCreated();
 
+  // An empty guest user without any data. Used on the home page when a user
+  // is not logged in and hasn't created a guest account yet by applying to
+  // a program.
+  public static ApplicantPersonalInfo ofGuestUser() {
+    return AutoOneOf_ApplicantPersonalInfo.guest(Representation.builder().build());
+  }
+
   public static ApplicantPersonalInfo ofGuestUser(Representation representation) {
     return AutoOneOf_ApplicantPersonalInfo.guest(representation);
   }

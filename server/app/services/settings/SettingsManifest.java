@@ -993,6 +993,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
+   * replayed if the user logs out
+   */
+  public boolean getSessionReplayProtectionEnabled() {
+    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
+  }
+
+  /**
    * (NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant
    * flows
    */
@@ -2084,6 +2092,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SESSION_REPLAY_PROTECTION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session"
+                          + " cookie cannot be replayed if the user logs out",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user"
