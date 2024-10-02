@@ -1,6 +1,40 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
+// TODO(#7849): Add an equivalent of this test to northstar below.
+test.describe('File upload question preview', () => {
+  test('File upload preview', async ({page, adminQuestions}) => {
+    const fileUploadQuestionName = 'File Upload Question'
+
+    await loginAsAdmin(page)
+    await test.step('Create question', async () => {
+      await adminQuestions.addFileUploadQuestion({
+        questionName: fileUploadQuestionName,
+      })
+    })
+
+    await test.step('Expect preview renders properly multi-file disabled', async () => {
+      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
+
+      await validateScreenshot(
+        page.locator('#sample-question'),
+        'file-question-preview-single-file',
+      )
+    })
+
+    await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+
+    await test.step('Expect preview renders properly multi-file enabled', async () => {
+      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
+
+      await validateScreenshot(
+        page.locator('#sample-question'),
+        'file-question-preview',
+      )
+    })
+  })
+})
+
 test.describe('Admin question preview', {tag: ['@northstar']}, () => {
   const questionName = 'test-question'
 
