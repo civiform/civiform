@@ -11,9 +11,11 @@ import {
   validateAccessibility,
   validateScreenshot,
   seedProgramsAndCategories,
+  selectApplicantLanguage,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
+import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
@@ -89,7 +91,49 @@ test.describe('applicant program index page', () => {
       'Create account',
     )
     await applicantQuestions.gotoApplicantHomePage()
-    await logout(page)
+  })
+
+  test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
+    page,
+  }) => {
+    expect(await page.textContent('html')).not.toContain('End session')
+    expect(await page.textContent('html')).not.toContain("You're a guest user")
+  })
+
+  test('does not show "End session" and "You\'re a guest user" after choosing a different language', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await applicantQuestions.gotoApplicantHomePage()
+    await selectApplicantLanguage(page, 'Español')
+    expect(await page.textContent('html')).not.toContain('End session')
+    expect(await page.textContent('html')).not.toContain("You're a guest user")
+  })
+
+  test('does not redirect to /callback when navigating to paths that do not require a profile', async ({
+    page,
+    context,
+  }) => {
+    let redirectedToCallback = false
+
+    page.on('response', (response) => {
+      if (response.url().includes('/callback?client_name=GuestClient')) {
+        redirectedToCallback = true
+      }
+    })
+
+    // Ensure we clear out any potential active session to verify that going
+    // to / does not redirect to /callback.
+    const PATHS = ['/', '/programs', '/applicants/programs']
+    for (const path of PATHS) {
+      await test.step(`Testing ${path}`, async () => {
+        redirectedToCallback = false
+        await context.clearCookies()
+        await page.goto(BASE_URL + path)
+        await page.waitForLoadState('networkidle')
+        expect(redirectedToCallback).toBe(false)
+      })
+    }
   })
 
   test('shows login prompt for guest users when they click apply', async ({
@@ -349,9 +393,13 @@ test.describe('applicant program index page', () => {
         await expect(filterChips.getByText('Utilities')).toBeVisible()
       })
 
-      await test.step('select some filter chips and take screenshot', async () => {
+      await test.step('select some filter chips, ensure a guest account has not been created, then take screenshot', async () => {
         await filterChips.getByText('Education').check()
         await filterChips.getByText('General').check()
+        expect(await page.textContent('html')).not.toContain('End session')
+        expect(await page.textContent('html')).not.toContain(
+          "You're a guest user",
+        )
         await validateScreenshot(
           page.locator('#main-content'),
           'category-filter-chips',
@@ -456,7 +504,9 @@ test.describe('applicant program index page', () => {
         )
         // Check the program count in the section headings
         await expect(
-          page.getByRole('heading', {name: 'Recommended (1)'}),
+          page.getByRole('heading', {
+            name: 'Programs based on your selections (1)',
+          }),
         ).toBeVisible()
         await expect(
           page.getByRole('heading', {name: 'Other programs and services (2)'}),

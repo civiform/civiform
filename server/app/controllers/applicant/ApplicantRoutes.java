@@ -73,6 +73,17 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant show action. Used when there is no
+   * account/applicant created yet when browsing the home page.
+   *
+   * @param programId - ID of the program to view
+   * @return Route for the program view action
+   */
+  public Call show(long programId) {
+    return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
+  }
+
+  /**
    * Returns the route corresponding to the applicant edit action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
@@ -103,6 +114,17 @@ public final class ApplicantRoutes {
     } else {
       return routes.ApplicantProgramReviewController.review(programId);
     }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant review action. Used when there is no
+   * account/applicant created yet when browsing the home page.
+   *
+   * @param programId - ID of the program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(long programId) {
+    return routes.ApplicantProgramReviewController.review(programId);
   }
 
   /**

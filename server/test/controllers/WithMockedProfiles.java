@@ -107,6 +107,10 @@ public class WithMockedProfiles {
     return applicant;
   }
 
+  protected void resetMocks() {
+    Mockito.reset(MOCK_UTILS);
+  }
+
   protected AccountModel createTIWithMockedProfile(ApplicantModel managedApplicant) {
     AccountModel ti = resourceCreator.insertAccount();
 

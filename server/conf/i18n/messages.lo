@@ -211,21 +211,13 @@ title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນ
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=ຊອກຫາບໍລິການ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=ໂຄງການອື່ນໆ ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການອື່ນໆ ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=ໂຄງການ ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
-# Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=ແນະນຳ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ພາກສ່ວນທີ່ສຳເລັດແລ້ວ
 # Subtitle for the list of programs for which the applicant has already submitted an application

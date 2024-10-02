@@ -114,7 +114,8 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     .withClasses("px-20"))
             .addMainStyles("bg-white");
 
-    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantIdOfTi);
+    return layout.renderWithNav(
+        request, personalInfo, messages, bundle, Optional.of(applicantIdOfTi));
   }
 
   private DivTag renderMainContent(

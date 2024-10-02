@@ -393,6 +393,14 @@ public final class VersionRepository {
         .findOne();
   }
 
+  public CompletionStage<VersionModel> getActiveVersionAsync() {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          return getActiveVersion();
+        },
+        databaseExecutionContext);
+  }
+
   /**
    * Returns the previous version to the one passed in. If there is only one version there isn't a
    * previous version so the Optional result will be empty.

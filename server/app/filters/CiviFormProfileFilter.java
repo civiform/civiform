@@ -34,13 +34,15 @@ public final class CiviFormProfileFilter extends Filter {
    *
    * <ul>
    *   <li>The request is for a user-facing route
+   *   <li>The request is not for the homepage (/ or /programs)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
    *   <li>The session associated with the request does not contain a pac4j user profile
    * </ul>
    */
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
-    return NonUserRoutePrefixes.noneMatch(requestHeader)
+    return NonUserRoutes.noneMatch(requestHeader)
+        && OptionalProfileRoutes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))

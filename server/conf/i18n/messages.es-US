@@ -211,21 +211,13 @@ title.inProgressProgramsUpdated=En curso
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Encuentra servicios que te sean útiles
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Encuentra servicios
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mis solicitudes ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Otros programas ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Otros programas y servicios ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programas ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programas y servicios ({0})
-# Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recomendado ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Sección completada
 # Subtitle for the list of programs for which the applicant has already submitted an application

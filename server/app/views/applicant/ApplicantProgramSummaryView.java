@@ -170,7 +170,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.applicantPersonalInfo(),
         params.messages(),
         bundle,
-        params.applicantId());
+        Optional.of(params.applicantId()));
   }
 
   private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {

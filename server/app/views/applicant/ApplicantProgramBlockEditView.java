@@ -121,7 +121,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         params.applicantPersonalInfo(),
         params.messages(),
         bundle,
-        params.applicantId());
+        Optional.of(params.applicantId()));
   }
 
   private DivTag renderEligibilityAlert(AlertSettings eligibilityAlertSettings) {

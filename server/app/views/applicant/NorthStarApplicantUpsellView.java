@@ -48,8 +48,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
 
@@ -99,8 +99,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             MessageKey.BUTTON_APPLY,
             params.eligiblePrograms().get(),
             /* preferredLocale= */ params.messages().lang().toLocale(),
-            params.profile(),
-            params.applicantId(),
+            Optional.of(params.profile()),
+            Optional.of(params.applicantId()),
             params.applicantPersonalInfo());
     context.setVariable("cardsSection", cardsSection);
 

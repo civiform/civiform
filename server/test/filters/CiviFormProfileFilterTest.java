@@ -17,7 +17,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
     ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
     CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
 
-    Http.RequestBuilder request = fakeRequestBuilder();
+    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1/review");
 
     CompletionStage<Result> stage =
         filter.apply(
@@ -33,7 +33,7 @@ public class CiviFormProfileFilterTest extends WithApplication {
     // be stored in the "redirectTo" session key.
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/callback?client_name=GuestClient");
-    assertThat(result.session().get("redirectTo")).hasValue("/");
+    assertThat(result.session().get("redirectTo")).hasValue("/programs/1/review");
   }
 
   @Test
@@ -55,6 +55,28 @@ public class CiviFormProfileFilterTest extends WithApplication {
 
     // Since the request was for a non-user route, we should not get redirected to
     // the GuestClient.
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testProfileIsNotCreatedForOptionalProfileRoute() throws Exception {
+    ProfileUtils profileUtils = instanceOf(ProfileUtils.class);
+    CiviFormProfileFilter filter = new CiviFormProfileFilter(mat, profileUtils);
+
+    // This route may have a profile, but doesn't require one.
+    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs");
+
+    CompletionStage<Result> stage =
+        filter.apply(
+            header -> {
+              return CompletableFuture.completedFuture(play.mvc.Results.ok());
+            },
+            request.build());
+
+    Result result = stage.toCompletableFuture().get();
+
+    // Since the request was for a route that may or may not have a profile, we should not get
+    // redirected to the GuestClient.
     assertThat(result.status()).isEqualTo(200);
   }
 }

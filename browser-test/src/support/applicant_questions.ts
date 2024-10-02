@@ -360,8 +360,9 @@ export class ApplicantQuestions {
     let gotProgramsAndServicesNames
 
     if (filtersOn) {
-      gotRecommendedProgramNames =
-        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames = await this.programNamesForSection(
+        'Programs based on your selections',
+      )
       gotRecommendedProgramNames.sort()
       gotOtherProgramNames = await this.programNamesForSection(
         'Other programs and services',
