@@ -24,6 +24,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.style.BaseStyles;
 
 /**
  * A view allowing admins to import a JSON representation of a program and add that program to their
@@ -31,13 +32,12 @@ import views.components.Icons;
  */
 public class AdminImportView extends BaseHtmlView {
   /**
-   * Play Framework can only parse request bodies up to 100KB: See
-   * https://www.playframework.com/documentation/2.4.x/ScalaBodyParsers#Max-content-length and
-   * https://github.com/civiform/civiform/issues/816. So, set the max length to be slightly under.
+   * Play Framework defaults to 100KB memory limit per request. We set this to 256KB in
+   * application.conf to allow large programs to be imported. More info:
+   * https://www.playframework.com/documentation/2.9.x/JavaBodyParsers#Content-length-limits
    *
-   * <p>Note that the HTML textarea element will automatically truncate the string to be the max
-   * character length, which will likely result in JSON parsing errors. TODO(#7087): Make that
-   * truncation obvious to admins.
+   * <p>Pasting in a json string above this limit will automatically truncate the string which
+   * results in a server error.
    */
   private static final int MAX_TEXT_LENGTH = 256000;
 
@@ -88,7 +88,7 @@ public class AdminImportView extends BaseHtmlView {
                     createInstructionStep(
                         "Preview program before saving",
                         "Review your program information, name and questions, for any errors. If"
-                            + " something looks out of paste, you can delete and start the process"
+                            + " something looks out of place, you can delete and start the process"
                             + " over."),
                     createInstructionStep(
                         "Save your program",
@@ -120,13 +120,16 @@ public class AdminImportView extends BaseHtmlView {
             // whitespace. If we find that admins are regularly going over the length limit, we
             // could stop pretty-printing the JSON.
             .setMaxLength(MAX_TEXT_LENGTH)
-            .setAttribute("rows", "5")
+            .setAttribute("rows", "10")
+            .setAttribute("spellcheck", "false")
             .getTextareaTag();
 
     return div()
         .with(
-            p("To import a program, copy the JSON file content and paste into the box below")
-                .withClass("py-2"),
+            p("To import a program, copy the JSON file content and paste into the box below."),
+            p("Note: Programs larger than 256,000 characters will cause an error. If you need to"
+                    + " import a larger program, please contact the engineering team.")
+                .withClasses(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-sm", "pb-2"),
             form()
                 .attr("hx-encoding", "multipart/form-data")
                 .attr("hx-post", routes.AdminImportController.hxImportProgram().url())
