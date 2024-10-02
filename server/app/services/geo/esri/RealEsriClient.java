@@ -188,15 +188,21 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
                 return processAddressSuggestionUrlsSequentially(
                     addressJson, nextSetOfUrls, Optional.empty());
               } else {
-                // Process the successful response
-                JsonNode rootNode = wsResponse.asJson();
-
                 FindAddressCandidatesResponse response;
+
                 try {
                   response =
-                      mapper.readValue(rootNode.toString(), FindAddressCandidatesResponse.class);
+                      mapper.readValue(
+                          wsResponse.asJson().toString(), FindAddressCandidatesResponse.class);
                 } catch (JsonProcessingException e) {
                   LOGGER.error("Unable to parse JSON from wsResponse", e);
+                  return processAddressSuggestionUrlsSequentially(
+                      addressJson, nextSetOfUrls, Optional.empty());
+                }
+
+                // Check if an error result object was sent from the service.
+                if (response.error().isPresent()) {
+                  LOGGER.error(response.error().get().errorMessage());
                   return processAddressSuggestionUrlsSequentially(
                       addressJson, nextSetOfUrls, Optional.empty());
                 }

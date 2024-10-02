@@ -17,12 +17,15 @@ import java.util.Optional;
 public final class FindAddressCandidatesResponse {
   private final Optional<SpatialReference> spatialReference;
   private ImmutableList<Candidate> candidates;
+  private final Optional<EsriError> error;
 
   public FindAddressCandidatesResponse(
       @JsonProperty("spatialReference") SpatialReference spatialReference,
-      @JsonProperty("candidates") List<Candidate> candidates) {
-    this.spatialReference = Optional.of(spatialReference);
+      @JsonProperty("candidates") List<Candidate> candidates,
+      @JsonProperty("error") EsriError error) {
+    this.spatialReference = Optional.ofNullable(spatialReference);
     this.candidates = candidates != null ? ImmutableList.copyOf(candidates) : ImmutableList.of();
+    this.error = Optional.ofNullable(error);
   }
 
   public Optional<SpatialReference> spatialReference() {
@@ -31,6 +34,10 @@ public final class FindAddressCandidatesResponse {
 
   public ImmutableList<Candidate> candidates() {
     return candidates;
+  }
+
+  public Optional<EsriError> error() {
+    return error;
   }
 
   public void addCandidates(ImmutableList<Candidate> newCandidates) {
