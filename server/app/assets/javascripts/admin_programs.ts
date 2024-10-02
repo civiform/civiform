@@ -33,7 +33,7 @@ class AdminPrograms {
       const programCategoryCheckboxes = document.querySelectorAll(
         '[id^="checkbox-category"]',
       )
-      
+
       programCategoryCheckboxes.forEach((checkbox) => {
         const category = checkbox as HTMLInputElement
 
@@ -44,7 +44,6 @@ class AdminPrograms {
           category.disabled = false
         }
       })
-      
     })
   }
 
