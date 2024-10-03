@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
+import java.net.URI;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +49,13 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
           .name("esri_requests_total")
           .help("Total amount of requests to the ESRI client")
           .labelNames("status")
+          .register();
+
+  private static final Counter ESRI_USAGE_BY_ENDPOINT_COUNT =
+      Counter.build()
+          .name("esri_usage_by_endpoint_total")
+          .help("Total calls to ESRI endpoints")
+          .labelNames("uri")
           .register();
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
@@ -179,6 +187,8 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
         .thenCompose(
             wsResponse -> {
               ESRI_REQUEST_C0UNT.labels(String.valueOf(wsResponse.getStatus())).inc();
+              incrementEsriEndpointUsageCounter(wsResponse.getUri());
+
               // Skip the first url which we've just called, send the rest to the next recursive
               // call
               var nextSetOfUrls = urls.stream().skip(1).collect(ImmutableList.toImmutableList());
@@ -320,11 +330,20 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
+              incrementEsriEndpointUsageCounter(res.getUri());
+
               // return empty if still failing after retries
               if (res.getStatus() != 200) {
                 return Optional.empty();
               }
               return Optional.of(res.getBody(json()));
             });
+  }
+
+  /** Increment the counter for esri endpoint usage */
+  private void incrementEsriEndpointUsageCounter(URI uri) {
+    // Ignores query parameters and fragments.
+    String endpointUrl = String.format("%s://%s%s", uri.getScheme(), uri.getHost(), uri.getPath());
+    ESRI_USAGE_BY_ENDPOINT_COUNT.labels(endpointUrl).inc();
   }
 }
