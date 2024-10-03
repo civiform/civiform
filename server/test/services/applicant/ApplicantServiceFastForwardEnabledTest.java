@@ -45,6 +45,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
@@ -63,7 +64,6 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
@@ -123,6 +123,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
   private ApplicationStatusesRepository applicationStatusesRepository;
+  private ApplicationEventRepository applicationEventRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -135,6 +136,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
+    applicationEventRepository = instanceOf(ApplicationEventRepository.class);
     createQuestions();
     createProgram();
 
@@ -3358,20 +3360,15 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(matchingProgramIds).contains(testProgramWithNoEligibilityConditions.id);
   }
 
-  private static void addStatusEvent(
+  private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(
-                StatusEvent.builder()
-                    .setStatusText(status.statusText())
-                    .setEmailSent(false)
-                    .build())
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(actorAccount), details);
-    event.save();
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(actorAccount),
+            StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
   }
 
