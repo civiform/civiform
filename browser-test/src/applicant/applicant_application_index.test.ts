@@ -236,7 +236,7 @@ test.describe('applicant program index page', () => {
       )
     })
 
-    await test.step('Create a new program without an external link', async () => {
+    await test.step('Create a new program with an external link', async () => {
       await adminPrograms.addProgram(
         programWithLink,
         'program description',
