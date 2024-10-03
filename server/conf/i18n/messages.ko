@@ -216,6 +216,8 @@ title.myApplicationsSection=내 신청 프로그램({0})
 title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=섹션 완료됨
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -507,10 +509,14 @@ button.continueWithoutAnAccount=계정 없이 계속
 title.commonIntakeConfirmation=자격 요건에 해당될 수 있는 프로그램
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=고객이 자격 요건에 해당될 수 있는 프로그램
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청하면 등록될 가능성이 있는 프로그램입니다.
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=관리자가 '프로그램 신청'을 클릭하여 온라인으로 신청하면 고객이 등록될 가능성이 있는 프로그램입니다.
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -548,7 +554,7 @@ alert.createAccountDescription=계정을 사용하면 다시 로그인하여 지
 content.loginToExistingAccount=기존 계정에 로그인
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave={0}에 저장할 변경사항이 없습니다.
