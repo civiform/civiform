@@ -31,7 +31,7 @@ public class ApplicationModelTest extends ResetPostgres {
   }
 
   @Test
-  public void staleLatestStatusIsNotPersisted() {
+  public void latestStatusIsCarriedForwardEvenAfterApplicationUpdates() {
     // Tests a case where an Application (and its associated latest_status value has been loaded
     // in-memory, a new ApplicationEventDetails is added (causing the trigger to execute), and the
     // Application is persisted.
