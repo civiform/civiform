@@ -7,6 +7,9 @@ class AdminApplications {
   // This value should be kept in sync with that in AdminApplicationController.java.
   private static SELECTED_APPLICATION_URI_PARAM_NAME = 'selectedApplicationUri'
 
+  // This value should be kept in sync with ProgramApplicationListView.java
+  private static SHOW_DOWNLOAD_MODAL = 'showDownloadModal'
+
   // These values should be kept in sync with those in AdminApplicationController.java.
   private static REDIRECT_URI_INPUT_NAME = 'redirectUri'
   // These values should be kept in sync with those in admin_application_view.ts
@@ -79,6 +82,8 @@ class AdminApplications {
       AdminApplications.SELECTED_APPLICATION_URI_PARAM_NAME,
       applicationUrlPath,
     )
+
+    url.searchParams.set(AdminApplications.SHOW_DOWNLOAD_MODAL, 'false')
     window.history.pushState({}, '', url.toString())
 
     // Set iframe to display selected application.
@@ -203,6 +208,7 @@ class AdminApplications {
       inputEl.value = inputValue
       formEl.appendChild(inputEl)
     })
+
     document.body.appendChild(formEl)
     formEl.submit()
   }

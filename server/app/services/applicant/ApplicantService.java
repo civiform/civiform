@@ -774,7 +774,8 @@ public final class ApplicantService {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    Optional.of(applicationViewLink))
+                    Optional.of(applicationViewLink),
+                    /* showDownloadModal= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);
