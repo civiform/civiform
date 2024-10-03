@@ -32,9 +32,8 @@ public class ApplicationModelTest extends ResetPostgres {
 
   @Test
   public void latestStatusIsCarriedForwardEvenAfterApplicationUpdates() {
-    // Tests a case where an Application (and its associated latest_status value has been loaded
-    // in-memory, a new ApplicationEventDetails is added (causing the trigger to execute), and the
-    // Application is persisted.
+    // Tests a case where an Application's status is preserved, even if the application row is
+    // updated
     ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),

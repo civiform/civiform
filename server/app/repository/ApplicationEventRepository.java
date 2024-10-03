@@ -93,21 +93,16 @@ public final class ApplicationEventRepository {
             // If the status is removed from an application, then the latest_status column needs
             // to be set to null to indicate the application has no status and not a status with
             // empty string.
-            if (Strings.isNullOrEmpty(newStatusEvent.statusText())) {
-              database
-                  .update(ApplicationModel.class)
-                  .set("latest_status", null)
-                  .where()
-                  .eq("id", application.id)
-                  .update();
-            } else {
-              database
-                  .update(ApplicationModel.class)
-                  .set("latest_status", newStatusEvent.statusText())
-                  .where()
-                  .eq("id", application.id)
-                  .update();
-            }
+            database
+                .update(ApplicationModel.class)
+                .set(
+                    "latest_status",
+                    Strings.isNullOrEmpty(newStatusEvent.statusText())
+                        ? null
+                        : newStatusEvent.statusText())
+                .where()
+                .eq("id", application.id)
+                .update();
             application.save();
             transaction.commit();
           }
