@@ -92,7 +92,6 @@ test.describe('Prevent Duplicate Submission', () => {
 
         await loginAsTestUser(page)
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.answerNumberQuestion('0')
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
@@ -103,6 +102,7 @@ test.describe('Prevent Duplicate Submission', () => {
 
       await test.step('Submit another application to the same program without changing anything', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
