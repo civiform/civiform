@@ -218,6 +218,8 @@ title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ክፍል ተጠናቅቋል
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -509,10 +511,14 @@ button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -550,7 +556,7 @@ alert.createAccountDescription=የማመልከቻዎን ሁኔታ ማየት እ�
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=ለ{0} ምንም የሚቀመጡ ለውጦች የሉም
