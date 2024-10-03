@@ -1,1 +1,859 @@
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
 
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
+button.logout=Se déconnecter
+#  This appears before applicants select their preferred language.
+label.selectLanguage=Veuillez sélectionner votre langue préférée.
+button.untranslatedSubmit=Envoyer
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=À propos de CiviForm
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=Pour contacter l''assistance technique, envoyez un message à
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=Un site Web officiel de {0}
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=Haut de page
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=Pour contacter l''assistance technique : {0}
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+guest=Invité
+# Clicking this button shows a dropdown menu to change the display language
+button.languages=Select Language
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=Choisissez une langue
+# A label on the button that opens the header menu shown on mobile
+header.menu=Menu
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
+header.endSession=Fermer la session
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=Votre session a été fermée.
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
+header.guestIndicator=Vous êtes un utilisateur invité.
+# Message with user's name to show who you are logged in as.
+header.userName=Connecté en tant que {0}
+# Error message to answer a required question
+validation.isRequired=Réponse obligatoire.
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Veuillez effectuer une saisie valide.
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=Le formulaire contient des erreurs. Veuillez les corriger avant de continuer.
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Remarque : Les champs marqués d''un astérisque (*) sont obligatoires.
+content.requiredFieldsNote=Remarque : Les champs marqués d''un {0} sont obligatoires.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=Les champs marqués d''un astérisque ({0}) sont obligatoires.
+content.optional=(facultatif)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=Vous êtes sur votre téléphone ? L''option "Choisir un fichier" vous permet d''utiliser l''appareil photo de votre téléphone pour importer des documents.
+toast.errorMessageOutline=Erreur : {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Fermer
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=Vérifier
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=s''ouvre dans un nouvel onglet
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
+title.login=Connexion
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=Veuillez vous connecter avec votre compte {0}.
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=Créer un compte
+# The text on the button an applicant clicks to log in to their session.
+button.login=Se connecter
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=Vous n''avez pas de compte ?
+# The text between creating a new account, and becoming a guest
+content.or=ou
+# The text on the button for applicants to create a new account.
+button.createAccount=Créer un compte
+# The text on the button for guests to log in to their session.
+button.guestLogin=Continuer en tant qu''invité
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Connexion au compte actuellement désactivée
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=Vous recherchez autre chose ?
+# Asking whether the user is an administrator for the program
+content.adminFooterPrompt=Vous êtes administrateur ?
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=Connexion administrateur
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=Fichier importé : {0}
+# Hint placed above file input for questions which accept a single file.
+input.singleFileUploadHint=Select a file
+# Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
+# 2 or greater, representing the maximum number of files.
+input.multipleFileUploadHint=Select one or more files (maximum of {0})
+# Hint placed above file inputs which accept any number of files.
+input.unlimitedFileUploadHint=Select one or more files
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=Supprimer
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=Continuer
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=Enregistrer et suivant
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=Précédent
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=Retour
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=Enregistrer et finir plus tard
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=Passer
+# The current screen the user is on ({0}) out of the number of total screens in the application.
+content.blockProgress={0} sur {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull=Vous avez répondu à {0} question(s) sur {1}
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=Progression de la demande
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull={0} sur {1} importé(s)
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel={0}. {1}
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=Malheureusement, ce programme n''est pas entièrement traduit dans votre langue préférée.
+# A link that logs out a guest user after they submit an application.
+link.allDone=J''ai terminé
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=S''inscrire à un autre programme
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=Créer un compte ou se connecter
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=Supprimer un fichier
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=Vous n''avez pas répondu à certaines questions de cette page. Voulez-vous quand même la quitter et passer à la page de vérification ?
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=Vous n''avez pas répondu à certaines questions de cette page. Voulez-vous quand même la quitter et retourner à la page précédente ?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=Les informations que vous avez fournies contiennent des erreurs. Voulez-vous rester sur cette page pour les corriger ou accéder à la page de vérification sans enregistrer vos réponses ?
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=Les informations que vous avez fournies contiennent des erreurs. Voulez-vous rester sur cette page pour les corriger ou retourner à la page de questions précédente sans enregistrer vos réponses ?
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=Accéder à la page de vérification sans enregistrer
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=Retourner aux questions précédentes sans enregistrer
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.stayAndFixButton=Rester sur la page et corriger
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=S''inscrire
+# The text read for screen readers.
+button.applySr=S''inscrire au {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Modifier
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Modifier la demande d'inscription au {0} envoyée
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=Continuer la demande d'inscription au {0}
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startHere=Commencer
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=Remplir la demande
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
+button.startHereCommonIntakeSr=Commencer ici en remplissant {0}
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
+button.editCommonIntakeSr=Modifier les informations fournies pour {0}
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
+button.continueCommonIntakeSr=Continuer à remplir {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=Afficher les détails
+# Text describing the date the application was last submitted.
+content.submittedDate=Date d''envoi : {0}
+# Text for applicants to understand the section is for finding programs
+content.findPrograms=Trouver des programmes
+# Long form description of the CiviForm site shown to the applicant.
+content.findProgramsDescription=CiviForm vous aide à trouver des programmes auxquels vous pourriez être éligible dans l''État suivant : {0}. Pour commencer, choisissez un formulaire d'inscription ci-dessous.
+# Title for programs page when applicant is not logged in
+content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
+content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
+# The label for the program filter buttons
+label.programFilters=Filtres des programmes
+# Link text to read more about a program.
+link.programDetails=Détails du programme
+# The same text, read for screen readers.
+link.programDetailsSr=Détails du programme {0}, s''ouvre dans un nouvel onglet
+# The title of the page for the list of programs.
+title.programs=Programmes et services
+# The title for the section in the list of programs that contains the pre-screener form and should be started first.
+title.getStartedSection=Commencer
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
+title.allProgramsSection=Tous les programmes ({0})
+# For the badge on the program list index denoting the current status of an application
+title.status=État
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=En cours
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Demandes non commencées
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=Trouver des services
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=Mes demandes ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=Autres programmes et services ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=Programmes et services ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=Programs based on your selections ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=Section terminée
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Demandes d''inscription envoyées
+# Alert banner when an application was successfully saved, with the ID of the application.
+toast.applicationSaved=Demande d''inscription enregistrée (ID de la demande : {0})
+# Alert banner when an application was already completed
+toast.programCompleted=La demande d''inscription a déjà été remplie.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=Ce compte ne peut pas être supprimé.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=Ce compte ne peut pas être supprimé, car il contient des demandes d''inscription ouvertes.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=Les informations du client ont été mises à jour.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=Le compte client "{0}" a bien été supprimé.
+# Message when a user successfully creates a client account.
+banner.newClientCreated=Client créé.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=Vous effectuez une demande d''inscription pour {0}. Essayez-vous d''inscrire un autre client ?
+
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=Ajouter un client
+# Button that brings the user back to the list of their clients.
+button.backToClientList=Retour à la liste des clients
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=Retour aux modifications
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=Annuler
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=Effacer la recherche
+# Button for a user to delete their client's account
+button.deleteAcct=Supprimer le compte
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=Conserver le compte
+# Button to navigate to the next page.
+button.nextPage=Suivant
+# Button to save information that has been entered.
+button.save=Enregistrer
+# Button to execute a search to filter a client list.
+button.search=Rechercher
+# Button to select a client.
+button.select=Sélectionner
+# Button to start an application on behalf of a client.
+button.startApp=Commencer une demande d''inscription
+# Button to view the applications belonging to an applicant.
+button.viewApplications=Afficher les demandes d''inscription
+# Button to view and add clients
+button.viewAndAddClients=Afficher les clients et en ajouter
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=Votre nouveau client {0} a été ajouté à la liste des clients. Vous pouvez à présent envoyer des demandes d''inscription pour ce client.
+# The tooltip of the email input field.
+content.emailTooltip=Ajoutez une adresse e-mail pour que votre client reçoive automatiquement des informations sur l''état de sa demande d''inscription. Si vous ne fournissez pas d''adresse, vous ou votre organisation basée sur une communauté devrez communiquer vous-mêmes ces informations à votre client.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted={0} demandes d''inscription envoyées
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=1 demande d''inscription envoyée
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=Aucune demande d''inscription n''a été envoyée pour ce client. Aucune demande ne sera donc perdue.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(aucune adresse e-mail)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=Pas encore connecté
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=Connecté, aucune demande d''inscription envoyée
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=Dernière demande d''inscription envoyée le {0}
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=Voulez-vous vraiment supprimer le compte de ce client ?
+
+# Header for the page with the Organization Members table.
+header.acctSettings=Paramètres du compte
+# Tab label for getting to the client list page
+header.clientList=Liste de clients
+# Label for search
+header.search=Recherche
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
+label.acctStatus=État du compte
+# Label above the phone number for each client on the client list.
+label.contactInfo=Coordonnées
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=Jour
+# Label above the birth date input field when creating or editing a client
+label.dob=Date de naissance
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=Par exemple : 28 janvier 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=E-mail
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=Date de naissance obligatoire
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=Prénom obligatoire
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=Nom de famille obligatoire
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=Adresse e-mail déjà utilisée. Impossible de créer un candidat si un compte existe déjà.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=Adresse e-mail déjà utilisée. Impossible de modifier le candidat si un compte existe déjà.
+# The label above the dropdown select field for the month of the client birth date.
+label.month=Mois
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=Nom
+# Example above the name input field for the client search.
+label.nameExample=Par exemple : Gu, Darren ou Darren Gu
+# Label above the text input field for notes about a client.
+label.notes=Remarques
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=Numéro de téléphone
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=Rechercher par date de naissance
+# The label above the name search field of the client search.
+label.searchByName=Rechercher par nom(s)
+# The label above the input field for the year of the client birth date.
+label.year=Année
+# Label showing the user when there is no name
+label.unnamedUser=Utilisateur sans nom
+
+link.edit=Modifier
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=Sélectionner un autre client
+
+# This is the header above the list of clients and the client search.
+title.allClients=Tous les clients
+# This is the heading above a new client creation form.
+title.createClient=Créer un client
+# This is the heading above the client editing form.
+title.editClient=Modifier les infos du client
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients={0} clients affichés
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=1 client affiché
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=Tous les clients sont affichés
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=Membres de l''organisation
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=Intermédiaire de confiance - Gérer les clients - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=Intermédiaire de confiance - Afficher les paramètres du compte - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Envoyer
+# Continue application button
+button.continue=Continuer
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=Commencer
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=La demande d''inscription a été modifiée. Veuillez la vérifier et répondre aux questions pour continuer.
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=Sélectionnez une étape ci-dessous pour commencer votre demande d''inscription. Vous pouvez l''enregistrer et y revenir à tout moment.
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=Non éligible
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Modifier
+link.answer=Réponse
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=Dernière réponse le {0}
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
+ariaLabel.answer=Répondre à la question {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit=Modifier la question {0}
+# Title for the summary of the pre-screener page
+title.commonIntakeSummary=Résumé de la présélection pour les avantages
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=C''est parti.
+title.programSummary=Résumé de la demande d''inscription au programme
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
+title.applicantNotEligibleTi=D''après vos réponses aux questions ci-dessous, il se peut que votre client ne soit pas éligible au {0}.
+# Section heading
+heading.eligibilityCriteria=En savoir plus sur les critères d''éligibilité
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=Pour connaître les critères d''éligibilité, consultez {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=Pour connaître les critères d''éligibilité à ce programme ou contacter directement l''équipe du programme, veuillez consulter les {0}.
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=Vous pouvez retourner à la page précédente pour modifier vos réponses ou demander votre inscription à un autre programme.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=Si vous pensez qu'il y a une erreur, vous pouvez retourner à la page précédente pour modifier vos réponses. Vous pouvez également retourner à la page d''accueil pour demander votre inscription à un autre programme.
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=Retour pour modifier
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=Modifier mes réponses
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayQualifyTi=D''après vos réponses, il se peut que votre client soit éligible au {0}. Pour continuer, poursuivez la demande d''inscription.
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=D''après vos réponses, il se peut que vous soyez éligible au {0}. Pour continuer, poursuivez la demande d''inscription.
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=Vous êtes peut-être éligible
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayQualifyTi=Votre client est peut-être éligible
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=Vous n''êtes peut-être pas éligible
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayNotQualifyTi=Votre client n''est peut-être pas éligible
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=D''après vos réponses, il se peut que vous ne soyez pas éligible au {0}. Si vos informations ont changé, vous pouvez modifier vos réponses et poursuivre votre demande d''inscription.
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayNotQualifyTi=D''après vos réponses, il se peut que votre client ne soit pas éligible au {0}. Si les informations de votre client ont changé, vous pouvez modifier vos réponses et poursuivre votre demande d''inscription.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=Erreur lors de l''enregistrement de la demande d''inscription
+
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=Vous êtes peut-être éligible à ce programme
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=D''après vos réponses, il est probable que vous soyez éligible à ce programme.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=Vous n''êtes peut-être pas éligible à ce programme
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=D''après vos réponses, il se peut que vous ne soyez pas éligible à ce programme. Si vos informations ont changé, vous pouvez modifier votre réponse et poursuivre votre demande d''inscription.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=D''après vos réponses aux questions suivantes, il se peut que vous ne soyez pas éligible à ce programme.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=Vous êtes peut-être éligible à ce programme
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant vos réponses ou votre éligibilité. Veuillez vérifier toutes les questions ci-dessous.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=Vous n''êtes peut-être plus éligible à ce programme
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant vos réponses ou votre éligibilité. Veuillez vérifier toutes les questions ci-dessous.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=Votre client est peut-être éligible à ce programme
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=D''après vos réponses, il est probable que votre client soit éligible à ce programme.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=Votre client n''est peut-être pas éligible à ce programme
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=D''après vos réponses, il se peut que votre client ne soit pas éligible à ce programme. Si les informations de votre client ont changé, vous pouvez modifier votre réponse et poursuivre votre demande d''inscription.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=D''après vos réponses aux questions suivantes, il se peut que votre client ne soit pas éligible à ce programme.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=Votre client est peut-être éligible à ce programme
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant les réponses ou l''éligibilité de votre client. Veuillez vérifier toutes les questions ci-dessous.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=Votre client n''est peut-être plus éligible à ce programme
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=Il y a peut-être de nouvelles questions ou des questions qui ont été modifiées, affectant les réponses ou l''éligibilité de votre client. Veuillez vérifier toutes les questions ci-dessous.
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=Confirmation de la demande d''inscription
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=Merci pour votre demande d''inscription au {0}.  Nous l''avons bien reçue. Voici l''identifiant de votre demande : {1}.
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=Créez un compte ou connectez-vous
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
+content.pleaseCreateAccount=Connectez-vous à votre compte {0} ou créez-en un pour pouvoir enregistrer vos informations. Vous pourrez revenir à tout moment pour terminer vos futures demandes d''inscription. Si vous n''avez pas encore de compte, vous pourrez en créer un à la page de connexion pour ne pas perdre les données que vous avez déjà saisies.
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
+content.generalLoginModalPrompt=Vous n''êtes connecté à aucun compte. Sans compte, vous ne pourrez pas modifier votre demande d''inscription, vérifier son état, ni vous inscrire rapidement à d''autres programmes.
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
+content.initialLoginModalPrompt=Avant de continuer, connectez-vous à votre compte {0} ou créez-en un. Vous pourrez vous inscrire à plusieurs programmes sans avoir à saisir de nouveau les mêmes informations. Vous pourrez également modifier vos demandes et vérifier leur état.
+# A button for continuing to apply to other programs without an account.
+button.continueWithoutAnAccount=Continuer sans compte
+title.commonIntakeConfirmation=Programmes auxquels vous pouvez être éligible
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=Programmes auxquels votre client peut être éligible
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation=Il se peut que vous puissiez vous inscrire à ces programmes, si vous effectuez votre demande en ligne en cliquant sur "S''inscrire à des programmes".
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi=Il se peut que votre client puisse s''inscrire à ces programmes, si vous effectuez la demande en ligne en cliquant sur "S''inscrire à des programmes".
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=L''outil de présélection n''a trouvé aucun programme auquel vous pourriez être éligible pour le moment. Vous pouvez cependant vous inscrire à des programmes à tout moment en cliquant sur "S''inscrire à des programmes". Vous trouverez d''autres programmes ici : {0}.
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=L''outil de présélection n''a trouvé aucun programme auquel votre client pourrait être éligible pour le moment. Vous pouvez cependant l''inscrire à des programmes à tout moment en cliquant sur "S''inscrire à des programmes". Vous trouverez d''autres programmes ici : {0}.
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner à la page précédente pour modifier vos réponses.
+# A header above a list of other programs the applicant might be interested in applying to.
+content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
+button.downloadPdf=Télécharger le PDF
+# A button prompting users to apply to programs.
+button.applyToPrograms=S''inscrire à des programmes
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=Détails de votre demande
+# Text above the name of the person who submitted this application
+heading.applicantName=Personne qui a envoyé cette demande d''inscription
+# Text above the confirmation number of the application
+heading.confirmationNumber=Numéro de confirmation
+# Text above the date submitted of the application
+heading.dateSubmitted=Date d''envoi
+# Text above a message telling the user they can print this page
+heading.forYourRecords=Confirmation à conserver
+# Text above a button to print this page
+content.youCanPrint=Vous pouvez imprimer cette confirmation et la conserver à titre d''information.
+# Button to print this webpage
+button.print=Imprimer cette page
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=Quelles sont les prochaines étapes ?
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=Vous avez envoyé votre demande d''inscription au {0}
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=Créez un compte pour enregistrer les informations de votre demande d''inscription
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=Utilisez un compte pour vous reconnecter et vérifier l''état de votre demande d''inscription, et pour gagner du temps lorsque vous souhaitez vous inscrire à d''autres programmes.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=Se connecter à un compte existant
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=Aucune modification à enregistrer pour {0}
+content.noChanges=Vous avez déjà envoyé une demande d''inscription à ce programme. Aucune nouvelle modification n''a été apportée à cette demande. Voulez-vous poursuivre la modification ?
+button.continueEditing=Poursuivre la modification
+button.exitApplication=Quitter le formulaire d''inscription
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=Ce programme n''est plus disponible
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=Malheureusement, le programme auquel vous tentez d''accéder a été désactivé. Pour trouver d''autres programmes, veuillez retourner à la page d''accueil.
+# Button text on a button that takes the user back to the home page.
+button.homePage=Retour à la page d''accueil
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
+label.addressLine2=Appartement, suite, etc. (facultatif)
+label.city=Ville
+label.state=État
+label.selectState=Sélectionner l''État
+label.street=Adresse
+label.zipcode=Code postal
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=Veuillez saisir un nom de rue et un numéro valides.
+validation.cityRequired=Veuillez saisir la ville.
+validation.currencyMisformatted=Formats de devise acceptés : 1 000 1 000 1 000,30 1 000,30
+validation.stateRequired=Veuillez saisir l''État.
+validation.invalidZipcode=Veuillez saisir un code postal à 5 chiffres valide.
+validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne sont pas acceptées.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=Confirmez votre adresse
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=Adresse introuvable.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=Veuillez vérifier que votre adresse est exacte, ou sélectionnez une option dans la liste.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=Veuillez vérifier que votre adresse est exacte, et modifiez-la si nécessaire pour continuer.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=Adresse saisie :
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=Adresse suggérée :
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=Adresses suggérées :
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=Confirmer l''adresse
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=Sélectionnez une option :
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=Pays
+label.phoneNumber=Saisissez un numéro de téléphone
+validation.phoneNumberRequired=Le numéro de téléphone est obligatoire
+validation.phoneCountryCodeRequired=Vous devez sélectionner un pays
+validation.phoneNumberMustContainNumbersOnly=Le numéro de téléphone ne doit contenir que des chiffres
+validation.invalidPhoneNumberProvided=Ce numéro de téléphone n''est pas valide
+validation.phoneMustBeLocalToCountry=Le numéro de téléphone que vous avez saisi ne correspond pas au pays sélectionné
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.invalidDateFormat=Veuillez saisir une date au format correct
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=01 - janvier
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=02 - février
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=03 - mars
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=04 - avril
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=05 - mai
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=06 - juin
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=07 - juillet
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=08 - août
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=09 - septembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=10 - octobre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=11 - novembre
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=12 - décembre
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=Sélectionner
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=Erreur : Veuillez saisir le jour, le mois et l''année.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=La date de naissance doit être passée
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=La date de naissance doit remonter à moins de 150 ans
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity=Ajouter {0}
+# Text on a button an applicant would click to delete an entity
+button.removeEntity=Supprimer {0}
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=Voulez-vous vraiment supprimer cet élément : {0} ? Cette modification sera enregistrée lorsque vous cliquerez sur "Vérifier", "Précédent" ou "Suivant", et toutes les données associées à l''élément {0} seront perdues.
+validation.entityNameRequired=Veuillez saisir une valeur pour chaque ligne.
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Veuillez saisir une valeur unique pour chaque ligne.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=Veuillez saisir {0} valeurs au plus.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=Veuillez saisir au moins {0} valeur(s).
+placeholder.entityName={0} (nom)
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=Veuillez sélectionner un fichier.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=Le fichier est trop volumineux. Veuillez en choisir un de moins de {0} Mo.
+button.chooseFile=Choisir un fichier
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=Doit contenir {0} caractères au plus.
+validation.idTooShort=Doit contenir au moins {0} caractère(s).
+validation.numberRequired=Ne doit contenir que des chiffres.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=Veuillez sélectionner au moins {0} réponse(s).
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=Veuillez sélectionner {0} réponse(s) au plus.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=Prénom
+label.lastName=Nom
+label.middleName=Deuxième prénom
+# Label for name suffix field in name question
+label.nameSuffix=Suffixe
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=Prénom
+placeholder.lastName=Nom
+placeholder.middleName=Deuxième prénom
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=Suffixe
+
+# Option Junior for the name suffix dropdown
+option.junior=Jr.
+# Option Senior for the name suffix dropdown
+option.senior=Sr.
+# Option the first for the name suffix dropdown
+option.first=I
+# Option the second for the name suffix dropdown
+option.second=II
+# Option the third for the name suffix dropdown
+option.third=III
+# Option the forth for the name suffix dropdown
+option.forth=IV
+# Option the fifth for the name suffix dropdown
+option.fifth=V
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=Veuillez saisir votre prénom.
+validation.lastNameRequired=Veuillez saisir votre nom de famille.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
+validation.numberTooBig=Doit être inférieur ou égal à {0}.
+validation.numberTooSmall=Doit être supérieur ou égal à {0}.
+validation.numberNonInteger=Le nombre doit être un nombre entier positif composé uniquement des chiffres de 0 à 9.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=Doit contenir {0} caractères au plus.
+validation.textTooShort=Doit contenir au moins {0} caractère(s).
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=Les questions à choix multiples ne peuvent pas proposer d''option vide.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
+adminValidation.multiOptionAdminError=Les noms d''administrateur ne peuvent contenir que des minuscules, des chiffres, des traits de soulignement et des tirets.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
+error.notFoundTitle=Impossible de trouver la page que vous avez essayé de consulter
+error.notFoundDescription=Veuillez revenir en arrière ou retourner à la {0}
+error.notFoundDescriptionLink=page d''accueil
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=Une erreur s''est produite
+# The title on the error page that is show to the user in large font
+error.internalServerTitle.v2=Une erreur s''est produite
+# The subtitle on the error page that is show to the user in medium font
+error.internalServerSubtitle=Malheureusement, une erreur interne s''est produite dans notre système.
+# Additional information about the error that is shown to the user in small font
+error.internalServerDescription=Veuillez contacter l''assistance technique à l''adresse %s pour obtenir de l''aide, en incluant l''ID d''erreur {0}.
+# A button redirecting the user to the homepage
+error.internalServerHomeButton=Ouvrir la page d''accueil
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
+error.statusCode=Code d''erreur : {0}
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Connectez-vous à Civiform : {0}
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Votre demande d''inscription au programme {0} a bien été reçue
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Votre demande d''inscription au programme {0} a bien été reçue. Votre ID de demandeur est {1} et l'ID de votre demande est {2}.
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=Vous avez envoyé une demande d''inscription au programme {0} au nom de {1}
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=La demande d''inscription au programme {0} au nom de {1} a bien été reçue. L''ID de la demande est {2}.
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Gérez vos clients : {0}.
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=Notification concernant votre demande d''inscription {0}
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=Notification concernant la demande d''inscription au programme {0} au nom de {1}
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=L''état de la demande d''inscription au programme {1} au nom de {0} a changé. Nouvel état : {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=Ce site est un site Web gouvernemental officiel.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=Un site Web officiel du gouvernement des États-Unis
+banner.link=Voici comment vous en assurer
+banner.govWebsiteSectionHeader=L''adresse des sites Web officiels se termine par .gov
+banner.govWebsiteSectionContent=Les sites Web dont l''adresse se termine par .gov appartiennent à des organismes officiels du gouvernement américain.
+banner.httpsSectionHeader=Les sites Web en .gov sécurisés utilisent le protocole HTTPS
+banner.httpsSectionContent=L''icône d''un verrou ( {0} ) ou le préfixe https:// signifie que vous êtes connecté de manière sécurisée au site Web .gov. Ne partagez des informations sensibles que sur des sites Web officiels sécurisés.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=Il s''agit d''un site de test uniquement. Ne saisissez pas d''informations personnelles.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=Pour vous inscrire à un programme ou à un service, accédez à {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=Vous effectuez une demande d''inscription en tant qu''invité. À la fin de celle-ci, {0} pour protéger vos données.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=fermez votre session
