@@ -1,4 +1,4 @@
-import {test} from '../../support/civiform_fixtures'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   enableFeatureFlag,
@@ -96,6 +96,56 @@ test.describe('Applicant navigation flow', () => {
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
+    })
+
+    test('does not show program details link if no url provided', async ({
+      page,
+      applicantQuestions,
+      adminPrograms,
+      adminPredicates,
+    }) => {
+      const programWithoutExternalLink = 'No Link Program'
+
+      await test.step('Create a new program without an external link', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          programWithoutExternalLink,
+          'program description',
+          '' /* no external link */,
+        )
+        // Add the full program.
+        await adminPrograms.addProgram(programWithoutExternalLink)
+        await adminPrograms.editProgramBlock(
+          programWithoutExternalLink,
+          'first description',
+          ['nav-predicate-number-q'],
+        )
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programWithoutExternalLink,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicates({
+          questionName: 'nav-predicate-number-q',
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programWithoutExternalLink)
+        await logout(page)
+      })
+
+      await test.step('Fill out application and submit', async () => {
+        await applicantQuestions.applyProgram(programWithoutExternalLink)
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectIneligiblePage()
+      })
+
+      await test.step('Assert that program details link is hidden', async () => {
+        await expect(page.getByText('Program details')).toBeHidden()
+      })
     })
 
     test('shows may be eligible with an eligible answer', async ({

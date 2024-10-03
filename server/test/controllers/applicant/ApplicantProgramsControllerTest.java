@@ -151,12 +151,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 3 times:
+    // A program's name appears in the index view page content 2 times:
     //  1) Program card title
-    //  2) Program details aria-label
-    //  3) Apply button aria-label
+    //  2) Apply button aria-label
     // If it appears 6 times, that means there is a duplicate of the program.
-    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(3);
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
   }
 
   /** Returns the number of times a substring appears in the string. */
