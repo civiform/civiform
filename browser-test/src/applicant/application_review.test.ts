@@ -893,6 +893,17 @@ test.describe('Program admin review of submitted applications', () => {
       expect(unfilteredCsvContent).toContain('Gus,,Guest')
       await validateScreenshot(page, 'applications-unfiltered')
     })
+
+    await test.step('Applies filters to download even when filter is not clicked', async () => {
+      await adminPrograms.filterProgramApplications({
+        searchFragment: 'SARA',
+        clickFilterButton: false,
+      })
+      const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
+      expect(filteredCsvContent).toContain('sarah,,smith')
+      expect(filteredCsvContent).not.toContain('Gus,,Guest')
+      await validateScreenshot(page, 'applications-filtered-after-download')
+    })
   })
 
   test('Application search using Personal Applicant Info works', async ({

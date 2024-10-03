@@ -475,7 +475,8 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> fromDate,
       Optional<String> untilDate,
       Optional<String> applicationStatus,
-      Optional<String> selectedApplicationUri)
+      Optional<String> selectedApplicationUri,
+      Optional<Boolean> showDownloadModal)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
@@ -486,7 +487,8 @@ public final class AdminApplicationController extends CiviFormController {
               fromDate,
               untilDate,
               applicationStatus,
-              selectedApplicationUri));
+              selectedApplicationUri,
+              showDownloadModal));
     }
 
     SubmittedApplicationFilter filters =
@@ -534,7 +536,8 @@ public final class AdminApplicationController extends CiviFormController {
                 .setUntilDate(untilDate)
                 .setSelectedApplicationStatus(applicationStatus)
                 .build(),
-            selectedApplicationUri));
+            selectedApplicationUri,
+            showDownloadModal));
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)
