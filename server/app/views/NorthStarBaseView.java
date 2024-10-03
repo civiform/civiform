@@ -5,6 +5,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.FakeAdminClient;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -16,6 +17,8 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -111,6 +114,8 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    maybeSetUpNotProductionBanner(context, request, messages);
+
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
     context.setVariable("showDebugTools", showDebugTools);
@@ -183,5 +188,38 @@ public abstract class NorthStarBaseView {
         : controllers.applicant.routes.ApplicantInformationController
             .setLangFromSwitcherWithoutApplicant()
             .url();
+  }
+
+  private void maybeSetUpNotProductionBanner(
+      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+      return;
+    }
+    context.setVariable(
+        "showNotProductionBannerEnabled",
+        settingsManifest.getShowNotProductionBannerEnabled(request));
+
+    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+    // difficult to add HTML within a message. So we have to manually build the html for a link
+    // that will be embedded in the banner.
+    Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
+    Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
+    Optional<String> unescapedDescription = Optional.empty();
+    if (linkHref.isPresent() && linkText.isPresent()) {
+      String linkHtml =
+          "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
+      String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
+      unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
+    }
+
+    AlertSettings notProductionAlertSettings =
+        new AlertSettings(
+            true,
+            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            unescapedDescription.orElse(""),
+            unescapedDescription.isPresent(),
+            AlertType.EMERGENCY,
+            ImmutableList.of());
+    context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }
 }
