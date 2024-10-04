@@ -32,7 +32,6 @@
       th:text="${alertSettings.title.get()}"
     ></h6>
 
-    <!-- TODO ssandbekkhaug fix why both texts appear -->
     <div th:if="${alertSettings.unescapedDescription()} == true">
       <p class="usa-alert__text" th:utext="${alertSettings.text}"></p>
     </div>
