@@ -334,6 +334,27 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
+    test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // This is currently the same as when no suggestions are returned.
+      // We may change this later.
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        'Esri Error Response',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage(false)
+    })
+
     test('skips address correction screen if address exactly matches suggestions', async ({
       page,
       applicantQuestions,
