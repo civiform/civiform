@@ -7,6 +7,7 @@ import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -51,10 +52,15 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            EMAIL_ATTRIBUTE_NAME,
-            LOCALE_ATTRIBUTE_NAME,
-            ImmutableList.of(
-                FIRST_NAME_ATTRIBUTE_NAME, MIDDLE_NAME_ATTRIBUTE_NAME, LAST_NAME_ATTRIBUTE_NAME));
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(
+                    ImmutableList.of(
+                        FIRST_NAME_ATTRIBUTE_NAME,
+                        MIDDLE_NAME_ATTRIBUTE_NAME,
+                        LAST_NAME_ATTRIBUTE_NAME))
+                .build());
   }
 
   // Test for https://github.com/civiform/civiform/issues/8344
@@ -68,9 +74,11 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            EMAIL_ATTRIBUTE_NAME,
-            LOCALE_ATTRIBUTE_NAME,
-            ImmutableList.of(NAME_ATTRIBUTE));
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(ImmutableList.of(NAME_ATTRIBUTE))
+                .build());
 
     OidcProfile profile = new OidcProfile();
     profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");

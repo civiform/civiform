@@ -94,9 +94,10 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     String callbackUrl = client.getCallbackUrl();
     assertThat(callbackUrl).isEqualTo(BASE_URL + "/callback");
 
-    assertThat(profileAdapter.emailAttributeName).isEqualTo("email");
-    assertThat(profileAdapter.localeAttributeName).isEqualTo(Optional.of("country"));
-    assertThat(profileAdapter.nameAttributeNames)
+    assertThat(profileAdapter.standardClaimsAttributeNames.email()).isEqualTo("email");
+    assertThat(profileAdapter.standardClaimsAttributeNames.locale())
+        .isEqualTo(Optional.of("country"));
+    assertThat(profileAdapter.standardClaimsAttributeNames.names())
         .isEqualTo(ImmutableList.of("first", "middle", "last", "I."));
   }
 }
