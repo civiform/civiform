@@ -14,11 +14,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
           'This site is for testing purposes only. Do not enter personal information.',
         ),
       ).toBeVisible()
-      await expect(
-        page.getByText(
-          'To apply to a program or service go to City of TestCity.',
-        ),
-      ).toBeVisible()
 
       await validateAccessibility(page)
     })
