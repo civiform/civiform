@@ -4,6 +4,11 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
+/**
+ * Holds the string names for standard claims attribute names to allow for passing around easier.
+ * Since some different OIDC system tend to have slightly different naming in cases this will be
+ * populated by the individual auth client provider.
+ */
 @AutoValue
 public abstract class StandardClaimsAttributeNames {
   public static StandardClaimsAttributeNames.Builder builder() {
