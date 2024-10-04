@@ -183,6 +183,26 @@ public class EsriClientTest {
   }
 
   @Test
+  public void getAddressSuggestionsWithEsriErrorResponse() {
+    helper = new EsriTestHelper(TestType.ESRI_ERROR_RESPONSE);
+    Address address =
+        Address.builder()
+            .setStreet("380 New York St")
+            .setLine2("")
+            .setCity("Redlands")
+            .setState("CA")
+            .setZip("92373")
+            .build();
+
+    AddressSuggestionGroup group =
+        helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
+    ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
+  }
+
+  @Test
   public void getAddressSuggestionsWithError() throws Exception {
     helper = new EsriTestHelper(TestType.ERROR);
     Address address =
