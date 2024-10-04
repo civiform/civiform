@@ -2,6 +2,7 @@ package auth.oidc.applicant;
 
 import auth.oidc.OidcClientProvider;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -49,16 +50,20 @@ public class GenericOidcClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    String emailAttr = getConfigurationValueOrThrow(EMAIL_ATTRIBUTE_CONFIG_NAME);
-    Optional<String> localeAttr = getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME);
-
     var nameAttrsBuilder = ImmutableList.<String>builder();
     getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(NAME_SUFFIX_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
-    return new GenericApplicantProfileCreator(
-        config, client, params, emailAttr, localeAttr.orElse(null), nameAttrsBuilder.build());
+
+    StandardClaimsAttributeNames standardClaimsAttributeNames =
+        StandardClaimsAttributeNames.builder()
+            .setEmail(getConfigurationValueOrThrow(EMAIL_ATTRIBUTE_CONFIG_NAME))
+            .setLocale(getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME))
+            .setNames(nameAttrsBuilder.build())
+            .build();
+
+    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
   }
 
   @Override
