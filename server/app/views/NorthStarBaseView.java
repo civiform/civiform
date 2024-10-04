@@ -205,7 +205,7 @@ public abstract class NorthStarBaseView {
     Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
     Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
     Optional<String> unescapedDescription = Optional.empty();
-    if (linkHref.isPresent() && linkText.isPresent()) {
+    if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
       String linkHtml =
           "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
       String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
