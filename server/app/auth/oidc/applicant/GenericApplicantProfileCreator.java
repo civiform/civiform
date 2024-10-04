@@ -1,7 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.oidc.OidcClientProviderParams;
-import com.google.common.collect.ImmutableList;
+import auth.oidc.StandardClaimsAttributeNames;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
@@ -15,10 +15,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      String emailAttributeName,
-      String localeAttributeName,
-      ImmutableList<String> nameAttributeNames) {
-    super(
-        configuration, client, params, emailAttributeName, localeAttributeName, nameAttributeNames);
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
+    super(configuration, client, params, standardClaimsAttributeNames);
   }
 }
