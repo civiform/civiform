@@ -70,6 +70,7 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicat
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/configureExisting controllers.admin.AdminProgramBlockPredicatesController.configureExistingEligibilityPredicate(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates                   controllers.admin.AdminProgramBlockPredicatesController.updateEligibility(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/delete            controllers.admin.AdminProgramBlockPredicatesController.destroyEligibility(programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage     controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                    controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)

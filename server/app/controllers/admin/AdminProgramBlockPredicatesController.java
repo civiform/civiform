@@ -8,14 +8,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import forms.admin.BlockEligibilityMessageForm;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -378,5 +383,46 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             routes.AdminProgramBlockPredicatesController.editEligibility(
                 programId, blockDefinitionId))
         .flashing(FlashKey.SUCCESS, "Removed the eligibility condition for this screen.");
+  }
+
+  /** POST endpoint for updating eligibility message. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateEligibilityMessage(
+      Http.Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    Form<BlockEligibilityMessageForm> form =
+        formFactory
+            .form(BlockEligibilityMessageForm.class)
+            .bindFromRequest(
+                request, BlockEligibilityMessageForm.FIELD_NAMES.toArray(new String[0]));
+
+    String newMessage = form.get().getEligibilityMessage();
+
+    String toastType;
+    String toastMessage;
+    try {
+      programService.setBlockEligibilityMessage(
+          programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
+
+      toastType = "success";
+      if (newMessage.isBlank()) {
+        toastMessage = "Eligibility message removed";
+      } else {
+        toastMessage = "Eligibility message set to " + newMessage;
+      }
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.toString());
+    } catch (IllegalPredicateOrderingException e) {
+      return notFound(e.toString());
+    }
+
+    final String indexUrl =
+        routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
+            .url();
+
+    return redirect(indexUrl).flashing(toastType, toastMessage);
   }
 }
