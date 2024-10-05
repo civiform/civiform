@@ -23,6 +23,8 @@ import services.program.Column;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -39,6 +41,7 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(

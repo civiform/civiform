@@ -7,6 +7,10 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
+
+import com.google.common.base.Suppliers;
+
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
@@ -17,6 +21,10 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import views.components.TextFormatter;
+import com.google.common.base.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a question in the context of a specific applicant. Other type-specific classes (e.g.
@@ -29,6 +37,8 @@ public final class ApplicantQuestion {
   private final ProgramQuestionDefinition programQuestionDefinition;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
+  private Supplier<Path> memoizedContextualizedPathSupplier;
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantQuestion.class);
 
   /**
    * If this is a repeated question, it should be created with the repeated entity associated with
@@ -42,6 +52,12 @@ public final class ApplicantQuestion {
     this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
+
+    memoizedContextualizedPathSupplier = Suppliers.memoize(() -> {
+      var path = getQuestionDefinition().getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      LOGGER.debug("atlee contextualizedPath supplier cache miss + " + path);
+      return path;
+    });
   }
 
   /**
@@ -185,8 +201,9 @@ public final class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return getQuestionDefinition()
-        .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+    // LOGGER.debug("atlee contextualizedPath supplier request");
+    // return getQuestionDefinition().getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+    return memoizedContextualizedPathSupplier.get();
   }
 
   /**
