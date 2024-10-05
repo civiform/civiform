@@ -394,7 +394,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
       content.with(
           renderCategoryFilterChips(
-              applicantId, relevantCategories, selectedCategoriesFromParams, messages));
+              request, relevantCategories, selectedCategoriesFromParams, messages));
     }
 
     if (selectedCategoriesFromParams.isEmpty()) {
@@ -580,20 +580,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private FormTag renderCategoryFilterChips(
-      Optional<Long> applicantId,
+      Http.Request request,
       ImmutableList<String> relevantCategories,
       ImmutableList<String> selectedCategoriesFromParams,
       Messages messages) {
     return form()
         .withId("category-filter-form")
-        .withAction(
-            applicantId.isPresent()
-                ? controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                        applicantId.get(), ImmutableList.of())
-                    .url()
-                : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
-                        ImmutableList.of())
-                    .url())
+        .withAction(request.uri())
         .withMethod("GET")
         .with(
             fieldset(
