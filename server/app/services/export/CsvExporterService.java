@@ -137,7 +137,7 @@ public final class CsvExporterService {
                 applicantService
                     .getReadOnlyApplicantProgramService(
                         app, programDefinitionsForAllVersions.get(app.getProgram().id))
-                    .getSummaryDataOnlyActive()
+                    .getSummaryDataAllQuestions()
                     .stream())
         .forEach(
             data -> {
