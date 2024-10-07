@@ -15,6 +15,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.MessageKey;
+import services.UrlUtils;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -24,6 +25,7 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
+import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -137,7 +139,8 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    // Navigate to the next unanswered block. If there's no profile, use the default block
+    // Navigate to the next unanswered block. If there's no profile, use the default
+    // block
     // (which should be the first)
     String actionUrl = applicantRoutes.blockEdit(program.id()).url();
     if (profile.isPresent() && applicantId.isPresent()) {
@@ -149,14 +152,22 @@ public final class ProgramCardsSectionParamsFactory {
               .url();
     }
 
-    // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
+    // Note this doesn't yet manage markdown, links and appropriate aria labels for
+    // links, and
     // whatever else our current cards do.
-    String detailsUrl = program.externalLink();
-    if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
-      detailsUrl =
-          profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.show(program.id()).url();
+    String detailsUrl = "";
+    Optional<String> maybeDetailsUrl = program.safeExternalLink();
+    if (maybeDetailsUrl.isPresent()) {
+      // Prevent XSS attacks
+      maybeDetailsUrl = UrlUtils.safelyEncodeURL(maybeDetailsUrl.get());
+      detailsUrl = TextFormatter.sanitizeHtml(maybeDetailsUrl.get());
+
+      if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
+        detailsUrl =
+            profile.isPresent() && applicantId.isPresent()
+                ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
+                : applicantRoutes.show(program.id()).url();
+      }
     }
 
     boolean isGuest = personalInfo.getType() == GUEST;

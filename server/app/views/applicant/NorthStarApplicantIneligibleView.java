@@ -23,6 +23,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.components.TextFormatter;
 
 public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
@@ -80,13 +81,15 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     // be inserted into another localized string in the Thymeleaf template.
     // TODO: Update this to point to the new northstar details page.
     String linkHref =
-        program.externalLink().isEmpty()
-            ? applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url()
-            : program.externalLink();
+        program.safeExternalLink().isPresent()
+            ? program.safeExternalLink().get()
+            : applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url();
+
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
+    linkHtml = TextFormatter.sanitizeHtml(linkHtml);
     context.setVariable("programLinkHtml", linkHtml);
 
     String applyHref = applicantRoutes.index(params.profile(), params.applicantId()).url();

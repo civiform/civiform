@@ -13,6 +13,9 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -145,6 +148,23 @@ public abstract class ProgramDefinition {
   // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
+
+  @JsonIgnore
+  public Optional<String> safeExternalLink() {
+    if (isValidURL(externalLink())) {
+      return Optional.of(externalLink());
+    }
+    return Optional.empty();
+  }
+
+  boolean isValidURL(String url) {
+    try {
+      new URL(url).toURI();
+      return true;
+    } catch (MalformedURLException | URISyntaxException e) {
+      return false;
+    }
+  }
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
