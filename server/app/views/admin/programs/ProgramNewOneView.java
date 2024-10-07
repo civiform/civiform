@@ -83,7 +83,8 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
                     .with(makeCsrfTokenInputTag(request))
                     .withAction(controllers.admin.routes.AdminProgramController.create().url()))
             .withClasses("mx-4", "my-12", "flex", "flex-col");
-    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout.getBundle(request).setTitle(title).addMainContent(contentDiv).setAddAside(true);
     toastMessage.ifPresent(htmlBundle::addToastMessages);
     modal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);

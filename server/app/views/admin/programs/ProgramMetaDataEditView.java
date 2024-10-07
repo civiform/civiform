@@ -107,6 +107,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
         layout
             .getBundle(request)
             .setTitle(title)
+            .setAddAside(true)
             .addMainContent(
                 div(
                         renderHeader(title),

@@ -133,45 +133,82 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
-        h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
+        h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
-            .setLabelText("Enter the publicly displayed name for this program")
+            .setLabelText("Program name")
             .setRequired(true)
             .setValue(displayName)
             .getInputTag(),
         FieldWithLabel.textArea()
-            .setId("program-display-description-textarea")
-            .setFieldName("localizedDisplayDescription")
-            .setLabelText("Describe this program for the public")
+            .setId("program-display-short-description-textarea")
+            .setFieldName("localizedShortDisplayDescription")
+            .setLabelText(
+                "Short description of this program for the public. Maximum 100 characters.")
+            .setMaxLength(100)
             .setRequired(true)
             .setMarkdownSupported(true)
             .setValue(displayDescription)
             .getTextareaTag(),
+        programUrlField(adminName, programEditStatus),
+        FieldWithLabel.textArea()
+            .setId("program-description-textarea")
+            .setFieldName("adminDescription")
+            .setLabelText("Program note for administrative use only (optional)")
+            .setValue(adminDescription)
+            .getTextareaTag(),
+        FieldWithLabel.checkbox()
+            .setId("common-intake-checkbox")
+            .setFieldName("isCommonIntakeForm")
+            .setLabelText("Set program as pre-screener")
+            .addStyleClass("border-none")
+            .setValue("true")
+            .setChecked(isCommonIntakeForm)
+            .getCheckboxTag()
+            .with(
+                span(ViewUtils.makeSvgToolTip(
+                        "You can set one program as the ‘pre-screener’. This will pin the"
+                            + " program card to the top of the programs and services page"
+                            + " while moving other program cards below it.",
+                        Icons.INFO))
+                    .withClass("ml-2")),
+        // Hidden checkbox used to signal whether or not the user has confirmed they want to
+        // change which program is marked as the common intake form.
+        FieldWithLabel.checkbox()
+            .setId("confirmed-change-common-intake-checkbox")
+            .setFieldName("confirmedChangeCommonIntakeForm")
+            .setValue("false")
+            .setChecked(false)
+            .addStyleClass("hidden")
+            .getCheckboxTag(),
+        fieldset()
+            .with(
+                legend("Program eligibility gating")
+                    .withClass(BaseStyles.INPUT_LABEL)
+                    .with(ViewUtils.requiredQuestionIndicator())
+                    .with(p("(Not applicable if this program is the pre-screener)")),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Only allow residents to submit applications if they meet all eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(true))
+                    .setChecked(eligibilityIsGating)
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Allow residents to submit applications even if they don't meet eligibility"
+                            + " requirements")
+                    .setValue(String.valueOf(false))
+                    .setChecked(!eligibilityIsGating)
+                    .getRadioTag()),
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
-        programUrlField(adminName, programEditStatus),
-        FieldWithLabel.input()
-            .setId("program-external-link-input")
-            .setFieldName("externalLink")
-            .setLabelText("Link to program website (optional)")
-            .setValue(externalLink)
-            .getInputTag(),
-        FieldWithLabel.textArea()
-            .setId("program-confirmation-message-textarea")
-            .setFieldName("localizedConfirmationMessage")
-            .setLabelText(
-                "A custom message that will be shown on the confirmation page after an application"
-                    + " has been submitted. You can use this message to explain next steps of the"
-                    + " application process and/or highlight other programs to apply for."
-                    + " (optional)")
-            .setMarkdownSupported(true)
-            .setValue(confirmationSceen)
-            .getTextareaTag(),
-        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
-        // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()
             .with(
                 legend("Program visibility")
@@ -222,36 +259,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setLabelText("Disabled")
                     .setValue(DisplayMode.DISABLED.getValue())
                     .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
-                    .getRadioTag()));
-
-    formTag.with(
-        // TODO(#2618): Consider using helpers for grouping related radio controls.
-        fieldset()
-            .with(
-                legend("Program eligibility gating")
-                    .withClass(BaseStyles.INPUT_LABEL)
-                    .with(ViewUtils.requiredQuestionIndicator())
-                    .with(p("(Not applicable if this program is the pre-screener)")),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Only allow residents to submit applications if they meet all eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(true))
-                    .setChecked(eligibilityIsGating)
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Allow residents to submit applications even if they don't meet eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(false))
-                    .setChecked(!eligibilityIsGating)
-                    .getRadioTag()));
-
-    formTag.with(
+                    .getRadioTag()),
         fieldset()
             .with(
                 legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
@@ -268,44 +276,72 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         notificationPreferences.contains(
                             ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                                 .getValue()))
-                    .getCheckboxTag()));
+                    .getCheckboxTag()),
+        h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
+        FieldWithLabel.textArea()
+            .setId("program-display-description-textarea")
+            .setFieldName("localizedDisplayDescription")
+            .setLabelText("Long program description (optional)")
+            .setMarkdownSupported(true)
+            .setValue(displayDescription)
+            .getTextareaTag(),
+        FieldWithLabel.input()
+            .setId("program-external-link-input")
+            .setFieldName("externalLink")
+            .setLabelText("Link to program website (optional)")
+            .setValue(externalLink)
+            .getInputTag(),
+        h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
+        div()
+            .withId("apply-steps")
+            .with(
+                buildApplicationStepDiv("1"),
+                buildApplicationStepDiv("2"),
+                buildApplicationStepDiv("3"),
+                buildApplicationStepDiv("4"),
+                buildApplicationStepDiv("5")),
+        h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
+        FieldWithLabel.textArea()
+            .setId("program-confirmation-message-textarea")
+            .setFieldName("localizedConfirmationMessage")
+            .setLabelText(
+                "A custom message that will be shown on the confirmation page after an application"
+                    + " has been submitted. You can use this message to explain next steps of the"
+                    + " application process and/or highlight other programs to apply for."
+                    + " (optional)")
+            .setMarkdownSupported(true)
+            .setValue(confirmationSceen)
+            .getTextareaTag());
 
-    formTag
-        .with(
-            FieldWithLabel.textArea()
-                .setId("program-description-textarea")
-                .setFieldName("adminDescription")
-                .setLabelText("Program note for administrative use only (optional)")
-                .setValue(adminDescription)
-                .getTextareaTag())
-        .with(
-            FieldWithLabel.checkbox()
-                .setId("common-intake-checkbox")
-                .setFieldName("isCommonIntakeForm")
-                .setLabelText("Set program as pre-screener")
-                .addStyleClass("border-none")
-                .setValue("true")
-                .setChecked(isCommonIntakeForm)
-                .getCheckboxTag()
-                .with(
-                    span(ViewUtils.makeSvgToolTip(
-                            "You can set one program as the ‘pre-screener’. This will pin the"
-                                + " program card to the top of the programs and services page"
-                                + " while moving other program cards below it.",
-                            Icons.INFO))
-                        .withClass("ml-2")))
-        .with(
-            // Hidden checkbox used to signal whether or not the user has confirmed they want to
-            // change which program is marked as the common intake form.
-            FieldWithLabel.checkbox()
-                .setId("confirmed-change-common-intake-checkbox")
-                .setFieldName("confirmedChangeCommonIntakeForm")
-                .setValue("false")
-                .setChecked(false)
-                .addStyleClass("hidden")
-                .getCheckboxTag())
-        .with(createSubmitButton(programEditStatus));
+    formTag.with(createSubmitButton(programEditStatus));
     return formTag;
+  }
+
+  private DivTag buildApplicationStepDiv(String number) {
+    FieldWithLabel title =
+        FieldWithLabel.input()
+            .setId("apply-step-" + number + "-title")
+            .setFieldName("applyStep" + number + "Title")
+            .setValue("");
+
+    FieldWithLabel description =
+        FieldWithLabel.textArea()
+            .setId("apply-step-" + number + "-description")
+            .setFieldName("applyStep" + number + "Description")
+            .setMarkdownSupported(true)
+            .setValue("");
+
+    if (number.equals("1")) {
+      title.setLabelText("Step " + number + " title").setRequired(true);
+      description.setLabelText("Step " + number + " description").setRequired(true);
+    } else {
+      title.setLabelText("Step " + number + " title (optional)");
+      description.setLabelText("Step " + number + " description (optional)");
+    }
+
+    return div()
+        .withId("apply-step-" + number + "-div")
+        .with(title.getInputTag(), description.getTextareaTag());
   }
 
   private DivTag showCategoryCheckboxes(

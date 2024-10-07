@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.aside;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.document;
 import static j2html.TagCreator.each;
@@ -48,6 +49,7 @@ public final class HtmlBundle {
   private JsBundle jsBundle = null;
 
   private Optional<DivTag> pageNotProductionBannerTag = Optional.empty();
+  private boolean addAside = false;
   private final ArrayList<String> bodyStyles = new ArrayList<>();
   private final ArrayList<Tag> footerContent = new ArrayList<>();
   private final ArrayList<ScriptTag> footerScripts = new ArrayList<>();
@@ -152,6 +154,11 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle setAddAside(boolean addAside) {
+    this.addAside = addAside;
+    return this;
+  }
+
   public Http.RequestHeader getRequest() {
     return request;
   }
@@ -189,13 +196,31 @@ public final class HtmlBundle {
 
     pageNotProductionBannerTag.ifPresent(bodyTag::with);
 
-    bodyTag.with(renderHeader(), renderMain(), renderModals(), renderFooter());
+    if (addAside) {
+      bodyTag.with(renderHeader(), renderMainWithAside(), renderModals(), renderFooter());
+    } else {
+      bodyTag.with(renderHeader(), renderMain(), renderModals(), renderFooter());
+    }
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));
     }
 
     return bodyTag;
+  }
+
+  private DivTag renderMainWithAside() {
+    return div()
+        .withClass("usa-in-page-nav-container")
+        .with(
+            aside()
+                .withClasses("usa-in-page-nav", "pt-20")
+                .attr("data-title-text", "On this page")
+                .attr("data-title-heading-level", "h4")
+                .attr("data-scroll-offset", "120")
+                .attr("data-root-margin", "0px 0px 0px 0px")
+                .attr("data-threshold", "1"),
+            renderMain());
   }
 
   private FooterTag renderFooter() {
