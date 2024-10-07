@@ -140,13 +140,46 @@ export class ApplicantQuestions {
     await this.validateInputValue(number)
   }
 
-  async answerDateQuestion(date: string, index = 0) {
-    await this.page.fill(`input[type="date"] >> nth=${index}`, date)
+  /**
+   *
+   * @param date string formatted "yyyy-mm-dd"
+   * @param index Index of the date question on the page
+   * @param northStarEnabled
+   */
+  async answerDateQuestion(date: string, index = 0, northStarEnabled = false) {
+    if (northStarEnabled) {
+      const yearMonthDay = date.split('-')
+      const year = this.trimLeadingZeros(yearMonthDay[0])
+      const month = this.trimLeadingZeros(yearMonthDay[1])
+      const day = this.trimLeadingZeros(yearMonthDay[2])
+
+      // In the UI, the left-to-right order is month, day, year
+      await this.page.getByLabel('Month *').selectOption(month)
+      await this.page.getByLabel('Day *').fill(day)
+      await this.page.getByLabel('Year *').fill(year)
+    } else {
+      await this.page.fill(`input[type="date"] >> nth=${index}`, date)
+    }
   }
 
-  async checkDateQuestionValue(date: string) {
-    await this.validateInputTypePresent('date')
-    await this.validateInputValue(date)
+  trimLeadingZeros(str: string): string {
+    return str.replace(/^0+/, '')
+  }
+
+  async checkDateQuestionValue(date: string, northStarEnabled = false) {
+    if (northStarEnabled) {
+      const yearMonthDay = date.split('-')
+      const year = this.trimLeadingZeros(yearMonthDay[0])
+      const month = this.trimLeadingZeros(yearMonthDay[1])
+      const day = this.trimLeadingZeros(yearMonthDay[2])
+
+      await expect(this.page.getByLabel('Month *')).toHaveValue(month)
+      await expect(this.page.getByLabel('Day *')).toHaveValue(day)
+      await expect(this.page.getByLabel('Year *')).toHaveValue(year)
+    } else {
+      await this.validateInputTypePresent('date')
+      await this.validateInputValue(date)
+    }
   }
 
   async answerMemorableDateQuestion(

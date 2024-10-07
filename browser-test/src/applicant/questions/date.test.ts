@@ -135,7 +135,10 @@ test.describe('Date question for applicant flow', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -161,11 +164,17 @@ test.describe('Date question for applicant flow', () => {
         applicantQuestions,
       }) => {
         await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerMemorableDateQuestion(
-          '2022',
-          '05 - May',
-          '2',
+        await applicantQuestions.answerDateQuestion(
+          '2022-05-02',
+          0,
+          /* northStarEnabled= */ true,
         )
+
+        await applicantQuestions.checkDateQuestionValue(
+          '2022-05-02',
+          /* northStarEnabled= */ true,
+        )
+
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.submitFromReviewPage(
@@ -174,7 +183,10 @@ test.describe('Date question for applicant flow', () => {
       })
 
       test('Renders existing values', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.answerMemorableDateQuestion(
           '2022',
           '05 - May',
@@ -195,7 +207,10 @@ test.describe('Date question for applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })
