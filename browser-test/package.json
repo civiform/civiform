@@ -9,7 +9,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.0",
     "@playwright/test": "1.47.2",
-    "@types/node": "20.16.10",
+    "@types/node": "20.16.11",
     "@typescript-eslint/eslint-plugin": "8.8.0",
     "@typescript-eslint/parser": "8.8.0",
     "axe-core": "4.10.0",
