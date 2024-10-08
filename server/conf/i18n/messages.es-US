@@ -29,7 +29,7 @@ footer.technicalSupport=Para obtener asistencia técnica: {0}
 # This should be consistent with button.guestLogin.
 guest=Invitado
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Seleccionar idioma
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Elegir un idioma
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=Acceso de administrador
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Archivo subido: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Selecciona un archivo
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Selecciona uno o más archivos (hasta {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Selecciona uno o más archivos
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Borrar
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -217,7 +217,7 @@ title.otherProgramsSection.v2=Otros programas y servicios ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programas y servicios ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=Programas basados en tus elecciones ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Sección completada
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -512,11 +512,11 @@ title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los re
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=Según tus respuestas, es posible que califiques para los siguientes programas:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=Según tus respuestas, es posible que tu cliente califique para los siguientes programas:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.

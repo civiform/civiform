@@ -29,7 +29,7 @@ footer.technicalSupport=Wixii taageero farsamo ah: {0}
 # This should be consistent with button.guestLogin.
 guest=Marti
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Dooro Luuqad
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Dooro luqad
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=Admin login
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Faylka la soo geliyay: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Dooro fayl
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Dooro hal ama faylal badan (ugu badnaan {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Dooro hal ama faylal badan
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Tirtir
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -217,7 +217,7 @@ title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=Barnaamijyo ku salaysan xulushooyinkaaga({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Qaybta la dhamaystiray
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -512,11 +512,11 @@ title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=Iyada oo lagu saleynayo jawaabahaaga, waxaa laga yaabaa inaad u qalanto barnaamijyada soo socda:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=Iyada oo lagu saleynayo jawaabahaaga, macmiilkaagu waxaa laga yaabaa inuu u qalmo barnaamijyada soo socda:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
