@@ -17,6 +17,7 @@ import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import forms.admin.BulkStatusUpdateForm;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -25,8 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
-
-import forms.admin.BulkStatusUpdateForm;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -566,9 +565,10 @@ public final class AdminApplicationController extends CiviFormController {
             selectedApplicationUri,
             showDownloadModal));
   }
+
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatuses(Http.Request request, long programId)
-    throws ProgramNotFoundException{
+      throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
     try {
@@ -577,25 +577,25 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
     Form<BulkStatusUpdateForm> form =
-      formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
+        formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
     var ids = ImmutableSet.of(form.get().getApplicationsIds());
     ids.forEach(
-      id -> {
-
-        System.out.println("------------------------ " + id);
-      });
+        id -> {
+          System.out.println("------------------------ " + id);
+        });
     System.out.println("The new status is  -" + form.get().getStatusText());
 
-        return redirect(routes.AdminApplicationController.index(
-          programId,
-          /* search= */ Optional.empty(),
-          /* page= */ Optional.empty(),
-          /* fromDate= */ Optional.empty(),
-          /* untilDate= */ Optional.empty(),
-          /* applicationStatus= */ Optional.empty(),
-          Optional.empty(),
-          /* showDownloadModal= */ Optional.empty())
-        .url());
+    return redirect(
+        routes.AdminApplicationController.index(
+                programId,
+                /* search= */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty(),
+                Optional.empty(),
+                /* showDownloadModal= */ Optional.empty())
+            .url());
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)

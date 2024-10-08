@@ -9,7 +9,6 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
@@ -27,7 +26,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
 import controllers.admin.routes;
-
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -36,7 +34,6 @@ import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import models.ApplicationModel;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
@@ -86,12 +83,12 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationTableView(
-    AdminLayoutFactory layoutFactory,
-    ApplicantUtils applicantUtils,
-    ApplicantService applicantService,
-    DateConverter dateConverter,
-    SettingsManifest settingsManifest,
-    @BindingAnnotations.EnUsLang Messages enUsMessages) {
+      AdminLayoutFactory layoutFactory,
+      ApplicantUtils applicantUtils,
+      ApplicantService applicantService,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest,
+      @BindingAnnotations.EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
@@ -112,8 +109,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       Optional<Boolean> showDownloadModal) {
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
-  //  Optional<StatusDefinitions.Status> defaultStatus = activeStatusDefinitions.getDefaultStatus();
-
+    //  Optional<StatusDefinitions.Status> defaultStatus =
+    // activeStatusDefinitions.getDefaultStatus();
 
     // boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
 
@@ -122,26 +119,25 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             .withData("testid", "application-list")
             .with(
                 h1(program.adminName()).withClasses("mt-4"),
-
                 br(),
                 renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
-//              div().with(
-//                div()
-//                  .withClasses("flex", "flex-wrap", "gap-2")
-//                  // Status options if configured on the program.
-//                  .condWith(
-//                    !activeStatusDefinitions.getStatuses().isEmpty(),
-//                    div()
-//                      .withClasses("flex", "mr-4", "gap-2")
-//                      .with(
-//                        renderStatusOptionsSelector( activeStatusDefinitions)
-//                      ))),
+                //              div().with(
+                //                div()
+                //                  .withClasses("flex", "flex-wrap", "gap-2")
+                //                  // Status options if configured on the program.
+                //                  .condWith(
+                //                    !activeStatusDefinitions.getStatuses().isEmpty(),
+                //                    div()
+                //                      .withClasses("flex", "mr-4", "gap-2")
+                //                      .with(
+                //                        renderStatusOptionsSelector( activeStatusDefinitions)
+                //                      ))),
                 renderApplicationTable(
                         paginatedApplications.getPageContents(),
                         /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
                         activeStatusDefinitions,
-                        program,request)
-
+                        program,
+                        request)
                     .condWith(
                         paginatedApplications.getNumPages() > 1,
                         renderPagination(
@@ -159,7 +155,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                     /* showDownloadModal= */ Optional.empty()),
                             /* optionalMessages */ Optional.empty())));
     // .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
-
 
     HtmlBundle htmlBundle =
         layout
@@ -382,41 +377,43 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ImmutableList<ApplicationModel> applications,
       boolean displayStatus,
       StatusDefinitions statusDefinitions,
-      ProgramDefinition program,Http.Request request) {
+      ProgramDefinition program,
+      Http.Request request) {
 
     SelectTag dropdownTag =
-      select()
-        .withClasses(
-          "outline-none",
-          "px-3",
-          "py-2",
-          "ml-3",
-          "border",
-          "border-gray-500",
-          "rounded-lg",
-          "bg-white",
-          "text-lg",
-          StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
-    dropdownTag.with(
-      option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
-    String latestStatusText ="";
-    statusDefinitions.getStatuses().stream()   .map(StatusDefinitions.Status::statusText).forEach(
-      statusText -> {
-        boolean isCurrentStatus = statusText.equals(latestStatusText);
-        dropdownTag.with(
-          option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
-      });
+        select()
+            .withClasses(
+                "outline-none",
+                "px-3",
+                "py-2",
+                "ml-3",
+                "border",
+                "border-gray-500",
+                "rounded-lg",
+                "bg-white",
+                "text-lg",
+                StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
+    dropdownTag.with(option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
+    String latestStatusText = "";
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
+        .forEach(
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
+            });
 
     DivTag table =
         div(
             form()
                 .withId("bulk-status-update")
                 .withMethod("POST")
-                 .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
-                .with(dropdownTag,
-                  makeCsrfTokenInputTag(request),
-                  submitButton("Status change")
-                    .withClasses("usa-button"),
+                .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
+                .with(
+                    dropdownTag,
+                    makeCsrfTokenInputTag(request),
+                    submitButton("Status change").withClasses("usa-button"),
                     table()
                         .withClasses("usa-table usa-table--borderless", "w-full")
                         .with(renderGroupTableHeader(displayStatus))
@@ -433,47 +430,49 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                                 application, program)))))));
     return table;
   }
-//  private DivTag renderStatusOptionsSelector(
-//   StatusDefinitions statusDefinitions) {
-//    final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
-//    DivTag container =
-//      div()
-//        .withClasses("flex", ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-//        .with(label("Status:").withClasses("self-center").withFor(SELECTOR_ID));
-//
-//    SelectTag dropdownTag =
-//      select()
-//        .withId(SELECTOR_ID)
-//        .withClasses(
-//          "outline-none",
-//          "px-3",
-//          "py-2",
-//          "ml-3",
-//          "border",
-//          "border-gray-500",
-//          "rounded-lg",
-//          "bg-white",
-//          "text-lg",
-//          StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
-//
-//    // Add the options available to the admin.
-//    // When no status is currently applied to the application, add a placeholder option that is
-//    // selected.
-//    dropdownTag.with(
-//      option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
-//        //.isDisabled();
-//       // .withCondSelected(application.getLatestStatus().isEmpty()));
-//
-//    // Add statuses in the order they're provided.
-//    String latestStatusText ="";
-//      statusDefinitions.getStatuses().stream()   .map(StatusDefinitions.Status::statusText).forEach(
-//        statusText -> {
-//          boolean isCurrentStatus = statusText.equals(latestStatusText);
-//          dropdownTag.with(
-//            option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
-//        });
-//    return container.with(dropdownTag);
-//  }
+
+  //  private DivTag renderStatusOptionsSelector(
+  //   StatusDefinitions statusDefinitions) {
+  //    final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
+  //    DivTag container =
+  //      div()
+  //        .withClasses("flex", ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
+  //        .with(label("Status:").withClasses("self-center").withFor(SELECTOR_ID));
+  //
+  //    SelectTag dropdownTag =
+  //      select()
+  //        .withId(SELECTOR_ID)
+  //        .withClasses(
+  //          "outline-none",
+  //          "px-3",
+  //          "py-2",
+  //          "ml-3",
+  //          "border",
+  //          "border-gray-500",
+  //          "rounded-lg",
+  //          "bg-white",
+  //          "text-lg",
+  //          StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
+  //
+  //    // Add the options available to the admin.
+  //    // When no status is currently applied to the application, add a placeholder option that is
+  //    // selected.
+  //    dropdownTag.with(
+  //      option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
+  //        //.isDisabled();
+  //       // .withCondSelected(application.getLatestStatus().isEmpty()));
+  //
+  //    // Add statuses in the order they're provided.
+  //    String latestStatusText ="";
+  //      statusDefinitions.getStatuses().stream()
+  // .map(StatusDefinitions.Status::statusText).forEach(
+  //        statusText -> {
+  //          boolean isCurrentStatus = statusText.equals(latestStatusText);
+  //          dropdownTag.with(
+  //            option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
+  //        });
+  //    return container.with(dropdownTag);
+  //  }
 
   private j2html.tags.specialized.TheadTag renderGroupTableHeader(boolean displayStatus) {
     return thead(
