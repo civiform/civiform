@@ -65,6 +65,7 @@ import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
+import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
 public class AdminApplicationControllerTest extends ResetPostgres {
@@ -583,7 +584,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
         instanceOf(StatusService.class),
-        settingsManifestMock);
+        settingsManifestMock,
+        instanceOf(ProgramApplicationTableView.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

@@ -382,6 +382,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
     SelectTag dropdownTag =
         select()
+            .withName("statusText")
             .withClasses(
                 "outline-none",
                 "px-3",
@@ -411,68 +412,29 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 .withMethod("POST")
                 .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
                 .with(
-                    dropdownTag,
-                    makeCsrfTokenInputTag(request),
-                    submitButton("Status change").withClasses("usa-button"),
-                    table()
-                        .withClasses("usa-table usa-table--borderless", "w-full")
-                        .with(renderGroupTableHeader(displayStatus))
+                    div()
+                        .withClass("space-x-2")
                         .with(
-                            tbody(
-                                each(
-                                    applications,
-                                    application ->
-                                        renderApplicationRowItem(
-                                            application,
-                                            displayStatus,
-                                            statusDefinitions.getDefaultStatus(),
-                                            applicantService.getApplicationEligibilityStatus(
-                                                application, program)))))));
+                            dropdownTag,
+                            makeCsrfTokenInputTag(request),
+                            submitButton("Status change").withClasses("usa-button"),
+                            table()
+                                .withClasses("usa-table usa-table--borderless", "w-full")
+                                .with(renderGroupTableHeader(displayStatus))
+                                .with(
+                                    tbody(
+                                        each(
+                                            applications,
+                                            application ->
+                                                renderApplicationRowItem(
+                                                    application,
+                                                    displayStatus,
+                                                    statusDefinitions.getDefaultStatus(),
+                                                    applicantService
+                                                        .getApplicationEligibilityStatus(
+                                                            application, program))))))));
     return table;
   }
-
-  //  private DivTag renderStatusOptionsSelector(
-  //   StatusDefinitions statusDefinitions) {
-  //    final String SELECTOR_ID = RandomStringUtils.randomAlphabetic(8);
-  //    DivTag container =
-  //      div()
-  //        .withClasses("flex", ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR)
-  //        .with(label("Status:").withClasses("self-center").withFor(SELECTOR_ID));
-  //
-  //    SelectTag dropdownTag =
-  //      select()
-  //        .withId(SELECTOR_ID)
-  //        .withClasses(
-  //          "outline-none",
-  //          "px-3",
-  //          "py-2",
-  //          "ml-3",
-  //          "border",
-  //          "border-gray-500",
-  //          "rounded-lg",
-  //          "bg-white",
-  //          "text-lg",
-  //          StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
-  //
-  //    // Add the options available to the admin.
-  //    // When no status is currently applied to the application, add a placeholder option that is
-  //    // selected.
-  //    dropdownTag.with(
-  //      option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
-  //        //.isDisabled();
-  //       // .withCondSelected(application.getLatestStatus().isEmpty()));
-  //
-  //    // Add statuses in the order they're provided.
-  //    String latestStatusText ="";
-  //      statusDefinitions.getStatuses().stream()
-  // .map(StatusDefinitions.Status::statusText).forEach(
-  //        statusText -> {
-  //          boolean isCurrentStatus = statusText.equals(latestStatusText);
-  //          dropdownTag.with(
-  //            option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
-  //        });
-  //    return container.with(dropdownTag);
-  //  }
 
   private j2html.tags.specialized.TheadTag renderGroupTableHeader(boolean displayStatus) {
     return thead(
