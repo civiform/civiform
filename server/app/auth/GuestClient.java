@@ -27,6 +27,7 @@ public class GuestClient extends IndirectClient {
   // is being handled by the parent class.
   @Override
   protected void internalInit(final boolean forceReinit) {
+    // System.out.println("ssandbekkhaug created new guest client internal init");
 
     /*
      * This is the root of the non-logged-in auth story.  This class is invoked to

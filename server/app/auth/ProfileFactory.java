@@ -2,6 +2,8 @@ package auth;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -54,6 +56,8 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewApplicant() {
+    // System.out.println("ssandbekkhaug create new applicant");
+    System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_APPLICANT});
 
     // Store the applicant id in the profile.
@@ -91,6 +95,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
+    // System.out.println("ssandbekkhaug wrapProfileData");
     return new CiviFormProfile(
         dbContext,
         classLoaderExecutionContext,

@@ -89,6 +89,15 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantPersonalInfo personalInfo) {
     ImmutableList.Builder<ProgramCardParams> cardsListBuilder = ImmutableList.builder();
 
+    //  TODO ssandbekkhaug create guest profile
+    //  Notes
+    //  Try to recreate this:
+    //  GET       /callback?client_name=GuestClient       20ms    303 -> /programs/102/review
+    //   
+    //  GET     /callback                    controllers.CallbackController.callback(request: Request, client_name: String)
+    //  CallbackController.java
+    //  [java.base/java.lang.Thread.getStackTrace(Thread.java:1619), auth.ProfileFactory.createNewApplicant(ProfileFactory.java:60), auth.GuestClient.lambda$internalInit$1(GuestClient.java:42), org.pac4j.core.client.BaseClient.lambda$retrieveCredentials$0(BaseClient.java:75), java.base/java.util.Optional.ifPresent(Optional.java:178), org.pac4j.core.client.BaseClient.retrieveCredentials(BaseClient.java:72), org.pac4j.core.client.IndirectClient.getCredentials(IndirectClient.java:145), org.pac4j.core.engine.DefaultCallbackLogic.perform(DefaultCallbackLogic.java:75), org.pac4j.play.CallbackController.lambda$callback$0(CallbackController.java:53), java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768), play.core.j.ClassLoaderExecutionContext.$anonfun$execute$1(ClassLoaderExecutionContext.scala:64), akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:49), akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(ForkJoinExecutorConfigurator.scala:48), java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373), java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182), java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655), java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622), java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)]
+
     for (ApplicantProgramData programDatum : programData) {
       cardsListBuilder.add(
           getCard(
@@ -118,10 +127,22 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramDefinition program = programDatum.program();
 
     boolean isGuest = personalInfo.getType() == GUEST;
+    // String actionUrl = profile.isPresent() && applicantId.isPresent()
+    //         ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
+    //         : applicantRoutes.review(program.id()).url();
+    // String actionUrl =
+    // profile.isPresent() && applicantId.isPresent() ?
+    //     applicantRoutes
+    //         .blockEdit(profile.get(), applicantId.get(), program.id(), "1", Optional.empty())
+    //         .url()
+    //         :
+    //         applicantRoutes.blockEdit(null, 0, 0, null, null)
+    // System.out.println("ssandbekkhaug profile: " + profile);
     String actionUrl =
-        profile.isPresent() && applicantId.isPresent()
-            ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
-            : applicantRoutes.review(program.id()).url();
+          applicantRoutes.edit(profile.get(),
+          applicantId.get(),
+          program.id()
+          ).url();
 
     // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
     // whatever else our current cards do.
