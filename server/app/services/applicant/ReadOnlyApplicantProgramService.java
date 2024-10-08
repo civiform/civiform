@@ -2,6 +2,7 @@ package services.applicant;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.stream.Stream;
 import services.LocalizedStrings;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramType;
@@ -29,6 +30,13 @@ public interface ReadOnlyApplicantProgramService {
    * application. If a custom message is not set, returns an empty string.
    */
   LocalizedStrings getCustomConfirmationMessage();
+
+  /**
+   * Get a list of all {@link ApplicantQuestion}s in the program.
+   *
+   * @return A stream of the questions in the program.
+   */
+  Stream<ApplicantQuestion> getAllQuestions();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
