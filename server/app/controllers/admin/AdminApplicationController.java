@@ -12,6 +12,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
@@ -20,11 +21,15 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+
+import forms.admin.BulkStatusUpdateForm;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
+import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -61,6 +66,7 @@ import services.statuses.StatusService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
+import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
@@ -83,6 +89,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final SettingsManifest settingsManifest;
+  private final ProgramApplicationTableView tableView;
 
   public enum RelativeTimeOfDay {
     UNKNOWN,
@@ -109,7 +116,8 @@ public final class AdminApplicationController extends CiviFormController {
       @Now Provider<LocalDateTime> nowProvider,
       VersionRepository versionRepository,
       StatusService statusService,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      ProgramApplicationTableView tableView) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -125,6 +133,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.tableView = checkNotNull(tableView);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -521,6 +530,24 @@ public final class AdminApplicationController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
+      return ok(
+          tableView.render(
+              request,
+              profile,
+              program,
+              activeStatusDefinitions,
+              getAllApplicationStatusesForProgram(program.id()),
+              paginationSpec,
+              applications,
+              RenderFilterParams.builder()
+                  .setSearch(search)
+                  .setFromDate(fromDate)
+                  .setUntilDate(untilDate)
+                  .setSelectedApplicationStatus(applicationStatus)
+                  .build(),
+              showDownloadModal));
+    }
     return ok(
         applicationListView.render(
             request,
@@ -538,6 +565,37 @@ public final class AdminApplicationController extends CiviFormController {
                 .build(),
             selectedApplicationUri,
             showDownloadModal));
+  }
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result updateStatuses(Http.Request request, long programId)
+    throws ProgramNotFoundException{
+    ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    String programName = program.adminName();
+    try {
+      checkProgramAdminAuthorization(request, programName).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+    Form<BulkStatusUpdateForm> form =
+      formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
+    var ids = ImmutableSet.of(form.get().getApplicationsIds());
+    ids.forEach(
+      id -> {
+
+        System.out.println("------------------------ " + id);
+      });
+    System.out.println("The new status is  -" + form.get().getStatusText());
+
+        return redirect(routes.AdminApplicationController.index(
+          programId,
+          /* search= */ Optional.empty(),
+          /* page= */ Optional.empty(),
+          /* fromDate= */ Optional.empty(),
+          /* untilDate= */ Optional.empty(),
+          /* applicationStatus= */ Optional.empty(),
+          Optional.empty(),
+          /* showDownloadModal= */ Optional.empty())
+        .url());
   }
 
   private ImmutableList<String> getAllApplicationStatusesForProgram(long programId)
