@@ -134,15 +134,19 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
         result.with(
             li().withClass("flex justify-between mb-2")
-                .withText(fileName)
                 .withId(fileNameId)
+                .with(TagCreator.span().withText(fileName).withClasses("overflow-x-hidden"))
                 .with(
                     TagCreator.a()
                         .withText(params.messages().at(MessageKey.LINK_REMOVE_FILE.getKeyName()))
                         .withHref(removeUrl)
                         .attr("aria-labelledby", fileNameId)
                         .withClasses(
-                            BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "underline")));
+                            BaseStyles.LINK_TEXT,
+                            BaseStyles.LINK_HOVER_TEXT,
+                            "underline",
+                            "ml-2",
+                            "shrink-0")));
       }
     }
 
