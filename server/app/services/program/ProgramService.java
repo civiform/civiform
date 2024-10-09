@@ -1605,9 +1605,7 @@ public final class ProgramService {
    * @param filters a set of filters to apply to the examined applications.
    */
   public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
-      long programId,
-      BasePaginationSpec paginationSpec,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
         programId, paginationSpec, filters);
   }

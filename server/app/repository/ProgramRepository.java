@@ -372,9 +372,7 @@ public final class ProgramRepository {
    * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
   public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
-      long programId,
-      BasePaginationSpec paginationSpec,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)

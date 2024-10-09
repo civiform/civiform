@@ -789,6 +789,59 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getApplicationsForAllProgramVersions_sortedBySubmitDate() {
+    ApplicantModel applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
+
+    ApplicationModel applicationOne =
+        resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
+    resourceCreator.publishNewSynchronizedVersion();
+
+    ApplicantModel applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    ApplicantModel applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    ApplicationModel applicationTwo =
+        resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    ApplicationModel applicationThree =
+        resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+    /* Set the submit date such that the results come back in this order: 2, 1, 3 */
+    applicationThree.setSubmitTimeToNow();
+    applicationThree.save();
+    applicationOne.setSubmitTimeToNow();
+    applicationOne.save();
+    applicationTwo.setSubmitTimeToNow();
+    applicationTwo.save();
+
+    PaginationResult<ApplicationModel> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new PageNumberPaginationSpec(/* pageSize= */ 2),
+            SubmittedApplicationFilter.EMPTY);
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantTwo);
+    assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantOne);
+
+    paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new PageNumberPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2),
+            SubmittedApplicationFilter.EMPTY);
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+  }
+
+  @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
     ApplicantModel applicantOne =
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
