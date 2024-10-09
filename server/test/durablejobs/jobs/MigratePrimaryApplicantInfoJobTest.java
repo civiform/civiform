@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory;
 import durablejobs.DurableJobName;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.time.Instant;
 import models.AccountModel;
@@ -26,19 +27,19 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   private final Database database = DB.getDefault();
 
   private ApplicantModel createApplicant() {
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     AccountModel account = new AccountModel();
     account.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
     applicant.save();
-    database.commitTransaction();
+    transaction.commit();
     return applicant;
   }
 
   private ApplicantModel createApplicantWithWellKnownPathData(boolean withPaiData) {
     ApplicantModel applicant = createApplicant();
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     AccountModel account = applicant.getAccount();
     account.setEmailAddress("account@email.com");
     account.save();
@@ -59,7 +60,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
       applicant.setEmailAddress("applicant@email.com");
     }
     applicant.save();
-    database.commitTransaction();
+    transaction.commit();
     return applicant;
   }
 
@@ -68,7 +69,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   }
 
   private void runJob(Boolean paiFlagEnabled) {
-    database.beginTransaction(TxIsolation.SERIALIZABLE);
+    Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
 
     SettingsService settingsService = instanceOf(SettingsService.class);
     Config config =
@@ -84,7 +85,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
         new MigratePrimaryApplicantInfoJob(
             job, instanceOf(AccountRepository.class), settingsService, config);
     migrateJob.run();
-    database.commitTransaction();
+    transaction.commit();
   }
 
   @Test
@@ -131,10 +132,10 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   @Test
   public void run_migratesWhenOnlyFirstNameIsPopulated() {
     ApplicantModel applicant = createApplicant();
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     applicant.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
     applicant.save();
-    database.commitTransaction();
+    transaction.commit();
 
     runJob();
 
@@ -152,7 +153,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   @Test
   public void run_migratesWhenTiClientDataIsPopulated() {
     ApplicantModel applicant = createApplicant();
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     ApplicantData data = applicant.getApplicantData();
     data.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
     data.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
@@ -161,7 +162,7 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
     data.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
     data.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
     applicant.save();
-    database.commitTransaction();
+    transaction.commit();
 
     runJob();
 
@@ -179,11 +180,11 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   @Test
   public void run_migratesWhenOnlyAccountEmailIsPresent() {
     ApplicantModel applicant = createApplicant();
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     AccountModel account = applicant.getAccount();
     account.setEmailAddress("picard@starfleet.com");
     account.save();
-    database.commitTransaction();
+    transaction.commit();
 
     runJob();
 
@@ -201,13 +202,13 @@ public class MigratePrimaryApplicantInfoJobTest extends ResetPostgres {
   @Test
   public void run_doesNotMigrateWhenEmailIsAlreadyPresent() {
     ApplicantModel applicant = createApplicant();
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     AccountModel account = applicant.getAccount();
     account.setEmailAddress("picard@starfleet.com");
     account.save();
     applicant.setEmailAddress("picard_real_email@starfleet.com");
     applicant.save();
-    database.commitTransaction();
+    transaction.commit();
 
     runJob();
 
