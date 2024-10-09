@@ -6,10 +6,21 @@ import java.util.List;
 public final class BulkStatusUpdateForm {
   private List<String> applicationsIds;
   private String statusText;
+  private Boolean maybeSendEmail;
+
+  public Boolean isMaybeSendEmail() {
+    return maybeSendEmail;
+  }
+
+  public void setMaybeSendEmail(Boolean maybeSendEmail) {
+    this.maybeSendEmail = maybeSendEmail;
+  }
+
 
   public BulkStatusUpdateForm() {
     this.applicationsIds = new ArrayList<>();
     this.statusText = "";
+    this.maybeSendEmail = false;
   }
 
   public String getStatusText() {

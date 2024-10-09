@@ -584,6 +584,7 @@ public final class AdminApplicationController extends CiviFormController {
           System.out.println("------------------------ " + id);
         });
     System.out.println("The new status is  -" + form.get().getStatusText());
+    System.out.println("The notify status is  -" + form.get().isMaybeSendEmail());
 
     return redirect(
         routes.AdminApplicationController.index(
