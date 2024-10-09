@@ -511,7 +511,9 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    var paginationSpec = new PageNumberPaginationSpec(PAGE_SIZE, page.orElse(1));
+    var paginationSpec =
+        new PageNumberPaginationSpec(
+            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);

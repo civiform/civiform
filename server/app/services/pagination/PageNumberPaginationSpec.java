@@ -1,14 +1,10 @@
 package services.pagination;
 
-import io.ebean.ExpressionList;
+import io.ebean.Query;
 
 /**
- * PageNumberPaginationSpec implements random access pagination into a list of rows sorted by
- * submitTime.
- *
- * <p>The table being paged must have the following columns defined: submitTime, id.
- *
- * <p>** If you wish to sort by a different column, create a new paging spec.
+ * PageNumberPaginationSpec implements random access pagination into a list of rows sorted by either
+ * id or SubmitTime.
  *
  * <p>This spec is recommended for paging in a user interface view, where the user may choose to
  * skip ahead a few pages. Because the query must read all the rows up to the page being served, the
@@ -22,26 +18,39 @@ import io.ebean.ExpressionList;
  * user can see, and force users to filter their query to reduce the max number of rows in the
  * result to a reasonable number. Ie: 1,000? or 10,000.
  *
- * <p>The orderBy expression is (submitTime, id) which means that the order will stay stable for
- * multiple applications that have the same submit time. To avoid a performance penaly on these
- * queries an index over (submitTime, id) should exist.
+ * <p>If orderBy expression is (submitTime, id) then an index over (submitTime, id) should exist for
+ * the table being paged.
  */
 public class PageNumberPaginationSpec extends BasePaginationSpec {
 
+  public enum OrderByEnum {
+    ID,
+    SUBMIT_TIME,
+  };
+
   // Static object helper definitions.
-  public static PageNumberPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
-      new PageNumberPaginationSpec(Integer.MAX_VALUE, 1);
+  public static PageNumberPaginationSpec MAX_PAGE_SIZE_BY_ID_SPEC =
+      new PageNumberPaginationSpec(
+          Integer.MAX_VALUE, /* currentPage= */ 1, PageNumberPaginationSpec.OrderByEnum.ID);
+  public static PageNumberPaginationSpec MAX_PAGE_SIZE_BY_SUBMIT_TIME_SPEC =
+      new PageNumberPaginationSpec(
+          Integer.MAX_VALUE,
+          /* currentPage= */ 1,
+          PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
 
   private final int currentPage;
+  private String orderBy;
 
-  public PageNumberPaginationSpec(int pageSize) {
+  public PageNumberPaginationSpec(int pageSize, OrderByEnum orderBy) {
     super(pageSize);
     this.currentPage = 1;
+    this.setOrderBy(orderBy);
   }
 
-  public PageNumberPaginationSpec(int pageSize, int currentPage) {
+  public PageNumberPaginationSpec(int pageSize, int currentPage, OrderByEnum orderBy) {
     super(pageSize);
     this.currentPage = currentPage;
+    this.setOrderBy(orderBy);
   }
 
   /**
@@ -52,15 +61,28 @@ public class PageNumberPaginationSpec extends BasePaginationSpec {
     return this.currentPage;
   }
 
+  private void setOrderBy(OrderByEnum orderBy) {
+    switch (orderBy) {
+      case ID:
+        this.orderBy = "id desc";
+        break;
+      case SUBMIT_TIME:
+        this.orderBy = "submitTime desc, id desc";
+        break;
+    }
+  }
+
   private int getCurrentPageOffset() {
     return (this.getCurrentPage() - 1) * this.getPageSize();
   }
 
-  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
-    return query.orderBy("submitTime desc, id desc");
+  @Override
+  protected <T> Query<T> applyOrderBy(Query<T> query) {
+    return query.orderBy(this.orderBy);
   }
 
-  @Override protected <T> ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
+  @Override
+  protected <T> Query<T> maybeApplySetFirstRow(Query<T> query) {
     return query.setFirstRow(this.getCurrentPageOffset());
   }
 }

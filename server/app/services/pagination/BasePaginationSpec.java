@@ -1,6 +1,6 @@
 package services.pagination;
 
-import io.ebean.ExpressionList;
+import io.ebean.Query;
 
 /**
  * Abstracts different kind of pagination strategies.
@@ -56,7 +56,7 @@ public abstract class BasePaginationSpec {
    * @param query a list of expressions for model
    * @return a list of expressions for model
    */
-  public final <T> ExpressionList<T> apply(ExpressionList<T> query) {
+  public final <T> Query<T> apply(Query<T> query) {
     query = this.applySetMaxRows(query);
     query = this.applyOrderBy(query);
     query = this.maybeApplyWhere(query);
@@ -64,7 +64,7 @@ public abstract class BasePaginationSpec {
     return query;
   }
 
-  private final <T> ExpressionList<T> applySetMaxRows(ExpressionList<T> query) {
+  private final <T> Query<T> applySetMaxRows(Query<T> query) {
     return query.setMaxRows(this.pageSize);
   }
 
@@ -73,15 +73,15 @@ public abstract class BasePaginationSpec {
    * sequential (pages are viewed in order), then the sort order columns should match the where
    * clause.
    */
-  protected abstract <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query);
+  protected abstract <T> Query<T> applyOrderBy(Query<T> query);
 
   /** optionally implemented in the subclass if implementing a sequential access paging spec */
-  protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
+  protected <T> Query<T> maybeApplyWhere(Query<T> query) {
     return query;
   }
 
   /** optionally implemented in the subclass if implementing a random access paging spec. */
-  protected <T> ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
+  protected <T> Query<T> maybeApplySetFirstRow(Query<T> query) {
     return query;
   }
 }

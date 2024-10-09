@@ -7,13 +7,14 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.PagedList;
+import io.ebean.Query;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKeyModel;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.pagination.PageNumberPaginationSpec;
 
 /**
  * Provides an asynchronous API for persistence and query of {@link ApiKeyModel} instances. Uses
@@ -36,24 +37,18 @@ public final class ApiKeyRepository {
    * List active, i.e. unexpired and unretired, {@link ApiKeyModel}s ordered by creation time
    * descending.
    */
-  public PaginationResult<ApiKeyModel> listActiveApiKeys(
-      PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listActiveApiKeys(PageNumberPaginationSpec paginationSpec) {
     Instant now = Instant.now();
-    PagedList<ApiKeyModel> pagedList =
+    Query<ApiKeyModel> query =
         database
             .find(ApiKeyModel.class)
             .where()
             .isNull("retired_time")
             .and()
             .gt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
-            // This is a proxy for creation time descending. Both get the desired ordering
-            // behavior but ID is indexed.
-            .order("id desc")
-            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
-            .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")
-            .setProfileLocation(queryProfileLocationBuilder.create("listActiveApiKeys"))
-            .findPagedList();
+            .setProfileLocation(queryProfileLocationBuilder.create("listActiveApiKeys"));
+    PagedList<ApiKeyModel> pagedList = paginationSpec.apply(query).findPagedList();
 
     pagedList.loadCount();
 
@@ -64,21 +59,15 @@ public final class ApiKeyRepository {
   }
 
   /** List retired {@link ApiKeyModel}s ordered by creation time descending. */
-  public PaginationResult<ApiKeyModel> listRetiredApiKeys(
-      PageNumberBasedPaginationSpec paginationSpec) {
-    PagedList<ApiKeyModel> pagedList =
+  public PaginationResult<ApiKeyModel> listRetiredApiKeys(PageNumberPaginationSpec paginationSpec) {
+    Query<ApiKeyModel> query =
         database
             .find(ApiKeyModel.class)
             .where()
             .isNotNull("retired_time")
-            // This is a proxy for creation time descending. Both get the desired ordering
-            // behavior but ID is indexed.
-            .order("id desc")
-            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
-            .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")
-            .setProfileLocation(queryProfileLocationBuilder.create("listRetiredApiKeys"))
-            .findPagedList();
+            .setProfileLocation(queryProfileLocationBuilder.create("listRetiredApiKeys"));
+    PagedList<ApiKeyModel> pagedList = paginationSpec.apply(query).findPagedList();
 
     pagedList.loadCount();
 
@@ -92,24 +81,18 @@ public final class ApiKeyRepository {
    * List expired {@link ApiKeyModel}s ordered by creation time descending. Note that if a key is
    * both retired and expired, it will not be returned here.
    */
-  public PaginationResult<ApiKeyModel> listExpiredApiKeys(
-      PageNumberBasedPaginationSpec paginationSpec) {
+  public PaginationResult<ApiKeyModel> listExpiredApiKeys(PageNumberPaginationSpec paginationSpec) {
     Instant now = Instant.now();
-    PagedList<ApiKeyModel> pagedList =
+    Query<ApiKeyModel> query =
         database
             .find(ApiKeyModel.class)
             .where()
             .lt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
             .and()
             .isNull("retired_time")
-            // This is a proxy for creation time descending. Both get the desired ordering
-            // behavior but ID is indexed.
-            .order("id desc")
-            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
-            .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")
-            .setProfileLocation(queryProfileLocationBuilder.create("listExpiredApiKeys"))
-            .findPagedList();
+            .setProfileLocation(queryProfileLocationBuilder.create("listExpiredApiKeys"));
+    PagedList<ApiKeyModel> pagedList = paginationSpec.apply(query).findPagedList();
 
     pagedList.loadCount();
 

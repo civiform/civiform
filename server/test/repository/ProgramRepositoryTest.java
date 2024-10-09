@@ -771,7 +771,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            new PageNumberPaginationSpec(/* pageSize= */ 10),
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 10, PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME),
             SubmittedApplicationFilter.builder()
                 .setSubmitTimeFilter(
                     TimeFilter.builder()
@@ -820,7 +821,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec(/* pageSize= */ 2),
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2, PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -832,7 +834,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2),
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2,
+                /* currentPage= */ 2,
+                PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -862,7 +867,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec(/* pageSize= */ 2),
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2, PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -874,7 +880,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2),
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2,
+                /* currentPage= */ 2,
+                PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);

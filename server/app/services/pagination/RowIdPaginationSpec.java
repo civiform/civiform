@@ -1,6 +1,6 @@
 package services.pagination;
 
-import io.ebean.ExpressionList;
+import io.ebean.Query;
 
 /**
  * RowIdPaginationSpec implements sequential paging access into a list of rows sorted by the id
@@ -27,11 +27,13 @@ public class RowIdPaginationSpec extends BasePaginationSpec {
     this.currentRowId = currentRowId;
   }
 
-  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  @Override
+  protected <T> Query<T> applyOrderBy(Query<T> query) {
     return query.orderBy("id desc");
   }
 
-  @Override protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
-    return query.where().lt("id", this.currentRowId);
+  @Override
+  protected <T> Query<T> maybeApplyWhere(Query<T> query) {
+    return query.where().lt("id", this.currentRowId).query();
   }
 }

@@ -1,6 +1,6 @@
 package services.pagination;
 
-import io.ebean.ExpressionList;
+import io.ebean.Query;
 import java.time.Instant;
 import java.util.Date;
 
@@ -35,17 +35,19 @@ public class SubmitTimePaginationSpec extends BasePaginationSpec {
     this.currentRowId = currentRowId;
   }
 
-  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  @Override
+  protected <T> Query<T> applyOrderBy(Query<T> query) {
     return query.orderBy("submitTime desc, id desc");
   }
 
-  @Override protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
+  @Override
+  protected <T> Query<T> maybeApplyWhere(Query<T> query) {
     // Date.from(Instant.MAX) is not supported, (overflows). If that is current
     // submit time in the spec, then skip setting a submitTime in the where
     // clause(), since all values in the database should be before the
     // Instant.MAX Date.
     if (this.currentSubmitTime.equals(Instant.MAX)) {
-      return query.where().lt("id", this.currentRowId);
+      return query.where().lt("id", this.currentRowId).query();
     }
     return query
         .where()
@@ -53,6 +55,7 @@ public class SubmitTimePaginationSpec extends BasePaginationSpec {
         .and()
         .eq("submitTime", Date.from(this.currentSubmitTime))
         .lt("id", this.currentRowId)
-        .lt("submitTime", this.currentRowId);
+        .lt("submitTime", this.currentRowId)
+        .query();
   }
 }
