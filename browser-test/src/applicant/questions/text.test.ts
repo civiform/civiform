@@ -58,7 +58,10 @@ test.describe('Text question for applicant flow', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -84,7 +87,10 @@ test.describe('Text question for applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

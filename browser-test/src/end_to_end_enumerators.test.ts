@@ -486,7 +486,10 @@ test.describe('End to end enumerator test', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerNameQuestion('Porky', 'Pig')
         await applicantQuestions.clickContinue()
@@ -517,7 +520,10 @@ test.describe('End to end enumerator test', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

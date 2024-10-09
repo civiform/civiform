@@ -1,20 +1,20 @@
 package auth.oidc.applicant;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -29,28 +29,20 @@ import org.pac4j.oidc.profile.OidcProfile;
  */
 public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator {
 
-  @VisibleForTesting public final String emailAttributeName;
-
-  @VisibleForTesting public final Optional<String> localeAttributeName;
-
-  @VisibleForTesting public final ImmutableList<String> nameAttributeNames;
+  @VisibleForTesting final StandardClaimsAttributeNames standardClaimsAttributeNames;
 
   public ApplicantProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      String emailAttributeName,
-      @Nullable String localeAttributeName,
-      ImmutableList<String> nameAttributeNames) {
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
     super(configuration, client, params);
-    this.emailAttributeName = Preconditions.checkNotNull(emailAttributeName);
-    this.localeAttributeName = Optional.ofNullable(localeAttributeName);
-    this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
+    this.standardClaimsAttributeNames = checkNotNull(standardClaimsAttributeNames);
   }
 
   private Optional<String> getName(OidcProfile oidcProfile) {
     String name =
-        nameAttributeNames.stream()
+        standardClaimsAttributeNames.names().stream()
             .filter(s -> !s.isBlank())
             .map((String attrName) -> oidcProfile.getAttribute(attrName, String.class))
             .filter(s -> !Strings.isNullOrEmpty(s))
@@ -70,7 +62,8 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   }
 
   private Optional<String> getLocale(OidcProfile oidcProfile) {
-    return localeAttributeName
+    return standardClaimsAttributeNames
+        .locale()
         .filter(s -> !s.isBlank())
         .map(name -> oidcProfile.getAttribute(name, String.class))
         .filter(s -> !Strings.isNullOrEmpty(s));
@@ -78,7 +71,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
 
   @Override
   protected final String emailAttributeName() {
-    return emailAttributeName;
+    return standardClaimsAttributeNames.email();
   }
 
   /** Create a totally new Applicant CiviForm profile informed by the provided OidcProfile. */

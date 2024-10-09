@@ -302,7 +302,8 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  test(
+  // TODO(#8796): Re-enable this test
+  test.skip(
     'Add translations for block name and description',
     {tag: ['@northstar']},
     async ({

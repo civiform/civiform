@@ -29,7 +29,7 @@ footer.technicalSupport=Para sa technical support: {0}
 # This should be consistent with button.guestLogin.
 guest=Bisita
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Pumili ng Wika
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Pumili ng wika
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=Admin login
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Na-upload na ang file: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Pumili ng file
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Burahin
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -219,7 +219,7 @@ title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Natapos na ang seksyon
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -514,11 +514,11 @@ title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipik
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
