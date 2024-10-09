@@ -16,11 +16,9 @@ import models.ApplicationModel;
 import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.NotImplementedException;
-import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.applicant.AnswerData;
@@ -29,6 +27,7 @@ import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
+import services.pagination.SubmitTimePaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 
@@ -64,12 +63,12 @@ public final class JsonExporterService {
    */
   public String export(
       ProgramDefinition programDefinition,
-      IdentifierBasedPaginationSpec<Long> paginationSpec,
+      SubmitTimePaginationSpec<ApplicationModel> paginationSpec,
       SubmittedApplicationFilter filters,
       boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programDefinition.id(), F.Either.Left(paginationSpec), filters);
+            programDefinition.id(), paginationSpec, filters);
 
     return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
   }

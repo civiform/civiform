@@ -31,11 +31,10 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
-import services.IdentifierBasedPaginationSpec;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.pagination.BasePaginationSpec;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
@@ -374,8 +373,7 @@ public final class ProgramRepository {
    */
   public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
       long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
+      BasePaginationSpec<ApplicationModel> paginationSpec,
       SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
@@ -385,7 +383,6 @@ public final class ProgramRepository {
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
-            .orderBy("submitTime desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
             .in(
@@ -418,25 +415,7 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<ApplicationModel> pagedQuery;
-
-    if (paginationSpecEither.left.isPresent()) {
-      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
-      pagedQuery =
-          query
-              .where()
-              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    } else {
-      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
-      pagedQuery =
-          query
-              .setFirstRow(paginationSpec.getCurrentPageOffset())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    }
-
+    PagedList<ApplicationModel> pagedQuery = paginationSpec.apply(query).findPagedList();
     pagedQuery.loadCount();
 
     return new PaginationResult<ApplicationModel>(

@@ -33,10 +33,10 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
 import services.DateConverter;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
+import services.pagination.PageNumberPaginationSpec;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -92,7 +92,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> defaultStatus,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberBasedPaginationSpec paginationSpec,
+      PageNumberPaginationSpec<ApplicationModel> paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri,
