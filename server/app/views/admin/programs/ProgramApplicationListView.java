@@ -92,7 +92,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> defaultStatus,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberPaginationSpec<ApplicationModel> paginationSpec,
+      PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri,

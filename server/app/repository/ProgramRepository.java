@@ -373,7 +373,7 @@ public final class ProgramRepository {
    */
   public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
       long programId,
-      BasePaginationSpec<ApplicationModel> paginationSpec,
+      BasePaginationSpec paginationSpec,
       SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
@@ -415,6 +415,7 @@ public final class ProgramRepository {
       }
     }
 
+    // Sort order is dictated by the pagination spec that was specified.
     PagedList<ApplicationModel> pagedQuery = paginationSpec.apply(query).findPagedList();
     pagedQuery.loadCount();
 

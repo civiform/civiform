@@ -771,7 +771,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            new PageNumberPaginationSpec<ApplicationModel>(/* pageSize= */ 10),
+            new PageNumberPaginationSpec(/* pageSize= */ 10),
             SubmittedApplicationFilter.builder()
                 .setSubmitTimeFilter(
                     TimeFilter.builder()
@@ -809,7 +809,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec<ApplicationModel>(/* pageSize= */ 2),
+            new PageNumberPaginationSpec(/* pageSize= */ 2),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -821,7 +821,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new PageNumberPaginationSpec<ApplicationModel>(/* pageSize= */ 2, /* currentPage= */ 2),
+            new PageNumberPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -851,7 +851,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new RowIdPaginationSpec<ApplicationModel>(/* pageSize= */ 2, Long.MAX_VALUE),
+            new RowIdPaginationSpec(/* pageSize= */ 2, Long.MAX_VALUE),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -863,7 +863,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new RowIdPaginationSpec<ApplicationModel>(
+            new RowIdPaginationSpec(
                 /* pageSize= */ 2, paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 

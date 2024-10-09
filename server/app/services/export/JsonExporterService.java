@@ -63,7 +63,7 @@ public final class JsonExporterService {
    */
   public String export(
       ProgramDefinition programDefinition,
-      SubmitTimePaginationSpec<ApplicationModel> paginationSpec,
+      SubmitTimePaginationSpec paginationSpec,
       SubmittedApplicationFilter filters,
       boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =

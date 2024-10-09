@@ -97,10 +97,10 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
-    RowIdPaginationSpec<ApplicationModel> paginationSpec =
+    RowIdPaginationSpec paginationSpec =
         paginationToken
             .map(this::createPaginationSpec)
-            .orElse(new RowIdPaginationSpec<ApplicationModel>(pageSize, Long.MAX_VALUE));
+            .orElse(new RowIdPaginationSpec(pageSize, Long.MAX_VALUE));
 
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
@@ -233,9 +233,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     }
   }
 
-  private RowIdPaginationSpec<ApplicationModel> createPaginationSpec(
+  private RowIdPaginationSpec createPaginationSpec(
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
-    return new RowIdPaginationSpec<ApplicationModel>(
+    return new RowIdPaginationSpec(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
         Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier()));
   }

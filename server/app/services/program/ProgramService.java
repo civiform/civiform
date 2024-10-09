@@ -1606,7 +1606,7 @@ public final class ProgramService {
    */
   public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
       long programId,
-      BasePaginationSpec<ApplicationModel> paginationSpec,
+      BasePaginationSpec paginationSpec,
       SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
         programId, paginationSpec, filters);

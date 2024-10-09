@@ -3,11 +3,11 @@ package services.pagination;
 import io.ebean.ExpressionList;
 import models.ApplicationModel;
 
-public class PageNumberPaginationSpec<T> extends BasePaginationSpec<T> {
+public class PageNumberPaginationSpec extends BasePaginationSpec {
 
   // Static object helpers.
-  public static PageNumberPaginationSpec<ApplicationModel> APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
-      new PageNumberPaginationSpec<ApplicationModel>(Integer.MAX_VALUE, 1);
+  public static PageNumberPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
+      new PageNumberPaginationSpec(Integer.MAX_VALUE, 1);
 
   private final int currentPage;
 
@@ -29,11 +29,11 @@ public class PageNumberPaginationSpec<T> extends BasePaginationSpec<T> {
     return (this.getCurrentPage() - 1) * this.getPageSize();
   }
 
-  protected ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
     return query.orderBy("id desc");
   }
 
-  protected ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
+  protected <T> ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
     return query.setFirstRow(this.getCurrentPageOffset());
   }
 }

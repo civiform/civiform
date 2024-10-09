@@ -5,11 +5,11 @@ import java.time.Instant;
 import java.util.Date;
 import models.ApplicationModel;
 
-public class SubmitTimePaginationSpec<T> extends BasePaginationSpec<T> {
+public class SubmitTimePaginationSpec extends BasePaginationSpec {
 
   // Static object helpers.
-  public static SubmitTimePaginationSpec<ApplicationModel> APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
-      new SubmitTimePaginationSpec<ApplicationModel>(
+  public static SubmitTimePaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
+      new SubmitTimePaginationSpec(
           Integer.MAX_VALUE, Instant.MAX, Long.MAX_VALUE);
 
   private final Instant currentSubmitTime;
@@ -29,11 +29,11 @@ public class SubmitTimePaginationSpec<T> extends BasePaginationSpec<T> {
     return this.currentRowId;
   }
 
-  protected ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
     return query.orderBy("submitTime desc, id desc");
   }
 
-  protected ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
+  protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
     // Date.from(Instant.MAX) is not supported, (overflows). If that is current
     // submit time in the spec, then skip setting a submitTime in the where
     // clause(), since all values in the database should be before the
