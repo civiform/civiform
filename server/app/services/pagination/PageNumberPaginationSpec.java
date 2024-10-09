@@ -56,11 +56,11 @@ public class PageNumberPaginationSpec extends BasePaginationSpec {
     return (this.getCurrentPage() - 1) * this.getPageSize();
   }
 
-  protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
     return query.orderBy("submitTime desc, id desc");
   }
 
-  protected <T> ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
+  @Override protected <T> ExpressionList<T> maybeApplySetFirstRow(ExpressionList<T> query) {
     return query.setFirstRow(this.getCurrentPageOffset());
   }
 }

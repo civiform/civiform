@@ -35,32 +35,24 @@ public class SubmitTimePaginationSpec extends BasePaginationSpec {
     this.currentRowId = currentRowId;
   }
 
-  private Instant getCurrentSubmitTime() {
-    return this.currentSubmitTime;
-  }
-
-  private Long getCurrentRowId() {
-    return this.currentRowId;
-  }
-
-  protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
     return query.orderBy("submitTime desc, id desc");
   }
 
-  protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
+  @Override protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
     // Date.from(Instant.MAX) is not supported, (overflows). If that is current
     // submit time in the spec, then skip setting a submitTime in the where
     // clause(), since all values in the database should be before the
     // Instant.MAX Date.
-    if (this.getCurrentSubmitTime() == Instant.MAX) {
-      return query.where().lt("id", this.getCurrentRowId());
+    if (this.currentSubmitTime.equals(Instant.MAX)) {
+      return query.where().lt("id", this.currentRowId);
     }
     return query
         .where()
         .or()
         .and()
-        .eq("submitTime", Date.from(this.getCurrentSubmitTime()))
-        .lt("id", this.getCurrentRowId())
-        .lt("submitTime", this.getCurrentRowId());
+        .eq("submitTime", Date.from(this.currentSubmitTime))
+        .lt("id", this.currentRowId)
+        .lt("submitTime", this.currentRowId);
   }
 }

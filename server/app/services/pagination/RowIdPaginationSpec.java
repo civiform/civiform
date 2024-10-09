@@ -27,15 +27,11 @@ public class RowIdPaginationSpec extends BasePaginationSpec {
     this.currentRowId = currentRowId;
   }
 
-  private Long getCurrentRowId() {
-    return this.currentRowId;
-  }
-
-  protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
+  @Override protected <T> ExpressionList<T> applyOrderBy(ExpressionList<T> query) {
     return query.orderBy("id desc");
   }
 
-  protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
-    return query.where().lt("id", this.getCurrentRowId());
+  @Override protected <T> ExpressionList<T> maybeApplyWhere(ExpressionList<T> query) {
+    return query.where().lt("id", this.currentRowId);
   }
 }
