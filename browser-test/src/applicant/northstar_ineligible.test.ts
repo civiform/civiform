@@ -60,7 +60,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -108,7 +111,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -156,7 +162,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Answer questions', async () => {
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
@@ -180,7 +189,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       // Click "Continue" on the program card
       await applicantQuestions.clickApplyProgramButton(programName)
 
-      await applicantQuestions.clickReview()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(

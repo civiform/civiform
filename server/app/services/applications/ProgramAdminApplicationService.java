@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ProgramModel;
 import play.i18n.Lang;
@@ -112,14 +111,6 @@ public final class ProgramAdminApplicationService {
     }
     Status statusDef = statusDefMaybe.get();
 
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(newStatusEvent)
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(admin), details);
-
     // Send email if requested and present.
     if (sendEmail) {
       if (statusDef.localizedEmailBodyText().isEmpty()) {
@@ -147,8 +138,10 @@ public final class ProgramAdminApplicationService {
         throw new AccountHasNoEmailException(applicant.getAccount().id);
       }
     }
-
-    eventRepository.insertSync(event);
+    eventRepository
+        .insertStatusEvent(application, Optional.of(admin), newStatusEvent)
+        .toCompletableFuture()
+        .join();
   }
 
   private void sendApplicantEmail(

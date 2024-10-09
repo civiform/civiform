@@ -1,4 +1,4 @@
-import {test} from '../../support/civiform_fixtures'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   enableFeatureFlag,
@@ -96,6 +96,56 @@ test.describe('Applicant navigation flow', () => {
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
+    })
+
+    test('does not show program details link if no url provided', async ({
+      page,
+      applicantQuestions,
+      adminPrograms,
+      adminPredicates,
+    }) => {
+      const programWithoutExternalLink = 'No Link Program'
+
+      await test.step('Create a new program without an external link', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          programWithoutExternalLink,
+          'program description',
+          '' /* no external link */,
+        )
+        // Add the full program.
+        await adminPrograms.addProgram(programWithoutExternalLink)
+        await adminPrograms.editProgramBlock(
+          programWithoutExternalLink,
+          'first description',
+          ['nav-predicate-number-q'],
+        )
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programWithoutExternalLink,
+          'Screen 1',
+        )
+        await adminPredicates.addPredicates({
+          questionName: 'nav-predicate-number-q',
+          scalar: 'number',
+          operator: 'is equal to',
+          value: '5',
+        })
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programWithoutExternalLink)
+        await logout(page)
+      })
+
+      await test.step('Fill out application and submit', async () => {
+        await applicantQuestions.applyProgram(programWithoutExternalLink)
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectIneligiblePage()
+      })
+
+      await test.step('Assert that program details link is hidden', async () => {
+        await expect(page.getByText('Program details')).toBeHidden()
+      })
     })
 
     test('shows may be eligible with an eligible answer', async ({
@@ -385,7 +435,10 @@ test.describe('Applicant navigation flow', () => {
       test('Shows ineligible tag on home page program cards', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
+        await applicantQuestions.applyProgram(
+          fullProgramName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('fill out application and submit', async () => {
           await applicantQuestions.answerNumberQuestion('1')
@@ -403,9 +456,12 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('Shows eligible on home page', async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(fullProgramName)
-
         await test.step('fill out application and submit', async () => {
+          await applicantQuestions.applyProgram(
+            fullProgramName,
+            /* northStarEnabled= */ true,
+          )
+
           await applicantQuestions.answerNumberQuestion('5')
           await applicantQuestions.clickContinue()
         })
@@ -422,22 +478,32 @@ test.describe('Applicant navigation flow', () => {
       test('shows not eligible alert on review page with ineligible answer', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.applyProgram(
+            fullProgramName,
+            /* northStarEnabled= */ true,
+          )
 
-        // Fill out application and submit.
-        await applicantQuestions.answerNumberQuestion('1')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+          await applicantQuestions.answerNumberQuestion('1')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+        })
 
-        // Verify the question is marked ineligible.
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ false,
-        )
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await test.step('verify program is marked ineligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ false,
+          )
 
-        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+          await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+          // Navigate to review page
+          await applicantQuestions.clickBack()
+          await applicantQuestions.clickBack()
+
+          await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+        })
       })
     })
   })

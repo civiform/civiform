@@ -596,7 +596,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         relevantCategories,
                         category ->
                             div()
-                                .withId("filter-chip-" + category.replace(' ', '-'))
+                                .withClass("filter-chip")
                                 .with(
                                     input()
                                         .withId("check-category-" + category.replace(' ', '-'))

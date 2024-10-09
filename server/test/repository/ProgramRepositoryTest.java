@@ -16,7 +16,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
-import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -36,7 +35,6 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -58,6 +56,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
   private ApplicationStatusesRepository appRepo;
+  private ApplicationEventRepository eventRepo;
 
   @Before
   public void setup() {
@@ -66,6 +65,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
     appRepo = instanceOf(ApplicationStatusesRepository.class);
+    eventRepo = instanceOf(ApplicationEventRepository.class);
 
     BindingKey<SyncCacheApi> programDefKey =
         new BindingKey<>(SyncCacheApi.class)
@@ -719,15 +719,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
       throws InterruptedException {
     for (Optional<StatusDefinitions.Status> status : statuses) {
       String statusText = status.map(StatusDefinitions.Status::statusText).orElse("");
-      ApplicationEventDetails details =
-          ApplicationEventDetails.builder()
-              .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-              .setStatusEvent(
-                  StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
-              .build();
-      ApplicationEventModel event =
-          new ApplicationEventModel(application, Optional.of(actorAccount), details);
-      event.save();
+      eventRepo
+          .insertStatusEvent(
+              application,
+              Optional.of(actorAccount),
+              StatusEvent.builder().setStatusText(statusText).setEmailSent(true).build())
+          .toCompletableFuture()
+          .join();
 
       // When persisting models with @WhenModified fields, EBean
       // truncates the persisted timestamp to milliseconds:

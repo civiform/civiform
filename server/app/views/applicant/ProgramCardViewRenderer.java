@@ -222,28 +222,25 @@ public final class ProgramCardViewRenderer {
 
     programData.with(title, description);
 
-    // Use external link if it is present else use the default Program details page
-    String defaultLink =
-        profile.isPresent() && applicantId.isPresent()
-            ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
-            : applicantRoutes.show(program.id()).url();
-    String programDetailsLink =
-        program.externalLink().isEmpty() ? defaultLink : program.externalLink();
-    ATag infoLink =
-        new LinkElement()
-            .setId(baseId + "-info-link")
-            .setStyles("mb-2", "text-sm", "underline")
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(programDetailsLink)
-            .opensInNewTab()
-            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-            .asAnchorText()
-            .attr(
-                "aria-label",
-                messages.at(
-                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
-                    program.localizedName().getOrDefault(preferredLocale)));
-    programData.with(div(infoLink));
+    // Create the "Program details" link if an external link if it is present
+    String programDetailsLink = program.externalLink();
+    if (!programDetailsLink.isEmpty()) {
+      ATag infoLink =
+          new LinkElement()
+              .setId(baseId + "-info-link")
+              .setStyles("mb-2", "text-sm", "underline")
+              .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+              .setHref(programDetailsLink)
+              .opensInNewTab()
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(
+                      MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                      program.localizedName().getOrDefault(preferredLocale)));
+      programData.with(div(infoLink));
+    }
 
     if (cardData.latestSubmittedApplicationTime().isPresent()
         && !settingsManifest.getProgramFilteringEnabled(request)) {

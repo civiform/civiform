@@ -332,6 +332,26 @@ test.describe('normal application flow', () => {
     await logout(page)
 
     // #######################################
+    // Test applies filters even when filter button is not clicked
+    // #######################################
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+
+    await adminPrograms.filterProgramApplications({
+      searchFragment: 'SARA',
+      clickFilterButton: false,
+    })
+    const filteredContent = await adminPrograms.getCsv(applyFilters)
+    expect(filteredContent).toContain(
+      'sarah,,smith,,op2_admin,05/10/2021,1000.00',
+    )
+    expect(filteredContent).not.toContain(
+      'Gus,,Guest,,op2_admin,01/01/1990,2000.00',
+    )
+
+    await logout(page)
+
+    // #######################################
     // Test demography export
     // #######################################
     await loginAsAdmin(page)

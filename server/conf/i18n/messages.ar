@@ -1,0 +1,859 @@
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://github.com/civiform/civiform/wiki/Internationalization-(i18n)#internationalization-for-application-strings
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
+button.logout=تسجيل الخروج
+#  This appears before applicants select their preferred language.
+label.selectLanguage=يُرجى اختيار لغتك المفضّلة.
+button.untranslatedSubmit=إرسال
+# Text on a link that gives more information about CiviForm. "CiviForm" is the app name and should
+# not be translated.
+footer.aboutCiviform=لمحة حول تطبيق CiviForm
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=للحصول على الدعم الفني، يُرجى التواصل مع
+# Text in the footer telling users that this is an official website of the specified Civic entity.
+footer.officialWebsiteOf=الموقع الإلكتروني الرسمي الخاص بـ "{0}"
+# Text on a link that will scroll to the top of the page
+footer.returnToTop=العودة إلى أعلى الصفحة
+# A message in the footer directing users to technical support. The placeholder is a link to
+# send an email to CiviForm technical support.
+footer.technicalSupport=للحصول على الدعم الفني: {0}
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+guest=ضيف
+# Clicking this button shows a dropdown menu to change the display language
+button.languages=اختيار اللغة
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=اختيار لغة
+# A label on the button that opens the header menu shown on mobile
+header.menu=القائمة
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
+header.endSession=إنهاء الجلسة
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=لقد انتهت جلستك.
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
+header.guestIndicator=أنت من المستخدمين الضيوف
+# Message with user's name to show who you are logged in as.
+header.userName=مُسجَّل الدخول باسم المستخدم {0}
+# Error message to answer a required question
+validation.isRequired=يجب الإجابة عن هذا السؤال.
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=يُرجى إدخال معلومات صالحة.
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=هناك أخطاء في النموذج. يُرجى تصحيحها قبل المتابعة.
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=ملاحظة: يجب ملء الحقول التي تحمل العلامة "*".
+content.requiredFieldsNote=ملاحظة: يجب ملء الحقول التي تحمل العلامة {0}.
+# Disclaimer at top of form explaining that asterisks mark required questions. The placeholder is the red, bold asterisk used throughout the page.
+content.requiredFieldsNoteNorthStar=الحقول المطلوبة تحمل علامة نجمة ({0}).
+content.optional=(اختياري)
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=في حال استخدام الهاتف، يتيح لك خيار "اختيار ملف" استخدام كاميرا الهاتف لتحميل المستندات.
+toast.errorMessageOutline=خطأ: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=إغلاق
+# Button text that will navigate the applicant to a page where they can review previous answers
+button.review=مراجعة الإجابات
+# Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
+link.opensNewTabSr=يفتح الرابط علامة تبويب جديدة
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# This is a title for the login page
+title.login=تسجيل الدخول
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=يُرجى تسجيل الدخول باستخدام حسابك على "{0}"
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=إنشاء حساب
+# The text on the button an applicant clicks to log in to their session.
+button.login=تسجيل الدخول
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=أليس لديك حساب؟
+# The text between creating a new account, and becoming a guest
+content.or=أو
+# The text on the button for applicants to create a new account.
+button.createAccount=إنشاء حساب جديد
+# The text on the button for guests to log in to their session.
+button.guestLogin=المتابعة كضيف
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=تم إيقاف تسجيل الدخول إلى الحساب حاليًا
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=هل يهمّك البحث عن أمر آخر؟
+# Asking whether the user is an administrator for the program
+content.adminFooterPrompt=هل أنت مشرف؟
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=تسجيل الدخول كمشرف
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=الملف الذي تمّ تحميله: {0}
+# Hint placed above file input for questions which accept a single file.
+input.singleFileUploadHint=اختيار ملف
+# Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
+# 2 or greater, representing the maximum number of files.
+input.multipleFileUploadHint=اختيار ملف واحد أو أكثر (الحد الأقصى لعدد الملفات هو {0})
+# Hint placed above file inputs which accept any number of files.
+input.unlimitedFileUploadHint=اختيار ملف واحد أو أكثر
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=حذف
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=متابعة
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=حفظ البيانات والانتقال إلى الشاشة التالية
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=الشاشة السابقة
+# The label on a button that will navigate the user to the previous section of the form.
+button.back=الرجوع
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.saveAndExit=حفظ الطلب وإكماله لاحقًا
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=التخطّي
+# The current screen the user is on ({0}) out of the number of total screens in the application.
+content.blockProgress=‫{0} من {1}
+# A message on a section indicating how many questions of the total have been answered by the applicant.
+content.blockProgressFull=تم إكمال {0} من {1}
+# An aria-label on a progress bar showing user how much of the application they have completed.
+content.blockProgressLabel=مستوى تقدُّم الطلب
+# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
+content.fileUploadBlockProgressFull=تم تحميل {0} من {1}
+# Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
+label.blockIndexLabel=‏{0}. {1}
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=عذرًا، لم تتم ترجمة هذا البرنامج بشكل كامل إلى اللغة المفضّلة لديك.
+# A link that logs out a guest user after they submit an application.
+link.allDone=لقد انتهيت
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=إرسال طلب للانضمام إلى برنامج آخر
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=إنشاء حساب أو تسجيل الدخول
+# Anchor which when clicked removes a file the user has previously uploaded.
+link.removeFile=حذف الملف
+# The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
+modal.errorSaving.review.title=الأسئلة على هذه الصفحة غير مكتملة. هل يزال يهمّك المغادرة وبدء المراجعة؟
+# The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
+modal.errorSaving.previous.title=الأسئلة على هذه الصفحة غير مكتملة. هل يزال يهمّك المغادرة والرجوع إلى الصفحة السابقة؟
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
+modal.errorSaving.review.content=هناك بعض الأخطاء في المعلومات المعبأة. هل يهمّك البقاء في هذه الصفحة وتصحيح إجاباتك أو الانتقال إلى صفحة المراجعة بدون حفظ هذه الإجابات؟
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
+modal.errorSaving.previous.content=هناك بعض الأخطاء في المعلومات المعبأة. هل يهمّك البقاء في هذه الصفحة وتصحيح أجوبتك، أو الرجوع إلى صفحة الأسئلة السابقة بدون حفظ هذه الأجوبة؟
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
+modal.errorSaving.review.noSaveButton=المتابعة إلى صفحة المراجعة بدون حفظ الإجابات
+# Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the previous page in the application.
+modal.errorSaving.previous.noSaveButton=المتابعة إلى صفحة الأسئلة السابقة بدون حفظ الإجابات
+# Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
+modal.errorSaving.stayAndFixButton=البقاء في الصفحة وتصحيح الإجابات
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=إرسال طلب
+# The text read for screen readers.
+button.applySr=إرسال طلب للانضمام إلى "{0}"
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=تعديل
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=تعديل الطلب المُرسل للانضمام إلى "{0}"
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=متابعة إرسال طلب للانضمام إلى "{0}"
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startHere=البدء هنا
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=المتابعة إلى الطلب
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
+button.startHereCommonIntakeSr=البدء هنا من خلال ملء {0}
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
+button.editCommonIntakeSr=تعديل المعلومات المُرسلة إلى {0}
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
+button.continueCommonIntakeSr=متابعة ملء {0}
+# Button on each program card that allows the user to view the details of the program, possibly through an external link.
+button.viewDetails=عرض التفاصيل
+# Text describing the date the application was last submitted.
+content.submittedDate=تم إرسال الطلب في ‎{0}
+# Text for applicants to understand the section is for finding programs
+content.findPrograms=البحث عن برامج
+# Long form description of the CiviForm site shown to the applicant.
+content.findProgramsDescription=يساعدك CiviForm في العثور على برامج مناسبة لك في "{0}". يمكنك البدء من خلال اختيار طلب من الطلبات المُدرجة أدناه.
+# Title for programs page when applicant is not logged in
+content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
+content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
+# The label for the program filter buttons
+label.programFilters=فلاتر البرامج
+# Link text to read more about a program.
+link.programDetails=تفاصيل البرامج
+# The same text, read for screen readers.
+link.programDetailsSr=تفاصيل برنامج "{0}"، يفتح الرابط في علامة تبويب جديدة
+# The title of the page for the list of programs.
+title.programs=البرامج والخدمات
+# The title for the section in the list of programs that contains the pre-screener form and should be started first.
+title.getStartedSection=البدء
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
+title.allProgramsSection=جميع البرامج ({0})
+# For the badge on the program list index denoting the current status of an application
+title.status=الحالة
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=قيد المعالجة
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=لم تبدأ المعالجة
+# Title of the section on the home page with the benefits finder form.
+title.benefitsFinderSection.v2=البحث عن خدمات
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection=طلباتي ({0})
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
+title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
+# Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
+title.programsSection.v2=البرامج والخدمات ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
+# A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
+title.programSectionCompleted=الأقسام المكتملة
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=الطلبات المُرسَلة
+# Alert banner when an application was successfully saved, with the ID of the application.
+toast.applicationSaved=تم حفظ الطلب بنجاح. معرّف الطلب: {0}
+# Alert banner when an application was already completed
+toast.programCompleted=سبق أن تمّ إكمال الطلب.
+
+#------------------------------------------------------------------------------------------------------#
+# TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
+#------------------------------------------------------------------------------------------------------#
+
+# Message that appears when a user attempts to delete an account and it fails.
+banner.acctDeleteError=لا يمكن حذف هذا الحساب.
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
+banner.acctDeleteErrorReason=لا يمكن حذف هذا الحساب لأنّه يتضمن طلبات مفتوحة.
+# Message when information about a client, like their name or contact information is updated.
+banner.clientInfoUpdated=تم تعديل معلومات العميل بنجاح.
+# Message when a client account for a user is successfully deleted, with the name of the client substituted in
+banner.clientAcctDeleted=لقد تم حذف حساب العميل الخاص بـ "{0}" بنجاح.
+# Message when a user successfully creates a client account.
+banner.newClientCreated=تم إنشاء حساب عميل جديد بنجاح.
+# Banner at the top of the page with the name of the client substituted in when viewing an application.
+banner.viewApplication=يتم إرسال الطلب نيابةً عن "{0}". هل المطلوب إرسال طلب نيابةً عن عميل آخر؟
+
+
+# Button that allows a user to add a client to the CiviForm system.
+button.addNewClient=إضافة عميل جديد
+# Button that brings the user back to the list of their clients.
+button.backToClientList=الرجوع إلى قائمة العملاء
+# Button that allows the user to navigate back to the edit page after they click to delete a client and get an error.
+button.backToEditing=الرجوع إلى صفحة التعديل
+# Button that allows the user to cancel the progress they make on adding or editing a client.
+button.cancel=إلغاء
+# Button that allows the user to clear any search parameters they have already entered.
+button.clearSearch=محو البحث
+# Button for a user to delete their client's account
+button.deleteAcct=حذف الحساب
+# Button option when asked if the user is sure they want to delete an account.
+button.keepAcct=إبقاء الحساب
+# Button to navigate to the next page.
+button.nextPage=التالي
+# Button to save information that has been entered.
+button.save=حفظ
+# Button to execute a search to filter a client list.
+button.search=بحث
+# Button to select a client.
+button.select=اختيار
+# Button to start an application on behalf of a client.
+button.startApp=بدء الطلب
+# Button to view the applications belonging to an applicant.
+button.viewApplications=عرض الطلبات
+# Button to view and add clients
+button.viewAndAddClients=عرض العملاء وإضافتهم
+
+# Part of the confirmation banner which appears after a new client has been added to a community-based organization.
+content.clientCreated=لقد تمّت إضافة عميلك الجديد "{0}" إلى قائمة العملاء الخاصة بك. وبإمكانك الآن البدء بإرسال الطلبات نيابةً عنه.
+# The tooltip of the email input field.
+content.emailTooltip=يمكنك إضافة عنوان البريد الإلكتروني الخاص بعميلك كي يتلقّى إشعارات بشأن حالة طلبه تلقائيًا. وفي حال عدم إضافة هذا العنوان، ستقع على عاتقك أنت أو مؤسستك المجتمعية مسؤولية إطلاعه على آخر المعلومات.
+# For each client on the client list, shows the number of applications that have been submitted for them.
+content.numberOfAppSubmitted=عدد الطلبات المُرسلة: {0}
+# Shows that a single application has been submitted on behalf of the client.
+content.oneAppSubmitted=تم إرسال طلب واحد
+# Some explanation text on the confirmation modal when deleting a client.
+content.warning=لم يتم إرسال أي طلبات نيابةً عن هذا العميل، بالتالي لن تُفقد أي طلبات.
+# Shows there is no email address connected to the account.
+content.noEmailAddress=(ما مِن عنوان بريد إلكتروني)
+# The status of an organization member when they have been enrolled but have never logged into CiviForm.
+content.notLoggedIn=لم يتم تسجيل الدخول بعد
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
+content.noApplications=تم تسجيل الدخول بدون إرسال أي طلبات
+# The status of an organization member showing the date of the last application that they submitted for a client.
+content.lastApplicationDate=تم إرسال آخر طلب في ‎{0}
+# Confirmation modal text when the user tries to delete a client account.
+dialog.deleteConfirmation=هل المطلوب فعلاً حذف حساب هذا العميل؟
+
+# Header for the page with the Organization Members table.
+header.acctSettings=إعدادات الحساب
+# Tab label for getting to the client list page
+header.clientList=قائمة العملاء
+# Label for search
+header.search=بحث
+
+# A column header in the Organization Members table. Entries may be "Not yet logged in" or "Last submitted application on MM-DD-YYYY".
+label.acctStatus=حالة الحساب
+# Label above the phone number for each client on the client list.
+label.contactInfo=معلومات الاتصال
+# The label above the input field for the day of the client birth date. i.e. 12 for November 12
+label.day=اليوم
+# Label above the birth date input field when creating or editing a client
+label.dob=تاريخ الميلاد
+# Example above the 3 birth date input fields (Month, Day, Year).
+label.dobExample=على سبيل المثال: 28 يناير 1986
+# Label above the "Email" column of the community-based organization members table.
+label.email=البريد الإلكتروني
+# Validation error message below date of birth input when the TI clicks on save without filling out the field.
+label.errorDOB=يجب إدخال تاريخ الميلاد
+# Validation error message below first name input when the TI clicks on save without filling out the field.
+label.errorFirstName=يجب إدخال الاسم الأول
+# Validation error message below last name input when the TI clicks on save without filling out the field.
+label.errorLastName=يجب إدخال اسم العائلة
+# Validation error message below email input when the TI tries to create a client with an email that is already in use.
+label.errorEmailInUseForClientCreate=عنوان البريد الإلكتروني هذا تابع لعميل حالي، لذا لا يمكن إنشاء طلب.
+# Validation error message below email input when the TI tries to edit a client with an email that is already in use.
+label.errorEmailInUseForClientEdit=عنوان البريد الإلكتروني هذا تابع لعميل حالي، لذا لا يمكن تعديل الطلب.
+# The label above the dropdown select field for the month of the client birth date.
+label.month=الشهر
+# Label above the "Name" column of the community-based organization members table. Each entry will be listed as "Last name, First name".
+label.name=الاسم
+# Example above the name input field for the client search.
+label.nameExample=على سبيل المثال: "راضي" أو "سامح" أو "سامح راضي"
+# Label above the text input field for notes about a client.
+label.notes=الملاحظات
+# Label above the phone number input field when creating or editing a client.
+label.phoneNum=رقم الهاتف
+# The label above the Date of Birth search input for the client search.
+label.searchByDob=البحث باستخدم تاريخ الميلاد
+# The label above the name search field of the client search.
+label.searchByName=البحث باستخدام الأسماء
+# The label above the input field for the year of the client birth date.
+label.year=السنة
+# Label showing the user when there is no name
+label.unnamedUser=مستخدم بدون اسم
+
+link.edit=تعديل
+# Link to change the client that the trusted intermediary is applying for.
+link.selectNewClient=اختيار عميل جديد
+
+# This is the header above the list of clients and the client search.
+title.allClients=جميع العملاء
+# This is the heading above a new client creation form.
+title.createClient=إنشاء عميل جديد
+# This is the heading above the client editing form.
+title.editClient=تعديل معلومات العميل
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a certain number of clients.
+title.displayingMultiClients=جارٍ عرض {0} عميل…
+# This is the heading above a filtered list of clients when the filter has narrowed the search down to a single client.
+title.displayingOneClient=جارٍ عرض عميل واحد…
+# This is the heading above an unfiltered list of clients.
+title.displayingAllClients=جارٍ عرض جميع العملاء…
+# This is the heading above a table that contains the members of the current community-based organization.
+title.orgMembers=أفراد المؤسسة
+# HTML document title for the trusted intermediary dashboard page
+title.tiDashboard=وسيط موثوق به - إدارة العملاء - CiviForm
+# HTML document title for the trusted intermediary account settings page
+title.tiAccountSettings=وسيط موثوق به - عرض إعدادات الحساب - CiviForm
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=إرسال
+# Continue application button
+button.continue=متابعة
+# Button text on a button that will allow the user to start filling out a section of questions.
+button.start=بدء
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=لقد تم تعديل الطلب. يُرجى مراجعته والإجابة عن الأسئلة للمتابعة
+
+# Help text at the top of the review page instructing applicants with how to start applying for programs.
+content.reviewPageIntro=يُرجى اختيار خطوة أدناه لبدء الطلب. يمكنك حفظه والعودة إليه في أي وقت.
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=لا يستوفي شروط الأهلية
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=تعديل
+link.answer=الإجابة
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=سبق أن تمّت الإجابة عنه في ‎{0}
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
+ariaLabel.answer=يُرجى الإجابة عن السؤال "{0}"
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit=يُرجى تعديل الإجابة عن السؤال "{0}"
+# Title for the summary of the pre-screener page
+title.commonIntakeSummary=ملخص مزايا برنامج الفحص المُسبق للطلبات
+# Heading content at the top of the review page, where applicants can start answering questions.
+title.getStarted=لنبدأ بالإجابة عن الأسئلة.
+title.programSummary=ملخّص طلب البرنامج
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون حسابك مؤهلاً للانضمام إلى "{0}".
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
+title.applicantNotEligibleTi=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون عميلك مؤهلاً للانضمام إلى "{0}".
+# Section heading
+heading.eligibilityCriteria=المزيد حول متطلبات الأهلية
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=للاطّلاع على معايير الأهلية، يُرجى الانتقال إلى {0}
+# Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
+content.eligibilityCriteria.v2=لمزيد من المعلومات حول شروط الأهلية للانضمام إلى هذا البرنامج أو للتواصل مع الفريق المسؤول عنه مباشرةً، يُرجى الانتقال إلى {0}.
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=يمكنك الرجوع إلى الصفحة السابقة لتعديل إجاباتك أو إرسال طلب للانضمام إلى برنامج آخر.
+# Text shown on a webpage when the applicant is ineligible for a program.
+content.changeAnswersForEligibility.v2=إذا كان برأيك أنّ هناك خطأ ما، يمكنك الرجوع إلى الصفحة السابقة لتعديل إجاباتك. ويمكنك أيضًا الرجوع إلى الصفحة الرئيسية لإرسال طلب للانضمام إلى برنامج مختلف.
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=رجوع وتعديل
+# Clicking this button returns the user to the program summary page, where they can edit their responses.
+button.editMyResponses=تعديل إجاباتي
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayQualifyTi=بناءً على إجاباتك، قد يكون عميلك مؤهلاً للانضمام إلى "{0}". للمتابعة، يُرجى إكمال الطلب.
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=بناءً على إجاباتك، قد يكون حسابك مؤهلاً للانضمام إلى "{0}". للمتابعة، يُرجى إكمال الطلب.
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=قد يكون حسابك مؤهلاً
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayQualifyTi=قد يكون عميلك مؤهلاً
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=قد لا يكون حسابك مؤهلاً
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayNotQualifyTi=قد لا يكون عميلك مؤهلاً
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=بناءً على إجاباتك، قد لا يكون حسابك مؤهلاً للانضمام إلى "{0}". إذا كانت معلوماتك قد تغيّرت، يمكنك تعديل إجاباتك وإرسال الطلب.
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayNotQualifyTi=بناءً على إجاباتك، قد لا يكون عميلك مؤهلاً للانضمام إلى "{0}". إذا كانت معلومات عميلك قد تغيّرت، يمكنك تعديل إجاباتك وإرسال الطلب.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=حدث خطأ أثناء حفظ الطلب
+
+# Alert title when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_title=قد يكون حسابك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when applicant may be eligible for a program
+alert.eligibility_applicant_eligible_text=بناءً على إجاباتك، قد يكون حسابك مؤهلاً للانضمام إلى هذا البرنامج.
+
+# Alert title when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_title=قد يكون لا حسابك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when applicant may not be eligible for a program
+alert.eligibility_applicant_not_eligible_text=بناءً على إجاباتك، قد لا يكون حسابك مؤهلاً للانضمام إلى هذا البرنامج. إذا كانت معلوماتك قد تغيّرت، يمكنك تعديل إجابتك وإرسال الطلب.
+# Alert text when applicant may not be eligible for a program (new version for North Star)
+alert.eligibilityApplicantNotEligibleTextShort=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون حسابك مؤهلاً للانضمام إلى هذا البرنامج.
+
+# Alert title when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_title=قد يكون حسابك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when applicant may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_eligible_text=قد تتوفر أسئلة جديدة أو مُعدَّلة تؤثر في إجاباتك أو أهليتك. يُرجى مراجعة جميع الأسئلة أدناه.
+
+# Alert title when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_title=قد لا يكون حسابك مؤهلاً بعد الآن للانضمام إلى هذا البرنامج
+# Alert text when applicant may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_applicant_fastforwarded_not_eligible_text=قد تتوفر أسئلة جديدة أو مُعدَّلة تؤثر في إجاباتك أو أهليتك. يُرجى مراجعة جميع الأسئلة أدناه.
+
+# Alert title when TI client may be eligible for a program
+alert.eligibility_ti_eligible_title=قد يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when TI client may be eligible for a program
+alert.eligibility_ti_eligible_text=بناءً على إجاباتك، قد يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج.
+
+# Alert title when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_title=قد لا يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when TI client may not be eligible for a program
+alert.eligibility_ti_not_eligible_text=بناءً على إجاباتك، قد لا يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج. إذا كانت معلومات عميلك قد تغيّرت، يمكنك تعديل إجاباتك وإرسال الطلب.
+# Alert text when TI client may not be eligible for a program (new version for North Star)
+alert.eligibilityTiNotEligibleTextShort=بناءً على إجاباتك على الأسئلة التالية، قد لا يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج.
+
+# Alert title when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_title=قد يكون عميلك مؤهلاً للانضمام إلى هذا البرنامج
+# Alert text when TI client may be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_eligible_text=قد تتوفر أسئلة جديدة أو مُعدَّلة تؤثر في إجابات عميلك أو أهليته. يُرجى مراجعة جميع الأسئلة أدناه.
+
+# Alert title when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_title=قد لا يكون عميلك مؤهلاً بعد الآن للانضمام إلى هذا البرنامج
+# Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
+alert.eligibility_ti_fastforwarded_not_eligible_text=قد تتوفر أسئلة جديدة أو مُعدَّلة تؤثر في إجابات عميلك أو أهليته. يُرجى مراجعة جميع الأسئلة أدناه.
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=تأكيد إرسال الطلب
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=نشكرك على طلب الانضمام إلى "{0}".  لقد تلقّينا طلبك الذي يحمل المعرّف {1}.
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=إنشاء حساب أو تسجيل الدخول
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
+content.pleaseCreateAccount=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد لحفظ معلوماتك. سيكون بإمكانك العودة في أي وقت لإكمال الطلبات المستقبلية. وإذا لم يسبق لك إنشاء حساب، تتيح لك صفحة "تسجيل الدخول" الاشتراك للحفاظ على أي بيانات تم إدخالها.
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
+content.generalLoginModalPrompt=لم يتم تسجيل الدخول إلى حساب. إذا لم يكن لديك حساب، لن يكون بإمكانك تعديل أي طلب أو التحقق من حالته أو تقديم طلب للانضمام إلى برامج أخرى بسرعة.
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
+content.initialLoginModalPrompt=قبل المتابعة، يُرجى تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد. سيتيح لك ذلك إرسال طلبات للانضمام إلى عدة برامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات والاطّلاع على حالتها.
+# A button for continuing to apply to other programs without an account.
+button.continueWithoutAnAccount=المتابعة بدون حساب
+title.commonIntakeConfirmation=برامج قد يكون حسابك مؤهلاً للانضمام إليها
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=برامج قد يكون عميلك مؤهلاً للانضمام إليها
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation=قد يكون بإمكانك التسجيل في هذه البرامج من خلال إرسال طلب على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=بناءً على ردودك، قد يكون حسابك مؤهلاً للانضمام إلى البرامج التالية:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi=قد يكون بإمكان عميلك التسجيل في هذه البرامج إذا أرسلت طلبًا على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=بناءً على ردودك، قد يكون حساب عميلك مؤهلاً للانضمام إلى البرامج التالية:
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون حسابك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون عميلك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
+# A header above a list of other programs the applicant might be interested in applying to.
+content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
+button.downloadPdf=تنزيل ملف PDF
+# A button prompting users to apply to programs.
+button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
+# Heading above a section showing the user's name, confirmation number, and date
+heading.yourSubmissionInformation=معلومات طلبك
+# Text above the name of the person who submitted this application
+heading.applicantName=مُرسِل هذا الطلب
+# Text above the confirmation number of the application
+heading.confirmationNumber=رقم التأكيد
+# Text above the date submitted of the application
+heading.dateSubmitted=تاريخ الإرسال
+# Text above a message telling the user they can print this page
+heading.forYourRecords=الاحتفاظ برسالة التأكيد
+# Text above a button to print this page
+content.youCanPrint=يمكنك طباعة رسالة التأكيد هذه للاحتفاظ بها.
+# Button to print this webpage
+button.print=طباعة هذه الصفحة
+# Heading above a paragraph explaining the next steps in the application process
+heading.nextSteps=ما هي خطواتي التالية؟
+# Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
+alert.submitted=لقد أرسلت طلبك للانضمام إلى "{0}"
+# Informational "alert" title to encourage the user to create an account
+alert.createAccount=ننصحك بإنشاء حساب لحفظ معلومات طلباتك
+# Description text in an alert that explains how creating an account can help the user
+alert.createAccountDescription=ننصحك بإنشاء حساب لتسجيل الدخول من خلاله للاطّلاع على حالة الطلب وتوفير الوقت المُستغرَق في إرسال طلبات إلى برامج أخرى.
+# Hyperlink to log in to an existing account
+content.loginToExistingAccount=تسجيل الدخول إلى حساب حالي
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=ما مِن تغييرات لحفظها في طلب الانضمام إلى "{0}"
+content.noChanges=لقد سبق أن أرسلت طلبًا للانضمام إلى هذا البرنامج. ما مِن تعديلات جديدة على الطلب. هل يهمّك متابعة التعديل؟
+button.continueEditing=متابعة التعديل
+button.exitApplication=إغلاق الطلب
+
+
+#--------------------------------------------------------------------------------------------------------------#
+# Disabled program error page - error info page when user tries to access a disabled program via its deep link #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the page stating the program is disabled
+title.programNotAvailable=لم يُعد هذا البرنامج متاحًا
+# Info stating program disabled and see home page for other options.
+content.disabledProgramInfo=عذرًا، لقد تمّ إيقاف البرنامج المطلوب الوصول إليه. يُرجى الرجوع إلى الصفحة الرئيسية للبحث عن برامج إضافية.
+# Button text on a button that takes the user back to the home page.
+button.homePage=الرجوع إلى الصفحة الرئيسية
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
+label.addressLine2=الشقة، الجناح، إلخ (خياري)
+label.city=المدينة
+label.state=الولاية
+label.selectState=اختيار الولاية
+label.street=العنوان
+label.zipcode=الرمز البريدي
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=يُرجى إدخال اسم ورقم صالحَين للشارع.
+validation.cityRequired=يُرجى إدخال المدينة.
+validation.currencyMisformatted=يجب أن تكون العملة بأحد التنسيقات التالية: 1000 أو 1,000 أو 1000.30 أو 1,000.30
+validation.stateRequired=يُرجى إدخال الولاية.
+validation.invalidZipcode=يُرجى إدخال رمز بريدي صالح مؤلف من 5 أرقام.
+validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل باستخدام رقم صندوق البريد.
+
+#-------------------------------------------------------------------------#
+# ADDRESS CORRECTION - text when viewing the address correction screen    #
+#-------------------------------------------------------------------------#
+
+# Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
+title.confirmAddress=تأكيد عنوانك
+# Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
+content.confirmAddressLine1=لم نتمكن من العثور على عنوانك.
+# Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
+content.foundSimilarAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك أو تحديد خيار من القائمة المُدرجة.
+# Message asking the user to check if their address is correct and/or edit the address so that it's valid.
+content.noValidAddressLine2=يُرجى التحقق من عدم وجود أخطاء إملائية في عنوانك وتصحيح أي أخطاء إن وجدت للمتابعة.
+# Heading for showing the user the address they provided earlier
+content.addressEntered=العنوان الذي تم إدخاله:
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=العنوان المُقترَح:
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=العناوين المُقترَحة:
+# Text on a button to save the address that the user chose (either the original address they entered, or one of the suggested valid addresses)
+button.confirmAddress=تأكيد العنوان
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=تحديد خيار:
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=البلد
+label.phoneNumber=إدخال رقم الهاتف
+validation.phoneNumberRequired=يجب إدخال رقم الهاتف
+validation.phoneCountryCodeRequired=يجب اختيار بلد
+validation.phoneNumberMustContainNumbersOnly=لا يمكن أن يحتوي رقم الهاتف على أحرف
+validation.invalidPhoneNumberProvided=رقم الهاتف هذا ليس صالحًا
+validation.phoneMustBeLocalToCountry=رقم الهاتف الذي تم تقديمه لا ينتمي إلى البلد
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.invalidDateFormat=يُرجى إدخال تاريخ بالتنسيق الصحيح
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.January=‫01 - يناير
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.February=‫02 - فبراير
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.March=‫03 - مارس
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.April=‫04 - أبريل
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.May=‫05 - مايو
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.June=‫06 - يونيو
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.July=‫07 - يوليو
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.August=‫08 - أغسطس
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.September=‫09 - سبتمبر
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.October=‫10 - أكتوبر
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.November=‫11 - نوفمبر
+# A month option when selecting a specific date from a dropdown menu.
+option.memorableDate.December=‫12 - ديسمبر
+# A placeholder for the month dropdown menu when selecting a specific date.
+placeholder.memorableDate=اختيار
+# An error message that appears when the user tries to search by date without completing all the fields.
+error.incompleteDate=خطأ: يُرجى إدخال اليوم والشهر والسنة.
+# An error message that appears when the user tries to enter a date of birth that is in the future.
+validation.dobNotInPast=يجب أن يكون تاريخ الميلاد في الماضي
+# An error message that appears when the user tries to enter a date of birth that is too far in the past.
+validation.impossibleDob=يجب أن يكون العمر أقل من 150 عامًا
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity=إضافة {0}
+# Text on a button an applicant would click to delete an entity
+button.removeEntity=إزالة {0}
+# Dialog text shown to the user when they choose to delete an entry that they added previously. The dialog asks them to confirm if they want to delete the entry and all data associated with it. {0} represents the type of entry being deleted. For example, users may be asked to list all cars they own or all children in their household, so {0} could be "car" or "child".
+dialog.confirmDeleteAllButtonsSave=هل المطلوب فعلاً إزالة "{0}"؟ سيتم حفظ هذا التغيير عند النقر على "مراجعة" أو "السابق" أو "التالي"، وسيتم حذف جميع البيانات المرتبطة بـ "{0}".
+validation.entityNameRequired=يُرجى إدخال قيمة لكل سطر.
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=يُرجى إدخال قيمة فريدة لكل سطر.
+# Error shown if the enumerator question has a maximum answer limit and the applicant enters too many values
+validation.tooManyEntities=يُرجى إدخال {0} قيمة كحد أقصى.
+# Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
+validation.tooFewEntities=يُرجى إدخال {0} قيمة كحد أدنى.
+placeholder.entityName=‏{0} اسم
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=يُرجى اختيار ملف.
+# An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
+validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
+button.chooseFile=اختيار ملف
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=الحد الأقصى لعدد الأحرف في الإجابة هو {0}.
+validation.idTooShort=الحد الأدنى لعدد الأحرف في الإجابة هو {0}.
+validation.numberRequired=يجب أن تتضمن الإجابة أرقامًا فقط.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=يُرجى اختيار {0} إجابة على الأقل.
+# Error message that indicates the applicant has selected too many choices on the multi-select question
+validation.tooManySelections.v2=يُرجى اختيار {0} إجابة كحد أقصى.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=الاسم الأول
+label.lastName=اسم العائلة
+label.middleName=الاسم الأوسط
+# Label for name suffix field in name question
+label.nameSuffix=اللاحقة
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=الاسم الأول
+placeholder.lastName=اسم العائلة
+placeholder.middleName=الاسم الأوسط
+# Placeholder for name suffix field in name question
+placeholder.nameSuffix=اللاحقة
+
+# Option Junior for the name suffix dropdown
+option.junior=الأصغر
+# Option Senior for the name suffix dropdown
+option.senior=الأكبر
+# Option the first for the name suffix dropdown
+option.first=الأول
+# Option the second for the name suffix dropdown
+option.second=الثاني
+# Option the third for the name suffix dropdown
+option.third=الثالث
+# Option the forth for the name suffix dropdown
+option.forth=الرابع
+# Option the fifth for the name suffix dropdown
+option.fifth=الخامس
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=يُرجى إدخال اسمك الأول.
+validation.lastNameRequired=يُرجى إدخال اسم العائلة.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
+validation.numberTooBig=يجب ألا يتجاوز العدد {0}.
+validation.numberTooSmall=يجب ألا يقل العدد عن {0}.
+validation.numberNonInteger=يجب أن يكون العدد موجبًا وصحيحًا وأن يتضمن أرقامًا بين 0 و9 فقط.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=يجب أن تتضمن الإجابة {0} حرف كحد أقصى.
+validation.textTooShort=يجب أن تتضمن الإجابة {0} حرف كحد أدنى.
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=لا يمكن ترك الأسئلة المتعددة الإجابات فارغة.
+# An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
+adminValidation.multiOptionAdminError=يمكن أن تتضمن أسماء المشرفين الأحرف الصغيرة والأرقام والشُرط السفلية والشُرط العادية فقط.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
+error.notFoundTitle=لم نتمكن من العثور على الصفحة التي حاولت زيارتها
+error.notFoundDescription=يُرجى الرجوع أو العودة إلى {0}
+error.notFoundDescriptionLink=الصفحة الرئيسية
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=حدث خطأ ما
+# The title on the error page that is show to the user in large font
+error.internalServerTitle.v2=حدث خطأ ما
+# The subtitle on the error page that is show to the user in medium font
+error.internalServerSubtitle=عذرًا، لقد حدث خطأ داخلي في أنظمتنا.
+# Additional information about the error that is shown to the user in small font
+error.internalServerDescription=يُرجى التواصل مع فريق الدعم الفني على %s للحصول على الدعم وإدراج معرّف الخطأ هذا {0}.
+# A button redirecting the user to the homepage
+error.internalServerHomeButton=زيارة الصفحة الرئيسية
+# A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
+error.statusCode=رمز الخطأ: {0}
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=تسجيل الدخول إلى Civiform على "{0}"
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=تلقّينا طلبك للانضمام إلى برنامج "{0}"
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=لقد تلقّينا طلبك للانضمام إلى برنامج "{0}". معرّف مقدِّم الطلب الخاص بك هو {1}، ومعرّف الطلب هو {2}.
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=لقد أرسلت طلبًا للانضمام إلى برنامج "{0}" نيابةً عن مقدِّم الطلب {1}
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=لقد تلقينا طلب {1} للانضمام إلى برنامج "{0}"، ومعرّف الطلب هو {2}.
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=يمكنك إدارة عملائك في {0}.
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=هناك تعديل على طلبك {0}
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=هناك تعديل على طلب الانضمام إلى برنامج "{0} "نيابةً عن مقدِّم الطلب {1}
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=لقد تغيّرت حالة طلب "{0}" بالانضمام إلى برنامج "{1}" إلى {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=هذا موقع إلكتروني رسمي تابع لجهة حكومية.
+# Text on a banner at the top of the page telling users this is an official government website
+banner.northStarTitle=موقع إلكتروني رسمي تابع لحكومة الولايات المتحدة
+banner.link=في ما يلي كيفية معرفة ذلك
+banner.govWebsiteSectionHeader=تستخدم المواقع الإلكترونية التابعة لجهة حكومية النطاق "‎.gov"
+banner.govWebsiteSectionContent=تعود عناوين المواقع الإلكترونية التي تنتهي بـ "‎.gov" إلى مؤسسات حكومية رسمية في الولايات المتحدة.
+banner.httpsSectionHeader=تستخدم المواقع الإلكترونية التابعة لجهة حكومية بروتوكول HTTPS
+banner.httpsSectionContent=يشير رمز القفل ( {0} ) أو عبارة "https://‎" إلى أنك قد وصلت إلى موقع إلكتروني آمن وتابع لجهة حكومية. ننصحك بمشاركة المعلومات الحساسة على المواقع الإلكترونية الرسمية الآمنة فقط.
+
+#----------------------------------------------------------------------------------------#
+# NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
+#----------------------------------------------------------------------------------------#
+
+# A stern message shown to the user to make it clear this is a test site only
+banner.notForProductionBannerLine1=تم تصميم هذا الموقع الإلكتروني لأغراض تجريبية فقط. ننصحك بعدم مشاركة أي معلومات شخصية فيه.
+# A friendly message shown to the user with a call to action to go to the production site link provided in {0}
+banner.notForProductionBannerLine2=لإرسال طلب للانضمام إلى برنامج أو خدمة، يُرجى الانتقال إلى {0}.
+
+#------------------------------------------------------------------------------#
+# GUEST BANNER - alert explaining that user is logged in as a guest #
+#------------------------------------------------------------------------------#
+# A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
+banner.guestBannerText=يتم إرسال الطلب كضيف. بعد إكماله، يُرجى {0} لحماية بياناتك.
+# A call to action within another message that will be a link to end your guest session.
+banner.endYourSession=إنهاء الجلسة
