@@ -248,6 +248,7 @@ public class ProgramServiceTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "short description",
             "",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),

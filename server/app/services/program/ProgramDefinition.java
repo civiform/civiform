@@ -99,6 +99,9 @@ public abstract class ProgramDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
+  @JsonProperty("localizedShortDescription")
+  public abstract LocalizedStrings localizedShortDescription();
+
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
@@ -803,6 +806,10 @@ public abstract class ProgramDefinition {
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    @JsonProperty("localizedShortDescription")
+    public abstract Builder setLocalizedShortDescription(
+        LocalizedStrings localizedShortDescription);
+
     @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
         LocalizedStrings localizedConfirmationMessage);
@@ -815,6 +822,8 @@ public abstract class ProgramDefinition {
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
+    public abstract LocalizedStrings.Builder localizedShortDescriptionBuilder();
 
     public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
 
@@ -854,6 +863,11 @@ public abstract class ProgramDefinition {
 
     public Builder addLocalizedDescription(Locale locale, String description) {
       localizedDescriptionBuilder().put(locale, description);
+      return this;
+    }
+
+    public Builder addLocalizedShortDescription(Locale locale, String description) {
+      localizedShortDescriptionBuilder().put(locale, description);
       return this;
     }
 

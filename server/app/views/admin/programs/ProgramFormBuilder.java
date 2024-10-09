@@ -79,6 +79,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
+        program.getLocalizedShortDescription(),
         program.getExternalLink(),
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
@@ -99,6 +100,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.adminDescription(),
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
+        program.localizedShortDescription().getDefault(),
         program.externalLink(),
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
@@ -120,6 +122,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String shortDescription,
       String externalLink,
       String confirmationSceen,
       String displayMode,
@@ -143,13 +146,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
-            .setFieldName("localizedShortDisplayDescription")
+            .setFieldName("localizedShortDescription")
             .setLabelText(
                 "Short description of this program for the public. Maximum 100 characters.")
             .setMaxLength(100)
             .setRequired(true)
             .setMarkdownSupported(true)
-            .setValue(displayDescription)
+            .setValue(shortDescription)
             .getTextareaTag(),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.textArea()
