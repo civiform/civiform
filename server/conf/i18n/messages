@@ -67,7 +67,8 @@ link.opensNewTabSr=opens in a new tab
 label.primaryNavigation=Primary navigation
 # Aria-label for the footer
 label.footerNav=Footer navigation,
-
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 
 #-------------------------------------------------------------#
