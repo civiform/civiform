@@ -29,7 +29,7 @@ footer.technicalSupport=للحصول على الدعم الفني: {0}
 # This should be consistent with button.guestLogin.
 guest=ضيف
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=اختيار اللغة
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=اختيار لغة
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=تسجيل الدخول كمشرف
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=الملف الذي تمّ تحميله: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=اختيار ملف
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=اختيار ملف واحد أو أكثر (الحد الأقصى لعدد الملفات هو {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=اختيار ملف واحد أو أكثر
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=حذف
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -219,7 +219,7 @@ title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=البرامج والخدمات ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=الأقسام المكتملة
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -514,11 +514,11 @@ title.commonIntakeConfirmationTi=برامج قد يكون عميلك مؤهلا�
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=قد يكون بإمكانك التسجيل في هذه البرامج من خلال إرسال طلب على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=بناءً على ردودك، قد يكون حسابك مؤهلاً للانضمام إلى البرامج التالية:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=قد يكون بإمكان عميلك التسجيل في هذه البرامج إذا أرسلت طلبًا على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=بناءً على ردودك، قد يكون حساب عميلك مؤهلاً للانضمام إلى البرامج التالية:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون حسابك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.

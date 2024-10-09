@@ -435,7 +435,10 @@ test.describe('Applicant navigation flow', () => {
       test('Shows ineligible tag on home page program cards', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
+        await applicantQuestions.applyProgram(
+          fullProgramName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('fill out application and submit', async () => {
           await applicantQuestions.answerNumberQuestion('1')
@@ -453,9 +456,12 @@ test.describe('Applicant navigation flow', () => {
       })
 
       test('Shows eligible on home page', async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(fullProgramName)
-
         await test.step('fill out application and submit', async () => {
+          await applicantQuestions.applyProgram(
+            fullProgramName,
+            /* northStarEnabled= */ true,
+          )
+
           await applicantQuestions.answerNumberQuestion('5')
           await applicantQuestions.clickContinue()
         })
@@ -472,22 +478,32 @@ test.describe('Applicant navigation flow', () => {
       test('shows not eligible alert on review page with ineligible answer', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(fullProgramName)
+        await test.step('fill out application and submit', async () => {
+          await applicantQuestions.applyProgram(
+            fullProgramName,
+            /* northStarEnabled= */ true,
+          )
 
-        // Fill out application and submit.
-        await applicantQuestions.answerNumberQuestion('1')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+          await applicantQuestions.answerNumberQuestion('1')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+        })
 
-        // Verify the question is marked ineligible.
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ false,
-        )
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await test.step('verify program is marked ineligible', async () => {
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.seeEligibilityTag(
+            fullProgramName,
+            /* isEligible= */ false,
+          )
 
-        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+          await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+          // Navigate to review page
+          await applicantQuestions.clickBack()
+          await applicantQuestions.clickBack()
+
+          await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+        })
       })
     })
   })

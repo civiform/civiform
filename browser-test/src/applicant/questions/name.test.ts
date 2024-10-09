@@ -320,7 +320,10 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -349,7 +352,10 @@ test.describe('name applicant flow', () => {
         await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
 
         await test.step('name suffix field available to use', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await expect(page.getByLabel('Suffix')).toBeVisible()
           await expect(page.getByLabel('Suffix')).toHaveValue('')
         })
@@ -364,7 +370,10 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

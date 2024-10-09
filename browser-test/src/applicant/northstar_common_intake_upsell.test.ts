@@ -53,6 +53,7 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -95,6 +96,7 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -126,6 +128,7 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -156,6 +159,7 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -204,6 +208,7 @@ test.describe(
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -244,6 +249,7 @@ test.describe(
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )

@@ -29,7 +29,7 @@ footer.technicalSupport=기술 지원: {0}
 # This should be consistent with button.guestLogin.
 guest=게스트
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=언어 선택
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=언어 선택
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=관리자 로그인
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=업로드된 파일: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=파일 1개를 선택하세요.
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=파일을 1개 이상 선택하세요(최대 {0}개).
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=파일을 1개 이상 선택하세요.
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=삭제
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -219,7 +219,7 @@ title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=섹션 완료됨
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -514,11 +514,11 @@ title.commonIntakeConfirmationTi=고객이 자격 요건에 해당될 수 있는
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청하면 등록될 가능성이 있는 프로그램입니다.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=귀하의 답변에 따라 귀하는 다음과 같은 프로그램의 자격 요건을 충족할 수도 있습니다.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=관리자가 '프로그램 신청'을 클릭하여 온라인으로 신청하면 고객이 등록될 가능성이 있는 프로그램입니다.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=귀하의 답변에 따라 고객이 다음과 같은 프로그램의 자격 요건을 충족할 수도 있습니다.
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격 요건에 해당될 수 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 프로그램을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 다른 프로그램을 확인해 보세요.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.

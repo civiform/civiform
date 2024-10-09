@@ -97,7 +97,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking previous on first block goes to summary page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.clickBack()
 
@@ -108,7 +111,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         // There is also a date question, and it's intentionally not answered
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 

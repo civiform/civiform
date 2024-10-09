@@ -168,6 +168,16 @@ public final class ApplicantRoutes {
   }
 
   /**
+   * Returns the route corresponding to the applicant block edit action without an applicant ID.
+   *
+   * @param programId - ID of program to edit
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(long programId) {
+    return routes.ApplicantProgramBlocksController.edit(programId, "1", Optional.empty());
+  }
+
+  /**
    * Returns the route corresponding to the applicant block review action.
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).

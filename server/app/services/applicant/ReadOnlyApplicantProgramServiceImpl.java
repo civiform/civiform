@@ -172,6 +172,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public Stream<ApplicantQuestion> getAllQuestions() {
+    return getBlocks((block) -> true).stream().flatMap((block) -> block.getQuestions().stream());
+  }
+
+  @Override
   public ImmutableList<Block> getAllActiveBlocks() {
     if (allActiveBlockList == null) {
       allActiveBlockList = getBlocks((block) -> showBlock(block));

@@ -692,7 +692,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
       }) => {
         await test.step('Initial rendering screenshot', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await applicantFileQuestion.expectFileSelectionErrorHidden()
 
           await validateScreenshot(
@@ -721,7 +724,10 @@ test.describe('file upload applicant flow', () => {
         'File too large error',
         async ({applicantFileQuestion, applicantQuestions}) => {
           await test.step('Initially no error is shown', async () => {
-            await applicantQuestions.applyProgram(programName)
+            await applicantQuestions.applyProgram(
+              programName,
+              /* northStarEnabled= */ true,
+            )
             await applicantFileQuestion.expectFileTooLargeErrorHidden()
           })
 
@@ -754,7 +760,10 @@ test.describe('file upload applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickNext()
 
         const formInputs = await page
@@ -771,7 +780,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantFileQuestion.expectNoContinueButton()
       })
@@ -780,7 +792,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantFileQuestion.expectNoSkipButton()
       })
@@ -790,7 +805,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
@@ -810,7 +828,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
@@ -829,7 +850,10 @@ test.describe('file upload applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

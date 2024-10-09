@@ -42,11 +42,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.28.13",
-      "software.amazon.awssdk" % "ses" % "2.28.14",
+      "software.amazon.awssdk" % "s3" % "2.28.18",
+      "software.amazon.awssdk" % "ses" % "2.28.18",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.13.3",
+      "com.azure" % "azure-identity" % "1.14.0",
       "com.azure" % "azure-storage-blob" % "12.28.0",
 
       // Database and database testing libraries
@@ -114,7 +114,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.8"
+      "ch.qos.logback" % "logback-classic" % "1.5.9"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
