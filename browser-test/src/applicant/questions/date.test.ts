@@ -135,7 +135,10 @@ test.describe('Date question for applicant flow', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -160,7 +163,10 @@ test.describe('Date question for applicant flow', () => {
       test('with filled in date submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.answerMemorableDateQuestion(
           '2022',
           '05 - May',
@@ -174,7 +180,10 @@ test.describe('Date question for applicant flow', () => {
       })
 
       test('Renders existing values', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.answerMemorableDateQuestion(
           '2022',
           '05 - May',
@@ -195,7 +204,10 @@ test.describe('Date question for applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })
