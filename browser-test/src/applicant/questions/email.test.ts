@@ -135,7 +135,10 @@ test.describe('Email question for applicant flow', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -160,7 +163,10 @@ test.describe('Email question for applicant flow', () => {
       test('with email input submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
         await applicantQuestions.clickContinue()
 
@@ -173,7 +179,10 @@ test.describe('Email question for applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

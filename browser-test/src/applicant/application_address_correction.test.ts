@@ -417,7 +417,10 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
@@ -462,7 +465,10 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -497,7 +503,10 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
