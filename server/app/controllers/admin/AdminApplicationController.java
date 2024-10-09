@@ -578,13 +578,26 @@ public final class AdminApplicationController extends CiviFormController {
     }
     Form<BulkStatusUpdateForm> form =
         formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
-    var ids = ImmutableSet.of(form.get().getApplicationsIds());
-    ids.forEach(
+    var ids = form.get().getApplicationsIds();
+
+    var applicationlist = ids.stream().map(
         id -> {
-          System.out.println("------------------------ " + id);
-        });
+          Optional<ApplicationModel> applicationMaybe =
+            programAdminApplicationService.getApplication(Long.parseLong(id), program);
+          return applicationMaybe.get();
+
+        }).collect(ImmutableList.toImmutableList());
     System.out.println("The new status is  -" + form.get().getStatusText());
     System.out.println("The notify status is  -" + form.get().isMaybeSendEmail());
+
+
+    programAdminApplicationService.setStatus(
+      applicationlist,
+      ApplicationEventDetails.StatusEvent.builder()
+        .setStatusText(form.get().getStatusText())
+        .setEmailSent(form.get().isMaybeSendEmail())
+        .build(),
+      profileUtils.currentUserProfile(request).getAccount().join());
 
     return redirect(
         routes.AdminApplicationController.index(

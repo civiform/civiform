@@ -2,6 +2,7 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -254,5 +255,31 @@ public final class ProgramAdminApplicationService {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
+  }
+
+  public void setStatus(ImmutableList<ApplicationModel> applicationlist, StatusEvent newStatusEvent, AccountModel admin){
+//    throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
+//    ProgramModel program = applicationlist.get(0).getProgram();
+//
+//    String newStatusText = newStatusEvent.statusText();
+//    // The send/sent phrasing is a little weird as the service layer is converting between intent
+//    // and reality.
+//    boolean sendEmail = newStatusEvent.emailSent();
+//    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
+//
+//    Optional<Status> statusDefMaybe =
+//      applicationStatusesRepository
+//        .lookupActiveStatusDefinitions(programDef.adminName())
+//        .getStatuses()
+//        .stream()
+//        .filter(s -> s.statusText().equals(newStatusText))
+//        .findFirst();
+//    if (statusDefMaybe.isEmpty()) {
+//      throw new StatusNotFoundException(newStatusText, program.id);
+//    }
+//    Status statusDef = statusDefMaybe.get();
+    eventRepository
+      .insertStatusEvents(applicationlist, Optional.of(admin), newStatusEvent);
+
   }
 }

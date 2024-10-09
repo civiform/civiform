@@ -9,6 +9,7 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
@@ -417,7 +418,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         .withClass("space-x-2")
                         .with(
                             dropdownTag,
-                            makeCsrfTokenInputTag(request),
+                            makeCsrfTokenInputTag(request),label("Send notification"),
                           input().withType("checkbox").withName("maybeSendEmail").withClasses(BaseStyles.CHECKBOX),
                             submitButton("Status change").withClasses("usa-button"),
                             table()

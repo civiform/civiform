@@ -10,8 +10,10 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
+
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicationEventModel;
@@ -110,11 +112,45 @@ public final class ApplicationEventRepository {
         },
         executionContext.current());
   }
+  //"UPDATE someTable SET anything=%s WHERE id IN ('%s')", $newValue, implode("','",$arrayOfIds));
+  public void insertStatusEvents(
+    ImmutableList<ApplicationModel> applications,
+    Optional<AccountModel> optionalAdmin,
+    ApplicationEventDetails.StatusEvent newStatusEvent) {
+    ApplicationEventDetails details=       ApplicationEventDetails.builder()
+      .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+      .setStatusEvent(newStatusEvent)
+      .build();
 
+    var idlist = applications.stream().map( app -> app.id+"").collect(Collectors.joining(", "));
+
+   var list= applications.stream().map(app ->
+     new ApplicationEventModel(app, optionalAdmin, details)).collect(ImmutableList.toImmutableList());
+       try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+
+          list.stream().forEach( event -> insertSync(event));
+          // Saves the latest note on the applications table too.
+          // If the status is removed from an application, then the latest_status column needs
+          // to be set to null to indicate the application has no status and not a status with
+          // empty string.
+          database
+            .update(ApplicationModel.class)
+            .set(
+              "latest_status",
+              Strings.isNullOrEmpty(newStatusEvent.statusText())
+                ? null
+                : newStatusEvent.statusText())
+            .where()
+            .in("id", idlist)
+            .update();
+          applications.get(0).save();
+          transaction.commit();
+        }
+  }
   public void insertNoteEvent(
       ApplicationModel application, ApplicationEventDetails.NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
-        services.application.ApplicationEventDetails.builder()
+        ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();
