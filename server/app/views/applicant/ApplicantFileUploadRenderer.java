@@ -63,6 +63,12 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
+  private static final String FILE_UPLOADING_TAG_CLASS = "cf-file-uploading-tag";
+
+  // Class to apply to elements which should be disabled when an upload is triggered. This logic is
+  // implemented in file_upload.ts
+  private static final String DISABLED_WHEN_UPLOADING_CLASS = "cf-disable-when-uploading";
+
   /**
    * A data key that points to a redirect URL that should be used if the user has uploaded a file.
    * Should be set on each action button.
@@ -108,7 +114,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
    */
   public UlTag uploadedFiles(
       ApplicationBaseViewParams params, FileUploadQuestion fileUploadQuestion) {
-    UlTag result = ul().attr("aria-label", "Uploaded files");
+    UlTag result =
+        ul().attr("aria-label", params.messages().at(MessageKey.UPLOADED_FILES.getKeyName()));
 
     JsonArray uploadedFileNames = new JsonArray();
 
@@ -134,15 +141,19 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
         result.with(
             li().withClass("flex justify-between mb-2")
-                .withText(fileName)
                 .withId(fileNameId)
+                .with(TagCreator.span().withText(fileName).withClasses("overflow-x-hidden"))
                 .with(
                     TagCreator.a()
                         .withText(params.messages().at(MessageKey.LINK_REMOVE_FILE.getKeyName()))
                         .withHref(removeUrl)
                         .attr("aria-labelledby", fileNameId)
                         .withClasses(
-                            BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "underline")));
+                            BaseStyles.LINK_TEXT,
+                            BaseStyles.LINK_HOVER_TEXT,
+                            "underline",
+                            "ml-2",
+                            "shrink-0")));
       }
     }
 
@@ -305,8 +316,8 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
           applicantQuestionRendererFactory
               .getRenderer(fileUploadQuestion.get(), Optional.of(params.messages()))
               .render(rendererParams)
+              .with(createFileUploadTag(params))
               .with(uploadedFiles(params, fileUploadQuestion.get().createFileUploadQuestion())));
-
     } else {
       uploadForm.with(
           each(
@@ -322,6 +333,14 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
     return div(uploadForm, skipForms, buttons)
         .with(fileUploadViewStrategy.footerTags(params.request()));
+  }
+
+  /** Creates a tag which shows when a file is being uploaded. */
+  private DivTag createFileUploadTag(ApplicationBaseViewParams params) {
+    return div()
+        .withText(params.messages().at(MessageKey.UPLOADING.getKeyName()))
+        .withClasses(FILE_UPLOADING_TAG_CLASS, "inline-block", "px-2", "py-1")
+        .attr("role", "alert");
   }
 
   /**
@@ -450,7 +469,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private ButtonTag renderSaveAndNextButton(ApplicationBaseViewParams params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
-        .withClasses(ButtonStyles.SOLID_BLUE);
+        .withClasses(ButtonStyles.SOLID_BLUE, DISABLED_WHEN_UPLOADING_CLASS);
   }
 
   // Returns a "Previous" button that will navigate the applicant to the previous page without
@@ -470,7 +489,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .url();
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, DISABLED_WHEN_UPLOADING_CLASS)
         .withId("cf-block-previous");
   }
 
@@ -487,7 +506,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId("review-application-button")
-        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, DISABLED_WHEN_UPLOADING_CLASS);
   }
 
   private DivTag renderFileKeyField(
@@ -520,8 +539,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private DivTag renderFileUploadBottomNavButtons(ApplicationBaseViewParams params) {
     DivTag ret = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
     if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
-
-      //
       ret.with(renderReviewButton(params))
           .with(renderPreviousButton(params))
           .with(renderSaveAndNextButton(params));
