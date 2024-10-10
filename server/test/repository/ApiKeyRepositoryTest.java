@@ -10,8 +10,8 @@ import java.util.concurrent.CompletionException;
 import models.ApiKeyModel;
 import org.junit.Before;
 import org.junit.Test;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.pagination.PageNumberPaginationSpec;
 
 public class ApiKeyRepositoryTest extends ResetPostgres {
 
@@ -63,8 +63,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
       repo.insert(apiKey).toCompletableFuture().join();
     }
 
-    PageNumberBasedPaginationSpec paginationSpec =
-        new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
+    PageNumberPaginationSpec paginationSpec =
+        new PageNumberPaginationSpec(/* pageSize= */ 2, PageNumberPaginationSpec.OrderByEnum.ID);
     PaginationResult<ApiKeyModel> result = repo.listActiveApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
@@ -73,7 +73,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     result =
         repo.listActiveApiKeys(
-            new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2, /* currentPage= */ 2, PageNumberPaginationSpec.OrderByEnum.ID));
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("key name 0");
     assertThat(result.hasMorePages()).isFalse();
@@ -120,8 +121,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
       repo.insert(apiKey).toCompletableFuture().join();
     }
 
-    PageNumberBasedPaginationSpec paginationSpec =
-        new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
+    PageNumberPaginationSpec paginationSpec =
+        new PageNumberPaginationSpec(/* pageSize= */ 2, PageNumberPaginationSpec.OrderByEnum.ID);
     PaginationResult<ApiKeyModel> result = repo.listRetiredApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
@@ -130,7 +131,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     result =
         repo.listRetiredApiKeys(
-            new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2, /* currentPage= */ 2, PageNumberPaginationSpec.OrderByEnum.ID));
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("retired key name 0");
     assertThat(result.hasMorePages()).isFalse();
@@ -177,8 +179,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
       repo.insert(apiKey).toCompletableFuture().join();
     }
 
-    PageNumberBasedPaginationSpec paginationSpec =
-        new PageNumberBasedPaginationSpec(/* pageSize= */ 2);
+    PageNumberPaginationSpec paginationSpec =
+        new PageNumberPaginationSpec(/* pageSize= */ 2, PageNumberPaginationSpec.OrderByEnum.ID);
     PaginationResult<ApiKeyModel> result = repo.listExpiredApiKeys(paginationSpec);
     assertThat(result.getNumPages()).isEqualTo(2);
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
@@ -187,7 +189,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     result =
         repo.listExpiredApiKeys(
-            new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2));
+            new PageNumberPaginationSpec(
+                /* pageSize= */ 2, /* currentPage= */ 2, PageNumberPaginationSpec.OrderByEnum.ID));
     assertThat(result.getPageContents().stream().map(ApiKeyModel::getName))
         .containsExactly("expired key name 0");
     assertThat(result.hasMorePages()).isFalse();
@@ -211,12 +214,16 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
     // Key only shows up in retired list.
     assertThat(
-            repo.listExpiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
+            repo.listExpiredApiKeys(
+                    new PageNumberPaginationSpec(
+                        /* pageSize= */ 1, PageNumberPaginationSpec.OrderByEnum.ID))
                 .getPageContents())
         .isEmpty();
     assertThat(
             repo
-                .listRetiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
+                .listRetiredApiKeys(
+                    new PageNumberPaginationSpec(
+                        /* pageSize= */ 1, PageNumberPaginationSpec.OrderByEnum.ID))
                 .getPageContents()
                 .stream()
                 .map(ApiKeyModel::getName))

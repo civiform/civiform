@@ -26,12 +26,10 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.QuestionTag;
-import play.libs.F;
 import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
@@ -40,6 +38,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.Scalar;
+import services.pagination.SubmitTimePaginationSpec;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -106,9 +105,7 @@ public final class CsvExporterService {
     ImmutableList<ApplicationModel> applications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
-                programId,
-                F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-                filters)
+                programId, SubmitTimePaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC, filters)
             .getPageContents();
 
     CsvExportConfig exportConfig =

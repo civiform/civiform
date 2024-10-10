@@ -32,7 +32,6 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
@@ -42,12 +41,11 @@ import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.pagination.BasePaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -1603,17 +1601,13 @@ public final class ProgramService {
    * Get all submitted applications for this program and all other previous and future versions of
    * it matches the specified filters.
    *
-   * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
-   *     pagination spec to use for a given call.
+   * @param paginationSpec the pagination spec to apply to the query.
    * @param filters a set of filters to apply to the examined applications.
    */
   public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
-      long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, filters);
+        programId, paginationSpec, filters);
   }
 
   private static ImmutableSet<CiviFormError> validateBlockDefinition(
