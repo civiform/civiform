@@ -153,10 +153,11 @@ public final class ProgramCardsSectionParamsFactory {
     // whatever else our current cards do.
     String detailsUrl = program.externalLink();
     if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
+      // TODO: Update this to point to the new northstar details page.
       detailsUrl =
           profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.show(program.id()).url();
+              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
+              : applicantRoutes.review(program.id()).url();
     }
 
     boolean isGuest = personalInfo.getType() == GUEST;
