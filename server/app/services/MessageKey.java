@@ -378,6 +378,8 @@ public enum MessageKey {
   TOAST_MAY_QUALIFY_TI("toast.mayQualifyTi"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   TOAST_SESSION_ENDED("toast.sessionEnded"),
+  UPLOADING("label.uploading"),
+  UPLOADED_FILES("label.uploadedFiles"),
   UNNAMED_USER("label.unnamedUser"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
