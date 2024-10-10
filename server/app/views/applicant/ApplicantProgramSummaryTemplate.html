@@ -11,6 +11,12 @@
       <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
+            <div class="section-external">
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+              ></div>
+            </div>
+
             <div
               th:replace="~{components/ToastFragment :: summaryToasts}"
             ></div>

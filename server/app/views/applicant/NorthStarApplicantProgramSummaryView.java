@@ -61,6 +61,11 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
 
+    // Progress Bar
+    ProgressBar progressBar =
+        new ProgressBar(params.blocks(), params.blocks().size(), params.messages());
+    context.setVariable("progressBar", progressBar);
+
     // Toasts
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
     context.setVariable("successBannerMessage", params.successBannerMessage());
