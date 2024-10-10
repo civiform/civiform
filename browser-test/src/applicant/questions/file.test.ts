@@ -444,7 +444,6 @@ test.describe('file upload applicant flow', () => {
         '.cf-question-fileupload',
       )
     })
-
     test('can upload multiple files', async ({
       page,
       applicantQuestions,
@@ -452,20 +451,39 @@ test.describe('file upload applicant flow', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await applicantQuestions.answerFileUploadQuestionFromAssets(
-        'file-upload.png',
-      )
-      await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+      await test.step('Upload two files', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
 
-      await applicantQuestions.answerFileUploadQuestionFromAssets(
-        'file-upload-second.png',
-      )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-second.png',
+        )
 
-      await applicantFileQuestion.expectFileNameDisplayed(
-        'file-upload-second.png',
-      )
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-second.png',
+        )
 
-      await validateScreenshot(page, 'file-uploaded-multiple-files')
+        await validateScreenshot(page, 'file-uploaded-multiple-files')
+      })
+
+      await test.step('Upload long file name and validate mobile layout', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
+        )
+
+        await applicantFileQuestion.expectFileNameDisplayed(
+          'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
+        )
+
+        await validateScreenshot(
+          page.locator('main'),
+          'file-uploaded-very-long-name',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
     })
 
     test('review page renders correctly', async ({
