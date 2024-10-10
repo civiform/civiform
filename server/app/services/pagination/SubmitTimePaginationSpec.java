@@ -49,13 +49,20 @@ public class SubmitTimePaginationSpec extends BasePaginationSpec {
     if (this.currentSubmitTime.equals(Instant.MAX)) {
       return query.where().lt("id", this.currentRowId).query();
     }
+    /**
+     * WHERE
+     *   (submitTime == currentSubmitTime AND id < currentRowId)
+     *   OR (submitTime < currentSubmitTime)
+     */
     return query
         .where()
         .or()
         .and()
-        .eq("submitTime", Date.from(this.currentSubmitTime))
+        .eq("submitTime", this.currentSubmitTime)
         .lt("id", this.currentRowId)
-        .lt("submitTime", this.currentRowId)
+        .endAnd()
+        .lt("submitTime", this.currentSubmitTime)
+        .endOr()
         .query();
   }
 }

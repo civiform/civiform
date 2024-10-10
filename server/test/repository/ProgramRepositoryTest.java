@@ -35,6 +35,7 @@ import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.RowIdPaginationSpec;
+import services.pagination.SubmitTimePaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
@@ -841,6 +842,66 @@ public class ProgramRepositoryTest extends ResetPostgres {
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+  }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_sortedAndPagedBySubmitTime() {
+    ApplicantModel applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
+
+    ApplicationModel applicationOne =
+        resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
+    resourceCreator.publishNewSynchronizedVersion();
+
+    ApplicantModel applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    ApplicantModel applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    ApplicationModel applicationTwo =
+        resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    ApplicationModel applicationThree =
+        resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+    /* Set the submit date such that the results come back in this order: 2, 1, 3 */
+    applicationThree.setSubmitTimeToNow();
+    applicationThree.save();
+    applicationOne.setSubmitTimeToNow();
+    applicationOne.save();
+    applicationTwo.setSubmitTimeToNow();
+    applicationTwo.save();
+
+    PaginationResult<ApplicationModel> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new SubmitTimePaginationSpec(
+                /* pageSize= */ 2,
+                /* currentSubmitTime= */ Instant.MAX,
+                /* currentRowId= */Long.MAX_VALUE),
+            SubmittedApplicationFilter.EMPTY);
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantTwo);
+    assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantOne);
+
+    paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new SubmitTimePaginationSpec(
+                /* pageSize= */ 2,
+                /* currentSubmitTime= */ paginationResult.getPageContents().get(1).getSubmitTime(),
+                /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+            SubmittedApplicationFilter.EMPTY);
+
+    // Sequential paging returns (1) in the numpages, it only counts the pages from the starting point
+    assertThat(paginationResult.getNumPages()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
 
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
