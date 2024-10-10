@@ -135,4 +135,22 @@
     color: #1b1b1b;
   }
 
+  .cf-file-uploading-tag {
+    background-color: #fff7bf;
+    color: #594d00;
+    visibility: hidden;
+  }
+
+  /* If a file is being uploaded, show the file uploading tag... */
+  .cf-file-uploading .cf-file-uploading-tag {
+    visibility: visible;
+  }
+
+  /* ... and apply disabled styling to any interactive elements. */
+  .cf-file-uploading .cf-disable-when-uploading {
+    @apply bg-white text-gray-400 border border-gray-400;
+    pointer-events: none;
+    cursor: default;
+  }
+
 }
