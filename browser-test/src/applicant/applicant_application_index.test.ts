@@ -38,9 +38,11 @@ test.describe('applicant program index page', () => {
       questionName: 'second-q',
       questionText: secondQuestionText,
     })
+    // Primary program's screen 1 has 0 questions, so the 'first block' is actually screen 2
     await adminPrograms.addProgramBlock(primaryProgramName, 'first block', [
       'first-q',
     ])
+    // The 'second block' is actually screen 3
     await adminPrograms.addProgramBlock(primaryProgramName, 'second block', [
       'second-q',
     ])
@@ -217,6 +219,51 @@ test.describe('applicant program index page', () => {
       wantInProgressPrograms: [],
       wantSubmittedPrograms: [],
     })
+  })
+
+  test('Do not show program details anchor if no external link is present', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const programWithoutExternalLink = 'No Link Program'
+    const programWithLink = 'Program With Link'
+
+    await loginAsAdmin(page)
+
+    await test.step('Create a new program without an external link', async () => {
+      await adminPrograms.addProgram(
+        programWithoutExternalLink,
+        'program description',
+        '' /* no external link */,
+      )
+    })
+
+    await test.step('Create a new program with an external link', async () => {
+      await adminPrograms.addProgram(
+        programWithLink,
+        'program description',
+        'https://www.civiform.us',
+      )
+    })
+
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await test.step('Assert that program details button is hidden', async () => {
+      const cardWithoutLink = page.locator('.cf-application-card', {
+        has: page.getByText(programWithoutExternalLink),
+      })
+      await expect(cardWithoutLink.getByText('Program details')).toBeHidden()
+    })
+
+    await test.step('Assert that program details button is present for card with link', async () => {
+      const cardWithLink = page.locator('.cf-application-card', {
+        has: page.getByText(programWithLink),
+      })
+      await expect(cardWithLink.getByText('Program details')).toBeVisible()
+    })
+
+    await validateScreenshot(page, 'program-details-visibility')
   })
 
   test('common intake form not present', async ({page}) => {
@@ -579,11 +626,19 @@ test.describe('applicant program index page', () => {
           })
         })
 
-        await test.step('First application is in "in progress" section once filled out', async () => {
-          await applicantQuestions.applyProgram(primaryProgramName)
+        await test.step('Fill out part of the primary program application', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+          )
+
+          // Screen 1 has no questions, so expect to navigate directly to screen 2
+          await expect(page.getByText('Screen 2')).toBeVisible()
           await applicantQuestions.answerTextQuestion('first answer')
           await applicantQuestions.clickContinue()
           await applicantQuestions.gotoApplicantHomePage()
+        })
+        await test.step('Expect primary program application is in "in progress" section', async () => {
           await applicantQuestions.expectPrograms({
             wantNotStartedPrograms: [otherProgramName],
             wantInProgressPrograms: [primaryProgramName],
@@ -595,16 +650,21 @@ test.describe('applicant program index page', () => {
           )
         })
 
-        await test.step('First application is in "Submitted" section once submitted', async () => {
-          await applicantQuestions.applyProgram(primaryProgramName)
-          await applicantQuestions.answerTextQuestion('second answer')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.submitFromReviewPage(
+        await test.step('Finish the primary program application', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
             /* northStarEnabled= */ true,
           )
+          // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
+          await expect(page.getByText('Screen 3')).toBeVisible()
+          await applicantQuestions.answerTextQuestion('second answer')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.clickSubmit()
           await applicantQuestions.returnToProgramsFromSubmissionPage(
             /* northStarEnabled= */ true,
           )
+        })
+        await test.step('Expect primary program application is in "Submitted" section', async () => {
           await applicantQuestions.expectPrograms({
             wantNotStartedPrograms: [otherProgramName],
             wantInProgressPrograms: [],

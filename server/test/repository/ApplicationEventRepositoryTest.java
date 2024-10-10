@@ -68,8 +68,13 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
             .build();
-    ApplicationEventModel event = new ApplicationEventModel(application, Optional.empty(), details);
-    ApplicationEventModel insertedEvent = repo.insertAsync(event).toCompletableFuture().join();
+    ApplicationEventModel insertedEvent =
+        repo.insertStatusEvent(
+                application,
+                Optional.empty(),
+                StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
+            .toCompletableFuture()
+            .join();
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);

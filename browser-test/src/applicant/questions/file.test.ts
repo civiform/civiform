@@ -586,6 +586,42 @@ test.describe('file upload applicant flow', () => {
       )
     })
 
+    test('remove button has correct aria-labelled by', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
+
+      await expect(page.locator('#uploaded-file-1')).toContainText(
+        'file-upload.png',
+      )
+      await expect(
+        page
+          .getByRole('list', {name: 'Uploaded files'})
+          .locator('li')
+          .filter({hasText: 'file-upload.png'})
+          .getByText('Remove File'),
+      ).toHaveAttribute('aria-labelledby', 'uploaded-file-1')
+
+      await expect(page.locator('#uploaded-file-2')).toContainText(
+        'file-upload-second.png',
+      )
+      await expect(
+        page
+          .getByRole('list', {name: 'Uploaded files'})
+          .locator('li')
+          .filter({hasText: 'file-upload-second.png'})
+          .getByText('Remove File'),
+      ).toHaveAttribute('aria-labelledby', 'uploaded-file-2')
+    })
+
     // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
     test.fixme(
       'too large file error',
@@ -656,7 +692,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
       }) => {
         await test.step('Initial rendering screenshot', async () => {
-          await applicantQuestions.applyProgram(programName)
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
           await applicantFileQuestion.expectFileSelectionErrorHidden()
 
           await validateScreenshot(
@@ -685,7 +724,10 @@ test.describe('file upload applicant flow', () => {
         'File too large error',
         async ({applicantFileQuestion, applicantQuestions}) => {
           await test.step('Initially no error is shown', async () => {
-            await applicantQuestions.applyProgram(programName)
+            await applicantQuestions.applyProgram(
+              programName,
+              /* northStarEnabled= */ true,
+            )
             await applicantFileQuestion.expectFileTooLargeErrorHidden()
           })
 
@@ -718,7 +760,10 @@ test.describe('file upload applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickNext()
 
         const formInputs = await page
@@ -735,7 +780,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantFileQuestion.expectNoContinueButton()
       })
@@ -744,7 +792,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantFileQuestion.expectNoSkipButton()
       })
@@ -754,7 +805,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
@@ -774,7 +828,10 @@ test.describe('file upload applicant flow', () => {
         applicantQuestions,
         applicantFileQuestion,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
@@ -793,7 +850,10 @@ test.describe('file upload applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

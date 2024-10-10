@@ -16,7 +16,10 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.Block;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
@@ -31,15 +34,18 @@ public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
+  private final ApplicantService applicantService;
 
   @Inject
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
-      PublicStorageClient publicStorageClient) {
+      PublicStorageClient publicStorageClient,
+      ApplicantService applicantService) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.applicantService = checkNotNull(applicantService);
   }
 
   /**
@@ -90,75 +96,119 @@ public final class ProgramCardsSectionParamsFactory {
     ImmutableList.Builder<ProgramCardParams> cardsListBuilder = ImmutableList.builder();
 
     for (ApplicantProgramData programDatum : programData) {
-      ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
-      ProgramDefinition program = programDatum.program();
-
-      boolean isGuest = personalInfo.getType() == GUEST;
-      String actionUrl =
-          profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.review(program.id()).url();
-
-      // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
-      // whatever else our current cards do.
-      String detailsUrl = program.externalLink();
-      if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
-        detailsUrl =
-            profile.isPresent() && applicantId.isPresent()
-                ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
-                : applicantRoutes.show(program.id()).url();
-      }
-      cardBuilder
-          .setTitle(program.localizedName().getOrDefault(preferredLocale))
-          .setBody(program.localizedDescription().getOrDefault(preferredLocale))
-          .setDetailsUrl(detailsUrl)
-          .setActionUrl(actionUrl)
-          .setIsGuest(isGuest)
-          .setActionText(messages.at(buttonText.getKeyName()));
-
-      if (isGuest) {
-        cardBuilder.setLoginModalId("login-dialog-" + program.id());
-      }
-
-      if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
-        cardBuilder.setApplicationStatus(
-            programDatum
-                .latestSubmittedApplicationStatus()
-                .get()
-                .localizedStatusText()
-                .getOrDefault(preferredLocale));
-      }
-
-      if (shouldShowEligibilityTag(programDatum)) {
-        boolean isEligible = programDatum.isProgramMaybeEligible().get();
-        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
-        boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
-        MessageKey mayQualifyMessage =
-            isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
-        MessageKey mayNotQualifyMessage =
-            isTrustedIntermediary
-                ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
-                : MessageKey.TAG_MAY_NOT_QUALIFY;
-
-        cardBuilder.setEligible(isEligible);
-        cardBuilder.setEligibilityMessage(
-            messages.at(
-                isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
-      }
-
-      Optional<String> fileKey = program.summaryImageFileKey();
-      if (fileKey.isPresent()) {
-        String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
-        cardBuilder.setImageSourceUrl(imageSourceUrl);
-
-        String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
-        cardBuilder.setAltText(altText);
-      }
-
-      cardsListBuilder.add(cardBuilder.build());
+      cardsListBuilder.add(
+          getCard(
+              request,
+              messages,
+              buttonText,
+              programDatum,
+              preferredLocale,
+              profile,
+              applicantId,
+              personalInfo));
     }
 
     return cardsListBuilder.build();
+  }
+
+  public String nextBlockId(Long applicantId, Long programId) {
+    ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
+        applicantService
+            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .toCompletableFuture()
+            .join();
+    Optional<Block> block = readOnlyApplicantProgramService.getFirstIncompleteOrStaticBlock();
+    if (block.isPresent()) {
+      return block.get().getId();
+    } else {
+      return "1";
+    }
+  }
+
+  public ProgramCardParams getCard(
+      Request request,
+      Messages messages,
+      MessageKey buttonText,
+      ApplicantProgramData programDatum,
+      Locale preferredLocale,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
+      ApplicantPersonalInfo personalInfo) {
+    ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
+    ProgramDefinition program = programDatum.program();
+
+    // Navigate to the next unanswered block. If there's no profile, use the default block
+    // (which should be the first)
+    String actionUrl = applicantRoutes.blockEdit(program.id()).url();
+    if (profile.isPresent() && applicantId.isPresent()) {
+      String nextBlockId = nextBlockId(applicantId.get(), program.id());
+      actionUrl =
+          applicantRoutes
+              .blockEdit(
+                  profile.get(), applicantId.get(), program.id(), nextBlockId, Optional.empty())
+              .url();
+    }
+
+    // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
+    // whatever else our current cards do.
+    String detailsUrl = program.externalLink();
+    if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
+      detailsUrl =
+          profile.isPresent() && applicantId.isPresent()
+              ? applicantRoutes.show(profile.get(), applicantId.get(), program.id()).url()
+              : applicantRoutes.show(program.id()).url();
+    }
+
+    boolean isGuest = personalInfo.getType() == GUEST;
+
+    cardBuilder
+        .setTitle(program.localizedName().getOrDefault(preferredLocale))
+        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setDetailsUrl(detailsUrl)
+        .setActionUrl(actionUrl)
+        .setIsGuest(isGuest)
+        .setActionText(messages.at(buttonText.getKeyName()));
+
+    if (isGuest) {
+      cardBuilder.setLoginModalId("login-dialog-" + program.id());
+    }
+
+    if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
+      cardBuilder.setApplicationStatus(
+          programDatum
+              .latestSubmittedApplicationStatus()
+              .get()
+              .localizedStatusText()
+              .getOrDefault(preferredLocale));
+    }
+
+    if (shouldShowEligibilityTag(programDatum)) {
+      boolean isEligible = programDatum.isProgramMaybeEligible().get();
+      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
+      boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+      MessageKey mayQualifyMessage =
+          isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+      MessageKey mayNotQualifyMessage =
+          isTrustedIntermediary
+              ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
+              : MessageKey.TAG_MAY_NOT_QUALIFY;
+
+      cardBuilder.setEligible(isEligible);
+      cardBuilder.setEligibilityMessage(
+          messages.at(
+              isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
+    }
+
+    Optional<String> fileKey = program.summaryImageFileKey();
+    if (fileKey.isPresent()) {
+      String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
+      cardBuilder.setImageSourceUrl(imageSourceUrl);
+
+      String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
+      cardBuilder.setAltText(altText);
+    }
+
+    return cardBuilder.build();
   }
 
   /**

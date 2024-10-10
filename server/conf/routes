@@ -89,8 +89,9 @@ POST    /admin/questions             controllers.admin.AdminQuestionController.c
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
 POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.restore(request: Request, id: Long)
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
+
 # For rendering North Star question previews on the admin question page
-GET     /admin/preview/:questionType controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
+GET     /admin/preview/:questionType        controllers.admin.NorthStarQuestionPreviewController.sampleQuestion(request: Request, questionType: String)
 
 # Routes for editing question localizations
 GET     /admin/questions/:questionName/translations/edit          controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)
@@ -119,7 +120,7 @@ GET     /admin/tiDash/editClientForm/:accountId                 controllers.ti.T
 POST    /admin/tiDash/editClient/:id                  controllers.ti.TrustedIntermediaryController.editClient(id: Long, request: Request)
 
 # Controller for admins only, related to applications
-GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])
+GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String], showDownloadModal: java.util.Optional[java.lang.Boolean])
 GET     /admin/programs/:programId/applications/allJson                     controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/all                         controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/:applicationId              controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)

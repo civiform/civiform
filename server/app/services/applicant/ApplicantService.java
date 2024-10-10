@@ -475,14 +475,9 @@ public final class ApplicantService {
             .setStatusText(status.statusText())
             .setEmailSent(true)
             .build();
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(statusEvent)
-            .build();
     // Because we are doing this automatically, set the Account to empty.
-    return applicationEventRepository.insertAsync(
-        new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
+    return applicationEventRepository.insertStatusEvent(
+        application, /* optionalAdmin= */ Optional.empty(), statusEvent);
   }
 
   /**
@@ -774,7 +769,8 @@ public final class ApplicantService {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    Optional.of(applicationViewLink))
+                    Optional.of(applicationViewLink),
+                    /* showDownloadModal= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);

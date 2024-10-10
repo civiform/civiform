@@ -29,7 +29,7 @@ footer.technicalSupport=Để được hỗ trợ kỹ thuật: {0}
 # This should be consistent with button.guestLogin.
 guest=Khách
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Chọn ngôn ngữ
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Chọn một ngôn ngữ
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=Đăng nhập với tư cách quản trị viên
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Tệp đã tải lên: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Chọn tệp
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Chọn một hoặc nhiều tệp (tối đa là {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Chọn một hoặc nhiều tệp
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Xoá
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -216,6 +216,8 @@ title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=Các chương trình dựa trên lựa chọn của bạn ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Mục đã hoàn thành
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -507,10 +509,14 @@ button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
 title.commonIntakeConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia các chương trình sau:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Khách hàng của bạn có thể đăng ký tham gia các chương trình này nếu bạn đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ điều kiện tham gia các chương trình sau:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -548,7 +554,7 @@ alert.createAccountDescription=Sử dụng một tài khoản để đăng nhậ
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=Không có thay đổi nào cần lưu đối với {0}

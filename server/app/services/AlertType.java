@@ -9,5 +9,6 @@ public enum AlertType {
   ERROR,
   INFO,
   SUCCESS,
-  WARNING
+  WARNING,
+  EMERGENCY
 }

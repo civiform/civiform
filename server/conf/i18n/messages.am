@@ -29,7 +29,7 @@ footer.technicalSupport=ለቴክኒካዊ ድጋፍ፦ {0}
 # This should be consistent with button.guestLogin.
 guest=እንግዳ
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=ቋንቋ ይምረጡ
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=ቋንቋ ይምረጡ
 # A label on the button that opens the header menu shown on mobile
@@ -100,12 +100,12 @@ link.adminLogin=የአስተዳዳሪ መግቢያ
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=ፋይል ይምረጡ
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=አንድ ወይም ተጨማሪ ፋይሎችን ይምረጡ (ቢበዛ {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=አንድ ወይም ተጨማሪ ፋይሎችን ይምረጡ
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=ሰርዝ
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -216,6 +216,8 @@ title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
+# Title of the section on the home page that shows programs that match any of the selected filters.
+title.recommendedSection.v2=በእርስዎ ምርጫዎች ላይ የተመሠረቱ ፕሮግራሞች ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ክፍል ተጠናቅቋል
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -507,10 +509,14 @@ button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=በምላሾችዎ ላይ በመመስረት ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=በምላሾችዎ ላይ በመመስረት ደንበኛዎ ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -548,7 +554,7 @@ alert.createAccountDescription=የማመልከቻዎን ሁኔታ ማየት እ�
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=ለ{0} ምንም የሚቀመጡ ለውጦች የሉም
