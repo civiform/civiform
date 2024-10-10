@@ -24,6 +24,7 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.mvc.Results;
+import repository.ProgramRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -35,6 +36,7 @@ import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
 import views.applicant.ApplicantProgramInfoView;
+import views.applicant.NorthStarApplicantProgramOverviewView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -56,6 +58,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
+  private final NorthStarApplicantProgramOverviewView northStarApplicantProgramOverviewView;
+  private final ProgramRepository programRepository;
 
   @Inject
   public ApplicantProgramsController(
@@ -70,7 +74,9 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView) {
+      NorthStarProgramIndexView northStarProgramIndexView,
+      NorthStarApplicantProgramOverviewView northStarApplicantProgramOverviewView,
+      ProgramRepository programRepository) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -82,6 +88,9 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
+    this.northStarApplicantProgramOverviewView =
+        checkNotNull(northStarApplicantProgramOverviewView);
+    this.programRepository = checkNotNull(programRepository);
   }
 
   @Secure
@@ -259,7 +268,28 @@ public final class ApplicantProgramsController extends CiviFormController {
           applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
           Long.parseLong(programParam));
     } else {
-      return programSlugHandler.showProgram(this, request, programParam);
+      // here we want to check if north star is enabled
+      // if it is, redirect to the overview page
+      // if it's not, do this old behavior
+      if (settingsManifest.getNorthStarApplicantUi(request)) {
+        return programRepository
+            .getActiveProgramFromSlug(programParam)
+            .thenApply(
+                program -> {
+                  ProgramDefinition programDefinition = program.getProgramDefinition();
+                  NorthStarApplicantProgramOverviewView.Params params =
+                      NorthStarApplicantProgramOverviewView.Params.builder()
+                          .setRequest(request)
+                          .setApplicantPersonalInfo(ApplicantPersonalInfo.ofGuestUser())
+                          .setProgramDefinition(programDefinition)
+                          .setMessages(messagesApi.preferred(request))
+                          .build();
+                  return ok(northStarApplicantProgramOverviewView.render(params))
+                      .as(Http.MimeTypes.HTML);
+                });
+      } else {
+        return programSlugHandler.showProgram(this, request, programParam);
+      }
     }
   }
 
