@@ -2,7 +2,6 @@ package services.pagination;
 
 import io.ebean.Query;
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * SubmitTimePaginationSpec implements sequential paging access into a list of rows sorted by the
@@ -50,9 +49,8 @@ public class SubmitTimePaginationSpec extends BasePaginationSpec {
       return query.where().lt("id", this.currentRowId).query();
     }
     /**
-     * WHERE
-     *   (submitTime == currentSubmitTime AND id < currentRowId)
-     *   OR (submitTime < currentSubmitTime)
+     * WHERE (submitTime == currentSubmitTime AND id < currentRowId) OR (submitTime <
+     * currentSubmitTime)
      */
     return query
         .where()

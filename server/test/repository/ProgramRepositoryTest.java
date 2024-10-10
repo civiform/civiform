@@ -882,7 +882,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             new SubmitTimePaginationSpec(
                 /* pageSize= */ 2,
                 /* currentSubmitTime= */ Instant.MAX,
-                /* currentRowId= */Long.MAX_VALUE),
+                /* currentRowId= */ Long.MAX_VALUE),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -900,7 +900,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 /* curentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
-    // Sequential paging returns (1) in the numpages, it only counts the pages from the starting point
+    // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
+    // point
     assertThat(paginationResult.getNumPages()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
 
