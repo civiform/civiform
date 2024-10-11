@@ -33,12 +33,10 @@ import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
-import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.Scalar;
 import services.program.Column;
 import services.program.ColumnType;
@@ -129,7 +127,7 @@ public final class CsvExporterService {
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
       boolean showEligibilityColumn)
       throws ProgramNotFoundException {
-    Map<Path, AnswerData> answerMap = new HashMap<>();
+    Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
     applications.stream()
         .flatMap(
@@ -137,24 +135,18 @@ public final class CsvExporterService {
                 applicantService
                     .getReadOnlyApplicantProgramService(
                         app, programDefinitionsForAllVersions.get(app.getProgram().id))
-                    .getSummaryDataAllQuestions()
-                    .stream())
+                    .getAllQuestions())
         .forEach(
-            data -> {
-              answerMap.putIfAbsent(data.contextualizedPath(), data);
-            });
+            (aq -> {
+              uniqueQuestions.putIfAbsent(aq.getContextualizedPath(), aq);
+            }));
 
-    // Get the list of all answers, sorted by block ID, then question index, and finally
-    // contextualized path in string form.
-    ImmutableList<AnswerData> answers =
-        answerMap.values().stream()
-            .sorted(
-                Comparator.comparing(AnswerData::blockId)
-                    .thenComparing(AnswerData::questionIndex)
-                    .thenComparing(answerData -> answerData.contextualizedPath().toString()))
+    ImmutableList<ApplicantQuestion> exemplarQuestions =
+        uniqueQuestions.values().stream()
+            .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(answers, showEligibilityColumn);
+    return buildColumnHeaders(exemplarQuestions, showEligibilityColumn);
   }
 
   /**
@@ -207,11 +199,11 @@ public final class CsvExporterService {
   }
 
   /**
-   * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The config
-   * includes all the questions, the application id, and the application submission time.
+   * Produce the default {@link CsvExportConfig} for a list of {@link ApplicantQuestion}s. The
+   * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<AnswerData> representativeAnswers, boolean showEligibilityColumn) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions, boolean showEligibilityColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -251,17 +243,14 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    // Add columns for each path to an answer.
-    representativeAnswers.stream()
-        .filter(
-            answerData ->
-                !NON_EXPORTED_QUESTION_TYPES.contains(
-                    answerData.questionDefinition().getQuestionType()))
+    // Add columns for each scalar path to an answer.
+    exemplarQuestions.stream()
+        .filter(aq -> !NON_EXPORTED_QUESTION_TYPES.contains(aq.getType()))
         .flatMap(
-            answerData ->
-                answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)
-                    ? buildColumnsForEveryOption(answerData)
-                    : buildColumnsForEveryScalar(answerData))
+            aq ->
+                aq.getType().equals(QuestionType.CHECKBOX)
+                    ? buildColumnsForEveryOption(aq)
+                    : buildColumnsForEveryScalar(aq))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
@@ -269,24 +258,24 @@ public final class CsvExporterService {
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }
 
-  private Stream<Column> buildColumnsForEveryOption(AnswerData answerData) {
+  private Stream<Column> buildColumnsForEveryOption(ApplicantQuestion applicantQuestion) {
     // Columns are looked up by the scalar path, so we use the scalar path here
-    Path path = ((MultiSelectQuestion) answerData.createQuestion()).getSelectionPath();
+    Path scalarPath = applicantQuestion.createMultiSelectQuestion().getSelectionPath();
     return exportServiceRepository
-        .getAllHistoricMultiOptionAdminNames(answerData.questionDefinition())
+        .getAllHistoricMultiOptionAdminNames(applicantQuestion.getQuestionDefinition())
         .stream()
         .map(
             option ->
                 Column.builder()
-                    .setHeader(formatHeader(path, Optional.of(option)))
-                    .setJsonPath(path)
+                    .setHeader(formatHeader(scalarPath, Optional.of(option)))
+                    .setJsonPath(scalarPath)
                     .setOptionAdminName(option)
                     .setColumnType(ColumnType.APPLICANT_ANSWER)
                     .build());
   }
 
-  private Stream<Column> buildColumnsForEveryScalar(AnswerData answerData) {
-    return answerData.scalarAnswersInDefaultLocale().keySet().stream()
+  private Stream<Column> buildColumnsForEveryScalar(ApplicantQuestion applicantQuestion) {
+    return applicantQuestion.getQuestion().getAllPaths().stream()
         .map(
             path ->
                 Column.builder()
