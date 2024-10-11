@@ -703,6 +703,10 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 button.chooseFile=Pumili ng File
+# Text shown on a tag while a file is uploading.
+label.uploading=Uploading
+# Label applied to a list of uploaded files
+label.uploadedFiles=Uploaded Files
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
