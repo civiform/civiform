@@ -374,6 +374,8 @@ title.tiAccountSettings=Trung gian đáng tin cậy — Xem Cài đặt tài kho
 
 # Submit application button
 button.submit=Gửi
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Tiếp tục
 # Button text on a button that will allow the user to start filling out a section of questions.
