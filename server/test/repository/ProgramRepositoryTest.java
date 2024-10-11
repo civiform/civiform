@@ -34,8 +34,8 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.pagination.PageNumberPaginationSpec;
-import services.pagination.RowIdPaginationSpec;
-import services.pagination.SubmitTimePaginationSpec;
+import services.pagination.RowIdSequentialAccessPaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
@@ -363,7 +363,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(bobApp.id.toString()))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -441,7 +441,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(searchFragment))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -470,7 +470,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResultOne =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("One"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -486,7 +486,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResultTwo =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("Last"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -502,7 +502,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResultThree =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of(emailTwo))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -518,7 +518,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResultFour =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("1234"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -534,7 +534,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResultFive =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             SubmittedApplicationFilter.builder()
                 .setSearchNameFragment(Optional.of("(1.23)- 456"))
                 .setSubmitTimeFilter(TimeFilter.EMPTY)
@@ -703,7 +703,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
       ProgramModel program, SubmittedApplicationFilter filter) {
     PaginationResult<ApplicationModel> result =
         repo.getApplicationsForAllProgramVersions(
-            program.id, RowIdPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC, filter);
+            program.id,
+            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            filter);
     assertThat(result.hasMorePages()).isEqualTo(false);
     return result.getPageContents().stream()
         .map(app -> app.id)
@@ -879,7 +881,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new SubmitTimePaginationSpec(
+            new SubmitTimeSequentialAccessPaginationSpec(
                 /* pageSize= */ 2,
                 /* currentSubmitTime= */ Instant.MAX,
                 /* currentRowId= */ Long.MAX_VALUE),
@@ -894,7 +896,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new SubmitTimePaginationSpec(
+            new SubmitTimeSequentialAccessPaginationSpec(
                 /* pageSize= */ 2,
                 /* currentSubmitTime= */ paginationResult.getPageContents().get(1).getSubmitTime(),
                 /* curentRowId= */ paginationResult.getPageContents().get(1).id),
@@ -906,6 +908,55 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
 
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+  }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_sortedAndPagedByRowId() {
+    ApplicantModel applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
+
+    ApplicationModel applicationOne =
+        resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+
+    ProgramModel nextVersion = resourceCreator.insertDraftProgram("test program");
+    resourceCreator.publishNewSynchronizedVersion();
+
+    ApplicantModel applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    ApplicantModel applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    ApplicationModel applicationTwo =
+        resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    ApplicationModel applicationThree =
+        resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+    PaginationResult<ApplicationModel> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new RowIdSequentialAccessPaginationSpec(
+                /* pageSize= */ 2, /* currentRowId= */ Long.MAX_VALUE),
+            SubmittedApplicationFilter.EMPTY);
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+    assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
+
+    paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            new RowIdSequentialAccessPaginationSpec(
+                /* pageSize= */ 2, /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+            SubmittedApplicationFilter.EMPTY);
+
+    // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
+    // point
+    assertThat(paginationResult.getNumPages()).isEqualTo(1);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
   }
 
   @Test
@@ -975,7 +1026,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new RowIdPaginationSpec(/* pageSize= */ 2, Long.MAX_VALUE),
+            new RowIdSequentialAccessPaginationSpec(/* pageSize= */ 2, Long.MAX_VALUE),
             SubmittedApplicationFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
@@ -987,7 +1038,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            new RowIdPaginationSpec(
+            new RowIdSequentialAccessPaginationSpec(
                 /* pageSize= */ 2, paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 

@@ -24,7 +24,7 @@ import repository.VersionRepository;
 import services.DateConverter;
 import services.PaginationResult;
 import services.export.JsonExporterService;
-import services.pagination.RowIdPaginationSpec;
+import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
@@ -97,10 +97,10 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
-    RowIdPaginationSpec paginationSpec =
+    RowIdSequentialAccessPaginationSpec paginationSpec =
         paginationToken
             .map(this::createPaginationSpec)
-            .orElse(new RowIdPaginationSpec(pageSize, Long.MAX_VALUE));
+            .orElse(new RowIdSequentialAccessPaginationSpec(pageSize, Long.MAX_VALUE));
 
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
@@ -233,9 +233,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     }
   }
 
-  private RowIdPaginationSpec createPaginationSpec(
+  private RowIdSequentialAccessPaginationSpec createPaginationSpec(
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
-    return new RowIdPaginationSpec(
+    return new RowIdSequentialAccessPaginationSpec(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
         Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier()));
   }

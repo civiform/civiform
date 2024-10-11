@@ -3,8 +3,8 @@ package services.pagination;
 import io.ebean.Query;
 
 /**
- * RowIdPaginationSpec implements sequential paging access into a list of rows sorted by the id
- * column.
+ * RowIdSequentialAccessPaginationSpec implements sequential paging access into a list of rows
+ * sorted by the id column.
  *
  * <p>The table being paged must have the following columns defined: id.
  *
@@ -14,15 +14,15 @@ import io.ebean.Query;
  * will be accessed in a sequential manner. Access performance to every page is constant. No items
  * will be missed by this paging spec.
  */
-public class RowIdPaginationSpec extends BasePaginationSpec {
+public class RowIdSequentialAccessPaginationSpec extends BasePaginationSpec {
 
   // Static object helper definitions.
-  public static RowIdPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
-      new RowIdPaginationSpec(Integer.MAX_VALUE, Long.MAX_VALUE);
+  public static RowIdSequentialAccessPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
+      new RowIdSequentialAccessPaginationSpec(Integer.MAX_VALUE, Long.MAX_VALUE);
 
   private final Long currentRowId;
 
-  public RowIdPaginationSpec(int pageSize, Long currentRowId) {
+  public RowIdSequentialAccessPaginationSpec(int pageSize, Long currentRowId) {
     super(pageSize);
     this.currentRowId = currentRowId;
   }

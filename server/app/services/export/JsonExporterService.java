@@ -27,7 +27,7 @@ import services.applicant.JsonPathProvider;
 import services.applicant.question.ApplicantQuestion;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
-import services.pagination.SubmitTimePaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionType;
@@ -64,7 +64,7 @@ public final class JsonExporterService {
    */
   public String export(
       ProgramDefinition programDefinition,
-      SubmitTimePaginationSpec paginationSpec,
+      SubmitTimeSequentialAccessPaginationSpec paginationSpec,
       SubmittedApplicationFilter filters,
       boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =

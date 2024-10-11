@@ -38,7 +38,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.Scalar;
-import services.pagination.SubmitTimePaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -105,7 +105,9 @@ public final class CsvExporterService {
     ImmutableList<ApplicationModel> applications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
-                programId, SubmitTimePaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC, filters)
+                programId,
+                SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+                filters)
             .getPageContents();
 
     CsvExportConfig exportConfig =

@@ -16,16 +16,16 @@ import io.ebean.Query;
  * only access pages in sequence. Usually used for export functions and API retrieve methods.
  *
  * <p>Implementations of this interface are: PageNumberPaginationSpec, RowIdPaginationSpec, and
- * SubmitTimePaginationSpec.
+ * SubmitTimeSequentialAccessPaginationSpec.
  *
  * <p>PageNumberPaginationSpec: sorts by submit time, is a random access paging spec. Recommended
  * for user facing views.
  *
- * <p>RowIdPaginationSpec: sorts by row id, is a sequential access paging spec. Recommended for API
- * methods.
+ * <p>RowIdSequentialAccessPaginationSpec: sorts by row id, is a sequential access paging spec.
+ * Recommended for API methods.
  *
- * <p>SubmitTimePaginationSpec: sorts by submit time, is a sequential access paging spec.
- * Recommended for CSV/JSON export methods.
+ * <p>SubmitTimeSequentialAccessPaginationSpec: sorts by submit time, is a sequential access paging
+ * spec. Recommended for CSV/JSON export methods.
  *
  * <p>Usage:
  *
@@ -75,12 +75,12 @@ public abstract class BasePaginationSpec {
    */
   protected abstract <T> Query<T> applyOrderBy(Query<T> query);
 
-  /** optionally implemented in the subclass if implementing a sequential access paging spec */
+  /** only implemented in the subclass if implementing a sequential access paging spec */
   protected <T> Query<T> maybeApplyWhere(Query<T> query) {
     return query;
   }
 
-  /** optionally implemented in the subclass if implementing a random access paging spec. */
+  /** only implemented in the subclass if implementing a random access paging spec. */
   protected <T> Query<T> maybeApplySetFirstRow(Query<T> query) {
     return query;
   }

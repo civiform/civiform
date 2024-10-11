@@ -49,7 +49,7 @@ import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
 import services.pagination.PageNumberPaginationSpec;
-import services.pagination.SubmitTimePaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -167,7 +167,7 @@ public final class AdminApplicationController extends CiviFormController {
     String json =
         jsonExporterService.export(
             program,
-            SubmitTimePaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             filters,
             settingsManifest.getMultipleFileUploadEnabled(request));
     return ok(json)

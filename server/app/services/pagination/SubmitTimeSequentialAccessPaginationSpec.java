@@ -4,8 +4,8 @@ import io.ebean.Query;
 import java.time.Instant;
 
 /**
- * SubmitTimePaginationSpec implements sequential paging access into a list of rows sorted by the
- * submitTime column.
+ * SubmitTimeSequentialAccessPaginationSpec implements sequential paging access into a list of rows
+ * sorted by the submitTime column.
  *
  * <p>The table being paged must have the following columns defined: submitTime, id.
  *
@@ -19,16 +19,17 @@ import java.time.Instant;
  * multiple applications that have the same submit time. To avoid a performance penaly on these
  * queries an index over (submitTime, id) should exist.
  */
-public class SubmitTimePaginationSpec extends BasePaginationSpec {
+public class SubmitTimeSequentialAccessPaginationSpec extends BasePaginationSpec {
 
   // Static object helper definitions.
-  public static SubmitTimePaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
-      new SubmitTimePaginationSpec(Integer.MAX_VALUE, Instant.MAX, Long.MAX_VALUE);
+  public static SubmitTimeSequentialAccessPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =
+      new SubmitTimeSequentialAccessPaginationSpec(Integer.MAX_VALUE, Instant.MAX, Long.MAX_VALUE);
 
   private final Instant currentSubmitTime;
   private final Long currentRowId;
 
-  public SubmitTimePaginationSpec(int pageSize, Instant currentSubmitTime, Long currentRowId) {
+  public SubmitTimeSequentialAccessPaginationSpec(
+      int pageSize, Instant currentSubmitTime, Long currentRowId) {
     super(pageSize);
     this.currentSubmitTime = currentSubmitTime;
     this.currentRowId = currentRowId;
