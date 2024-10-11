@@ -374,6 +374,8 @@ title.tiAccountSettings=وسيط موثوق به - عرض إعدادات الح�
 
 # Submit application button
 button.submit=إرسال
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=متابعة
 # Button text on a button that will allow the user to start filling out a section of questions.
