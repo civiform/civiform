@@ -374,6 +374,8 @@ title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Settin
 
 # Submit application button
 button.submit=Isumite
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.
