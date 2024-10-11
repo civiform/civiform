@@ -1,0 +1,24 @@
+<th:block th:fragment="blockSummaryFragment(blockSummary)">
+  <!-- TODO(#8794): Add styling -->
+  <div class="usa-prose">
+    <div class="container">
+      <span
+        class="left-align"
+        th:text="${blockSummary.block().getLocalizedName(preferredLanguage.toLocale())}"
+      ></span>
+      <a
+        class="usa-button usa-button--outline right-align auto-width"
+        th:href="${blockSummary.editUrl()}"
+        th:text="#{button.edit}"
+      ></a>
+    </div>
+
+    <ul>
+      <li th:each="answerData : ${blockSummary.answerData()}">
+        <div
+          th:replace="~{applicant/QuestionSummaryFragment :: questionSummaryFragment(${answerData})}"
+        ></div>
+      </li>
+    </ul>
+  </div>
+</th:block>

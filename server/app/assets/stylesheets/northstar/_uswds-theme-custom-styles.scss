@@ -124,7 +124,8 @@ it is around the label */
 }
 
 .container {
-  @include u-margin-y(2);
+  display: flex;
+  justify-content: space-between;
 }
 
 .text-medium-spacing {
@@ -286,4 +287,8 @@ main {
 
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
+}
+
+.auto-width {
+  width: auto;
 }

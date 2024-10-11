@@ -1,0 +1,11 @@
+<th:block th:fragment="questionSummaryFragment(answerData)">
+  <div class="usa-prose container">
+    <!-- TODO(#8793): Add optional * indicator -->
+    <span
+      class="left-align"
+      th:text="${answerData.questionText()}"
+      th:aria-label="${answerData.questionAriaLabel()}"
+    ></span>
+    <span class="right-align" th:text="${answerData.answerText()}"></span>
+  </div>
+</th:block>
