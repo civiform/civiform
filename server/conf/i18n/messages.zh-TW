@@ -374,6 +374,8 @@ title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
 
 # Submit application button
 button.submit=提交
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=繼續
 # Button text on a button that will allow the user to start filling out a section of questions.
