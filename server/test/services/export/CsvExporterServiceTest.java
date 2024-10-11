@@ -1,6 +1,7 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -48,6 +49,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
   private static final String SECRET_SALT = "super secret";
   private static final String EMPTY_VALUE = "";
+  private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
   CsvExporterService exporterService;
   private QuestionService questionService;
   private VersionRepository versionRepository;
@@ -167,6 +169,14 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant address (longitude)",
             "applicant address (well_known_id)",
             "applicant address (service_area)",
+            "applicant birth date (date)",
+            "applicant email address (email)",
+            "applicant favorite color (text)",
+            "applicant favorite season (selection)",
+            "applicant file (file_key)",
+            "applicant file (file_urls)",
+            "applicant ice cream (selection)",
+            "applicant id (id)",
             "applicant monthly income (currency)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -178,13 +188,6 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "kitchen tools (selections - pepper_grinder)",
             "kitchen tools (selections - garlic_press)",
             "number of items applicant can juggle (number)",
-            "applicant birth date (date)",
-            "applicant email address (email)",
-            "applicant favorite color (text)",
-            "applicant favorite season (selection)",
-            "applicant file (file_key)",
-            "applicant ice cream (selection)",
-            "applicant id (id)",
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
@@ -192,8 +195,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
+    String middleNameHeader =
+        CsvExporterService.formatHeader(nameApplicantQuestion.getMiddleNamePath());
     String lastNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getLastNamePath());
+    String suffixPath = CsvExporterService.formatHeader(nameApplicantQuestion.getNameSuffixPath());
     QuestionModel phoneQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
@@ -205,7 +211,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
 
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
+    assertThat(records.get(0).get(middleNameHeader)).isEqualTo("M");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
+    assertThat(records.get(0).get(suffixPath)).isEqualTo("Sr");
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
@@ -239,7 +247,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     String fileKeyHeader =
         CsvExporterService.formatHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
+        .isEqualTo(
+            String.format("%s/admin/programs/%d/files/my-file-key", BASE_URL, fakeProgram.id));
   }
 
   // TODO(#8563) This should be removed/rolled into the above tests when we remove support for
@@ -287,9 +296,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     String fileKeyHeader =
         CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(0).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
-    assertThat(records.get(0).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key-2", fakeProgram.id));
+        .isEqualTo(
+            String.format(
+                "[%s/admin/programs/%d/files/my-file-key,"
+                    + " %s/admin/programs/%d/files/my-file-key-2]",
+                BASE_URL, fakeProgram.id, BASE_URL, fakeProgram.id));
   }
 
   @Test
@@ -317,11 +328,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Organization",
             "Eligibility Status",
             "Status",
+            "applicant favorite color (text)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
             "applicant name (suffix)",
-            "applicant favorite color (text)",
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
@@ -445,28 +456,28 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "applicant name (first_name)",
-            "applicant name (middle_name)",
-            "applicant name (last_name)",
-            "applicant name (suffix)",
             "applicant favorite color (text)",
-            "applicant monthly income (currency)",
-            "applicant household members[0] - household members name (first_name)",
-            "applicant household members[0] - household members name (middle_name)",
-            "applicant household members[0] - household members name (last_name)",
-            "applicant household members[0] - household members name (suffix)",
-            "applicant household members[1] - household members name (first_name)",
-            "applicant household members[1] - household members name (middle_name)",
-            "applicant household members[1] - household members name (last_name)",
-            "applicant household members[1] - household members name (suffix)",
             "applicant household members[0] - household members jobs[0] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[1] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[2] - household"
                 + " members days worked (number)",
+            "applicant household members[0] - household members name (first_name)",
+            "applicant household members[0] - household members name (middle_name)",
+            "applicant household members[0] - household members name (last_name)",
+            "applicant household members[0] - household members name (suffix)",
             "applicant household members[1] - household members jobs[0] - household"
                 + " members days worked (number)",
+            "applicant household members[1] - household members name (first_name)",
+            "applicant household members[1] - household members name (middle_name)",
+            "applicant household members[1] - household members name (last_name)",
+            "applicant household members[1] - household members name (suffix)",
+            "applicant monthly income (currency)",
+            "applicant name (first_name)",
+            "applicant name (middle_name)",
+            "applicant name (last_name)",
+            "applicant name (suffix)",
             "Admin Note");
 
     List<CSVRecord> records = parser.getRecords();
