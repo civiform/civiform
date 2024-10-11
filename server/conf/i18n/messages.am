@@ -374,6 +374,8 @@ title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮች
 
 # Submit application button
 button.submit=አስገባ
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=ቀጥል
 # Button text on a button that will allow the user to start filling out a section of questions.
