@@ -642,7 +642,7 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "1234.56\n"
           + "Answered on : 1969-12-31\n"
           + "applicant name\n"
-          + "Alice Appleton\n"
+          + "Alice M Appleton Jr\n"
           + "Answered on : 1969-12-31\n"
           + "applicant phone\n"
           + "+1 615-757-1010\n"
