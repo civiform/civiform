@@ -61,13 +61,22 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
+    // Progress bar
+    ProgressBar progressBar =
+        new ProgressBar(
+            applicationParams.blockList(),
+            applicationParams.blockIndex(),
+            applicationParams.messages());
+    context.setVariable("progressBar", progressBar);
+
     Map<Long, ApplicantQuestionRendererParams> questionParams =
         getApplicantQuestionRendererParams(applicationParams);
     context.setVariable("questionRendererParams", questionParams);
     context.setVariable(
         "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
 
-    /* Expected flow:
+    /*
+     * Expected flow:
      * 1. On block edit page, user has invalid form
      * 2. User clicks "Back"
      * 3. Block edit page reloads via routes (see getFormAction(...))
@@ -179,10 +188,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                 }));
   }
 
-  // One field at most should be autofocused on the page. If there are errors, it should be the
-  // first field with an error of the first question with errors. Prior to the North Star work, if
-  // there were no errors, we would focus on the first field of the question selected in the review
-  // page. However, the North Star review page has the user choose a block to answer instead of an
+  // One field at most should be autofocused on the page. If there are errors, it
+  // should be the first field with an error of the first question with errors.
+  // Prior to the North Star work, if there were no errors, we would focus on the
+  // first field of the question selected in the review page. However, the North
+  // Star review page has the user choose a block to answer instead of an
   // individual question, so we leave no focus target to avoid skipping content.
   @VisibleForTesting
   static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
