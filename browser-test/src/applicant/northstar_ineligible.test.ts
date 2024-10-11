@@ -129,7 +129,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Go back to the review page and re-submit', async () => {
       await applicantQuestions.clickEditMyResponses()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await test.step('Expect ineligible page again', async () => {
