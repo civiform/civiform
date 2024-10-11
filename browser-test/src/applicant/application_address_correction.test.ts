@@ -456,7 +456,7 @@ test.describe('address correction', () => {
           '92373',
         )
         await applicantQuestions.clickContinue()
-        await applicantQuestions.clickSubmit()
+        await applicantQuestions.clickSubmitApplication()
       })
     })
 
@@ -495,7 +495,7 @@ test.describe('address correction', () => {
 
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.clickSubmit()
+        await applicantQuestions.clickSubmitApplication()
       })
     })
 

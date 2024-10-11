@@ -659,7 +659,7 @@ test.describe('applicant program index page', () => {
           await expect(page.getByText('Screen 3')).toBeVisible()
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.clickSubmit()
+          await applicantQuestions.clickSubmitApplication()
           await applicantQuestions.returnToProgramsFromSubmissionPage(
             /* northStarEnabled= */ true,
           )

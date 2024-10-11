@@ -120,6 +120,7 @@ public enum MessageKey {
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
   BUTTON_SUBMIT("button.submit"),
+  BUTTON_SUBMIT_APPLICATION("button.submitApplication"), // North Star only
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),

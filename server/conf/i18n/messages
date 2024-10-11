@@ -374,6 +374,8 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 # Submit application button
 button.submit=Submit
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Continue
 # Button text on a button that will allow the user to start filling out a section of questions.
