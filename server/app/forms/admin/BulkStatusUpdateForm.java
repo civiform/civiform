@@ -16,7 +16,6 @@ public final class BulkStatusUpdateForm {
     this.maybeSendEmail = maybeSendEmail;
   }
 
-
   public BulkStatusUpdateForm() {
     this.applicationsIds = new ArrayList<>();
     this.statusText = "";

@@ -257,29 +257,68 @@ public final class ProgramAdminApplicationService {
     return application;
   }
 
-  public void setStatus(ImmutableList<ApplicationModel> applicationlist, StatusEvent newStatusEvent, AccountModel admin){
-//    throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
-//    ProgramModel program = applicationlist.get(0).getProgram();
-//
-//    String newStatusText = newStatusEvent.statusText();
-//    // The send/sent phrasing is a little weird as the service layer is converting between intent
-//    // and reality.
-//    boolean sendEmail = newStatusEvent.emailSent();
-//    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
-//
-//    Optional<Status> statusDefMaybe =
-//      applicationStatusesRepository
-//        .lookupActiveStatusDefinitions(programDef.adminName())
-//        .getStatuses()
-//        .stream()
-//        .filter(s -> s.statusText().equals(newStatusText))
-//        .findFirst();
-//    if (statusDefMaybe.isEmpty()) {
-//      throw new StatusNotFoundException(newStatusText, program.id);
-//    }
-//    Status statusDef = statusDefMaybe.get();
-    eventRepository
-      .insertStatusEvents(applicationlist, Optional.of(admin), newStatusEvent);
+  public void setStatus(
+      ImmutableList<ApplicationModel> applicationlist,
+      StatusEvent newStatusEvent,
+      AccountModel admin)
+      throws StatusNotFoundException, StatusEmailNotFoundException, AccountHasNoEmailException {
 
+    ProgramModel program = applicationlist.get(0).getProgram();
+
+    String newStatusText = newStatusEvent.statusText();
+    // The send/sent phrasing is a little weird as the service layer is converting between intent
+    // and reality.
+    boolean sendEmail = newStatusEvent.emailSent();
+    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
+
+    Optional<Status> statusDefMaybe =
+        applicationStatusesRepository
+            .lookupActiveStatusDefinitions(programDef.adminName())
+            .getStatuses()
+            .stream()
+            .filter(s -> s.statusText().equals(newStatusText))
+            .findFirst();
+    if (statusDefMaybe.isEmpty()) {
+      throw new StatusNotFoundException(newStatusText, program.id);
+    }
+    Status statusDef = statusDefMaybe.get();
+
+    // Send email if requested and present.
+    if (sendEmail) {
+      if (statusDef.localizedEmailBodyText().isEmpty()) {
+        throw new StatusEmailNotFoundException(newStatusText, program.id);
+      }
+
+      for (ApplicationModel application : applicationlist) {
+        ApplicantModel applicant = application.getApplicant();
+
+        // Notify an Admin/TI if they applied.
+        Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
+        if (adminSubmitterEmail.isPresent()) {
+          sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
+        }
+
+        // Notify the applicant.
+        ApplicantPersonalInfo applicantPersonalInfo =
+            applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
+        Optional<ImmutableSet<String>> applicantEmails =
+            applicantService.getApplicantEmails(applicantPersonalInfo);
+        if (applicantEmails.isPresent()) {
+          applicantEmails
+              .get()
+              .forEach(
+                  email ->
+                      sendApplicantEmail(
+                          program.getProgramDefinition(),
+                          applicant,
+                          statusDef,
+                          Optional.of(email)));
+        } else {
+          // An email was requested to be sent but the applicant doesn't have one.
+          throw new AccountHasNoEmailException(applicant.getAccount().id);
+        }
+      }
+    }
+    eventRepository.insertStatusEvents(applicationlist, Optional.of(admin), newStatusEvent);
   }
 }

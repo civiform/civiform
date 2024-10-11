@@ -406,7 +406,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                   option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
 
-
     DivTag table =
         div(
             form()
@@ -418,8 +417,12 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         .withClass("space-x-2")
                         .with(
                             dropdownTag,
-                            makeCsrfTokenInputTag(request),label("Send notification"),
-                          input().withType("checkbox").withName("maybeSendEmail").withClasses(BaseStyles.CHECKBOX),
+                            makeCsrfTokenInputTag(request),
+                            label("Send notification"),
+                            input()
+                                .withType("checkbox")
+                                .withName("maybeSendEmail")
+                                .withClasses(BaseStyles.CHECKBOX),
                             submitButton("Status change").withClasses("usa-button"),
                             table()
                                 .withClasses("usa-table usa-table--borderless", "w-full")

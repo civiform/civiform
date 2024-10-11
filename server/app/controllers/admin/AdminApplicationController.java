@@ -12,7 +12,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
@@ -568,7 +567,10 @@ public final class AdminApplicationController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatuses(Http.Request request, long programId)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException,
+          AccountHasNoEmailException,
+          StatusNotFoundException,
+          StatusEmailNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
     try {
@@ -580,24 +582,25 @@ public final class AdminApplicationController extends CiviFormController {
         formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
     var ids = form.get().getApplicationsIds();
 
-    var applicationlist = ids.stream().map(
-        id -> {
-          Optional<ApplicationModel> applicationMaybe =
-            programAdminApplicationService.getApplication(Long.parseLong(id), program);
-          return applicationMaybe.get();
-
-        }).collect(ImmutableList.toImmutableList());
+    var applicationlist =
+        ids.stream()
+            .map(
+                id -> {
+                  Optional<ApplicationModel> applicationMaybe =
+                      programAdminApplicationService.getApplication(Long.parseLong(id), program);
+                  return applicationMaybe.get();
+                })
+            .collect(ImmutableList.toImmutableList());
     System.out.println("The new status is  -" + form.get().getStatusText());
     System.out.println("The notify status is  -" + form.get().isMaybeSendEmail());
 
-
     programAdminApplicationService.setStatus(
-      applicationlist,
-      ApplicationEventDetails.StatusEvent.builder()
-        .setStatusText(form.get().getStatusText())
-        .setEmailSent(form.get().isMaybeSendEmail())
-        .build(),
-      profileUtils.currentUserProfile(request).getAccount().join());
+        applicationlist,
+        ApplicationEventDetails.StatusEvent.builder()
+            .setStatusText(form.get().getStatusText())
+            .setEmailSent(form.get().isMaybeSendEmail())
+            .build(),
+        profileUtils.currentUserProfile(request).getAccount().join());
 
     return redirect(
         routes.AdminApplicationController.index(
