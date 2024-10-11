@@ -374,6 +374,8 @@ title.tiAccountSettings=Intermediario de confianza - Ver la configuración de la
 
 # Submit application button
 button.submit=Enviar
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Continuar
 # Button text on a button that will allow the user to start filling out a section of questions.
