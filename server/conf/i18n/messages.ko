@@ -374,6 +374,8 @@ title.tiAccountSettings=신뢰할 수 있는 중개자 - 계정 설정 보기 - 
 
 # Submit application button
 button.submit=제출
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=계속
 # Button text on a button that will allow the user to start filling out a section of questions.
