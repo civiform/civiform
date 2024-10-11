@@ -374,6 +374,8 @@ title.tiAccountSettings=ຕົວກາງທີ່ເຊື່ອຖືໄດ�
 
 # Submit application button
 button.submit=ສົ່ງ
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=ສືບຕໍ່
 # Button text on a button that will allow the user to start filling out a section of questions.
