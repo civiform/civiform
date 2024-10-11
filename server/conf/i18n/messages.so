@@ -374,6 +374,8 @@ title.tiAccountSettings=Dhexdhexaadiye la aamini karo - Eeg goobaha Koontada - C
 
 # Submit application button
 button.submit=Gudbi
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Sii wad
 # Button text on a button that will allow the user to start filling out a section of questions.
