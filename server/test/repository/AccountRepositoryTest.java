@@ -410,6 +410,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
+    account.addActiveSession("session1", testClock);
     account.save();
     long accountId = account.id;
 
