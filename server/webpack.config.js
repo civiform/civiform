@@ -5,9 +5,7 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   stats: 'errors-only',
-  cache: {
-    type: 'filesystem'
-  },
+  cache: false,
   module: {
     rules: [
       {
@@ -37,7 +35,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /node_modules\/(?!(@uswds)\/).*/,
+        //exclude: /node_modules\/(?!(@uswds)\/).*/,
       },
     ],
   },

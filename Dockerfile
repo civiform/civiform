@@ -77,7 +77,7 @@ ENTRYPOINT ["/bin/bash"]
 # Save build results to anonymous volumes for reuse
 # We do this first, so they don't get shadowed by the
 # local server directory when running locally.
-VOLUME [ "/usr/src/server/target","/usr/src/server/project/project", "/usr/src/server/project/target", "/usr/src/server/node_modules", "/usr/src/server/.bsp/","/usr/src/server/public/stylesheets/" ]
+VOLUME [ "/usr/src/server/project/project", "/usr/src/server/project/target", "/usr/src/server/.bsp/","/usr/src/server/public/stylesheets/" ]
 # Then map the server code to a volume, which can be shadowed
 # locally.
 VOLUME ["/usr/src/server"]
