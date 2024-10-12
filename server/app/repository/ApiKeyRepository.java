@@ -48,7 +48,7 @@ public final class ApiKeyRepository {
             .gt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
             // This is a proxy for creation time descending. Both get the desired ordering
             // behavior but ID is indexed.
-            .order("id desc")
+            .orderBy("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")
@@ -73,7 +73,7 @@ public final class ApiKeyRepository {
             .isNotNull("retired_time")
             // This is a proxy for creation time descending. Both get the desired ordering
             // behavior but ID is indexed.
-            .order("id desc")
+            .orderBy("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")
@@ -104,7 +104,7 @@ public final class ApiKeyRepository {
             .isNull("retired_time")
             // This is a proxy for creation time descending. Both get the desired ordering
             // behavior but ID is indexed.
-            .order("id desc")
+            .orderBy("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
             .setLabel("ApiKeyModel.findList")

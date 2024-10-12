@@ -15,6 +15,7 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -501,7 +502,7 @@ public final class ApplicantService {
         .getFullProgramDefinition(applicationProgram)
         .thenComposeAsync(
             programDefinition -> {
-              database.beginTransaction();
+              Transaction transaction = database.beginTransaction();
               programDefinition
                   .getQuestionsWithPrimaryApplicantInfoTags()
                   .forEach(
@@ -557,7 +558,7 @@ public final class ApplicantService {
                                 });
                       });
               applicant.save();
-              database.commitTransaction();
+              transaction.commit();
               return CompletableFuture.completedFuture(optionalApplication);
             });
   }
