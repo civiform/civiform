@@ -6,23 +6,31 @@
 
 # CiviForm
 
-CiviForm aims to simplify the application process for benefits programs by re-using applicant data
-for multiple benefits applications. It is being developed by [Google.org](https://www.google.org/)
-in collaboration with [Exygy](https://www.exygy.com/) and the [City of Seattle](https://www.seattle.gov/tech).
+This repository focuses on addressing **Improved Error Messaging (Feature #8031)** when adding a program admin. The current error message is confusing when a program admin has not yet logged in to CiviForm, especially regarding the differences between a CiviForm Admin and a Program Admin. This update aims to provide clearer instructions and prevent confusion.
 
-Key features:
+## Problem
+When attempting to add a program admin before they've logged in to CiviForm, the current error message does not clearly explain:
+- Why the program admin must log in first.
+- The difference between CiviForm Admin, Program Admin, and general "admin accounts."
+- That the user will not have access to anything until they are granted access to a program.
 
-- No-code questionnaire definitions: admins can add new questions and programs using the UI without the need for custom code
-- No-code conditional logic for eligibility requirements
-- No-code multi-language support through the admin UI
-- Address correction and service area validation
-- Bulk data export with admin-defined privacy settings to preserve applicant privacy
-- Trusted intermediary role to enable community based organizations to manage applications on behalf of clients
-- Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each address for each employer of each member of a household
+This is important because CiviForm Admin feedback from Arkansas has highlighted this issue as frustrating, though they have a workaround.
+
+## Solution
+We aim to implement a clearer error message that explains:
+- The reason the program admin must log in first.
+- The distinction between different admin roles.
+- A notice that users won’t have access to programs until granted access.
+
+## Collaborators
+
+- [Mathias Osiris (@LordSkyGod)](https://github.com/LordSkyGod)
+- [Mateo Lauzardos (@MateoLauzardo)](https://github.com/MateoLauzardo)
+- [Leticia Coto (@Lcoto05)](https://github.com/Lcoto05)
 
 ## Contributing
 
-To get started please first read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide).
+To get started, please first read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide).
 
 If you're interested in just digging around and interacting with the code, see
 [Getting started](https://github.com/civiform/civiform/wiki/Getting-started) for guidance on
