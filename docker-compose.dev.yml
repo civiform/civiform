@@ -72,6 +72,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: password
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
 
   prometheus:
     profiles: ['monitoring']
