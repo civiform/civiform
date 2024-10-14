@@ -126,6 +126,8 @@ content.blockProgress={0} ከ {1}
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
