@@ -126,6 +126,8 @@ content.blockProgress=‫{0} من {1}
 content.blockProgressFull=تم إكمال {0} من {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=مستوى تقدُّم الطلب
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull=تم تحميل {0} من {1}
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -374,6 +376,8 @@ title.tiAccountSettings=وسيط موثوق به - عرض إعدادات الح�
 
 # Submit application button
 button.submit=إرسال
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=متابعة
 # Button text on a button that will allow the user to start filling out a section of questions.

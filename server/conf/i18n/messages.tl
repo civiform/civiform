@@ -126,6 +126,8 @@ content.blockProgress={0} sa {1}
 content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Pag-usad ng aplikasyon
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -374,6 +376,8 @@ title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Settin
 
 # Submit application button
 button.submit=Isumite
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.

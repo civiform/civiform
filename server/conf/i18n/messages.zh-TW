@@ -126,6 +126,8 @@ content.blockProgress={0}/{1}
 content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請進度
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull=已上傳 {0} 個檔案 (共 {1} 個)
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
@@ -374,6 +376,8 @@ title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
 
 # Submit application button
 button.submit=提交
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=繼續
 # Button text on a button that will allow the user to start filling out a section of questions.
