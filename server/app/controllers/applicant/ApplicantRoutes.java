@@ -48,7 +48,7 @@ public final class ApplicantRoutes {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
           applicantId, /* categories= */ ImmutableList.of());
     } else {
-      return controllers.applicant.routes.ApplicantProgramsController.index();
+      return controllers.applicant.routes.ApplicantProgramsController.index(ImmutableList.of());
     }
   }
 

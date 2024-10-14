@@ -466,6 +466,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index().url());
+        .hasValue(routes.ApplicantProgramsController.index(ImmutableList.of()).url());
   }
 }
