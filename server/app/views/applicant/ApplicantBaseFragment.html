@@ -45,7 +45,8 @@
   class="usa-step-indicator usa-step-indicator--center maxw-tablet"
   th:aria-label="#{content.blockProgressLabel}"
 >
-  <!--/* The progress bar itself */-->
+  <!--/* The progress bar itself. It's safe to add aria-hidden="true" when step labels
+  are not used. */-->
   <ol class="usa-step-indicator__segments" aria-hidden="true">
     <th:block
       th:each="i: ${#numbers.sequence(0, progressBar.getStepCount() - 1)}"
