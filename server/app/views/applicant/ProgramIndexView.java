@@ -346,7 +346,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                     program.program().categories().stream()
                         .anyMatch(
                             category ->
-                                selectedCategoriesFromParams.contains(category.getDefaultName())))
+                                selectedCategoriesFromParams.contains(
+                                    category.getLocalizedName().getOrDefault(preferredLocale))))
             .collect(ImmutableList.toImmutableList());
 
     // Find all programs that don't have any of the selected categories
