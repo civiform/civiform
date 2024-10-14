@@ -20,7 +20,7 @@
         th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
       >
         <div
-          th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+          th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
         ></div>
 
         <div

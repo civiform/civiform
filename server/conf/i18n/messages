@@ -126,6 +126,8 @@ content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Application progress
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
 content.fileUploadBlockProgressFull={0} of {1} uploaded
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")

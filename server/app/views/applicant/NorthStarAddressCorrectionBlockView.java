@@ -62,6 +62,11 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
 
+    // Progress bar
+    ProgressBar progressBar =
+        new ProgressBar(params.blockList(), params.blockIndex(), params.messages());
+    context.setVariable("progressBar", progressBar);
+
     boolean anySuggestions = addressSuggestionGroup.getAddressSuggestions().size() > 0;
     context.setVariable("anySuggestions", anySuggestions);
 
