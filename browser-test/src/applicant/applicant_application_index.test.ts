@@ -447,6 +447,7 @@ test.describe('applicant program index page', () => {
         expect(await page.textContent('html')).not.toContain(
           "You're a guest user",
         )
+        // Check that the URL does not have an applicant ID
         expect(page.url()).toContain('/applicants/programs')
 
         await validateScreenshot(
