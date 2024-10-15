@@ -1,5 +1,7 @@
 package forms;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ public final class ProgramForm {
   private String localizedDisplayName;
   private String localizedDisplayDescription;
   private String localizedShortDescription;
+  private ImmutableList<ImmutableMap<String, String>> applicationSteps;
   private String localizedConfirmationMessage;
   private String externalLink;
   private String displayMode;
@@ -29,6 +32,7 @@ public final class ProgramForm {
     localizedDisplayName = "";
     localizedDisplayDescription = "";
     localizedShortDescription = "";
+    applicationSteps = ImmutableList.of();
     localizedConfirmationMessage = "";
     externalLink = "";
     displayMode = "";
@@ -96,6 +100,10 @@ public final class ProgramForm {
     return localizedShortDescription;
   }
 
+  public ImmutableList<ImmutableMap<String, String>> getApplicationSteps() {
+    return applicationSteps;
+  }
+
   public String getLocalizedConfirmationMessage() {
     return localizedConfirmationMessage;
   }
@@ -110,6 +118,10 @@ public final class ProgramForm {
 
   public void setLocalizedShortDescription(String localizedShortDescription) {
     this.localizedShortDescription = localizedShortDescription;
+  }
+
+  public void setApplicationSteps(ImmutableList<ImmutableMap<String, String>> applicationSteps) {
+    this.applicationSteps = applicationSteps;
   }
 
   public Boolean getIsCommonIntakeForm() {

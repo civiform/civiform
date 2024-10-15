@@ -6,6 +6,7 @@ import static services.LocalizedStrings.DEFAULT_LOCALE;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
@@ -341,6 +342,7 @@ public final class ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String defaultShortDescription,
+      ImmutableList<ImmutableMap<String, String>> defaultApplicationSteps,
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
@@ -386,6 +388,7 @@ public final class ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             defaultShortDescription,
+            defaultApplicationSteps,
             defaultConfirmationMessage,
             externalLink,
             displayMode,
@@ -497,6 +500,7 @@ public final class ProgramService {
       String displayName,
       String displayDescription,
       String shortDescription,
+      ImmutableList<ImmutableMap<String, String>> applicationSteps,
       String confirmationMessage,
       String externalLink,
       String displayMode,
@@ -539,6 +543,25 @@ public final class ProgramService {
         notificationPreferences.stream()
             .map(ProgramNotificationPreference::valueOf)
             .collect(ImmutableList.toImmutableList());
+
+    // build the application steps
+    // might need to figure out a way to update the translations, rather than just overwriting the
+    // steps
+    // does translations use this method or is that done separately?
+    ImmutableList<ImmutableMap<String, LocalizedStrings>> steps = ImmutableList.of();
+    if (applicationSteps != null) {
+      steps =
+          applicationSteps.stream()
+              .map(
+                  step -> {
+                    Map<String, LocalizedStrings> mutableMap = new HashMap<>();
+                    mutableMap.put("title", LocalizedStrings.withDefaultValue(step.get("title")));
+                    mutableMap.put(
+                        "description", LocalizedStrings.withDefaultValue(step.get("description")));
+                    return ImmutableMap.copyOf(mutableMap);
+                  })
+              .collect(ImmutableList.toImmutableList());
+    }
     ProgramModel program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
@@ -552,6 +575,8 @@ public final class ProgramService {
                 programDefinition
                     .localizedShortDescription()
                     .updateTranslation(locale, shortDescription))
+            .setApplicationSteps(
+                steps) // will likely need to do some kind of translations update here
             .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))

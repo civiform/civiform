@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Keep;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJson;
@@ -13,7 +14,9 @@ import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -78,6 +81,10 @@ public class ProgramModel extends BaseModel {
 
   @DbJsonB private LocalizedStrings localizedDescription;
 
+  @DbJsonB private LocalizedStrings localizedShortDescription;
+
+  @DbJsonB private ImmutableList<ImmutableMap<String, LocalizedStrings>> applicationSteps;
+
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
@@ -117,8 +124,6 @@ public class ProgramModel extends BaseModel {
    * localizedSummaryImageDescription} for null vs Optional.
    */
   @Nullable private String summaryImageFileKey;
-
-  @DbJsonB private LocalizedStrings localizedShortDescription;
 
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
@@ -174,6 +179,7 @@ public class ProgramModel extends BaseModel {
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.localizedShortDescription = definition.localizedShortDescription();
+    this.applicationSteps = definition.applicationSteps();
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.displayMode = definition.displayMode().getValue();
@@ -203,6 +209,7 @@ public class ProgramModel extends BaseModel {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String defaultShortDescription,
+      ImmutableList<ImmutableMap<String, String>> applicationSteps,
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
@@ -219,6 +226,25 @@ public class ProgramModel extends BaseModel {
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
     this.localizedShortDescription = LocalizedStrings.withDefaultValue(defaultShortDescription);
+
+    ImmutableList<ImmutableMap<String, LocalizedStrings>> steps = ImmutableList.of();
+    // build the application steps
+    if (applicationSteps != null) {
+      steps =
+          applicationSteps.stream()
+              .map(
+                  step -> {
+                    Map<String, LocalizedStrings> mutableMap = new HashMap<>();
+                    mutableMap.put("title", LocalizedStrings.withDefaultValue(step.get("title")));
+                    mutableMap.put(
+                        "description", LocalizedStrings.withDefaultValue(step.get("description")));
+                    return ImmutableMap.copyOf(mutableMap);
+                  })
+              .collect(ImmutableList.toImmutableList());
+    }
+
+    this.applicationSteps = steps;
+
     this.localizedConfirmationMessage =
         LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
     this.externalLink = externalLink;
@@ -271,6 +297,7 @@ public class ProgramModel extends BaseModel {
             .setLocalizedName(localizedName)
             .setLocalizedDescription(localizedDescription)
             .setLocalizedShortDescription(localizedShortDescription)
+            .setApplicationSteps(applicationSteps)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setNotificationPreferences(ImmutableList.copyOf(notificationPreferences))
