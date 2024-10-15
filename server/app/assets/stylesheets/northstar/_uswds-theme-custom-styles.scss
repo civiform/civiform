@@ -115,6 +115,11 @@ it is around the label */
   @include u-margin-top(3);
 }
 
+.block-summary {
+  @include u-margin-top(4);
+  @include u-padding-y(2);
+}
+
 .section {
   @include u-margin-y(3);
 }
@@ -136,6 +141,10 @@ it is around the label */
   margin-top: 0;
 }
 
+.zero-margin {
+  margin: 0;
+}
+
 .usa-form .usa-button.zero-top-margin {
   margin-top: 0;
 }
@@ -146,6 +155,11 @@ it is around the label */
   @include u-font('sans', 'sm');
   font-weight: font-weight('bold');
   @include u-line-height('sans', $theme-heading-line-height);
+}
+
+.summary-answer {
+  @include u-line-height('sans', 5);
+  font-weight: font-weight('bold');
 }
 
 // Styles for desktop
