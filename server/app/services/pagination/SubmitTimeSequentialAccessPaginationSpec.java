@@ -49,10 +49,9 @@ public class SubmitTimeSequentialAccessPaginationSpec extends BasePaginationSpec
     if (this.currentSubmitTime.equals(Instant.MAX)) {
       return query.where().lt("id", this.currentRowId).query();
     }
-    /**
-     * WHERE (submitTime == currentSubmitTime AND id < currentRowId) OR (submitTime <
-     * currentSubmitTime)
-     */
+
+    // WHERE (submitTime == currentSubmitTime AND id < currentRowId) OR (submitTime <
+    // currentSubmitTime)
     return query
         .where()
         .or()
