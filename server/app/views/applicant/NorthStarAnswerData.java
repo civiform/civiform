@@ -34,10 +34,6 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return answerData.applicantQuestion().isOptional();
   }
 
-  public String questionAriaLabel() {
-    return messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT);
-  }
-
   public String answerText() {
     String defaultAnswerString =
         answerData.applicantQuestion().getQuestion().getDefaultAnswerString();
