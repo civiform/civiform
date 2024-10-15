@@ -14,6 +14,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -47,15 +48,18 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
   private final ProgramCardViewRenderer programCardViewRenderer;
+  private final ApplicantRoutes applicantRoutes;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ProgramCardViewRenderer programCardViewRenderer,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      ApplicantRoutes applicantRoutes) {
     this.layout = checkNotNull(layout);
     this.programCardViewRenderer = checkNotNull(programCardViewRenderer);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.applicantRoutes = checkNotNull(applicantRoutes);
   }
 
   /**
@@ -394,7 +398,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (settingsManifest.getProgramFilteringEnabled(request) && !relevantCategories.isEmpty()) {
       content.with(
           renderCategoryFilterChips(
-              applicantId, relevantCategories, selectedCategoriesFromParams, messages));
+              profile, applicantId, relevantCategories, selectedCategoriesFromParams, messages));
     }
 
     if (selectedCategoriesFromParams.isEmpty()) {
@@ -580,6 +584,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private FormTag renderCategoryFilterChips(
+      Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
       ImmutableList<String> relevantCategories,
       ImmutableList<String> selectedCategoriesFromParams,
@@ -587,10 +592,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     return form()
         .withId("category-filter-form")
         .withAction(
-            applicantId.isPresent()
-                ? controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
-                        applicantId.get(), ImmutableList.of())
-                    .url()
+            applicantId.isPresent() && profile.isPresent()
+                ? applicantRoutes.index(profile.get(), applicantId.get()).url()
                 : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
                         ImmutableList.of())
                     .url())

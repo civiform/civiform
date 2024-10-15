@@ -178,18 +178,18 @@ public final class ApplicantProgramsController extends CiviFormController {
         });
   }
 
-  public CompletionStage<Result> index(Request request) {
+  public CompletionStage<Result> index(Request request, List<String> categories) {
     if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
-      return indexWithoutApplicantId(request, ImmutableList.of());
+      return indexWithoutApplicantId(request, categories);
     }
 
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
-      return indexWithoutApplicantId(request, ImmutableList.of());
+      return indexWithoutApplicantId(request, categories);
     }
-    return indexWithApplicantId(request, applicantId.get(), ImmutableList.of());
+    return indexWithApplicantId(request, applicantId.get(), categories);
   }
 
   @Secure
