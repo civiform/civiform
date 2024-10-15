@@ -116,8 +116,6 @@ button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 button.previousScreen=ກ່ອນໜ້າ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=ກັບຄືນ
-# The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=ບັນທຶກ ແລະ ສຳເລັດແອັບພລິເຄຊັນພາຍຫຼັງ
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ຂ້າມ
 # The current screen the user is on ({0}) out of the number of total screens in the application.
