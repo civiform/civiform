@@ -12,6 +12,7 @@ import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.components.TextFormatter;
 
 public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView {
 
@@ -58,6 +59,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
+    linkHtml = TextFormatter.sanitizeHtml(linkHtml);
     context.setVariable("moreResourcesLinkHtml", linkHtml);
 
     String goBackHref =
