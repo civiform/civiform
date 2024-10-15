@@ -1,19 +1,19 @@
 <th:block th:fragment="blockSummaryFragment(blockSummary)">
-  <!-- TODO(#8794): Add styling -->
-  <div class="usa-prose">
-    <div class="container">
+  <div class="block-summary">
+    <div class="usa-prose block-summary-header">
+      <!-- We want h3 style, but using h3 directly is an accessibility violation. -->
       <span
-        class="left-align"
+        class="left-align cf-prose-h3"
         th:text="${blockSummary.block().getLocalizedName(preferredLanguage.toLocale())}"
       ></span>
       <a
-        class="usa-button usa-button--outline right-align auto-width"
+        class="usa-button usa-button--outline right-align auto-width summary-edit-button"
         th:href="${blockSummary.editUrl()}"
         th:text="#{button.edit}"
       ></a>
     </div>
 
-    <ul>
+    <ul class="zero-padding">
       <li th:each="answerData : ${blockSummary.answerData()}">
         <div
           th:replace="~{applicant/QuestionSummaryFragment :: questionSummaryFragment(${answerData})}"
