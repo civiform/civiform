@@ -828,6 +828,18 @@ test.describe('file upload applicant flow', () => {
           )
         })
 
+        await test.step('uploading duplicate file appends suffix', async () => {
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload.png',
+          )
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+
+          await applicantFileQuestion.expectFileNameCount(
+            'file-upload-2.png',
+            1,
+          )
+        })
+
         await test.step('Remove files', async () => {
           await applicantFileQuestion.removeFileUpload('file-upload.png')
 
