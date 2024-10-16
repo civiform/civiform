@@ -32,6 +32,7 @@ import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import services.LocalizedStrings;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -88,7 +89,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getIsCommonIntakeForm(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
-        ImmutableList.copyOf(program.getCategories()));
+        ImmutableList.copyOf(program.getCategories()),
+        ImmutableList.copyOf(program.getAllApplicationStepTitles()),
+        ImmutableList.copyOf(program.getAllApplicationStepDescriptions()));
   }
 
   /** Builds the form using program definition data. */
@@ -113,6 +116,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.acls().getTiProgramViewAcls(),
         program.categories().stream()
             .map(CategoryModel::getId)
+            .collect(ImmutableList.toImmutableList()),
+        program.applicationSteps().stream()
+            .map(step -> step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE))
+            .collect(ImmutableList.toImmutableList()),
+        program.applicationSteps().stream()
+            .map(step -> step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -131,7 +140,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
-      ImmutableList<Long> categories) {
+      ImmutableList<Long> categories,
+      ImmutableList<String> applicationStepTitles,
+      ImmutableList<String> applicationStepDescriptions) {
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -297,12 +308,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
         div()
             .withId("apply-steps")
-            .with(
-                buildApplicationStepDiv("1"),
-                buildApplicationStepDiv("2"),
-                buildApplicationStepDiv("3"),
-                buildApplicationStepDiv("4"),
-                buildApplicationStepDiv("5")),
+            .with(buildApplicationSteps(applicationStepTitles, applicationStepDescriptions)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -320,19 +326,40 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
-  private DivTag buildApplicationStepDiv(String number) {
+  private DivTag buildApplicationSteps(
+      ImmutableList<String> applicationStepTitles,
+      ImmutableList<String> applicationStepDescriptions) {
+
+    DivTag div = div();
+    // build 5 application steps
+    for (int i = 0; i < 5; i++) {
+      String title = "";
+      String description = "";
+      int index = i + 1;
+      if (index <= applicationStepTitles.size()) {
+        title = applicationStepTitles.get(i);
+        description = applicationStepDescriptions.get(i);
+      }
+      div.with(buildApplicationStepDiv(Integer.toString(index), title, description));
+    }
+
+    return div;
+  }
+
+  private DivTag buildApplicationStepDiv(
+      String number, String titleValue, String descriptionValue) {
     FieldWithLabel title =
         FieldWithLabel.input()
             .setId("apply-step-" + number + "-title")
             .setFieldName("applyStep" + number + "Title")
-            .setValue("");
+            .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
             .setId("apply-step-" + number + "-description")
             .setFieldName("applyStep" + number + "Description")
             .setMarkdownSupported(true)
-            .setValue("");
+            .setValue(descriptionValue);
 
     if (number.equals("1")) {
       title.setLabelText("Step " + number + " title").setRequired(true);

@@ -1,7 +1,6 @@
 package forms;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,6 @@ public final class ProgramForm {
   private String localizedDisplayName;
   private String localizedDisplayDescription;
   private String localizedShortDescription;
-  private ImmutableList<ImmutableMap<String, String>> applicationSteps;
   private String localizedConfirmationMessage;
   private String externalLink;
   private String displayMode;
@@ -26,13 +24,23 @@ public final class ProgramForm {
   private List<Long> tiGroups;
   private List<Long> categories;
 
+  private String applyStep1Title;
+  private String applyStep1Description;
+  private String applyStep2Title;
+  private String applyStep2Description;
+  private String applyStep3Title;
+  private String applyStep3Description;
+  private String applyStep4Title;
+  private String applyStep4Description;
+  private String applyStep5Title;
+  private String applyStep5Description;
+
   public ProgramForm() {
     adminName = "";
     adminDescription = "";
     localizedDisplayName = "";
     localizedDisplayDescription = "";
     localizedShortDescription = "";
-    applicationSteps = ImmutableList.of();
     localizedConfirmationMessage = "";
     externalLink = "";
     displayMode = "";
@@ -42,6 +50,16 @@ public final class ProgramForm {
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
+    applyStep1Title = "";
+    applyStep1Description = "";
+    applyStep2Title = "";
+    applyStep2Description = "";
+    applyStep3Title = "";
+    applyStep3Description = "";
+    applyStep4Title = "";
+    applyStep4Description = "";
+    applyStep5Title = "";
+    applyStep5Description = "";
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -100,8 +118,62 @@ public final class ProgramForm {
     return localizedShortDescription;
   }
 
-  public ImmutableList<ImmutableMap<String, String>> getApplicationSteps() {
-    return applicationSteps;
+  public ImmutableList<String> getAllApplicationStepTitles() {
+    return ImmutableList.of(
+        getApplyStep1Title(),
+        getApplyStep2Title(),
+        getApplyStep3Title(),
+        getApplyStep4Title(),
+        getApplyStep5Title());
+  }
+
+  public ImmutableList<String> getAllApplicationStepDescriptions() {
+    return ImmutableList.of(
+        getApplyStep1Description(),
+        getApplyStep2Description(),
+        getApplyStep3Description(),
+        getApplyStep4Description(),
+        getApplyStep5Description());
+  }
+
+  public String getApplyStep1Title() {
+    return applyStep1Title;
+  }
+
+  public String getApplyStep1Description() {
+    return applyStep1Description;
+  }
+
+  public String getApplyStep2Title() {
+    return applyStep2Title;
+  }
+
+  public String getApplyStep2Description() {
+    return applyStep2Description;
+  }
+
+  public String getApplyStep3Title() {
+    return applyStep3Title;
+  }
+
+  public String getApplyStep3Description() {
+    return applyStep3Description;
+  }
+
+  public String getApplyStep4Title() {
+    return applyStep4Title;
+  }
+
+  public String getApplyStep4Description() {
+    return applyStep4Description;
+  }
+
+  public String getApplyStep5Title() {
+    return applyStep5Title;
+  }
+
+  public String getApplyStep5Description() {
+    return applyStep5Description;
   }
 
   public String getLocalizedConfirmationMessage() {
@@ -120,8 +192,44 @@ public final class ProgramForm {
     this.localizedShortDescription = localizedShortDescription;
   }
 
-  public void setApplicationSteps(ImmutableList<ImmutableMap<String, String>> applicationSteps) {
-    this.applicationSteps = applicationSteps;
+  public void setApplyStep1Title(String applyStep1Title) {
+    this.applyStep1Title = applyStep1Title;
+  }
+
+  public void setApplyStep1Description(String applyStep1Description) {
+    this.applyStep1Description = applyStep1Description;
+  }
+
+  public void setApplyStep2Title(String applyStep2Title) {
+    this.applyStep2Title = applyStep2Title;
+  }
+
+  public void setApplyStep2Description(String applyStep2Description) {
+    this.applyStep2Description = applyStep2Description;
+  }
+
+  public void setApplyStep3Title(String applyStep3Title) {
+    this.applyStep3Title = applyStep3Title;
+  }
+
+  public void setApplyStep3Description(String applyStep3Description) {
+    this.applyStep3Description = applyStep3Description;
+  }
+
+  public void setApplyStep4Title(String applyStep4Title) {
+    this.applyStep4Title = applyStep4Title;
+  }
+
+  public void setApplyStep4Description(String applyStep4Description) {
+    this.applyStep4Description = applyStep4Description;
+  }
+
+  public void setApplyStep5Title(String applyStep5Title) {
+    this.applyStep5Title = applyStep5Title;
+  }
+
+  public void setApplyStep5Description(String applyStep5Description) {
+    this.applyStep5Description = applyStep5Description;
   }
 
   public Boolean getIsCommonIntakeForm() {

@@ -12,6 +12,7 @@ import controllers.FlashKey;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ApplicationStep;
 import models.ProgramModel;
 import models.ProgramTab;
 import org.pac4j.play.java.Secure;
@@ -148,7 +149,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getLocalizedShortDescription(),
-            programData.getApplicationSteps(),
+            buildApplicationSteps(programData),
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
@@ -290,7 +291,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getLocalizedDisplayName(),
         programData.getLocalizedDisplayDescription(),
         programData.getLocalizedShortDescription(),
-        programData.getApplicationSteps(),
+        buildApplicationSteps(programData),
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),
@@ -313,5 +314,29 @@ public final class AdminProgramController extends CiviFormController {
     } else {
       return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }
+  }
+
+  private ImmutableList<ApplicationStep> buildApplicationSteps(ProgramForm programData) {
+    ApplicationStep applicationStepOne =
+        new ApplicationStep(
+            programData.getApplyStep1Title(), programData.getApplyStep1Description());
+    ApplicationStep applicationStepTwo =
+        new ApplicationStep(
+            programData.getApplyStep2Title(), programData.getApplyStep2Description());
+    ApplicationStep applicationStepThree =
+        new ApplicationStep(
+            programData.getApplyStep3Title(), programData.getApplyStep3Description());
+    ApplicationStep applicationStepFour =
+        new ApplicationStep(
+            programData.getApplyStep4Title(), programData.getApplyStep4Description());
+    ApplicationStep applicationStepFive =
+        new ApplicationStep(
+            programData.getApplyStep5Title(), programData.getApplyStep5Description());
+    return ImmutableList.of(
+        applicationStepOne,
+        applicationStepTwo,
+        applicationStepThree,
+        applicationStepFour,
+        applicationStepFive);
   }
 }

@@ -11,7 +11,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -104,7 +104,7 @@ public abstract class ProgramDefinition {
   public abstract LocalizedStrings localizedShortDescription();
 
   @JsonProperty("applicationSteps")
-  public abstract ImmutableList<ImmutableMap<String, LocalizedStrings>> applicationSteps();
+  public abstract ImmutableList<ApplicationStep> applicationSteps();
 
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
@@ -815,8 +815,7 @@ public abstract class ProgramDefinition {
         LocalizedStrings localizedShortDescription);
 
     @JsonProperty("applicationSteps")
-    public abstract Builder setApplicationSteps(
-        ImmutableList<ImmutableMap<String, LocalizedStrings>> applicationSteps);
+    public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
 
     @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
@@ -833,8 +832,7 @@ public abstract class ProgramDefinition {
 
     public abstract LocalizedStrings.Builder localizedShortDescriptionBuilder();
 
-    public abstract ImmutableList.Builder<ImmutableMap<String, LocalizedStrings>>
-        applicationStepsBuilder();
+    public abstract ImmutableList.Builder<ApplicationStep> applicationStepsBuilder();
 
     public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
 
@@ -882,16 +880,10 @@ public abstract class ProgramDefinition {
       return this;
     }
 
-    // this seems all kinds of wrong... how do we know which application step we're updating?
-    // right now we're just adding a new application step with that translation
-    // but this is only used in tests maybe? so we might not need it for now.
-    public Builder addApplicationStep(Locale locale, String title, String description) {
-      ImmutableMap<String, LocalizedStrings> newEntry =
-          ImmutableMap.of(
-              "title",
-              LocalizedStrings.create(ImmutableMap.of(locale, title)),
-              "description",
-              LocalizedStrings.create(ImmutableMap.of(locale, description)));
+    // I think we need a separate method for updating an existing application step with
+    // a translation
+    public Builder addApplicationStep(String title, String description) {
+      ApplicationStep newEntry = new ApplicationStep(title, description);
       applicationStepsBuilder().add(newEntry);
       return this;
     }

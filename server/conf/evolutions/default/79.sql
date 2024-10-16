@@ -1,6 +1,6 @@
 # --- !Ups
 
-alter table programs add column localized_short_description jsonb, add column application_steps jsonb[];
+alter table programs add column localized_short_description jsonb, add column application_steps jsonb;
 
 # --- !Downs
 
