@@ -110,60 +110,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
   }
 
   @Test
-  public void testShowRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.addAttribute(
-        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedShowUrl = String.format("/programs/%d", PROGRAM_ID);
-    assertThat(new ApplicantRoutes().show(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedShowUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present + 1);
-    assertThat(after.absent).isEqualTo(before.absent);
-  }
-
-  @Test
-  public void testShowRoute_forApplicantWithoutIdInProfile() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_APPLICANT.toString());
-    profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
-    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedShowUrl = String.format("/applicants/%d/programs/%d", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().show(applicantProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedShowUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
-  public void testShowRoute_forTrustedIntermediary() {
-    Counts before = getApplicantIdInProfileCounts();
-
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
-    profileData.addRole(Role.ROLE_TI.toString());
-    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
-
-    String expectedShowUrl = String.format("/applicants/%d/programs/%d", APPLICANT_ID, PROGRAM_ID);
-    assertThat(new ApplicantRoutes().show(tiProfile, APPLICANT_ID, PROGRAM_ID).url())
-        .isEqualTo(expectedShowUrl);
-
-    Counts after = getApplicantIdInProfileCounts();
-    assertThat(after.present).isEqualTo(before.present);
-    assertThat(after.absent).isEqualTo(before.absent + 1);
-  }
-
-  @Test
   public void testShowRoute_withoutApplicant() {
     Counts before = getApplicantIdInProfileCounts();
 

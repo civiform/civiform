@@ -268,32 +268,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showWithApplicantId_includesApplyButton() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
-
-    Result result =
-        controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
-  }
-
-  @Test
-  public void showWithApplicantId_invalidProgram_returnsBadRequest() {
-    Result result =
-        controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, 9999)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
-  }
-
-  @Test
   // Tests the behavior of the `show()` method when the parameter contains an alphanumeric value,
   // representing a program slug.
   public void show_withStringProgramParam_showsByProgramSlug() {
@@ -311,6 +285,13 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+  }
+
+  @Test
+  public void show_withProgramIdRedirects() {
+    Result result = controller.show(fakeRequest(), "123").toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
