@@ -27,8 +27,7 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
-- [ ] Every comment in script should begin with -- and not # --- unless it denotes Ups or Downs. The Ups and Downs parts are delimited by using a standard, single-line SQL comment in your script containing either !Ups or !Downs, respectively. Both SQL92 (--) and MySQL (#) comment styles are supported, but we recommend using SQL92 syntax because it is supported by more databases.
-    Play splits your .sql files into a series of semicolon-delimited statements before executing them one-by-one against the database. So if you need to use a semicolon within a statement, escape it by entering ;; instead of ;. For example, INSERT INTO punctuation(name, character) VALUES ('semicolon', ';;');.
+- [ ] Every comment in script should begin with -- and not # --- unless it denotes Ups or Downs. See [here](https://www.playframework.com/documentation/2.9.x/Evolutions) for details.
 - [ ] Tested both the Downs and the Ups scripts manually (When testing, include all comments from the evolution in your test script to ensure any syntax errors in the comments are caught.)
 - [ ] Data migrations aren't being done (please use a [Durable Job](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) if doing a data migration)
 
