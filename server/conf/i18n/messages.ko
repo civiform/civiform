@@ -116,6 +116,8 @@ button.nextScreen=저장 후 다음으로 이동
 button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=뒤로
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 # The current screen the user is on ({0}) out of the number of total screens in the application.
