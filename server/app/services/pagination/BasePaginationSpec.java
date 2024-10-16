@@ -8,15 +8,16 @@ import io.ebean.Query;
  * <p>PaginationSpecs come in 2 major flavors: random acess paging and sequential paging.
  *
  * <p>Random Access Paging: requires no knowledge of the last row that was displayed in a previous
- * page. This spec requires reading from storage all the rows prior to the page being returned,
- * performance degrades as higher pages are queried for. Usually used in an user-facing interface.
+ * page. This spec requires reading from storage the rows up to the offset and the reading the limit
+ * number of rows for the query result, performance degrades as higher pages are queried for.
+ * Usually used in an user-facing interface.
  *
  * <p>Sequential paging: requires knowledge of the last row returned by the previous page to
  * retrieve the next page. This spec has constant performance for any page in the range, but can
  * only access pages in sequence. Usually used for export functions and API retrieve methods.
  *
- * <p>Implementations of this interface are: PageNumberPaginationSpec, RowIdPaginationSpec, and
- * SubmitTimeSequentialAccessPaginationSpec.
+ * <p>Implementations of this interface are: PageNumberPaginationSpec,
+ * RowIdSequentialAccessPaginationSpec, and SubmitTimeSequentialAccessPaginationSpec.
  *
  * <p>PageNumberPaginationSpec: sorts by submit time, is a random access paging spec. Recommended
  * for user facing views.
