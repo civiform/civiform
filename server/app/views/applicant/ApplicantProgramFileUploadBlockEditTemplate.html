@@ -28,7 +28,7 @@
         ></div>
 
         <div
-          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionParams}, ${fileUploadViewStrategy})}"
+          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${applicationParams}, ${questionParams}, ${fileUploadViewStrategy})}"
         ></div>
       </form>
 
@@ -44,59 +44,30 @@
             th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
           ></div>
         </form>
-        <form
-          id="cf-fileupload-delete-form"
-          method="POST"
-          th:action="${submitFormAction}"
-        >
-          <input hidden th:value="${csrfToken}" name="csrfToken" />
-          <div
-            th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, true)}"
-          ></div>
-        </form>
       </div>
 
-      <div
-        th:with="hasUploadedFile=${fileUploadQuestion.getFileKeyValue().isPresent()}"
-      >
-        <!--/* Review page button */-->
-        <div
-          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.review}, ${reviewPageWithFile}, ${reviewPageWithoutFile})}"
-        ></div>
-        <!--/* Previous block button */-->
-        <div
-          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.previousScreen}, ${previousBlockWithFile}, ${previousBlockWithoutFile})}"
-        ></div>
-        <div th:if="${question.isOptional()}">
-          <!--/* Delete button */-->
+      <div>
+        <div>
           <button
-            th:if="${hasUploadedFile}"
             type="submit"
-            form="cf-fileupload-delete-form"
-            th:text="#{button.deleteFile}"
-            id="fileupload-delete-button"
+            th:formaction="${previousPageWithoutFile}"
+            form="cf-fileupload-continue-form"
+            class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
+            th:text="#{button.back}"
           ></button>
-          <!--/* Skip button */-->
           <button
-            th:if="${!hasUploadedFile}"
             type="submit"
-            form="cf-fileupload-delete-form"
-            th:text="#{button.skipFileUpload}"
-            id="fileupload-skip-button"
+            form="cf-fileupload-continue-form"
+            class="usa-button margin-bottom-1 zero-top-margin"
+            th:text="#{button.continue}"
           ></button>
         </div>
-        <!--/* Next block button */-->
-        <div
-          th:replace="~{applicant/FileUploadActionButtonFragment :: file-upload-action-button(#{button.nextScreen}, ${nextBlockWithFile}, null)}"
-        ></div>
-        <!--/* Continue button */-->
-        <button
-          th:if="${hasUploadedFile}"
-          type="submit"
-          form="cf-fileupload-continue-form"
-          th:text="#{button.keepFile}"
-          id="fileupload-continue-button"
-        ></button>
+        <a
+          th:href="${reviewPageWithoutFile}"
+          id="review-application-button"
+          class="usa-button usa-button--unstyled margin-bottom-4"
+          th:text="#{button.reviewAndExit}"
+        ></a>
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
