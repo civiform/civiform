@@ -116,6 +116,8 @@ button.nextScreen=Susunod
 button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
+# The label on a button that will save user answers and navigate to the summary of the application.
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
