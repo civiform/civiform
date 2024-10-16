@@ -116,8 +116,6 @@ button.nextScreen=Tan Xiga
 button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Noqo
-# The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Keydi oo hadhow dhammaystir arjiga
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Ka bood
 # The current screen the user is on ({0}) out of the number of total screens in the application.

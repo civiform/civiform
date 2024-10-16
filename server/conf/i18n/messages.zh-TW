@@ -116,8 +116,6 @@ button.nextScreen=儲存並繼續
 button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=返回
-# The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=儲存申請書，之後再填寫
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=略過
 # The current screen the user is on ({0}) out of the number of total screens in the application.
