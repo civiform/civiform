@@ -840,6 +840,17 @@ test.describe('file upload applicant flow', () => {
             0,
           )
         })
+
+        await test.step('uploading duplicate file appends suffix', async () => {
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload.png',
+          )
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+          await applicantFileQuestion.expectFileNameCount(
+            'file-upload-2.png',
+            1,
+          )
+        })
       })
 
       // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
