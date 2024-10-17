@@ -852,6 +852,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
   }
 
+  /** Enables civiform admins to set up a customized eligibility message per screen. */
+  public boolean getEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public boolean getCfOptionalQuestions(RequestHeader request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
@@ -998,11 +1003,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getSessionReplayProtectionEnabled() {
     return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables custom eligibility message for CiviForm admins */
-  public boolean getEligibilityMessageEnabled(RequestHeader request) {
-    return getBool("ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
   /**
@@ -1939,6 +1939,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
+                      "ELIGIBILITY_MESSAGE_ENABLED",
+                      "Enables civiform admins to set up a customized eligibility message per screen.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"
                           + " default.",
@@ -2102,13 +2108,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session"
                           + " cookie cannot be replayed if the user logs out",
                       /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "ELIGIBILITY_MESSAGE_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables custom eligibility message for CiviForm"
-                          + " admins",
-                      false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(

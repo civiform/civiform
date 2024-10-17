@@ -731,7 +731,7 @@
       },
       "ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description:": "When enabled, civiform admins can set up a customized eligibility message per screen.",
+        "description:": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
       "CF_OPTIONAL_QUESTIONS": {
