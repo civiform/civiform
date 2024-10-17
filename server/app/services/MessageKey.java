@@ -258,6 +258,8 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
+  LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
+  LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
