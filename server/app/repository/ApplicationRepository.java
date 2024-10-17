@@ -294,15 +294,15 @@ public final class ApplicationRepository {
                 .findOneOrEmpty(),
         executionContext.current());
   }
+
   public List<ApplicationModel> getApplications(ImmutableList<Long> applicationIds) {
-    return
-        database
-          .find(ApplicationModel.class)
-          .setLabel("ApplicationModel.findByIds")
-          .setProfileLocation(queryProfileLocationBuilder.create("getApplications"))
-          .where()
-          .in("id",applicationIds)
-          .findList();
+    return database
+        .find(ApplicationModel.class)
+        .setLabel("ApplicationModel.findByIds")
+        .setProfileLocation(queryProfileLocationBuilder.create("getApplications"))
+        .where()
+        .in("id", applicationIds)
+        .findList();
   }
 
   /**

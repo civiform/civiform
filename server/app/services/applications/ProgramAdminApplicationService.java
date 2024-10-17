@@ -6,18 +6,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ProgramModel;
-import org.apache.commons.collections.Unmodifiable;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -244,68 +240,68 @@ public final class ProgramAdminApplicationService {
       return Optional.empty();
     }
   }
+
   /*
    * Retrieves the applications with the given IDs and validates that it is associated with the given
    * program.
    */
-  public ImmutableList<ApplicationModel> getApplications(ImmutableList<Long> applicationIds, ProgramDefinition program) {
+  public ImmutableList<ApplicationModel> getApplications(
+      ImmutableList<Long> applicationIds, ProgramDefinition program) {
     List<ApplicationModel> applicationList = applicationRepository.getApplications(applicationIds);
 
     try {
-       validateApplications( applicationIds,
-       applicationList,program);
-    } catch (ProgramNotFoundException e) {
+      validateApplications(applicationIds, applicationList, program);
+    } catch (ProgramNotFoundException | ApplicationNotFoundException e) {
       return ImmutableList.of();
     }
-    return  applicationList.stream().collect(ImmutableList.toImmutableList());
+    return applicationList.stream().collect(ImmutableList.toImmutableList());
   }
-
 
   /* Validates that the given application is part of the given program. */
   private void validateApplications(
-    ImmutableList<Long> applicationIds,List<ApplicationModel> applications, ProgramDefinition program)
-      throws ProgramNotFoundException {
+      ImmutableList<Long> applicationIds,
+      List<ApplicationModel> applications,
+      ProgramDefinition program)
+      throws ProgramNotFoundException, ApplicationNotFoundException {
 
-    List<Long> applicationIdFromRepo = applications.stream().map(applicationModel -> applicationModel.id).collect(Collectors.toList());
+    List<Long> applicationIdFromRepo =
+        applications.stream()
+            .map(applicationModel -> applicationModel.id)
+            .collect(Collectors.toList());
 
-
-    applicationIds.stream().forEach(
-      appId ->
-      {
-       if(!applicationIdFromRepo.contains(appId));
-        try {
-          throw new ApplicationNotFound(appId);
-        } catch (ApplicationNotFound e) {
-          throw new RuntimeException(e);
-        }
+    for (Long appId : applicationIds) {
+      if (!applicationIdFromRepo.contains(appId)) {
+        throw new ApplicationNotFoundException(appId);
       }
-    );
-    for(ApplicationModel application : applications) {
+    }
+    for (ApplicationModel application : applications) {
       if (programRepository
-        .getShallowProgramDefinition(application.getProgram())
-        .adminName()
-        .isEmpty()
-        || !programRepository
-        .getShallowProgramDefinition(application.getProgram())
-        .adminName()
-        .equals(program.adminName())) {
-        throw new ProgramNotFoundException(String.format("Application %d or program is empty or mismatched",application.id));
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .isEmpty()
+          || !programRepository
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .equals(program.adminName())) {
+        throw new ProgramNotFoundException(
+            String.format("Application %d or program is empty or mismatched", application.id));
       }
     }
   }
+
   /* Validates that the given application is part of the given program. */
   private Optional<ApplicationModel> validateProgram(
-    Optional<ApplicationModel> application, ProgramDefinition program)
-    throws ProgramNotFoundException {
+      Optional<ApplicationModel> application, ProgramDefinition program)
+      throws ProgramNotFoundException {
     if (application.isEmpty()
-      || programRepository
-      .getShallowProgramDefinition(application.get().getProgram())
-      .adminName()
-      .isEmpty()
-      || !programRepository
-      .getShallowProgramDefinition(application.get().getProgram())
-      .adminName()
-      .equals(program.adminName())) {
+        || programRepository
+            .getShallowProgramDefinition(application.get().getProgram())
+            .adminName()
+            .isEmpty()
+        || !programRepository
+            .getShallowProgramDefinition(application.get().getProgram())
+            .adminName()
+            .equals(program.adminName())) {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
