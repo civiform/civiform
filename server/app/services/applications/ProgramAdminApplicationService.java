@@ -2,11 +2,14 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -238,6 +241,54 @@ public final class ProgramAdminApplicationService {
     }
   }
 
+  /*
+   * Retrieves the applications with the given IDs and validates that it is associated with the given
+   * program.
+   */
+  public ImmutableList<ApplicationModel> getApplications(
+      ImmutableList<Long> applicationIds, ProgramDefinition program) {
+    List<ApplicationModel> applicationList = applicationRepository.getApplications(applicationIds);
+
+    try {
+      validateApplications(applicationIds, applicationList, program);
+    } catch (ProgramNotFoundException | ApplicationNotFoundException e) {
+      return ImmutableList.of();
+    }
+    return applicationList.stream().collect(ImmutableList.toImmutableList());
+  }
+
+  /* Validates that the given application is part of the given program. */
+  private void validateApplications(
+      ImmutableList<Long> applicationIds,
+      List<ApplicationModel> applications,
+      ProgramDefinition program)
+      throws ProgramNotFoundException, ApplicationNotFoundException {
+
+    List<Long> applicationIdFromRepo =
+        applications.stream()
+            .map(applicationModel -> applicationModel.id)
+            .collect(Collectors.toList());
+
+    for (Long appId : applicationIds) {
+      if (!applicationIdFromRepo.contains(appId)) {
+        throw new ApplicationNotFoundException(appId);
+      }
+    }
+    for (ApplicationModel application : applications) {
+      if (programRepository
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .isEmpty()
+          || !programRepository
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .equals(program.adminName())) {
+        throw new ProgramNotFoundException(
+            String.format("Application %d or program is empty or mismatched", application.id));
+      }
+    }
+  }
+
   /* Validates that the given application is part of the given program. */
   private Optional<ApplicationModel> validateProgram(
       Optional<ApplicationModel> application, ProgramDefinition program)
@@ -254,5 +305,70 @@ public final class ProgramAdminApplicationService {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
+  }
+
+  public void setStatus(
+      ImmutableList<ApplicationModel> applicationlist,
+      StatusEvent newStatusEvent,
+      AccountModel admin)
+      throws StatusNotFoundException, StatusEmailNotFoundException, AccountHasNoEmailException {
+
+    ProgramModel program = applicationlist.get(0).getProgram();
+
+    String newStatusText = newStatusEvent.statusText();
+    // The send/sent phrasing is a little weird as the service layer is converting between intent
+    // and reality.
+    boolean sendEmail = newStatusEvent.emailSent();
+    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
+
+    Optional<Status> statusDefMaybe =
+        applicationStatusesRepository
+            .lookupActiveStatusDefinitions(programDef.adminName())
+            .getStatuses()
+            .stream()
+            .filter(s -> s.statusText().equals(newStatusText))
+            .findFirst();
+    if (statusDefMaybe.isEmpty()) {
+      throw new StatusNotFoundException(newStatusText, program.id);
+    }
+    Status statusDef = statusDefMaybe.get();
+
+    // Send email if requested and present.
+    if (sendEmail) {
+      if (statusDef.localizedEmailBodyText().isEmpty()) {
+        throw new StatusEmailNotFoundException(newStatusText, program.id);
+      }
+
+      for (ApplicationModel application : applicationlist) {
+        ApplicantModel applicant = application.getApplicant();
+
+        // Notify an Admin/TI if they applied.
+        Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
+        if (adminSubmitterEmail.isPresent()) {
+          sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
+        }
+
+        // Notify the applicant.
+        ApplicantPersonalInfo applicantPersonalInfo =
+            applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
+        Optional<ImmutableSet<String>> applicantEmails =
+            applicantService.getApplicantEmails(applicantPersonalInfo);
+        if (applicantEmails.isPresent()) {
+          applicantEmails
+              .get()
+              .forEach(
+                  email ->
+                      sendApplicantEmail(
+                          program.getProgramDefinition(),
+                          applicant,
+                          statusDef,
+                          Optional.of(email)));
+        } else {
+          // An email was requested to be sent but the applicant doesn't have one.
+          throw new AccountHasNoEmailException(applicant.getAccount().id);
+        }
+      }
+    }
+    eventRepository.insertStatusEvents(applicationlist, Optional.of(admin), newStatusEvent);
   }
 }
