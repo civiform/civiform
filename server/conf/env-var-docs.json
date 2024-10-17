@@ -729,6 +729,11 @@
         "description": "Enables the feature that allows programs to be disabled from CiviForm",
         "type": "bool"
       },
+      "ELIGIBILITY_MESSAGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description:": "When enabled, civiform admins can set up a customized eligibility message per screen.",
+        "type": "bool"
+      },
       "CF_OPTIONAL_QUESTIONS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
@@ -842,11 +847,6 @@
       "SESSION_REPLAY_PROTECTION_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be replayed if the user logs out",
-        "type": "bool"
-      },
-      "ELIGIBILITY_MESSAGE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description:": "When enabled, civiform admins can set up a customized eligibility message per screen.",
         "type": "bool"
       },
       "NORTH_STAR_APPLICANT_UI": {
