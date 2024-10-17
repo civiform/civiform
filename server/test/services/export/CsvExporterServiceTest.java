@@ -108,7 +108,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
     assertThat(parser.getHeaderNames())
@@ -144,7 +146,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -287,20 +291,69 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     FileUploadQuestion fileUploadApplicantQuestion =
         getApplicantQuestion(fileUploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
-        CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyPath());
+        CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyListPath());
     assertThat(records.get(0).get(fileKeyHeader))
         .isEqualTo(
             String.format(
-                "[%s/admin/programs/%d/files/my-file-key,"
-                    + " %s/admin/programs/%d/files/my-file-key-2]",
+                "%s/admin/programs/%d/files/my-file-key,"
+                    + " %s/admin/programs/%d/files/my-file-key-2",
                 BASE_URL, fakeProgram.id, BASE_URL, fakeProgram.id));
+  }
+
+  @Test
+  public void programCsv_singleFileColumnRemoved_whenMultipleFileUploadEnabled() throws Exception {
+    QuestionModel fileUploadQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    ProgramModel fakeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withName("File Upload program")
+            .withBlock()
+            .withRequiredQuestion(fileUploadQuestion)
+            .build();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        fileUploadQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        ImmutableList.of("my-file-key", "my-file-key-2"));
+
+    applicant.save();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, fakeProgram.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, fakeProgram.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ true),
+            DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    FileUploadQuestion fileUploadApplicantQuestion =
+        getApplicantQuestion(fileUploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
+    String singleFileKeyHeader =
+        CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyPath());
+    assertThat(records.get(0).values()).doesNotContain(singleFileKeyHeader);
   }
 
   @Test
@@ -311,7 +364,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgramWithEligibility.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgramWithEligibility.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
 
     List<CSVRecord> records = parser.getRecords();
@@ -373,7 +428,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -444,7 +501,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgramWithEnumerator.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgramWithEnumerator.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     assertThat(parser.getHeaderNames())
         .containsExactly(
@@ -531,7 +590,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -548,7 +609,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 

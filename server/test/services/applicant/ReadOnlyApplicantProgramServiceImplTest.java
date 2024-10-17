@@ -1317,8 +1317,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
               new AbstractMap.SimpleEntry<>(
                   ApplicantData.APPLICANT_PATH
                       .join(fileQuestionDefinition.getQuestionPathSegment())
-                      .join(Scalar.FILE_KEY),
-                  String.format("[%s, %s]", file1Url, file2Url)));
+                      .join(Scalar.FILE_KEY_LIST),
+                  String.format("%s, %s", file1Url, file2Url)));
 
     } else {
       assertThat(result.get(5).scalarAnswersInDefaultLocale())
@@ -1327,6 +1327,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                   ApplicantData.APPLICANT_PATH
                       .join(fileQuestionDefinition.getQuestionPathSegment())
                       .join(Scalar.FILE_KEY),
+                  String.format(
+                      "%s/admin/programs/%d/files/%s",
+                      FAKE_BASE_URL, programDefinition.id(), "file-key")),
+              new AbstractMap.SimpleEntry<>(
+                  ApplicantData.APPLICANT_PATH
+                      .join(fileQuestionDefinition.getQuestionPathSegment())
+                      .join(Scalar.FILE_KEY_LIST),
                   String.format(
                       "%s/admin/programs/%d/files/%s",
                       FAKE_BASE_URL, programDefinition.id(), "file-key")));
