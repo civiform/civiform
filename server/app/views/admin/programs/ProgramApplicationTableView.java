@@ -110,10 +110,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       Optional<Boolean> showDownloadModal) {
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
-    //  Optional<StatusDefinitions.Status> defaultStatus =
-    // activeStatusDefinitions.getDefaultStatus();
-
-    // boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
 
     DivTag applicationListDiv =
         div()

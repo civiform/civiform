@@ -123,6 +123,7 @@ public final class ApplicationEventRepository {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
+    // System.out.println(optionalAdmin.get());
 
     List<Long> idlist = applications.stream().map(app -> app.id).collect(Collectors.toList());
 
