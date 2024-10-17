@@ -1174,10 +1174,22 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     var fileKey = "test-file-key";
+    var fileKey2 = "test-file-key-2";
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.fileupload").join(Scalar.FILE_KEY).toString(), fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(1)
+                    .toString(),
+                fileKey2)
             .build();
 
     var fileUploadQuestion =
@@ -1215,7 +1227,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
+    var storedFile2 = new StoredFileModel().setName(fileKey2);
+
     storedFile.save();
+    storedFile2.save();
 
     Request request = fakeRequest();
     subject
@@ -1227,6 +1242,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(storedFile.getAcls().getProgramReadAcls())
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
+        .containsOnly(firstProgram.getProgramDefinition().adminName());
+
     subject
         .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
@@ -1234,6 +1253,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     storedFile.refresh();
     assertThat(storedFile.getAcls().getProgramReadAcls())
+        .containsOnly(
+            firstProgram.getProgramDefinition().adminName(),
+            secondProgram.getProgramDefinition().adminName());
+
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
         .containsOnly(
             firstProgram.getProgramDefinition().adminName(),
             secondProgram.getProgramDefinition().adminName());
