@@ -251,7 +251,7 @@ public final class ProgramAdminApplicationService {
 
     try {
       validateApplications(applicationIds, applicationList, program);
-    } catch (ProgramNotFoundException | ApplicationNotFoundException e) {
+    } catch (ProgramNotFoundException e) {
       return ImmutableList.of();
     }
     return applicationList.stream().collect(ImmutableList.toImmutableList());
@@ -262,8 +262,7 @@ public final class ProgramAdminApplicationService {
       ImmutableList<Long> applicationIds,
       List<ApplicationModel> applications,
       ProgramDefinition program)
-      throws ProgramNotFoundException, ApplicationNotFoundException {
-
+      throws ProgramNotFoundException {
     List<Long> applicationIdFromRepo =
         applications.stream()
             .map(applicationModel -> applicationModel.id)

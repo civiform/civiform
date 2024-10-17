@@ -118,17 +118,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 h1(program.adminName()).withClasses("mt-4"),
                 br(),
                 renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
-                //              div().with(
-                //                div()
-                //                  .withClasses("flex", "flex-wrap", "gap-2")
-                //                  // Status options if configured on the program.
-                //                  .condWith(
-                //                    !activeStatusDefinitions.getStatuses().isEmpty(),
-                //                    div()
-                //                      .withClasses("flex", "mr-4", "gap-2")
-                //                      .with(
-                //                        renderStatusOptionsSelector( activeStatusDefinitions)
-                //                      ))),
                 renderApplicationTable(
                         paginatedApplications.getPageContents(),
                         /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,

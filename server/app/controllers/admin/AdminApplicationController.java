@@ -70,6 +70,7 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
+  private static final int PAGE_SIZE_BULK_STATUS = 50;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
@@ -518,17 +519,17 @@ public final class AdminApplicationController extends CiviFormController {
     } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
-
-    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
-    PaginationResult<ApplicationModel> applications =
-        programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
-
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
     if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
+      var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE_BULK_STATUS, page.orElse(1));
+      PaginationResult<ApplicationModel> applications =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programId, F.Either.Right(paginationSpec), filters);
+
       return ok(
           tableView.render(
               request,
@@ -546,6 +547,10 @@ public final class AdminApplicationController extends CiviFormController {
                   .build(),
               showDownloadModal));
     }
+    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
+    PaginationResult<ApplicationModel> applications =
+        programService.getSubmittedProgramApplicationsAllVersions(
+            programId, F.Either.Right(paginationSpec), filters);
     return ok(
         applicationListView.render(
             request,
