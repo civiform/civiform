@@ -60,25 +60,28 @@ public final class ProgramCardsSectionParamsFactory {
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
-      ApplicantPersonalInfo personalInfo) {
+      ApplicantPersonalInfo personalInfo,
+      boolean isMyApplicationsSection) {
 
-    ProgramSectionParams.Builder sectionBuilder =
-        ProgramSectionParams.builder()
-            .setCards(
-                getCards(
-                    request,
-                    messages,
-                    buttonText,
-                    programData,
-                    preferredLocale,
-                    profile,
-                    applicantId,
-                    personalInfo));
+    List<ProgramCardParams> cards =
+        getCards(
+            request,
+            messages,
+            buttonText,
+            programData,
+            preferredLocale,
+            profile,
+            applicantId,
+            personalInfo);
+
+    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
 
     if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
+      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
       sectionBuilder.setId(Modal.randomModalId());
     }
+
+    sectionBuilder.setIsMyApplicationsSection(isMyApplicationsSection);
 
     return sectionBuilder.build();
   }
@@ -230,6 +233,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> title();
 
+    public abstract boolean isMyApplicationsSection();
+
     /** The id of the section. Only needs to be specified if a title is also specified. */
     public abstract Optional<String> id();
 
@@ -244,6 +249,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setCards(List<ProgramCardParams> cards);
 
       public abstract Builder setTitle(String title);
+
+      public abstract Builder setIsMyApplicationsSection(boolean isMyApplicationsSection);
 
       public abstract Builder setId(String id);
 

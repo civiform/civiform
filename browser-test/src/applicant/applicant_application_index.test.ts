@@ -500,7 +500,7 @@ test.describe('applicant program index page', () => {
         ).toBeVisible()
       })
 
-      await test.step('Fill out first application block and confirm that the program appears in the In progress section', async () => {
+      await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
         await applicantQuestions.applyProgram(primaryProgramName)
         await applicantQuestions.answerTextQuestion('first answer')
         await applicantQuestions.clickNext()
@@ -517,7 +517,7 @@ test.describe('applicant program index page', () => {
         })
       })
 
-      await test.step('Finish the application and confirm that the program appears in the "Submitted" section', async () => {
+      await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
         await applicantQuestions.applyProgram(primaryProgramName)
         await applicantQuestions.answerTextQuestion('second answer')
         await applicantQuestions.clickNext()
@@ -618,11 +618,15 @@ test.describe('applicant program index page', () => {
       }) => {
         await loginAsTestUser(page)
 
-        await test.step('Programs start in not started', async () => {
-          await applicantQuestions.expectPrograms({
-            wantNotStartedPrograms: [primaryProgramName, otherProgramName],
-            wantInProgressPrograms: [],
-            wantSubmittedPrograms: [],
+        await test.step('Programs start in not Programs and Services section', async () => {
+          await applicantQuestions.expectProgramsWithFilteringEnabled({
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
           })
         })
 
@@ -638,16 +642,13 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.clickContinue()
           await applicantQuestions.gotoApplicantHomePage()
         })
-        await test.step('Expect primary program application is in "in progress" section', async () => {
-          await applicantQuestions.expectPrograms({
-            wantNotStartedPrograms: [otherProgramName],
-            wantInProgressPrograms: [primaryProgramName],
-            wantSubmittedPrograms: [],
+        await test.step('Expect primary program application is in "My applications" section', async () => {
+          await applicantQuestions.expectProgramsWithFilteringEnabled({
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [otherProgramName],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
           })
-          await validateScreenshot(
-            page,
-            'program-index-page-inprogress-northstar',
-          )
         })
 
         await test.step('Finish the primary program application', async () => {
@@ -664,11 +665,12 @@ test.describe('applicant program index page', () => {
             /* northStarEnabled= */ true,
           )
         })
-        await test.step('Expect primary program application is in "Submitted" section', async () => {
-          await applicantQuestions.expectPrograms({
-            wantNotStartedPrograms: [otherProgramName],
-            wantInProgressPrograms: [],
-            wantSubmittedPrograms: [primaryProgramName],
+        await test.step('Expect primary program application is still in "My applications" section', async () => {
+          await applicantQuestions.expectProgramsWithFilteringEnabled({
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [otherProgramName],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
           })
           await validateScreenshot(
             page,
@@ -679,10 +681,14 @@ test.describe('applicant program index page', () => {
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
           await logout(page, false)
 
-          await applicantQuestions.expectPrograms({
-            wantNotStartedPrograms: [otherProgramName, primaryProgramName],
-            wantInProgressPrograms: [],
-            wantSubmittedPrograms: [],
+          await applicantQuestions.expectProgramsWithFilteringEnabled({
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
           })
         })
       })
@@ -762,9 +768,9 @@ test.describe('applicant program index page with images', () => {
   })
 
   test(
-    'shows program with wide image in North Star',
+    'shows program with wide image in North Star and removes image from card when in My Applications',
     {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage}) => {
+    async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
       const programName = 'Wide Image Program'
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -779,6 +785,19 @@ test.describe('applicant program index page with images', () => {
 
       await validateScreenshot(page, 'north-star-program-image-wide')
       await validateAccessibility(page)
+
+      await test.step('Fill out part of the program application', async () => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
+
+      await test.step('Expect the program card to not show the image when in My Applications section', async () => {
+        await expect(page.locator('.cf-application-card img')).toBeHidden()
+      })
     },
   )
 
