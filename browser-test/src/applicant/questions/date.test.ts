@@ -191,7 +191,7 @@ test.describe('Date question for applicant flow', () => {
         )
         await applicantQuestions.clickContinue()
         // Return to page.
-        await applicantQuestions.clickReview()
+        await applicantQuestions.clickEdit()
         await validateScreenshot(
           page,
           'date-filled-in-north-star',

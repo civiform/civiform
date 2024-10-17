@@ -133,7 +133,6 @@ public enum MessageKey {
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_BLOCK_PROGRESS_LABEL("content.blockProgressLabel"),
-  CONTENT_FILE_UPLOAD_BLOCK_PROGRESS_FULL("content.fileUploadBlockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS_V2(

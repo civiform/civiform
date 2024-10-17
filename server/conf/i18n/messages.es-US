@@ -128,8 +128,6 @@ content.blockProgressFull={0} de {1} completadas
 content.blockProgressLabel=Progreso de la inscripción
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Review and submit
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} de {1} cargados
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
