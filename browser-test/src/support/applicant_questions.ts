@@ -23,8 +23,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
     await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
     await this.page.selectOption(`.cf-address-state select >> nth=${index}`, {
-      label: state,
+      value: state,
     })
+
     await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
   }
 
