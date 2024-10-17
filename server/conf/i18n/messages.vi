@@ -708,9 +708,9 @@ validation.fileRequired=Vui lòng chọn một tệp.
 validation.fileTooLarge=Tệp của bạn quá lớn. Vui lòng chọn tệp có kích thước dưới {0} MB.
 button.chooseFile=Chọn tệp
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=Đang tải lên
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=Tệp đã tải lên
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

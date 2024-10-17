@@ -708,9 +708,9 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 button.chooseFile=Pumili ng File
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=Ina-upload
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=Mga Na-upload na File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

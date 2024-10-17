@@ -708,9 +708,9 @@ validation.fileRequired=請選取檔案。
 validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
 button.chooseFile=選擇檔案
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=上傳中
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=上傳的檔案
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
