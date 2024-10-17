@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKeyModel;
-import services.PaginationResult;
 import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 
 /**
  * Provides an asynchronous API for persistence and query of {@link ApiKeyModel} instances. Uses
