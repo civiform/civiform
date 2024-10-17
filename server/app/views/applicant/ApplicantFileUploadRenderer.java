@@ -55,7 +55,7 @@ import views.style.ReferenceClasses;
 /** A helper class for rendering the file upload question for applicants. */
 public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
 
-  private static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
+  private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
@@ -200,7 +200,9 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       result.with(
           FileUploadViewStrategy.createUswdsFileInputFormElement(
               fileInputId,
-              MIME_TYPES_IMAGES_AND_PDF,
+              settingsManifest
+                  .getFileUploadAllowedFileTypeSpecifiers()
+                  .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK),
               ImmutableList.of(getFileInputHint(fileUploadQuestion, params)),
               /* disabled= */ !fileUploadQuestion.canUploadFile(),
               applicantStorageClient.getFileLimitMb(),
@@ -365,7 +367,10 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         .withName("file")
         .withClass("hidden")
         .attr("data-file-limit-mb", applicantStorageClient.getFileLimitMb())
-        .withAccept(MIME_TYPES_IMAGES_AND_PDF);
+        .withAccept(
+            settingsManifest
+                .getFileUploadAllowedFileTypeSpecifiers()
+                .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
   }
 
   /**

@@ -27,6 +27,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
+  private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
   private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
@@ -208,6 +209,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
     context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
+    context.setVariable(
+        "fileUploadAllowedFileTypeSpecifiers",
+        settingsManifest
+            .getFileUploadAllowedFileTypeSpecifiers()
+            .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
     context.setVariable(
         "previousBlockWithoutFile",
         params.baseUrl()

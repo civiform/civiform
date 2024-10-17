@@ -57,7 +57,7 @@
     type="file"
     name="file"
     th:aria-describedby="${questionId} + '-description'"
-    accept="image/*,.pdf"
+    th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
   />
 
