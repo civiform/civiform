@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import org.pac4j.play.java.Secure;
@@ -582,17 +583,7 @@ public final class AdminApplicationController extends CiviFormController {
         formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
     var ids = form.get().getApplicationsIds();
 
-    var applicationlist =
-        ids.stream()
-            .map(
-                id -> {
-                  Optional<ApplicationModel> applicationMaybe =
-                      programAdminApplicationService.getApplication(Long.parseLong(id), program);
-                  return applicationMaybe.get();
-                })
-            .collect(ImmutableList.toImmutableList());
-    System.out.println("The new status is  -" + form.get().getStatusText());
-    System.out.println("The notify status is  -" + form.get().isMaybeSendEmail());
+    var applicationlist = programAdminApplicationService.getApplications(ids.stream().map(e-> Long.parseLong(e)).collect(ImmutableList.toImmutableList()),program);
 
     programAdminApplicationService.setStatus(
         applicationlist,
