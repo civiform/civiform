@@ -10,8 +10,8 @@ import java.util.concurrent.CompletionException;
 import models.ApiKeyModel;
 import org.junit.Before;
 import org.junit.Test;
-import services.PaginationResult;
 import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 
 public class ApiKeyRepositoryTest extends ResetPostgres {
 
