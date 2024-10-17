@@ -708,9 +708,9 @@ validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
 validation.fileTooLarge=ໄຟລ໌ຂອງທ່ານໃຫຍ່ເກີນໄປ. ກະລຸນາເລືອກໄຟລ໌ທີ່ນ້ອຍກວ່າ {0} MB.
 button.chooseFile=ເລືອກໄຟລ໌
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=ກຳລັງອັບໂຫຼດ
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=ໄຟລ໌ທີ່ອັບໂຫຼດແລ້ວ
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
