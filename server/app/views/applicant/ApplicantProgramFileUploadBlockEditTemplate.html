@@ -29,6 +29,14 @@
               th:class="${fileUploadViewStrategy.getUploadFormClass()}"
               th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
             >
+              <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->
+              <input
+                type="hidden"
+                th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionParams.signedFileUploadRequest())}"
+                th:name="${inputValues.key}"
+                th:value="${inputValues.value}"
+              />
+
               <div class="section-external">
                 <div
                   th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
@@ -40,8 +48,35 @@
               ></div>
 
               <div
-                th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${applicationParams}, ${questionParams}, ${fileUploadViewStrategy})}"
+                th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionParams})}"
               ></div>
+
+              <ul
+                th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
+                th:attr="aria-label=#{label.uploadedFiles}"
+                class="grid"
+              >
+                <li
+                  th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  class="grid-row margin-y-1"
+                >
+                  <span
+                    th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+                    class="overflow-hidden grid-col flex-fill"
+                  ></span>
+                  <a
+                    th:text="#{link.removeFile}"
+                    th:href="${applicationParams.applicantRoutes().removeFile(
+                    applicationParams.profile(),
+                    applicationParams.applicantId(),
+                    applicationParams.programId(),
+                    applicationParams.block().id,
+                    fileKey,
+                    applicationParams.inReview()
+                  ).url()}"
+                  ></a>
+                </li>
+              </ul>
             </form>
 
             <!--/* Hidden forms that allow users to pass through without submitting a file.  */-->
