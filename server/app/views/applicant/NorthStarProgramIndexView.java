@@ -95,7 +95,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   profile,
                   applicantId,
                   personalInfo,
-                  /* isMyApplicationsSection= */ true));
+                  ProgramCardsSectionParamsFactory.SectionType.MY_APPLICATIONS));
     }
 
     if (!applicationPrograms.unapplied().isEmpty()) {
@@ -110,7 +110,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
               profile,
               applicantId,
               personalInfo,
-              /* isMyApplicationsSection= */ false));
+              ProgramCardsSectionParamsFactory.SectionType.STANDARD));
     }
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
@@ -166,6 +166,6 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         profile,
         applicantId,
         personalInfo,
-        /* isMyApplicationsSection= */ false);
+        ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
   }
 }

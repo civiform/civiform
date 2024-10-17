@@ -618,7 +618,7 @@ test.describe('applicant program index page', () => {
       }) => {
         await loginAsTestUser(page)
 
-        await test.step('Programs start in not Programs and Services section', async () => {
+        await test.step('Programs start in Programs and Services section', async () => {
           await applicantQuestions.expectProgramsWithFilteringEnabled({
             expectedProgramsInMyApplicationsSection: [],
             expectedProgramsInProgramsAndServicesSection: [

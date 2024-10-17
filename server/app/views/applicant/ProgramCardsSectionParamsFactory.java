@@ -36,6 +36,13 @@ public final class ProgramCardsSectionParamsFactory {
   private final PublicStorageClient publicStorageClient;
   private final ApplicantService applicantService;
 
+  /** Enumerates the homepage section types, which may have different card components or styles. */
+  public enum SectionType {
+    MY_APPLICATIONS,
+    COMMON_INTAKE,
+    STANDARD;
+  }
+
   @Inject
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
@@ -61,7 +68,7 @@ public final class ProgramCardsSectionParamsFactory {
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo,
-      boolean isMyApplicationsSection) {
+      SectionType sectionType) {
 
     List<ProgramCardParams> cards =
         getCards(
@@ -81,7 +88,7 @@ public final class ProgramCardsSectionParamsFactory {
       sectionBuilder.setId(Modal.randomModalId());
     }
 
-    sectionBuilder.setIsMyApplicationsSection(isMyApplicationsSection);
+    sectionBuilder.setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -233,7 +240,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> title();
 
-    public abstract boolean isMyApplicationsSection();
+    public abstract SectionType sectionType();
 
     /** The id of the section. Only needs to be specified if a title is also specified. */
     public abstract Optional<String> id();
@@ -250,7 +257,7 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setTitle(String title);
 
-      public abstract Builder setIsMyApplicationsSection(boolean isMyApplicationsSection);
+      public abstract Builder setSectionType(SectionType sectionType);
 
       public abstract Builder setId(String id);
 
