@@ -1000,6 +1000,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables custom eligibility message for CiviForm admins */
+  public boolean getEligibilityMessageEnabled(RequestHeader request){
+    return getBool("ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant
    * flows
@@ -2099,6 +2104,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                    "ELIGIBILITY_MESSAGE_ENABLED",
+                    "(NOT FOR PRODUCTION USE) Enables custom eligibility message for CiviForm admins",
+                    false,
+                    SettingType.BOOLEAN,
+                    SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "NORTH_STAR_APPLICANT_UI",
                       "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user"

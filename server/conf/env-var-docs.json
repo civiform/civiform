@@ -803,6 +803,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
+      },
+      "ELIGIBILITY_MESSAGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description:": "When enabled, civiform admins can set up a customized eligibility message per screen.",
+        "type": "bool"
       }
     }
   },
