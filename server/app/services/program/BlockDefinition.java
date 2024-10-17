@@ -162,6 +162,10 @@ public abstract class BlockDefinition {
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
+  /** Eligibility message of a Block used to label it for the user. */
+  @JsonProperty("localizedMessage")
+  public abstract Optional<LocalizedStrings> localizedMessage();
+
   /**
    * An {@link EligibilityDefinition} that determines whether this block can be continued on from or
    * not.
@@ -271,6 +275,9 @@ public abstract class BlockDefinition {
     public Builder setVisibilityPredicate(PredicateDefinition predicate) {
       return this.setVisibilityPredicate(Optional.of(predicate));
     }
+
+    @JsonProperty("localizedMessage")
+    public abstract Builder setLocalizedMessage(Optional<LocalizedStrings> localizedMessage);
 
     @JsonProperty("eligibilityDefinition")
     public abstract Builder setEligibilityDefinition(Optional<EligibilityDefinition> eligibility);

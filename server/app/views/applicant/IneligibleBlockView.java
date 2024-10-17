@@ -22,6 +22,8 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
@@ -53,8 +55,15 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Messages messages,
       long applicantId,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      Optional<String> blockId)
+      throws ProgramBlockDefinitionNotFoundException {
     long programId = roApplicantProgramService.getProgramId();
+    String eligibilityMsg = "";
+    if (blockId.isPresent()) {
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId.get());
+      eligibilityMsg = blockDefinition.localizedMessage().toString();
+    }
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     String programDetailsLink = programDefinition.externalLink();
     ATag infoLink = null;
@@ -110,6 +119,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
+            .with(div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))

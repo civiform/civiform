@@ -14,6 +14,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import forms.admin.BlockEligibilityMessageForm;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -21,11 +22,17 @@ import j2html.tags.specialized.LabelTag;
 import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
+import play.data.Form;
+import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
@@ -34,6 +41,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
+import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
@@ -44,7 +52,11 @@ import views.style.ReferenceClasses;
 /** Renders a page for editing predicates of a block in a program. */
 public final class ProgramPredicatesEditView extends ProgramBaseView {
 
+  private static final String ELIGIBILITY_MESSAGE_FORM_ID = "eligibility-message-form";
+
   private final AdminLayout layout;
+  private final ProgramService programService;
+  private final FormFactory formFactory;
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -54,9 +66,14 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   @Inject
   public ProgramPredicatesEditView(
-      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory,
+      ProgramService programService,
+      SettingsManifest settingsManifest,
+      FormFactory formFactory) {
     super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.formFactory = checkNotNull(formFactory);
+    this.programService = checkNotNull(programService);
   }
 
   /**
@@ -219,6 +236,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
+            .with(createEligibilityMessageForm(request, blockDefinition, programDefinition.id()))
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
@@ -260,6 +278,57 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
     }
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private String getExisitngEligibilityMessage(long programId, long blockId) {
+
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+
+      return block.localizedMessage().map(LocalizedStrings::getDefault).orElse("");
+    } catch (ProgramNotFoundException e) {
+      return e.toString();
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return e.toString();
+    }
+  }
+
+  private DivTag createEligibilityMessageForm(
+      Http.Request request, BlockDefinition block, long programId) {
+    // need to get exisitng eligibility message form first
+    String existingEligibilityMessage = getExisitngEligibilityMessage(programId, block.id());
+    BlockEligibilityMessageForm existingEligibilityMessageForm =
+        new BlockEligibilityMessageForm(existingEligibilityMessage);
+
+    Form<BlockEligibilityMessageForm> form =
+        formFactory.form(BlockEligibilityMessageForm.class).fill(existingEligibilityMessageForm);
+
+    DivTag buttonDiv = div().withClass("flex");
+    buttonDiv.with(
+        submitButton("Save eligibility message")
+            .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
+
+    final String updateMessageUrl =
+        routes.AdminProgramBlockPredicatesController.updateEligibilityMessage(programId, block.id())
+            .url();
+
+    return div()
+        .with(
+            form()
+                .withId(ELIGIBILITY_MESSAGE_FORM_ID)
+                .withMethod("POST")
+                .withAction(updateMessageUrl)
+                .with(
+                    makeCsrfTokenInputTag(request),
+                    FieldWithLabel.input()
+                        .setFieldName(BlockEligibilityMessageForm.ELIGIBILITY_MESSAGE)
+                        .setLabelText("Eligibility Message")
+                        .setRequired(false)
+                        .setValue(form.value().get().getEligibilityMessage())
+                        .getInputTag()))
+        .with(buttonDiv);
   }
 
   private static LabelTag renderPredicateQuestionCheckBoxRow(
