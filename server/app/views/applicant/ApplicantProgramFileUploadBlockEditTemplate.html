@@ -12,62 +12,77 @@
       fileUploadQuestion=${question.createFileUploadQuestion()}"
     >
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
-      <form
-        enctype="multipart/form-data"
-        method="POST"
-        id="cf-block-form"
-        th:class="${fileUploadViewStrategy.getUploadFormClass()}"
-        th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
-      >
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
-        ></div>
 
-        <div
-          th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
-        ></div>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
+          ${applicationParams.programTitle()},
+          ${applicationParams.programDescription()})}"
+      ></div>
 
-        <div
-          th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${applicationParams}, ${questionParams}, ${fileUploadViewStrategy})}"
-        ></div>
-      </form>
+      <div class="grid-container usa-form usa-form--large">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
+            <form
+              enctype="multipart/form-data"
+              method="POST"
+              id="cf-block-form"
+              th:class="${fileUploadViewStrategy.getUploadFormClass()}"
+              th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
+            >
+              <div class="section-external">
+                <div
+                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+                ></div>
+              </div>
 
-      <!--/* Hidden forms that allow users to pass through without submitting a file.  */-->
-      <div class="hidden">
-        <form
-          id="cf-fileupload-continue-form"
-          method="POST"
-          th:action="${submitFormAction}"
-        >
-          <input hidden th:value="${csrfToken}" name="csrfToken" />
-          <div
-            th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
-          ></div>
-        </form>
-      </div>
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
+              ></div>
 
-      <div>
-        <div>
-          <button
-            type="submit"
-            th:formaction="${previousPageWithoutFile}"
-            form="cf-fileupload-continue-form"
-            class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
-            th:text="#{button.back}"
-          ></button>
-          <button
-            type="submit"
-            form="cf-fileupload-continue-form"
-            class="usa-button margin-bottom-1 zero-top-margin"
-            th:text="#{button.continue}"
-          ></button>
+              <div
+                th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${applicationParams}, ${questionParams}, ${fileUploadViewStrategy})}"
+              ></div>
+            </form>
+
+            <!--/* Hidden forms that allow users to pass through without submitting a file.  */-->
+            <div class="hidden">
+              <form
+                id="cf-fileupload-continue-form"
+                method="POST"
+                th:action="${submitFormAction}"
+              >
+                <input hidden th:value="${csrfToken}" name="csrfToken" />
+                <div
+                  th:replace="~{questiontypes/FileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"
+                ></div>
+              </form>
+            </div>
+
+            <div class="section-external">
+              <div>
+                <button
+                  type="submit"
+                  th:formaction="${previousPageWithoutFile}"
+                  form="cf-fileupload-continue-form"
+                  class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
+                  th:text="#{button.back}"
+                ></button>
+                <button
+                  type="submit"
+                  form="cf-fileupload-continue-form"
+                  class="usa-button margin-bottom-1 zero-top-margin"
+                  th:text="#{button.continue}"
+                ></button>
+              </div>
+              <a
+                th:href="${reviewPageWithoutFile}"
+                id="review-application-button"
+                class="usa-button usa-button--unstyled margin-bottom-4"
+                th:text="#{button.reviewAndExit}"
+              ></a>
+            </div>
+          </div>
         </div>
-        <a
-          th:href="${reviewPageWithoutFile}"
-          id="review-application-button"
-          class="usa-button usa-button--unstyled margin-bottom-4"
-          th:text="#{button.reviewAndExit}"
-        ></a>
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
