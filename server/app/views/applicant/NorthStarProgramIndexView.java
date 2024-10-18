@@ -11,6 +11,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
+import java.util.stream.Stream;
 import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -63,6 +64,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
 
     ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
 
+    Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
 
     if (applicationPrograms.commonIntakeForm().isPresent()) {
@@ -77,32 +79,23 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   personalInfo));
     }
 
-    if (!applicationPrograms.inProgress().isEmpty()) {
-      sectionParamsBuilder.add(
-          programCardsSectionParamsFactory.getSection(
-              request,
-              messages,
-              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
-              MessageKey.BUTTON_CONTINUE,
-              applicationPrograms.inProgress(),
-              /* preferredLocale= */ messages.lang().toLocale(),
-              profile,
-              applicantId,
-              personalInfo));
-    }
-
-    if (!applicationPrograms.submitted().isEmpty()) {
-      sectionParamsBuilder.add(
-          programCardsSectionParamsFactory.getSection(
-              request,
-              messages,
-              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
-              MessageKey.BUTTON_EDIT,
-              applicationPrograms.submitted(),
-              /* preferredLocale= */ messages.lang().toLocale(),
-              profile,
-              applicantId,
-              personalInfo));
+    if (!applicationPrograms.inProgress().isEmpty() || !applicationPrograms.submitted().isEmpty()) {
+      myApplicationsSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  request,
+                  messages,
+                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION),
+                  MessageKey.BUTTON_EDIT,
+                  Stream.concat(
+                          applicationPrograms.inProgress().stream(),
+                          applicationPrograms.submitted().stream())
+                      .collect(ImmutableList.toImmutableList()),
+                  /* preferredLocale= */ messages.lang().toLocale(),
+                  profile,
+                  applicantId,
+                  personalInfo,
+                  ProgramCardsSectionParamsFactory.SectionType.MY_APPLICATIONS));
     }
 
     if (!applicationPrograms.unapplied().isEmpty()) {
@@ -110,21 +103,18 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
           programCardsSectionParamsFactory.getSection(
               request,
               messages,
-              Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
+              Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
               MessageKey.BUTTON_APPLY,
               applicationPrograms.unapplied(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
               applicantId,
-              personalInfo));
+              personalInfo,
+              ProgramCardsSectionParamsFactory.SectionType.STANDARD));
     }
 
+    context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);
-    context.setVariable(
-        "numPrograms",
-        applicationPrograms.inProgress().size()
-            + applicationPrograms.submitted().size()
-            + applicationPrograms.unapplied().size());
 
     context.setVariable("sections", sectionParamsBuilder.build());
     context.setVariable(
@@ -175,6 +165,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
         applicantId,
-        personalInfo);
+        personalInfo,
+        ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
   }
 }
