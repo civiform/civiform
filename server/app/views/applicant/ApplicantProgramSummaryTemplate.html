@@ -34,7 +34,7 @@
             </ol>
 
             <form
-              class="cf-debounced-form"
+              class="cf-debounced-form summary-button-section"
               th:action="${submitUrl}"
               method="POST"
             >
@@ -56,6 +56,7 @@
           </div>
         </div>
       </div>
+      <div class="page-spacing"></div>
     </main>
     <div th:if="${isGuest and redirectedFromProgramSlug.isPresent()}">
       <div th:replace="~{applicant/ModalFragment:: reviewLogin}"></div>
