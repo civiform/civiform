@@ -168,7 +168,8 @@ POST    /applicants/:applicantId                    controllers.applicant.Applic
 POST    /applicants                                 controllers.applicant.ApplicantInformationController.setLangFromSwitcherWithoutApplicant(request: Request)
 
 # Program methods for applicants (new)
-GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request)
+GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request, categories: java.util.List[String])
+GET     /applicants/programs        controllers.applicant.ApplicantProgramsController.indexWithoutApplicantId(request: Request, categories: java.util.List[String])
 GET     /programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(request: Request, programId: Long)
 GET     /programs/:programId/review controllers.applicant.ApplicantProgramReviewController.review(request: Request, programId: Long)
 POST    /programs/:programId/submit controllers.applicant.ApplicantProgramReviewController.submit(request: Request, programId: Long)
@@ -196,8 +197,6 @@ GET     /programs/:programSlug/disabled          controllers.applicant.Applicant
 # do not yet contain the applicant id, so we maintain these routes
 # during migration.
 GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long, categories: java.util.List[String])
-GET     /applicants/programs                                                                   controllers.applicant.ApplicantProgramsController.indexWithoutApplicantId(request: Request, categories: java.util.List[String])
-GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.showWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.editWithApplicantId(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.reviewWithApplicantId(request: Request, applicantId: Long, programId: Long)
 POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submitWithApplicantId(request: Request, applicantId: Long, programId: Long)

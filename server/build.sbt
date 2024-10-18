@@ -42,8 +42,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.28.18",
-      "software.amazon.awssdk" % "ses" % "2.28.18",
+      "software.amazon.awssdk" % "s3" % "2.28.25",
+      "software.amazon.awssdk" % "ses" % "2.28.25",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.14.0",
@@ -92,7 +92,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.33.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.0",
+      "org.checkerframework" % "dataflow-errorprone" % "3.48.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.12.0",
@@ -101,7 +101,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.47",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.48",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -114,7 +114,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.9"
+      "ch.qos.logback" % "logback-classic" % "1.5.11"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

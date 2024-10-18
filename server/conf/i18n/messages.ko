@@ -117,7 +117,7 @@ button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=저장하고 나중에 신청 완료
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -128,8 +128,6 @@ content.blockProgressFull={1}개 중 {0}개 완료됨
 content.blockProgressLabel=신청 절차
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Review and submit
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -708,9 +706,9 @@ validation.fileRequired=파일을 선택하세요.
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
 button.chooseFile=파일 선택
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=업로드 중
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=업로드된 파일
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

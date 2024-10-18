@@ -28,15 +28,12 @@ import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.AnswerData;
@@ -51,6 +48,8 @@ import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
+import services.pagination.PageNumberPaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -168,7 +167,7 @@ public final class AdminApplicationController extends CiviFormController {
     String json =
         jsonExporterService.export(
             program,
-            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             filters,
             settingsManifest.getMultipleFileUploadEnabled(request));
     return ok(json)
@@ -208,7 +207,9 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(
+              programId, filters, settingsManifest.getMultipleFileUploadEnabled(request));
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -512,10 +513,12 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
+    var paginationSpec =
+        new PageNumberPaginationSpec(
+            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, paginationSpec, filters);
 
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());

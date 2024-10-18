@@ -302,8 +302,7 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  // TODO(#8796): Re-enable this test
-  test.skip(
+  test(
     'Add translations for block name and description',
     {tag: ['@northstar']},
     async ({
@@ -331,7 +330,7 @@ test.describe('Admin can manage program translations', () => {
         await adminTranslations.editProgramTranslations({
           name: 'Spanish name',
           description: 'Spanish description',
-          blockName: 'Spanish block name',
+          blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
           statuses: [],
         })
@@ -341,7 +340,7 @@ test.describe('Admin can manage program translations', () => {
         await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
         await adminTranslations.selectLanguage('Spanish')
         await adminTranslations.expectBlockTranslations(
-          'Spanish block name',
+          'Spanish block name - bloque uno',
           'Spanish block description',
         )
       })
@@ -355,8 +354,9 @@ test.describe('Admin can manage program translations', () => {
 
         await applicantQuestions.clickApplyProgramButton('Spanish name')
 
-        await expect(page.getByText('Spanish block name')).toBeVisible()
-        await expect(page.getByText('Spanish block description')).toBeVisible()
+        await expect(
+          page.getByText('Spanish block name - bloque uno'),
+        ).toBeVisible()
       })
     },
   )

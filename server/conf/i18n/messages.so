@@ -117,7 +117,7 @@ button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Keydi oo hadhow dhammaystir arjiga
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Ka bood
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -128,8 +128,6 @@ content.blockProgressFull={0} ee {1} la dhameeyay
 content.blockProgressLabel=Geeddi socodka arjiga
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Review and submit
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} ee {1} la soo galiyay
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -708,9 +706,9 @@ validation.fileRequired=Fadlan dooro fayl.
 validation.fileTooLarge=Faylkaagu aad buu u weyn yahay. Fadlan dooro fayl ka yar {0} MB.
 button.chooseFile=Dooro Fayl
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=Gelinaya
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=Faylasha lasoo Geliyay
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
