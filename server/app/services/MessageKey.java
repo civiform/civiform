@@ -87,6 +87,7 @@ public enum MessageKey {
   BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT("button.continueWithoutAnAccount"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
   BUTTON_DELETE_ACCT("button.deleteAcct"),
+  BUTTON_DOWNLOAD_APPLICATION("button.downloadApplication"),
   BUTTON_DOWNLOAD_PDF("button.downloadPdf"),
   BUTTON_EDIT("button.edit"),
   BUTTON_EDIT_SR("button.editSr"),

@@ -59,11 +59,9 @@
                 <a
                   th:href="${downloadHref}"
                   class="usa-button"
-                  th:text="#{button.print}"
+                  th:text="#{button.downloadApplication}"
                 ></a>
               </div>
-
-              <!-- TODO(#8299): Add "Download PDF" button -->
 
               <section
                 th:if="${not #strings.isEmpty(customConfirmationMessage)}"
