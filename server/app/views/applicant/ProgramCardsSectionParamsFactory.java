@@ -36,6 +36,13 @@ public final class ProgramCardsSectionParamsFactory {
   private final PublicStorageClient publicStorageClient;
   private final ApplicantService applicantService;
 
+  /** Enumerates the homepage section types, which may have different card components or styles. */
+  public enum SectionType {
+    MY_APPLICATIONS,
+    COMMON_INTAKE,
+    STANDARD;
+  }
+
   @Inject
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
@@ -60,25 +67,28 @@ public final class ProgramCardsSectionParamsFactory {
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
-      ApplicantPersonalInfo personalInfo) {
+      ApplicantPersonalInfo personalInfo,
+      SectionType sectionType) {
 
-    ProgramSectionParams.Builder sectionBuilder =
-        ProgramSectionParams.builder()
-            .setCards(
-                getCards(
-                    request,
-                    messages,
-                    buttonText,
-                    programData,
-                    preferredLocale,
-                    profile,
-                    applicantId,
-                    personalInfo));
+    List<ProgramCardParams> cards =
+        getCards(
+            request,
+            messages,
+            buttonText,
+            programData,
+            preferredLocale,
+            profile,
+            applicantId,
+            personalInfo);
+
+    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
 
     if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
+      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
       sectionBuilder.setId(Modal.randomModalId());
     }
+
+    sectionBuilder.setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -231,6 +241,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> title();
 
+    public abstract SectionType sectionType();
+
     /** The id of the section. Only needs to be specified if a title is also specified. */
     public abstract Optional<String> id();
 
@@ -245,6 +257,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setCards(List<ProgramCardParams> cards);
 
       public abstract Builder setTitle(String title);
+
+      public abstract Builder setSectionType(SectionType sectionType);
 
       public abstract Builder setId(String id);
 
