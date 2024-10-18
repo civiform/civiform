@@ -1,4 +1,4 @@
-package services.cloud.aws;
+package services.email.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import services.cloud.aws.AwsRegion;
 import software.amazon.awssdk.http.HttpStatusCode;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.Body;
