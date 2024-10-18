@@ -128,8 +128,6 @@ content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
 # Heading on the application review page. The page shows all the answers the user inputted.
 heading.reviewAndSubmit=Review and submit
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -708,9 +706,9 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 button.chooseFile=ፋይል ይምረጡ
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=በመስቀል ላይ
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=የተሰቀሉ ፋይሎች
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

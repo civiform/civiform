@@ -775,6 +775,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Specifies the allowed file types that can be uploaded. Uses any valid [file type
+   * specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers).
+   * Multiple are separated by commas. Default: "image/*,.pdf"
+   */
+  public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
+    return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -2222,5 +2231,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " the policy.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))));
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS",
+                      "Specifies the allowed file types that can be uploaded. Uses any valid [file"
+                          + " type"
+                          + " specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers)."
+                          + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
+                      /* isRequired= */ false,
+                      SettingType.STRING,
+                      SettingMode.ADMIN_READABLE))));
 }

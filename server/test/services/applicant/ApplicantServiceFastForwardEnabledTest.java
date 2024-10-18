@@ -65,7 +65,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -1068,10 +1068,22 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicant.save();
 
     var fileKey = "test-file-key";
+    var fileKey2 = "test-file-key-2";
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.fileupload").join(Scalar.FILE_KEY).toString(), fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(1)
+                    .toString(),
+                fileKey2)
             .build();
 
     var fileUploadQuestion =
@@ -1109,10 +1121,14 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
-    storedFile.save();
+    var storedFile2 = new StoredFileModel().setName(fileKey2);
 
+    storedFile.save();
+    storedFile2.save();
+
+    Request request = fakeRequest();
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, fakeRequest())
+        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
         .join();
 
@@ -1120,14 +1136,23 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(storedFile.getAcls().getProgramReadAcls())
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
+        .containsOnly(firstProgram.getProgramDefinition().adminName());
+
     subject
-        .submitApplication(
-            applicant.id, secondProgram.id, trustedIntermediaryProfile, fakeRequest())
+        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
         .join();
 
     storedFile.refresh();
     assertThat(storedFile.getAcls().getProgramReadAcls())
+        .containsOnly(
+            firstProgram.getProgramDefinition().adminName(),
+            secondProgram.getProgramDefinition().adminName());
+
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
         .containsOnly(
             firstProgram.getProgramDefinition().adminName(),
             secondProgram.getProgramDefinition().adminName());

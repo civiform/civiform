@@ -95,7 +95,8 @@ public final class CsvExporterService {
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
-  public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
+  public String getProgramAllVersionsCsv(
+      long programId, SubmittedApplicationFilter filters, boolean isMultipleFileUploadEnabled)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -112,7 +113,10 @@ public final class CsvExporterService {
 
     CsvExportConfig exportConfig =
         generateCsvConfig(
-            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+            applications,
+            programDefinitionsForAllVersions,
+            currentProgram.hasEligibilityEnabled(),
+            isMultipleFileUploadEnabled);
 
     return exportCsv(
         exportConfig,
@@ -126,7 +130,8 @@ public final class CsvExporterService {
   private CsvExportConfig generateCsvConfig(
       ImmutableList<ApplicationModel> applications,
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
-      boolean showEligibilityColumn)
+      boolean showEligibilityColumn,
+      boolean isMultipleFileUploadEnabled)
       throws ProgramNotFoundException {
     Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
@@ -144,7 +149,8 @@ public final class CsvExporterService {
             .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(sortedUniqueQuestions, showEligibilityColumn);
+    return buildColumnHeaders(
+        sortedUniqueQuestions, showEligibilityColumn, isMultipleFileUploadEnabled);
   }
 
   /**
@@ -201,7 +207,9 @@ public final class CsvExporterService {
    * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<ApplicantQuestion> exemplarQuestions, boolean showEligibilityColumn) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions,
+      boolean showEligibilityColumn,
+      boolean isMultipleFileUploadEnabled) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -248,7 +256,7 @@ public final class CsvExporterService {
             aq ->
                 aq.getType().equals(QuestionType.CHECKBOX)
                     ? buildColumnsForEveryOption(aq)
-                    : buildColumnsForEveryScalar(aq))
+                    : buildColumnsForEveryScalar(aq, isMultipleFileUploadEnabled))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
@@ -272,8 +280,14 @@ public final class CsvExporterService {
                     .build());
   }
 
-  private Stream<Column> buildColumnsForEveryScalar(ApplicantQuestion applicantQuestion) {
+  private Stream<Column> buildColumnsForEveryScalar(
+      ApplicantQuestion applicantQuestion, boolean isMultipleFileUploadEnabled) {
     return applicantQuestion.getQuestion().getAllPaths().stream()
+        .filter(
+            p ->
+                !(isMultipleFileUploadEnabled
+                    && p.keyName()
+                        .equals(Scalar.FILE_KEY.toString().toLowerCase(Locale.getDefault()))))
         .map(
             path ->
                 Column.builder()

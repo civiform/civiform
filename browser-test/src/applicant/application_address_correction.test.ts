@@ -447,7 +447,7 @@ test.describe('address correction', () => {
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
 
-        await applicantQuestions.clickReview()
+        await applicantQuestions.clickEdit()
         await applicantQuestions.checkAddressQuestionValue(
           'Address In Area',
           '',

@@ -1,5 +1,5 @@
 <div
-  th:fragment="file-upload(question, applicationParams, questionRendererParams, fileUploadViewStrategy)"
+  th:fragment="file-upload(question, questionRendererParams)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)}"
@@ -16,14 +16,6 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
   ></div>
-
-  <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->
-  <input
-    type="hidden"
-    th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
-    th:name="${inputValues.key}"
-    th:value="${inputValues.value}"
-  />
 
   <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
   <div
@@ -57,36 +49,9 @@
     type="file"
     name="file"
     th:aria-describedby="${questionId} + '-description'"
-    accept="image/*,.pdf"
+    th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
   />
-
-  <ul
-    th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
-    th:attr="aria-label=#{label.uploadedFiles}"
-    class="grid"
-  >
-    <li
-      th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
-      class="grid-row margin-y-1"
-    >
-      <span
-        th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
-        class="overflow-hidden grid-col flex-fill"
-      ></span>
-      <a
-        th:text="#{link.removeFile}"
-        th:href="${applicationParams.applicantRoutes().removeFile(
-          applicationParams.profile(),
-          applicationParams.applicantId(),
-          applicationParams.programId(),
-          applicationParams.block().id,
-          fileKey,
-          applicationParams.inReview()
-        ).url()}"
-      ></a>
-    </li>
-  </ul>
 </div>
 
 <!--/* Fragment for rendering file key fields within hidden inputs */-->
