@@ -65,8 +65,6 @@ button.review=Review
 link.opensNewTabSr=opens in a new tab
 # Aria-label for the primary navigation
 label.primaryNavigation=Primary navigation
-# Aria-label for the footer
-label.footerNav=Footer navigation,
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
 
@@ -854,8 +852,6 @@ banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
 banner.httpsSectionHeader=Secure .gov websites use HTTPS
 banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
-# Aria-label for the official government website
-label.officialWebsiteOfUsa=Official website of the United States government
 
 #----------------------------------------------------------------------------------------#
 # NOT PRODUCTION BANNER - text explaining that this site is not a production environment #
