@@ -115,12 +115,17 @@ public final class AdminProgramController extends CiviFormController {
     // a null element gets added as we always have a hidden
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
+
+    ImmutableList<ApplicationStep> applicationSteps = buildApplicationSteps(programData);
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
             programData.getAdminName(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
+            applicationSteps,
             programData.getExternalLink(),
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
@@ -149,7 +154,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getLocalizedShortDescription(),
-            buildApplicationSteps(programData),
+            applicationSteps,
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
@@ -252,11 +257,15 @@ public final class AdminProgramController extends CiviFormController {
 
     ProgramEditStatus programEditStatus = ProgramEditStatus.getStatusFromString(editStatus);
 
+    ImmutableList<ApplicationStep> applicationSteps = buildApplicationSteps(programData);
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
+            applicationSteps,
             programData.getExternalLink(),
             programData.getDisplayMode(),
             programData.getNotificationPreferences(),
@@ -291,7 +300,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getLocalizedDisplayName(),
         programData.getLocalizedDisplayDescription(),
         programData.getLocalizedShortDescription(),
-        buildApplicationSteps(programData),
+        applicationSteps,
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),

@@ -69,6 +69,12 @@ public final class ProgramService {
       "A public display name for the program is required";
   private static final String MISSING_DISPLAY_DESCRIPTION_MSG =
       "A public description for the program is required";
+  private static final String MISSING_APPLICATION_STEP_ONE_MSG =
+      "One application step for the program is required";
+  private static final String MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG =
+      "Each application step must have both a title and a description";
+  private static final String APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG =
+      "Application steps must be consecutive";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
   private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
@@ -356,6 +362,8 @@ public final class ProgramService {
             adminName,
             defaultDisplayName,
             defaultDisplayDescription,
+            defaultShortDescription,
+            defaultApplicationSteps,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -428,6 +436,8 @@ public final class ProgramService {
       String adminName,
       String displayName,
       String displayDescription,
+      String shortDescription,
+      ImmutableList<ApplicationStep> applicationSteps,
       String externalLink,
       String displayMode,
       ImmutableList<String> notificationPreferences,
@@ -438,6 +448,8 @@ public final class ProgramService {
         validateProgramData(
             displayName,
             displayDescription,
+            shortDescription,
+            applicationSteps,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -515,6 +527,8 @@ public final class ProgramService {
         validateProgramDataForUpdate(
             displayName,
             displayDescription,
+            shortDescription,
+            applicationSteps,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -646,6 +660,8 @@ public final class ProgramService {
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
       String displayName,
       String displayDescription,
+      String shortDescription,
+      ImmutableList<ApplicationStep> applicationSteps,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
@@ -654,6 +670,8 @@ public final class ProgramService {
     return validateProgramData(
         displayName,
         displayDescription,
+        shortDescription,
+        applicationSteps,
         externalLink,
         displayMode,
         notificationPreferences,
@@ -673,6 +691,8 @@ public final class ProgramService {
   private ImmutableSet<CiviFormError> validateProgramData(
       String displayName,
       String displayDescription,
+      String shortDescription,
+      ImmutableList<ApplicationStep> applicationSteps,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
@@ -682,11 +702,39 @@ public final class ProgramService {
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
-    if (displayDescription.isBlank()) {
+    if (displayDescription.isBlank()) { // remove this check now that this is no longer required
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue())
+        && tiGroups.isEmpty()) { // should this else statement be below on displayMode??
       errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
     }
+    if (shortDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
+    }
+    boolean havePreviousStep = false;
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE);
+      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE);
+      boolean haveTitle = !title.isBlank();
+      boolean haveDescription = !description.isBlank();
+      boolean haveCurrentStep = haveTitle && haveDescription;
+      // must have step 1
+      if (i == 0 && !haveCurrentStep) {
+        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_ONE_MSG));
+      }
+      // steps must have title AND description
+      // i feel like there's a cuter way to do this
+      if ((!haveTitle && haveDescription) || (haveTitle && !haveDescription)) {
+        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG));
+      }
+      // steps must be consecutive
+      if (i > 0 && !havePreviousStep && haveCurrentStep) {
+        errorsBuilder.add(CiviFormError.of(APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG));
+      }
+      havePreviousStep = haveCurrentStep;
+    }
+
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
     }
