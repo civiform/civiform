@@ -1,12 +1,14 @@
 package views.applicant;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicationStep;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -58,10 +60,13 @@ public class NorthStarApplicantProgramOverviewView extends NorthStarBaseView {
         programDefinition.localizedShortDescription().getOrDefault(userLocale);
     context.setVariable("shortDescription", localizedShortDescription);
 
+    ImmutableList<ApplicationStep> applicationSteps = programDefinition.applicationSteps();
+    context.setVariable("applicationSteps", applicationSteps);
+    context.setVariable("locale", userLocale);
+
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
   }
 
-  // Delete params
   @AutoValue
   public abstract static class Params {
 

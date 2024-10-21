@@ -4,13 +4,29 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main class="margin-left-2">
       <div
         th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
       ></div>
       <h1 th:text="${title}"></h1>
       <p th:text="${shortDescription}"></p>
-      <h2 th:text></h2>
+      <h3 class="site-preview-heading margin-top-2">
+        What to know before you fill out this form
+      </h3>
+      <ol class="usa-process-list">
+        <th:block th:each="step : ${applicationSteps}">
+          <li class="usa-process-list__item">
+            <h4
+              th:text="${step.getTitleForLocale(locale).get()}"
+              class="usa-process-list__heading"
+            ></h4>
+            <p
+              th:text="${step.getDescriptionForLocale(locale).get()}"
+              class="margin-top-05"
+            ></p>
+          </li>
+        </th:block>
+      </ol>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
