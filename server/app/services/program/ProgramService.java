@@ -703,41 +703,14 @@ public final class ProgramService {
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
-    if (displayDescription.isBlank()) { // remove this check now that this is no longer required
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue())
-        && tiGroups.isEmpty()) { // should this else statement be below on displayMode??
-      errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
-    }
     if (shortDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     }
-    boolean havePreviousStep = false;
-    for (int i = 0; i < applicationSteps.size(); i++) {
-      ApplicationStep step = applicationSteps.get(i);
-      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
-      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
-      boolean haveTitle = !title.isBlank();
-      boolean haveDescription = !description.isBlank();
-      boolean haveCurrentStep = haveTitle && haveDescription;
-      // must have step 1
-      if (i == 0 && !haveCurrentStep) {
-        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_ONE_MSG));
-      }
-      // steps must have title AND description
-      // i feel like there's a cuter way to do this
-      if ((!haveTitle && haveDescription) || (haveTitle && !haveDescription)) {
-        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG));
-      }
-      // steps must be consecutive
-      if (i > 0 && !havePreviousStep && haveCurrentStep) {
-        errorsBuilder.add(CiviFormError.of(APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG));
-      }
-      havePreviousStep = haveCurrentStep;
-    }
-
+    errorsBuilder = checkApplicationStepErrors(errorsBuilder, applicationSteps);
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
+    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
     }
     ImmutableList<String> validNotificationPreferences =
         Arrays.stream(ProgramNotificationPreference.values())
@@ -772,6 +745,35 @@ public final class ProgramService {
     return categoryRepository.listCategories().stream()
         .map(CategoryModel::getId)
         .collect(Collectors.toList());
+  }
+
+  private ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      ImmutableList<ApplicationStep> applicationSteps) {
+    boolean havePreviousStep = false;
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
+      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
+      boolean haveTitle = !title.isBlank();
+      boolean haveDescription = !description.isBlank();
+      boolean haveCurrentStep = haveTitle && haveDescription;
+      // must have step 1
+      if (i == 0 && !haveCurrentStep) {
+        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_ONE_MSG));
+      }
+      // steps must have title AND description
+      // i feel like there's a cuter way to do this
+      if ((!haveTitle && haveDescription) || (haveTitle && !haveDescription)) {
+        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG));
+      }
+      // steps must be consecutive
+      if (i > 0 && !havePreviousStep && haveCurrentStep) {
+        errorsBuilder.add(CiviFormError.of(APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG));
+      }
+      havePreviousStep = haveCurrentStep;
+    }
+    return errorsBuilder;
   }
 
   /**
