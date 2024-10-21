@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=L''outil de présélection n''a trouvé
 content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner à la page précédente pour modifier vos réponses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
