@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa
