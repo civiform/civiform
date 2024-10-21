@@ -810,14 +810,15 @@ test.describe('file upload applicant flow', () => {
             'file-upload.png',
           )
 
-          await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
 
           await applicantQuestions.answerFileUploadQuestionFromAssets(
             'file-upload-second.png',
           )
 
-          await applicantFileQuestion.expectFileNameDisplayed(
+          await applicantFileQuestion.expectFileNameCount(
             'file-upload-second.png',
+            1,
           )
 
           await validateScreenshot(
