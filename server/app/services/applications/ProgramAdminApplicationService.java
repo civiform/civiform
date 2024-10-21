@@ -31,7 +31,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.statuses.StatusDefinitions.Status;

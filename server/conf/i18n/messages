@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find program
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Download PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs

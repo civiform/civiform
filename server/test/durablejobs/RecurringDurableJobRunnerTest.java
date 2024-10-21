@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 import play.api.inject.BindingKey;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import support.TestRetry;
 
 public class RecurringDurableJobRunnerTest extends ResetPostgres {

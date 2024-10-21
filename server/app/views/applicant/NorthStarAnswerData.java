@@ -2,20 +2,15 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Locale;
-import play.i18n.Messages;
-import services.MessageKey;
 import services.applicant.AnswerData;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
 public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   private final AnswerData answerData;
-  private final Messages messages;
 
-  public NorthStarAnswerData(AnswerData data, Messages messages) {
+  public NorthStarAnswerData(AnswerData data) {
     this.answerData = checkNotNull(data);
-    this.messages = checkNotNull(messages);
   }
 
   public String blockId() {
@@ -32,10 +27,6 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
 
   public boolean isOptional() {
     return answerData.applicantQuestion().isOptional();
-  }
-
-  public String questionAriaLabel() {
-    return messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT);
   }
 
   public String answerText() {
