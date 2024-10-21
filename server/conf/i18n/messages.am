@@ -117,7 +117,7 @@ button.previousScreen=ቀዳሚ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=ተመለስ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=ማመልከቻውን አስቀምጥ እና በኋላ ላይ ጨርስ
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ዝለል
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +126,8 @@ content.blockProgress={0} ከ {1}
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +374,8 @@ title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮች
 
 # Submit application button
 button.submit=አስገባ
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=ቀጥል
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -703,6 +705,10 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 button.chooseFile=ፋይል ይምረጡ
+# Text shown on a tag while a file is uploading.
+label.uploading=በመስቀል ላይ
+# Label applied to a list of uploaded files
+label.uploadedFiles=የተሰቀሉ ፋይሎች
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

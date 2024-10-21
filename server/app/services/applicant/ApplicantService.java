@@ -516,7 +516,7 @@ public final class ApplicantService {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       // Middle name is optional
                                       applicant.setMiddleName(
                                           applicantData
@@ -525,7 +525,7 @@ public final class ApplicantService {
                                       applicant.setLastName(
                                           applicantData
                                               .readString(path.join(Scalar.LAST_NAME))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       // Name suffix is optional
                                       applicant.setSuffix(
                                           applicantData
@@ -536,20 +536,20 @@ public final class ApplicantService {
                                       applicant.setEmailAddress(
                                           applicantData
                                               .readString(path.join(Scalar.EMAIL))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_PHONE:
                                       // Country code is set automatically by setPhoneNumber
                                       applicant.setPhoneNumber(
                                           applicantData
                                               .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_DOB:
                                       applicant.setDateOfBirth(
                                           applicantData
                                               .readDate(path.join(Scalar.DATE))
-                                              .orElseThrow());
+                                              .orElse(null));
                                       break;
                                     default:
                                       break;
@@ -770,7 +770,8 @@ public final class ApplicantService {
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
                     Optional.of(applicationViewLink),
-                    /* showDownloadModal= */ Optional.empty())
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* errorMessage= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);

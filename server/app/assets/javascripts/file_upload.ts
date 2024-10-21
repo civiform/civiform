@@ -57,6 +57,15 @@ export function init() {
     // behavior), then multiple file upload feature is enabled, in that case, submit the form
     // as soon as the applicant selects a file so it immediately uploads the file.
     if (validateFileUploadQuestion(blockForm) && !uploadedDivs.length) {
+      const elementsToDisable = document.querySelectorAll(
+        '.cf-disable-when-uploading',
+      )
+      elementsToDisable.forEach((elementToDisable) => {
+        elementToDisable.setAttribute('disabled', '')
+        elementToDisable.setAttribute('aria-disabled', 'true')
+        elementToDisable.setAttribute('href', '#')
+      })
+      document.body.classList.add('cf-file-uploading')
       blockForm.submit()
     }
   })

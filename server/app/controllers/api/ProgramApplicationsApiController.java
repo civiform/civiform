@@ -15,7 +15,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.ApplicationModel;
-import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -23,9 +22,9 @@ import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.export.JsonExporterService;
+import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
@@ -98,10 +97,10 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
-    IdentifierBasedPaginationSpec<Long> paginationSpec =
+    RowIdSequentialAccessPaginationSpec paginationSpec =
         paginationToken
             .map(this::createPaginationSpec)
-            .orElse(new IdentifierBasedPaginationSpec<>(pageSize, Long.MAX_VALUE));
+            .orElse(new RowIdSequentialAccessPaginationSpec(pageSize, Long.MAX_VALUE));
 
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
@@ -109,7 +108,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
             programDefinition -> {
               PaginationResult<ApplicationModel> paginationResult =
                   programService.getSubmittedProgramApplicationsAllVersions(
-                      programDefinition.id(), F.Either.Left(paginationSpec), filters);
+                      programDefinition.id(), paginationSpec, filters);
 
               String applicationsJson =
                   jsonExporterService.exportPage(
@@ -234,9 +233,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     }
   }
 
-  private IdentifierBasedPaginationSpec<Long> createPaginationSpec(
+  private RowIdSequentialAccessPaginationSpec createPaginationSpec(
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
-    return new IdentifierBasedPaginationSpec<>(
+    return new RowIdSequentialAccessPaginationSpec(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
         Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier()));
   }

@@ -242,7 +242,7 @@ public final class ProgramAdminApplicationService {
   }
 
   /*
-   * Retrieves the applications with the given IDs and validates that it is associated with the given
+   * Retrieves the applications for the give ApplicationIds and validates that it is associated with the given
    * program.
    */
   public ImmutableList<ApplicationModel> getApplications(
@@ -310,10 +310,9 @@ public final class ProgramAdminApplicationService {
       ImmutableList<ApplicationModel> applicationlist,
       StatusEvent newStatusEvent,
       AccountModel admin)
-      throws StatusNotFoundException, StatusEmailNotFoundException, AccountHasNoEmailException {
+      throws StatusNotFoundException, StatusEmailNotFoundException {
 
     ProgramModel program = applicationlist.get(0).getProgram();
-
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -337,7 +336,6 @@ public final class ProgramAdminApplicationService {
       if (statusDef.localizedEmailBodyText().isEmpty()) {
         throw new StatusEmailNotFoundException(newStatusText, program.id);
       }
-
       for (ApplicationModel application : applicationlist) {
         ApplicantModel applicant = application.getApplicant();
 
@@ -362,9 +360,6 @@ public final class ProgramAdminApplicationService {
                           applicant,
                           statusDef,
                           Optional.of(email)));
-        } else {
-          // An email was requested to be sent but the applicant doesn't have one.
-          throw new AccountHasNoEmailException(applicant.getAccount().id);
         }
       }
     }

@@ -462,6 +462,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickSubmitApplication() {
+    await this.page.click('text="Submit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickDownload() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -732,7 +737,11 @@ export class ApplicantQuestions {
     await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
-    await this.clickSubmit()
+    if (northStarEnabled) {
+      await this.clickSubmitApplication()
+    } else {
+      await this.clickSubmit()
+    }
   }
 
   async downloadFromConfirmationPage() {

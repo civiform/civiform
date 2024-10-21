@@ -1009,11 +1009,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesPrimaryApplicantInfoAnswers() {
-    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
-    applicant.save();
+  public void submitApplication_savesCompletedOrBlankPrimaryApplicantInfoAnswers() {
 
+    // Add PAI questions
     NameQuestionDefinition nameQuestion =
         (NameQuestionDefinition)
             questionService
@@ -1074,13 +1072,21 @@ public class ApplicantServiceTest extends ResetPostgres {
                             .build()))
                 .getResult();
 
+    // Build program with optional PAI questions
     ProgramDefinition progDef =
         ProgramBuilder.newDraftProgram("PAI program", "desc")
             .withBlock()
-            .withRequiredQuestionDefinitions(
-                ImmutableList.of(nameQuestion, dateQuestion, emailQuestion, phoneQuestion))
+            .withOptionalQuestion(nameQuestion)
+            .withOptionalQuestion(dateQuestion)
+            .withOptionalQuestion(emailQuestion)
+            .withOptionalQuestion(phoneQuestion)
             .buildDefinition();
     versionRepository.publishNewSynchronizedVersion();
+
+    // Create an applicant who will fill in all the questions
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
@@ -1111,6 +1117,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
 
     applicant.refresh();
+    // All values from questions should be saved to the PAI columns in the db
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(progDef.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -1122,6 +1129,42 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(applicant.getEmailAddress().get()).isEqualTo("picard@starfleet.com");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5032161111");
     assertThat(applicant.getCountryCode().get()).isEqualTo("US");
+
+    // Create a new applicant who will leave all the questions blank
+    ApplicantModel blankApplicant = subject.createApplicant().toCompletableFuture().join();
+    blankApplicant.setAccount(resourceCreator.insertAccount());
+    blankApplicant.save();
+
+    ImmutableMap<String, String> blankUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.nameplz").join(Scalar.FIRST_NAME).toString(), "")
+            .put(Path.create("applicant.nameplz").join(Scalar.LAST_NAME).toString(), "")
+            .put(Path.create("applicant.dateplz").join(Scalar.DATE).toString(), "")
+            .put(Path.create("applicant.emailplz").join(Scalar.EMAIL).toString(), "")
+            .put(Path.create("applicant.phoneplz").join(Scalar.PHONE_NUMBER).toString(), "")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(blankApplicant.id, progDef.id(), "1", blankUpdates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    subject
+        .submitApplication(
+            blankApplicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+        .toCompletableFuture()
+        .join();
+
+    blankApplicant.refresh();
+    // All saved PAI values should be null/empty
+    assertThat(blankApplicant.getFirstName().isEmpty());
+    assertThat(blankApplicant.getMiddleName().isEmpty());
+    assertThat(blankApplicant.getLastName().isEmpty());
+    assertThat(blankApplicant.getSuffix().isEmpty());
+    assertThat(blankApplicant.getDateOfBirth().isEmpty());
+    assertThat(blankApplicant.getEmailAddress().isEmpty());
+    assertThat(blankApplicant.getPhoneNumber().isEmpty());
+    assertThat(blankApplicant.getCountryCode().isEmpty());
   }
 
   @Test
@@ -1131,10 +1174,22 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     var fileKey = "test-file-key";
+    var fileKey2 = "test-file-key-2";
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.fileupload").join(Scalar.FILE_KEY).toString(), fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(1)
+                    .toString(),
+                fileKey2)
             .build();
 
     var fileUploadQuestion =
@@ -1172,7 +1227,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
+    var storedFile2 = new StoredFileModel().setName(fileKey2);
+
     storedFile.save();
+    storedFile2.save();
 
     Request request = fakeRequest();
     subject
@@ -1184,6 +1242,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(storedFile.getAcls().getProgramReadAcls())
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
+        .containsOnly(firstProgram.getProgramDefinition().adminName());
+
     subject
         .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile, request)
         .toCompletableFuture()
@@ -1191,6 +1253,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     storedFile.refresh();
     assertThat(storedFile.getAcls().getProgramReadAcls())
+        .containsOnly(
+            firstProgram.getProgramDefinition().adminName(),
+            secondProgram.getProgramDefinition().adminName());
+
+    storedFile2.refresh();
+    assertThat(storedFile2.getAcls().getProgramReadAcls())
         .containsOnly(
             firstProgram.getProgramDefinition().adminName(),
             secondProgram.getProgramDefinition().adminName());

@@ -117,7 +117,7 @@ button.previousScreen=الشاشة السابقة
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=الرجوع
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=حفظ الطلب وإكماله لاحقًا
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=التخطّي
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +126,8 @@ content.blockProgress=‫{0} من {1}
 content.blockProgressFull=تم إكمال {0} من {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=مستوى تقدُّم الطلب
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull=تم تحميل {0} من {1}
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel=‏{0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +374,8 @@ title.tiAccountSettings=وسيط موثوق به - عرض إعدادات الح�
 
 # Submit application button
 button.submit=إرسال
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=متابعة
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -703,6 +705,10 @@ validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
 button.chooseFile=اختيار ملف
+# Text shown on a tag while a file is uploading.
+label.uploading=جارٍ التحميل
+# Label applied to a list of uploaded files
+label.uploadedFiles=الملفات التي تم تحميلها
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

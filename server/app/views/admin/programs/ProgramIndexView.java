@@ -691,7 +691,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* untilDate= */ Optional.empty(),
                   /* applicationStatus= */ Optional.empty(),
                   /* selectedApplicationUri= */ Optional.empty(),
-                  /* showDownloadModal= */ Optional.empty())
+                  /* showDownloadModal= */ Optional.empty(),
+                  /* errorMessage= */ Optional.empty())
               .url();
 
       String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";

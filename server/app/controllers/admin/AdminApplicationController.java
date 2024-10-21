@@ -31,15 +31,12 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.AnswerData;
@@ -54,6 +51,8 @@ import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
 import services.export.JsonExporterService;
 import services.export.PdfExporter;
+import services.pagination.PageNumberPaginationSpec;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -70,7 +69,7 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
-  private static final int PAGE_SIZE_BULK_STATUS = 50;
+  private static final int PAGE_SIZE_BULK_STATUS = 10;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
@@ -176,7 +175,7 @@ public final class AdminApplicationController extends CiviFormController {
     String json =
         jsonExporterService.export(
             program,
-            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             filters,
             settingsManifest.getMultipleFileUploadEnabled(request));
     return ok(json)
@@ -216,7 +215,9 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(
+              programId, filters, settingsManifest.getMultipleFileUploadEnabled(request));
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -484,7 +485,8 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> untilDate,
       Optional<String> applicationStatus,
       Optional<String> selectedApplicationUri,
-      Optional<Boolean> showDownloadModal)
+      Optional<Boolean> showDownloadModal,
+      Optional<String> errorMessage)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
@@ -496,7 +498,8 @@ public final class AdminApplicationController extends CiviFormController {
               untilDate,
               applicationStatus,
               selectedApplicationUri,
-              showDownloadModal));
+              showDownloadModal,
+              errorMessage));
     }
 
     SubmittedApplicationFilter filters =
@@ -519,17 +522,21 @@ public final class AdminApplicationController extends CiviFormController {
     } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
+
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
-      var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE_BULK_STATUS, page.orElse(1));
+      var paginationSpec =
+          new PageNumberPaginationSpec(
+              PAGE_SIZE_BULK_STATUS,
+              page.orElse(1),
+              PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
       PaginationResult<ApplicationModel> applications =
           programService.getSubmittedProgramApplicationsAllVersions(
-              programId, F.Either.Right(paginationSpec), filters);
-
+              programId, paginationSpec, filters);
       return ok(
           tableView.render(
               request,
@@ -545,12 +552,15 @@ public final class AdminApplicationController extends CiviFormController {
                   .setUntilDate(untilDate)
                   .setSelectedApplicationStatus(applicationStatus)
                   .build(),
-              showDownloadModal));
+              showDownloadModal,
+              errorMessage));
     }
-    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
+    var paginationSpec =
+        new PageNumberPaginationSpec(
+            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), filters);
+            programId, paginationSpec, filters);
     return ok(
         applicationListView.render(
             request,
@@ -572,10 +582,7 @@ public final class AdminApplicationController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatuses(Http.Request request, long programId)
-      throws ProgramNotFoundException,
-          AccountHasNoEmailException,
-          StatusNotFoundException,
-          StatusEmailNotFoundException {
+      throws ProgramNotFoundException, StatusNotFoundException, StatusEmailNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
     try {
@@ -591,15 +598,30 @@ public final class AdminApplicationController extends CiviFormController {
         programAdminApplicationService.getApplications(
             ids.stream().map(e -> Long.parseLong(e)).collect(ImmutableList.toImmutableList()),
             program);
-
+    boolean sendEmail = form.get().isMaybeSendEmail();
     programAdminApplicationService.setStatus(
         applicationlist,
         ApplicationEventDetails.StatusEvent.builder()
             .setStatusText(form.get().getStatusText())
-            .setEmailSent(form.get().isMaybeSendEmail())
+            .setEmailSent(sendEmail)
             .build(),
         profileUtils.currentUserProfile(request).getAccount().join());
 
+    if (sendEmail) {
+      return redirect(
+          routes.AdminApplicationController.index(
+                  programId,
+                  /* search= */ Optional.empty(),
+                  /* page= */ Optional.empty(),
+                  /* fromDate= */ Optional.empty(),
+                  /* untilDate= */ Optional.empty(),
+                  /* applicationStatus= */ Optional.empty(),
+                  Optional.empty(),
+                  /* showDownloadModal= */ Optional.empty(),
+                  /* errorMessage= */ Optional.of(
+                      "Status updates sent to applicants with contact information on file"))
+              .url());
+    }
     return redirect(
         routes.AdminApplicationController.index(
                 programId,
@@ -609,7 +631,8 @@ public final class AdminApplicationController extends CiviFormController {
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
                 Optional.empty(),
-                /* showDownloadModal= */ Optional.empty())
+                /* showDownloadModal= */ Optional.empty(),
+                /* errorMessage= */ Optional.of("Status update success"))
             .url());
   }
 

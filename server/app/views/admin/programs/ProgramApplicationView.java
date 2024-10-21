@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import controllers.FlashKey;
+import controllers.admin.routes;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -50,6 +52,7 @@ import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
@@ -124,6 +127,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
+                settingsManifest.getBulkStatusUpdateEnabled(request)
+                    ? renderBackLink(programId)
+                    : div(),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -171,6 +177,29 @@ public final class ProgramApplicationView extends BaseHtmlView {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
     return layout.render(htmlBundle);
+  }
+
+  private ATag renderBackLink(Long programId) {
+    String backUrl =
+        routes.AdminApplicationController.index(
+                programId,
+                /* search= */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty(),
+                /* showDownloadModal= */ Optional.empty(),
+                /* errorMessage= */ Optional.empty())
+            .url();
+
+    return new LinkElement()
+        .setId("application-table-view-")
+        .setHref(backUrl)
+        .setText("Back")
+        .setStyles(
+            "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
+        .asAnchorText();
   }
 
   private ButtonTag renderDownloadButton(long programId, long applicationId) {

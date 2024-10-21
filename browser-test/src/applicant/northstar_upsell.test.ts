@@ -54,7 +54,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
@@ -93,7 +93,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
@@ -122,7 +122,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
@@ -152,7 +152,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await applicantQuestions.clickBackToHomepageButton()
@@ -160,7 +160,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Apply to related program', async () => {
       await applicantQuestions.clickApplyProgramButton(relatedProgramName)
       await applicantQuestions.clickContinue()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     // The user submitted an application to the first program. Expect to not

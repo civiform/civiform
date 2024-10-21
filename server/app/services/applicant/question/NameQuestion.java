@@ -31,7 +31,8 @@ public final class NameQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFirstNamePath(), getMiddleNamePath(), getLastNamePath());
+    return ImmutableList.of(
+        getFirstNamePath(), getMiddleNamePath(), getLastNamePath(), getNameSuffixPath());
   }
 
   @Override

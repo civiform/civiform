@@ -25,13 +25,14 @@ import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.TagCreator;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.SpanTag;
+import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import models.ApplicationModel;
@@ -41,14 +42,16 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
+import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
-import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.applicant.ApplicantService;
+import services.pagination.PageNumberPaginationSpec;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
+import views.AlertComponent;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -60,7 +63,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -104,10 +106,11 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ProgramDefinition program,
       StatusDefinitions activeStatusDefinitions,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberBasedPaginationSpec paginationSpec,
+      PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
       ProgramApplicationListView.RenderFilterParams filterParams,
-      Optional<Boolean> showDownloadModal) {
+      Optional<Boolean> showDownloadModal,
+      Optional<String> message) {
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
 
@@ -115,15 +118,24 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         div()
             .withData("testid", "application-list")
             .with(
-                h1(program.adminName()).withClasses("mt-4"),
+                h1(program.adminName())
+                    .withClasses(
+                        StyleUtils.responsiveSmall("text-5xl"),
+                        "font-semibold",
+                        "mt-10",
+                        "px-6",
+                        "bg-opacity-75",
+                        StyleUtils.responsiveSmall("mb-6")),
                 br(),
                 renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
+                div(),
                 renderApplicationTable(
                         paginatedApplications.getPageContents(),
                         /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
                         activeStatusDefinitions,
                         program,
-                        request)
+                        request,
+                        message)
                     .condWith(
                         paginatedApplications.getNumPages() > 1,
                         renderPagination(
@@ -138,9 +150,9 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                     filterParams.untilDate(),
                                     filterParams.selectedApplicationStatus(),
                                     /* selectedApplicationUri= */ Optional.empty(),
-                                    /* showDownloadModal= */ Optional.empty()),
+                                    /* showDownloadModal= */ Optional.empty(),
+                                    /* errorMessage= */ Optional.empty()),
                             /* optionalMessages */ Optional.empty())));
-    // .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     HtmlBundle htmlBundle =
         layout
@@ -149,15 +161,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             .setTitle(program.adminName() + " - Applications")
             .addModals(downloadModal)
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv);
-
-    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
-    if (maybeSuccessMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
-    }
-    Optional<String> maybeErrorMessage = request.flash().get(FlashKey.ERROR);
-    if (maybeErrorMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(maybeErrorMessage.get()));
-    }
     return layout.renderCentered(htmlBundle);
   }
 
@@ -174,7 +177,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal= */ Optional.empty())
+                /* showDownloadModal= */ Optional.empty(),
+                /* errorMessage= */ Optional.empty())
             .url();
     String labelText =
         settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
@@ -193,7 +197,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
                     /* selectedApplicationUri= */ Optional.empty(),
-                    /* showDownloadModal= */ Optional.empty())
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* errorMessage= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -364,7 +369,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       boolean displayStatus,
       StatusDefinitions statusDefinitions,
       ProgramDefinition program,
-      Http.Request request) {
+      Http.Request request,
+      Optional<String> message) {
 
     SelectTag dropdownTag =
         select()
@@ -390,6 +396,15 @@ public class ProgramApplicationTableView extends BaseHtmlView {
               dropdownTag.with(
                   option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
             });
+    DivTag alertTag =
+        message.isPresent()
+            ? div(AlertComponent.renderFullAlert(
+                    AlertType.INFO,
+                    /* text= */ message.get(),
+                    /* title= */ Optional.of("Status Update"),
+                    /* hidden= */ false))
+                .withClasses("my-5")
+            : div();
 
     DivTag table =
         div(
@@ -409,6 +424,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                 .withName("maybeSendEmail")
                                 .withClasses(BaseStyles.CHECKBOX),
                             submitButton("Status change").withClasses("usa-button"),
+                            alertTag,
                             table()
                                 .withClasses("usa-table usa-table--borderless", "w-full")
                                 .with(renderGroupTableHeader(displayStatus))
@@ -427,7 +443,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
     return table;
   }
 
-  private j2html.tags.specialized.TheadTag renderGroupTableHeader(boolean displayStatus) {
+  private TheadTag renderGroupTableHeader(boolean displayStatus) {
     return thead(
         tr().with(
                 th(input()
@@ -484,8 +500,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(td(renderSubmitTime(application)));
   }
 
-  private j2html.tags.specialized.ATag renderApplicationLink(
-      String text, ApplicationModel application) {
+  private ATag renderApplicationLink(String text, ApplicationModel application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)
@@ -495,6 +510,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
+        .opensInNewTab()
         .setStyles(
             "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
         .asAnchorText();

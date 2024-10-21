@@ -440,13 +440,16 @@ test.describe('applicant program index page', () => {
         await expect(filterChips.getByText('Utilities')).toBeVisible()
       })
 
-      await test.step('select some filter chips, ensure a guest account has not been created, then take screenshot', async () => {
+      await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
         await filterChips.getByText('Education').check()
         await filterChips.getByText('General').check()
         expect(await page.textContent('html')).not.toContain('End session')
         expect(await page.textContent('html')).not.toContain(
           "You're a guest user",
         )
+        // Check that the URL does not have an applicant ID
+        expect(page.url()).toContain('/applicants/programs')
+
         await validateScreenshot(
           page.locator('#main-content'),
           'category-filter-chips',
@@ -659,7 +662,7 @@ test.describe('applicant program index page', () => {
           await expect(page.getByText('Screen 3')).toBeVisible()
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
-          await applicantQuestions.clickSubmit()
+          await applicantQuestions.clickSubmitApplication()
           await applicantQuestions.returnToProgramsFromSubmissionPage(
             /* northStarEnabled= */ true,
           )

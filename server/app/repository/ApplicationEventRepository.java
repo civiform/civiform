@@ -123,9 +123,9 @@ public final class ApplicationEventRepository {
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(newStatusEvent)
             .build();
-    // System.out.println(optionalAdmin.get());
 
-    List<Long> idlist = applications.stream().map(app -> app.id).collect(Collectors.toList());
+    List<Long> applicationIds =
+        applications.stream().map(app -> app.id).collect(Collectors.toList());
 
     var applicationList =
         applications.stream()
@@ -135,10 +135,9 @@ public final class ApplicationEventRepository {
       transaction.setBatchMode(true);
       applicationList.stream().forEach(event -> insertSync(event));
       // Saves the latest note on the applications table too.
-      // If the status is removed from an application, then the latest_status column needs
+      // If the status is removed from the applications, then the latest_status column needs
       // to be set to null to indicate the application has no status and not a status with
       // empty string.
-
       database
           .update(ApplicationModel.class)
           .set(
@@ -147,7 +146,7 @@ public final class ApplicationEventRepository {
                   ? null
                   : newStatusEvent.statusText())
           .where()
-          .in("id", idlist)
+          .in("id", applicationIds)
           .update();
 
       transaction.commit();
