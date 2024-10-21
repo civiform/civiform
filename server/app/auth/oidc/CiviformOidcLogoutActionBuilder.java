@@ -90,8 +90,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return this;
   }
 
-  private Optional<JWT> getIdTokenForAccount(
-      long accountId, CallContext callContext, CiviFormProfileData profileData) {
+  private Optional<JWT> getIdTokenForAccount(long accountId, CiviFormProfileData profileData) {
     if (!enhancedLogoutEnabled()) {
       return Optional.empty();
     }
@@ -140,7 +139,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
         long accountId = Long.parseLong(currentProfile.getId());
         Optional<JWT> idToken =
-            getIdTokenForAccount(accountId, callContext, (CiviFormProfileData) currentProfile);
+            getIdTokenForAccount(accountId, (CiviFormProfileData) currentProfile);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
