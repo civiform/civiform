@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không th�
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Tải bản PDF xuống
 # A button prompting users to apply to programs.
 button.applyToPrograms=Đăng ký chương trình
