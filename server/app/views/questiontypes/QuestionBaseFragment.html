@@ -5,7 +5,7 @@
     th:each="error: ${validationErrors}"
     th:if="${questionRendererParams.shouldShowErrors()}"
     th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
-    class="cf-question-error-message"
+    class="cf-question-error-message cf-applicant-question-errors"
   ></div>
 </th:block>
 
