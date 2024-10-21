@@ -15,6 +15,8 @@ public abstract class LocalizationUpdate {
 
   public abstract String localizedDisplayDescription();
 
+  public abstract String localizedShortDescription();
+
   public abstract String localizedConfirmationMessage();
 
   public abstract Optional<String> localizedSummaryImageDescription();
@@ -22,6 +24,8 @@ public abstract class LocalizationUpdate {
   public abstract ImmutableList<StatusUpdate> statuses();
 
   public abstract ImmutableList<ScreenUpdate> screens();
+
+  public abstract ImmutableList<ApplicationStepUpdate> applicationSteps();
 
   public static Builder builder() {
     return new AutoValue_LocalizationUpdate.Builder();
@@ -33,6 +37,8 @@ public abstract class LocalizationUpdate {
 
     public abstract Builder setLocalizedDisplayDescription(String v);
 
+    public abstract Builder setLocalizedShortDescription(String v);
+
     public abstract Builder setLocalizedConfirmationMessage(String v);
 
     public abstract Builder setLocalizedSummaryImageDescription(String v);
@@ -40,6 +46,8 @@ public abstract class LocalizationUpdate {
     public abstract Builder setStatuses(ImmutableList<StatusUpdate> v);
 
     public abstract Builder setScreens(ImmutableList<ScreenUpdate> v);
+
+    public abstract Builder setApplicationSteps(ImmutableList<ApplicationStepUpdate> v);
 
     public abstract LocalizationUpdate build();
   }
@@ -103,6 +111,34 @@ public abstract class LocalizationUpdate {
       public abstract Builder setLocalizedDescription(String v);
 
       public abstract ScreenUpdate build();
+    }
+  }
+
+  /** Captures updates to the application steps for a program. */
+  @AutoValue
+  public abstract static class ApplicationStepUpdate {
+    /** The step that is being updated */
+    public abstract int index();
+
+    /** The new application step title to update for a locale. */
+    public abstract String localizedTitle();
+
+    /** The new applicationstep description to update for a locale. */
+    public abstract String localizedDescription();
+
+    public static Builder builder() {
+      return new AutoValue_LocalizationUpdate_ApplicationStepUpdate.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setIndex(int v);
+
+      public abstract Builder setLocalizedTitle(String v);
+
+      public abstract Builder setLocalizedDescription(String v);
+
+      public abstract ApplicationStepUpdate build();
     }
   }
 }

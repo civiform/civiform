@@ -159,7 +159,8 @@ public final class StatusService {
   }
 
   /**
-   * Add or update a localization of the program's publicly-visible display name and description.
+   * THIS COMMENT SEEMS WRONG Add or update a localization of the program's publicly-visible display
+   * name and description.
    *
    * @param programName the ID of the program to update
    * @param locale the {@link Locale} to update

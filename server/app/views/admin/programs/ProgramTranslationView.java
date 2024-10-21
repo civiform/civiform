@@ -17,8 +17,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
+import models.ApplicationStep;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
@@ -60,7 +62,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             request,
             locale,
             formAction,
-            formFields(program, translationForm, activeStatusDefinitions));
+            formFields(program, translationForm, activeStatusDefinitions, locale));
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
@@ -90,11 +92,13 @@ public final class ProgramTranslationView extends TranslationFormView {
   private ImmutableList<DomContent> formFields(
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
-      StatusDefinitions currentStatusDefinitions) {
+      StatusDefinitions currentStatusDefinitions,
+      Locale locale) {
     ImmutableList<BlockDefinition> blockDefinitions = program.blockDefinitions();
     ImmutableList<Long> blockIds =
         blockDefinitions.stream().map(block -> block.id()).collect(ImmutableList.toImmutableList());
     LocalizationUpdate updateData = translationForm.getUpdateData(blockIds);
+
     String programDetailsLink =
         controllers.admin.routes.AdminProgramController.edit(
                 program.id(), ProgramEditStatus.EDIT.name())
@@ -181,6 +185,32 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 "Translations entered below will be visible at a future launch"
                                     + " date."))));
 
+    // short description is required so we should always show it
+    ImmutableList.Builder<DomContent> newProgramFieldsBuilder =
+        ImmutableList.<DomContent>builder()
+            .add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
+                        .setLabelText("Short program description")
+                        .setValue(updateData.localizedShortDescription())
+                        .getInputTag(),
+                    program.localizedShortDescription()));
+
+    newProgramFieldsBuilder = addApplicationSteps(newProgramFieldsBuilder, program, locale);
+
+    result.add(
+        fieldSetForFields(
+            legend()
+                .with(
+                    span("New program details fields"),
+                    new LinkElement()
+                        .setText("(edit default)")
+                        .setHref(programDetailsLink)
+                        .setStyles("ml-2")
+                        .asAnchorText()),
+            newProgramFieldsBuilder.build()));
+
     // Add fields for Screen names and descriptions
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {
@@ -227,6 +257,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .asAnchorText()),
               fieldsBuilder.build()));
     }
+
     return result.build();
   }
 
@@ -270,5 +301,45 @@ public final class ProgramTranslationView extends TranslationFormView {
               program.localizedSummaryImageDescription().get()));
     }
     return applicantVisibleDetails.build();
+  }
+
+  private ImmutableList.Builder<DomContent> addApplicationSteps(
+      ImmutableList.Builder<DomContent> newProgramFieldsBuilder,
+      ProgramDefinition program,
+      Locale locale) {
+    // Get the application steps from the program data
+    // if we have default text, add a box for translations
+    ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
+    // TODO: Once we've fully transitioned to the new fields, we probably want each application step
+    // to be
+    // it's own section
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      if (!step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get().isEmpty()) {
+        newProgramFieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedApplicationStepTitle(i))
+                    .setLabelText(
+                        String.format("Application step %s title", Integer.toString(i + 1)))
+                    .setScreenReaderText(
+                        String.format("Application step %s title", Integer.toString(i + 1)))
+                    .setValue(step.getTitleForLocale(locale).orElse(""))
+                    .getInputTag(),
+                step.getTitle()));
+        newProgramFieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedApplicationStepDescription(i))
+                    .setLabelText(
+                        String.format("Application step %s description", Integer.toString(i + 1)))
+                    .setScreenReaderText(
+                        String.format("Application step %s description", Integer.toString(i + 1)))
+                    .setValue(step.getDescriptionForLocale(locale).orElse(""))
+                    .getInputTag(),
+                step.getDescription()));
+      }
+    }
+    return newProgramFieldsBuilder;
   }
 }

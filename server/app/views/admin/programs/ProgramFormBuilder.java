@@ -118,10 +118,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(CategoryModel::getId)
             .collect(ImmutableList.toImmutableList()),
         program.applicationSteps().stream()
-            .map(step -> step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE))
+            .map(step -> step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get())
             .collect(ImmutableList.toImmutableList()),
         program.applicationSteps().stream()
-            .map(step -> step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE))
+            .map(step -> step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE).get())
             .collect(ImmutableList.toImmutableList()));
   }
 

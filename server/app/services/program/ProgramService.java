@@ -49,6 +49,7 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -714,8 +715,8 @@ public final class ProgramService {
     boolean havePreviousStep = false;
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
-      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE);
-      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE);
+      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
+      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
       boolean haveTitle = !title.isBlank();
       boolean haveDescription = !description.isBlank();
       boolean haveCurrentStep = haveTitle && haveDescription;
@@ -823,6 +824,25 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
+    // make this into its own method
+    ImmutableList<ApplicationStep> applicationSteps = programDefinition.applicationSteps();
+    ImmutableList<ApplicationStepUpdate> translationUpdates = localizationUpdate.applicationSteps();
+
+    // loop through the translation updates
+    // get the index and use that to fetch the
+    // correct application step from all the steps
+    ImmutableList<ApplicationStep> updatedApplicationSteps =
+        translationUpdates.stream()
+            .map(
+                update -> {
+                  int index = update.index();
+                  ApplicationStep step = applicationSteps.get(index);
+                  step.setNewTitleTranslation(locale, update.localizedTitle());
+                  step.setNewDescriptionTranslation(locale, update.localizedDescription());
+                  return step;
+                })
+            .collect(ImmutableList.toImmutableList());
+
     ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
             .setLocalizedName(
@@ -833,10 +853,15 @@ public final class ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setLocalizedShortDescription(
+                programDefinition
+                    .localizedShortDescription()
+                    .updateTranslation(locale, localizationUpdate.localizedShortDescription()))
             .setLocalizedConfirmationMessage(
                 programDefinition
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
+            .setApplicationSteps(updatedApplicationSteps)
             .setBlockDefinitions(toUpdateBlockBuilder.build());
     updateSummaryImageDescriptionLocalization(
         programDefinition,

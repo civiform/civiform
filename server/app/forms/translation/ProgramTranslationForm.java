@@ -29,6 +29,7 @@ public final class ProgramTranslationForm {
   private static final Lang DEFAULT_LANG = new Lang(LocalizedStrings.DEFAULT_LOCALE);
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
+  public static final String SHORT_DESCRIPTION_FORM_NAME = "shortDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
   public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
 
@@ -56,6 +57,9 @@ public final class ProgramTranslationForm {
             .put(
                 DISPLAY_DESCRIPTION_FORM_NAME,
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
+            .put(
+                SHORT_DESCRIPTION_FORM_NAME,
+                new String[] {program.localizedShortDescription().maybeGet(locale).orElse("")})
             .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
                 new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
@@ -131,7 +135,9 @@ public final class ProgramTranslationForm {
                 request,
                 allFieldNames(maxStatusTranslations, hasSummaryImageDescription, blockIds)
                     .toArray(new String[0]));
-    return new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
+    ProgramTranslationForm newForm =
+        new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
+    return newForm;
   }
 
   private static ImmutableList<String> allFieldNames(
@@ -140,7 +146,10 @@ public final class ProgramTranslationForm {
         ImmutableList.<String>builder()
             .add(
                 DISPLAY_NAME_FORM_NAME,
-                DISPLAY_DESCRIPTION_FORM_NAME,
+                DISPLAY_DESCRIPTION_FORM_NAME, // maybe need to remove this as a default and do a
+                // check for if we have it since it will no longer be
+                // required
+                SHORT_DESCRIPTION_FORM_NAME,
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
     if (hasSummaryImageDescription) {
       builder.add(IMAGE_DESCRIPTION_FORM_NAME);
@@ -161,17 +170,22 @@ public final class ProgramTranslationForm {
   }
 
   public LocalizationUpdate getUpdateData(ImmutableList<Long> blockIds) {
+
     LocalizationUpdate.Builder dataBuilder =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
             .setLocalizedDisplayDescription(
                 getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
+            .setLocalizedShortDescription(
+                getStringFormField(SHORT_DESCRIPTION_FORM_NAME).orElse(""))
             .setLocalizedConfirmationMessage(
                 getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""));
     if (hasSummaryImageDescription) {
       dataBuilder.setLocalizedSummaryImageDescription(
           getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""));
     }
+
+    dataBuilder.setApplicationSteps(parseApplicationStepUpdatesFromRequest());
     dataBuilder.setStatuses(parseStatusUpdatesFromRequest());
     dataBuilder.setScreens(parseScreenUpdatesFromRequest(blockIds));
     return dataBuilder.build();
@@ -235,6 +249,31 @@ public final class ProgramTranslationForm {
         .collect(ImmutableList.toImmutableList());
   }
 
+  private ImmutableList<LocalizationUpdate.ApplicationStepUpdate>
+      parseApplicationStepUpdatesFromRequest() {
+    // there are only ever at most 5 application steps
+    return IntStream.range(0, 5)
+        .boxed()
+        .map(
+            i -> {
+              String fieldNameTitle = localizedApplicationStepTitle(i);
+              String fieldNameDescription = localizedApplicationStepDescription(i);
+              Optional<String> maybeTitleValue = getStringFormField(fieldNameTitle);
+              Optional<String> maybeDescriptionValue = getStringFormField(fieldNameDescription);
+              if (maybeTitleValue.isEmpty() || maybeDescriptionValue.isEmpty()) {
+                return Optional.<LocalizationUpdate.ApplicationStepUpdate>empty();
+              }
+              LocalizationUpdate.ApplicationStepUpdate.Builder resultBuilder =
+                  LocalizationUpdate.ApplicationStepUpdate.builder().setIndex(i);
+              resultBuilder.setLocalizedTitle(maybeTitleValue.get());
+              resultBuilder.setLocalizedDescription(maybeDescriptionValue.get());
+              return Optional.of(resultBuilder.build());
+            })
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public static String statusKeyToUpdateFieldName(int index) {
     return String.format("status-key-to-update-%d", index);
   }
@@ -253,5 +292,13 @@ public final class ProgramTranslationForm {
 
   public static String localizedScreenDescription(long blockId) {
     return String.format("screen-description-%d", blockId);
+  }
+
+  public static String localizedApplicationStepTitle(long stepNumber) {
+    return String.format("application-step-title-%d", stepNumber);
+  }
+
+  public static String localizedApplicationStepDescription(long stepNumber) {
+    return String.format("application-step-description-%d", stepNumber);
   }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.Optional;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 
@@ -40,19 +41,19 @@ public final class ApplicationStep {
     return this.description;
   }
 
-  public String getTitleForLocale(Locale locale) {
+  public Optional<String> getTitleForLocale(Locale locale) {
     try {
-      return this.title.get(locale);
+      return Optional.of(this.title.get(locale));
     } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
+      return Optional.empty();
     }
   }
 
-  public String getDescriptionForLocale(Locale locale) {
+  public Optional<String> getDescriptionForLocale(Locale locale) {
     try {
-      return this.description.get(locale);
+      return Optional.of(this.description.get(locale));
     } catch (TranslationNotFoundException e) {
-      throw new RuntimeException(e);
+      return Optional.empty();
     }
   }
 
@@ -68,12 +69,12 @@ public final class ApplicationStep {
   }
 
   public ApplicationStep setNewTitleTranslation(Locale locale, String title) {
-    this.title.updateTranslation(locale, title);
+    this.title = this.title.updateTranslation(locale, title);
     return this;
   }
 
   public ApplicationStep setNewDescriptionTranslation(Locale locale, String description) {
-    this.description.updateTranslation(locale, description);
+    this.description = this.description.updateTranslation(locale, description);
     return this;
   }
 }
