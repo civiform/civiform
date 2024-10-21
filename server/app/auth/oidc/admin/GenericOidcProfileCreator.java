@@ -11,12 +11,15 @@ import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class creates a pac4j `UserProfile` for admins when the identity provider is a generic OIDC
  * provider.
  */
 public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GenericOidcProfileCreator.class);
   private String groupsAttributeName;
   private String adminGroupName;
 
@@ -54,7 +57,15 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
   private boolean isGlobalAdmin(OidcProfile profile) {
     @SuppressWarnings("unchecked")
     List<String> groups = (List) profile.getAttribute(this.groupsAttributeName);
-    return groups != null && groups.contains(this.adminGroupName);
+    if (groups == null) {
+      LOGGER.debug("No groups found in OIDC profile.");
+      return false;
+    }
+    if (!groups.contains(this.adminGroupName)) {
+      LOGGER.debug(
+          "List of groups ({}) doesn't include adminGroupName: {}.", groups, this.adminGroupName);
+    }
+    return groups.contains(this.adminGroupName);
   }
 
   @Override
