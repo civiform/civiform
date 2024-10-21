@@ -59,12 +59,13 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
     List<String> groups = (List) profile.getAttribute(this.groupsAttributeName);
     if (groups == null) {
       LOGGER.debug("No groups found in OIDC profile.");
+      return false;
     }
     if (!groups.contains(this.adminGroupName)) {
       LOGGER.debug(
           "List of groups ({}) doesn't include adminGroupName: {}.", groups, this.adminGroupName);
     }
-    return groups != null && groups.contains(this.adminGroupName);
+    return groups.contains(this.adminGroupName);
   }
 
   @Override
