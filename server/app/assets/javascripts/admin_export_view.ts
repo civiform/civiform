@@ -1,5 +1,5 @@
 import {assertNotNull} from './util'
-
+import DOMPurify from 'dompurify'
 class AdminExportView {
   // These values should be kept in sync with views/admin/migration/AdminExportView.java.
   private static PROGRAM_JSON_ID = 'program-json'
@@ -16,7 +16,8 @@ class AdminExportView {
         const json = assertNotNull(
           document.getElementById(AdminExportView.PROGRAM_JSON_ID),
         )
-        void writeClipboardText(json.innerHTML)
+        const sanitizedJson = DOMPurify.sanitize(jsonElement.innerHTML)  // Sanitize the JSON content
+        void writeClipboardText(sanitizedJson)
         alert('Copied the JSON to the clipboard')
       })
     }
