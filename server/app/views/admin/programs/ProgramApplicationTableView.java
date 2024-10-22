@@ -151,7 +151,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                     filterParams.selectedApplicationStatus(),
                                     /* selectedApplicationUri= */ Optional.empty(),
                                     /* showDownloadModal= */ Optional.empty(),
-                                    /* errorMessage= */ Optional.empty()),
+                                    /* message= */ Optional.empty()),
                             /* optionalMessages */ Optional.empty())));
 
     HtmlBundle htmlBundle =
@@ -178,7 +178,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
                 /* showDownloadModal= */ Optional.empty(),
-                /* errorMessage= */ Optional.empty())
+                /* message= */ Optional.empty())
             .url();
     String labelText =
         settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
@@ -198,7 +198,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                     /* applicationStatus= */ Optional.empty(),
                     /* selectedApplicationUri= */ Optional.empty(),
                     /* showDownloadModal= */ Optional.empty(),
-                    /* errorMessage= */ Optional.empty())
+                    /* message= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -371,7 +371,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ProgramDefinition program,
       Http.Request request,
       Optional<String> message) {
-
+    boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
     SelectTag dropdownTag =
         select()
             .withName("statusText")
@@ -427,7 +427,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                             alertTag,
                             table()
                                 .withClasses("usa-table usa-table--borderless", "w-full")
-                                .with(renderGroupTableHeader(displayStatus))
+                                .with(renderGroupTableHeader(displayStatus, hasEligibilityEnabled))
                                 .with(
                                     tbody(
                                         each(
@@ -437,13 +437,14 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                                     application,
                                                     displayStatus,
                                                     statusDefinitions.getDefaultStatus(),
+                                                    hasEligibilityEnabled,
                                                     applicantService
                                                         .getApplicationEligibilityStatus(
                                                             application, program))))))));
     return table;
   }
 
-  private TheadTag renderGroupTableHeader(boolean displayStatus) {
+  private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {
     return thead(
         tr().with(
                 th(input()
@@ -453,7 +454,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                         .withClasses(BaseStyles.CHECKBOX))
                     .withScope("col"))
             .with(th("Name").withScope("col"))
-            .with(th("Eligibility").withScope("col"))
+            .condWith(hasEligibilityEnabled, th("Eligibility").withScope("col"))
             .condWith(displayStatus, th("Status").withScope("col"))
             .with(th("Submission date").withScope("col")));
   }
@@ -462,6 +463,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ApplicationModel application,
       boolean displayStatus,
       Optional<StatusDefinitions.Status> defaultStatus,
+      boolean hasEligibilityEnabled,
       Optional<Boolean> maybeEligibilityStatus) {
     String applicantNameWithApplicationId =
         String.format(
@@ -495,7 +497,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                     .withValue(Long.toString(application.id))
                     .withClasses(BaseStyles.CHECKBOX)))
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
-        .with(td(eligibilityStatus))
+        .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
         .with(td(renderSubmitTime(application)));
   }

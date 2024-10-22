@@ -190,7 +190,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
                 /* showDownloadModal= */ Optional.empty(),
-                /* errorMessage= */ Optional.empty())
+                /* message= */ Optional.empty())
             .url();
 
     return new LinkElement()

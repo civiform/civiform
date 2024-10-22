@@ -135,7 +135,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             filterParams.selectedApplicationStatus(),
                             /* selectedApplicationUri= */ Optional.empty(),
                             /* showDownloadModal= */ Optional.empty(),
-                            /* errorMessage= */ Optional.empty()),
+                            /* message= */ Optional.empty()),
                     /* optionalMessages */ Optional.empty()))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
@@ -183,7 +183,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
                 /* showDownloadModal= */ Optional.empty(),
-                /* errorMessage= */ Optional.empty())
+                /* message= */ Optional.empty())
             .url();
     String labelText =
         settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
@@ -203,7 +203,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* applicationStatus= */ Optional.empty(),
                     /* selectedApplicationUri= */ Optional.empty(),
                     /* showDownloadModal= */ Optional.empty(),
-                    /* errorMessage= */ Optional.empty())
+                    /* message= */ Optional.empty())
                 .url())
         .with(
             fieldset()

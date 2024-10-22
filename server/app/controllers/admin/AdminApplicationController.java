@@ -486,7 +486,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> selectedApplicationUri,
       Optional<Boolean> showDownloadModal,
-      Optional<String> errorMessage)
+      Optional<String> message)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(
@@ -499,7 +499,7 @@ public final class AdminApplicationController extends CiviFormController {
               applicationStatus,
               selectedApplicationUri,
               showDownloadModal,
-              errorMessage));
+              message));
     }
 
     SubmittedApplicationFilter filters =
@@ -553,7 +553,7 @@ public final class AdminApplicationController extends CiviFormController {
                   .setSelectedApplicationStatus(applicationStatus)
                   .build(),
               showDownloadModal,
-              errorMessage));
+              message));
     }
     var paginationSpec =
         new PageNumberPaginationSpec(
@@ -618,7 +618,7 @@ public final class AdminApplicationController extends CiviFormController {
                   /* applicationStatus= */ Optional.empty(),
                   Optional.empty(),
                   /* showDownloadModal= */ Optional.empty(),
-                  /* errorMessage= */ Optional.of(
+                  /* message= */ Optional.of(
                       "Status updates sent to applicants with contact information on file"))
               .url());
     }
@@ -632,7 +632,7 @@ public final class AdminApplicationController extends CiviFormController {
                 /* applicationStatus= */ Optional.empty(),
                 Optional.empty(),
                 /* showDownloadModal= */ Optional.empty(),
-                /* errorMessage= */ Optional.of("Status update success"))
+                /* message= */ Optional.of("Status update success"))
             .url());
   }
 

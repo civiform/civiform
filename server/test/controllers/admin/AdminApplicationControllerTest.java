@@ -23,6 +23,8 @@ import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.P
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -108,6 +110,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   private ProgramAdminApplicationService programAdminApplicationService;
   private ApplicationStatusesRepository repo;
   private SettingsManifest settingsManifestMock;
+  private Request requestForUpdateStatuses;
 
   @Before
   public void setupController() {
@@ -130,7 +133,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* untilDate= */ Optional.empty(),
             /* applicationStatus= */ Optional.empty(),
             /* selectedApplicationUri= */ Optional.empty(),
-            /* showDownloadModal= */ Optional.empty());
+            /* showDownloadModal= */ Optional.empty(),
+            /* message= */ Optional.empty());
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
@@ -154,7 +158,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* untilDate= */ Optional.empty(),
             /* applicationStatus= */ Optional.empty(),
             /* selectedApplicationUri= */ Optional.empty(),
-            /* showDownloadModal= */ Optional.empty());
+            /* showDownloadModal= */ Optional.empty(),
+            /* message= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
   }
 
@@ -164,8 +169,35 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
-
     assertThatThrownBy(() -> controller.updateStatus(fakeRequest(), Long.MAX_VALUE, application.id))
+        .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void updateStatuses_programNotFound() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    List<ApplicationModel> applicationList = createApplicationList(3, program);
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "applicationsIds",
+                    "clientFirst",
+                    "middleName",
+                    "middle",
+                    "lastName",
+                    "ClientLast",
+                    "dob",
+                    "2022-07-18",
+                    "emailAddress",
+                    "sample3@fake.com",
+                    "tiNote",
+                    "unitTest",
+                    "phoneNumber",
+                    "4259879090"))
+            .build();
+    assertThatThrownBy(() -> controller.updateStatuses(fakeRequest(), Long.MAX_VALUE))
         .isInstanceOf(ProgramNotFoundException.class);
   }
 
@@ -586,6 +618,17 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(StatusService.class),
         settingsManifestMock,
         instanceOf(ProgramApplicationTableView.class));
+  }
+
+  List<ApplicationModel> createApplicationList(int count, ProgramModel program) {
+    List<ApplicationModel> applicationList = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+      ApplicationModel application =
+          ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+      applicationList.add(application);
+    }
+    return applicationList;
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
