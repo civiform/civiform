@@ -16,7 +16,7 @@ class AdminExportView {
         const json = assertNotNull(
           document.getElementById(AdminExportView.PROGRAM_JSON_ID),
         )
-        void writeClipboardText(json.innerHTML)
+        void writeClipboardText(json.textContent)
         alert('Copied the JSON to the clipboard')
       })
     }
