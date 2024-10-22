@@ -10,7 +10,6 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -73,13 +72,13 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     Locale preferredLocale = messages.lang().toLocale();
 
     ImmutableList<String> relevantCategories =
-      applicationPrograms.unapplied().stream()
-        .map(programData -> programData.program().categories())
-        .flatMap(List::stream)
-        .distinct()
-        .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
-        .sorted()
-        .collect(ImmutableList.toImmutableList());
+        applicationPrograms.unapplied().stream()
+            .map(programData -> programData.program().categories())
+            .flatMap(List::stream)
+            .distinct()
+            .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
+            .collect(ImmutableList.toImmutableList());
 
     if (applicationPrograms.commonIntakeForm().isPresent()) {
       intakeSection =

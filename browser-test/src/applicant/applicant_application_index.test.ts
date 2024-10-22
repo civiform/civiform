@@ -805,6 +805,59 @@ test.describe('applicant program index page', () => {
             await expect(primaryProgramCard.getByText('General')).toBeHidden()
           })
         })
+
+        test('shows category filter chips', async ({
+          page,
+          adminPrograms,
+          applicantQuestions,
+        }) => {
+          await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
+            await logout(page)
+            await expect(
+              page.getByRole('checkbox', {name: 'Education'}),
+            ).toBeHidden()
+            await expect(
+              page.getByRole('checkbox', {name: 'Healthcare'}),
+            ).toBeHidden()
+            await expect(
+              page.getByRole('checkbox', {name: 'General'}),
+            ).toBeHidden()
+            await expect(
+              page.getByRole('checkbox', {name: 'Utilities'}),
+            ).toBeHidden()
+          })
+
+          await test.step('publish programs with categories', async () => {
+            await loginAsAdmin(page)
+            await adminPrograms.publishAllDrafts()
+            await logout(page)
+          })
+
+          const filterChips = page.locator('#category-filter-form')
+
+          await test.step('check that filter chips appear on homepage', async () => {
+            await expect(filterChips.getByText('Education')).toBeVisible()
+            await expect(filterChips.getByText('Healthcare')).toBeVisible()
+            await expect(filterChips.getByText('General')).toBeVisible()
+            await expect(filterChips.getByText('Utilities')).toBeVisible()
+          })
+
+          await test.step('start applying to a program', async () => {
+            await applicantQuestions.applyProgram(
+              primaryProgramName,
+              /* northStarEnabled= */ true,
+            )
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.gotoApplicantHomePage()
+          })
+
+          await test.step('check that categories only on started program are removed from filters', async () => {
+            await expect(filterChips.getByText('Education')).toBeHidden()
+            await expect(filterChips.getByText('Healthcare')).toBeHidden()
+            await expect(filterChips.getByText('General')).toBeVisible()
+            await expect(filterChips.getByText('Utilities')).toBeVisible()
+          })
+        })
       })
     },
   )
