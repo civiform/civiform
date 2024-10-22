@@ -181,11 +181,20 @@ it is around the label */
   margin-top: 0;
 }
 
+// Resolve conflict between zero-margin and usa-prose>ol by directly specifying ID
+#summary-multiline-list {
+  margin: 0;
+  text-align: right;
+  padding-left: 0;
+}
+
 .summary-answer {
   @include u-line-height('sans', 5);
   @include u-text('ink');
   font-weight: font-weight('bold');
   text-align: right;
+  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .summary-button-section {

@@ -2,7 +2,10 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import services.applicant.AnswerData;
+import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
@@ -25,19 +28,38 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return answerData.applicantQuestion().getFormattedQuestionText();
   }
 
-  public String answerText() {
+  public ImmutableList<String> multilineAnswerText() {
     String defaultAnswerString =
         answerData.applicantQuestion().getQuestion().getDefaultAnswerString();
     boolean hasAnswerText =
         !answerData.answerText().isBlank() && !answerData.answerText().equals(defaultAnswerString);
+    boolean isAnswered = answerData.isAnswered() || hasAnswerText;
+    boolean isFileUploadQuestion =
+        answerData.questionDefinition().getQuestionType() == QuestionType.FILEUPLOAD;
+    boolean hasFiles = !answerData.encodedFileKeys().isEmpty();
 
-    // TODO(#8793) Support file question type
-
-    if (answerData.isAnswered() || hasAnswerText) {
-      return answerData.answerText();
+    if (isFileUploadQuestion && hasFiles) {
+      // TODO(#8985): Allow user to download files on this page
+      return fileNames();
+    } else if (isAnswered) {
+      return ImmutableList.of(answerData.answerText());
     } else {
-      return defaultAnswerString;
+      return ImmutableList.of(defaultAnswerString);
     }
+  }
+
+  /**
+   * Assumes this question is a file upload question.
+   *
+   * @return A list of file names (may be empty)
+   */
+  private ImmutableList<String> fileNames() {
+    ArrayList<String> fileNames = new ArrayList<String>();
+    for (int i = 0; i < answerData.encodedFileKeys().size(); i++) {
+      String fileName = answerData.fileNames().get(i);
+      fileNames.add(fileName);
+    }
+    return ImmutableList.copyOf(fileNames);
   }
 
   // TODO(#8795): Handle enumerator questions
@@ -45,10 +67,5 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   @Override
   public int compareTo(NorthStarAnswerData other) {
     return Integer.compare(this.questionIndex(), other.questionIndex());
-  }
-
-  @Override
-  public String toString() {
-    return answerData.questionText() + " " + this.answerText();
   }
 }
