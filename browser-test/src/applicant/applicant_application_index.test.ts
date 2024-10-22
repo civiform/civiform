@@ -746,6 +746,66 @@ test.describe('applicant program index page', () => {
           expect(popupURL).toMatch(/\/programs\/\d+/)
         })
       })
+
+      test.describe('program filtering', () => {
+        test.beforeEach(async ({page, adminPrograms}) => {
+          await enableFeatureFlag(page, 'program_filtering_enabled')
+
+          await test.step('seed categories', async () => {
+            await seedProgramsAndCategories(page)
+            await page.goto('/')
+          })
+
+          await test.step('go to program edit form and add categories to primary program', async () => {
+            await loginAsAdmin(page)
+            await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+              primaryProgramName,
+            )
+            await page
+              .getByRole('button', {name: 'Edit program details'})
+              .click()
+            await page.getByText('Education').check()
+            await page.getByText('Healthcare').check()
+            await adminPrograms.submitProgramDetailsEdits()
+          })
+
+          await test.step('add different categories to other program', async () => {
+            await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+              otherProgramName,
+            )
+            await page
+              .getByRole('button', {name: 'Edit program details'})
+              .click()
+            await page.getByText('General').check()
+            await page.getByText('Utilities').check()
+            await adminPrograms.submitProgramDetailsEdits()
+          })
+        })
+
+        test('Displays category tags on program cards', async ({
+          page,
+          adminPrograms,
+        }) => {
+          await test.step('publish programs with categories', async () => {
+            await adminPrograms.publishAllDrafts()
+          })
+
+          await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
+            await logout(page)
+            await loginAsTestUser(page)
+            const primaryProgramCard = page.locator('.cf-application-card', {
+              has: page.getByText(primaryProgramName),
+            })
+            await expect(
+              primaryProgramCard.getByText('Education'),
+            ).toBeVisible()
+            await expect(
+              primaryProgramCard.getByText('Healthcare'),
+            ).toBeVisible()
+            await expect(primaryProgramCard.getByText('General')).toBeHidden()
+          })
+        })
+      })
     },
   )
 })

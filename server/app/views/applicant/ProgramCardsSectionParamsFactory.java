@@ -172,12 +172,19 @@ public final class ProgramCardsSectionParamsFactory {
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
+    ImmutableList.Builder<String> categoriesBuilder = ImmutableList.builder();
+    categoriesBuilder.addAll(
+        program.categories().stream()
+            .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
+            .collect(ImmutableList.toImmutableList()));
+
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
         .setBody(program.localizedDescription().getOrDefault(preferredLocale))
         .setDetailsUrl(detailsUrl)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
+        .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()));
 
     if (isGuest) {
@@ -292,6 +299,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> altText();
 
+    public abstract ImmutableList<String> categories();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
     }
@@ -323,6 +332,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setImageSourceUrl(String imageSourceUrl);
 
       public abstract Builder setAltText(String altText);
+
+      public abstract Builder setCategories(ImmutableList<String> categories);
 
       public abstract ProgramCardParams build();
     }
