@@ -1,0 +1,42 @@
+name: Auto-response to Outside Contributors
+
+on:
+  issue_comment:
+    types: [created] # Ensure it only triggers on comment creation
+
+jobs:
+  auto-response:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if commenter is a contributor
+        id: check-if-commenter-is-a-contributor
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const commenter = context.payload.comment.user.login;
+            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov', 'graphite'];
+            const isBot = bots.includes(commenter);
+
+            // Check if the commenter is a contributor
+            const contributors = await github.repos.listContributors({ owner, repo });
+            const isContributor = contributors.data.some(contributor => contributor.login === commenter);
+
+            // Check if the commenter has already received a response on this issue
+            const comments = await github.issues.listComments({ owner, repo, issue_number });
+            const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenter));
+
+            return !isBot && !isContributor && !hasReceivedResponse;
+      - name: Add a comment if not a contributor and hasn't received a response
+        if: steps.check-if-commenter-is-a-contributor.outputs.result === 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,   
+              body:   
+ 'Thanks for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#outside-contributors-not-part-of-exygy-google-or-a-civic-entity.'
+            });
