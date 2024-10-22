@@ -14,6 +14,7 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DeploymentType;
+import services.LocalizedStrings;
 import services.applicant.ApplicantPersonalInfo;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
@@ -60,7 +61,12 @@ public class NorthStarApplicantProgramOverviewView extends NorthStarBaseView {
         programDefinition.localizedShortDescription().getOrDefault(userLocale);
     context.setVariable("shortDescription", localizedShortDescription);
 
-    ImmutableList<ApplicationStep> applicationSteps = programDefinition.applicationSteps();
+    // Need this check to handle the case when an older program has the default blank application set
+    ImmutableList<ApplicationStep> applicationSteps =
+        programDefinition.applicationSteps().stream()
+            .filter(
+                step -> !step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get().isBlank())
+            .collect(ImmutableList.toImmutableList());
     context.setVariable("applicationSteps", applicationSteps);
     context.setVariable("locale", userLocale);
 

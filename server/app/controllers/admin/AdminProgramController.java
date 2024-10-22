@@ -147,6 +147,13 @@ public final class AdminProgramController extends CiviFormController {
       }
     }
 
+    // Only save application steps that have content in them
+    applicationSteps =
+        applicationSteps.stream()
+            .filter(
+                step -> !step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get().isBlank())
+            .collect(ImmutableList.toImmutableList());
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         programService.createProgramDefinition(
             programData.getAdminName(),
@@ -292,6 +299,13 @@ public final class AdminProgramController extends CiviFormController {
                 maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
     }
+
+    // Only save application steps that have content in them
+    applicationSteps =
+        applicationSteps.stream()
+            .filter(
+                step -> !step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get().isBlank())
+            .collect(ImmutableList.toImmutableList());
 
     programService.updateProgramDefinition(
         programDefinition.id(),
