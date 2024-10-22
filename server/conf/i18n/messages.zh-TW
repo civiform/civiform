@@ -546,8 +546,6 @@ heading.dateSubmitted=提交日期
 heading.forYourRecords=記錄確認頁面
 # Text above a button to print this page
 content.youCanPrint=您可以列印本記錄確認頁面。
-# Button to print this webpage
-button.print=列印此頁面
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
