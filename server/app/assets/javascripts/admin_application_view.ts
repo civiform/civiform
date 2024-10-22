@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
@@ -23,23 +23,27 @@ class AdminApplicationView {
     this.registerStatusSelectorEventListener()
     this.registerStatusUpdateFormSubmitListeners()
     this.registerEditNoteFormSubmitListener()
-    this.registerBulkSelectCheckboxListener()
+    this.registerBulkSelectStatusListner()
   }
-  private registerBulkSelectCheckboxListener() {
-    // Get the "select all" checkbox
-    const selectAllCheckbox = <HTMLInputElement>(
-      document.getElementById('selectAll')
-    ) // Replace "selectAll" with the ID of your checkbox
+  private registerBulkSelectStatusListner() {
+    addEventListenerToElements('#selectAll', 'click', () => {
+      const selectAllCheckBox = <HTMLInputElement>(
+        document.querySelector('#selectAll')
+      )
 
-    // Get all the other checkboxes
-    const checkboxes = <HTMLInputElement>(
-      document.querySelectorAll('input[type="checkbox"]:not(#selectAll)')
-    ) // Exclude the "select all" checkbox
-    selectAllCheckbox.addEventListener('click', function () {
-      for (const checkbox of checkboxes) {
-        // Avoid toggling the "select all" checkbox itself
-        checkbox.checked = selectAllCheckbox.checked
-      }
+      const applicationCheckboxes = document.querySelectorAll(
+        '[id^="current-application-selection"]',
+      )
+
+      applicationCheckboxes.forEach((checkbox) => {
+        const application = checkbox as HTMLInputElement
+
+        if (selectAllCheckBox.checked) {
+          application.checked = true
+        } else {
+          application.checked = false
+        }
+      })
     })
   }
 

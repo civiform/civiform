@@ -45,9 +45,9 @@ import repository.SubmittedApplicationFilter;
 import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
-import services.PaginationResult;
 import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -497,6 +497,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 input()
                     .withType("checkbox")
                     .withName("applicationsIds[]")
+                    .withId("current-application-selection-" + application.id)
                     .withValue(Long.toString(application.id))
                     .withClasses(BaseStyles.CHECKBOX)))
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
