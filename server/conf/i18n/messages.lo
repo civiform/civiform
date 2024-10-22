@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງ
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=ດາວໂຫຼດ PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ

@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encon
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Otros programas que te pueden interesar
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Descargar PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Postularse a programas

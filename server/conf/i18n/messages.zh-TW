@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫

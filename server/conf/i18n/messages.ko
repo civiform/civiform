@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청

@@ -529,6 +529,8 @@ content.commonIntakeNoMatchingProgramsTi=لم يتمكن الفحص المُسب
 content.commonIntakeNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=تنزيل ملف PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
