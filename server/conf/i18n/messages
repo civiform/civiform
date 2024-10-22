@@ -546,8 +546,6 @@ heading.dateSubmitted=Date submitted
 heading.forYourRecords=Confirmation for your records
 # Text above a button to print this page
 content.youCanPrint=You can print this confirmation for your records.
-# Button to print this webpage
-button.print=Print this page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
