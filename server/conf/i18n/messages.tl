@@ -544,8 +544,6 @@ heading.dateSubmitted=Petsa ng pagsusumite
 heading.forYourRecords=Kumpirmasyon para sa iyong mga record
 # Text above a button to print this page
 content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga record.
-# Button to print this webpage
-button.print=I-print ang page na ito
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"

@@ -104,7 +104,6 @@ public enum MessageKey {
   BUTTON_NEXT("button.nextPage"),
   BUTTON_NEXT_SCREEN("button.nextScreen"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
-  BUTTON_PRINT("button.print"), // North Star only
   BUTTON_BACK("button.back"),
   BUTTON_REVIEW_AND_EXIT("button.reviewAndExit"),
   BUTTON_REVIEW("button.review"),

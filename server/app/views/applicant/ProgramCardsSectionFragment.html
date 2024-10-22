@@ -45,6 +45,18 @@
     </div>
 
     <div class="usa-card__body">
+      <div
+        th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
+        class="flex flex-wrap gap-2 mx-4 mt-4"
+      >
+        <th:block th:each="category : ${card.categories()}">
+          <div
+            th:text="${category}"
+            class="text-xs bg-gray-200 px-2 py-1"
+          ></div>
+        </th:block>
+      </div>
+
       <p
         th:if="${card.applicationStatus().isPresent()}"
         class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"

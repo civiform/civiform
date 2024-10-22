@@ -17,7 +17,11 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
+import play.api.libs.json.JsArray;
+import play.api.libs.json.JsString;
+import play.api.libs.json.JsValue;
 import play.i18n.Messages;
+import play.libs.Scala;
 import play.mvc.Http;
 import play.mvc.Http.RequestHeader;
 import services.AlertType;
@@ -57,6 +61,15 @@ public abstract class FileUploadViewStrategy {
   /** Returns the file name for a given file key. */
   public String getFileName(String fileKey) {
     return FileUploadQuestion.getFileName(fileKey);
+  }
+
+  /** Returns a JsArray containing all uploaded file names. This is used by file_upload.ts */
+  public JsArray getUploadedFileData(FileUploadQuestion fileUploadQuestion) {
+    ImmutableList<JsValue> fileNames =
+        fileUploadQuestion.getFileKeyListValue().get().stream()
+            .map(key -> new JsString(getFileName(key)))
+            .collect(toImmutableList());
+    return new JsArray(Scala.toSeq(fileNames));
   }
 
   /**
