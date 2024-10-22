@@ -546,8 +546,6 @@ heading.dateSubmitted=제출일
 heading.forYourRecords=기록을 위한 확인
 # Text above a button to print this page
 content.youCanPrint=기록을 위해 이 확인 페이지를 인쇄할 수 있습니다.
-# Button to print this webpage
-button.print=이 페이지 인쇄
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
