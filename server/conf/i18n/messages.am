@@ -546,8 +546,6 @@ heading.dateSubmitted=የገባበት ቀን
 heading.forYourRecords=የመዝገቦችዎ ማረጋገጫ
 # Text above a button to print this page
 content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም ይችላሉ።
-# Button to print this webpage
-button.print=ይህን ገጽ ያትሙ
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
