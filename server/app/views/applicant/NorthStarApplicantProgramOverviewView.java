@@ -57,11 +57,14 @@ public class NorthStarApplicantProgramOverviewView extends NorthStarBaseView {
     String localizedProgramName = programDefinition.localizedName().getOrDefault(userLocale);
     context.setVariable("title", localizedProgramName);
 
-    String localizedShortDescription =
-        programDefinition.localizedShortDescription().getOrDefault(userLocale);
-    context.setVariable("shortDescription", localizedShortDescription);
+    String description = programDefinition.localizedDescription().getOrDefault(userLocale);
+    if (description.isBlank()) {
+      description = programDefinition.localizedShortDescription().getOrDefault(userLocale);
+    }
+    context.setVariable("description", description);
 
-    // Need this check to handle the case when an older program has the default blank application set
+    // Need this check to handle the case when an older program has the default blank application
+    // set
     ImmutableList<ApplicationStep> applicationSteps =
         programDefinition.applicationSteps().stream()
             .filter(
