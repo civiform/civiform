@@ -544,8 +544,6 @@ heading.dateSubmitted=تاريخ الإرسال
 heading.forYourRecords=الاحتفاظ برسالة التأكيد
 # Text above a button to print this page
 content.youCanPrint=يمكنك طباعة رسالة التأكيد هذه للاحتفاظ بها.
-# Button to print this webpage
-button.print=طباعة هذه الصفحة
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ما هي خطواتي التالية؟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
