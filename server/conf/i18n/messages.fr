@@ -546,8 +546,6 @@ heading.dateSubmitted=Date d''envoi
 heading.forYourRecords=Confirmation à conserver
 # Text above a button to print this page
 content.youCanPrint=Vous pouvez imprimer cette confirmation et la conserver à titre d''information.
-# Button to print this webpage
-button.print=Imprimer cette page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Quelles sont les prochaines étapes ?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
