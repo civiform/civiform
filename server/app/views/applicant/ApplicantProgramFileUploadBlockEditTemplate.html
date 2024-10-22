@@ -53,7 +53,7 @@
 
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
-                th:attr="aria-label=#{label.uploadedFiles}"
+                data-th-attr="data-uploaded-files=${fileUploadViewStrategy.getUploadedFileData(fileUploadQuestion)}, aria-label=#{label.uploadedFiles}"
                 class="grid"
               >
                 <li
