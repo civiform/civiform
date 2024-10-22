@@ -546,8 +546,6 @@ heading.dateSubmitted=Taariikhda la gudbiyay
 heading.forYourRecords=Xaqiijinta diiwaannadaada
 # Text above a button to print this page
 content.youCanPrint=Waxaad xaqiijintan u daabacan kartaa diiwaannadaada.
-# Button to print this webpage
-button.print=Daabac boggan
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
