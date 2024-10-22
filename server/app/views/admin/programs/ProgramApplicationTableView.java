@@ -446,11 +446,13 @@ public class ProgramApplicationTableView extends BaseHtmlView {
 
   private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {
     return thead(
-        tr().with(
+        tr().condWith(
+                displayStatus,
                 th(input()
                         .withName("selectall")
                         .withClasses("has:checked:text-red-500")
                         .withType("checkbox")
+                        .withId("selectAll")
                         .withClasses(BaseStyles.CHECKBOX))
                     .withScope("col"))
             .with(th("Name").withScope("col"))
@@ -489,7 +491,8 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             : "Doesn't meet eligibility";
 
     return tr().withClasses("has:checked:text-red-500")
-        .with(
+        .condWith(
+            displayStatus,
             td(
                 input()
                     .withType("checkbox")

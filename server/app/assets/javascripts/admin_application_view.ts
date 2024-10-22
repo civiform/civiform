@@ -23,6 +23,24 @@ class AdminApplicationView {
     this.registerStatusSelectorEventListener()
     this.registerStatusUpdateFormSubmitListeners()
     this.registerEditNoteFormSubmitListener()
+    this.registerBulkSelectCheckboxListener()
+  }
+  private registerBulkSelectCheckboxListener() {
+    // Get the "select all" checkbox
+    const selectAllCheckbox = <HTMLInputElement>(
+      document.getElementById('selectAll')
+    ) // Replace "selectAll" with the ID of your checkbox
+
+    // Get all the other checkboxes
+    const checkboxes = <HTMLInputElement>(
+      document.querySelectorAll('input[type="checkbox"]:not(#selectAll)')
+    ) // Exclude the "select all" checkbox
+    selectAllCheckbox.addEventListener('click', function () {
+      for (const checkbox of checkboxes) {
+        // Avoid toggling the "select all" checkbox itself
+        checkbox.checked = selectAllCheckbox.checked
+      }
+    })
   }
 
   private registerStatusUpdateFormSubmitListeners() {

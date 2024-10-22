@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
@@ -177,25 +178,21 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatuses_programNotFound() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
     List<ApplicationModel> applicationList = createApplicationList(3, program);
-
+    String list =
+        applicationList.stream()
+            .map(app -> String.valueOf(app.id))
+            .collect(Collectors.joining(","));
+    String valuelist = "[" + list + "]";
     Request request =
         fakeRequestBuilder()
             .bodyForm(
                 ImmutableMap.of(
                     "applicationsIds",
-                    "clientFirst",
-                    "middleName",
-                    "middle",
-                    "lastName",
-                    "ClientLast",
-                    "dob",
-                    "2022-07-18",
-                    "emailAddress",
-                    "sample3@fake.com",
-                    "tiNote",
-                    "unitTest",
-                    "phoneNumber",
-                    "4259879090"))
+                    valuelist,
+                    "statusText",
+                    "approved",
+                    "maybeSendEmail",
+                    "false"))
             .build();
     assertThatThrownBy(() -> controller.updateStatuses(fakeRequest(), Long.MAX_VALUE))
         .isInstanceOf(ProgramNotFoundException.class);
