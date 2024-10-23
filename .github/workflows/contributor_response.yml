@@ -24,11 +24,11 @@ jobs:
             const isBot = bots.includes(commenter);
 
             // Check if the commenter is a contributor
-            const contributors = await github.repos.listContributors({ owner, repo });
+            const contributors = await github.rest.repos.listContributors({ owner, repo });
             const isContributor = contributors.data.some(contributor => contributor.login === commenter);
 
             // Check if the commenter has already received a response on this issue
-            const comments = await github.issues.listComments({ owner, repo, issue_number });
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
             const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenter));
 
             return !isBot && !isContributor && !hasReceivedResponse;
