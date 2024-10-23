@@ -41,5 +41,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,   
-              body: 'Thanks for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#outside-contributors-not-part-of-exygy-google-or-a-civic-entity.'
+              body: 'Thanks for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.'
             });
