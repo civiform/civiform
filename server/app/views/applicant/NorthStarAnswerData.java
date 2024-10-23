@@ -21,12 +21,8 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return answerData.questionIndex();
   }
 
-  public String questionText() {
-    return answerData.questionText();
-  }
-
-  public boolean isOptional() {
-    return answerData.applicantQuestion().isOptional();
+  public String questionHtml() {
+    return answerData.applicantQuestion().getFormattedQuestionText();
   }
 
   public String answerText() {
@@ -38,7 +34,6 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     // TODO(#8793) Support file question type
 
     if (answerData.isAnswered() || hasAnswerText) {
-      // TODO(#8794) Make multi-line answers match the mocks
       return answerData.answerText();
     } else {
       return defaultAnswerString;
@@ -54,6 +49,6 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
 
   @Override
   public String toString() {
-    return this.questionText() + " " + this.answerText();
+    return answerData.questionText() + " " + this.answerText();
   }
 }

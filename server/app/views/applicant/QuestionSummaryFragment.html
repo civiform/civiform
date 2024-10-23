@@ -4,10 +4,10 @@
     <div class="border-t border-base-lighter content"></div>
 
     <div class="usa-prose container">
-      <!-- TODO(#8793): Add optional * indicator -->
+      <!-- TODO(#5510): Add indicator for optional questions -->
       <span
         class="grid-col-6 left-align zero-margin mobile-truncate-3"
-        th:text="${answerData.questionText()}"
+        th:utext="${answerData.questionHtml()}"
       ></span>
       <span
         class="grid-col-6 right-align zero-margin summary-answer mobile-truncate-3"
