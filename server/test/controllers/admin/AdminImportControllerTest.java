@@ -276,6 +276,25 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_handlesServerError() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // attempt to import program with bad json - question id in block definition does not match
+    // question id on question
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("There was an error rendering your program.");
+    assertThat(contentAsString(result)).contains("Please check your data and try again.");
+  }
+
+  @Test
   public void hxImportProgram_noDuplicatesNotEnabled_draftsExist_noError() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -1870,6 +1889,103 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "      },\n"
           + "      \"id\" : 6,\n"
           + "      \"universal\" : true,\n"
+          + "      \"primaryApplicantInfoTags\" : [ ]\n"
+          + "    }\n"
+          + "  } ]\n"
+          + "}";
+
+  public static final String PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID =
+      "{\n"
+          + "  \"program\" : {\n"
+          + "    \"id\" : 7,\n"
+          + "    \"adminName\" : \"minimal-sample-program\",\n"
+          + "    \"adminDescription\" : \"desc\",\n"
+          + "    \"externalLink\" : \"https://github.com/civiform/civiform\",\n"
+          + "    \"displayMode\" : \"PUBLIC\",\n"
+          + "    \"notificationPreferences\" : [ ],\n"
+          + "    \"localizedName\" : {\n"
+          + "      \"translations\" : {\n"
+          + "        \"en_US\" : \"Minimal Sample Program\"\n"
+          + "      },\n"
+          + "      \"isRequired\" : true\n"
+          + "    },\n"
+          + "    \"localizedDescription\" : {\n"
+          + "      \"translations\" : {\n"
+          + "        \"en_US\" : \"display description\"\n"
+          + "      },\n"
+          + "      \"isRequired\" : true\n"
+          + "    },\n"
+          + "    \"localizedConfirmationMessage\" : {\n"
+          + "      \"translations\" : {\n"
+          + "        \"en_US\" : \"\"\n"
+          + "      },\n"
+          + "      \"isRequired\" : true\n"
+          + "    },\n"
+          + "    \"blockDefinitions\" : [ {\n"
+          + "      \"id\" : 1,\n"
+          + "      \"name\" : \"Screen 1\",\n"
+          + "      \"description\" : \"Screen 1\",\n"
+          + "      \"localizedName\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 1\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"localizedDescription\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"en_US\" : \"Screen 1\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"repeaterId\" : null,\n"
+          + "      \"hidePredicate\" : null,\n"
+          + "      \"optionalPredicate\" : null,\n"
+          + "      \"questionDefinitions\" : [ {\n"
+          + "        \"id\" : 2,\n"
+          + "        \"optional\" : true,\n"
+          + "        \"addressCorrectionEnabled\" : false\n"
+          + "      } ]\n"
+          + "    } ],\n"
+          + "    \"statusDefinitions\" : {\n"
+          + "      \"statuses\" : [ ]\n"
+          + "    },\n"
+          + "    \"programType\" : \"DEFAULT\",\n"
+          + "    \"eligibilityIsGating\" : true,\n"
+          + "    \"acls\" : {\n"
+          + "      \"tiProgramViewAcls\" : [ ]\n"
+          + "    },\n"
+          + "    \"categories\" : [ ], \n"
+          + "    \"localizedSummaryImageDescription\" : null\n"
+          + "  },\n"
+          + "  \"questions\" : [ {\n"
+          + "    \"type\" : \"name\",\n"
+          + "    \"config\" : {\n"
+          + "      \"name\" : \"Name\",\n"
+          + "      \"description\" : \"The applicant's name\",\n"
+          + "      \"questionText\" : {\n"
+          + "        \"translations\" : {\n"
+          + "          \"am\" : \"ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)\",\n"
+          + "          \"ko\" : \"성함 (이름 및 성의 경우 이니셜도 괜찮음)\",\n"
+          + "          \"lo\" : \"ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)\",\n"
+          + "          \"so\" : \"Magaca (magaca koowaad iyo kan dambe okay)\",\n"
+          + "          \"tl\" : \"Pangalan (unang pangalan at ang unang titik ng apilyedo ay"
+          + " okay)\",\n"
+          + "          \"vi\" : \"Tên (tên và họ viết tắt đều được)\",\n"
+          + "          \"en_US\" : \"Please enter your first and last name\",\n"
+          + "          \"es_US\" : \"Nombre (nombre y la inicial del apellido está bien)\",\n"
+          + "          \"zh_TW\" : \"姓名（名字和姓氏第一個字母便可）\"\n"
+          + "        },\n"
+          + "        \"isRequired\" : true\n"
+          + "      },\n"
+          + "      \"questionHelpText\" : {\n"
+          + "        \"translations\" : { },\n"
+          + "        \"isRequired\" : false\n"
+          + "      },\n"
+          + "      \"validationPredicates\" : {\n"
+          + "        \"type\" : \"name\"\n"
+          + "      },\n"
+          + "      \"id\" : 1,\n"
+          + "      \"universal\" : false,\n"
           + "      \"primaryApplicantInfoTags\" : [ ]\n"
           + "    }\n"
           + "  } ]\n"
