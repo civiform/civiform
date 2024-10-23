@@ -907,7 +907,7 @@ test.describe('applicant program index page with images', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickSubmitApplication()
         await applicantQuestions.gotoApplicantHomePage()
       })
 

@@ -53,7 +53,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -92,7 +91,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -121,7 +119,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -151,7 +148,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -159,7 +155,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Apply to related program', async () => {
       await applicantQuestions.clickApplyProgramButton(relatedProgramName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
