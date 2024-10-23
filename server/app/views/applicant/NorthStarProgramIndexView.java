@@ -10,6 +10,8 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 import models.LifecycleStage;
@@ -66,6 +68,17 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
 
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
+
+    Locale preferredLocale = messages.lang().toLocale();
+
+    ImmutableList<String> relevantCategories =
+        applicationPrograms.unapplied().stream()
+            .map(programData -> programData.program().categories())
+            .flatMap(List::stream)
+            .distinct()
+            .map(category -> category.getLocalizedName().getOrDefault(preferredLocale))
+            .sorted()
+            .collect(ImmutableList.toImmutableList());
 
     if (applicationPrograms.commonIntakeForm().isPresent()) {
       intakeSection =
@@ -125,6 +138,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("createAccountLink", routes.LoginController.register().url());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
+    context.setVariable("categoryOptions", relevantCategories);
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

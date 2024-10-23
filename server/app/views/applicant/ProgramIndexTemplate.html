@@ -82,6 +82,30 @@
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
+        <div
+          th:if="${!categoryOptions.isEmpty()}"
+          class="grid-container"
+          id="category-filter-form"
+        >
+          <fieldset class="grid-row grid-gap">
+            <legend th:text="#{label.programFilters}"></legend>
+            <th:block th:each="categoryOption : ${categoryOptions}">
+              <div class="filter-chip">
+                <input
+                  th:id="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  type="checkbox"
+                  name="categories"
+                  th:value="${categoryOption}"
+                  class="sr-only"
+                />
+                <label
+                  th:for="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  th:text="${categoryOption}"
+                ></label>
+              </div>
+            </th:block>
+          </fieldset>
+        </div>
         <th:block th:each="section : ${sections}">
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
