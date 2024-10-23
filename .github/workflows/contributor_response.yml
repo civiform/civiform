@@ -1,4 +1,8 @@
-name: Auto-response to Outside Contributors
+# Runs on new comments and prints a welcome message if the commenter is not a bot,
+# is not an existing contributor, and has not already gotten a reply
+
+name: Community Contributor Response
+run-name: Auto-response to Community Contributor Comments
 
 on:
   issue_comment:
@@ -10,7 +14,7 @@ jobs:
     steps:
       - name: Check if commenter is a contributor
         id: check-if-commenter-is-a-contributor
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -30,7 +34,7 @@ jobs:
             return !isBot && !isContributor && !hasReceivedResponse;
       - name: Add a comment if not a contributor and hasn't received a response
         if: steps.check-if-commenter-is-a-contributor.outputs.result === 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             github.rest.issues.createComment({
