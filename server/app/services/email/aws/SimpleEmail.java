@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.ses.model.SesException;
  */
 @Singleton
 public final class SimpleEmail {
-  public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
+  public static final String AWS_SES_SENDER_CONF_PATH = "email.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
   private static final Histogram EMAIL_EXECUTION_TIME =
