@@ -32,6 +32,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.SpanTag;
+import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.Optional;
@@ -406,42 +407,45 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 .withClasses("my-5")
             : div();
 
-    DivTag table =
-        div(
-            form()
-                .withId("bulk-status-update")
-                .withMethod("POST")
-                .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
-                .with(
-                    div()
-                        .withClass("space-x-2")
-                        .with(
-                            dropdownTag,
-                            makeCsrfTokenInputTag(request),
-                            label("Send notification"),
-                            input()
-                                .withType("checkbox")
-                                .withName("maybeSendEmail")
-                                .withClasses(BaseStyles.CHECKBOX),
-                            submitButton("Status change").withClasses("usa-button"),
-                            alertTag,
-                            table()
-                                .withClasses("usa-table usa-table--borderless", "w-full")
-                                .with(renderGroupTableHeader(displayStatus, hasEligibilityEnabled))
-                                .with(
-                                    tbody(
-                                        each(
-                                            applications,
-                                            application ->
-                                                renderApplicationRowItem(
-                                                    application,
-                                                    displayStatus,
-                                                    statusDefinitions.getDefaultStatus(),
-                                                    hasEligibilityEnabled,
-                                                    applicantService
-                                                        .getApplicationEligibilityStatus(
-                                                            application, program))))))));
-    return table;
+    TableTag applicationTable =
+        table()
+            .withClasses("usa-table usa-table--borderless", "w-full")
+            .with(renderGroupTableHeader(displayStatus, hasEligibilityEnabled))
+            .with(
+                tbody(
+                    each(
+                        applications,
+                        application ->
+                            renderApplicationRowItem(
+                                application,
+                                displayStatus,
+                                statusDefinitions.getDefaultStatus(),
+                                hasEligibilityEnabled,
+                                applicantService.getApplicationEligibilityStatus(
+                                    application, program)))));
+    if (displayStatus) {
+
+      return div(
+          form()
+              .withId("bulk-status-update")
+              .withMethod("POST")
+              .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
+              .with(
+                  div()
+                      .withClass("space-x-2")
+                      .with(
+                          dropdownTag,
+                          makeCsrfTokenInputTag(request),
+                          label("Send notification"),
+                          input()
+                              .withType("checkbox")
+                              .withName("maybeSendEmail")
+                              .withClasses(BaseStyles.CHECKBOX),
+                          submitButton("Status change").withClasses("usa-button"),
+                          alertTag,
+                          applicationTable)));
+    }
+    return div(applicationTable);
   }
 
   private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {

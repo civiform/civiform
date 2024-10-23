@@ -587,20 +587,20 @@ public final class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
     try {
       checkProgramAdminAuthorization(request, programName).join();
-    } catch (CompletionException | NoSuchElementException e) {
+    } catch (CompletionException | NoSuchElementException | MissingOptionalException e) {
       return unauthorized();
     }
     Form<BulkStatusUpdateForm> form =
         formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
     var ids = form.get().getApplicationsIds();
 
-    var applicationlist =
+    var applicationIdList =
         programAdminApplicationService.getApplications(
             ids.stream().map(e -> Long.parseLong(e)).collect(ImmutableList.toImmutableList()),
             program);
     boolean sendEmail = form.get().isMaybeSendEmail();
     programAdminApplicationService.setStatus(
-        applicationlist,
+        applicationIdList,
         ApplicationEventDetails.StatusEvent.builder()
             .setStatusText(form.get().getStatusText())
             .setEmailSent(sendEmail)
