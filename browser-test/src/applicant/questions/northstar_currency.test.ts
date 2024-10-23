@@ -3,16 +3,23 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('currency applicant flow', () => {
+test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
   const validCurrency = '1000'
   // Not enough decimals.
   const invalidCurrency = '1.0'
+  const currencyError =
+    'Error: Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30'
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('single currency question', () => {
     const programName = 'Test program for single currency'
@@ -27,44 +34,72 @@ test.describe('currency applicant flow', () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
-      await validateScreenshot(page, 'currency')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'currency-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'currency-errors-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
     })
 
-    test('validate screenshot with errors', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
-      await validateScreenshot(page, 'currency-errors')
+      await validateAccessibility(page)
     })
 
     test('with valid currency does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerCurrencyQuestion(validCurrency)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with invalid currency does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      const currencyError = '.cf-currency-value-error'
-      // When there are no validation errors, the div still exists but is hidden.
-      await expect(page.locator(currencyError)).toBeHidden()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await expect(page.getByText(currencyError)).toBeHidden()
 
       // Input has not enough decimal points.
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // The block should be displayed still with the error shown.
-      await expect(page.locator(currencyError)).toBeVisible()
+      await expect(page.getByText(currencyError)).toBeVisible()
     })
   })
 
@@ -94,63 +129,66 @@ test.describe('currency applicant flow', () => {
     })
 
     test('with valid currencies does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with unanswered optional question submits', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with first invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      const currencyError = '.cf-currency-value-error >> nth=0'
-      // When there are no validation errors, the div still exists but is hidden.
-      await expect(page.locator(currencyError)).toBeHidden()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await expect(page.getByText(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await expect(page.locator(currencyError)).toBeVisible()
+      await expect(page.getByText(currencyError)).toBeVisible()
     })
 
     test('with second invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      const currencyError = '.cf-currency-value-error >> nth=1'
-      // When there are no validation errors, the div still exists but is hidden.
-      await expect(page.locator(currencyError)).toBeHidden()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await expect(page.getByText(currencyError)).toBeHidden()
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await expect(page.locator(currencyError)).toBeVisible()
-    })
-
-    test('has no accessibility violations', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateAccessibility(page)
+      await expect(page.getByText(currencyError)).toBeVisible()
     })
   })
 
