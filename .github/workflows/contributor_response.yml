@@ -33,7 +33,7 @@ jobs:
 
             return !isBot && !isContributor && !hasReceivedResponse;
       - name: Add a comment if not a contributor and hasn't received a response
-        if: steps.check-if-commenter-is-a-contributor.outputs.result === 'true'
+        if: steps.check-if-commenter-is-a-contributor.outputs.result == 'true'
         uses: actions/github-script@v7
         with:
           script: |
