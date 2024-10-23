@@ -31,15 +31,12 @@ jobs:
             const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
             const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenter));
 
-            return !isBot && !isContributor && !hasReceivedResponse;
-      - name: Add a comment if not a contributor and hasn't received a response
-        if: steps.check-if-commenter-is-a-contributor.outputs.result == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,   
-              body: 'Thanks for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.'
-            });
+            const shouldComment = !isBot && !isContributor && !hasReceivedResponse;
+            if (shouldComment) { 
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,   
+                body: `Thanks, @${commenter}, for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.`
+              }); 
+            }
