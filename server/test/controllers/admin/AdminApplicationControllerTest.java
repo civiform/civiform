@@ -520,6 +520,101 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void updateStatuses_succeeds() throws Exception {
+    // Setup
+    Instant start = Instant.now();
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    List<String> appIdList = createApplicationList(3, program);
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "applicationsIds[0]",
+                    appIdList.get(0),
+                    "applicationsIds[1]",
+                    appIdList.get(1),
+                    "applicationsIds[2]",
+                    appIdList.get(2),
+                    "applicationsIds[3]",
+                    String.valueOf(application.id),
+                    "statusText",
+                    APPROVED_STATUS.statusText(),
+                    "maybeSendEmail",
+                    "true"))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatuses(request, program.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    verifyApplicationStatusChange(application, Optional.of(adminAccount), Optional.of(start));
+    appIdList.stream()
+        .forEach(
+            id ->
+                verifyApplicationStatusChange(
+                    programAdminApplicationService
+                        .getApplication(Long.parseLong(id), program.getProgramDefinition())
+                        .get(),
+                    Optional.empty(),
+                    Optional.empty()));
+  }
+
+  @Test
+  public void updateStatuses_emptySendEmail_succeeds() throws Exception {
+    // Setup
+    Instant start = Instant.now();
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    List<String> appIdList = createApplicationList(3, program);
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "applicationsIds[0]",
+                    appIdList.get(0),
+                    "applicationsIds[1]",
+                    appIdList.get(1),
+                    "applicationsIds[2]",
+                    appIdList.get(2),
+                    "applicationsIds[3]",
+                    String.valueOf(application.id),
+                    "statusText",
+                    APPROVED_STATUS.statusText(),
+                    "maybeSendEmail",
+                    "false"))
+            .build();
+
+    // Execute
+    Result result = controller.updateStatuses(request, program.id);
+
+    // Evaluate
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getDetails().statusEvent()).isPresent();
+    assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
+  }
+
+  @Test
   public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
     AccountModel adminAccount = resourceCreator.insertAccount();
@@ -699,6 +794,24 @@ public class AdminApplicationControllerTest extends ResetPostgres {
       returnList.add(String.valueOf(application.id));
     }
     return returnList;
+  }
+
+  private void verifyApplicationStatusChange(
+      ApplicationModel application, Optional<AccountModel> adminAccount, Optional<Instant> start) {
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(gotEvent.getDetails().statusEvent()).isPresent();
+    assertThat(gotEvent.getDetails().statusEvent().get().statusText())
+        .isEqualTo(APPROVED_STATUS.statusText());
+    assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isTrue();
+    if (adminAccount.isPresent()) {
+      assertThat(gotEvent.getCreator()).isEqualTo(adminAccount);
+    }
+    if (start.isPresent()) {
+      assertThat(gotEvent.getCreateTime()).isAfter(start.get());
+    }
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
