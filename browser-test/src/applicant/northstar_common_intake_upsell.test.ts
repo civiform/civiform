@@ -53,7 +53,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -96,7 +95,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -128,7 +126,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -159,7 +156,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -199,7 +195,7 @@ test.describe(
           lastName: 'last',
           dobDate: '2021-06-10',
         }
-        await tiDashboard.createClient(client, true)
+        await tiDashboard.createClient(client)
         await tiDashboard.expectDashboardContainClient(client)
       })
 
@@ -208,7 +204,6 @@ test.describe(
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -240,7 +235,7 @@ test.describe(
           lastName: 'last',
           dobDate: '2021-06-10',
         }
-        await tiDashboard.createClient(client, true)
+        await tiDashboard.createClient(client)
         await tiDashboard.expectDashboardContainClient(client)
       })
 
@@ -249,7 +244,6 @@ test.describe(
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )

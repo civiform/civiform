@@ -189,6 +189,11 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       // Click "Continue" on the program card
       await applicantQuestions.clickApplyProgramButton(programName)
 
+      // All questions have been answered
+      await applicantQuestions.expectReviewPage(/* northStarEnabled */ true)
+
+      // Edit the block (there is only one block)
+      await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(

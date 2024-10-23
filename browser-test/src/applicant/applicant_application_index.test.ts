@@ -886,10 +886,25 @@ test.describe('applicant program index page with images', () => {
   test(
     'shows program with wide image in North Star and removes image from card when in My Applications',
     {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
+    async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      adminProgramImage,
+      applicantQuestions,
+    }) => {
       const programName = 'Wide Image Program'
       await loginAsAdmin(page)
+
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'nav-phone-q',
+        questionText: 'What is your phone numbe?',
+      })
       await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        questions: [{name: 'nav-phone-q', isOptional: false}],
+      })
+
       await adminPrograms.goToProgramImagePage(programName)
       await adminProgramImage.setImageFileAndSubmit(
         'src/assets/program-summary-image-wide.png',
@@ -907,6 +922,7 @@ test.describe('applicant program index page with images', () => {
           programName,
           /* northStarEnabled= */ true,
         )
+        await applicantQuestions.answerPhoneQuestion('5555555555')
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
       })
