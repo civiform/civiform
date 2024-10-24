@@ -69,7 +69,7 @@ import views.admin.programs.ProgramApplicationView;
 /** Controller for admins viewing applications to programs. */
 public final class AdminApplicationController extends CiviFormController {
   private static final int PAGE_SIZE = 10;
-  private static final int PAGE_SIZE_BULK_STATUS = 10;
+  private static final int PAGE_SIZE_BULK_STATUS = 100;
 
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
@@ -580,6 +580,10 @@ public final class AdminApplicationController extends CiviFormController {
             showDownloadModal));
   }
 
+  /**
+   * Updates the status for the associated applications and redirects to the program applications
+   * page.
+   */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatuses(Http.Request request, long programId)
       throws ProgramNotFoundException, StatusNotFoundException, StatusEmailNotFoundException {

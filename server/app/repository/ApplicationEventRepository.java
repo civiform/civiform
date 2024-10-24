@@ -113,7 +113,13 @@ public final class ApplicationEventRepository {
         executionContext.current());
   }
 
-  // "UPDATE someTable SET anything=%s WHERE id IN ('%s')", $newValue, implode("','",$arrayOfIds));
+  /**
+   * Updates the ApplicationEvents and the Applications table to the latest status in a single
+   * transaction for a given list of applications.
+   *
+   * <p>Note - Application code must change both tables at once as we want to avoid inconsistency
+   * between the tables.
+   */
   public void insertStatusEvents(
       ImmutableList<ApplicationModel> applications,
       Optional<AccountModel> optionalAdmin,
@@ -127,17 +133,18 @@ public final class ApplicationEventRepository {
     List<Long> applicationIds =
         applications.stream().map(app -> app.id).collect(Collectors.toList());
 
-    var applicationList =
+    var applicationsStatusEvent =
         applications.stream()
             .map(app -> new ApplicationEventModel(app, optionalAdmin, details))
             .collect(ImmutableList.toImmutableList());
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
-      applicationList.stream().forEach(event -> insertSync(event));
-      // Saves the latest note on the applications table too.
-      // If the status is removed from the applications, then the latest_status column needs
-      // to be set to null to indicate the application has no status and not a status with
-      // empty string.
+      // Since the Status events models have manyToOne dependency on ApplicationModel,
+      // we can insert them only one at a time. To save on transaction cost, we have enabled Batch
+      // processing.
+      applicationsStatusEvent.stream().forEach(event -> insertSync(event));
+
+      // Update the Applications table too with one update query.
       database
           .update(ApplicationModel.class)
           .set(

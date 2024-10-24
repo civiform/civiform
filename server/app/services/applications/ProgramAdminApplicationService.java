@@ -306,13 +306,20 @@ public final class ProgramAdminApplicationService {
     return application;
   }
 
+  /**
+   * Sets the status on the give applications
+   *
+   * @param applicationList the application list which needs the new status
+   * @param newStatusEvent the StatusEvent carrying the new status
+   * @param admin the admin account initiating the request
+   */
   public void setStatus(
-      ImmutableList<ApplicationModel> applicationlist,
+      ImmutableList<ApplicationModel> applicationList,
       StatusEvent newStatusEvent,
       AccountModel admin)
       throws StatusNotFoundException, StatusEmailNotFoundException {
 
-    ProgramModel program = applicationlist.get(0).getProgram();
+    ProgramModel program = applicationList.get(0).getProgram();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -336,7 +343,7 @@ public final class ProgramAdminApplicationService {
       if (statusDef.localizedEmailBodyText().isEmpty()) {
         throw new StatusEmailNotFoundException(newStatusText, program.id);
       }
-      for (ApplicationModel application : applicationlist) {
+      for (ApplicationModel application : applicationList) {
         ApplicantModel applicant = application.getApplicant();
 
         // Notify an Admin/TI if they applied.
@@ -363,6 +370,6 @@ public final class ProgramAdminApplicationService {
         }
       }
     }
-    eventRepository.insertStatusEvents(applicationlist, Optional.of(admin), newStatusEvent);
+    eventRepository.insertStatusEvents(applicationList, Optional.of(admin), newStatusEvent);
   }
 }

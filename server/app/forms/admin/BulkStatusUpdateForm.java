@@ -3,6 +3,7 @@ package forms.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+/** A form for selecting multiple applications to be considered for a status update. */
 public final class BulkStatusUpdateForm {
   private List<String> applicationsIds;
   private String statusText;
