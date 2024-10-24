@@ -74,7 +74,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel submitApplicationInternal(
       ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     try {
       List<ApplicationModel> oldApplications =
           database
@@ -156,10 +156,10 @@ public final class ApplicationRepository {
       }
       application.save();
 
-      database.commitTransaction();
+      transaction.commit();
       return application;
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 
@@ -236,7 +236,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel createOrUpdateDraftApplicationInternal(
       ApplicantModel applicant, ProgramModel program) {
-    database.beginTransaction();
+    Transaction transaction = database.beginTransaction();
     try {
       Optional<ApplicationModel> existingDraft =
           database
@@ -255,10 +255,10 @@ public final class ApplicationRepository {
           existingDraft.orElseGet(
               () -> new ApplicationModel(applicant, program, LifecycleStage.DRAFT));
       application.save();
-      database.commitTransaction();
+      transaction.commit();
       return application;
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 
