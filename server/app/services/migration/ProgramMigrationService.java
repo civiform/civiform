@@ -19,6 +19,7 @@ import models.ProgramNotificationPreference;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -146,6 +147,9 @@ public final class ProgramMigrationService {
         .setAcls(new ProgramAcls())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
+        // Explicitly set program type to DEFAULT so we don't import program as a
+        // pre-screener/common intake
+        .setProgramType(ProgramType.DEFAULT)
         .build();
   }
 
