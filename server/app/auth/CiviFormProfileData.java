@@ -12,8 +12,6 @@ import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -25,7 +23,6 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
-  private static final Logger LOGGER = LoggerFactory.getLogger(CiviFormProfileData.class);
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
   // to be honored and in-progress applications are not lost.
@@ -101,54 +98,55 @@ public class CiviFormProfileData extends CommonProfile {
   }
 
   @Override
+  /* In pac4j 5, there was a deprecated "permissions" field in the profile. This was removed
+   * in pac4j 6. Because pac4j doesn't automatically handle this (arg), we override the
+   * readExternal function here to skip over that field if we find it. This isn't great, but
+   * it preserves existing sessions. When we move to pac4j 7, we should remove this.
+   */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    try {
-      LOGGER.warn("DEFAULT");
-      super.readExternal(in);
-    } catch (ClassCastException e) {
-      LOGGER.error("DEFAULT FAILED - MANUAL BUILD");
+    Object idObject = in.readObject();
+    if (idObject != null) {
+      String id = (String) idObject;
+      setId(id);
+    }
 
-      Object idObject = in.readObject();
-      if (idObject != null) {
-        String id = (String) idObject;
-        setId(id);
-      }
+    Object attributesObject = in.readObject();
+    if (attributesObject != null) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> attributes = (Map<String, Object>) attributesObject;
+      addAttributes(attributes);
+    }
 
-      Object attributesObject = in.readObject();
-      if (attributesObject != null) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> attributes = (Map<String, Object>) attributesObject;
-        addAttributes(attributes);
-      }
+    Object authenticationAttributesObject = in.readObject();
+    if (authenticationAttributesObject != null) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> authenticationAttributes =
+          (Map<String, Object>) authenticationAttributesObject;
+      addAuthenticationAttributes(authenticationAttributes);
+    }
 
-      Object authenticationAttributesObject = in.readObject();
-      if (authenticationAttributesObject != null) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> authenticationAttributes =
-            (Map<String, Object>) authenticationAttributesObject;
-        addAuthenticationAttributes(authenticationAttributes);
-      }
+    setRemembered(in.readBoolean());
 
-      setRemembered(in.readBoolean());
+    Object rolesObject = in.readObject();
+    if (rolesObject != null) {
+      @SuppressWarnings("unchecked")
+      Set<String> roles = (Set<String>) rolesObject;
+      setRoles(roles);
+    }
 
-      Object rolesObject = in.readObject();
-      if (rolesObject != null) {
-        @SuppressWarnings("unchecked")
-        Set<String> roles = (Set<String>) rolesObject;
-        setRoles(roles);
-      }
+    Object clientNameObject = in.readObject();
+    if (clientNameObject instanceof Set) {
+      clientNameObject = in.readObject();
+    }
+    if (clientNameObject != null) {
+      String clientName = (String) clientNameObject;
+      setClientName(clientName);
+    }
 
-      Object clientNameObject = in.readObject();
-      if (clientNameObject != null) {
-        String clientName = (String) clientNameObject;
-        setClientName(clientName);
-      }
-
-      Object linkedIdObject = in.readObject();
-      if (linkedIdObject != null) {
-        String linkedId = (String) linkedIdObject;
-        setLinkedId(linkedId);
-      }
+    Object linkedIdObject = in.readObject();
+    if (linkedIdObject != null) {
+      String linkedId = (String) linkedIdObject;
+      setLinkedId(linkedId);
     }
   }
 }
