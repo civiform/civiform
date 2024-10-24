@@ -31,7 +31,7 @@ public class BulkStatusUpdateFormTest extends ResetPostgres {
             "3",
             "statusText",
             "approved",
-            "maybeSendEmail",
+            "shouldSendEmail",
             "false");
     Http.Request request = fakeRequestBuilder().bodyForm(requestData).build();
 
@@ -42,6 +42,6 @@ public class BulkStatusUpdateFormTest extends ResetPostgres {
     assertThat(form.getApplicationsIds().get(1)).isEqualTo("2");
     assertThat(form.getApplicationsIds().get(2)).isEqualTo("3");
     assertThat(form.getStatusText()).isEqualTo("approved");
-    assertThat(form.isMaybeSendEmail()).isFalse();
+    assertThat(form.sendEmail()).isFalse();
   }
 }

@@ -378,7 +378,7 @@ public final class AdminApplicationController extends CiviFormController {
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
     Optional<String> maybeNewStatus = Optional.ofNullable(formData.get(NEW_STATUS));
-    Optional<String> maybeSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
+    Optional<String> shouldSendEmail = Optional.ofNullable(formData.get(SEND_EMAIL));
     Optional<String> maybeRedirectUri = Optional.ofNullable(formData.get(REDIRECT_URI_KEY));
     if (maybeCurrentStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", CURRENT_STATUS));
@@ -386,7 +386,7 @@ public final class AdminApplicationController extends CiviFormController {
     if (maybeNewStatus.isEmpty()) {
       return badRequest(String.format("The %s field is not present", NEW_STATUS));
     }
-    if (maybeSendEmail.isEmpty()) {
+    if (shouldSendEmail.isEmpty()) {
       return badRequest(String.format("The %s field is not present", SEND_EMAIL));
     }
     if (maybeRedirectUri.isEmpty()) {
@@ -410,12 +410,13 @@ public final class AdminApplicationController extends CiviFormController {
     // Save the new data.
     String newStatus = maybeNewStatus.get();
     final boolean sendEmail;
-    if (maybeSendEmail.get().isBlank()) {
+    if (shouldSendEmail.get().isBlank()) {
       sendEmail = false;
-    } else if (maybeSendEmail.get().equals("on")) {
+    } else if (shouldSendEmail.get().equals("on")) {
       sendEmail = true;
     } else {
-      return badRequest(String.format("%s value is invalid: %s", SEND_EMAIL, maybeSendEmail.get()));
+      return badRequest(
+          String.format("%s value is invalid: %s", SEND_EMAIL, shouldSendEmail.get()));
     }
 
     programAdminApplicationService.setStatus(
@@ -600,9 +601,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     var applicationIdList =
         programAdminApplicationService.getApplications(
-            ids.stream().map(e -> Long.parseLong(e)).collect(ImmutableList.toImmutableList()),
-            program);
-    boolean sendEmail = form.get().isMaybeSendEmail();
+            ids.stream().collect(ImmutableList.toImmutableList()), program);
+    boolean sendEmail = form.get().sendEmail();
     programAdminApplicationService.setStatus(
         applicationIdList,
         ApplicationEventDetails.StatusEvent.builder()

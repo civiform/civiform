@@ -439,7 +439,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                           label("Send notification"),
                           input()
                               .withType("checkbox")
-                              .withName("maybeSendEmail")
+                              .withName("shouldSendEmail")
                               .withClasses(BaseStyles.CHECKBOX),
                           submitButton("Status change").withClasses("usa-button"),
                           alertTag,

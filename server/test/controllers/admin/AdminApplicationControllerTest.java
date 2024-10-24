@@ -3,6 +3,7 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -165,6 +166,35 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_showsBulkStatusViewWhenFlagOn() throws Exception {
+    Request request = fakeRequest();
+    when(settingsManifestMock.getBulkStatusUpdateEnabled(request)).thenReturn(true);
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    applicant.refresh();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    application.refresh();
+    Result result =
+        controller.index(
+            fakeRequest(),
+            program.id,
+            /* search= */ Optional.empty(),
+            /* page= */ Optional.of(1), // Needed to skip redirect.
+            /* fromDate= */ Optional.empty(),
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty(),
+            /* selectedApplicationUri= */ Optional.empty(),
+            /* showDownloadModal= */ Optional.empty(),
+            /* message= */ Optional.empty());
+    assertThat(result.status()).isEqualTo(OK);
+    // check if the page size is 100
+    assertThat(contentAsString(result)).contains("100");
+  }
+
+  @Test
   public void updateStatus_programNotFound() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
@@ -188,7 +218,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     appIdList.get(1),
                     "statusText",
                     "approved",
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "false"))
             .build();
     assertThatThrownBy(() -> controller.updateStatuses(request, Long.MAX_VALUE))
@@ -209,7 +239,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     appIdList.get(1),
                     "statusText",
                     "approved",
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "false"))
             .build();
     Result result = controller.updateStatuses(request, program.id);
@@ -246,7 +276,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     appIdList.get(1),
                     "statusText",
                     "approved",
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "false"))
             .build();
 
@@ -339,7 +369,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     appIdList.get(1),
                     "statusText",
                     UNSET_STATUS_TEXT,
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "false"))
             .build();
 
@@ -548,7 +578,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     String.valueOf(application.id),
                     "statusText",
                     APPROVED_STATUS.statusText(),
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "true"))
             .build();
 
@@ -598,7 +628,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     String.valueOf(application.id),
                     "statusText",
                     APPROVED_STATUS.statusText(),
-                    "maybeSendEmail",
+                    "shouldSendEmail",
                     "false"))
             .build();
 

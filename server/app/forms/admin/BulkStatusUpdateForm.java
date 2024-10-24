@@ -5,22 +5,22 @@ import java.util.List;
 
 /** A form for selecting multiple applications to be considered for a status update. */
 public final class BulkStatusUpdateForm {
-  private List<String> applicationsIds;
+  private List<Long> applicationsIds;
   private String statusText;
-  private Boolean maybeSendEmail;
+  private Boolean shouldSendEmail;
 
-  public Boolean isMaybeSendEmail() {
-    return maybeSendEmail;
+  public Boolean sendEmail() {
+    return shouldSendEmail;
   }
 
-  public void setMaybeSendEmail(Boolean maybeSendEmail) {
-    this.maybeSendEmail = maybeSendEmail;
+  public void setShouldSendEmail(Boolean shouldSendEmail) {
+    this.shouldSendEmail = shouldSendEmail;
   }
 
   public BulkStatusUpdateForm() {
     this.applicationsIds = new ArrayList<>();
     this.statusText = "";
-    this.maybeSendEmail = false;
+    this.shouldSendEmail = false;
   }
 
   public String getStatusText() {
@@ -28,15 +28,14 @@ public final class BulkStatusUpdateForm {
   }
 
   public void setStatusText(String statusText) {
-
     this.statusText = statusText;
   }
 
-  public List<String> getApplicationsIds() {
+  public List<Long> getApplicationsIds() {
     return applicationsIds;
   }
 
-  public void setApplicationsIds(List<String> applicationsIds) {
+  public void setApplicationsIds(List<Long> applicationsIds) {
     this.applicationsIds = applicationsIds;
   }
 }
