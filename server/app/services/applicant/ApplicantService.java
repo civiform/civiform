@@ -770,7 +770,8 @@ public final class ApplicantService {
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
                     Optional.of(applicationViewLink),
-                    /* showDownloadModal= */ Optional.empty())
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);

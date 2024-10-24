@@ -10,8 +10,10 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicationEventModel;
@@ -111,10 +113,57 @@ public final class ApplicationEventRepository {
         executionContext.current());
   }
 
+  /**
+   * Updates the ApplicationEvents and the Applications table to the latest status in a single
+   * transaction for a given list of applications.
+   *
+   * <p>Note - Application code must change both tables at once as we want to avoid inconsistency
+   * between the tables.
+   */
+  public void insertStatusEvents(
+      ImmutableList<ApplicationModel> applications,
+      Optional<AccountModel> optionalAdmin,
+      ApplicationEventDetails.StatusEvent newStatusEvent) {
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(newStatusEvent)
+            .build();
+
+    List<Long> applicationIds =
+        applications.stream().map(app -> app.id).collect(Collectors.toList());
+
+    var applicationsStatusEvent =
+        applications.stream()
+            .map(app -> new ApplicationEventModel(app, optionalAdmin, details))
+            .collect(ImmutableList.toImmutableList());
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      transaction.setBatchMode(true);
+      // Since the Status events models have manyToOne dependency on ApplicationModel,
+      // we can insert them only one at a time. To save on transaction cost, we have enabled Batch
+      // processing.
+      applicationsStatusEvent.stream().forEach(event -> insertSync(event));
+
+      // Update the Applications table too with one update query.
+      database
+          .update(ApplicationModel.class)
+          .set(
+              "latest_status",
+              Strings.isNullOrEmpty(newStatusEvent.statusText())
+                  ? null
+                  : newStatusEvent.statusText())
+          .where()
+          .in("id", applicationIds)
+          .update();
+
+      transaction.commit();
+    }
+  }
+
   public void insertNoteEvent(
       ApplicationModel application, ApplicationEventDetails.NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
-        services.application.ApplicationEventDetails.builder()
+        ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
             .setNoteEvent(note)
             .build();

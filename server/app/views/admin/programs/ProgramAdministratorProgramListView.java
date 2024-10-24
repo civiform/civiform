@@ -99,7 +99,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal */ Optional.empty())
+                /* showDownloadModal */ Optional.empty(),
+                /* message= */ Optional.empty())
             .url();
 
     String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";

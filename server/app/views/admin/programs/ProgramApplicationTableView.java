@@ -8,43 +8,55 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.p;
+import static j2html.TagCreator.option;
+import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
 
+import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.SpanTag;
+import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import models.ApplicationModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
+import services.AlertType;
 import services.DateConverter;
-import services.UrlUtils;
+import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
+import views.AlertComponent;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
-import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
@@ -52,12 +64,12 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
-import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-/** Renders a page for viewing applications to a program. */
-public final class ProgramApplicationListView extends BaseHtmlView {
+public class ProgramApplicationTableView extends BaseHtmlView {
+
   private static final String FROM_DATE_PARAM = "fromDate";
   private static final String UNTIL_DATE_PARAM = "untilDate";
   private static final String SEARCH_PARAM = "search";
@@ -71,83 +83,77 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final DateConverter dateConverter;
   private final SettingsManifest settingsManifest;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
+  private final Messages enUsMessages;
 
   @Inject
-  public ProgramApplicationListView(
+  public ProgramApplicationTableView(
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
-    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+      SettingsManifest settingsManifest,
+      @BindingAnnotations.EnUsLang Messages enUsMessages) {
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.enUsMessages = checkNotNull(enUsMessages);
   }
 
   public Content render(
       Http.Request request,
       CiviFormProfile profile,
       ProgramDefinition program,
-      Optional<StatusDefinitions.Status> defaultStatus,
+      StatusDefinitions activeStatusDefinitions,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
-      RenderFilterParams filterParams,
-      Optional<String> selectedApplicationUri,
-      Optional<Boolean> showDownloadModal) {
+      ProgramApplicationListView.RenderFilterParams filterParams,
+      Optional<Boolean> showDownloadModal,
+      Optional<String> message) {
     Modal downloadModal =
         renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
-
-    boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
 
     DivTag applicationListDiv =
         div()
             .withData("testid", "application-list")
             .with(
-                h1(program.adminName()).withClasses("mt-4"),
+                h1(program.adminName())
+                    .withClasses(
+                        StyleUtils.responsiveSmall("text-5xl"),
+                        "font-semibold",
+                        "mt-10",
+                        "px-6",
+                        "bg-opacity-75",
+                        StyleUtils.responsiveSmall("mb-6")),
                 br(),
                 renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
-                each(
-                    paginatedApplications.getPageContents(),
-                    application ->
-                        renderApplicationListItem(
-                            application,
-                            /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
-                            hasEligibilityEnabled
-                                ? applicantService.getApplicationEligibilityStatus(
-                                    application, program)
-                                : Optional.empty(),
-                            defaultStatus)))
-            .condWith(
-                paginatedApplications.getNumPages() > 1,
-                renderPagination(
-                    paginationSpec.getCurrentPage(),
-                    paginatedApplications.getNumPages(),
-                    pageNumber ->
-                        routes.AdminApplicationController.index(
-                            program.id(),
-                            filterParams.search(),
-                            Optional.of(pageNumber),
-                            filterParams.fromDate(),
-                            filterParams.untilDate(),
-                            filterParams.selectedApplicationStatus(),
-                            /* selectedApplicationUri= */ Optional.empty(),
-                            /* showDownloadModal= */ Optional.empty(),
-                            /* message= */ Optional.empty()),
-                    /* optionalMessages */ Optional.empty()))
-            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
-
-    DivTag applicationShowDiv =
-        div()
-            .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full")
-            .with(
-                iframe()
-                    .withName("application-display-frame")
-                    // Only allow relative URLs to ensure that we redirect to the same domain.
-                    .withSrc(UrlUtils.checkIsRelativeUrl(selectedApplicationUri.orElse("")))
-                    .withClasses("w-full", "h-full"));
+                div(),
+                renderApplicationTable(
+                        paginatedApplications.getPageContents(),
+                        /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
+                        activeStatusDefinitions,
+                        program,
+                        request,
+                        message)
+                    .condWith(
+                        paginatedApplications.getNumPages() > 1,
+                        renderPagination(
+                            paginationSpec.getCurrentPage(),
+                            paginatedApplications.getNumPages(),
+                            pageNumber ->
+                                routes.AdminApplicationController.index(
+                                    program.id(),
+                                    filterParams.search(),
+                                    Optional.of(pageNumber),
+                                    filterParams.fromDate(),
+                                    filterParams.untilDate(),
+                                    filterParams.selectedApplicationStatus(),
+                                    /* selectedApplicationUri= */ Optional.empty(),
+                                    /* showDownloadModal= */ Optional.empty(),
+                                    /* message= */ Optional.empty()),
+                            /* optionalMessages */ Optional.empty())));
 
     HtmlBundle htmlBundle =
         layout
@@ -155,24 +161,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(program.adminName() + " - Applications")
             .addModals(downloadModal)
-            .addMainStyles("flex")
-            .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
-
-    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
-    if (maybeSuccessMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
-    }
-    Optional<String> maybeErrorMessage = request.flash().get(FlashKey.ERROR);
-    if (maybeErrorMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(maybeErrorMessage.get()));
-    }
+            .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv);
     return layout.renderCentered(htmlBundle);
   }
 
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      RenderFilterParams filterParams) {
+      ProgramApplicationListView.RenderFilterParams filterParams) {
     String redirectUrl =
         routes.AdminApplicationController.index(
                 program.id(),
@@ -287,7 +283,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private Modal renderDownloadApplicationsModal(
-      ProgramDefinition program, RenderFilterParams filterParams, boolean showDownloadModal) {
+      ProgramDefinition program,
+      ProgramApplicationListView.RenderFilterParams filterParams,
+      boolean showDownloadModal) {
     String modalId = "download-program-applications-modal";
     DivTag modalContent =
         div()
@@ -367,20 +365,119 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderApplicationListItem(
+  private DivTag renderApplicationTable(
+      ImmutableList<ApplicationModel> applications,
+      boolean displayStatus,
+      StatusDefinitions statusDefinitions,
+      ProgramDefinition program,
+      Http.Request request,
+      Optional<String> message) {
+    boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
+    SelectTag dropdownTag =
+        select()
+            .withName("statusText")
+            .withClasses(
+                "outline-none",
+                "px-3",
+                "py-2",
+                "ml-3",
+                "border",
+                "border-gray-500",
+                "rounded-lg",
+                "bg-white",
+                "text-lg",
+                StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
+    dropdownTag.with(option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
+    String latestStatusText = "";
+    statusDefinitions.getStatuses().stream()
+        .map(StatusDefinitions.Status::statusText)
+        .forEach(
+            statusText -> {
+              boolean isCurrentStatus = statusText.equals(latestStatusText);
+              dropdownTag.with(
+                  option(statusText).withValue(statusText).withCondSelected(isCurrentStatus));
+            });
+    DivTag alertTag =
+        message.isPresent()
+            ? div(AlertComponent.renderFullAlert(
+                    AlertType.INFO,
+                    /* text= */ message.get(),
+                    /* title= */ Optional.of("Status Update"),
+                    /* hidden= */ false))
+                .withClasses("my-5")
+            : div();
+
+    TableTag applicationTable =
+        table()
+            .withClasses("usa-table usa-table--borderless", "w-full")
+            .with(renderGroupTableHeader(displayStatus, hasEligibilityEnabled))
+            .with(
+                tbody(
+                    each(
+                        applications,
+                        application ->
+                            renderApplicationRowItem(
+                                application,
+                                displayStatus,
+                                statusDefinitions.getDefaultStatus(),
+                                hasEligibilityEnabled,
+                                applicantService.getApplicationEligibilityStatus(
+                                    application, program)))));
+    if (displayStatus) {
+
+      return div(
+          form()
+              .withId("bulk-status-update")
+              .withMethod("POST")
+              .withAction(routes.AdminApplicationController.updateStatuses(program.id()).url())
+              .with(
+                  div()
+                      .withClass("space-x-2")
+                      .with(
+                          dropdownTag,
+                          makeCsrfTokenInputTag(request),
+                          label("Send notification"),
+                          input()
+                              .withType("checkbox")
+                              .withName("shouldSendEmail")
+                              .withClasses(BaseStyles.CHECKBOX),
+                          submitButton("Status change").withClasses("usa-button"),
+                          alertTag,
+                          applicationTable)));
+    }
+    return div(applicationTable);
+  }
+
+  private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {
+    return thead(
+        tr().condWith(
+                displayStatus,
+                th(input()
+                        .withName("selectall")
+                        .withClasses("has:checked:text-red-500")
+                        .withType("checkbox")
+                        .withId("selectAll")
+                        .withClasses(BaseStyles.CHECKBOX))
+                    .withScope("col"))
+            .with(th("Name").withScope("col"))
+            .condWith(hasEligibilityEnabled, th("Eligibility").withScope("col"))
+            .condWith(displayStatus, th("Status").withScope("col"))
+            .with(th("Submission date").withScope("col")));
+  }
+
+  private TrTag renderApplicationRowItem(
       ApplicationModel application,
       boolean displayStatus,
-      Optional<Boolean> maybeEligibilityStatus,
-      Optional<StatusDefinitions.Status> defaultStatus) {
+      Optional<StatusDefinitions.Status> defaultStatus,
+      boolean hasEligibilityEnabled,
+      Optional<Boolean> maybeEligibilityStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(
                 application.getApplicantData().getApplicantDisplayName()),
             application.id);
-    String viewLinkText = "View →";
-
-    String statusString =
+    String applicationStatus =
         application
             .getLatestStatus()
             .map(
@@ -392,58 +489,28 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             ? " (default)"
                             : ""))
             .orElse("None");
+    String eligibilityStatus =
+        maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
+            ? "Meets eligibility"
+            : "Doesn't meet eligibility";
 
-    DivTag cardContent =
-        div()
-            .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
-            .with(
-                p(applicantNameWithApplicationId)
-                    .withClasses(
-                        "text-black",
-                        "font-bold",
-                        "text-xl",
-                        "mb-1",
-                        ReferenceClasses.BT_APPLICATION_ID))
-            .condWith(
-                application.getSubmitterEmail().isPresent(),
-                p(application.getSubmitterEmail().orElse(""))
-                    .withClasses("text-lg", "text-gray-800", "mb-2"))
-            .condWith(
-                displayStatus,
-                p().withClasses("text-sm", "text-gray-700")
-                    .with(span("Status: "), span(statusString).withClass("font-semibold")))
-            .condWith(
-                maybeEligibilityStatus.isPresent(),
-                p().withClasses("text-sm", "text-gray-700")
-                    .with(
-                        span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
-                                ? "Meets eligibility"
-                                : "Doesn't meet eligibility")
-                            .withClass("font-semibold")))
-            .with(
-                div()
-                    .withClasses("flex", "text-sm", "w-full")
-                    .with(
-                        p(renderSubmitTime(application))
-                            .withClasses("text-gray-700", "italic", ReferenceClasses.BT_DATE),
-                        div().withClasses("flex-grow"),
-                        renderViewLink(viewLinkText, application)));
-
-    return div(cardContent)
-        .withClasses(ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
+    return tr().withClasses("has:checked:text-red-500")
+        .condWith(
+            displayStatus,
+            td(
+                input()
+                    .withType("checkbox")
+                    .withName("applicationsIds[]")
+                    .withId("current-application-selection-" + application.id)
+                    .withValue(Long.toString(application.id))
+                    .withClasses(BaseStyles.CHECKBOX)))
+        .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
+        .condWith(hasEligibilityEnabled, td(eligibilityStatus))
+        .condWith(displayStatus, td(applicationStatus))
+        .with(td(renderSubmitTime(application)));
   }
 
-  private SpanTag renderSubmitTime(ApplicationModel application) {
-    try {
-      return span()
-          .withText(dateConverter.renderDateTimeHumanReadable(application.getSubmitTime()));
-    } catch (NullPointerException e) {
-      log.error("Application {} submitted without submission time marked.", application.id);
-      return span();
-    }
-  }
-
-  private ATag renderViewLink(String text, ApplicationModel application) {
+  private ATag renderApplicationLink(String text, ApplicationModel application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)
@@ -453,36 +520,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
-        .setStyles("mr-2", ReferenceClasses.VIEW_BUTTON)
+        .opensInNewTab()
+        .setStyles(
+            "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
         .asAnchorText();
   }
 
-  @AutoValue
-  public abstract static class RenderFilterParams {
-    public abstract Optional<String> search();
-
-    public abstract Optional<String> fromDate();
-
-    public abstract Optional<String> untilDate();
-
-    public abstract Optional<String> selectedApplicationStatus();
-
-    public static Builder builder() {
-      return new AutoValue_ProgramApplicationListView_RenderFilterParams.Builder();
-    }
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract Builder setSearch(Optional<String> search);
-
-      public abstract Builder setFromDate(Optional<String> fromDate);
-
-      public abstract Builder setUntilDate(Optional<String> untilDate);
-
-      public abstract Builder setSelectedApplicationStatus(
-          Optional<String> selectedApplicationStatus);
-
-      public abstract RenderFilterParams build();
+  private SpanTag renderSubmitTime(ApplicationModel application) {
+    try {
+      return span()
+          .withText(dateConverter.renderDateTimeHumanReadable(application.getSubmitTime()));
+    } catch (NullPointerException e) {
+      log.error("Application {} submitted without submission time marked.", application.id);
+      return span();
     }
   }
 }

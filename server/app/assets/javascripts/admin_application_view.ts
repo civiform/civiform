@@ -1,4 +1,4 @@
-import {assertNotNull} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 class AdminApplicationView {
   private static APPLICATION_STATUS_SELECTOR =
@@ -23,6 +23,28 @@ class AdminApplicationView {
     this.registerStatusSelectorEventListener()
     this.registerStatusUpdateFormSubmitListeners()
     this.registerEditNoteFormSubmitListener()
+    this.registerBulkSelectStatusListner()
+  }
+  private registerBulkSelectStatusListner() {
+    addEventListenerToElements('#selectAll', 'click', () => {
+      const selectAllCheckBox = <HTMLInputElement>(
+        document.querySelector('#selectAll')
+      )
+
+      const applicationCheckboxes = document.querySelectorAll(
+        '[id^="current-application-selection"]',
+      )
+
+      applicationCheckboxes.forEach((checkbox) => {
+        const application = checkbox as HTMLInputElement
+
+        if (selectAllCheckBox.checked) {
+          application.checked = true
+        } else {
+          application.checked = false
+        }
+      })
+    })
   }
 
   private registerStatusUpdateFormSubmitListeners() {
