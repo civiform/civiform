@@ -20,7 +20,7 @@ jobs:
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
             const commenter = context.payload.comment.user.login;
-            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov', 'graphite'];
+            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov[bot]', 'graphite'];
             const isBot = bots.includes(commenter);
 
             // Check if the commenter is a contributor
