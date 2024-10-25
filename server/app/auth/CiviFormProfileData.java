@@ -3,6 +3,10 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import models.AccountModel;
 import models.ApplicantModel;
@@ -91,5 +95,32 @@ public class CiviFormProfileData extends CommonProfile {
             },
             dbContext)
         .join();
+  }
+
+  /* In pac4j 5, there was a deprecated "permissions" field in the profile. This was removed
+   * in pac4j 6. Because pac4j doesn't automatically handle this (arg), we override the
+   * readExternal function here to skip over that field if we find it. This isn't great, but
+   * it preserves existing sessions. When we move to pac4j 7, we should remove this (assuming
+   * they haven't messed with the profile objects yet again).
+   *
+   * pac4j 5: https://github.com/pac4j/pac4j/blob/40681a51ecd674415e7024a286f2558b4c2cf125/pac4j-core/src/main/java/org/pac4j/core/profile/BasicUserProfile.java#L473-L483
+   * pac4j 6: https://github.com/pac4j/pac4j/blob/294dc121432533cb7e81d0cf57c5cfebf6641953/pac4j-core/src/main/java/org/pac4j/core/profile/BasicUserProfile.java#L409-L418
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    setId((String) in.readObject());
+    addAttributes((Map<String, Object>) in.readObject());
+    addAuthenticationAttributes((Map<String, Object>) in.readObject());
+    setRemembered(in.readBoolean());
+    setRoles((Set<String>) in.readObject());
+
+    Object clientNameObject = in.readObject();
+    if (clientNameObject instanceof Set) {
+      clientNameObject = in.readObject();
+    }
+    setClientName((String) clientNameObject);
+
+    setLinkedId((String) in.readObject());
   }
 }
