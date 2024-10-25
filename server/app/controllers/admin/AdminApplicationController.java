@@ -597,14 +597,13 @@ public final class AdminApplicationController extends CiviFormController {
     }
     Form<BulkStatusUpdateForm> form =
         formFactory.form(BulkStatusUpdateForm.class).bindFromRequest(request);
-    var ids = form.get().getApplicationsIds();
-
     var applicationIdList =
-        programAdminApplicationService.getApplications(
-            ids.stream().collect(ImmutableList.toImmutableList()), program);
+        form.get().getApplicationsIds().stream().collect(ImmutableList.toImmutableList());
+
     boolean sendEmail = form.get().getShouldSendEmail();
     programAdminApplicationService.setStatus(
         applicationIdList,
+        program,
         ApplicationEventDetails.StatusEvent.builder()
             .setStatusText(form.get().getStatusText())
             .setEmailSent(sendEmail)

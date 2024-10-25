@@ -221,7 +221,7 @@ public final class ProgramAdminApplicationService {
    * Retrieves the applications for the give ApplicationIds and validates that it is associated with the given
    * program.
    */
-  public ImmutableList<ApplicationModel> getApplications(
+  private ImmutableList<ApplicationModel> getApplications(
       ImmutableList<Long> applicationIds, ProgramDefinition program) {
     List<ApplicationModel> applicationList = applicationRepository.getApplications(applicationIds);
 
@@ -283,24 +283,25 @@ public final class ProgramAdminApplicationService {
   }
 
   /**
-   * Sets the status on the give applications
+   * Sets the status on the give applications. Also verifies if the application all belong to the
+   * same program.
    *
-   * @param applicationList the application list which needs the new status
+   * @param applicationIds the application ids which needs the new status
+   * @param programDef the program that the applications belong to
    * @param newStatusEvent the StatusEvent carrying the new status
    * @param admin the admin account initiating the request
    */
   public void setStatus(
-      ImmutableList<ApplicationModel> applicationList,
+      ImmutableList<Long> applicationIds,
+      ProgramDefinition programDef,
       StatusEvent newStatusEvent,
       AccountModel admin)
       throws StatusNotFoundException, StatusEmailNotFoundException {
 
-    ProgramModel program = applicationList.get(0).getProgram();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
     boolean sendEmail = newStatusEvent.emailSent();
-    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
 
     Optional<Status> statusDefMaybe =
         applicationStatusesRepository
@@ -310,15 +311,16 @@ public final class ProgramAdminApplicationService {
             .filter(s -> s.statusText().equals(newStatusText))
             .findFirst();
     if (statusDefMaybe.isEmpty()) {
-      throw new StatusNotFoundException(newStatusText, program.id);
+      throw new StatusNotFoundException(newStatusText, programDef.id());
     }
     Status statusDef = statusDefMaybe.get();
+    ImmutableList<ApplicationModel> applications = getApplications(applicationIds,programDef));
 
     // Send email if requested and present.
     if (sendEmail) {
-      sendEmail(applicationList, statusDef, newStatusText, programDef);
+      sendEmail(applications, statusDef, newStatusText, programDef);
     }
-    eventRepository.insertStatusEvents(applicationList, Optional.of(admin), newStatusEvent);
+    eventRepository.insertStatusEvents(applications, Optional.of(admin), newStatusEvent);
   }
 
   private void sendEmail(
