@@ -9,10 +9,21 @@
         class="grid-col-6 left-align zero-margin mobile-truncate-3"
         th:utext="${answerData.questionHtml()}"
       ></span>
-      <span
-        class="grid-col-6 right-align zero-margin summary-answer mobile-truncate-3"
-        th:text="${answerData.answerText()}"
-      ></span>
+      <div th:replace="~{this :: multilineAnswer(${answerData})}"></div>
     </div>
   </div>
+</th:block>
+
+<th:block th:fragment="multilineAnswer(answerData)">
+  <ol id="summary-multiline-list" class="grid-col-6 right-align">
+    <li
+      th:each="answerLine : ${answerData.multilineAnswerText()}"
+      class="usa-prose"
+    >
+      <span
+        th:text="${answerLine}"
+        class="zero-margin summary-answer mobile-truncate-3"
+      ></span>
+    </li>
+  </ol>
 </th:block>
