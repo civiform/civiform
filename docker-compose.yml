@@ -56,12 +56,46 @@ services:
     volumes:
       - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
+
+
+  auth:
+    image: quay.io/keycloak/keycloak:25.0
+    ports:
+      - 8080:8080
+    environment:
+      KC_HOSTNAME: auth
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_DB: postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: example
+      KC_DB_SCHEMA: public
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_URL_DATABASE: keycloak
+    depends_on:
+      - db
+    command:
+      start --import-realm
+    volumes:
+      - ./keycloak/auth/import:/opt/keycloak/data/import
+
+
+
+
   civiform:
     image: civiform-dev
     links:
       - 'db:database'
       - 'dev-oidc'
       - 'mock-web-services'
+      # - 'auth'
+    depends_on:
+      - auth
     expose:
       - '9000'
       - '8457'
@@ -85,20 +119,20 @@ services:
       - LOGIN_RADIUS_PRIVATE_KEY_PASS
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
-      - CIVIFORM_APPLICANT_IDP=generic-oidc
-      - CIVIFORM_ADMIN_IDP=adfs
+      - CIVIFORM_APPLICANT_IDP=keycloak-applicant
+      - CIVIFORM_ADMIN_IDP=keycloak-admin
       # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - IDCS_REGISTER_URI
-      - APPLICANT_REGISTER_URI
+      - APPLICANT_REGISTER_URI=http://auth:8080/realms/master/protocol/openid-connect/auth?client_id=applicant-client
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - ADMIN_OIDC_PROVIDER_NAME
-      - ADMIN_OIDC_CLIENT_ID
-      - ADMIN_OIDC_CLIENT_SECRET
-      - ADMIN_OIDC_DISCOVERY_URI
+      - ADMIN_OIDC_CLIENT_ID=admin-client
+      - ADMIN_OIDC_CLIENT_SECRET=6YgUE89gbd1KeCPAuCjnU1v4AmiI4IcP
+      - ADMIN_OIDC_DISCOVERY_URI=http://auth:8080/realms/admin-realm/.well-known/openid-configuration
       - ADMIN_OIDC_RESPONSE_MODE
       - ADMIN_OIDC_RESPONSE_TYPE
       - ADMIN_OIDC_ADDITIONAL_SCOPES
@@ -106,9 +140,9 @@ services:
       - APPLICANT_OIDC_LOGOUT_CLIENT_PARAM=client_id
       - APPLICANT_OIDC_OVERRIDE_LOGOUT_URL
       - APPLICANT_OIDC_PROVIDER_NAME
-      - APPLICANT_OIDC_CLIENT_ID=generic-fake-oidc-client
-      - APPLICANT_OIDC_CLIENT_SECRET=bar
-      - APPLICANT_OIDC_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
+      - APPLICANT_OIDC_CLIENT_ID=applicant-client
+      - APPLICANT_OIDC_CLIENT_SECRET=9ahHVoq5qu6Fussz1lf2AgLIzwrfLNqc
+      - APPLICANT_OIDC_DISCOVERY_URI=http://auth:8080/realms/applicant-realm/.well-known/openid-configuration
       - APPLICANT_OIDC_RESPONSE_MODE
       - APPLICANT_OIDC_RESPONSE_TYPE
       - APPLICANT_OIDC_ADDITIONAL_SCOPES

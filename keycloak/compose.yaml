@@ -1,0 +1,51 @@
+services:
+
+  postgres:
+      image: postgres:16.3
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+      ports:
+        - "5432:5432"
+      networks:
+        - civiform_default
+
+  auth:
+    image: quay.io/keycloak/keycloak:25.0
+    ports:
+      - 8080:8080
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_DB: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_DB_SCHEMA: public
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+    depends_on:
+      - postgres
+    command:
+      start --import-realm
+    volumes:
+      - ./auth/import:/opt/keycloak/data/import
+    networks:
+      - civiform_default
+
+networks:
+  civiform_default:
+    name: civiform_default
+    external: true
+
+volumes:
+  postgres_data:
+      driver: local
