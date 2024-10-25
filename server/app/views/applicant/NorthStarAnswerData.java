@@ -62,8 +62,6 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return ImmutableList.copyOf(fileNames);
   }
 
-  // TODO(#8795): Handle enumerator questions
-
   @Override
   public int compareTo(NorthStarAnswerData other) {
     return Integer.compare(this.questionIndex(), other.questionIndex());
