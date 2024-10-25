@@ -15,9 +15,11 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.DeploymentType;
+import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -51,6 +53,15 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    // Create a string such as "Program appplication summary - Pet Assistance Program"
+    String summarySubstring =
+        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+            ? params.messages().at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
+            : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
+    String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
+    context.setVariable("pageTitle", pageTitle);
+
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programDescription", params.programDescription());
     context.setVariable("blocks", params.blocks());
@@ -188,6 +199,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     abstract ImmutableList<AnswerData> summaryData();
 
+    abstract ProgramType programType();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -221,6 +234,8 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
       public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
 
       public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
+
+      public abstract Builder setProgramType(ProgramType programType);
 
       public abstract Params build();
     }

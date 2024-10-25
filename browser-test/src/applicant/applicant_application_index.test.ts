@@ -595,11 +595,15 @@ test.describe('applicant program index page', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('validate initial page load as guest user', async ({page}) => {
+      test('validate initial page load as guest user', async ({
+        page,
+        applicantQuestions,
+      }) => {
         await validateScreenshot(
           page,
           'program-index-page-initial-load-northstar',
         )
+        await applicantQuestions.expectTitle(page, 'Find programs')
       })
 
       test('validate accessibility', async ({page}) => {

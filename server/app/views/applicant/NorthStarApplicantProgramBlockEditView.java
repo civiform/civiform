@@ -69,6 +69,14 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
+    String pageTitle =
+        pageTitleWithBlockProgress(
+            applicationParams.programTitle(),
+            applicationParams.blockIndex(),
+            applicationParams.blockList().size(),
+            applicationParams.messages());
+    context.setVariable("pageTitle", pageTitle);
+
     // Progress bar
     ProgressBar progressBar =
         new ProgressBar(

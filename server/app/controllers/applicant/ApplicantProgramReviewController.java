@@ -209,6 +209,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setSuccessBannerMessage(flashSuccessBannerMessage)
                         .setEligibilityAlertSettings(eligibilityAlertSettings)
                         .setSummaryData(summaryData)
+                        .setProgramType(roApplicantProgramService.getProgramType())
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);

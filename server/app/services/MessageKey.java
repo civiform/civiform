@@ -352,6 +352,7 @@ public enum MessageKey {
   TITLE_EDIT_CLIENT("title.editClient"),
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_GET_STARTED("title.getStarted"),
+  TITLE_INELIGIBLE("title.ineligible"),
   TITLE_LOGIN("title.login"),
   TITLE_MY_APPLICATIONS_SECTION("title.myApplicationsSection"),
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),
