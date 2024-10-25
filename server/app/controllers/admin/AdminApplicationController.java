@@ -602,7 +602,7 @@ public final class AdminApplicationController extends CiviFormController {
     var applicationIdList =
         programAdminApplicationService.getApplications(
             ids.stream().collect(ImmutableList.toImmutableList()), program);
-    boolean sendEmail = form.get().sendEmail();
+    boolean sendEmail = form.get().getShouldSendEmail();
     programAdminApplicationService.setStatus(
         applicationIdList,
         ApplicationEventDetails.StatusEvent.builder()

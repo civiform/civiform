@@ -28,16 +28,16 @@ public class BulkStatusUpdateFormTest extends ResetPostgres {
     idList.add(1L);
     idList.add(2L);
     idList.add(3L);
-    var paramList = idList.stream().map(e -> String.valueOf(e)).collect(Collectors.toList());
-    ;
+    var stringIdList = idList.stream().map(e -> String.valueOf(e)).collect(Collectors.toList());
+
     ImmutableMap<String, String> requestData =
         ImmutableMap.of(
             "applicationsIds[0]",
-            paramList.get(0),
+            stringIdList.get(0),
             "applicationsIds[1]",
-            paramList.get(1),
+            stringIdList.get(1),
             "applicationsIds[2]",
-            paramList.get(2),
+            stringIdList.get(2),
             "statusText",
             "approved",
             "shouldSendEmail",
@@ -51,6 +51,6 @@ public class BulkStatusUpdateFormTest extends ResetPostgres {
     assertThat(form.getApplicationsIds().get(1)).isEqualTo(2L);
     assertThat(form.getApplicationsIds().get(2)).isEqualTo(3L);
     assertThat(form.getStatusText()).isEqualTo("approved");
-    assertThat(form.sendEmail()).isFalse();
+    assertThat(form.getShouldSendEmail()).isFalse();
   }
 }

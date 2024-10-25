@@ -7,13 +7,13 @@ import java.util.List;
 public final class BulkStatusUpdateForm {
   private List<Long> applicationsIds;
   private String statusText;
-  private Boolean shouldSendEmail;
+  private boolean shouldSendEmail;
 
-  public Boolean sendEmail() {
+  public boolean getShouldSendEmail() {
     return shouldSendEmail;
   }
 
-  public void setShouldSendEmail(Boolean shouldSendEmail) {
+  public void setShouldSendEmail(boolean shouldSendEmail) {
     this.shouldSendEmail = shouldSendEmail;
   }
 

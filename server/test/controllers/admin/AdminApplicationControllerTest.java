@@ -118,7 +118,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     controller = instanceOf(AdminApplicationController.class);
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     repo = instanceOf(ApplicationStatusesRepository.class);
-    settingsManifestMock = mock();
+    settingsManifestMock = mock(SettingsManifest.class);
     profileFactory = instanceOf(ProfileFactory.class);
   }
 
@@ -145,6 +145,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.refresh();
     ApplicationModel application =
@@ -167,11 +168,15 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
   @Test
   public void index_showsBulkStatusViewWhenFlagOn() throws Exception {
+
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     Request request = fakeRequest();
     when(settingsManifestMock.getBulkStatusUpdateEnabled(request)).thenReturn(true);
-    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
 
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    program.refresh();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     applicant.refresh();
     ApplicationModel application =
@@ -179,7 +184,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     application.refresh();
     Result result =
         controller.index(
-            fakeRequest(),
+            request,
             program.id,
             /* search= */ Optional.empty(),
             /* page= */ Optional.of(1), // Needed to skip redirect.
@@ -190,8 +195,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             /* showDownloadModal= */ Optional.empty(),
             /* message= */ Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
-    // check if the page size is 100
-    assertThat(contentAsString(result)).contains("100");
+    // check if the bulk status update form is present using its form id
+    assertThat(contentAsString(result)).contains("bulk-status-update");
   }
 
   @Test

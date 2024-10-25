@@ -93,9 +93,8 @@ public final class ProgramAdminApplicationService {
    */
   public void setStatus(
       ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
-      throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
+      throws StatusEmailNotFoundException, StatusNotFoundException {
     ProgramModel program = application.getProgram();
-    ApplicantModel applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -116,30 +115,7 @@ public final class ProgramAdminApplicationService {
 
     // Send email if requested and present.
     if (sendEmail) {
-      if (statusDef.localizedEmailBodyText().isEmpty()) {
-        throw new StatusEmailNotFoundException(newStatusText, program.id);
-      }
-      // Notify an Admin/TI if they applied.
-      Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
-      if (adminSubmitterEmail.isPresent()) {
-        sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
-      }
-      // Notify the applicant.
-      ApplicantPersonalInfo applicantPersonalInfo =
-          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
-      Optional<ImmutableSet<String>> applicantEmails =
-          applicantService.getApplicantEmails(applicantPersonalInfo);
-      if (applicantEmails.isPresent()) {
-        applicantEmails
-            .get()
-            .forEach(
-                email ->
-                    sendApplicantEmail(
-                        program.getProgramDefinition(), applicant, statusDef, Optional.of(email)));
-      } else {
-        // An email was requested to be sent but the applicant doesn't have one.
-        throw new AccountHasNoEmailException(applicant.getAccount().id);
-      }
+      sendEmail(List.of(application), statusDef, newStatusText, programDef);
     }
     eventRepository
         .insertStatusEvent(application, Optional.of(admin), newStatusEvent)
@@ -340,36 +316,41 @@ public final class ProgramAdminApplicationService {
 
     // Send email if requested and present.
     if (sendEmail) {
-      if (statusDef.localizedEmailBodyText().isEmpty()) {
-        throw new StatusEmailNotFoundException(newStatusText, program.id);
-      }
-      for (ApplicationModel application : applicationList) {
-        ApplicantModel applicant = application.getApplicant();
-
-        // Notify an Admin/TI if they applied.
-        Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
-        if (adminSubmitterEmail.isPresent()) {
-          sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
-        }
-
-        // Notify the applicant.
-        ApplicantPersonalInfo applicantPersonalInfo =
-            applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
-        Optional<ImmutableSet<String>> applicantEmails =
-            applicantService.getApplicantEmails(applicantPersonalInfo);
-        if (applicantEmails.isPresent()) {
-          applicantEmails
-              .get()
-              .forEach(
-                  email ->
-                      sendApplicantEmail(
-                          program.getProgramDefinition(),
-                          applicant,
-                          statusDef,
-                          Optional.of(email)));
-        }
-      }
+      sendEmail(applicationList, statusDef, newStatusText, programDef);
     }
     eventRepository.insertStatusEvents(applicationList, Optional.of(admin), newStatusEvent);
+  }
+
+  private void sendEmail(
+      List<ApplicationModel> applicationList,
+      Status statusDef,
+      String newStatusText,
+      ProgramDefinition programDef)
+      throws StatusEmailNotFoundException {
+
+    if (statusDef.localizedEmailBodyText().isEmpty()) {
+      throw new StatusEmailNotFoundException(newStatusText, programDef.id());
+    }
+    for (ApplicationModel application : applicationList) {
+      ApplicantModel applicant = application.getApplicant();
+
+      // Notify an Admin/TI if they applied.
+      Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
+      if (adminSubmitterEmail.isPresent()) {
+        sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
+      }
+
+      // Notify the applicant.
+      ApplicantPersonalInfo applicantPersonalInfo =
+          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
+      Optional<ImmutableSet<String>> applicantEmails =
+          applicantService.getApplicantEmails(applicantPersonalInfo);
+      if (applicantEmails.isPresent()) {
+        applicantEmails
+            .get()
+            .forEach(
+                email -> sendApplicantEmail(programDef, applicant, statusDef, Optional.of(email)));
+      }
+    }
   }
 }
