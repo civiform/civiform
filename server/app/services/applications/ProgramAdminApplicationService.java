@@ -314,7 +314,7 @@ public final class ProgramAdminApplicationService {
       throw new StatusNotFoundException(newStatusText, programDef.id());
     }
     Status statusDef = statusDefMaybe.get();
-    ImmutableList<ApplicationModel> applications = getApplications(applicationIds,programDef));
+    ImmutableList<ApplicationModel> applications = getApplications(applicationIds, programDef);
 
     // Send email if requested and present.
     if (sendEmail) {
