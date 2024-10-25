@@ -74,6 +74,7 @@ public final class ButtonStyles {
           "font-medium",
           "space-x-2",
           "bg-white",
+          "disabled:bg-gray-200",
           StyleUtils.hover("bg-gray-200"));
 
   public static final String CLEAR_WITH_ICON =
