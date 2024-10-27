@@ -18,7 +18,7 @@ public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
   @Override
   @VisibleForTesting
   public String attributePrefix() {
-    return "admin_generic_oidc_";
+    return "keycloak.admin.";
   }
 
   @Override
@@ -31,6 +31,14 @@ public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
     return "id_token token";
   }
 
+  protected String getRealm() {
+    return getConfigurationValueOrThrow("realm");
+  }
+
+  protected String getBaseUri() {
+    return getConfigurationValueOrThrow("base_uri");
+  }
+
   @Override
   protected Optional<String> getProviderName() {
     return Optional.of("keycloak-admin");
@@ -38,22 +46,22 @@ public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
 
   @Override
   public OidcConfiguration getConfig() {
-    KeycloakOidcConfiguration keycloakConfig = new KeycloakOidcConfiguration();
+    KeycloakOidcConfiguration config = new KeycloakOidcConfiguration();
 
-    OidcConfiguration config = super.getConfig();
-    keycloakConfig.setClientId(config.getClientId());
-    keycloakConfig.setSecret(config.getSecret());
-    keycloakConfig.setDiscoveryURI(config.getDiscoveryURI());
-    keycloakConfig.setResponseType(getResponseType());
-    keycloakConfig.setResponseMode(getResponseMode());
-    keycloakConfig.setRealm("admin-realm");
-    keycloakConfig.setBaseUri("http://auth:8080");
-    keycloakConfig.setAllowUnsignedIdTokens(true);
-    keycloakConfig.setUseNonce(true);
-    keycloakConfig.setDisablePkce(true);
-    keycloakConfig.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-    keycloakConfig.setPreferredJwsAlgorithm(JWSAlgorithm.RS256);
+    config.setClientId(getClientID());
+    config.setSecret(
+        getClientSecret().orElseThrow(() -> new RuntimeException("client_secret must be set")));
+    config.setDiscoveryURI(getDiscoveryURI());
+    config.setResponseType(getResponseType());
+    config.setResponseMode(getResponseMode());
+    config.setRealm(getRealm());
+    config.setBaseUri(getBaseUri());
+    config.setAllowUnsignedIdTokens(true);
+    config.setUseNonce(true);
+    config.setDisablePkce(true);
+    config.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+    config.setPreferredJwsAlgorithm(JWSAlgorithm.RS256);
 
-    return keycloakConfig;
+    return config;
   }
 }
