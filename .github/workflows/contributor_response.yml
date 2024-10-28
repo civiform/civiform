@@ -1,5 +1,5 @@
-# Runs on new comments and prints a welcome message if the commenter is not a bot,
-# is not an existing contributor, and has not already gotten a reply
+# Runs on new comments and prints a welcome message if the commenter is not an
+# existing contributor, is not on the ignore list, and has not already gotten a reply
 
 name: Community Contributor Response
 run-name: Auto-response to Community Contributor Comments
@@ -22,8 +22,6 @@ jobs:
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
             const commenterLogin = context.payload.comment.user.login;
-            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov[bot]', 'graphite'];
-            const isBot = bots.includes(commenterLogin);
 
             // Check if the commenter is a contributor
             const contributors = await github.rest.repos.listContributors({ owner, repo });
@@ -43,7 +41,7 @@ jobs:
             const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
             const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenterLogin));
 
-            const shouldComment = !isBot && !isContributor && !hasReceivedResponse && !isOnIgnoreList;
+            const shouldComment = !isContributor && !hasReceivedResponse && !isOnIgnoreList;
             if (shouldComment) { 
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
