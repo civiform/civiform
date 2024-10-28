@@ -729,11 +729,6 @@
         "description": "Enables the feature that allows programs to be disabled from CiviForm",
         "type": "bool"
       },
-      "ELIGIBILITY_MESSAGE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description:": "Enables civiform admins to set up a customized eligibility message per screen.",
-        "type": "bool"
-      },
       "CF_OPTIONAL_QUESTIONS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
@@ -814,6 +809,11 @@
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
+      "ELIGIBILITY_MESSAGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables civiform admins to set up a customized eligibility message per screen.",
+        "type": "bool"
+      },
       "BULK_STATUS_UPDATE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
