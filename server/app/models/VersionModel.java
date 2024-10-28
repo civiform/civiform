@@ -197,8 +197,8 @@ public final class VersionModel extends BaseModel {
    * question/program as tombstoned as well as creating a draft question/program.
    */
   public boolean hasAnyChanges() {
-    return tombstonedQuestionNames.size() > 0
-        || tombstonedProgramNames.size() > 0
+    return (tombstonedQuestionNames != null && tombstonedQuestionNames.size() > 0)
+        || (tombstonedProgramNames != null && tombstonedProgramNames.size() > 0)
         || questions.size() > 0
         || programs.size() > 0;
   }
