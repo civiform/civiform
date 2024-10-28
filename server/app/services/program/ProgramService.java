@@ -448,7 +448,6 @@ public final class ProgramService {
     errorsBuilder.addAll(
         validateProgramData(
             displayName,
-            displayDescription,
             shortDescription,
             applicationSteps,
             externalLink,
@@ -670,7 +669,6 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
         displayName,
-        displayDescription,
         shortDescription,
         applicationSteps,
         externalLink,
@@ -691,7 +689,6 @@ public final class ProgramService {
 
   private ImmutableSet<CiviFormError> validateProgramData(
       String displayName,
-      String displayDescription,
       String shortDescription,
       ImmutableList<ApplicationStep> applicationSteps,
       String externalLink,
