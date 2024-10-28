@@ -809,7 +809,7 @@
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "ELIGIBILITY_MESSAGE_ENABLED": {
+      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"

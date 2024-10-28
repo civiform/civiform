@@ -956,8 +956,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables civiform admins to set up a customized eligibility message per screen. */
-  public boolean getEligibilityMessageEnabled(RequestHeader request) {
-    return getBool("ELIGIBILITY_MESSAGE_ENABLED", request);
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
   /**
@@ -2055,7 +2055,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
-                      "ELIGIBILITY_MESSAGE_ENABLED",
+                      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
                       "Enables civiform admins to set up a customized eligibility message per"
                           + " screen.",
                       /* isRequired= */ false,
