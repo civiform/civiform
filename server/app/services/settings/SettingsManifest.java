@@ -956,6 +956,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
+  /**
    * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
    * status updates
    */
@@ -2049,6 +2057,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   + " enable or disable in-development features.",
               ImmutableList.of(),
               ImmutableList.of(
+                  SettingDescription.create(
+                      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                          + " eligibility message per screen.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "BULK_STATUS_UPDATE_ENABLED",
                       "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
