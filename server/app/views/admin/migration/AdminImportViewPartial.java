@@ -161,7 +161,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 .with(
                     asRedirectElement(
                             button("View program"),
-                            routes.AdminProgramBlocksController.edit(programId, 1).url())
+                            routes.AdminProgramBlocksController.index(programId).url())
                         .withClasses("usa-button", "mr-2"))
                 .condWith(
                     !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request),

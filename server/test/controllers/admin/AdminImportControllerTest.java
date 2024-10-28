@@ -276,6 +276,25 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_negativeBlockId_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // attempt to import a program with a negative block id
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_NEGATIVE_BLOCK_ID))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Block definition ids must be greater than 0.");
+    assertThat(contentAsString(result))
+        .contains("Please check your block definition ids and try again.");
+  }
+
+  @Test
   public void hxImportProgram_handlesServerError() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -1028,6 +1047,69 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "blockDefinitions" : [ {
                 "id" : 1,
+                "name" : "Screen 1",
+                "description" : "Screen 1 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 1 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : null,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ ]
+              } ],
+              "statusDefinitions" : {
+                "statuses" : [ ]
+              },
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+                "tiProgramViewAcls" : [ ]
+              },
+              "categories" : [ ],
+              "localizedSummaryImageDescription" : null
+            }
+          }
+      """;
+
+  public static final String PROGRAM_JSON_WITH_NEGATIVE_BLOCK_ID =
+      """
+      {
+            "program" : {
+              "id" : 9,
+              "adminName" : "no-questions",
+              "adminDescription" : "",
+              "externalLink" : "https://www.example.com",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [ ],
+              "localizedName" : {
+                "translations" : {
+                  "en_US" : "Program With No Questions"
+                },
+                "isRequired" : true
+              },
+              "localizedDescription" : {
+                "translations" : {
+                  "en_US" : "No questions"
+                },
+                "isRequired" : true
+              },
+              "localizedConfirmationMessage" : {
+                "translations" : {
+                  "en_US" : ""
+                },
+                "isRequired" : true
+              },
+              "blockDefinitions" : [ {
+                "id" : -1,
                 "name" : "Screen 1",
                 "description" : "Screen 1 description",
                 "localizedName" : {
