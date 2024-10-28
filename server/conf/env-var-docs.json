@@ -811,7 +811,7 @@
     "members": {
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enables civiform admins to set up a customized eligibility message per screen.",
+        "description": "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
       "BULK_STATUS_UPDATE_ENABLED": {

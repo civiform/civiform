@@ -955,7 +955,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
-  /** Enables civiform admins to set up a customized eligibility message per screen. */
+  /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
@@ -2056,8 +2059,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(
                   SettingDescription.create(
                       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
-                      "Enables civiform admins to set up a customized eligibility message per"
-                          + " screen.",
+                      "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                          + " eligibility message per screen.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
