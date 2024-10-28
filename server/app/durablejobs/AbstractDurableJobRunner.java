@@ -20,7 +20,7 @@ import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 
 /**
  * Executes {@link DurableJob}s when their time has come.

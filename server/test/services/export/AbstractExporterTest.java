@@ -130,8 +130,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         break;
       case NAME:
         QuestionAnswerer.answerNameQuestion(
-            applicantDataOne, answerPath, "Alice", "", "Appleton", "");
-        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker", "");
+            applicantDataOne, answerPath, "Alice", "M", "Appleton", "Jr");
+        QuestionAnswerer.answerNameQuestion(
+            applicantDataTwo, answerPath, "Bob", "M", "Baker", "Sr");
         break;
       case NUMBER:
         QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");

@@ -101,7 +101,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             /* preferredLocale= */ params.messages().lang().toLocale(),
             Optional.of(params.profile()),
             Optional.of(params.applicantId()),
-            params.applicantPersonalInfo());
+            params.applicantPersonalInfo(),
+            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
     context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);

@@ -117,7 +117,7 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Mag-save at tapusin ang application sa ibang pagkakataon
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +126,8 @@ content.blockProgress={0} sa {1}
 content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Pag-usad ng aplikasyon
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +374,8 @@ title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Settin
 
 # Submit application button
 button.submit=Isumite
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -542,8 +544,6 @@ heading.dateSubmitted=Petsa ng pagsusumite
 heading.forYourRecords=Kumpirmasyon para sa iyong mga record
 # Text above a button to print this page
 content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga record.
-# Button to print this webpage
-button.print=I-print ang page na ito
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -703,6 +703,10 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 button.chooseFile=Pumili ng File
+# Text shown on a tag while a file is uploading.
+label.uploading=Ina-upload
+# Label applied to a list of uploaded files
+label.uploadedFiles=Mga Na-upload na File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

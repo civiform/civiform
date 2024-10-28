@@ -190,10 +190,13 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
                 int completedBlockCount =
                     roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
+                ImmutableList<AnswerData> summaryData =
+                    roApplicantProgramService.getSummaryDataOnlyActive();
 
                 NorthStarApplicantProgramSummaryView.Params northStarParams =
                     NorthStarApplicantProgramSummaryView.Params.builder()
                         .setProgramTitle(roApplicantProgramService.getProgramTitle())
+                        .setProgramDescription(roApplicantProgramService.getProgramDescription())
                         .setBlocks(roApplicantProgramService.getAllActiveBlocks())
                         .setApplicantId(applicantId)
                         .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
@@ -205,6 +208,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         .setAlertBannerMessage(flashBannerMessage)
                         .setSuccessBannerMessage(flashSuccessBannerMessage)
                         .setEligibilityAlertSettings(eligibilityAlertSettings)
+                        .setSummaryData(summaryData)
                         .build();
                 return ok(northStarSummaryView.render(request, northStarParams))
                     .as(Http.MimeTypes.HTML);

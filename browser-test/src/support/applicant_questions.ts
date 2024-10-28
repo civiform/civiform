@@ -23,8 +23,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
     await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
     await this.page.selectOption(`.cf-address-state select >> nth=${index}`, {
-      label: state,
+      value: state,
     })
+
     await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
   }
 
@@ -462,6 +463,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickSubmitApplication() {
+    await this.page.click('text="Submit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickDownload() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -732,7 +738,11 @@ export class ApplicantQuestions {
     await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
-    await this.clickSubmit()
+    if (northStarEnabled) {
+      await this.clickSubmitApplication()
+    } else {
+      await this.clickSubmit()
+    }
   }
 
   async downloadFromConfirmationPage() {

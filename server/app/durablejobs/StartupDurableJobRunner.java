@@ -11,7 +11,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import models.PersistedDurableJobModel;
 import repository.PersistedDurableJobRepository;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 
 /**
  * Executes {@link DurableJob}s when their time has come.

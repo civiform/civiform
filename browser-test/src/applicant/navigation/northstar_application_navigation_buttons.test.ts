@@ -1,4 +1,4 @@
-import {test} from '../../support/civiform_fixtures'
+import {expect, test} from '../../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -8,16 +8,20 @@ import {
 } from '../../support'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
-  test.describe('navigation with five blocks', () => {
-    const programName = 'Test program for navigation flows'
-    const dateQuestionText = 'date question text'
-    const emailQuestionText = 'email question text'
-    const staticQuestionText = 'static question text'
-    const addressQuestionText = 'address question text'
-    const radioQuestionText = 'radio question text'
-    const phoneQuestionText = 'phone question text'
-    const currencyQuestionText = 'currency question text'
+  const programName = 'Test program for navigation flows'
+  const dateQuestionText = 'date question text'
+  const emailQuestionText = 'email question text'
+  const staticQuestionText = 'static question text'
+  const addressQuestionText = 'address question text'
+  const radioQuestionText = 'radio question text'
+  const phoneQuestionText = 'phone question text'
+  const currencyQuestionText = 'currency question text'
 
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
+  test.describe('navigation with five blocks', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await loginAsAdmin(page)
       await enableFeatureFlag(
@@ -89,8 +93,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await adminPrograms.publishProgram(programName)
         await logout(page)
       })
-
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test.describe('previous button', () => {
@@ -131,6 +133,98 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           'northstar-error-on-previous-modal',
           /* fullPage= */ false,
         )
+      })
+    })
+  })
+
+  test.describe('navigation with two blocks', () => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await enableFeatureFlag(
+        page,
+        'suggest_programs_on_application_confirmation_page',
+      )
+
+      await test.step('Set up program with questions', async () => {
+        await adminQuestions.addPhoneQuestion({
+          questionName: 'nav-phone-q',
+          questionText: phoneQuestionText,
+        })
+        await adminQuestions.addCurrencyQuestion({
+          questionName: 'nav-currency-q',
+          questionText: currencyQuestionText,
+        })
+
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          name: 'Page A',
+          description: 'Created first',
+          questions: [{name: 'nav-phone-q', isOptional: false}],
+        })
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          name: 'Page B',
+          description: 'Created second',
+          questions: [{name: 'nav-currency-q', isOptional: false}],
+        })
+
+        // Move Page B to the first page in the application. Expect its block ID is 2.
+        await page.locator('[data-test-id="move-block-up-2"]').click()
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+    })
+
+    test('Applying to a program shows blocks in the admin-specified order', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await test.step('Expect Page B as the first page', async () => {
+        // Even though Page B was created second, it's the first page in the application
+        await expect(page.getByText('1 of 3', {exact: true})).toBeVisible()
+        await expect(page.getByText('Page B', {exact: true})).toBeVisible()
+        await applicantQuestions.answerCurrencyQuestion('1.00')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Expect Page A as the second page', async () => {
+        await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
+        await expect(page.getByText('Page A', {exact: true})).toBeVisible()
+        await applicantQuestions.answerPhoneQuestion('4254567890')
+        await applicantQuestions.clickContinue()
+      })
+
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+    })
+
+    test('Editing an in-progress application takes user to the next incomplete page', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await test.step('Fill out page 1, then go to home page', async () => {
+        await expect(page.getByText('1 of 3', {exact: true})).toBeVisible()
+        await applicantQuestions.answerCurrencyQuestion('1.00')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
+
+      await test.step('Edit application and expect page 2', async () => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
+        await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
       })
     })
   })

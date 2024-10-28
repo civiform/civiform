@@ -26,20 +26,17 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.QuestionTag;
-import play.libs.F;
 import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
 import services.Path;
-import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.Scalar;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -68,6 +65,8 @@ public final class CsvExporterService {
 
   private static final String CURRENCY_CENTS_TYPE_STRING =
       ScalarType.CURRENCY_CENTS.toString().toLowerCase(Locale.ROOT);
+  private static final String FILE_KEY_LIST =
+      Scalar.FILE_KEY_LIST.toString().toLowerCase(Locale.ROOT);
 
   private static final String NAME_SUFFIX = Scalar.NAME_SUFFIX.toString().toLowerCase(Locale.ROOT);
   private static final String SERVICE_AREA =
@@ -96,7 +95,8 @@ public final class CsvExporterService {
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
-  public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
+  public String getProgramAllVersionsCsv(
+      long programId, SubmittedApplicationFilter filters, boolean isMultipleFileUploadEnabled)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -107,13 +107,16 @@ public final class CsvExporterService {
         programService
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
-                F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+                SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
                 filters)
             .getPageContents();
 
     CsvExportConfig exportConfig =
         generateCsvConfig(
-            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+            applications,
+            programDefinitionsForAllVersions,
+            currentProgram.hasEligibilityEnabled(),
+            isMultipleFileUploadEnabled);
 
     return exportCsv(
         exportConfig,
@@ -127,9 +130,10 @@ public final class CsvExporterService {
   private CsvExportConfig generateCsvConfig(
       ImmutableList<ApplicationModel> applications,
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
-      boolean showEligibilityColumn)
+      boolean showEligibilityColumn,
+      boolean isMultipleFileUploadEnabled)
       throws ProgramNotFoundException {
-    Map<Path, AnswerData> answerMap = new HashMap<>();
+    Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
     applications.stream()
         .flatMap(
@@ -137,24 +141,16 @@ public final class CsvExporterService {
                 applicantService
                     .getReadOnlyApplicantProgramService(
                         app, programDefinitionsForAllVersions.get(app.getProgram().id))
-                    .getSummaryDataAllQuestions()
-                    .stream())
-        .forEach(
-            data -> {
-              answerMap.putIfAbsent(data.contextualizedPath(), data);
-            });
+                    .getAllQuestions())
+        .forEach(aq -> uniqueQuestions.putIfAbsent(aq.getContextualizedPath(), aq));
 
-    // Get the list of all answers, sorted by block ID, then question index, and finally
-    // contextualized path in string form.
-    ImmutableList<AnswerData> answers =
-        answerMap.values().stream()
-            .sorted(
-                Comparator.comparing(AnswerData::blockId)
-                    .thenComparing(AnswerData::questionIndex)
-                    .thenComparing(answerData -> answerData.contextualizedPath().toString()))
+    ImmutableList<ApplicantQuestion> sortedUniqueQuestions =
+        uniqueQuestions.values().stream()
+            .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(answers, showEligibilityColumn);
+    return buildColumnHeaders(
+        sortedUniqueQuestions, showEligibilityColumn, isMultipleFileUploadEnabled);
   }
 
   /**
@@ -207,11 +203,13 @@ public final class CsvExporterService {
   }
 
   /**
-   * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The config
-   * includes all the questions, the application id, and the application submission time.
+   * Produce the default {@link CsvExportConfig} for a list of {@link ApplicantQuestion}s. The
+   * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<AnswerData> representativeAnswers, boolean showEligibilityColumn) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions,
+      boolean showEligibilityColumn,
+      boolean isMultipleFileUploadEnabled) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -251,17 +249,14 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    // Add columns for each path to an answer.
-    representativeAnswers.stream()
-        .filter(
-            answerData ->
-                !NON_EXPORTED_QUESTION_TYPES.contains(
-                    answerData.questionDefinition().getQuestionType()))
+    // Add columns for each scalar path to an answer.
+    exemplarQuestions.stream()
+        .filter(aq -> !NON_EXPORTED_QUESTION_TYPES.contains(aq.getType()))
         .flatMap(
-            answerData ->
-                answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)
-                    ? buildColumnsForEveryOption(answerData)
-                    : buildColumnsForEveryScalar(answerData))
+            aq ->
+                aq.getType().equals(QuestionType.CHECKBOX)
+                    ? buildColumnsForEveryOption(aq)
+                    : buildColumnsForEveryScalar(aq, isMultipleFileUploadEnabled))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
@@ -269,24 +264,30 @@ public final class CsvExporterService {
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }
 
-  private Stream<Column> buildColumnsForEveryOption(AnswerData answerData) {
+  private Stream<Column> buildColumnsForEveryOption(ApplicantQuestion applicantQuestion) {
     // Columns are looked up by the scalar path, so we use the scalar path here
-    Path path = ((MultiSelectQuestion) answerData.createQuestion()).getSelectionPath();
+    Path scalarPath = applicantQuestion.createMultiSelectQuestion().getSelectionPath();
     return exportServiceRepository
-        .getAllHistoricMultiOptionAdminNames(answerData.questionDefinition())
+        .getAllHistoricMultiOptionAdminNames(applicantQuestion.getQuestionDefinition())
         .stream()
         .map(
             option ->
                 Column.builder()
-                    .setHeader(formatHeader(path, Optional.of(option)))
-                    .setJsonPath(path)
+                    .setHeader(formatHeader(scalarPath, Optional.of(option)))
+                    .setJsonPath(scalarPath)
                     .setOptionAdminName(option)
                     .setColumnType(ColumnType.APPLICANT_ANSWER)
                     .build());
   }
 
-  private Stream<Column> buildColumnsForEveryScalar(AnswerData answerData) {
-    return answerData.scalarAnswersInDefaultLocale().keySet().stream()
+  private Stream<Column> buildColumnsForEveryScalar(
+      ApplicantQuestion applicantQuestion, boolean isMultipleFileUploadEnabled) {
+    return applicantQuestion.getQuestion().getAllPaths().stream()
+        .filter(
+            p ->
+                !(isMultipleFileUploadEnabled
+                    && p.keyName()
+                        .equals(Scalar.FILE_KEY.toString().toLowerCase(Locale.getDefault()))))
         .map(
             path ->
                 Column.builder()
@@ -335,6 +336,11 @@ public final class CsvExporterService {
     // Remove "name" from the name suffix string as it will be indicated in the name.
     if (path.keyName().equals(NAME_SUFFIX)) {
       scalarComponent = "(suffix)";
+    }
+
+    // Change scalar name for file_key_list
+    if (path.keyName().equals(FILE_KEY_LIST)) {
+      scalarComponent = "(file_urls)";
     }
 
     // TODO: #7134 Only here for backwards compatibility. Long term this should go away

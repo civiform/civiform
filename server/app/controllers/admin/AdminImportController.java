@@ -130,6 +130,7 @@ public class AdminImportController extends CiviFormController {
     }
 
     ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+
     if (programMigrationWrapper.getProgram() == null) {
       return ok(
           adminImportViewPartial
@@ -165,11 +166,25 @@ public class AdminImportController extends CiviFormController {
               .render());
     }
 
+    // Check that all block definition ids are positive numbers
+    for (BlockDefinition blockDefintion : program.blockDefinitions()) {
+      long blockId = blockDefintion.id();
+      if (blockId < 1) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "Block definition ids must be greater than 0.",
+                    "Please check your block definition ids and try again.")
+                .render());
+      }
+    }
+
     // Check for other validation errors like invalid program admin names
     ImmutableList<String> notificationPreferences =
         program.notificationPreferences().stream()
             .map(preference -> preference.getValue())
             .collect(ImmutableList.toImmutableList());
+
     ImmutableSet<CiviFormError> programErrors =
         programService.validateProgramDataForCreate(
             program.adminName(),
@@ -246,16 +261,25 @@ public class AdminImportController extends CiviFormController {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    return ok(
-        adminImportViewPartial
-            .renderProgramData(
-                request,
-                program,
-                questions,
-                updatedQuestionsMap,
-                serializeResult.getResult(),
-                withDuplicates)
-            .render());
+    try {
+      return ok(
+          adminImportViewPartial
+              .renderProgramData(
+                  request,
+                  program,
+                  questions,
+                  updatedQuestionsMap,
+                  serializeResult.getResult(),
+                  withDuplicates)
+              .render());
+    } catch (RuntimeException e) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "There was an error rendering your program.",
+                  "Please check your data and try again. Error: " + e.getMessage())
+              .render());
+    }
   }
 
   /**

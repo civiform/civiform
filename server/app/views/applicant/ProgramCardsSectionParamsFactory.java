@@ -16,10 +16,7 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
-import services.applicant.Block;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
@@ -34,18 +31,22 @@ public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
-  private final ApplicantService applicantService;
+
+  /** Enumerates the homepage section types, which may have different card components or styles. */
+  public enum SectionType {
+    MY_APPLICATIONS,
+    COMMON_INTAKE,
+    STANDARD;
+  }
 
   @Inject
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
-      PublicStorageClient publicStorageClient,
-      ApplicantService applicantService) {
+      PublicStorageClient publicStorageClient) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
-    this.applicantService = checkNotNull(applicantService);
   }
 
   /**
@@ -60,25 +61,28 @@ public final class ProgramCardsSectionParamsFactory {
       Locale preferredLocale,
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
-      ApplicantPersonalInfo personalInfo) {
+      ApplicantPersonalInfo personalInfo,
+      SectionType sectionType) {
 
-    ProgramSectionParams.Builder sectionBuilder =
-        ProgramSectionParams.builder()
-            .setCards(
-                getCards(
-                    request,
-                    messages,
-                    buttonText,
-                    programData,
-                    preferredLocale,
-                    profile,
-                    applicantId,
-                    personalInfo));
+    List<ProgramCardParams> cards =
+        getCards(
+            request,
+            messages,
+            buttonText,
+            programData,
+            preferredLocale,
+            profile,
+            applicantId,
+            personalInfo);
+
+    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
 
     if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
+      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
       sectionBuilder.setId(Modal.randomModalId());
     }
+
+    sectionBuilder.setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -111,20 +115,6 @@ public final class ProgramCardsSectionParamsFactory {
     return cardsListBuilder.build();
   }
 
-  public String nextBlockId(Long applicantId, Long programId) {
-    ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
-        applicantService
-            .getReadOnlyApplicantProgramService(applicantId, programId)
-            .toCompletableFuture()
-            .join();
-    Optional<Block> block = readOnlyApplicantProgramService.getFirstIncompleteOrStaticBlock();
-    if (block.isPresent()) {
-      return block.get().getId();
-    } else {
-      return "1";
-    }
-  }
-
   public ProgramCardParams getCard(
       Request request,
       Messages messages,
@@ -137,19 +127,20 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    // Navigate to the next unanswered block. If there's no profile, use the default block
-    // (which should be the first)
-    String actionUrl = applicantRoutes.blockEdit(program.id()).url();
+    // This works for logged-in and logged-out applicants
+    String actionUrl = applicantRoutes.edit(program.id()).url();
     if (profile.isPresent() && applicantId.isPresent()) {
-      String nextBlockId = nextBlockId(applicantId.get(), program.id());
-      actionUrl =
-          applicantRoutes
-              .blockEdit(
-                  profile.get(), applicantId.get(), program.id(), nextBlockId, Optional.empty())
-              .url();
+      // TIs need to specify applicant ID
+      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
     }
 
     boolean isGuest = personalInfo.getType() == GUEST;
+
+    ImmutableList.Builder<String> categoriesBuilder = ImmutableList.builder();
+    categoriesBuilder.addAll(
+        program.categories().stream()
+            .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
+            .collect(ImmutableList.toImmutableList()));
 
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
@@ -159,6 +150,7 @@ public final class ProgramCardsSectionParamsFactory {
                 .url())
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
+        .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()));
 
     if (isGuest) {
@@ -222,6 +214,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> title();
 
+    public abstract SectionType sectionType();
+
     /** The id of the section. Only needs to be specified if a title is also specified. */
     public abstract Optional<String> id();
 
@@ -236,6 +230,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setCards(List<ProgramCardParams> cards);
 
       public abstract Builder setTitle(String title);
+
+      public abstract Builder setSectionType(SectionType sectionType);
 
       public abstract Builder setId(String id);
 
@@ -269,6 +265,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> altText();
 
+    public abstract ImmutableList<String> categories();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
     }
@@ -300,6 +298,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setImageSourceUrl(String imageSourceUrl);
 
       public abstract Builder setAltText(String altText);
+
+      public abstract Builder setCategories(ImmutableList<String> categories);
 
       public abstract ProgramCardParams build();
     }

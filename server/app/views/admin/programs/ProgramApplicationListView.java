@@ -33,10 +33,10 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
 import services.DateConverter;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
+import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -92,7 +92,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> defaultStatus,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberBasedPaginationSpec paginationSpec,
+      PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri,
@@ -134,7 +134,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             filterParams.untilDate(),
                             filterParams.selectedApplicationStatus(),
                             /* selectedApplicationUri= */ Optional.empty(),
-                            /* showDownloadModal= */ Optional.empty()),
+                            /* showDownloadModal= */ Optional.empty(),
+                            /* message= */ Optional.empty()),
                     /* optionalMessages */ Optional.empty()))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
@@ -181,7 +182,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty(),
-                /* showDownloadModal= */ Optional.empty())
+                /* showDownloadModal= */ Optional.empty(),
+                /* message= */ Optional.empty())
             .url();
     String labelText =
         settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
@@ -200,7 +202,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
                     /* selectedApplicationUri= */ Optional.empty(),
-                    /* showDownloadModal= */ Optional.empty())
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
                 .url())
         .with(
             fieldset()
