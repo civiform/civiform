@@ -10,11 +10,12 @@ import {
   validateScreenshot,
 } from '../../support'
 
-const NAME_FIRST = '.cf-name-first'
-const NAME_LAST = '.cf-name-last'
-
 test.describe('name applicant flow', () => {
-  test.describe('single required name question', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
+  test.describe('single required name question', {tag: ['@northstar']}, () => {
     const programName = 'Test program for single name'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -26,50 +27,85 @@ test.describe('name applicant flow', () => {
       )
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'name')
-    })
-
-    test('validate screenshot with errors', async ({
+    test('validate screenshot with north star flag enabled', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
-      await validateScreenshot(page, 'name-errors')
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'name-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'name-errors-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
+      })
+    })
+
+    test('has no accessiblity violations', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await validateAccessibility(page)
     })
 
     test('does not show errors initially', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('', '', '')
-      await expect(page.locator(`${NAME_FIRST}-error`)).toBeHidden()
-      await expect(page.locator(`${NAME_LAST}-error`)).toBeHidden()
+
+      await expectQuestionHasNoErrors(page)
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with empty name does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('', '', '')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await expect(page.locator(`${NAME_FIRST}-error`)).toBeVisible()
-      await expect(page.locator(`${NAME_LAST}-error`)).toBeVisible()
+      await expectQuestionHasErrors(page)
     })
   })
 
@@ -94,7 +130,10 @@ test.describe('name applicant flow', () => {
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -103,16 +142,21 @@ test.describe('name applicant flow', () => {
         '',
         1,
       )
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with first invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('', '', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -121,40 +165,42 @@ test.describe('name applicant flow', () => {
         '',
         1,
       )
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // First question has errors.
-      await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeVisible()
-      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeVisible()
+      await expectQuestionHasErrors(page, 0)
 
       // Second question has no errors.
-      await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeHidden()
-      await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeHidden()
+      await expectQuestionHasNoErrors(page, 1)
     })
 
     test('with second invalid does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', '', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // First question has no errors.
-      await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeHidden()
-      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeHidden()
+      await expectQuestionHasNoErrors(page, 0)
 
       // Second question has errors.
-      await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeVisible()
-      await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeVisible()
+      await expectQuestionHasErrors(page, 1)
     })
 
     test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await validateAccessibility(page)
     })
@@ -188,44 +234,53 @@ test.describe('name applicant flow', () => {
     test('with valid required name does submit', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.submitFromReviewPage(
+        /* northStarEnabled= */ true,
+      )
     })
 
     test('with invalid optional name does not submit', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerNameQuestion('Tommy', '', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Optional question has an error.
-      await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeVisible()
+      const questionRoot = page.locator('[data-testid="questionRoot"]').nth(0)
+      await expect(
+        questionRoot.getByText('Error: Please enter your last name.'),
+      ).toBeVisible()
     })
 
-    test.describe('with invalid required name', () => {
-      test.beforeEach(async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerNameQuestion('', '', '', '', 1)
-        await applicantQuestions.clickNext()
-      })
+    test('with invalid required name does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await applicantQuestions.answerNameQuestion('', '', '', '', 1)
+      await applicantQuestions.clickContinue()
 
-      test('does not submit', async ({page}) => {
-        // Second question has errors.
-        await expect(page.locator(`${NAME_FIRST}-error`).nth(1)).toBeVisible()
-        await expect(page.locator(`${NAME_LAST}-error`).nth(1)).toBeVisible()
-      })
+      // First (optional) question has no errors.
+      await expectQuestionHasNoErrors(page, 0)
 
-      test('optional has no errors', async ({page}) => {
-        // First question has no errors.
-        await expect(page.locator(`${NAME_FIRST}-error`).nth(0)).toBeHidden()
-        await expect(page.locator(`${NAME_LAST}-error`).nth(0)).toBeHidden()
-      })
+      // Second (required) question has errors
+      await expectQuestionHasErrors(page, 1)
     })
   })
 
@@ -249,7 +304,10 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('name question has suffix field available and no default value selected', async () => {
           await expect(page.getByLabel('Suffix')).toBeVisible()
@@ -267,7 +325,10 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion(
@@ -276,10 +337,12 @@ test.describe('name applicant flow', () => {
             'Saini',
             'I',
           )
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
 
           await expect(page.getByText('Lilly Saini Singh I')).toBeVisible()
-          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.submitFromReviewPage(
+            /* northStarEnabled= */ true,
+          )
         })
       })
 
@@ -287,14 +350,19 @@ test.describe('name applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion('Ann', 'Gates', 'Quiroz')
-          await applicantQuestions.clickNext()
+          await applicantQuestions.clickContinue()
 
           await expect(page.getByText('Ann Quiroz Gates')).toBeVisible()
-          await applicantQuestions.submitFromReviewPage()
+          await applicantQuestions.submitFromReviewPage(
+            /* northStarEnabled= */ true,
+          )
         })
       })
     },
@@ -316,5 +384,31 @@ test.describe('name applicant flow', () => {
       programName,
     )
     await logout(page)
+  }
+
+  async function expectQuestionHasErrors(page: Page, index = 0) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    await expect(
+      questionRoot.getByText('Error: This question is required.'),
+    ).toBeVisible()
+    await expect(
+      questionRoot.getByText('Error: Please enter your first name.'),
+    ).toBeVisible()
+    await expect(
+      questionRoot.getByText('Error: Please enter your last name.'),
+    ).toBeVisible()
+  }
+
+  async function expectQuestionHasNoErrors(page: Page, index = 0) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
+    await expect(
+      questionRoot.getByText('Error: This question is required.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter your first name.'),
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter your last name.'),
+    ).toBeHidden()
   }
 })
