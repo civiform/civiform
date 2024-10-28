@@ -1,5 +1,5 @@
-# Runs on new comments and prints a welcome message if the commenter is not a bot,
-# is not an existing contributor, and has not already gotten a reply
+# Runs on new comments and prints a welcome message if the commenter is not an
+# existing contributor, is not on the ignore list, and has not already gotten a reply
 
 name: Community Contributor Response
 run-name: Auto-response to Community Contributor Comments
@@ -15,28 +15,38 @@ jobs:
       - name: Check if commenter is a contributor
         id: check-if-commenter-is-a-contributor
         uses: actions/github-script@v7
+        env: 
+          IGNORE_LIST: ${{ vars.CONTRIBUTOR_COMMENT_AUTO_REPLY_IGNORE_LIST }}
         with:
           script: |
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
-            const commenter = context.payload.comment.user.login;
-            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov[bot]', 'graphite'];
-            const isBot = bots.includes(commenter);
+            const commenterLogin = context.payload.comment.user.login;
 
             // Check if the commenter is a contributor
             const contributors = await github.rest.repos.listContributors({ owner, repo });
-            const isContributor = contributors.data.some(contributor => contributor.login === commenter);
+            const isContributor = contributors.data.some(contributor => contributor.login === commenterLogin);
 
-            // Check if the commenter has already received a response on this issue
+            // Check if commenter is on ignoreList
+            // The ignore list is defined as a repository variable (where the secrets are defined). It
+            // is a comma separated string and can contain the full user login name or a domain name (i.e. exygy.com).
+            const ignoreList = process.env.IGNORE_LIST.split(',');
+            const { data: commenter } = await github.rest.users.getByUsername({
+              username: commenterLogin
+            });
+            const commenterEmail = commenter.email || '';
+            const isOnIgnoreList = ignoreList.includes(commenterLogin) || ignoreList.some(x => commenterEmail.endsWith(x));
+
+            // Check if the commenterLogin has already received a response on this issue
             const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
-            const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenter));
+            const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenterLogin));
 
-            const shouldComment = !isBot && !isContributor && !hasReceivedResponse;
+            const shouldComment = !isContributor && !hasReceivedResponse && !isOnIgnoreList;
             if (shouldComment) { 
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,   
-                body: `Thanks, @${commenter}, for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.`
+                body: `Thanks, @${commenterLogin}, for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.`
               }); 
             }
