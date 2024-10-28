@@ -51,9 +51,14 @@
                 th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionParams})}"
               ></div>
 
+              <div
+                th:text="#{label.uploading}"
+                role="alert"
+                class="cf-file-uploading-tag padding-1 display-inline-block"
+              ></div>
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
-                th:attr="aria-label=#{label.uploadedFiles}"
+                data-th-attr="data-uploaded-files=${fileUploadViewStrategy.getUploadedFileData(fileUploadQuestion)}, aria-label=#{label.uploadedFiles}"
                 class="grid"
               >
                 <li
@@ -99,20 +104,20 @@
                   type="submit"
                   th:formaction="${previousPageWithoutFile}"
                   form="cf-fileupload-continue-form"
-                  class="usa-button usa-button--outline margin-bottom-1 zero-top-margin"
+                  class="usa-button usa-button--outline margin-bottom-1 zero-top-margin cf-disable-when-uploading"
                   th:text="#{button.back}"
                 ></button>
                 <button
                   type="submit"
                   form="cf-fileupload-continue-form"
-                  class="usa-button margin-bottom-1 zero-top-margin"
+                  class="usa-button margin-bottom-1 zero-top-margin cf-disable-when-uploading"
                   th:text="#{button.continue}"
                 ></button>
               </div>
               <a
                 th:href="${reviewPageWithoutFile}"
                 id="review-application-button"
-                class="usa-button usa-button--unstyled margin-bottom-4"
+                class="usa-button usa-button--unstyled margin-bottom-4 cf-disable-when-uploading"
                 th:text="#{button.reviewAndExit}"
               ></a>
             </div>

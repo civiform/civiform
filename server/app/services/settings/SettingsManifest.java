@@ -766,15 +766,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Overrides the default configuration for the content security policy. If set to true, the
-   * browser reports content security policy violations but does not enforce the policy. If set to
-   * false, the browser enforces the policy.
-   */
-  public boolean getCspReportOnly() {
-    return getBool("CSP_REPORT_ONLY");
-  }
-
-  /**
    * Specifies the allowed file types that can be uploaded. Uses any valid [file type
    * specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers).
    * Multiple are separated by commas. Default: "image/*,.pdf"
@@ -2223,15 +2214,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "CSP_REPORT_ONLY",
-                      "Overrides the default configuration for the content security policy. If set"
-                          + " to true, the browser reports content security policy violations but"
-                          + " does not enforce the policy. If set to false, the browser enforces"
-                          + " the policy.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.HIDDEN),
                   SettingDescription.create(
                       "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS",
                       "Specifies the allowed file types that can be uploaded. Uses any valid [file"

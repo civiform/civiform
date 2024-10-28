@@ -385,6 +385,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Move up button is invisible for the first block
     String moveUpInvisible =
         blockDefinition.id() == blockDefinitions.get(0).id() ? "invisible" : "";
+    String moveUpTestId = "move-block-up-" + blockDefinition.id();
     DivTag moveUp =
         div()
             .withClass(moveUpInvisible)
@@ -394,7 +395,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        submitButton("^")
+                            .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
+                            .attr("data-test-id", moveUpTestId)));
 
     String moveDownFormAction =
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
@@ -403,6 +407,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
             ? "invisible"
             : "";
+    String moveDownTestId = "move-block-down-" + blockDefinition.id();
     DivTag moveDown =
         div()
             .withClasses("transform", "rotate-180", moveDownInvisible)
@@ -412,7 +417,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        submitButton("^")
+                            .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
+                            .attr("data-test-id", moveDownTestId)));
     return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 

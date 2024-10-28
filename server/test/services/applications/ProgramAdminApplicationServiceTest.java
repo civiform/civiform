@@ -476,7 +476,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setStatus_sendEmailWithNoUserEmail_throws() throws Exception {
+  public void setStatus_sendEmailWithNoUserEmail_succeeds() throws Exception {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
@@ -492,11 +492,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setEmailSent(true)
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
+    service.setStatus(application, event, account);
 
-    assertThatThrownBy(() -> service.setStatus(application, event, account))
-        .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
-    assertThat(application.getApplicationEvents()).isEmpty();
+    assertThat(application.getApplicationEvents()).isNotEmpty();
   }
 
   @Test

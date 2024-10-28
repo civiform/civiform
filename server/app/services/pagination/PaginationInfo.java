@@ -1,8 +1,6 @@
-package services;
+package services.pagination;
 
 import com.google.common.collect.ImmutableList;
-
-// TODO(#8841): Move this class into the pagination subpackage.
 
 /** PaginationInfo is a generic class for pagination. */
 public class PaginationInfo<T> {

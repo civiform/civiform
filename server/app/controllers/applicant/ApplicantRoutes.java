@@ -63,6 +63,10 @@ public final class ApplicantRoutes {
     return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
   }
 
+  public Call edit(long programId) {
+    return routes.ApplicantProgramsController.edit(programId);
+  }
+
   /**
    * Returns the route corresponding to the applicant edit action.
    *

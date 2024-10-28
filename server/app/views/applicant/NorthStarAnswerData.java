@@ -2,20 +2,18 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Locale;
-import play.i18n.Messages;
-import services.MessageKey;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import services.applicant.AnswerData;
+import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
 public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   private final AnswerData answerData;
-  private final Messages messages;
 
-  public NorthStarAnswerData(AnswerData data, Messages messages) {
+  public NorthStarAnswerData(AnswerData data) {
     this.answerData = checkNotNull(data);
-    this.messages = checkNotNull(messages);
   }
 
   public String blockId() {
@@ -26,43 +24,46 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return answerData.questionIndex();
   }
 
-  public String questionText() {
-    return answerData.questionText();
+  public String questionHtml() {
+    return answerData.applicantQuestion().getFormattedQuestionText();
   }
 
-  public boolean isOptional() {
-    return answerData.applicantQuestion().isOptional();
-  }
-
-  public String questionAriaLabel() {
-    return messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT);
-  }
-
-  public String answerText() {
+  public ImmutableList<String> multilineAnswerText() {
     String defaultAnswerString =
         answerData.applicantQuestion().getQuestion().getDefaultAnswerString();
     boolean hasAnswerText =
         !answerData.answerText().isBlank() && !answerData.answerText().equals(defaultAnswerString);
+    boolean isAnswered = answerData.isAnswered() || hasAnswerText;
+    boolean isFileUploadQuestion =
+        answerData.questionDefinition().getQuestionType() == QuestionType.FILEUPLOAD;
+    boolean hasFiles = !answerData.encodedFileKeys().isEmpty();
 
-    // TODO(#8793) Support file question type
-
-    if (answerData.isAnswered() || hasAnswerText) {
-      // TODO(#8794) Make multi-line answers match the mocks
-      return answerData.answerText();
+    if (isFileUploadQuestion && hasFiles) {
+      // TODO(#8985): Allow user to download files on this page
+      return fileNames();
+    } else if (isAnswered) {
+      return ImmutableList.of(answerData.answerText());
     } else {
-      return defaultAnswerString;
+      return ImmutableList.of(defaultAnswerString);
     }
   }
 
-  // TODO(#8795): Handle enumerator questions
+  /**
+   * Assumes this question is a file upload question.
+   *
+   * @return A list of file names (may be empty)
+   */
+  private ImmutableList<String> fileNames() {
+    ArrayList<String> fileNames = new ArrayList<String>();
+    for (int i = 0; i < answerData.encodedFileKeys().size(); i++) {
+      String fileName = answerData.fileNames().get(i);
+      fileNames.add(fileName);
+    }
+    return ImmutableList.copyOf(fileNames);
+  }
 
   @Override
   public int compareTo(NorthStarAnswerData other) {
     return Integer.compare(this.questionIndex(), other.questionIndex());
-  }
-
-  @Override
-  public String toString() {
-    return this.questionText() + " " + this.answerText();
   }
 }

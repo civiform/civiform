@@ -24,8 +24,6 @@
   commonIntakeSection: Optional<ProgramSectionParams>
     An optional which contains the common intake section, if there is one.
 
-  numPrograms: int
-    Total number of non-common intake programs.
 
 */-->
 <!doctype html>
@@ -69,28 +67,44 @@
         </ul>
       </div>
       <div>
+        <div th:if="${myApplicationsSection.isPresent()}">
+          <div
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
+          ></div>
+        </div>
         <div th:if="${commonIntakeSection.isPresent()}">
           <div class="grid-container">
             <div class="grid-row">
               <h2 th:text="#{title.getStartedSection}"></h2>
             </div>
           </div>
-
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
-        <div class="grid-container">
-          <div class="grid-row">
-            <h2
-              th:if="${commonIntakeSection.isPresent()}"
-              th:text="#{title.allProgramsSection(${numPrograms})}"
-            ></h2>
-            <h2
-              th:unless="${commonIntakeSection.isPresent()}"
-              th:text="#{title.programs}"
-            ></h2>
-          </div>
+        <div
+          th:if="${!categoryOptions.isEmpty()}"
+          class="grid-container"
+          id="category-filter-form"
+        >
+          <fieldset class="grid-row grid-gap">
+            <legend th:text="#{label.programFilters}"></legend>
+            <th:block th:each="categoryOption : ${categoryOptions}">
+              <div class="filter-chip">
+                <input
+                  th:id="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  type="checkbox"
+                  name="categories"
+                  th:value="${categoryOption}"
+                  class="sr-only"
+                />
+                <label
+                  th:for="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  th:text="${categoryOption}"
+                ></label>
+              </div>
+            </th:block>
+          </fieldset>
         </div>
         <th:block th:each="section : ${sections}">
           <div

@@ -1,0 +1,42 @@
+# Runs on new comments and prints a welcome message if the commenter is not a bot,
+# is not an existing contributor, and has not already gotten a reply
+
+name: Community Contributor Response
+run-name: Auto-response to Community Contributor Comments
+
+on:
+  issue_comment:
+    types: [created] # Ensure it only triggers on comment creation
+
+jobs:
+  auto-response:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if commenter is a contributor
+        id: check-if-commenter-is-a-contributor
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const commenter = context.payload.comment.user.login;
+            const bots = ['dependabot[bot]', 'renovate[bot]', 'codecov[bot]', 'graphite'];
+            const isBot = bots.includes(commenter);
+
+            // Check if the commenter is a contributor
+            const contributors = await github.rest.repos.listContributors({ owner, repo });
+            const isContributor = contributors.data.some(contributor => contributor.login === commenter);
+
+            // Check if the commenter has already received a response on this issue
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const hasReceivedResponse = comments.data.some(comment => comment.user.login === 'github-actions[bot]' && comment.body.includes(commenter));
+
+            const shouldComment = !isBot && !isContributor && !hasReceivedResponse;
+            if (shouldComment) { 
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,   
+                body: `Thanks, @${commenter}, for your interest in contributing to CiviForm! You can find info on how to get started here:  https://github.com/civiform/civiform/wiki/Technical-contribution-guide#community-contributors-not-part-of-exygy-google-or-a-civic-entity.`
+              }); 
+            }

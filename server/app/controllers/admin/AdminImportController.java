@@ -130,6 +130,7 @@ public class AdminImportController extends CiviFormController {
     }
 
     ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
+
     if (programMigrationWrapper.getProgram() == null) {
       return ok(
           adminImportViewPartial
@@ -170,6 +171,7 @@ public class AdminImportController extends CiviFormController {
         program.notificationPreferences().stream()
             .map(preference -> preference.getValue())
             .collect(ImmutableList.toImmutableList());
+
     ImmutableSet<CiviFormError> programErrors =
         programService.validateProgramDataForCreate(
             program.adminName(),
@@ -244,16 +246,25 @@ public class AdminImportController extends CiviFormController {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    return ok(
-        adminImportViewPartial
-            .renderProgramData(
-                request,
-                program,
-                questions,
-                updatedQuestionsMap,
-                serializeResult.getResult(),
-                withDuplicates)
-            .render());
+    try {
+      return ok(
+          adminImportViewPartial
+              .renderProgramData(
+                  request,
+                  program,
+                  questions,
+                  updatedQuestionsMap,
+                  serializeResult.getResult(),
+                  withDuplicates)
+              .render());
+    } catch (RuntimeException e) {
+      return ok(
+          adminImportViewPartial
+              .renderError(
+                  "There was an error rendering your program.",
+                  "Please check your data and try again.")
+              .render());
+    }
   }
 
   /**

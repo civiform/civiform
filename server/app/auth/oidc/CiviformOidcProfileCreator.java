@@ -15,8 +15,8 @@ import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.ApplicantModel;
 import org.apache.commons.lang3.NotImplementedException;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
@@ -170,10 +170,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(
-      Credentials cred, WebContext context, SessionStore sessionStore) {
-    ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
-    Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
+  public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
+    ProfileUtils profileUtils = new ProfileUtils(callContext.sessionStore(), profileFactory);
+    Optional<UserProfile> oidcProfile = super.create(callContext, credentials);
 
     if (oidcProfile.isEmpty()) {
       LOGGER.warn("Didn't get a valid profile back from OIDC.");
@@ -189,12 +188,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<ApplicantModel> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> guestProfile = profileUtils.optionalCurrentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile =
+        profileUtils.optionalCurrentUserProfile(callContext.webContext());
 
     // The merge function signature specifies the two profiles as parameters.
     // We need to supply an extra parameter (context), so bind it here.
     BiFunction<Optional<CiviFormProfile>, OidcProfile, UserProfile> mergeFunction =
-        (cProfile, oProfile) -> this.mergeCiviFormProfile(cProfile, oProfile, context);
+        (cProfile, oProfile) ->
+            this.mergeCiviFormProfile(cProfile, oProfile, callContext.webContext());
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, mergeFunction);
   }

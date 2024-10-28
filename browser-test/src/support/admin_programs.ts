@@ -846,6 +846,12 @@ export class AdminPrograms {
 
     if (editBlockScreenDetails) {
       await clickAndWaitForModal(this.page, 'block-description-modal')
+
+      // Only update the block name if a name was provided. Otherwise, keep the default (which should be something like "Block 1")
+      if (block.name !== undefined) {
+        await this.page.fill('#block-name-input', block.name)
+      }
+
       await this.page.fill(
         'textarea',
         block.description || 'screen description',
