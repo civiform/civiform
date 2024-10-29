@@ -379,4 +379,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                 programId, blockDefinitionId))
         .flashing(FlashKey.SUCCESS, "Removed the eligibility condition for this screen.");
   }
+
+  /** POST end point for updating eligibility message */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result updateEligibilityMessage(Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    Form
+  }
 }
