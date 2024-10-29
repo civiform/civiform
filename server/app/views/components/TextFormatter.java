@@ -162,6 +162,8 @@ public final class TextFormatter {
   }
 
   public static String removeMarkdown(String text) {
+    // TODO: probably want to allow Atags so links are still formatted
+    // TODO: figure out how to handle LI elements
     String markdownText = formatTextToSanitizedHTML(text, false, false);
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder().allowElements("").allowAttributes("").globally().toFactory();
