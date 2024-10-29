@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -10,6 +11,10 @@ import {
 } from '../../support'
 
 test.describe('Dropdown question for applicant flow', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 
@@ -22,7 +27,36 @@ test.describe('Dropdown question for applicant flow', () => {
       )
     })
 
-    test('Updates options in preview', async ({page, adminQuestions}) => {
+    test('validate screenshot', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await test.step('Screenshot without errors', async () => {
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'dropdown-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
+        await validateAccessibility(page)
+      })
+
+      await test.step('Screenshot with errors', async () => {
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'dropdown-errors-north-star',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
+        await validateAccessibility(page)
+      })
+    })
+
+    // TODO(#7892): When admin console supports dropdown previews, unskip this test
+    test.skip('Updates options in preview', async ({page, adminQuestions}) => {
       await loginAsAdmin(page)
 
       await adminQuestions.createDropdownQuestion(
@@ -65,44 +99,25 @@ test.describe('Dropdown question for applicant flow', () => {
       await adminQuestions.expectPreviewOptions(['Sample question option\n'])
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await validateScreenshot(page, 'dropdown')
-    })
-
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.clickNext()
-
-      await validateScreenshot(page, 'dropdown-errors')
-    })
-
-    test('with selected option submits successfully', async ({
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDropdownQuestion('green')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.submitFromReviewPage()
-    })
-
-    test('with no selection does not submit', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-      // Click next without selecting anything.
-      await applicantQuestions.clickNext()
-
-      const dropdownId = '.cf-question-dropdown'
-      expect(await page.innerText(dropdownId)).toContain(
-        'This question is required.',
+    test('attempts to submit', async ({applicantQuestions, page}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
       )
+
+      await test.step('with no selection does not submit', async () => {
+        // Click next without selecting anything
+        await applicantQuestions.clickContinue()
+
+        await expect(page.getByText('This question is required.')).toBeVisible()
+      })
+
+      await test.step('with selected option submits successfully', async () => {
+        await applicantQuestions.answerDropdownQuestion('green')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+      })
     })
   })
 
@@ -146,30 +161,39 @@ test.describe('Dropdown question for applicant flow', () => {
     test('with selected options submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerDropdownQuestion('beach', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
 
     test('with unanswered optional question submits successfully', async ({
       applicantQuestions,
     }) => {
       // Only answer second question. First is optional.
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.answerDropdownQuestion('red', 1)
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
 
-    test('has no accessibility violations', async ({
+    test('has no accessiblity violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await validateAccessibility(page)
     })
