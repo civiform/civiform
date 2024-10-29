@@ -63,7 +63,7 @@ public final class PhoneQuestion extends Question {
     Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
 
     if (phoneNumberValue.isEmpty() && isPaiQuestion()) {
-      phoneNumberValue = applicantData.getPhoneNumber();
+      phoneNumberValue = applicantData.getApplicant().getPhoneNumber();
     }
 
     return phoneNumberValue;

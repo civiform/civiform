@@ -226,7 +226,7 @@ public final class ProfileFactory {
     ApplicantModel tiApplicant = tiProfile.getApplicant().join();
     // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
     // underscore so that the name parser doesn't display "TI, Fake".
-    tiApplicant.getApplicantData().setUserName("Fake_TI");
+    tiApplicant.setFirstName("Fake_TI");
     accountRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;

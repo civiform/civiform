@@ -70,7 +70,7 @@ public final class NameQuestion extends Question {
     Optional<String> firstNameValue = applicantData.readString(getFirstNamePath());
 
     if (firstNameValue.isEmpty() && isPaiQuestion()) {
-      firstNameValue = applicantData.getApplicantFirstName();
+      firstNameValue = applicantData.getApplicant().getFirstName();
     }
 
     return firstNameValue;
@@ -85,7 +85,7 @@ public final class NameQuestion extends Question {
     middleNameValue = applicantData.readString(getMiddleNamePath());
 
     if (middleNameValue.isEmpty() && isPaiQuestion()) {
-      middleNameValue = applicantData.getApplicantMiddleName();
+      middleNameValue = applicantData.getApplicant().getMiddleName();
     }
     return middleNameValue;
   }
@@ -99,7 +99,7 @@ public final class NameQuestion extends Question {
     lastNameValue = applicantData.readString(getLastNamePath());
 
     if (lastNameValue.isEmpty() && isPaiQuestion()) {
-      lastNameValue = applicantData.getApplicantLastName();
+      lastNameValue = applicantData.getApplicant().getLastName();
     }
     return lastNameValue;
   }
@@ -113,7 +113,7 @@ public final class NameQuestion extends Question {
     suffixValue = applicantData.readString(getNameSuffixPath());
 
     if (suffixValue.isEmpty() && isPaiQuestion()) {
-      suffixValue = applicantData.getApplicantNameSuffix();
+      suffixValue = applicantData.getApplicant().getSuffix();
     }
     return suffixValue;
   }

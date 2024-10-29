@@ -181,10 +181,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 /* showDownloadModal= */ Optional.empty(),
                 /* message= */ Optional.empty())
             .url();
-    String labelText =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
-            ? "Search by name, email, phone number, or application ID"
-            : "Search by name, email, or application ID";
+    String labelText = "Search by name, email, phone number, or application ID";
     return form()
         .withClasses("mt-6")
         .attr("data-override-disable-submit-on-enter")

@@ -394,11 +394,7 @@ public final class ProgramRepository {
 
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
-      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-        query = searchUsingPrimaryApplicantInfo(search, query);
-      } else {
-        query = searchUsingWellKnownPaths(search, query);
-      }
+      query = searchUsingPrimaryApplicantInfo(search, query);
     }
 
     String toMatchStatus = filters.applicationStatus().orElse("");
@@ -464,53 +460,6 @@ public final class ProgramRepository {
           .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
           .endOr();
     }
-  }
-
-  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
-  // flag
-  private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
-      String search, ExpressionList<ApplicationModel> query) {
-
-    if (search.matches("^\\d+$")) {
-      return query.eq("id", Integer.parseInt(search));
-    } else {
-      String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
-      String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
-      return query
-          .or()
-          .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
-          .raw("submitter_email ILIKE ?", "%" + search + "%")
-          .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
-          .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-          .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-          .endOr();
-    }
-  }
-
-  private String getApplicationObjectPath(Path path) {
-    StringBuilder result = new StringBuilder();
-
-    result.append("(");
-
-    // While the column type is JSONB, CiviForm writes the JSON object into the database as a
-    // string.
-    // This requires queries that interact with the JSON column to instruct postgres to parse the
-    // contents
-    // into JSON, which we do here with (object #>> '{}')::jsonb
-    result.append("(object #>> '{}')::jsonb");
-
-    int lastIndex = path.segments().size() - 1;
-    for (int i = 0; i < lastIndex; i++) {
-      result.append(" -> '");
-      result.append(path.segments().get(i));
-      result.append("'");
-    }
-
-    result.append(" ->> '");
-    result.append(path.segments().get(lastIndex));
-    result.append("')");
-
-    return result.toString();
   }
 
   /**

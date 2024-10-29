@@ -29,6 +29,7 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
 import services.LocalizedStrings;
+import services.Path;
 import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 import services.application.ApplicationEventDetails.StatusEvent;
@@ -418,50 +419,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }
 
-  // TODO (#5503): Remove this test when we remove the feature flag
-  @Test
-  @Parameters(method = "getSearchByNameOrEmailData")
-  public void getApplicationsForAllProgramVersions_searchByNameOrEmailUsingWellKnownPaths(
-      String searchFragment, ImmutableSet<String> wantEmails) {
-    ProgramModel program = resourceCreator.insertActiveProgram("test program");
-
-    ApplicantModel bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe", "Suffix")
-        .setSubmitterEmail("bobs_ti@example.com")
-        .save();
-    ApplicantModel jane =
-        resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
-    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
-    // Note: The mixed casing on the email is intentional for tests of case insensitivity.
-    ApplicantModel chris =
-        resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
-    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person", "Suffix");
-
-    ApplicantModel otherApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
-    resourceCreator.insertDraftApplication(otherApplicant, program);
-
-    PaginationResult<ApplicationModel> paginationResult =
-        repo.getApplicationsForAllProgramVersions(
-            program.id,
-            RowIdSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
-            SubmittedApplicationFilter.builder()
-                .setSearchNameFragment(Optional.of(searchFragment))
-                .setSubmitTimeFilter(TimeFilter.EMPTY)
-                .build());
-
-    assertThat(
-            paginationResult.getPageContents().stream()
-                .map(a -> a.getApplicant().getAccount().getEmailAddress())
-                .collect(ImmutableSet.toImmutableSet()))
-        .isEqualTo(wantEmails);
-    assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
-  }
-
   @Test
   public void getApplicationsForAllProgramVersions_searchesByNameEmailPhone() {
-    Mockito.when(mockSettingsManifest.getPrimaryApplicantInfoQuestionsEnabled()).thenReturn(true);
-
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     String emailOne = "one@email.com";
@@ -564,8 +523,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveApplication(applicant, program);
   }
 
-  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
-  // flag
   private ApplicationModel makeApplicationWithName(
       ApplicantModel applicant,
       ProgramModel program,
@@ -576,8 +533,11 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
-        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName, suffix);
+        applicantData, Path.create("applicant.name"), firstName, middleName, lastName, suffix);
     application.setApplicantData(applicantData);
+    applicant.setFirstName(firstName);
+    applicant.setMiddleName(middleName);
+    applicant.setLastName(lastName);
     application.save();
     return application;
   }
