@@ -90,6 +90,9 @@ public abstract class LocalizationUpdate {
     /** The new block description to update for a locale. */
     public abstract String localizedDescription();
 
+    /** The new block eligibility message to update for a locale */
+    public abstract String localizedEligibilityMessage();
+
     public static Builder builder() {
       return new AutoValue_LocalizationUpdate_ScreenUpdate.Builder();
     }
@@ -101,6 +104,8 @@ public abstract class LocalizationUpdate {
       public abstract Builder setLocalizedName(String v);
 
       public abstract Builder setLocalizedDescription(String v);
+
+      public abstract Builder setLocalizedEligibilityMessage(String v);
 
       public abstract ScreenUpdate build();
     }

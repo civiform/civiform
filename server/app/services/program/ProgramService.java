@@ -1305,6 +1305,21 @@ public final class ProgramService {
     }
   }
 
+  public ProgramDefinition setBlockEligibilityMessage(
+      long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
+    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+
+    BlockDefinition blockDefinition =
+        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+            .setLocalizedEligibilityMessage(message)
+            .build();
+
+    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
   /**
    * Remove the eligibility {@link PredicateDefinition} for a block.
    *
