@@ -35,7 +35,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
             Optional.of(program.id));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
 
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
@@ -47,7 +48,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertOldAndNewDataEquals(latestProgramFileUpload, "applicantFile.jpg");
   }
 
@@ -69,7 +71,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertOldAndNewDataUnanswered(latestProgramFileUpload);
 
     assertThat(applicant.getApplicantData().asJsonString())
@@ -92,7 +95,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     // This shouldn't happen anywhere but a staging environment, but make sure that if we have
     // existing data in the new format, we don't overwrite it.
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
         applicantFileUploadQuestion.getContextualizedPath(),
@@ -108,7 +112,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertThat(latestProgramFileUpload.createFileUploadQuestion().getFileKeyValue().get())
         .isEqualTo("oldData.jpg");
     assertThat(latestProgramFileUpload.createFileUploadQuestion().getFileKeyListValue().get())

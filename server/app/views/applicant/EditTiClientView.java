@@ -27,7 +27,6 @@ import repository.AccountRepository;
 import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
@@ -197,14 +196,12 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       Http.Request request,
       Optional<Form<TiClientInfoForm>> form,
       Messages messages) {
-    Optional<ApplicantData> optionalApplicantData = Optional.empty();
     Optional<ApplicantModel> optionalApplicant = Optional.empty();
     FormTag formTag;
     Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled(request);
     if (optionalAccount.isPresent()) {
       optionalApplicant = optionalAccount.get().newestApplicant();
-      optionalApplicantData = optionalApplicant.map(ApplicantModel::getApplicantData);
-      
+
       formTag =
           form()
               .withId("edit-ti")
@@ -313,7 +310,11 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                 .setFieldName("dob")
                 .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
                 .setRequired(true)
-                .setValue(optionalApplicant.flatMap(ApplicantModel::getDateOfBirth).map(this.dateConverter::formatIso8601Date).orElse("")),
+                .setValue(
+                    optionalApplicant
+                        .flatMap(ApplicantModel::getDateOfBirth)
+                        .map(this.dateConverter::formatIso8601Date)
+                        .orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
             messages);

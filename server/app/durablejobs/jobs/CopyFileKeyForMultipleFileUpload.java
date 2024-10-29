@@ -111,6 +111,6 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
         ((ObjectNode) node).putArray(FILE_KEY_LIST_PROPERTY).add(fileKeyNode);
       }
     }
-    return new ApplicantData(rootJsonNode.toString(), applicantData.getApplicant());
+    return new ApplicantData(rootJsonNode.toString());
   }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
@@ -20,7 +21,6 @@ import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.DateConverter;
 import services.Path;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.question.ApplicantQuestion;
@@ -101,7 +101,7 @@ public final class JsonExporterService {
     for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
       // We use an empty ApplicantData because these should all be exported as unanswered questions.
       applicantService
-          .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
+          .getReadOnlyApplicantProgramService(new ApplicantModel().getApplicantData(), pd)
           .getAllQuestions()
           .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
           .forEach(aq -> answersToExport.putIfAbsent(aq.getContextualizedPath(), aq));
@@ -170,7 +170,7 @@ public final class JsonExporterService {
       boolean multipleFileUploadEnabled) {
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
-        .getReadOnlyApplicantProgramService(application.getApplicantData(), programDefinition)
+        .getReadOnlyApplicantProgramService(application, programDefinition)
         .getAllQuestions()
         .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
         .forEach(

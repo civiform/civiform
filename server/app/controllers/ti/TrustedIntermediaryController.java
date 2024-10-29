@@ -155,8 +155,7 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
       return unauthorized();
     }
-    Optional<String> applicantName =
-        civiformProfile.getApplicant().join().getApplicantName();
+    Optional<String> applicantName = civiformProfile.getApplicant().join().getApplicantName();
 
     return ok(
         editTiClientView.render(

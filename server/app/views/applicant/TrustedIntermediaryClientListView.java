@@ -45,7 +45,6 @@ import services.DateConverter;
 import services.MessageKey;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -382,7 +381,6 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
     String currentDob =
         newestApplicant
             .get()
-            .getApplicantData()
             .getDateOfBirth()
             .map(this.dateConverter::formatIso8601Date)
             .orElse("");

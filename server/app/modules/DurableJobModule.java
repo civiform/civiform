@@ -39,7 +39,6 @@ import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
-import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -118,9 +117,7 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository,
-      SettingsService settingsService,
-      Config config) {
+      VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
