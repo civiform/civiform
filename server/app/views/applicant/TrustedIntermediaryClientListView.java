@@ -273,9 +273,9 @@ public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashbo
     if (newestApplicant.isEmpty()) {
       return div();
     }
-    ApplicantData applicantData = newestApplicant.get().getApplicantData();
-    Optional<String> optionalPhoneNumber = applicantData.getPhoneNumber();
-    Optional<String> optionalEmail = applicantData.getApplicantEmail();
+    ApplicantModel applicant = newestApplicant.get();
+    Optional<String> optionalPhoneNumber = applicant.getPhoneNumber();
+    Optional<String> optionalEmail = applicant.getEmailAddress();
 
     return div(
         label(messages.at(MessageKey.CONTACT_INFO_LABEL.getKeyName()))

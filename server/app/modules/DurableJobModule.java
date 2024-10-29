@@ -19,7 +19,6 @@ import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
-import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -152,14 +151,6 @@ public final class DurableJobModule extends AbstractModule {
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
-
-    durableJobRegistry.register(
-        DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
-        JobType.RECURRING,
-        persistedDurableJob ->
-            new MigratePrimaryApplicantInfoJob(
-                persistedDurableJob, accountRepository, settingsService, config),
-        new RecurringJobExecutionTimeResolvers.Nightly3Am());
 
     return durableJobRegistry;
   }

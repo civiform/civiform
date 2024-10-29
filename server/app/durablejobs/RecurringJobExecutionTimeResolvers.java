@@ -72,7 +72,7 @@ public final class RecurringJobExecutionTimeResolvers {
     }
   }
 
-  /** Nightly at 3am local time. Used for the MIGRATE_PRIMARY_APPLICANT_INFO job. */
+  /** Nightly at 3am local time. Currently unused. */
   public static final class Nightly3Am implements JobExecutionTimeResolver {
 
     @Override

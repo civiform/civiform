@@ -190,7 +190,7 @@ public final class AccountRepository {
         applicant.setEmailAddress(email);
       }
       account.setTiNote(tiNote);
-      applicant.getApplicantData().setPhoneNumber(phoneNumber);
+      applicant.setPhoneNumber(phoneNumber);
       applicant
           .getApplicantData()
           .setUserName(
@@ -198,7 +198,7 @@ public final class AccountRepository {
               Optional.ofNullable(middleName),
               Optional.ofNullable(lastName),
               Optional.ofNullable(nameSuffix));
-      applicant.getApplicantData().setDateOfBirth(newDob);
+      applicant.setDateOfBirth(newDob);
       account.save();
       applicant.save();
       database.saveAll(account, applicant);
@@ -362,7 +362,7 @@ public final class AccountRepository {
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
         Optional.ofNullable(form.getNameSuffix()));
-    applicantData.setDateOfBirth(form.getDob());
+    applicant.setDateOfBirth(form.getDob());
     applicant.setEmailAddress(form.getEmailAddress());
     applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();

@@ -911,7 +911,7 @@ public final class ApplicantService {
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
               if (applicant.isPresent()) {
-                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                Optional<String> name = applicant.get().getApplicantName();
                 if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
                   builder.setName(name.get());
                 }
@@ -922,10 +922,8 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
-                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
-                }
+                Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
 
                 ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
                 if (!emailAddresses.isEmpty()) {

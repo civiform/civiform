@@ -157,6 +157,19 @@ public class ApplicantModel extends BaseModel {
     return Optional.ofNullable(lastName);
   }
 
+  public Optional<String> getApplicantName() {
+    if (this.firstName == null) {
+      return Optional.empty();
+    }
+    return this.lastName == null
+        ? Optional.of(this.firstName)
+        : Optional.of(String.format("%s, %s", this.lastName, this.firstName));
+  }
+
+  public Optional<String> getApplicantDisplayName() {
+    return getApplicantName().or(() -> getEmailAddress());
+  }
+
   public ApplicantModel setSuffix(String suffix) {
     this.suffix = suffix.isEmpty() || suffix.isBlank() ? null : suffix;
     return this;
