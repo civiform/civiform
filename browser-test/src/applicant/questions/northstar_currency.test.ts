@@ -44,7 +44,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
           page.getByTestId('questionRoot'),
           'currency-north-star',
           /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
 
@@ -54,7 +54,7 @@ test.describe('currency applicant flow', {tag: ['@northstar']}, () => {
           page.getByTestId('questionRoot'),
           'currency-errors-north-star',
           /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
     })

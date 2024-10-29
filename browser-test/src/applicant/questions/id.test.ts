@@ -222,7 +222,7 @@ test.describe('Id question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'id-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -232,7 +232,7 @@ test.describe('Id question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'id-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

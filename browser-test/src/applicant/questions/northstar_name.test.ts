@@ -41,7 +41,7 @@ test.describe('name applicant flow', () => {
           page.getByTestId('questionRoot'),
           'name-north-star',
           /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
 
@@ -51,7 +51,7 @@ test.describe('name applicant flow', () => {
           page.getByTestId('questionRoot'),
           'name-errors-north-star',
           /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
     })

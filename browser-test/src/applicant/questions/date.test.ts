@@ -145,7 +145,7 @@ test.describe('Date question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'date-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -155,7 +155,7 @@ test.describe('Date question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'date-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })
@@ -196,7 +196,7 @@ test.describe('Date question for applicant flow', () => {
           page,
           'date-filled-in-north-star',
           /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
+          /* mobileScreenshot= */ false,
         )
       })
 
