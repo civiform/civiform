@@ -34,6 +34,7 @@ import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -313,7 +314,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getAdminDescription(),
         programData.getLocalizedDisplayName(),
         programData.getLocalizedDisplayDescription(),
-        programData.getLocalizedShortDescription(),
+        TextFormatter.removeMarkdown(programData.getLocalizedShortDescription()),
         applicationSteps,
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),

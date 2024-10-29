@@ -161,6 +161,13 @@ public final class TextFormatter {
     return markdownText.substring(0, indexOfClosingTag) + markdownWithRequiredIndicator;
   }
 
+  public static String removeMarkdown(String text) {
+    String markdownText = formatTextToSanitizedHTML(text, false, false);
+    PolicyFactory customPolicy =
+        new HtmlPolicyBuilder().allowElements("").allowAttributes("").globally().toFactory();
+    return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
+  }
+
   public static String sanitizeHtml(String markdownText) {
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder()
