@@ -24,6 +24,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.List;
+import java.util.Map;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -32,7 +33,6 @@ import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
-import services.LocalizedStrings;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -90,8 +90,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
         ImmutableList.copyOf(program.getCategories()),
-        ImmutableList.copyOf(program.getAllApplicationStepTitles()),
-        ImmutableList.copyOf(program.getAllApplicationStepDescriptions()));
+        ImmutableList.copyOf(program.getApplicationSteps()));
   }
 
   /** Builds the form using program definition data. */
@@ -118,10 +117,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(CategoryModel::getId)
             .collect(ImmutableList.toImmutableList()),
         program.applicationSteps().stream()
-            .map(step -> step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get())
-            .collect(ImmutableList.toImmutableList()),
-        program.applicationSteps().stream()
-            .map(step -> step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE).get())
+            .map(
+                step ->
+                    Map.of(
+                        "title",
+                        step.getTitle().getDefault(),
+                        "description",
+                        step.getDescription().getDefault()))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -141,8 +143,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
-      ImmutableList<String> applicationStepTitles,
-      ImmutableList<String> applicationStepDescriptions) {
+      ImmutableList<Map<String, String>> applicationSteps) {
+    System.out.println(applicationSteps);
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -306,9 +308,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(externalLink)
             .getInputTag(),
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        div()
-            .withId("apply-steps")
-            .with(buildApplicationSteps(applicationStepTitles, applicationStepDescriptions)),
+        div().withId("apply-steps").with(buildApplicationSteps(applicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -326,9 +326,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
-  private DivTag buildApplicationSteps(
-      ImmutableList<String> applicationStepTitles,
-      ImmutableList<String> applicationStepDescriptions) {
+  private DivTag buildApplicationSteps(ImmutableList<Map<String, String>> applicationSteps) {
 
     DivTag div = div();
     // build 5 application steps
@@ -336,9 +334,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String title = "";
       String description = "";
       int index = i + 1;
-      if (index <= applicationStepTitles.size()) {
-        title = applicationStepTitles.get(i);
-        description = applicationStepDescriptions.get(i);
+      if (index <= applicationSteps.size()) {
+        title = applicationSteps.get(i).get("title");
+        description = applicationSteps.get(i).get("description");
       }
       div.with(buildApplicationStepDiv(Integer.toString(index), title, description));
     }
@@ -351,13 +349,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     FieldWithLabel title =
         FieldWithLabel.input()
             .setId("apply-step-" + number + "-title")
-            .setFieldName("applyStep" + number + "Title")
+            .setFieldName("applicationSteps[" + number + "][title]")
             .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
             .setId("apply-step-" + number + "-description")
-            .setFieldName("applyStep" + number + "Description")
+            .setFieldName("applicationSteps[" + number + "][description]")
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 

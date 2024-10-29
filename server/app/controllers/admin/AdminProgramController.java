@@ -341,26 +341,15 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   private ImmutableList<ApplicationStep> buildApplicationSteps(ProgramForm programData) {
-    ApplicationStep applicationStepOne =
-        new ApplicationStep(
-            programData.getApplyStep1Title(), programData.getApplyStep1Description());
-    ApplicationStep applicationStepTwo =
-        new ApplicationStep(
-            programData.getApplyStep2Title(), programData.getApplyStep2Description());
-    ApplicationStep applicationStepThree =
-        new ApplicationStep(
-            programData.getApplyStep3Title(), programData.getApplyStep3Description());
-    ApplicationStep applicationStepFour =
-        new ApplicationStep(
-            programData.getApplyStep4Title(), programData.getApplyStep4Description());
-    ApplicationStep applicationStepFive =
-        new ApplicationStep(
-            programData.getApplyStep5Title(), programData.getApplyStep5Description());
-    return ImmutableList.of(
-        applicationStepOne,
-        applicationStepTwo,
-        applicationStepThree,
-        applicationStepFour,
-        applicationStepFive);
+    return programData.getApplicationSteps().stream()
+        .filter(
+            step -> {
+              return step.containsKey("title");
+            })
+        .map(
+            step -> {
+              return new ApplicationStep(step.get("title"), step.get("description"));
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 }
