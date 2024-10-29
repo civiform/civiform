@@ -53,6 +53,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
+
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programDescription", params.programDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
