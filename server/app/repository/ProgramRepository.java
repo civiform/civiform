@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import services.Path;
-import services.WellKnownPaths;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.BlockDefinition;

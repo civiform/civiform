@@ -204,6 +204,7 @@ public final class ApplicantService {
 
               return new ReadOnlyApplicantProgramServiceImpl(
                   jsonPathPredicateGeneratorFactory,
+                  applicant,
                   applicant.getApplicantData(),
                   programDefinition);
             },
@@ -217,6 +218,7 @@ public final class ApplicantService {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
+              application.getApplicant(),
               application.getApplicantData(),
               programService.getFullProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -228,14 +230,19 @@ public final class ApplicantService {
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, application.getApplicantData(), programDefinition);
+        jsonPathPredicateGeneratorFactory,
+        application.getApplicant(),
+        application.getApplicantData(),
+        programDefinition);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
+        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
   }
 
   /**
@@ -324,6 +331,7 @@ public final class ApplicantService {
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
                       jsonPathPredicateGeneratorFactory,
+                      applicant,
                       applicant.getApplicantData(),
                       programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
@@ -391,6 +399,7 @@ public final class ApplicantService {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,
+            applicant,
             applicant.getApplicantData(),
             programDefinition,
             failedUpdates);

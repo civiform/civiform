@@ -52,7 +52,7 @@ public final class EmailQuestion extends Question {
     Optional<String> emailValue = applicantData.readString(getEmailPath());
 
     if (emailValue.isEmpty() && isPaiQuestion()) {
-      emailValue = applicantData.getApplicant().getEmailAddress();
+      emailValue = getApplicantQuestion().getApplicant().getEmailAddress();
     }
 
     return emailValue;

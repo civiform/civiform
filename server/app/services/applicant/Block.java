@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import models.ApplicantModel;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
@@ -48,6 +49,7 @@ public final class Block {
   private final String id;
 
   private final BlockDefinition blockDefinition;
+  private final ApplicantModel applicant;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
@@ -57,10 +59,12 @@ public final class Block {
   Block(
       String id,
       BlockDefinition blockDefinition,
+      ApplicantModel applicant,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
+    this.applicant = checkNotNull(applicant);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
@@ -170,7 +174,7 @@ public final class Block {
                   .map(
                       programQuestionDefinition ->
                           new ApplicantQuestion(
-                              programQuestionDefinition, applicantData, repeatedEntity))
+                              programQuestionDefinition, applicant, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

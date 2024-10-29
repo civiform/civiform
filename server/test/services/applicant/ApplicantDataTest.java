@@ -11,7 +11,6 @@ import models.ApplicantModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.Path;
-import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 
 public class ApplicantDataTest extends ResetPostgres {

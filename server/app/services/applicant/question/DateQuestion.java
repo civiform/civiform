@@ -80,7 +80,7 @@ public final class DateQuestion extends Question {
     dateValue = applicantData.readDate(getDatePath());
 
     if (dateValue.isEmpty() && isPaiQuestion()) {
-      dateValue = applicantData.getApplicant().getDateOfBirth();
+      dateValue = getApplicantQuestion().getApplicant().getDateOfBirth();
     }
     return dateValue;
   }

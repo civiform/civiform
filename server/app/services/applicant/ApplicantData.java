@@ -2,24 +2,16 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.oidc.applicant.ApplicantProfileCreator;
-import auth.saml.SamlProfileCreator;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import models.ApplicantModel;
-import models.ApplicantModel.Suffix;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
-import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 import services.geo.ServiceAreaInclusion;
 
@@ -43,30 +35,19 @@ public class ApplicantData extends CfJsonDocumentContext {
       String.format("{ \"%s\": {} }", APPLICANT);
   private Optional<Locale> preferredLocale;
   private Optional<ImmutableMap<Path, String>> failedUpdates;
-  private ApplicantModel applicant;
 
   public ApplicantData() {
-    this(EMPTY_APPLICANT_DATA_JSON, null);
+    this(EMPTY_APPLICANT_DATA_JSON);
   }
 
-  public ApplicantData(ApplicantModel applicant) {
-    this(EMPTY_APPLICANT_DATA_JSON, applicant);
+  public ApplicantData(String jsonData) {
+    this(Optional.empty(), jsonData);
   }
 
-  public ApplicantData(String jsonData, ApplicantModel applicant) {
-    this(Optional.empty(), jsonData, applicant);
-  }
-
-  public ApplicantData(
-      Optional<Locale> preferredLocale, String jsonData, ApplicantModel applicant) {
+  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
     this.failedUpdates = Optional.empty();
-    this.applicant = applicant;
-  }
-
-  public ApplicantModel getApplicant() {
-    return applicant;
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -82,95 +63,6 @@ public class ApplicantData extends CfJsonDocumentContext {
   public void setPreferredLocale(Locale locale) {
     checkLocked();
     this.preferredLocale = Optional.of(locale);
-  }
-
-  /**
-   * Checks if the given input string represents a valid suffix from Suffix enum.
-   *
-   * @param input The string to be checked for suffix validity.
-   * @return 'true' if the input string matches a suffix defined in Suffix enum, 'false' otherwise.
-   */
-  private static boolean isSuffix(String input) {
-    return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
-  }
-
-  /**
-   * Parses a name string to extract the first, middle, and last names, if they exists, and sets
-   * those fields. This function will NOT overwrite any existing name data if the first name already
-   * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
-   * SamlProfileCreator} and we do not want it to overwrite the name upon login.
-   *
-   * @param displayName A string that contains the applicant's name, with first, middle, last, and
-   *     suffix separated by spaces. May provide only first name or only first last.
-   */
-  public void setUserName(String displayName) {
-    String firstName;
-    Optional<String> lastName = Optional.empty();
-    Optional<String> middleName = Optional.empty();
-    Optional<String> nameSuffix = Optional.empty();
-    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
-    switch (listSplit.size()) {
-      case 2:
-        firstName = listSplit.get(0);
-        lastName = Optional.of(listSplit.get(1));
-        break;
-      case 4:
-        firstName = listSplit.get(0);
-        middleName = Optional.of(listSplit.get(1));
-        lastName = Optional.of(listSplit.get(2));
-        nameSuffix = Optional.of(listSplit.get(3));
-        break;
-      case 3:
-        firstName = listSplit.get(0);
-        if (isSuffix(listSplit.get(2))) {
-          lastName = Optional.of(listSplit.get(1));
-          nameSuffix = Optional.of(listSplit.get(2));
-        } else {
-          middleName = Optional.of(listSplit.get(1));
-          lastName = Optional.of(listSplit.get(2));
-        }
-        break;
-      case 1:
-        // fallthrough
-      default:
-        // Too many names - put them all in first name.
-        firstName = displayName;
-    }
-    setUserName(firstName, middleName, lastName, nameSuffix, false);
-  }
-
-  // By default, overwrite name fields if data exists in them
-  public void setUserName(
-      String firstName,
-      Optional<String> middleName,
-      Optional<String> lastName,
-      Optional<String> nameSuffix) {
-    setUserName(firstName, middleName, lastName, nameSuffix, true);
-  }
-
-  /**
-   * Sets the first, middle, and last name fields.
-   *
-   * @param firstName First name of applicant
-   * @param middleName Middle name of applicant
-   * @param lastName Last name of applicant
-   * @param overwrite When false, if first name already exists, do not update fields and return
-   *     unchanged.
-   */
-  public void setUserName(
-      String firstName,
-      Optional<String> middleName,
-      Optional<String> lastName,
-      Optional<String> nameSuffix,
-      boolean overwrite) {
-    if (!overwrite && applicant.getFirstName().isPresent()) {
-      return;
-    }
-    applicant.setFirstName(firstName);
-    // Empty string will remove it from the model
-    applicant.setMiddleName(middleName.orElse(""));
-    applicant.setLastName(lastName.orElse(""));
-    applicant.setSuffix(nameSuffix.orElse(""));
   }
 
   @Override
@@ -210,11 +102,10 @@ public class ApplicantData extends CfJsonDocumentContext {
    */
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
-    ApplicantData thisApplicantData =
-        new ApplicantData(this.preferredLocale, this.asJsonString(), this.applicant);
+    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
     clearFieldsNotRequiredForComparison(thisApplicantData);
     ApplicantData otherApplicantData =
-        new ApplicantData(other.preferredLocale, other.asJsonString(), other.applicant);
+        new ApplicantData(other.preferredLocale, other.asJsonString());
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());

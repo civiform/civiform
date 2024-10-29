@@ -9,11 +9,9 @@ import auth.oidc.IdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.time.Clock;
@@ -28,7 +26,6 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import services.CiviFormError;
-import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -191,13 +188,11 @@ public final class AccountRepository {
       }
       account.setTiNote(tiNote);
       applicant.setPhoneNumber(phoneNumber);
-      applicant
-          .getApplicantData()
-          .setUserName(
-              firstName,
-              Optional.ofNullable(middleName),
-              Optional.ofNullable(lastName),
-              Optional.ofNullable(nameSuffix));
+      applicant.setUserName(
+          firstName,
+          Optional.ofNullable(middleName),
+          Optional.ofNullable(lastName),
+          Optional.ofNullable(nameSuffix));
       applicant.setDateOfBirth(newDob);
       account.save();
       applicant.save();
@@ -356,8 +351,7 @@ public final class AccountRepository {
     newAccount.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(newAccount);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(
+    applicant.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
@@ -460,21 +454,6 @@ public final class AccountRepository {
             + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
 
     return database.sqlUpdate(sql).execute();
-  }
-
-  /**
-   * For use in {@link MigratePrimaryApplicantInfoJob}. Will return all applicants that have data in
-   * well known paths.
-   */
-  public Query<ApplicantModel> findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
-    String sql =
-        "WITH temp AS (SELECT * , ((object#>>'{}')::jsonb)::json AS parsed FROM applicants) SELECT"
-            + " temp.* FROM temp LEFT JOIN accounts ON accounts.id = temp.account_id WHERE"
-            + " (temp.parsed#>'{applicant,name}' IS NOT NULL) OR (temp.email_address IS NULL and"
-            + " accounts.email_address IS NOT NULL) OR"
-            + " (temp.parsed#>'{applicant,applicant_phone_number}' IS NOT NULL) OR"
-            + " (temp.parsed#>'{applicant,applicant_date_of_birth}' IS NOT NULL)";
-    return database.findNative(ApplicantModel.class, sql);
   }
 
   /**

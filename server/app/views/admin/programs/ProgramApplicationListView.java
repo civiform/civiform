@@ -38,7 +38,6 @@ import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -69,7 +68,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final ApplicantUtils applicantUtils;
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
@@ -77,13 +75,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -373,7 +369,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         String.format(
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(
-                application.getApplicantData().getApplicantDisplayName()),
+                application.getApplicant().getApplicantDisplayName()),
             application.id);
     String viewLinkText = "View →";
 
