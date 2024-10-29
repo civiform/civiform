@@ -15,7 +15,7 @@ public class BlockEligibilityMessageFormTest extends ResetPostgres {
   private FormFactory formFactory;
 
   @Before
-  private void setup() {
+  public void setup() {
     formFactory = instanceOf(FormFactory.class);
   }
 
