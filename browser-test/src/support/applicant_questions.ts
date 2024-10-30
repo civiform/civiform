@@ -204,7 +204,7 @@ export class ApplicantQuestions {
       ? 'cf-north-star-enumerator-field .cf-entity-name-input'
       : 'cf-enumerator-field'
     await this.page.waitForSelector(
-      `#enumerator-fields .${fieldName}:nth-of-type(${index}) input:visible`
+      `#enumerator-fields .${fieldName}:nth-of-type(${index}) input:visible`,
     )
     await this.validateInputValue(
       entityName,
