@@ -11,7 +11,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import models.PersistedDurableJobModel;
 import repository.PersistedDurableJobRepository;
-import services.email.aws.SimpleEmail;
+import services.email.EmailSendClient;
 
 /**
  * Executes {@link DurableJob}s when their time has come.
@@ -30,9 +30,15 @@ public final class StartupDurableJobRunner extends AbstractDurableJobRunner {
       @BindingAnnotations.StartupJobsProviderName DurableJobRegistry durableJobRegistry,
       PersistedDurableJobRepository persistedDurableJobRepository,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
-      SimpleEmail simpleEmail,
+      EmailSendClient emailSendClient,
       ZoneId zoneId) {
-    super(config, durableJobExecutionContext, durableJobRegistry, nowProvider, simpleEmail, zoneId);
+    super(
+        config,
+        durableJobExecutionContext,
+        durableJobRegistry,
+        nowProvider,
+        emailSendClient,
+        zoneId);
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
   }
 

@@ -22,20 +22,20 @@ import org.mockito.Mockito;
 import play.api.inject.BindingKey;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
-import services.email.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import support.TestRetry;
 
 public class RecurringDurableJobRunnerTest extends ResetPostgres {
 
   @Rule public TestRetry testRetry = new TestRetry(5);
 
-  private SimpleEmail simpleEmailMock;
+  private EmailSendClient emailSendClientMock;
   private RecurringDurableJobRunner recurringDurableJobRunner;
   private DurableJobRegistry durableJobRegistry;
 
   @Before
   public void setUp() {
-    simpleEmailMock = Mockito.mock(SimpleEmail.class);
+    emailSendClientMock = Mockito.mock(EmailSendClient.class);
 
     Config config =
         ConfigFactory.parseMap(
@@ -61,7 +61,7 @@ public class RecurringDurableJobRunnerTest extends ResetPostgres {
                 instanceOf(
                     new BindingKey<>(LocalDateTime.class)
                         .qualifiedWith(BindingAnnotations.Now.class)),
-            simpleEmailMock,
+            emailSendClientMock,
             instanceOf(ZoneId.class));
   }
 
@@ -142,7 +142,7 @@ public class RecurringDurableJobRunnerTest extends ResetPostgres {
     assertThat(jobB.getSuccessTime()).isPresent();
     assertThat(jobC.getSuccessTime()).isEmpty();
 
-    Mockito.verifyNoInteractions(simpleEmailMock);
+    Mockito.verifyNoInteractions(emailSendClientMock);
   }
 
   @Test
