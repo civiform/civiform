@@ -195,13 +195,20 @@ export class ApplicantQuestions {
     )
   }
 
-  async checkEnumeratorAnswerValue(entityName: string, index: number) {
+  async checkEnumeratorAnswerValue(
+    entityName: string,
+    index: number,
+    northStarEnabled = false,
+  ) {
+    const fieldName = northStarEnabled
+      ? 'cf-north-star-enumerator-field .cf-entity-name-input'
+      : 'cf-enumerator-field'
     await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
+      `#enumerator-fields .${fieldName}:nth-of-type(${index}) input:visible`
     )
     await this.validateInputValue(
       entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
+      `#enumerator-fields .${fieldName}:nth-of-type(${index}) input:visible`,
     )
   }
 
@@ -214,10 +221,14 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
-  async editQuestionFromReviewPage(questionText: string) {
-    await this.page.click(
-      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
-    )
+  async editQuestionFromReviewPage(
+    questionText: string,
+    northStarEnabled = false,
+  ) {
+    const element = northStarEnabled
+      ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+      : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
+    await this.page.click(element)
     await waitForPageJsLoad(this.page)
   }
 
@@ -453,8 +464,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickReview() {
-    await this.page.click('text="Review"')
+  async clickReview(northStarEnabled = false) {
+    const reviewButton = northStarEnabled
+      ? 'text="Review and exit"'
+      : 'text="Review"'
+    await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
   }
 
@@ -722,6 +736,18 @@ export class ApplicantQuestions {
   }
 
   async expectQuestionAnsweredOnReviewPage(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionAnsweredOnReviewPageNorthstar(
     questionText: string,
     answerText: string,
   ) {
