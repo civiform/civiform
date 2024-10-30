@@ -68,7 +68,7 @@ test.describe('Text question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'text-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -78,7 +78,7 @@ test.describe('Text question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'text-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

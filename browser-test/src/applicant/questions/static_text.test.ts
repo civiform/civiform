@@ -78,7 +78,7 @@ test.describe('Static text question for applicant flow', () => {
         page.getByTestId('staticQuestionRoot'),
         'markdown-text-north-star',
         /* fullPage= */ false,
-        /* mobileScreenshot= */ true,
+        /* mobileScreenshot= */ false,
       )
 
       await verifyMarkdownHtml(page)

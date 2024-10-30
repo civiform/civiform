@@ -45,7 +45,7 @@ test.describe(
             page.getByTestId('questionRoot'),
             'number-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -55,7 +55,7 @@ test.describe(
             page.getByTestId('questionRoot'),
             'number-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })
