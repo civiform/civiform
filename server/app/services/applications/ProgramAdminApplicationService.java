@@ -31,7 +31,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.email.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.statuses.StatusDefinitions.Status;
@@ -45,7 +45,7 @@ public final class ProgramAdminApplicationService {
   private final AccountRepository accountRepository;
 
   private final ProgramRepository programRepository;
-  private final SimpleEmail emailClient;
+  private final EmailSendClient emailClient;
   private final String baseUrl;
   private final boolean isStaging;
   private final String stagingApplicantNotificationMailingList;
@@ -61,7 +61,7 @@ public final class ProgramAdminApplicationService {
       AccountRepository accountRepository,
       ProgramRepository programRepository,
       Config configuration,
-      SimpleEmail emailClient,
+      EmailSendClient emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi,
       ApplicationRepository applicationRepository,
