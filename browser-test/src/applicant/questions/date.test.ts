@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -117,90 +116,6 @@ test.describe('Date question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
-
-  test.describe(
-    'single date question with North Star flag enabled',
-    {tag: ['@northstar']},
-    () => {
-      const programName = 'Test program for single date'
-
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setUpSingleDateQuestion(
-          programName,
-          page,
-          adminQuestions,
-          adminPrograms,
-        )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'date-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'date-errors-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      })
-
-      test('with filled in date submits successfully', async ({
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerMemorableDateQuestion(
-          '2022',
-          '05 - May',
-          '2',
-        )
-        await applicantQuestions.clickContinue()
-
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
-      })
-
-      test('Renders existing values', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerMemorableDateQuestion(
-          '2022',
-          '05 - May',
-          '2',
-        )
-        await applicantQuestions.clickContinue()
-        // Return to page.
-        await applicantQuestions.clickReview()
-        await validateScreenshot(
-          page,
-          'date-filled-in-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-      })
-
-      test('has no accessiblity violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await validateAccessibility(page)
-      })
-    },
-  )
 
   async function setUpSingleDateQuestion(
     programName: string,

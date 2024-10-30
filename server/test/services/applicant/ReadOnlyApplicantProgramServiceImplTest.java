@@ -182,6 +182,95 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void getAllQuestions_includesAllQuestions() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.SHOW_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("visibility question")
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withBlock("enumeration - household members")
+            .withVisibilityPredicate(predicate)
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock("repeated - household members name")
+            .withRequiredQuestion(testQuestionBank.nameRepeatedApplicantHouseholdMemberName())
+            .withAnotherRepeatedBlock("repeated - household members jobs")
+            .withRequiredQuestion(testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs())
+            .withRepeatedBlock("deeply repeated - household members number days worked")
+            .withRequiredQuestion(
+                testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked())
+            .buildDefinition();
+
+    // Answer predicate question so that the block should be hidden (we expect it to be included
+    // even if hidden)
+    answerColorQuestion(program.id(), "red");
+
+    // Add repeated entities to applicant data
+    Path enumerationPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .enumeratorApplicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    applicantData.putString(enumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "first entity");
+    applicantData.putString(enumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "second entity");
+    applicantData.putString(enumerationPath.atIndex(2).join(Scalar.ENTITY_NAME), "third entity");
+    Path deepEnumerationPath =
+        enumerationPath
+            .atIndex(2)
+            .join(
+                testQuestionBank
+                    .enumeratorNestedApplicantHouseholdMemberJobs()
+                    .getQuestionDefinition()
+                    .getQuestionPathSegment());
+    applicantData.putString(
+        deepEnumerationPath.atIndex(0).join(Scalar.ENTITY_NAME), "nested first job");
+    applicantData.putString(
+        deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+    ImmutableList<ApplicantQuestion> applicantQuestions =
+        subject.getAllQuestions().collect(ImmutableList.toImmutableList());
+
+    assertThat(applicantQuestions)
+        .hasSize(
+            1 // favorite color
+                + 1 // household members enumerator
+                + 2 * 3 // (household member name and job enumerator) * 3 entities
+                + 2 // num days worked for 2 repeated job entities for 1 household member
+            );
+    ImmutableList<QuestionDefinition> questionDefinitions =
+        applicantQuestions.stream()
+            .map(aq -> aq.getQuestionDefinition())
+            .collect(ImmutableList.toImmutableList());
+    assertThat(questionDefinitions)
+        .containsExactly(
+            testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition(),
+            testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+            testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition(),
+            testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition(),
+            testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition(),
+            testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition(),
+            testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition(),
+            testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs().getQuestionDefinition(),
+            testQuestionBank
+                .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+                .getQuestionDefinition(),
+            testQuestionBank
+                .numberNestedRepeatedApplicantHouseholdMemberDaysWorked()
+                .getQuestionDefinition());
+  }
+
+  @Test
   public void getAllBlocks_includesPreviouslyCompletedBlocks() {
     ProgramDefinition programDefinitionWithStatic =
         ProgramBuilder.newDraftProgram("My Program")
@@ -1228,8 +1317,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
               new AbstractMap.SimpleEntry<>(
                   ApplicantData.APPLICANT_PATH
                       .join(fileQuestionDefinition.getQuestionPathSegment())
-                      .join(Scalar.FILE_KEY),
-                  String.format("[%s, %s]", file1Url, file2Url)));
+                      .join(Scalar.FILE_KEY_LIST),
+                  String.format("%s, %s", file1Url, file2Url)));
 
     } else {
       assertThat(result.get(5).scalarAnswersInDefaultLocale())
@@ -1238,6 +1327,13 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                   ApplicantData.APPLICANT_PATH
                       .join(fileQuestionDefinition.getQuestionPathSegment())
                       .join(Scalar.FILE_KEY),
+                  String.format(
+                      "%s/admin/programs/%d/files/%s",
+                      FAKE_BASE_URL, programDefinition.id(), "file-key")),
+              new AbstractMap.SimpleEntry<>(
+                  ApplicantData.APPLICANT_PATH
+                      .join(fileQuestionDefinition.getQuestionPathSegment())
+                      .join(Scalar.FILE_KEY_LIST),
                   String.format(
                       "%s/admin/programs/%d/files/%s",
                       FAKE_BASE_URL, programDefinition.id(), "file-key")));

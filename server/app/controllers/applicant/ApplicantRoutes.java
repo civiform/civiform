@@ -48,28 +48,23 @@ public final class ApplicantRoutes {
       return controllers.applicant.routes.ApplicantProgramsController.indexWithApplicantId(
           applicantId, /* categories= */ ImmutableList.of());
     } else {
-      return controllers.applicant.routes.ApplicantProgramsController.index();
+      return controllers.applicant.routes.ApplicantProgramsController.index(ImmutableList.of());
     }
   }
 
   /**
-   * Returns the route corresponding to the applicant show action.
+   * Returns the route corresponding to the applicant show action. Used when there is no
+   * account/applicant created yet when browsing the home page.
    *
-   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
-   * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programId - ID of program to view
+   * @param programId - ID of the program to view
    * @return Route for the program view action
    */
-  public Call show(CiviFormProfile profile, long applicantId, long programId) {
-    if (includeApplicantIdInRoute(profile)) {
-      return controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
-          applicantId, programId);
-    } else {
-      // Since this controller handles two different actions depending on whether it has an integer
-      // id or an alphanum slug, we must pass the parameter as the more general type.
-      return controllers.applicant.routes.ApplicantProgramsController.show(
-          String.valueOf(programId));
-    }
+  public Call show(long programId) {
+    return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
+  }
+
+  public Call edit(long programId) {
+    return routes.ApplicantProgramsController.edit(programId);
   }
 
   /**
@@ -103,6 +98,17 @@ public final class ApplicantRoutes {
     } else {
       return routes.ApplicantProgramReviewController.review(programId);
     }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant review action. Used when there is no
+   * account/applicant created yet when browsing the home page.
+   *
+   * @param programId - ID of the program to review
+   * @return Route for the applicant review action
+   */
+  public Call review(long programId) {
+    return routes.ApplicantProgramReviewController.review(programId);
   }
 
   /**
@@ -143,6 +149,16 @@ public final class ApplicantRoutes {
     } else {
       return routes.ApplicantProgramBlocksController.edit(programId, blockId, questionName);
     }
+  }
+
+  /**
+   * Returns the route corresponding to the applicant block edit action without an applicant ID.
+   *
+   * @param programId - ID of program to edit
+   * @return Route for the applicant block edit action
+   */
+  public Call blockEdit(long programId) {
+    return routes.ApplicantProgramBlocksController.edit(programId, "1", Optional.empty());
   }
 
   /**

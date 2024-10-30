@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
@@ -57,17 +56,10 @@ public class MainModule extends AbstractModule {
   }
 
   @Provides
-  public IdTokensFactory provideIdTokensFactory(Clock clock) {
-    return new IdTokensFactory(clock);
-  }
-
-  @Provides
   public OidcClientProviderParams provideOidcClientProviderParams(
       Config config,
       ProfileFactory profileFactory,
-      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
-    return OidcClientProviderParams.create(
-        config, profileFactory, idTokensFactory, accountRepositoryProvider);
+    return OidcClientProviderParams.create(config, profileFactory, accountRepositoryProvider);
   }
 }

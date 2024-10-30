@@ -275,14 +275,17 @@ test.describe('phone question for applicant flow', () => {
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'phone-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -292,7 +295,7 @@ test.describe('phone question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'phone-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })
@@ -301,7 +304,10 @@ test.describe('phone question for applicant flow', () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await validateAccessibility(page)
       })

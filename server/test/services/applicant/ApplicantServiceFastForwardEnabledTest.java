@@ -45,6 +45,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
@@ -63,13 +64,14 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
@@ -121,6 +123,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
   private ApplicationStatusesRepository applicationStatusesRepository;
+  private ApplicationEventRepository applicationEventRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -133,6 +136,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
+    applicationEventRepository = instanceOf(ApplicationEventRepository.class);
     createQuestions();
     createProgram();
 
@@ -1652,26 +1656,21 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
+
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "Legit Address")
-            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
-            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
-            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                rootPath.join(Scalar.CORRECTED).toString(),
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "100.0")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-100.0")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
-                "4326")
+            .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
+            .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
+            .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
             .build();
 
     subject
@@ -1682,7 +1681,17 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantData applicantDataAfter =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.asJsonString()).contains("Seattle_InArea_");
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusions =
+        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+
+    assertThat(optionalServiceAreaInclusions.isPresent()).isTrue();
+    assertThat(optionalServiceAreaInclusions.get().size()).isEqualTo(1);
+
+    var serviceAreaInclusion = optionalServiceAreaInclusions.get().stream().findFirst();
+    assertThat(serviceAreaInclusion.isPresent()).isTrue();
+    assertThat(serviceAreaInclusion.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(serviceAreaInclusion.get().getState()).isEqualTo(ServiceAreaState.IN_AREA);
+    assertThat(serviceAreaInclusion.get().getTimeStamp()).isGreaterThan(0);
   }
 
   @Test
@@ -1708,29 +1717,31 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
+
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
+            .put(rootPath.join(Scalar.STREET).toString(), "Legit Address")
+            .put(rootPath.join(Scalar.CITY).toString(), "City")
+            .put(rootPath.join(Scalar.STATE).toString(), "State")
+            .put(rootPath.join(Scalar.ZIP).toString(), "55555")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "Legit Address")
-            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
-            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
-            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                rootPath.join(Scalar.CORRECTED).toString(),
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
+            .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
+            .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
+            .put(serviceAreaPath.atIndex(0).join(Scalar.SERVICE_AREA_ID).toString(), "Bloomington")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "100.0")
+                serviceAreaPath.atIndex(0).join(Scalar.SERVICE_AREA_STATE).toString(),
+                ServiceAreaState.NOT_IN_AREA.getSerializationFormat())
+            .put(serviceAreaPath.atIndex(0).join(Scalar.TIMESTAMP).toString(), "1234")
+            .put(serviceAreaPath.atIndex(1).join(Scalar.SERVICE_AREA_ID).toString(), "Seattle")
             .put(
-                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-100.0")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
-                "4326")
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
-                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+                serviceAreaPath.atIndex(1).join(Scalar.SERVICE_AREA_STATE).toString(),
+                ServiceAreaState.FAILED.getSerializationFormat())
+            .put(serviceAreaPath.atIndex(1).join(Scalar.TIMESTAMP).toString(), "4567")
             .build();
 
     subject
@@ -1741,9 +1752,30 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantData applicantDataAfter =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter.asJsonString())
-        .contains("Bloomington_NotInArea_1234", "Seattle_InArea_");
-    assertThat(applicantDataAfter.asJsonString()).doesNotContain("Seattle_Failed_4567");
+    Optional<ImmutableList<ServiceAreaInclusion>> optionalServiceAreaInclusions =
+        applicantDataAfter.readServiceAreaList(serviceAreaPath);
+
+    assertThat(optionalServiceAreaInclusions.isPresent()).isTrue();
+
+    ImmutableList<ServiceAreaInclusion> serviceAreaInclusions = optionalServiceAreaInclusions.get();
+
+    assertThat(serviceAreaInclusions.size()).isEqualTo(2);
+
+    var bloomington =
+        serviceAreaInclusions.stream()
+            .filter(x -> x.getServiceAreaId().equals("Bloomington"))
+            .findFirst();
+    assertThat(bloomington.isPresent()).isTrue();
+    assertThat(bloomington.get().getState()).isEqualTo(ServiceAreaState.NOT_IN_AREA);
+    assertThat(bloomington.get().getTimeStamp()).isEqualTo(1234);
+
+    var seattle =
+        serviceAreaInclusions.stream()
+            .filter(x -> x.getServiceAreaId().equals("Seattle"))
+            .findFirst();
+    assertThat(seattle.isPresent()).isTrue();
+    assertThat(seattle.get().getState()).isEqualTo(ServiceAreaState.IN_AREA);
+    assertThat(seattle.get().getTimeStamp()).isNotEqualTo(4567);
   }
 
   @Test
@@ -3328,20 +3360,15 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(matchingProgramIds).contains(testProgramWithNoEligibilityConditions.id);
   }
 
-  private static void addStatusEvent(
+  private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(
-                StatusEvent.builder()
-                    .setStatusText(status.statusText())
-                    .setEmailSent(false)
-                    .build())
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(actorAccount), details);
-    event.save();
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(actorAccount),
+            StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
   }
 

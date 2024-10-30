@@ -5,7 +5,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.profile.creator.ProfileCreator;
@@ -45,7 +45,6 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   public void setup() {
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
-    IdTokensFactory idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -59,10 +58,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     loginGovProvider =
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
-                config,
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)));
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test
@@ -102,7 +98,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
   public void testRedirectURI() throws Exception {
     OidcClient client = loginGovProvider.get();
 
-    var redirectAction = client.getRedirectionAction(webContext, mockSessionStore);
+    var redirectAction = client.getRedirectionAction(new CallContext(webContext, mockSessionStore));
     assertThat(redirectAction).containsInstanceOf(FoundAction.class);
     var redirectUri = new URI(((FoundAction) redirectAction.get()).getLocation());
     assertThat(redirectUri)
@@ -123,7 +119,9 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
         client.getLogoutAction(
-            webContext, mockSessionStore, new CiviFormProfileData(1L), afterLogoutUri);
+            new CallContext(webContext, mockSessionStore),
+            new CiviFormProfileData(1L),
+            afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)

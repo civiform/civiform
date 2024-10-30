@@ -97,6 +97,10 @@ it is around the label */
   @include u-padding-bottom(0);
 }
 
+.page-spacing {
+  @include u-height(4);
+}
+
 .content {
   @include u-margin-y('105');
 }
@@ -105,8 +109,18 @@ it is around the label */
   @include u-height('105');
 }
 
+// Between sections
+.section-external {
+  @include u-margin-top(4);
+}
+
+// Between elements within a section
+.section-internal {
+  @include u-margin-top(3);
+}
+
 .section {
-  @include u-padding-y(3);
+  @include u-margin-y(3);
 }
 
 .section-spacing {
@@ -114,11 +128,33 @@ it is around the label */
 }
 
 .container {
-  @include u-padding-y(2);
+  display: flex;
+  justify-content: space-between;
 }
 
 .text-medium-spacing {
   @include u-height(1);
+}
+
+.zero-margin {
+  margin: 0;
+}
+
+.cf-zero-top-margin {
+  margin-top: 0;
+}
+
+.usa-form .usa-button.zero-top-margin {
+  margin-top: 0;
+}
+
+// This should only be used to override styling.
+// Prefer using class="usa-prose" in parent element where possible.
+.cf-prose-h3 {
+  @include u-font_size('heading', 'lg');
+  @include u-line-height('sans', $theme-heading-line-height);
+  font-family: var(--heading, Merriweather);
+  font-weight: font-weight('bold');
 }
 
 // This should only be used to override styling.
@@ -127,6 +163,43 @@ it is around the label */
   @include u-font('sans', 'sm');
   font-weight: font-weight('bold');
   @include u-line-height('sans', $theme-heading-line-height);
+}
+
+.block-summary {
+  @include u-margin-top(4);
+  @include u-padding-y(2);
+}
+
+.block-summary-header {
+  align-items: flex-start; // Align items to the top
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-edit-button {
+  margin-right: 0;
+  margin-top: 0;
+}
+
+// Resolve conflict between zero-margin and usa-prose>ol by directly specifying ID
+#summary-multiline-list {
+  margin: 0;
+  text-align: right;
+  padding-left: 0;
+}
+
+.summary-answer {
+  @include u-line-height('sans', 5);
+  @include u-text('ink');
+  font-weight: font-weight('bold');
+  text-align: right;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.summary-button-section {
+  @include u-margin-top(3);
+  margin-bottom: 0;
 }
 
 // Styles for desktop
@@ -160,6 +233,15 @@ it is around the label */
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-truncate-3 {
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -268,4 +350,8 @@ main {
 
 .cf-eligible-tag {
   @include u-font('sans', 'xs');
+}
+
+.auto-width {
+  width: auto;
 }

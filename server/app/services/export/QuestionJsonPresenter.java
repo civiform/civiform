@@ -15,6 +15,7 @@ import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import services.Path;
 import services.applicant.question.AddressQuestion;
@@ -34,7 +35,7 @@ import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
 import services.export.enums.ApiPathSegment;
 import services.export.enums.QuestionTypeExternal;
-import services.geo.ServiceAreaInclusionGroup;
+import services.geo.ServiceAreaInclusion;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
@@ -222,8 +223,28 @@ public interface QuestionJsonPresenter<Q extends Question> {
           /* v8= */ question.getLongitudeValue().map(l -> latLongFormat.format(l)),
           /* k9= */ question.getWellKnownIdPath().asNestedEntitiesPath(),
           /* v9= */ question.getWellKnownIdValue().map(w -> Long.toString(w)),
+
+          // TODO: #7134 Only here for api backwards compatibility. Long term this should move
+          //       to call {@link question.getServiceAreasPath}
           /* k10= */ question.getServiceAreaPath().asNestedEntitiesPath(),
-          /* v10= */ question.getServiceAreaValue().map(ServiceAreaInclusionGroup::serialize));
+          /* v10= */ question
+              .getServiceAreaValue()
+              .map(AddressJsonPresenter::serializeServiceArea));
+    }
+
+    /** Takes a list of {@link ServiceAreaInclusion}s and transforms them into a delimited string */
+    // TODO: #7134 Only here for api backwards compatibility. Long term remove.
+    private static String serializeServiceArea(
+        ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
+      return serviceAreaInclusionGroup.stream()
+          .map(
+              (area) ->
+                  area.getServiceAreaId()
+                      + "_"
+                      + area.getState().getSerializationFormat()
+                      + "_"
+                      + area.getTimeStamp())
+          .collect(Collectors.joining(","));
     }
   }
 

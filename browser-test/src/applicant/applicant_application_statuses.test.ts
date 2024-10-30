@@ -56,7 +56,10 @@ test.describe('with program statuses', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
 
         await loginAsTestUser(page)
-        await validateScreenshot(page, 'program-list-with-status-northstar')
+        await validateScreenshot(
+          page.locator('.cf-application-card'),
+          'program-card-with-status-northstar',
+        )
         await logout(page)
       })
     },

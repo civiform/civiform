@@ -21,8 +21,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import models.AccountModel;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -31,8 +29,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
@@ -46,10 +46,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   private static final int oidcPort = 3390;
   private static final String clientId = "test-client-id";
   private static final String targetUrl = "http://example.com/target";
-  private static final String sessionId = "test-session-id";
   private static final long accountId = 1L;
 
-  private IdTokensFactory idTokensFactory;
   private OidcConfiguration oidcConfig;
   private CiviFormProfileData civiFormProfileData;
   private String idToken;
@@ -59,7 +57,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
     civiFormProfileData = new CiviFormProfileData(accountId);
 
@@ -67,20 +64,6 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().build();
     JWT jwt = new PlainJWT(claimsSet);
     idToken = jwt.serialize();
-  }
-
-  private Optional<String> getRedirectLocation(RedirectionAction action) {
-    // Unfortunately, the RedirectionAction has almost no useful accessor methods, so we have to use
-    // the `toString()` representation, which looks like:
-    //
-    // #FoundAction# | code: 302 | location: http://dev-oidc:3390/session/end?... |
-    Pattern pattern = Pattern.compile("location: (https?://[^ ]+)");
-    Matcher matcher = pattern.matcher(action.toString());
-    if (matcher.find()) {
-      return Optional.of(matcher.group(1));
-    } else {
-      return Optional.empty();
-    }
   }
 
   Optional<String> queryParamValue(URI uri, String paramName) {
@@ -103,27 +86,26 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig = ConfigFactory.parseMap(ImmutableMap.of());
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");
@@ -138,34 +120,30 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
     Config civiformConfig =
         ConfigFactory.parseMap(ImmutableMap.of("admin_oidc_enhanced_logout_enabled", "true"));
 
-    // Store the session id in the profile.
-    civiFormProfileData.addAttribute(CiviformOidcProfileCreator.SESSION_ID, sessionId);
-
     // Set up an admin account. Associate the session ID with the ID token for logout.
     AccountModel account = new AccountModel();
     account.setGlobalAdmin(true);
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     when(accountRepository.lookupAccount(accountId)).thenReturn(Optional.of(account));
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");
@@ -188,27 +166,26 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
             ImmutableMap.of("auth.oidc_post_logout_param", "custom_target_url_parameter_name"));
 
     AccountModel account = new AccountModel();
-    SerializedIdTokens serializedIdTokens =
-        new SerializedIdTokens(ImmutableMap.of(sessionId, idToken));
-    account.setSerializedIdTokens(serializedIdTokens);
+    IdTokens idTokens = new IdTokens(ImmutableMap.of(civiFormProfileData.getSessionId(), idToken));
+    account.setIdTokens(idTokens);
     Provider<AccountRepository> accountRepositoryProvider = () -> accountRepository;
 
     OidcClientProviderParams params =
-        OidcClientProviderParams.create(
-            civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
+        OidcClientProviderParams.create(civiformConfig, profileFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
         new CiviformOidcLogoutActionBuilder(
             oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     Optional<RedirectionAction> logoutAction =
-        builder.getLogoutAction(getWebContext(), sessionStore, civiFormProfileData, targetUrl);
+        builder.getLogoutAction(
+            new CallContext(getWebContext(), sessionStore), civiFormProfileData, targetUrl);
 
     assertThat(logoutAction).isNotEmpty();
     assertThat(logoutAction.get().getCode()).isEqualTo(302);
 
-    Optional<String> location = getRedirectLocation(logoutAction.get());
+    String location = ((FoundAction) logoutAction.get()).getLocation();
     assertThat(location).isNotEmpty();
-    URI locationUri = new URI(location.get());
+    URI locationUri = new URI(location);
     assertThat(locationUri.getHost()).isEqualTo(oidcHost);
     assertThat(locationUri.getPort()).isEqualTo(oidcPort);
     assertThat(locationUri.getPath()).isEqualTo("/session/end");

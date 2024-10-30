@@ -6,8 +6,8 @@ import static support.FakeRequestBuilder.fakeRequest;
 import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
-import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,17 +33,16 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
   private static final String MIDDLE_NAME_ATTRIBUTE_NAME = "middle_name";
   private static final String LAST_NAME_ATTRIBUTE_NAME = "last_name";
   private static final String NAME_SUFFIX_ATTRIBUTE_NAME = "name_suffix";
+  private static final String NAME_ATTRIBUTE = "name";
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
-  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
-    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -52,13 +51,76 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory,
-                idTokensFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)),
-            EMAIL_ATTRIBUTE_NAME,
-            LOCALE_ATTRIBUTE_NAME,
-            ImmutableList.of(
-                FIRST_NAME_ATTRIBUTE_NAME, MIDDLE_NAME_ATTRIBUTE_NAME, LAST_NAME_ATTRIBUTE_NAME));
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(
+                    ImmutableList.of(
+                        FIRST_NAME_ATTRIBUTE_NAME,
+                        MIDDLE_NAME_ATTRIBUTE_NAME,
+                        LAST_NAME_ATTRIBUTE_NAME))
+                .build());
+  }
+
+  // Test for https://github.com/civiform/civiform/issues/8344
+  @Test
+  public void mergeCiviFormProfile_noNameIfEmailAndNameMatch() {
+    OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
+    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
+    oidcProfileAdapter =
+        new GenericApplicantProfileCreator(
+            client_config,
+            client,
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(ImmutableList.of(NAME_ATTRIBUTE))
+                .build());
+
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");
+    profile.addAttribute(NAME_ATTRIBUTE, "foo@bar.com");
+    profile.addAttribute("iss", ISSUER);
+    profile.setId(SUBJECT);
+
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+    assertThat(profileData).isNotNull();
+    assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+
+    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+
+    assertThat(applicantData.getApplicantName()).isEmpty();
+  }
+
+  @Test
+  public void mergeCiviFormProfile_succeedsWithNoName() {
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");
+    profile.addAttribute(LOCALE_ATTRIBUTE_NAME, "en");
+    profile.addAttribute("iss", ISSUER);
+    profile.setId(SUBJECT);
+
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+    assertThat(profileData).isNotNull();
+    assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+
+    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+
+    assertThat(applicantData.getApplicantName()).isEmpty();
+    assertThat(applicantData.preferredLocale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test

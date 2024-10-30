@@ -118,7 +118,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         personalInfo,
         messages,
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content),
-        applicantId);
+        Optional.of(applicantId));
   }
 
   private SectionTag eligibleProgramsSection(

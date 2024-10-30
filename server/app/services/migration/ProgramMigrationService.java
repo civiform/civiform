@@ -2,6 +2,7 @@ package services.migration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ import models.ProgramNotificationPreference;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -140,10 +142,14 @@ public final class ProgramMigrationService {
    */
   public ProgramDefinition prepForExport(ProgramDefinition programDefinition) {
     return programDefinition.toBuilder()
-        // TODO(#7087) migrate program categories
+        // TODO(#8613) migrate program categories and associated TI groups
         .setCategories(ImmutableList.of())
+        .setAcls(new ProgramAcls())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
+        // Explicitly set program type to DEFAULT so we don't import program as a
+        // pre-screener/common intake
+        .setProgramType(ProgramType.DEFAULT)
         .build();
   }
 

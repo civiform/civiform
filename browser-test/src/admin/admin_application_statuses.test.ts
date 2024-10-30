@@ -344,6 +344,32 @@ test.describe('view program statuses', () => {
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
+    test('allow notes to be exported', async ({adminPrograms}) => {
+      await adminPrograms.editNote('Note is exported')
+      await adminPrograms.expectNoteUpdatedToast()
+      const noApplyFilters = false
+
+      const csvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContent).toContain('Note is exported')
+    })
+
+    test('export only the latest note', async ({adminPrograms}) => {
+      await adminPrograms.editNote('Note is exported')
+      await adminPrograms.expectNoteUpdatedToast()
+      const noApplyFilters = false
+
+      // Update note only gets exported
+      await adminPrograms.editNote('Note is updated')
+      await adminPrograms.expectNoteUpdatedToast()
+      const csvContent = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContent).toContain('Note is updated')
+
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      await adminPrograms.editNote('Note is finalized')
+      await adminPrograms.expectNoteUpdatedToast()
+      const csvContentFinal = await adminPrograms.getCsv(noApplyFilters)
+      expect(csvContentFinal).toContain('Note is finalized')
+    })
 
     test('preserves newlines in notes', async ({adminPrograms}) => {
       const noteText = 'Some note content\nwithseparatelines'
@@ -816,7 +842,7 @@ test.describe('view program statuses', () => {
       await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        await adminPrograms.viewApplicationForApplicant(otherTestUserEmail)
       })
 
       const [acccountEmailsBefore, applicantEmailsBefore] =

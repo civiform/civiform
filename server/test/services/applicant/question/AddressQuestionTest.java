@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
@@ -17,6 +18,7 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
 import services.question.QuestionAnswerer;
@@ -113,7 +115,7 @@ public class AddressQuestionTest {
         10.1,
         -20.1,
         1000L,
-        "Seattle_InArea_1234");
+        ImmutableList.of(ServiceAreaInclusion.create("Seattle", ServiceAreaState.IN_AREA, 1234)));
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -293,7 +295,7 @@ public class AddressQuestionTest {
         10.1,
         -20.1,
         1000L,
-        "Seattle_InArea_1234");
+        ImmutableList.of(ServiceAreaInclusion.create("Seattle", ServiceAreaState.IN_AREA, 1234)));
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -325,7 +327,7 @@ public class AddressQuestionTest {
         10.1,
         -20.1,
         1000L,
-        "Seattle_InArea_1234");
+        ImmutableList.of(ServiceAreaInclusion.create("Seattle", ServiceAreaState.IN_AREA, 1234)));
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 

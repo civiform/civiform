@@ -59,6 +59,10 @@ public final class TextFormatter {
   /** Passes provided text through Markdown formatter, generating an HTML String */
   public static String formatTextToSanitizedHTML(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
+    if (text.isBlank()) {
+      return "";
+    }
+
     if (preserveEmptyLines) {
       text = preserveEmptyLines(text);
     }
@@ -179,6 +183,7 @@ public final class TextFormatter {
                 "target",
                 "xmlns",
                 "fill",
+                "start", // <--- Allow OLs to continue numbering instead of resetting to 1.
                 "stroke",
                 "stroke-width",
                 "aria-label",

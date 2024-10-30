@@ -2,14 +2,18 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import auth.oidc.SerializedIdTokens;
+import auth.oidc.IdTokens;
 import autovalue.shaded.com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -53,8 +57,12 @@ public class AccountModel extends BaseModel {
   private String authorityId;
   private String emailAddress;
 
+  // TODO(#6975): Drop this field once active_sessions has been rolled out in prod for some time
   @DbJsonB(name = "id_tokens")
-  private SerializedIdTokens serializedIdTokens;
+  private IdTokens idTokens;
+
+  @DbJsonB(name = "active_sessions")
+  private Map<String, SessionDetails> activeSessions = new HashMap<>();
 
   private String tiNote;
 
@@ -121,12 +129,12 @@ public class AccountModel extends BaseModel {
     return Optional.ofNullable(this.managedByGroup);
   }
 
-  public SerializedIdTokens getSerializedIdTokens() {
-    return serializedIdTokens;
+  public IdTokens getIdTokens() {
+    return idTokens;
   }
 
-  public AccountModel setSerializedIdTokens(SerializedIdTokens serializedIdTokens) {
-    this.serializedIdTokens = serializedIdTokens;
+  public AccountModel setIdTokens(IdTokens idTokens) {
+    this.idTokens = idTokens;
     return this;
   }
 
@@ -177,14 +185,50 @@ public class AccountModel extends BaseModel {
 
   /**
    * Returns the name, as a string, of the most-recently created Applicant associated with this
-   * Account. There is no particular reason for an Account to have more than one Applicant - this
-   * was a capability we built but did not use - so the ordering is somewhat arbitrary /
-   * unnecessary.
+   * Account. Or the email if no name is associated with the applicant. There is no particular
+   * reason for an Account to have more than one Applicant - this was a capability we built but did
+   * not use - so the ordering is somewhat arbitrary / unnecessary.
    */
-  public String getApplicantName() {
+  public String getApplicantDisplayName() {
     return this.getApplicants().stream()
         .max(Comparator.comparing(ApplicantModel::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
+        .map(u -> u.getApplicantData().getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
+  }
+
+  public Optional<SessionDetails> getActiveSession(String sessionId) {
+    return Optional.ofNullable(activeSessions.get(sessionId));
+  }
+
+  public void addActiveSession(String sessionId, Clock clock) {
+    SessionDetails sessionDetails = new SessionDetails();
+    sessionDetails.setCreationTime(clock.instant());
+    activeSessions.put(sessionId, sessionDetails);
+  }
+
+  /** Stores the ID token for the given sessionId. */
+  public void storeIdTokenInActiveSession(String sessionId, String idToken) {
+    // Session should always exist already
+    SessionDetails sessionDetails = getActiveSession(sessionId).orElseThrow();
+    sessionDetails.setIdToken(idToken);
+    activeSessions.put(sessionId, sessionDetails);
+  }
+
+  /** Remove the given session. */
+  public void removeActiveSession(String sessionId) {
+    activeSessions.remove(sessionId);
+  }
+
+  /** Removes any sessions that have exceeded the given max session length. */
+  public void removeExpiredActiveSessions(Clock clock, Duration maxSessionLength) {
+    activeSessions
+        .entrySet()
+        .removeIf(
+            entry ->
+                entry
+                    .getValue()
+                    .getCreationTime()
+                    .plus(maxSessionLength)
+                    .isBefore(clock.instant()));
   }
 }

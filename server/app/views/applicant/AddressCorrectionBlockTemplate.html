@@ -10,15 +10,17 @@
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
       ></div>
 
-      <div class="grid-container section">
+      <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
             <div
               th:replace="~{components/ToastFragment :: devOrStagingToast(${isDevOrStaging})}"
             ></div>
-            <div
-              th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
-            ></div>
+            <div class="section-external">
+              <div
+                th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
+              ></div>
+            </div>
 
             <div class="usa-prose">
               <h2 th:text="#{title.confirmAddress}"></h2>
@@ -50,7 +52,10 @@
                 </div>
 
                 <!--/* Render suggested addresses */-->
-                <div th:if="${anySuggestions}" class="usa-prose">
+                <div
+                  th:if="${anySuggestions}"
+                  class="usa-prose section-internal"
+                >
                   <h4
                     th:if="${suggestions.size() == 1}"
                     th:text="#{content.suggestedAddress}"
@@ -76,18 +81,27 @@
               </fieldset>
 
               <!--/* Bottom nav buttons */-->
-              <div class="section">
-                <button
-                  class="usa-button usa-button--outline margin-bottom-1"
-                  th:text="#{button.goBackAndEdit}"
-                  th:attr="data-redirect-to=${goBackAction}"
-                  type="button"
-                ></button>
+              <div class="section-external">
+                <div>
+                  <button
+                    class="usa-button usa-button--outline margin-bottom-1"
+                    th:text="#{button.goBackAndEdit}"
+                    th:attr="data-redirect-to=${goBackAction}"
+                    type="button"
+                  ></button>
+                  <button
+                    type="submit"
+                    class="usa-button margin-bottom-1"
+                    th:text="#{button.confirmAddress}"
+                    th:formaction="${confirmAddressAction}"
+                  ></button>
+                </div>
                 <button
                   type="submit"
-                  class="usa-button margin-bottom-1"
-                  th:text="#{button.confirmAddress}"
-                  th:formaction="${confirmAddressAction}"
+                  th:formaction="${reviewFormAction}"
+                  id="review-application-button"
+                  class="usa-button usa-button--unstyled margin-top-3 margin-bottom-4"
+                  th:text="#{button.reviewAndExit}"
                 ></button>
               </div>
             </form>

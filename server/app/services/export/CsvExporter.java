@@ -64,7 +64,7 @@ public final class CsvExporter implements AutoCloseable {
       ProgramDefinition programDefinition)
       throws IOException {
     ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
-    for (AnswerData answerData : roApplicantService.getSummaryDataOnlyActive()) {
+    for (AnswerData answerData : roApplicantService.getSummaryDataAllQuestions()) {
       for (Path p : answerData.createQuestion().getAllPaths()) {
         answerMapBuilder.put(p, answerData);
       }
@@ -156,7 +156,7 @@ public final class CsvExporter implements AutoCloseable {
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
           break;
         case ADMIN_NOTE:
-          printer.print(programDefinition.adminDescription());
+          printer.print(application.getLatestNote().orElse(EMPTY_VALUE));
           break;
       }
     }

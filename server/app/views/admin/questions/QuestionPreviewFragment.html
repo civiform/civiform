@@ -1,5 +1,15 @@
-<div id="sample-question">
+<div id="sample-question" class="margin-y-4">
+  <th:block th:if="${question.getType().getLabel() == 'File Upload'}">
+    <div
+      th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"
+    ></div>
+  </th:block>
+
   <div
+    th:if="${question.getType().getLabel() != 'File Upload'}"
     th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations})}"
+  ></div>
+  <div
+    th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 </div>

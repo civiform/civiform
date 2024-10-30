@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -19,6 +20,12 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   // Login.gov requires a state longer than 22 characters
   static final RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
 
+  private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
+      StandardClaimsAttributeNames.builder()
+          .setEmail("email")
+          .setNames(ImmutableList.of("given_name", "family_name"))
+          .build();
+
   @Inject
   public LoginGovClientProvider(OidcClientProviderParams params) {
     super(params);
@@ -32,10 +39,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-
-    var nameAttrs = ImmutableList.of("given_name", "family_name");
-    return new GenericApplicantProfileCreator(
-        config, client, params, "email", /*localeAttributeName*/ null, nameAttrs);
+    return new GenericApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
   }
 
   @Override
@@ -80,7 +84,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   @Override
   public OidcClient get() {
     OidcClient client = super.get();
-    var providerMetadata = client.getConfiguration().getProviderMetadata();
+    var providerMetadata = client.getConfiguration().getOpMetadataResolver().load();
     providerMetadata.setCodeChallengeMethods(List.of(CodeChallengeMethod.S256));
 
     return client;

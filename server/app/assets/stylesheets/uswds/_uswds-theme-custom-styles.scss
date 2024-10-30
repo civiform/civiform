@@ -25,15 +25,17 @@ See the radio-option below as an example.
 }
 
 // Put the focus outline around the chip instead of the underlying checkbox
-#filter-chip:focus-within {
+.filter-chip:focus-within {
   @include u-outline('05');
   @include u-outline-color('blue-40v');
   outline-offset: 4px;
 }
 
-// Display the checkmark icon when the chip is selected
-[id^='check-category-']:checked + svg {
-  display: block;
+// Display a check mark icon on the program filter when it is selected
+[id^='check-category-']:checked ~ label::before {
+  content: '\2713 \fe0e';
+  color: inherit;
+  @include u-margin-right('05');
 }
 
 /*

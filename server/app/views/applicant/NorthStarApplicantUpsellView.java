@@ -48,10 +48,13 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programDescription", params.programDescription().orElse(""));
@@ -67,7 +70,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             /* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS, ImmutableList.of());
     context.setVariable("successAlertSettings", successAlertSettings);
 
-    String applicantName = params.profile().getApplicant().join().getAccount().getApplicantName();
+    String applicantName =
+        params.profile().getApplicant().join().getAccount().getApplicantDisplayName();
     context.setVariable("applicantName", applicantName);
 
     context.setVariable("dateSubmitted", params.dateSubmitted());
@@ -87,6 +91,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         routes.UpsellController.download(params.applicationId(), params.applicantId()).url();
     context.setVariable("downloadHref", downloadHref);
 
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
     ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(
             params.request(),
@@ -95,9 +102,10 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             MessageKey.BUTTON_APPLY,
             params.eligiblePrograms().get(),
             /* preferredLocale= */ params.messages().lang().toLocale(),
-            params.profile(),
-            params.applicantId(),
-            params.applicantPersonalInfo());
+            Optional.of(params.profile()),
+            Optional.of(params.applicantId()),
+            params.applicantPersonalInfo(),
+            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
     context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);

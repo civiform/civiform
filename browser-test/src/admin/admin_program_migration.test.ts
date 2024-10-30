@@ -5,6 +5,7 @@ import {
   seedProgramsAndCategories,
   validateScreenshot,
 } from '../support'
+import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -106,6 +107,7 @@ test.describe('program migration', () => {
     page,
     adminPrograms,
     adminProgramMigration,
+    adminTiGroups,
   }) => {
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
@@ -175,15 +177,16 @@ test.describe('program migration', () => {
       )
     })
 
+    await seedProgramsAndCategories(page)
+    await page.goto('/')
+    await adminPrograms.goToExportProgramPage(
+      'Comprehensive Sample Program',
+      'DRAFT',
+    )
+    let downloadedComprehensiveProgram =
+      await adminProgramMigration.downloadJson()
+
     await test.step('error: program already exists', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-      await adminPrograms.goToExportProgramPage(
-        'Comprehensive Sample Program',
-        'DRAFT',
-      )
-      const downloadedComprehensiveProgram =
-        await adminProgramMigration.downloadJson()
       await adminPrograms.gotoAdminProgramsPage()
       await adminProgramMigration.goToImportPage()
       await adminProgramMigration.submitProgramJson(
@@ -196,6 +199,87 @@ test.describe('program migration', () => {
       await validateScreenshot(
         page,
         'import-page-with-error-program-already-exists',
+      )
+    })
+
+    await test.step('error: invalid program admin name', async () => {
+      // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
+      // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
+      await adminProgramMigration.clickButton('Try again')
+
+      // replace the program admin name with an invalid admin name to trigger an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program ##4L!',
+      )
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'One or more program errors occured:',
+        ALERT_ERROR,
+      )
+      await adminProgramMigration.expectAlert(
+        'A program admin name may only contain lowercase letters, numbers, and dashes.',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('error: invalid question admin name', async () => {
+      // this tests that we will catch errors that bubble up from the questionDefinition.validate
+      // there are other errors that might bubble up (such as a blank question text) but we don't need to test them all
+      await adminProgramMigration.clickButton('Try again')
+
+      // set the program admin name back to a valid admin name
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program ##4L!',
+        'comprehensive-sample-program-new',
+      )
+      // replace the question admin name with a blank string to trigger an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Sample Address Question',
+        '',
+      )
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'One or more question errors occured:',
+        ALERT_ERROR,
+      )
+      await adminProgramMigration.expectAlert(
+        'Administrative identifier cannot be blank.',
+        ALERT_ERROR,
+      )
+    })
+
+    await test.step('error: SELECT_TI visibility not allowed', async () => {
+      await adminTiGroups.gotoAdminTIPage()
+      await adminTiGroups.fillInGroupBasics('groupOne', 'groupOne description')
+      await adminTiGroups.editGroup('groupOne')
+      await adminTiGroups.addGroupMember('groupOne@bar.com')
+      await adminPrograms.addProgram(
+        'New Program',
+        'program description',
+        'https://usa.gov',
+        ProgramVisibility.SELECT_TI,
+        'admin description',
+        false,
+        'groupOne',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.goToExportProgramPage('New Program', 'DRAFT')
+      let downloadedProgram = await adminProgramMigration.downloadJson()
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+      // replace admin name to avoid collision
+      downloadedProgram = downloadedProgram.replace(
+        'new-program',
+        'new-new-program',
+      )
+      await adminProgramMigration.submitProgramJson(downloadedProgram)
+      await adminProgramMigration.expectAlert(
+        "Display mode 'SELECT_TI' is not allowed.",
       )
     })
   })

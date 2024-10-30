@@ -28,6 +28,8 @@ footer.technicalSupport=Para sa technical support: {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
+# Clicking this button shows a dropdown menu to change the display language
+button.languages=Pumili ng Wika
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Pumili ng wika
 # A label on the button that opens the header menu shown on mobile
@@ -98,12 +100,12 @@ link.adminLogin=Admin login
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Na-upload na ang file: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Pumili ng file
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Burahin
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -115,7 +117,7 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Mag-save at tapusin ang application sa ibang pagkakataon
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -124,8 +126,8 @@ content.blockProgress={0} sa {1}
 content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Pag-usad ng aplikasyon
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} sa {1} ang na-upload
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -209,21 +211,15 @@ title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Hindi sinimulan
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Maghanap ng mga serbisyong makakatulong sa iyo
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Maghanap ng mga serbisyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mga aplikasyon ko ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Iba pang program ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Mga Program ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Inirerekomenda ({0})
+title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Natapos na ang seksyon
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -378,6 +374,8 @@ title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Settin
 
 # Submit application button
 button.submit=Isumite
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -515,10 +513,14 @@ button.continueWithoutAnAccount=Magpatuloy nang walang account
 title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -542,8 +544,6 @@ heading.dateSubmitted=Petsa ng pagsusumite
 heading.forYourRecords=Kumpirmasyon para sa iyong mga record
 # Text above a button to print this page
 content.youCanPrint=Puwede mong i-print ang kumpirmasyong ito para sa iyong mga record.
-# Button to print this webpage
-button.print=I-print ang page na ito
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -556,7 +556,7 @@ alert.createAccountDescription=Gumamit ng account para mag-log in ulit para ting
 content.loginToExistingAccount=Mag-log in sa kasalukuyang account
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=Walang pagbabagong ise-save para sa {0}
@@ -703,6 +703,10 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 button.chooseFile=Pumili ng File
+# Text shown on a tag while a file is uploading.
+label.uploading=Ina-upload
+# Label applied to a list of uploaded files
+label.uploadedFiles=Mga Na-upload na File
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

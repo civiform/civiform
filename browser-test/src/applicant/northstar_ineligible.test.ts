@@ -60,7 +60,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -82,7 +85,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Go back and update answers to become eligible', async () => {
       await applicantQuestions.clickEditMyResponses()
-      await applicantQuestions.clickReview()
+      await applicantQuestions.clickEdit()
 
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
@@ -108,7 +111,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -123,7 +129,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Go back to the review page and re-submit', async () => {
       await applicantQuestions.clickEditMyResponses()
-      await applicantQuestions.clickSubmit()
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await test.step('Expect ineligible page again', async () => {
@@ -156,7 +162,10 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Answer questions', async () => {
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
@@ -180,7 +189,11 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       // Click "Continue" on the program card
       await applicantQuestions.clickApplyProgramButton(programName)
 
-      await applicantQuestions.clickReview()
+      // All questions have been answered
+      await applicantQuestions.expectReviewPage(/* northStarEnabled */ true)
+
+      // Edit the block (there is only one block)
+      await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(

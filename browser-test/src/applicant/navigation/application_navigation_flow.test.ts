@@ -92,15 +92,51 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe(
-      'review page with North Star enabled',
+      'flows with North Star enabled',
       {tag: ['@northstar']},
       () => {
         test.beforeEach(async ({page}) => {
           await enableFeatureFlag(page, 'north_star_applicant_ui')
         })
 
-        test('validate screenshot', async ({page, applicantQuestions}) => {
+        test('validate block edit page title', async ({
+          page,
+          applicantQuestions,
+        }) => {
           await applicantQuestions.clickApplyProgramButton(programName)
+
+          await applicantQuestions.expectTitle(
+            page,
+            'Test program for navigation flows — 1 of 6',
+          )
+        })
+
+        test('validate screenshot', async ({page, applicantQuestions}) => {
+          await test.step('Fill out application', async () => {
+            await applicantQuestions.clickApplyProgramButton(programName)
+
+            await applicantQuestions.answerMemorableDateQuestion(
+              '2021',
+              '11 - November',
+              '1',
+            )
+
+            await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.answerAddressQuestion(
+              '1234 St',
+              'Unit B',
+              'Sim',
+              'WA',
+              '54321',
+            )
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.answerRadioButtonQuestion('one')
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.answerPhoneQuestion('4256373270')
+            await applicantQuestions.clickContinue()
+          })
 
           await validateScreenshot(
             page,
@@ -108,15 +144,19 @@ test.describe('Applicant navigation flow', () => {
             /* fullPage= */ true,
             /* mobileScreenshot= */ true,
           )
+
+          await validateAccessibility(page)
         })
 
         test('shows error toast with incomplete submission', async ({
           page,
           applicantQuestions,
         }) => {
-          test.slow()
-
+          // Clicking "Apply" navigates to the first block edit page
           await applicantQuestions.clickApplyProgramButton(programName)
+
+          // Go to the review page
+          await applicantQuestions.clickBack()
 
           // The UI correctly won't let us submit because the application isn't complete.
           // To fake submitting an incomplete application add a submit button and click it.

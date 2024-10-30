@@ -151,12 +151,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 3 times:
+    // A program's name appears in the index view page content 2 times:
     //  1) Program card title
-    //  2) Program details aria-label
-    //  3) Apply button aria-label
+    //  2) Apply button aria-label
     // If it appears 6 times, that means there is a duplicate of the program.
-    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(3);
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
   }
 
   /** Returns the number of times a substring appears in the string. */
@@ -235,29 +234,37 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showWithApplicantId_includesApplyButton() {
-    ProgramModel program = resourceCreator().insertActiveProgram("program");
+  public void indexWithoutApplicantId_showsAllPubliclyVisiblePrograms_doesNotShowEndSession() {
+    // We don't want to provide a profile when ProfileUtils functions are called
+    resetMocks();
+
+    ProgramModel activeProgram = resourceCreator().insertActiveProgram("program");
+    ProgramModel disabledProgram = resourceCreator().insertActiveDisabledProgram("disabled");
+    ProgramModel hiddenInIndexProgram =
+        resourceCreator().insertActiveHiddenInIndexProgram("hidden");
+    ProgramModel tiOnlyProgram = resourceCreator().insertActiveTiOnlyProgram("tiOnly");
 
     Result result =
         controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, program.id)
+            .indexWithoutApplicantId(fakeRequest(), ImmutableList.of())
             .toCompletableFuture()
             .join();
 
+    String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
-  }
-
-  @Test
-  public void showWithApplicantId_invalidProgram_returnsBadRequest() {
-    Result result =
-        controller
-            .showWithApplicantId(fakeRequest(), currentApplicant.id, 9999)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThat(content)
+        .contains(routes.ApplicantProgramsController.show(String.valueOf(activeProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(disabledProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(hiddenInIndexProgram.id)).url());
+    assertThat(content)
+        .doesNotContain(
+            routes.ApplicantProgramsController.show(String.valueOf(tiOnlyProgram.id)).url());
+    assertThat(content).doesNotContain("End session");
+    assertThat(content).doesNotContain("You're a guest user");
   }
 
   @Test
@@ -278,6 +285,13 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+  }
+
+  @Test
+  public void show_withProgramIdRedirects() {
+    Result result = controller.show(fakeRequest(), "123").toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -433,6 +447,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index().url());
+        .hasValue(routes.ApplicantProgramsController.index(ImmutableList.of()).url());
   }
 }

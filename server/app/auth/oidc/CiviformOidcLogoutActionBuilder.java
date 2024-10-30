@@ -16,8 +16,7 @@ import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
 import org.apache.commons.lang3.NotImplementedException;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
@@ -51,7 +50,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   private String postLogoutRedirectParam;
   private final String clientId;
   private final Provider<AccountRepository> accountRepositoryProvider;
-  private final IdTokensFactory idTokensFactory;
   private final IdentityProviderType identityProviderType;
   private final SettingsManifest settingsManifest;
 
@@ -70,7 +68,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
     this.clientId = clientId;
     this.accountRepositoryProvider = params.accountRepositoryProvider();
-    this.idTokensFactory = checkNotNull(params.idTokensFactory());
     this.identityProviderType = identityProviderType;
     this.settingsManifest = new SettingsManifest(params.configuration());
   }
@@ -98,20 +95,14 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       return Optional.empty();
     }
 
-    if (!profileData.containsAttribute(CiviformOidcProfileCreator.SESSION_ID)) {
-      LOGGER.warn("Profile for account {} contains no session ID", accountId);
-      return Optional.empty();
-    }
-    String sessionId =
-        profileData.getAttribute(CiviformOidcProfileCreator.SESSION_ID, String.class);
+    String sessionId = profileData.getSessionId();
 
     Optional<AccountModel> account = accountRepositoryProvider.get().lookupAccount(accountId);
     if (account.isEmpty()) {
       return Optional.empty();
     }
 
-    SerializedIdTokens serializedIdTokens = account.get().getSerializedIdTokens();
-    IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+    IdTokens idTokens = account.get().getIdTokens();
 
     // When we build the logout action, we do not remove the id token. We leave it in place in case
     // of transient logout failures. Expired tokens are purged at login time instead.
@@ -135,7 +126,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   @Override
   public Optional<RedirectionAction> getLogoutAction(
-      WebContext context, SessionStore sessionStore, UserProfile currentProfile, String targetUrl) {
+      CallContext callContext, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
@@ -144,8 +135,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         // Optional state param for logout is only needed by certain OIDC providers, but we
         // always include it since it can help with cross-site forgery attacks.
         // OidcConfiguration comes with a default state generator.
-        State state =
-            new State(configuration.getStateGenerator().generateValue(context, sessionStore));
+        State state = new State(configuration.getStateGenerator().generateValue(callContext));
 
         long accountId = Long.parseLong(currentProfile.getId());
         Optional<JWT> idToken =
@@ -161,7 +151,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 idToken.orElse(null));
 
         return Optional.of(
-            HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
+            HttpActionHelper.buildRedirectUrlAction(
+                callContext.webContext(), logoutRequest.toURI().toString()));
       } catch (URISyntaxException e) {
         throw new TechnicalException(e);
       }

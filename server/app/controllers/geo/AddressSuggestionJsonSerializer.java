@@ -89,7 +89,8 @@ public final class AddressSuggestionJsonSerializer {
     try {
       return mapper.readValue(json, clazz);
     } catch (JsonProcessingException e) {
-      throw new BadRequestException("Error deserializing " + clazz.toString());
+      throw new BadRequestException(
+          "Error deserializing " + clazz.toString() + " -- " + e.getMessage());
     }
   }
 

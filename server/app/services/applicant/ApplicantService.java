@@ -40,6 +40,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
 import models.StoredFileModel;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
@@ -75,12 +76,11 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
-import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
@@ -475,14 +475,9 @@ public final class ApplicantService {
             .setStatusText(status.statusText())
             .setEmailSent(true)
             .build();
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(statusEvent)
-            .build();
     // Because we are doing this automatically, set the Account to empty.
-    return applicationEventRepository.insertAsync(
-        new ApplicationEventModel(application, /* creator= */ Optional.empty(), details));
+    return applicationEventRepository.insertStatusEvent(
+        application, /* optionalAdmin= */ Optional.empty(), statusEvent);
   }
 
   /**
@@ -521,7 +516,7 @@ public final class ApplicantService {
                                       applicant.setFirstName(
                                           applicantData
                                               .readString(path.join(Scalar.FIRST_NAME))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       // Middle name is optional
                                       applicant.setMiddleName(
                                           applicantData
@@ -530,7 +525,7 @@ public final class ApplicantService {
                                       applicant.setLastName(
                                           applicantData
                                               .readString(path.join(Scalar.LAST_NAME))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       // Name suffix is optional
                                       applicant.setSuffix(
                                           applicantData
@@ -541,20 +536,20 @@ public final class ApplicantService {
                                       applicant.setEmailAddress(
                                           applicantData
                                               .readString(path.join(Scalar.EMAIL))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_PHONE:
                                       // Country code is set automatically by setPhoneNumber
                                       applicant.setPhoneNumber(
                                           applicantData
                                               .readString(path.join(Scalar.PHONE_NUMBER))
-                                              .orElseThrow());
+                                              .orElse(""));
                                       break;
                                     case APPLICANT_DOB:
                                       applicant.setDateOfBirth(
                                           applicantData
                                               .readDate(path.join(Scalar.DATE))
-                                              .orElseThrow());
+                                              .orElse(null));
                                       break;
                                     default:
                                       break;
@@ -774,7 +769,9 @@ public final class ApplicantService {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    Optional.of(applicationViewLink))
+                    Optional.of(applicationViewLink),
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);
@@ -1054,6 +1051,28 @@ public final class ApplicantService {
                   activeProgramDefinitions, applications, allPrograms, request);
             },
             classLoaderExecutionContext.current());
+  }
+
+  /**
+   * Get all active programs that are publicly visible, as if it was a brand new guest account, but
+   * without requiring the account to be created yet.
+   *
+   * @param request - The request object from loading the page
+   * @return - CompletionStage of the relevant programs
+   */
+  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
+    CompletionStage<VersionModel> versionFuture = versionRepository.getActiveVersionAsync();
+    return versionFuture.thenApplyAsync(
+        version -> {
+          ImmutableList<ProgramDefinition> activeProgramDefinitions =
+              versionRepository.getProgramsForVersion(version).stream()
+                  .map(p -> programRepository.getShallowProgramDefinition(p))
+                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+                  .collect(ImmutableList.toImmutableList());
+          return relevantProgramsForApplicantInternal(
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+        },
+        classLoaderExecutionContext.current());
   }
 
   /**
@@ -1565,6 +1584,17 @@ public final class ApplicantService {
         applicantData.maybeClearArray(currentPath);
       }
 
+      // Service area gets updated below, but we need to skip the property and any
+      // children that is under that path as they need to be treated as a group.
+      if (currentPath.parentPath().isArrayElement()
+          && currentPath
+              .parentPath()
+              .withoutArrayReference()
+              .keyName()
+              .equals(Scalar.SERVICE_AREAS.name().toLowerCase(Locale.ROOT))) {
+        continue;
+      }
+
       ScalarType type =
           block
               .getScalarType(currentPath)
@@ -1624,9 +1654,14 @@ public final class ApplicantService {
     }
 
     if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
-      applicantData.putString(
-          serviceAreaUpdate.get().path(),
-          ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
+      applicantData.putServiceAreaInclusionEntities(
+          serviceAreaUpdate
+              .get()
+              .path()
+              .parentPath()
+              .join(Scalar.SERVICE_AREAS.name())
+              .asArrayElement(),
+          serviceAreaUpdate.get().value());
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.

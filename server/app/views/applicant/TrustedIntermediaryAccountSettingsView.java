@@ -20,6 +20,7 @@ import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
@@ -76,7 +77,8 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
       bundle.addToastMessages(
           ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
     }
-    return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
+    return layout.renderWithNav(
+        request, personalInfo, messages, bundle, Optional.of(currentTisApplicantId));
   }
 
   private DivTag renderOrgMembersTable(TrustedIntermediaryGroupModel tiGroup, Messages messages) {
@@ -89,7 +91,7 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
                 tbody(
                     each(
                         tiGroup.getTrustedIntermediaries().stream()
-                            .sorted(Comparator.comparing(AccountModel::getApplicantName))
+                            .sorted(Comparator.comparing(AccountModel::getApplicantDisplayName))
                             .collect(Collectors.toList()),
                         this::renderOrgMembersTableRow))));
   }
@@ -121,7 +123,7 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
   }
 
   private TdTag renderNameCell(AccountModel ti) {
-    return td(ti.getApplicantName());
+    return td(ti.getApplicantDisplayName());
   }
 
   private TdTag renderEmailCell(AccountModel ti) {

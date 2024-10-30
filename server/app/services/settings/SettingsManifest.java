@@ -546,6 +546,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AZURE_LOCAL_CONNECTION_STRING");
   }
 
+  /** Enables the feature that allows address correction for address questions. */
+  public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
+    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
+  }
+
   /**
    * [Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL CiviForm will use to call
    * Esri’s [findAddressCandidates
@@ -563,6 +568,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<ImmutableList<String>> getEsriFindAddressCandidatesUrls() {
     return getListOfStrings("ESRI_FIND_ADDRESS_CANDIDATES_URLS");
+  }
+
+  /**
+   * Enables the feature that allows for service area validation of a corrected address.
+   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
+   */
+  public boolean getEsriAddressServiceAreaValidationEnabled(RequestHeader request) {
+    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
   }
 
   /**
@@ -753,12 +766,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Overrides the default configuration for the content security policy. If set to true, the
-   * browser reports content security policy violations but does not enforce the policy. If set to
-   * false, the browser enforces the policy.
+   * Specifies the allowed file types that can be uploaded. Uses any valid [file type
+   * specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers).
+   * Multiple are separated by commas. Default: "image/*,.pdf"
    */
-  public boolean getCspReportOnly() {
-    return getBool("CSP_REPORT_ONLY");
+  public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
+    return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
   }
 
   /**
@@ -839,19 +852,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
   }
 
-  /**
-   * Enables the feature that allows for service area validation of a corrected address.
-   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
-   */
-  public boolean getEsriAddressServiceAreaValidationEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
-  }
-
-  /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
-  }
-
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public boolean getCfOptionalQuestions(RequestHeader request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
@@ -884,11 +884,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
-   * buttons are not shown on the login page.
+   * If this is a staging or demo deployment and this variable is set to true, the 'DEMO MODE. LOGIN
+   * AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need
+   * to log in through the admin authenticator to get back to this settings page
    */
-  public boolean getStagingDisableDemoModeLogins() {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
+  public boolean getStagingDisableDemoModeLogins(RequestHeader request) {
+    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
   }
 
   /** Enables the API docs tab on CiviForm. */
@@ -937,14 +938,37 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
   }
 
-  /** Enables suffix dropdown field in name question. */
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  /**
+   * Enabling this will add a banner to the site to tell applicants this is not Production and that
+   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
+   * also include a link to your production site.
+   */
+  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
+    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
-  /** Enables showing new UI with an updated user experience in Applicant flows */
-  public boolean getNorthStarApplicantUi(RequestHeader request) {
-    return getBool("NORTH_STAR_APPLICANT_UI", request);
+  /**
+   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * version of a program when a newer version has been published.
+   */
+  public boolean getFastforwardEnabled(RequestHeader request) {
+    return getBool("FASTFORWARD_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
+   * status updates
+   */
+  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
+    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
@@ -971,29 +995,25 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
   }
 
-  /**
-   * Enabling this will add a banner to the site to tell applicants this is not Production and that
-   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
-   * also include a link to your production site.
-   */
-  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
-    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  /** (NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question. */
+  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
+    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
   }
 
   /**
-   * When enabled, existing draft applications will be automatically be updated to use the latest
-   * version of a program when a newer version has been published.
+   * (NOT FOR PRODUCTION USE) Enable session replay protection, so that a session cookie cannot be
+   * replayed if the user logs out
    */
-  public boolean getFastforwardEnabled(RequestHeader request) {
-    return getBool("FASTFORWARD_ENABLED", request);
+  public boolean getSessionReplayProtectionEnabled() {
+    return getBool("SESSION_REPLAY_PROTECTION_ENABLED");
   }
 
   /**
-   * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
-   * status updates
+   * (NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant
+   * flows
    */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
+  public boolean getNorthStarApplicantUi(RequestHeader request) {
+    return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1624,83 +1644,117 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "ESRI Address Validation",
                       "Configuration options for the ESRI GIS client and address"
                           + " validation/correction feature.",
-                      ImmutableList.of(),
                       ImmutableList.of(
-                          SettingDescription.create(
-                              "ESRI_FIND_ADDRESS_CANDIDATES_URL",
-                              "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`] The URL"
-                                  + " CiviForm will use to call Esri’s [findAddressCandidates"
-                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_FIND_ADDRESS_CANDIDATES_URLS",
-                              "The list of URLs CiviForm will use to call Esri’s"
-                                  + " [findAddressCandidates"
-                                  + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
-                                  + " These are used sequentially and not all of them may need to"
-                                  + " be used for every correction. If any results have a score of"
-                                  + " 90 or higher, lower priority urls will not be called.",
-                              /* isRequired= */ false,
-                              SettingType.LIST_OF_STRINGS,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
-                              "Human readable labels used to present the service area validation"
-                                  + " options in CiviForm’s admin UI.",
-                              /* isRequired= */ false,
-                              SettingType.LIST_OF_STRINGS,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS",
-                              "The value CiviForm uses to validate if an address is in a service"
-                                  + " area.",
-                              /* isRequired= */ false,
-                              SettingType.LIST_OF_STRINGS,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS",
-                              "The URL CiviForm will use to call Esri’s [map query"
-                                  + " service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm)"
-                                  + " for service area validation.",
-                              /* isRequired= */ false,
-                              SettingType.LIST_OF_STRINGS,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES",
-                              "The attribute CiviForm checks from the service area validation"
-                                  + " response to get the service area validation ID.",
-                              /* isRequired= */ false,
-                              SettingType.LIST_OF_STRINGS,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_EXTERNAL_CALL_TRIES",
-                              "The number of tries CiviForm will attempt requests to external Esri"
-                                  + " services.",
-                              /* isRequired= */ false,
-                              SettingType.INT,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_WELLKNOWN_ID_OVERRIDE",
-                              "Forces calls to Esri services to use the specified spatial reference"
-                                  + " wellKnownId value for the [coordinate"
-                                  + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
-                                  + " If not set the default configuration from the Esri server is"
-                                  + " used. Setting this may be needed if using the results of the"
-                                  + " findAddressCandidates service return spatial references in a"
-                                  + " format different from one or more of the map query service"
-                                  + " endpoints.",
-                              /* isRequired= */ false,
-                              SettingType.INT,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ARCGIS_API_TOKEN",
-                              "A secret token value from Esri's arcgis.com online service created"
-                                  + " by your arcgis.com account for accessing the API.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN)))),
+                          SettingsSection.create(
+                              "Address Correction",
+                              "Address Correction Settings",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_CORRECTION_ENABLED",
+                                      "Enables the feature that allows address correction for"
+                                          + " address questions.",
+                                      /* isRequired= */ false,
+                                      SettingType.BOOLEAN,
+                                      SettingMode.ADMIN_WRITEABLE),
+                                  SettingDescription.create(
+                                      "ESRI_FIND_ADDRESS_CANDIDATES_URL",
+                                      "[Deprecated: Switch to `ESRI_FIND_ADDRESS_CANDIDATES_URLS`]"
+                                          + " The URL CiviForm will use to call Esri’s"
+                                          + " [findAddressCandidates"
+                                          + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_FIND_ADDRESS_CANDIDATES_URLS",
+                                      "The list of URLs CiviForm will use to call Esri’s"
+                                          + " [findAddressCandidates"
+                                          + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)."
+                                          + " These are used sequentially and not all of them may"
+                                          + " need to be used for every correction. If any results"
+                                          + " have a score of 90 or higher, lower priority urls"
+                                          + " will not be called.",
+                                      /* isRequired= */ false,
+                                      SettingType.LIST_OF_STRINGS,
+                                      SettingMode.ADMIN_READABLE))),
+                          SettingsSection.create(
+                              "Service Area Validation",
+                              "Service Area Validation Settings",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
+                                      "Enables the feature that allows for service area validation"
+                                          + " of a corrected address."
+                                          + " ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+                                      /* isRequired= */ false,
+                                      SettingType.BOOLEAN,
+                                      SettingMode.ADMIN_WRITEABLE),
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
+                                      "Human readable labels used to present the service area"
+                                          + " validation options in CiviForm’s admin UI.",
+                                      /* isRequired= */ false,
+                                      SettingType.LIST_OF_STRINGS,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS",
+                                      "The value CiviForm uses to validate if an address is in a"
+                                          + " service area.",
+                                      /* isRequired= */ false,
+                                      SettingType.LIST_OF_STRINGS,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS",
+                                      "The URL CiviForm will use to call Esri’s [map query"
+                                          + " service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm)"
+                                          + " for service area validation.",
+                                      /* isRequired= */ false,
+                                      SettingType.LIST_OF_STRINGS,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES",
+                                      "The attribute CiviForm checks from the service area"
+                                          + " validation response to get the service area"
+                                          + " validation ID.",
+                                      /* isRequired= */ false,
+                                      SettingType.LIST_OF_STRINGS,
+                                      SettingMode.ADMIN_READABLE))),
+                          SettingsSection.create(
+                              "General ESRI Settings",
+                              "",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ESRI_EXTERNAL_CALL_TRIES",
+                                      "The number of tries CiviForm will attempt requests to"
+                                          + " external Esri services.",
+                                      /* isRequired= */ false,
+                                      SettingType.INT,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_WELLKNOWN_ID_OVERRIDE",
+                                      "Forces calls to Esri services to use the specified spatial"
+                                          + " reference wellKnownId value for the [coordinate"
+                                          + " system](https://developers.arcgis.com/rest/services-reference/enterprise/using-spatial-references.htm)."
+                                          + " If not set the default configuration from the Esri"
+                                          + " server is used. Setting this may be needed if using"
+                                          + " the results of the findAddressCandidates service"
+                                          + " return spatial references in a format different from"
+                                          + " one or more of the map query service endpoints.",
+                                      /* isRequired= */ false,
+                                      SettingType.INT,
+                                      SettingMode.ADMIN_READABLE),
+                                  SettingDescription.create(
+                                      "ESRI_ARCGIS_API_TOKEN",
+                                      "A secret token value from Esri's arcgis.com online service"
+                                          + " created by your arcgis.com account for accessing the"
+                                          + " API.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN)))),
+                      ImmutableList.of())),
               ImmutableList.of(
                   SettingDescription.create(
                       "AWS_REGION",
@@ -1871,7 +1925,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
           "Feature Flags",
           SettingsSection.create(
               "Feature Flags",
-              "Configuration options to enable or disable optional or in-development features.",
+              "Configuration options to enable or disable optional features.",
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
@@ -1884,19 +1938,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "DISABLED_VISIBILITY_CONDITION_ENABLED",
                       "Enables the feature that allows programs to be disabled from CiviForm",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
-                      "Enables the feature that allows for service area validation of a corrected"
-                          + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "ESRI_ADDRESS_CORRECTION_ENABLED",
-                      "Enables the feature that allows address correction for address questions.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -1932,11 +1973,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_DISABLE_DEMO_MODE_LOGINS",
-                      "If this is a staging deployment and this variable is set to true, the 'DEMO"
-                          + " MODE. LOGIN AS:' buttons are not shown on the login page.",
+                      "If this is a staging or demo deployment and this variable is set to true,"
+                          + " the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page."
+                          + " Warning: if you turn on this flag, you will need to log in through"
+                          + " the admin authenticator to get back to this settings page",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "API_GENERATED_DOCS_ENABLED",
                       "Enables the API docs tab on CiviForm.",
@@ -1991,14 +2034,40 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NAME_SUFFIX_DROPDOWN_ENABLED",
-                      "Enables suffix dropdown field in name question.",
+                      "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
+                      "Enabling this will add a banner to the site to tell applicants this is not"
+                          + " Production and that they shouldn't submit real applications."
+                          + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
+                          + " link to your production site.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "NORTH_STAR_APPLICANT_UI",
-                      "Enables showing new UI with an updated user experience in Applicant flows",
+                      "FASTFORWARD_ENABLED",
+                      "When enabled, existing draft applications will be automatically be updated"
+                          + " to use the latest version of a program when a newer version has been"
+                          + " published.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
+          "Experimental",
+          SettingsSection.create(
+              "Experimental",
+              "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to"
+                  + " enable or disable in-development features.",
+              ImmutableList.of(),
+              ImmutableList.of(
+                  SettingDescription.create(
+                      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                          + " eligibility message per screen.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "BULK_STATUS_UPDATE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
+                          + " applications for status updates",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -2033,26 +2102,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
-                      "Enabling this will add a banner to the site to tell applicants this is not"
-                          + " Production and that they shouldn't submit real applications."
-                          + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a"
-                          + " link to your production site.",
+                      "NAME_SUFFIX_DROPDOWN_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "FASTFORWARD_ENABLED",
-                      "When enabled, existing draft applications will be automatically be updated"
-                          + " to use the latest version of a program when a newer version has been"
-                          + " published.",
+                      "SESSION_REPLAY_PROTECTION_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enable session replay protection, so that a session"
+                          + " cookie cannot be replayed if the user logs out",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "BULK_STATUS_UPDATE_ENABLED",
-                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
-                          + " applications for status updates",
+                      "NORTH_STAR_APPLICANT_UI",
+                      "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user"
+                          + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
@@ -2154,12 +2219,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "CSP_REPORT_ONLY",
-                      "Overrides the default configuration for the content security policy. If set"
-                          + " to true, the browser reports content security policy violations but"
-                          + " does not enforce the policy. If set to false, the browser enforces"
-                          + " the policy.",
+                      "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS",
+                      "Specifies the allowed file types that can be uploaded. Uses any valid [file"
+                          + " type"
+                          + " specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers)."
+                          + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                       /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))));
+                      SettingType.STRING,
+                      SettingMode.ADMIN_READABLE))));
 }

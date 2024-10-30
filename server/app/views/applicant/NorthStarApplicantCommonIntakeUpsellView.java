@@ -10,6 +10,7 @@ import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
+import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -38,10 +39,16 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
+
+    context.setVariable("programTitle", params.programTitle().orElse(""));
+    context.setVariable("programDescription", params.programDescription().orElse(""));
 
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
@@ -56,6 +63,15 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
+
+    String goBackHref =
+        applicantRoutes
+            .review(params.profile(), params.applicantId(), params.completedProgramId())
+            .url();
+    context.setVariable("goBackHref", goBackHref);
+
+    // Create account or login alert
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
     if (params.eligiblePrograms().isPresent()) {
       Locale userLocale = params.messages().lang().toLocale();

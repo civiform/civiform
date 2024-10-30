@@ -41,7 +41,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.program.ProgramDefinition;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
@@ -174,6 +174,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     // Execute, verify.
     assertThat(service.getNote(application)).contains(note);
+    assertThat(application.getLatestNote().get()).isEqualTo(note);
   }
 
   @Test
@@ -475,7 +476,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setStatus_sendEmailWithNoUserEmail_throws() throws Exception {
+  public void setStatus_sendEmailWithNoUserEmail_succeeds() throws Exception {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
@@ -491,11 +492,10 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setEmailSent(true)
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
+    service.setStatus(application, event, account);
 
-    assertThatThrownBy(() -> service.setStatus(application, event, account))
-        .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
-    assertThat(application.getApplicationEvents()).isEmpty();
+    assertThat(application.getApplicationEvents()).isNotEmpty();
   }
 
   @Test

@@ -74,6 +74,25 @@ export class NorthStarModalController {
   }
 }
 
+window.onload = function () {
+  // Maps buttons to elements that trigger modals
+  const modals: Map<string, string> = new Map([
+    ['invisible-validation-modal-button', 'show-error-modal'],
+    [
+      'invisible-duplicate-submission-modal-button',
+      'show-duplicate-submission-modal',
+    ],
+  ])
+
+  modals.forEach((value, key) => {
+    const button = document.getElementById(key) as HTMLAnchorElement
+    const shouldClickButton = document.getElementById(value)
+    if (button && shouldClickButton) {
+      button.click()
+    }
+  })
+}
+
 export function init() {
   new NorthStarModalController()
 }

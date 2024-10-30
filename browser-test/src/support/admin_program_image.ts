@@ -174,6 +174,16 @@ export class AdminProgramImage {
     await this.page.click(this.translationsButtonLocator)
   }
 
+  async expectProgramPreviewCard(
+    programName: string,
+    programDescription: string,
+  ) {
+    await expect(this.page.getByText(programName)).toBeVisible()
+    await expect(this.page.getByText(programDescription)).toBeVisible()
+    await expect(this.page.getByText('View details')).toBeVisible()
+    await expect(this.page.getByText('Apply')).toBeVisible()
+  }
+
   descriptionUpdatedToastMessage(description: string) {
     return `Image description set to ${description}`
   }

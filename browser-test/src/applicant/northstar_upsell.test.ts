@@ -7,6 +7,7 @@ import {
   validateScreenshot,
   validateAccessibility,
   AdminPrograms,
+  ApplicantQuestions,
 } from '../support'
 import {Page} from 'playwright'
 
@@ -53,14 +54,13 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
       page,
       /* expectRelatedProgram= */ true,
+      applicantQuestions,
     )
 
     await test.step('Validate screenshot and accessibility', async () => {
@@ -93,14 +93,13 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
       page,
       /* expectRelatedProgram= */ false,
+      applicantQuestions,
     )
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
@@ -118,6 +117,26 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('Validate login link in alert', async ({page, applicantQuestions}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+      await expect(
+        page.getByText(
+          'Create an account to save your application information',
+        ),
+      ).toBeVisible()
+
+      await loginAsTestUser(page, 'a:has-text("Login to an existing account")')
+      await applicantQuestions.expectProgramsPage()
+    })
+  })
+
   test('Page does not show programs the user already applied to', async ({
     page,
     adminPrograms,
@@ -132,18 +151,14 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.clickSubmitApplication()
     })
 
     await applicantQuestions.clickBackToHomepageButton()
 
     await test.step('Apply to related program', async () => {
       await applicantQuestions.clickApplyProgramButton(relatedProgramName)
-      await applicantQuestions.submitFromReviewPage(
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.clickSubmitApplication()
     })
 
     // The user submitted an application to the first program. Expect to not
@@ -158,8 +173,11 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   async function validateApplicationSubmittedPage(
     page: Page,
     expectRelatedProgram: boolean,
+    applicantQuestions: ApplicantQuestions,
   ) {
     await test.step('Validate application submitted page', async () => {
+      await applicantQuestions.expectTitle(page, 'Application confirmation')
+
       await expect(
         page.getByRole('heading', {name: programName, exact: true}),
       ).toBeVisible()

@@ -1,7 +1,9 @@
 <!doctype html>
 <head th:fragment="pageHeaderScriptsAndLinks">
   <meta charset="UTF-8" />
-  <title>Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title th:text="${pageTitle}"></title>
 
   <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
   <link th:href="${northStarStylesheet}" type="text/css" rel="stylesheet" />
@@ -39,21 +41,20 @@
   <span class="usa-hint--required">*</span>
 </th:block>
 
+<!-- The param is an instance of the ProgressBar class. -->
 <div
-  th:fragment="progressBar"
+  th:fragment="progressBar(progressBar)"
   class="usa-step-indicator usa-step-indicator--center maxw-tablet"
   th:aria-label="#{content.blockProgressLabel}"
 >
-  <!--/* The progress bar itself */-->
+  <!--/* The progress bar itself. It's safe to add aria-hidden="true" when step labels
+  are not used. */-->
   <ol class="usa-step-indicator__segments" aria-hidden="true">
     <th:block
-      th:each="i: ${#numbers.sequence(0, applicationParams.totalBlockCount() - 1)}"
-      th:with="block=${applicationParams.blockList().get(i)}"
+      th:each="i: ${#numbers.sequence(0, progressBar.getStepCount() - 1)}"
     >
       <li
-        th:class="'usa-step-indicator\_\_segment' +
-                  ${i == applicationParams.blockIndex() ? ' usa-step-indicator\_\_segment--current' : ''} +
-                  ${block.isCompletedInProgramWithoutErrors() ? ' usa-step-indicator\_\_segment--complete' : ''}"
+        th:class="'usa-step-indicator\_\_segment ' + ${progressBar.cssClassesForIndex(i)}"
       ></li>
     </th:block>
   </ol>
@@ -63,14 +64,13 @@
     <h1 class="usa-step-indicator__heading">
       <span class="usa-step-indicator__heading-counter">
         <span
-          th:utext="#{content.blockProgress(${applicationParams.blockIndex() + 1},
-        ${applicationParams.totalBlockCount()})}"
+          th:text="${progressBar.getProgressString()}"
           class="usa-step-indicator__total-steps"
         >
         </span>
         <span
           class="usa-step-indicator__heading-text"
-          th:text="${applicationParams.block().getName()}"
+          th:text="${progressBar.getStepName()}"
         ></span>
       </span>
     </h1>

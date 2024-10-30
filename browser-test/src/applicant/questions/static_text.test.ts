@@ -70,12 +70,15 @@ test.describe('Static text question for applicant flow', () => {
     })
 
     test('parses markdown', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
       await validateScreenshot(
         page.getByTestId('staticQuestionRoot'),
         'markdown-text-north-star',
         /* fullPage= */ false,
-        /* mobileScreenshot= */ true,
+        /* mobileScreenshot= */ false,
       )
 
       await verifyMarkdownHtml(page)
@@ -85,7 +88,10 @@ test.describe('Static text question for applicant flow', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await validateAccessibility(page)
     })

@@ -1,6 +1,7 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -48,6 +49,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
   private static final String SECRET_SALT = "super secret";
   private static final String EMPTY_VALUE = "";
+  private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
   CsvExporterService exporterService;
   private QuestionService questionService;
   private VersionRepository versionRepository;
@@ -106,7 +108,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
     assertThat(parser.getHeaderNames())
@@ -142,7 +146,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -167,6 +173,14 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant address (longitude)",
             "applicant address (well_known_id)",
             "applicant address (service_area)",
+            "applicant birth date (date)",
+            "applicant email address (email)",
+            "applicant favorite color (text)",
+            "applicant favorite season (selection)",
+            "applicant file (file_key)",
+            "applicant file (file_urls)",
+            "applicant ice cream (selection)",
+            "applicant id (id)",
             "applicant monthly income (currency)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -178,13 +192,6 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "kitchen tools (selections - pepper_grinder)",
             "kitchen tools (selections - garlic_press)",
             "number of items applicant can juggle (number)",
-            "applicant birth date (date)",
-            "applicant email address (email)",
-            "applicant favorite color (text)",
-            "applicant favorite season (selection)",
-            "applicant file (file_key)",
-            "applicant ice cream (selection)",
-            "applicant id (id)",
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
@@ -192,8 +199,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getFirstNamePath());
+    String middleNameHeader =
+        CsvExporterService.formatHeader(nameApplicantQuestion.getMiddleNamePath());
     String lastNameHeader =
         CsvExporterService.formatHeader(nameApplicantQuestion.getLastNamePath());
+    String suffixPath = CsvExporterService.formatHeader(nameApplicantQuestion.getNameSuffixPath());
     QuestionModel phoneQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
@@ -205,11 +215,13 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
 
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
+    assertThat(records.get(0).get(middleNameHeader)).isEqualTo("M");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
+    assertThat(records.get(0).get(suffixPath)).isEqualTo("Sr");
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
     assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
-    assertThat(records.get(0).get("Admin Note")).isEqualTo("Test program");
+    assertThat(records.get(1).get("Admin Note")).isEqualTo("admin_note");
 
     // Check list for multiselect in default locale
     QuestionModel checkboxQuestion =
@@ -239,7 +251,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     String fileKeyHeader =
         CsvExporterService.formatHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
+        .isEqualTo(
+            String.format("%s/admin/programs/%d/files/my-file-key", BASE_URL, fakeProgram.id));
   }
 
   // TODO(#8563) This should be removed/rolled into the above tests when we remove support for
@@ -278,18 +291,69 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     FileUploadQuestion fileUploadApplicantQuestion =
         getApplicantQuestion(fileUploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
+        CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyListPath());
+    assertThat(records.get(0).get(fileKeyHeader))
+        .isEqualTo(
+            String.format(
+                "%s/admin/programs/%d/files/my-file-key,"
+                    + " %s/admin/programs/%d/files/my-file-key-2",
+                BASE_URL, fakeProgram.id, BASE_URL, fakeProgram.id));
+  }
+
+  @Test
+  public void programCsv_singleFileColumnRemoved_whenMultipleFileUploadEnabled() throws Exception {
+    QuestionModel fileUploadQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    ProgramModel fakeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withName("File Upload program")
+            .withBlock()
+            .withRequiredQuestion(fileUploadQuestion)
+            .build();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicant.getApplicantData(),
+        fileUploadQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        ImmutableList.of("my-file-key", "my-file-key-2"));
+
+    applicant.save();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, fakeProgram.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, fakeProgram.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ true),
+            DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    FileUploadQuestion fileUploadApplicantQuestion =
+        getApplicantQuestion(fileUploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
+    String singleFileKeyHeader =
         CsvExporterService.formatHeader(fileUploadApplicantQuestion.getFileKeyPath());
-    assertThat(records.get(0).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
-    assertThat(records.get(0).get(fileKeyHeader))
-        .contains(String.format("/admin/programs/%d/files/my-file-key-2", fakeProgram.id));
+    assertThat(records.get(0).values()).doesNotContain(singleFileKeyHeader);
   }
 
   @Test
@@ -300,7 +364,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgramWithEligibility.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgramWithEligibility.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
 
     List<CSVRecord> records = parser.getRecords();
@@ -317,11 +383,11 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Organization",
             "Eligibility Status",
             "Status",
+            "applicant favorite color (text)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
             "applicant name (suffix)",
-            "applicant favorite color (text)",
             "Admin Note");
 
     NameQuestion nameApplicantQuestion =
@@ -362,7 +428,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -433,7 +501,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgramWithEnumerator.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgramWithEnumerator.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     assertThat(parser.getHeaderNames())
         .containsExactly(
@@ -445,28 +515,28 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "applicant name (first_name)",
-            "applicant name (middle_name)",
-            "applicant name (last_name)",
-            "applicant name (suffix)",
             "applicant favorite color (text)",
-            "applicant monthly income (currency)",
-            "applicant household members[0] - household members name (first_name)",
-            "applicant household members[0] - household members name (middle_name)",
-            "applicant household members[0] - household members name (last_name)",
-            "applicant household members[0] - household members name (suffix)",
-            "applicant household members[1] - household members name (first_name)",
-            "applicant household members[1] - household members name (middle_name)",
-            "applicant household members[1] - household members name (last_name)",
-            "applicant household members[1] - household members name (suffix)",
             "applicant household members[0] - household members jobs[0] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[1] - household"
                 + " members days worked (number)",
             "applicant household members[0] - household members jobs[2] - household"
                 + " members days worked (number)",
+            "applicant household members[0] - household members name (first_name)",
+            "applicant household members[0] - household members name (middle_name)",
+            "applicant household members[0] - household members name (last_name)",
+            "applicant household members[0] - household members name (suffix)",
             "applicant household members[1] - household members jobs[0] - household"
                 + " members days worked (number)",
+            "applicant household members[1] - household members name (first_name)",
+            "applicant household members[1] - household members name (middle_name)",
+            "applicant household members[1] - household members name (last_name)",
+            "applicant household members[1] - household members name (suffix)",
+            "applicant monthly income (currency)",
+            "applicant name (first_name)",
+            "applicant name (middle_name)",
+            "applicant name (last_name)",
+            "applicant name (suffix)",
             "Admin Note");
 
     List<CSVRecord> records = parser.getRecords();
@@ -520,7 +590,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
@@ -537,7 +609,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id,
+                SubmittedApplicationFilter.EMPTY,
+                /* isMultipleFileUploadEnabled= */ false),
             DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 

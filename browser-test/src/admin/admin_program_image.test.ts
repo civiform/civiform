@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   dismissToast,
   loginAsAdmin,
   validateScreenshot,
@@ -18,6 +19,51 @@ test.describe('Admin can manage program image', () => {
 
     await validateScreenshot(page, 'program-image-none')
   })
+
+  test(
+    'Views program card preview in North Star',
+    {tag: ['@northstar']},
+    async ({page, adminPrograms, adminProgramImage}) => {
+      const programName = 'Test Program'
+      const programDescription = 'Test description'
+
+      await test.step('Set up program', async () => {
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await loginAsAdmin(page)
+
+        await adminPrograms.addProgram(programName, programDescription)
+
+        await adminPrograms.goToProgramImagePage(programName)
+      })
+
+      await test.step('Verify preview without image', async () => {
+        await adminProgramImage.expectNoImagePreview()
+        await adminProgramImage.expectProgramPreviewCard(
+          programName,
+          programDescription,
+        )
+      })
+
+      await test.step('Verify preview with image', async () => {
+        await adminProgramImage.setImageFileAndSubmit(
+          'src/assets/program-summary-image-wide.png',
+        )
+        await adminProgramImage.expectProgramImagePage()
+
+        await validateToastMessage(
+          page,
+          adminProgramImage.imageUpdatedToastMessage(),
+        )
+        await dismissToast(page)
+
+        await adminProgramImage.expectImagePreview()
+        await adminProgramImage.expectProgramPreviewCard(
+          programName,
+          programDescription,
+        )
+      })
+    },
+  )
 
   test.describe('back button', () => {
     test('back button redirects to block page if came from block page', async ({

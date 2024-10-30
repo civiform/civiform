@@ -27,6 +27,8 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
+- [ ] Every comment in script should begin with -- and not # --- unless it denotes Ups or Downs. See [here](https://www.playframework.com/documentation/2.9.x/Evolutions) for details.
+- [ ] Tested both the Downs and the Ups scripts manually (When testing, include all comments from the evolution in your test script to ensure any syntax errors in the comments are caught.)
 - [ ] Data migrations aren't being done (please use a [Durable Job](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) if doing a data migration)
 
 #### Durable jobs
@@ -46,6 +48,7 @@ Read the docs [here](https://github.com/civiform/civiform/wiki/Database#durable-
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
 - [ ] Manually evaluated tab order
+- [ ] Manually tested with a screen reader if the feature is applicant-facing. See [screen reader testing](https://github.com/civiform/civiform/wiki/Testing#screen-reader-testing)
 
 #### New Features
 

@@ -184,7 +184,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDisabledActiveProgram("program2")
+    ProgramBuilder.newActiveDisabledProgram("program2")
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()
@@ -2088,7 +2088,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     PredicateExpressionNode.create(
                         LeafOperationExpressionNode.builder()
                             .setQuestionId(addressQuestion.getId())
-                            .setScalar(Scalar.SERVICE_AREA)
+                            .setScalar(Scalar.SERVICE_AREAS)
                             .setOperator(Operator.IN_SERVICE_AREA)
                             .setComparedValue(PredicateValue.serviceArea("seattle"))
                             .build()),

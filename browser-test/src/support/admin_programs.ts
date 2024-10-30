@@ -846,6 +846,12 @@ export class AdminPrograms {
 
     if (editBlockScreenDetails) {
       await clickAndWaitForModal(this.page, 'block-description-modal')
+
+      // Only update the block name if a name was provided. Otherwise, keep the default (which should be something like "Block 1")
+      if (block.name !== undefined) {
+        await this.page.fill('#block-name-input', block.name)
+      }
+
       await this.page.fill(
         'textarea',
         block.description || 'screen description',
@@ -1030,11 +1036,13 @@ export class AdminPrograms {
     untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
+    clickFilterButton = true,
   }: {
     fromDate?: string
     untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
+    clickFilterButton?: boolean
   }) {
     await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
     await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
@@ -1044,10 +1052,14 @@ export class AdminPrograms {
         label: applicationStatusOption,
       })
     }
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('button:has-text("Filter")'),
-    ])
+
+    if (clickFilterButton) {
+      await Promise.all([
+        this.page.waitForNavigation(),
+        await this.page.click('button:has-text("Filter")'),
+      ])
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -1241,7 +1253,9 @@ export class AdminPrograms {
   }
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
-    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    await this.page.getByRole('button', {name: 'Download'}).click()
+    await waitForAnyModal(this.page)
+
     if (applyFilters) {
       await this.page.check('text="Current results"')
     } else {
@@ -1285,7 +1299,9 @@ export class AdminPrograms {
   }
 
   async getCsv(applyFilters: boolean) {
-    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    await this.page.getByRole('button', {name: 'Download'}).click()
+    await waitForAnyModal(this.page)
+
     if (applyFilters) {
       await this.page.check('text="Current results"')
     } else {

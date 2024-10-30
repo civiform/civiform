@@ -334,6 +334,27 @@ test.describe('address correction', () => {
       await logout(page)
     })
 
+    test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // This is currently the same as when no suggestions are returned.
+      // We may change this later.
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        'Esri Error Response',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage(false)
+    })
+
     test('skips address correction screen if address exactly matches suggestions', async ({
       page,
       applicantQuestions,
@@ -396,7 +417,15 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
+
+        await applicantQuestions.expectTitle(
+          page,
+          'Address correction single-block, single-address program — 1 of 2',
+        )
 
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
@@ -423,7 +452,7 @@ test.describe('address correction', () => {
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
 
-        await applicantQuestions.clickReview()
+        await applicantQuestions.clickEdit()
         await applicantQuestions.checkAddressQuestionValue(
           'Address In Area',
           '',
@@ -432,7 +461,7 @@ test.describe('address correction', () => {
           '92373',
         )
         await applicantQuestions.clickContinue()
-        await applicantQuestions.clickSubmit()
+        await applicantQuestions.clickSubmitApplication()
       })
     })
 
@@ -441,7 +470,10 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -468,7 +500,7 @@ test.describe('address correction', () => {
 
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.clickSubmit()
+        await applicantQuestions.clickSubmitApplication()
       })
     })
 
@@ -476,7 +508,10 @@ test.describe('address correction', () => {
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',

@@ -172,6 +172,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public Stream<ApplicantQuestion> getAllQuestions() {
+    return getBlocks((block) -> true).stream().flatMap((block) -> block.getQuestions().stream());
+  }
+
+  @Override
   public ImmutableList<Block> getAllActiveBlocks() {
     if (allActiveBlockList == null) {
       allActiveBlockList = getBlocks((block) -> showBlock(block));
@@ -595,7 +600,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
         if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
           return ImmutableMap.of(
-              question.getContextualizedPath().join(Scalar.FILE_KEY),
+              question.getContextualizedPath().join(Scalar.FILE_KEY_LIST),
               fileUploadQuestion.getFileKeyListValue().orElse(ImmutableList.of()).stream()
                   .map(
                       fileKey ->
@@ -604,10 +609,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                                       programDefinition.id(),
                                       URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                   .url())
-                  .collect(Collectors.joining(", ", "[", "]")));
+                  .collect(Collectors.joining(", ")));
         } else {
-          return ImmutableMap.of(
-              question.getContextualizedPath().join(Scalar.FILE_KEY),
+          String fileUrl =
               fileUploadQuestion
                   .getFileKeyValue()
                   .map(
@@ -617,7 +621,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                                       programDefinition.id(),
                                       URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                   .url())
-                  .orElse(""));
+                  .orElse("");
+
+          return ImmutableMap.of(
+              // legacy single-upload scalar
+              question.getContextualizedPath().join(Scalar.FILE_KEY),
+              fileUrl,
+              // multi-upload scalar
+              question.getContextualizedPath().join(Scalar.FILE_KEY_LIST),
+              fileUrl);
         }
       case ENUMERATOR:
         return ImmutableMap.of(

@@ -108,6 +108,11 @@ public enum Operator {
       "=~",
       "in service area",
       ImmutableSet.of(ScalarType.SERVICE_AREA),
+      ImmutableSet.of(OperatorRightHandType.SERVICE_AREA)),
+  NOT_IN_SERVICE_AREA(
+      "not_in_service_area",
+      "not in service area",
+      ImmutableSet.of(ScalarType.SERVICE_AREA),
       ImmutableSet.of(OperatorRightHandType.SERVICE_AREA));
 
   private final String jsonPathOperator;

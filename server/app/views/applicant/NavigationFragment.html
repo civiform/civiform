@@ -1,4 +1,9 @@
 <th:block th:fragment="pageHeader">
+  <div class="sticky top-0 z-50" th:if="${showNotProductionBannerEnabled}">
+    <div
+      th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
+    ></div>
+  </div>
   <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
@@ -140,7 +145,7 @@
   </svg>
 </span>
 
-<nav th:fragment="guestSessionAlert" th:if="${isGuest}">
+<nav th:fragment="guestSessionAlert" th:if="${isGuest and hasProfile}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
   >
@@ -205,7 +210,7 @@
       class="usa-button"
       id="select-language"
     >
-      <option hidden selected="true">Languages</option>
+      <option th:text="#{button.languages}"></option>
       <option
         class="usa-language__submenu-item"
         th:each="language: ${enabledLanguages}"

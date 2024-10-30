@@ -23,8 +23,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
     await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
     await this.page.selectOption(`.cf-address-state select >> nth=${index}`, {
-      label: state,
+      value: state,
     })
+
     await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
   }
 
@@ -232,12 +233,17 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async applyProgram(programName: string) {
+  async applyProgram(programName: string, northStarEnabled = false) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
 
-    // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
-    await this.page.click(`#continue-application-button`)
+    // In North Star, clicking on "Apply" navigates to the first unanswered question.
+    if (!northStarEnabled) {
+      // In the legacy UI, the user navigates to the application review page. They must click another
+      // button to reach the first unanswered question.
+      await this.page.click(`#continue-application-button`)
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -260,6 +266,11 @@ export class ApplicantQuestions {
 
   async clickApplyToAnotherProgramButton() {
     await this.page.click('text="Apply to another program"')
+  }
+
+  async clickApplyToProgramsButton() {
+    await this.page.click('text="Apply to programs"')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickBack() {
@@ -355,8 +366,9 @@ export class ApplicantQuestions {
     let gotProgramsAndServicesNames
 
     if (filtersOn) {
-      gotRecommendedProgramNames =
-        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames = await this.programNamesForSection(
+        'Programs based on your selections',
+      )
       gotRecommendedProgramNames.sort()
       gotOtherProgramNames = await this.programNamesForSection(
         'Other programs and services',
@@ -421,6 +433,16 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinueEditing() {
+    await this.page.click('text="Continue editing"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickExitApplication() {
+    await this.page.click('text="Exit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
@@ -438,6 +460,11 @@ export class ApplicantQuestions {
 
   async clickSubmit() {
     await this.page.click('text="Submit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickSubmitApplication() {
+    await this.page.click('text="Submit application"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -548,6 +575,7 @@ export class ApplicantQuestions {
     await this.expectProgramsPage()
   }
 
+  // Expect the program index (home) page
   async expectProgramsPage() {
     await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')
@@ -621,6 +649,8 @@ export class ApplicantQuestions {
 
   async expectIneligiblePage(northStar = false) {
     if (northStar) {
+      await expect(this.page).toHaveTitle('Ineligible for program')
+
       await expect(
         this.page
           .getByText('You may not be eligible for this program')
@@ -710,7 +740,11 @@ export class ApplicantQuestions {
     await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
-    await this.clickSubmit()
+    if (northStarEnabled) {
+      await this.clickSubmitApplication()
+    } else {
+      await this.clickSubmit()
+    }
   }
 
   async downloadFromConfirmationPage() {
@@ -780,15 +814,39 @@ export class ApplicantQuestions {
     )
   }
 
-  async expectErrorOnPreviousModal() {
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
-      `Questions on this page are not complete`,
-    )
-    expect(await modal.innerText()).toContain(
-      `Continue to previous questions without saving`,
-    )
-    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+  async expectErrorOnPreviousModal(northStarEnabled = false) {
+    if (northStarEnabled) {
+      const modal = this.page.getByRole('dialog', {state: 'visible'})
+
+      await expect(
+        modal.getByText(
+          'Questions on this page are not complete. Would you still like to leave and go to the previous page?',
+        ),
+      ).toBeVisible()
+      await expect(
+        modal.getByText(
+          "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?",
+        ),
+      ).toBeVisible()
+      await expect(
+        modal
+          .getByRole('button')
+          .getByText('Continue to previous questions without saving'),
+      ).toBeVisible()
+      await expect(
+        modal.getByRole('button').getByText('Stay and fix your answers'),
+      ).toBeVisible()
+    } else {
+      const modal = await waitForAnyModal(this.page)
+
+      expect(await modal.innerText()).toContain(
+        `Questions on this page are not complete`,
+      )
+      expect(await modal.innerText()).toContain(
+        `Continue to previous questions without saving`,
+      )
+      expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+    }
   }
 
   async clickPreviousWithoutSaving() {
@@ -840,5 +898,9 @@ export class ApplicantQuestions {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
     ).not.toBeAttached()
+  }
+
+  async expectTitle(page: Page, title: string) {
+    await expect(page).toHaveTitle(title)
   }
 }

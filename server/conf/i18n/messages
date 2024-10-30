@@ -28,6 +28,8 @@ footer.technicalSupport=For technical support: {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Guest
+# Clicking this button shows a dropdown menu to change the display language
+button.languages=Select Language
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Choose a language
 # A label on the button that opens the header menu shown on mobile
@@ -115,7 +117,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -124,8 +126,8 @@ content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Application progress
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -209,21 +211,15 @@ title.inProgressProgramsUpdated=In progress
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=My applications ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Other programs and services ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -378,6 +374,8 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 # Submit application button
 button.submit=Submit
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Continue
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -411,6 +409,8 @@ title.programSummary=Program application summary
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -515,10 +515,14 @@ button.continueWithoutAnAccount=Continue without an account
 title.commonIntakeConfirmation=Programs you may qualify for
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Programs your client may qualify for
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -527,6 +531,8 @@ content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find program
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Download PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs
@@ -542,8 +548,6 @@ heading.dateSubmitted=Date submitted
 heading.forYourRecords=Confirmation for your records
 # Text above a button to print this page
 content.youCanPrint=You can print this confirmation for your records.
-# Button to print this webpage
-button.print=Print this page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -556,7 +560,7 @@ alert.createAccountDescription=Use an account to log back in to check on your ap
 content.loginToExistingAccount=Login to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=There are no changes to save for the {0}
@@ -703,6 +707,10 @@ validation.fileRequired=Please select a file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=Choose File
+# Text shown on a tag while a file is uploading.
+label.uploading=Uploading
+# Label applied to a list of uploaded files
+label.uploadedFiles=Uploaded Files
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

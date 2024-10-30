@@ -78,31 +78,26 @@ public final class JsonPathPredicateGenerator {
    * Formats a {@link services.program.predicate.LeafAddressServiceAreaExpressionNode} in JsonPath
    * format: {@code path[?(expression)]}
    *
-   * <p>Example: \$.applicant.address[?(@.service_area =~ /seattle_InArea_\d+/i)]
+   * <p>Example: $.applicant.addresstest.service_areas[?((@.state == 'NOT_IN_AREA' || @.state ==
+   * 'FAILED') && @.serviceAreaId == 'Seattle')]
    */
   public JsonPathPredicate fromLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node)
       throws InvalidPredicateException {
-    if (!LeafAddressServiceAreaExpressionNode.SERVICE_AREA_ID_PATTERN
-        .matcher(node.serviceAreaId())
-        .matches()) {
-      throw new InvalidPredicateException(
-          String.format(
-              "Service area ID invalid for LeafAddressServiceAreaExpressionNode. question ID: %d,"
-                  + " service area ID: %s",
-              node.questionId(), node.serviceAreaId()));
-    }
+    ServiceAreaState serviceAreaState =
+        node.operator() == Operator.IN_SERVICE_AREA
+            ? ServiceAreaState.IN_AREA
+            : ServiceAreaState.NOT_IN_AREA;
 
     return JsonPathPredicate.create(
         String.format(
-            "%s[?(@.%s %s %s)]",
+            "%1$s.%2$s[?((@.%3$s == '%4$s' || @.%3$s == '%5$s') && @.%6$s == '%7$s')]",
             getPath(node).predicateFormat(),
-            Scalar.SERVICE_AREA.name().toLowerCase(Locale.ROOT),
-            Operator.IN_SERVICE_AREA.toJsonPathOperator(),
-            String.format(
-                "/([a-zA-Z\\-]+_[a-zA-Z]+_\\d+,)*%1$s_(%2$s|%3$s)_\\d+(,[a-zA-Z\\-]+_[a-zA-Z]+_\\d+)*/",
-                node.serviceAreaId(),
-                ServiceAreaState.IN_AREA.getSerializationFormat(),
-                ServiceAreaState.FAILED.getSerializationFormat())));
+            Scalar.SERVICE_AREAS.name().toLowerCase(Locale.ROOT),
+            Scalar.SERVICE_AREA_STATE.name().toLowerCase(Locale.ROOT),
+            serviceAreaState.name(),
+            ServiceAreaState.FAILED.name(),
+            Scalar.SERVICE_AREA_ID.name().toLowerCase(Locale.ROOT),
+            node.serviceAreaId()));
   }
 
   /**

@@ -151,7 +151,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag(),
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
-            showCategoryCheckboxes(categoryOptions, categories)),
+            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.input()
             .setId("program-external-link-input")
@@ -309,7 +309,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag showCategoryCheckboxes(
-      List<CategoryModel> categoryOptions, List<Long> categories) {
+      List<CategoryModel> categoryOptions, List<Long> categories, boolean isCommonIntakeForm) {
     return div(
             legend(
                     "Tag this program with 1 or more categories to make it easier to find"
@@ -323,14 +323,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                         input()
                                             .withClasses(
                                                 "usa-checkbox__input usa-checkbox__input--tile")
-                                            .withId("check-category-" + category.getDefaultName())
+                                            .withId(
+                                                "checkbox-category-" + category.getDefaultName())
                                             .withType("checkbox")
                                             .withName("categories" + Path.ARRAY_SUFFIX)
                                             .withValue(String.valueOf(category.getId()))
-                                            .withCondChecked(categories.contains(category.getId())),
+                                            .withCondDisabled(isCommonIntakeForm)
+                                            .withCondChecked(
+                                                categories.contains(category.getId())
+                                                    && !isCommonIntakeForm),
                                         label(category.getDefaultName())
                                             .withClasses("usa-checkbox__label")
-                                            .withFor("check-category-" + category.getDefaultName()))
+                                            .withFor(
+                                                "checkbox-category-" + category.getDefaultName()))
                                     .withClasses(
                                         "usa-checkbox", "grid-col-12", "tablet:grid-col-6")))
                         .withClasses("grid-row", "grid-gap-md"))

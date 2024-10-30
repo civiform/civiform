@@ -30,12 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import play.libs.F;
-import services.IdentifierBasedPaginationSpec;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
+import services.pagination.BasePaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
@@ -368,15 +366,10 @@ public final class ProgramRepository {
    * it where the application matches the specified filters. Does not include drafts or deleted
    * applications. Results returned in reverse order that the applications were created.
    *
-   * <p>Both offset-based and page number-based pagination are supported. For paginationSpecEither
-   * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
-   * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
+   * <p>Pagination is supported via the passed {@link BasePaginationSpec} object.
    */
   public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
-      long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
@@ -385,7 +378,6 @@ public final class ProgramRepository {
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
-            .orderBy("id desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
             .in(
@@ -418,25 +410,8 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<ApplicationModel> pagedQuery;
-
-    if (paginationSpecEither.left.isPresent()) {
-      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
-      pagedQuery =
-          query
-              .where()
-              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    } else {
-      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
-      pagedQuery =
-          query
-              .setFirstRow(paginationSpec.getCurrentPageOffset())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    }
-
+    // Sort order is dictated by the pagination spec that was specified.
+    PagedList<ApplicationModel> pagedQuery = paginationSpec.apply(query.query()).findPagedList();
     pagedQuery.loadCount();
 
     return new PaginationResult<ApplicationModel>(

@@ -65,25 +65,26 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       eligibilityMsg = blockDefinition.localizedMessage().toString();
     }
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
-    // Use external link if it is present else use the default Program details page
-    String programDetailsLink =
-        programDefinition.externalLink().isEmpty()
-            ? applicantRoutes.show(submittingProfile, applicantId, programId).url()
-            : programDefinition.externalLink();
-    ATag infoLink =
-        new LinkElement()
-            .setStyles("mb-4", "underline")
-            .setText(
-                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT))
-            .setHref(programDetailsLink)
-            .opensInNewTab()
-            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-            .asAnchorText()
-            .attr(
-                "aria-label",
-                messages
-                    .at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName())
-                    .toLowerCase(Locale.ROOT));
+    String programDetailsLink = programDefinition.externalLink();
+    ATag infoLink = null;
+    if (!programDetailsLink.isEmpty()) {
+      infoLink =
+          new LinkElement()
+              .setStyles("mb-4", "underline")
+              .setText(
+                  messages
+                      .at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName())
+                      .toLowerCase(Locale.ROOT))
+              .setHref(programDetailsLink)
+              .opensInNewTab()
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages
+                      .at(MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName())
+                      .toLowerCase(Locale.ROOT));
+    }
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()
@@ -112,7 +113,8 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         roApplicantProgramService.getProgramTitle()))
                     .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
-            .with(
+            .condWith(
+                infoLink != null,
                 div(rawHtml(
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
@@ -156,6 +158,6 @@ public final class IneligibleBlockView extends ApplicationBaseView {
         applicantService.getPersonalInfo(applicantId).toCompletableFuture().join(),
         messages,
         bundle,
-        applicantId);
+        Optional.of(applicantId));
   }
 }

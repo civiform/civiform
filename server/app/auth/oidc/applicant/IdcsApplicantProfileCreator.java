@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -13,8 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.client.OidcClient;
@@ -33,23 +33,22 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   private static final String EMAIL_ATTRIBUTE_NAME = "user_emailid";
   private static final String LOCALE_ATTRIBUTE_NAME = "user_locale";
   private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
+  private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
+      StandardClaimsAttributeNames.builder()
+          .setEmail(EMAIL_ATTRIBUTE_NAME)
+          .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+          .setNames(ImmutableList.of(NAME_ATTRIBUTE_NAME))
+          .build();
 
   public IdcsApplicantProfileCreator(
       OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
-    super(
-        oidcConfiguration,
-        client,
-        params,
-        EMAIL_ATTRIBUTE_NAME,
-        LOCALE_ATTRIBUTE_NAME,
-        ImmutableList.of(NAME_ATTRIBUTE_NAME));
+    super(oidcConfiguration, client, params, standardClaimsAttributeNames);
   }
 
   @Override
-  public Optional<UserProfile> create(
-      Credentials cred, WebContext context, SessionStore sessionStore) {
-    possiblyModifyConfigBasedOnCred(cred);
-    return super.create(cred, context, sessionStore);
+  public Optional<UserProfile> create(CallContext callContext, Credentials credentials) {
+    possiblyModifyConfigBasedOnCred(credentials);
+    return super.create(callContext, credentials);
   }
 
   private void possiblyModifyConfigBasedOnCred(Credentials cred) {
@@ -77,7 +76,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
     }
 
     try {
-      URI jwkSetUri = this.configuration.getProviderMetadata().getJWKSetURI();
+      URI jwkSetUri = this.configuration.getOpMetadataResolver().load().getJWKSetURI();
       ImmutableMap<URI, Resource> jwkCache =
           ImmutableMap.of(
               jwkSetUri,
@@ -103,7 +102,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       if (headers == null) {
         headers = new HashMap<>();
       }
-      String authHeader = ((OidcCredentials) cred).getAccessToken().toAuthorizationHeader();
+      String authHeader = ((OidcCredentials) cred).toAccessToken().toAuthorizationHeader();
       logger.debug("Auth header in the resource retriever: {}", authHeader);
       headers.put("Authorization", List.of(authHeader));
       return headers;

@@ -107,13 +107,13 @@ public final class ProgramCardViewRenderer {
       ApplicantPersonalInfo personalInfo,
       Optional<MessageKey> sectionTitle,
       String cardContainerStyles,
-      long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       boolean isMyApplicationsSection) {
     String sectionHeaderId = Modal.randomModalId();
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
@@ -168,13 +168,13 @@ public final class ProgramCardViewRenderer {
       Messages messages,
       ApplicantPersonalInfo.ApplicantType applicantType,
       ApplicantService.ApplicantProgramData cardData,
-      Long applicantId,
+      Optional<Long> applicantId,
       Locale preferredLocale,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
       boolean nestedUnderSubheading,
       HtmlBundle bundle,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       ZoneId zoneId,
       boolean isInMyApplicationsSection) {
     ProgramDefinition program = cardData.program();
@@ -222,26 +222,25 @@ public final class ProgramCardViewRenderer {
 
     programData.with(title, description);
 
-    // Use external link if it is present else use the default Program details page
-    String programDetailsLink =
-        program.externalLink().isEmpty()
-            ? applicantRoutes.show(profile, applicantId, program.id()).url()
-            : program.externalLink();
-    ATag infoLink =
-        new LinkElement()
-            .setId(baseId + "-info-link")
-            .setStyles("mb-2", "text-sm", "underline")
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(programDetailsLink)
-            .opensInNewTab()
-            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-            .asAnchorText()
-            .attr(
-                "aria-label",
-                messages.at(
-                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
-                    program.localizedName().getOrDefault(preferredLocale)));
-    programData.with(div(infoLink));
+    // Create the "Program details" link if an external link if it is present
+    String programDetailsLink = program.externalLink();
+    if (!programDetailsLink.isEmpty()) {
+      ATag infoLink =
+          new LinkElement()
+              .setId(baseId + "-info-link")
+              .setStyles("mb-2", "text-sm", "underline")
+              .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+              .setHref(programDetailsLink)
+              .opensInNewTab()
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(
+                      MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                      program.localizedName().getOrDefault(preferredLocale)));
+      programData.with(div(infoLink));
+    }
 
     if (cardData.latestSubmittedApplicationTime().isPresent()
         && !settingsManifest.getProgramFilteringEnabled(request)) {
@@ -262,7 +261,11 @@ public final class ProgramCardViewRenderer {
     }
 
     String actionUrl =
-        applicantRoutes.review(profile, applicantId, cardData.currentApplicationProgramId()).url();
+        profile.isPresent() && applicantId.isPresent()
+            ? applicantRoutes
+                .review(profile.get(), applicantId.get(), cardData.currentApplicationProgramId())
+                .url()
+            : applicantRoutes.review(cardData.currentApplicationProgramId()).url();
 
     Modal loginPromptModal =
         createLoginPromptModal(
