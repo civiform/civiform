@@ -422,6 +422,11 @@ test.describe('address correction', () => {
           /* northStarEnabled= */ true,
         )
 
+        await applicantQuestions.expectTitle(
+          page,
+          'Address correction single-block, single-address program — 1 of 2',
+        )
+
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
           '',

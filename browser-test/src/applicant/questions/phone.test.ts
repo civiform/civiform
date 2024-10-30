@@ -285,7 +285,7 @@ test.describe('phone question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'phone-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -295,7 +295,7 @@ test.describe('phone question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'phone-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

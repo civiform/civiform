@@ -2,7 +2,8 @@
 <head th:fragment="pageHeaderScriptsAndLinks">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Title</title>
+
+  <title th:text="${pageTitle}"></title>
 
   <link th:href="${tailwindStylesheet}" type="text/css" rel="stylesheet" />
   <link th:href="${northStarStylesheet}" type="text/css" rel="stylesheet" />

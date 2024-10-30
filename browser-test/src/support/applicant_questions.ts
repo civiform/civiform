@@ -649,6 +649,8 @@ export class ApplicantQuestions {
 
   async expectIneligiblePage(northStar = false) {
     if (northStar) {
+      await expect(this.page).toHaveTitle('Ineligible for program')
+
       await expect(
         this.page
           .getByText('You may not be eligible for this program')
@@ -896,5 +898,9 @@ export class ApplicantQuestions {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
     ).not.toBeAttached()
+  }
+
+  async expectTitle(page: Page, title: string) {
+    await expect(page).toHaveTitle(title)
   }
 }

@@ -720,7 +720,7 @@ test.describe('file upload applicant flow', () => {
             page.getByTestId('questionRoot'),
             'file-required-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -734,7 +734,7 @@ test.describe('file upload applicant flow', () => {
             page.getByTestId('questionRoot'),
             'file-required-error-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

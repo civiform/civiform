@@ -56,6 +56,10 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
             Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_INELIGIBLE.getKeyName()));
+
     ProgramDefinition program = params.programDefinition();
 
     Locale userLocale = params.messages().lang().toLocale();

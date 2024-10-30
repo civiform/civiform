@@ -112,6 +112,9 @@ public abstract class NorthStarBaseView {
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
     }
 
+    // Default page title
+    context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
@@ -221,5 +224,18 @@ public abstract class NorthStarBaseView {
             AlertType.EMERGENCY,
             ImmutableList.of());
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
+  }
+
+  /** Create a page title for a step in the application process. */
+  protected String pageTitleWithBlockProgress(
+      String programTitle, int blockIndex, int totalBlockCount, Messages messages) {
+    // While applicant is filling out the application, include the block they are on as part of
+    // their progress.
+    blockIndex++;
+    // The summary page counts as a step
+    totalBlockCount++;
+    String blockNumberText =
+        messages.at(MessageKey.CONTENT_BLOCK_PROGRESS.getKeyName(), blockIndex, totalBlockCount);
+    return String.format("%s — %s", programTitle, blockNumberText);
   }
 }

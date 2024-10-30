@@ -64,6 +64,8 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
+    context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+
     ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
 
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();

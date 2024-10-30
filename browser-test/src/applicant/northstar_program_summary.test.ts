@@ -8,7 +8,7 @@ import {
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.describe('navigation with five blocks', () => {
-    const programName = 'Test program for navigation flows'
+    const programName = 'Test program for summary page'
     const programDescription = 'Test description'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
@@ -117,6 +117,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Verify program summary page', async () => {
+        await applicantQuestions.expectTitle(
+          page,
+          'Program application summary — Test program for summary page',
+        )
         await expect(page.getByText(programName)).toBeVisible()
         await expect(page.getByText(programDescription)).toBeVisible()
 
