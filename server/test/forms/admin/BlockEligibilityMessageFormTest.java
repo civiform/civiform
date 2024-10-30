@@ -27,11 +27,7 @@ public class BlockEligibilityMessageFormTest extends ResetPostgres {
     Http.Request request = fakeRequestBuilder().bodyForm(requestData).build();
 
     BlockEligibilityMessageForm form =
-        formFactory
-            .form(BlockEligibilityMessageForm.class)
-            .bindFromRequest(
-                request, BlockEligibilityMessageForm.FIELD_NAMES.toArray(new String[0]))
-            .get();
+        formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request).get();
 
     assertThat(form.getEligibilityMessage()).isEqualTo(eligibilityMsg);
   }
