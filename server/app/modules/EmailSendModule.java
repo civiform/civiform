@@ -27,7 +27,7 @@ public class EmailSendModule extends AbstractModule {
       emailSendProvider =
           EmailSendProvider.forString(emailProvider).orElse(EmailSendProvider.AWS_SES);
     } catch (ConfigException ex) {
-      // Default to S3 if nothing is configured
+      // Default to AWS SES if nothing is configured
       emailSendProvider = EmailSendProvider.AWS_SES;
     }
 
