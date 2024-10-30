@@ -392,10 +392,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     Form<BlockEligibilityMessageForm> form =
-        formFactory
-            .form(BlockEligibilityMessageForm.class)
-            .bindFromRequest(
-                request, BlockEligibilityMessageForm.FIELD_NAMES.toArray(new String[0]));
+        formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request);
 
     String newMessage = form.get().getEligibilityMessage();
 
