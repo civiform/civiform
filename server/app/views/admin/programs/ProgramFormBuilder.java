@@ -333,42 +333,43 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     for (int i = 0; i < 5; i++) {
       String title = "";
       String description = "";
-      int index = i + 1;
-      if (index <= applicationSteps.size()) {
+      if (i + 1 <= applicationSteps.size()) {
         title = applicationSteps.get(i).get("title");
         description = applicationSteps.get(i).get("description");
       }
-      div.with(buildApplicationStepDiv(Integer.toString(index), title, description));
+      div.with(buildApplicationStepDiv(i, title, description));
     }
 
     return div;
   }
 
-  private DivTag buildApplicationStepDiv(
-      String number, String titleValue, String descriptionValue) {
+  private DivTag buildApplicationStepDiv(int i, String titleValue, String descriptionValue) {
+
+    String index = Integer.toString(i);
+    String indexPlusOne = Integer.toString(i + 1);
     FieldWithLabel title =
         FieldWithLabel.input()
-            .setId("apply-step-" + number + "-title")
-            .setFieldName("applicationSteps[" + number + "][title]")
+            .setId("apply-step-" + indexPlusOne + "-title")
+            .setFieldName("applicationSteps[" + index + "][title]")
             .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
-            .setId("apply-step-" + number + "-description")
-            .setFieldName("applicationSteps[" + number + "][description]")
+            .setId("apply-step-" + indexPlusOne + "-description")
+            .setFieldName("applicationSteps[" + index + "][description]")
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 
-    if (number.equals("1")) {
-      title.setLabelText("Step " + number + " title").setRequired(true);
-      description.setLabelText("Step " + number + " description").setRequired(true);
+    if (indexPlusOne.equals("1")) {
+      title.setLabelText("Step " + indexPlusOne + " title").setRequired(true);
+      description.setLabelText("Step " + indexPlusOne + " description").setRequired(true);
     } else {
-      title.setLabelText("Step " + number + " title (optional)");
-      description.setLabelText("Step " + number + " description (optional)");
+      title.setLabelText("Step " + indexPlusOne + " title (optional)");
+      description.setLabelText("Step " + indexPlusOne + " description (optional)");
     }
 
     return div()
-        .withId("apply-step-" + number + "-div")
+        .withId("apply-step-" + indexPlusOne + "-div")
         .with(title.getInputTag(), description.getTextareaTag());
   }
 

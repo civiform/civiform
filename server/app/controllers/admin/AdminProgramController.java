@@ -344,10 +344,13 @@ public final class AdminProgramController extends CiviFormController {
     return programData.getApplicationSteps().stream()
         .filter(
             step -> {
-              return step.containsKey("title");
+              // include the step if either the title or description is filled out
+              return step.containsKey("title")
+                  && !(step.get("title").isBlank() && step.get("description").isBlank());
             })
         .map(
             step -> {
+              System.out.println(step.get("title"));
               return new ApplicationStep(step.get("title"), step.get("description"));
             })
         .collect(ImmutableList.toImmutableList());

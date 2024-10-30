@@ -33,7 +33,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.ApplicantProgramInfoView;
 import views.applicant.NorthStarApplicantProgramOverviewView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;

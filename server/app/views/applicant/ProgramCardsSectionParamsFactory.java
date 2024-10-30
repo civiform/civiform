@@ -143,10 +143,13 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
-    // Use the short description if it exists. Otherwise, fall back to the truncated long description;
+    // Use the short description if it exists. Otherwise, fall back to the truncated long
+    // description;
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);
     if (description.isBlank()) {
-      description = TextFormatter.removeMarkdown(program.localizedDescription().getOrDefault(preferredLocale));
+      description =
+          TextFormatter.removeMarkdown(
+              program.localizedDescription().getOrDefault(preferredLocale));
       if (description.length() > 100) {
         description = description.substring(0, 100).concat("...");
       }

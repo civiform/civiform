@@ -45,9 +45,9 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
-import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
+import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -70,10 +70,6 @@ public final class ProgramService {
       "A public description for the program is required";
   private static final String MISSING_APPLICATION_STEP_ONE_MSG =
       "One application step for the program is required";
-  private static final String MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG =
-      "Each application step must have both a title and a description";
-  private static final String APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG =
-      "Application steps must be consecutive";
   private static final String MISSING_DISPLAY_MODE_MSG =
       "A program visibility option must be selected";
   private static final String INVALID_NOTIFICATION_PREFERENCE_MSG =
@@ -745,7 +741,6 @@ public final class ProgramService {
   private ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
-    boolean havePreviousStep = false;
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE).get();
@@ -758,15 +753,16 @@ public final class ProgramService {
         errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_ONE_MSG));
       }
       // steps must have title AND description
-      // i feel like there's a cuter way to do this
-      if ((!haveTitle && haveDescription) || (haveTitle && !haveDescription)) {
-        errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_TITLE_OR_DESCRIPTION_MSG));
+      if (haveTitle && !haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Application step %s is missing a description", Integer.toString(i + 1))));
+      } else if (!haveTitle && !haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format("Application step %s is missing a title", Integer.toString(i + 1))));
       }
-      // steps must be consecutive
-      if (i > 0 && !havePreviousStep && haveCurrentStep) {
-        errorsBuilder.add(CiviFormError.of(APPLICATION_STEPS_ARE_NOT_CONSECUTIVE_MSG));
-      }
-      havePreviousStep = haveCurrentStep;
     }
     return errorsBuilder;
   }
