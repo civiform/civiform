@@ -1305,6 +1305,18 @@ public final class ProgramService {
     }
   }
 
+  /**
+   * Update the eligibility message for a block.
+   *
+   * @param programId
+   * @param blockDefinitionId
+   * @param message
+   * @return the updated block
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   * @throws IllegalPredicateOrderingException
+   */
   public ProgramDefinition setBlockEligibilityMessage(
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
       throws ProgramNotFoundException,

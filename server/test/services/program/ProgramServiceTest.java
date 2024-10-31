@@ -2176,6 +2176,40 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setBlockEligibilityMessage_throwsProgramNotFoundException() {
+    assertThatThrownBy(() -> ps.setBlockEligibilityDefinition(1L, 2L, Optional.empty()))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void setBlockEligibilityMessage_throwsProgramBlockDefinitionNotFoundException() {
+    ProgramDefinition p =
+        ps.createProgramDefinition(
+                "name",
+                "description",
+                "name",
+                "description",
+                "",
+                "https://usa.gov",
+                DisplayMode.PUBLIC.getValue(),
+                ImmutableList.of(),
+                /* eligibilityIsGating= */ true,
+                ProgramType.DEFAULT,
+                ImmutableList.of(),
+                /* categoryIds= */ ImmutableList.of())
+            .getResult();
+    assertThatThrownBy(() -> ps.setBlockEligibilityMessage(p.id(), 100L, Optional.empty()))
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
+        .hasMessage(
+            String.format(
+                "Block not found in Program (ID %d) for block definition ID 100", p.id()));
+  }
+
+  @Test
+  public void setBlockEligibilityMessage_throwsIlleagalProdicateOrderingException() {}
+
+  @Test
   public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
     assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
         .isInstanceOf(ProgramNotFoundException.class)
