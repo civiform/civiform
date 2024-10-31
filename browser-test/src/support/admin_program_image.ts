@@ -180,8 +180,7 @@ export class AdminProgramImage {
   ) {
     await expect(this.page.getByText(programName)).toBeVisible()
     await expect(this.page.getByText(programDescription)).toBeVisible()
-    await expect(this.page.getByText('View details')).toBeVisible()
-    await expect(this.page.getByText('Apply')).toBeVisible()
+    await expect(this.page.getByText('View and apply')).toBeVisible()
   }
 
   descriptionUpdatedToastMessage(description: string) {
