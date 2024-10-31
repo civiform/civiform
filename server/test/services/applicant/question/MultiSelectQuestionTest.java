@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -50,11 +51,13 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
 
+  private ApplicantModel applicant;
   private ApplicantData applicantData;
 
   @Before
   public void setUp() {
-    applicantData = new ApplicantData();
+    applicant = new ApplicantModel();
+    applicantData = applicant.getApplicantData();
   }
 
   @Test
@@ -62,6 +65,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()).setOptional(true),
+            applicant,
             applicantData,
             Optional.empty());
 
@@ -75,6 +79,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()),
+            applicant,
             applicantData,
             Optional.empty());
 
@@ -91,7 +96,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   @Test
   public void withValidApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -106,7 +111,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   public void tooFewSelected_failsValidation() {
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     // Put too few selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
@@ -124,7 +129,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   @Test
   public void tooManySelected_failsValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     // Put too many selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
@@ -149,7 +154,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   @Test
   public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -163,7 +168,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   @Test
   public void getSelectedOptionAdminNames_getsAdminNames() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -180,7 +185,7 @@ public class MultiSelectQuestionTest extends ResetPostgres {
   public void getOptions_defaultsIfLangUnsupported() {
     applicantData.setPreferredLocale(Locale.CHINESE);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicant, applicantData, Optional.empty());
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 

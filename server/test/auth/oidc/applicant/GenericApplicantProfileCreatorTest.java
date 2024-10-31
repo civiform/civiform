@@ -20,7 +20,6 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
-import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
 public class GenericApplicantProfileCreatorTest extends ResetPostgres {
@@ -95,9 +94,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName()).isEmpty();
+    assertThat(applicant.getApplicantName()).isEmpty();
   }
 
   @Test
@@ -117,10 +116,10 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName()).isEmpty();
-    assertThat(applicantData.preferredLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(applicant.getApplicantName()).isEmpty();
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test
@@ -144,11 +143,10 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
-        .isEqualTo("Fry, Philip");
-    Locale l = applicantData.preferredLocale();
+    assertThat(applicant.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
+    Locale l = applicant.getApplicantData().preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
   }
 

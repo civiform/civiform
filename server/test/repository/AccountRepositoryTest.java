@@ -22,7 +22,6 @@ import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.CiviFormError;
-import services.applicant.ApplicantData;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
@@ -75,14 +74,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2020-10-10");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
-        .isEqualTo("Dow");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName().get())
-        .isEqualTo("James");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName().get())
-        .isEqualTo("John");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix().get())
-        .isEqualTo("Jr.");
+    assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("Dow");
+    assertThat(applicantUpdateTest.getMiddleName().get()).isEqualTo("James");
+    assertThat(applicantUpdateTest.getLastName().get()).isEqualTo("John");
+    assertThat(applicantUpdateTest.getSuffix().get()).isEqualTo("Jr.");
   }
 
   @Test
@@ -90,11 +85,10 @@ public class AccountRepositoryTest extends ResetPostgres {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(account, applicantUpdateTest, "John", "", "", "", "", "", "", "2020-10-10");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantFirstName().get())
-        .isEqualTo("John");
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantMiddleName()).isEmpty();
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantLastName()).isEmpty();
-    assertThat(applicantUpdateTest.getApplicantData().getApplicantNameSuffix()).isEmpty();
+    assertThat(applicantUpdateTest.getFirstName().get()).isEqualTo("John");
+    assertThat(applicantUpdateTest.getMiddleName()).isEmpty();
+    assertThat(applicantUpdateTest.getLastName()).isEmpty();
+    assertThat(applicantUpdateTest.getSuffix()).isEmpty();
   }
 
   @Test
@@ -103,8 +97,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = setupAccountForUpdateTest();
     repo.updateTiClient(
         account, applicantUpdateTest, "Dow", "James", "John", "Jr.", "", "", "", "2023-12-12");
-    assertThat(applicantUpdateTest.getApplicantData().getDateOfBirth().get())
-        .isEqualTo("2023-12-12");
+    assertThat(applicantUpdateTest.getDateOfBirth().get()).isEqualTo("2023-12-12");
   }
 
   @Test
@@ -122,8 +115,7 @@ public class AccountRepositoryTest extends ResetPostgres {
         "",
         "",
         "2023-12-12");
-    assertThat(applicantUpdateTest.getApplicantData().getPhoneNumber().get())
-        .isEqualTo("4259746144");
+    assertThat(applicantUpdateTest.getPhoneNumber().get()).isEqualTo("4259746144");
   }
 
   @Test
@@ -203,28 +195,28 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     ApplicantModel applicant = new ApplicantModel();
-    applicant.getApplicantData().setDateOfBirth("2021-01-01");
+    applicant.setDateOfBirth("2021-01-01");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
+    assertThat(a.getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
   public void updateApplicant() {
     ApplicantModel applicant = new ApplicantModel();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    applicant.getApplicantData().setDateOfBirth("2021-01-01");
+    applicant.setDateOfBirth("2021-01-01");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();
 
     long id = applicant.id;
     ApplicantModel a = repo.lookupApplicant(id).toCompletableFuture().join().get();
     assertThat(a.id).isEqualTo(id);
-    assertThat(a.getApplicantData().getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
+    assertThat(a.getDateOfBirth().get().toString()).isEqualTo("2021-01-01");
   }
 
   @Test
@@ -242,8 +234,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     Optional<ApplicantModel> found = repo.lookupApplicantSync(two.id);
 
     assertThat(found).hasValue(two);
-    assertThat(found.get().getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-07");
+    assertThat(found.get().getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
   }
 
   @Test
@@ -358,53 +349,6 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findApplicantsNeedingPrimaryApplicantInfoDataMigration() {
-    // First name only
-    ApplicantModel applicantFirstName = savePlainApplicant();
-    applicantFirstName.getApplicantData().putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
-    applicantFirstName.save();
-
-    // DOB only (using preseeded question)
-    ApplicantModel applicantDob = savePlainApplicant();
-    applicantDob.getApplicantData().putString(WellKnownPaths.APPLICANT_DOB, "1999-01-11");
-    applicantDob.save();
-
-    // All the things a TI client has (except optional email address)
-    ApplicantModel applicantTiClient = savePlainApplicant();
-    ApplicantData applicantData = applicantTiClient.getApplicantData();
-    applicantData.putString(WellKnownPaths.APPLICANT_FIRST_NAME, "Jean");
-    applicantData.putString(WellKnownPaths.APPLICANT_MIDDLE_NAME, "Luc");
-    applicantData.putString(WellKnownPaths.APPLICANT_LAST_NAME, "Picard");
-    applicantData.putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, "5038234000");
-    applicantData.putDate(WellKnownPaths.APPLICANT_DOB, "2305-07-13");
-    applicantTiClient.save();
-
-    // Applicant with an account email address and no primary applicant info email
-    ApplicantModel applicantAccountEmail = savePlainApplicant();
-    AccountModel account = applicantAccountEmail.getAccount();
-    account.setEmailAddress("picard@starfleet.com");
-    account.save();
-
-    // Applicant with both an account email and primary applicant info email
-    ApplicantModel applicantPaiEmail = savePlainApplicant();
-    applicantPaiEmail.setEmailAddress("picard@starfleet.com");
-    AccountModel accountPaiEmail = applicantPaiEmail.getAccount();
-    accountPaiEmail.setEmailAddress("enterprise@starfleet.com");
-    accountPaiEmail.save();
-    applicantPaiEmail.save();
-
-    // Applicant with no well known path data or account email address
-    ApplicantModel applicantNoData = savePlainApplicant();
-
-    List<ApplicantModel> applicants =
-        repo.findApplicantsNeedingPrimaryApplicantInfoDataMigration().findList();
-    assertThat(applicants)
-        .containsOnly(applicantFirstName, applicantDob, applicantTiClient, applicantAccountEmail);
-    assertThat(applicants).doesNotContain(applicantNoData);
-    assertThat(applicants).doesNotContain(applicantPaiEmail);
-  }
-
-  @Test
   public void addIdTokenAndPrune() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
@@ -462,10 +406,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant
-        .getApplicantData()
-        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
-    applicant.getApplicantData().setDateOfBirth(dob);
+    applicant.setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
+    applicant.setDateOfBirth(dob);
     applicant.save();
     return applicant;
   }
@@ -475,28 +417,15 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel().setEmailAddress(String.format("%s@email.com", name));
     account.save();
     applicant.setAccount(account);
-    applicant
-        .getApplicantData()
-        .setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
-    applicant.save();
-    return applicant;
-  }
-
-  private ApplicantModel savePlainApplicant() {
-    ApplicantModel applicant = new ApplicantModel();
-    AccountModel account = new AccountModel();
-    account.save();
-    applicant.setAccount(account);
+    applicant.setUserName(name, Optional.empty(), Optional.empty(), Optional.empty());
     applicant.save();
     return applicant;
   }
 
   private ApplicantModel setupApplicantForUpdateTest() {
     ApplicantModel applicantUpdateTest = new ApplicantModel();
-    ApplicantData applicantDateUpdateTest = applicantUpdateTest.getApplicantData();
-    applicantDateUpdateTest.setUserName(
-        "Jane", Optional.empty(), Optional.of("Doe"), Optional.empty());
-    applicantDateUpdateTest.setDateOfBirth("2022-10-10");
+    applicantUpdateTest.setUserName("Jane", Optional.empty(), Optional.of("Doe"), Optional.empty());
+    applicantUpdateTest.setDateOfBirth("2022-10-10");
     applicantUpdateTest.save();
     return applicantUpdateTest;
   }

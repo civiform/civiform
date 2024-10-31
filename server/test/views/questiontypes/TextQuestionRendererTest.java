@@ -7,6 +7,7 @@ import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -48,6 +49,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(TEXT_QUESTION_DEFINITION, Optional.empty())
                 .setOptional(true),
+            new ApplicantModel(),
             applicantData,
             Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));

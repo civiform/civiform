@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -194,5 +195,85 @@ public class ApplicantModelTest extends ResetPostgres {
     applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5038234000");
     assertThat(applicant.getCountryCode().get()).isEqualTo("US");
+  }
+
+  @Test
+  public void getApplicantName_exists() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setUserName("First Last");
+    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(applicant.getFirstName()).isEqualTo(Optional.of("First"));
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName()).isEqualTo(Optional.of("Last"));
+    assertThat(applicant.getSuffix()).isEmpty();
+  }
+
+  @Test
+  public void getApplicantName_withMiddleNameWithoutSuffix_exists() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setUserName("First Middle Last");
+    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(applicant.getFirstName()).isEqualTo(Optional.of("First"));
+    assertThat(applicant.getMiddleName().get()).isEqualTo("Middle");
+    assertThat(applicant.getLastName()).isEqualTo(Optional.of("Last"));
+    assertThat(applicant.getSuffix()).isEmpty();
+  }
+
+  @Test
+  public void getApplicantName_withNameSuffixWithoutMiddleName_exist() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setUserName("First Last Jr.");
+    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(applicant.getFirstName()).isEqualTo(Optional.of("First"));
+    assertThat(applicant.getMiddleName()).isEmpty();
+    assertThat(applicant.getLastName()).isEqualTo(Optional.of("Last"));
+    assertThat(applicant.getSuffix().get()).isEqualTo("Jr.");
+  }
+
+  @Test
+  public void getApplicantName_withAllNameFields_exist() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setUserName("First Middle Last Jr.");
+    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+    assertThat(applicant.getFirstName()).isEqualTo(Optional.of("First"));
+    assertThat(applicant.getMiddleName().get()).isEqualTo("Middle");
+    assertThat(applicant.getLastName()).isEqualTo(Optional.of("Last"));
+    assertThat(applicant.getSuffix().get()).isEqualTo("Jr.");
+  }
+
+  @Test
+  public void getApplicantName_noName() {
+    ApplicantModel applicant = new ApplicantModel();
+    assertThat(applicant.getApplicantName()).isEmpty();
+  }
+
+  @Test
+  public void getApplicantDisplayName() {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setUserName("First Middle Last Jr.");
+    assertThat(applicant.getApplicantDisplayName()).isEqualTo(Optional.of("Last, First"));
+  }
+
+  @Test
+  public void getApplicantDisplayName_fallsBackToEmail() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("myemail@email.com");
+    account.save();
+    applicant.setAccount(account);
+    applicant.save();
+
+    assertThat(applicant.getApplicantDisplayName()).isEqualTo(Optional.of("myemail@email.com"));
+  }
+
+  @Test
+  public void getApplicantDisplayName_empty() {
+    ApplicantModel applicant = new ApplicantModel();
+    AccountModel account = new AccountModel();
+    account.save();
+    applicant.setAccount(account);
+    applicant.save();
+    assertThat(applicant.getApplicantDisplayName()).isEmpty();
   }
 }

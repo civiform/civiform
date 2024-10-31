@@ -13,6 +13,7 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.ApplicantModel;
 import org.junit.Test;
 import play.api.libs.json.JsArray;
 import play.api.libs.json.JsString;
@@ -129,7 +130,8 @@ public class FileUploadViewStrategyTest {
 
     ApplicantData applicantData = new ApplicantData();
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, new ApplicantModel(), applicantData, Optional.empty());
 
     QuestionAnswerer.answerFileQuestionWithMultipleUpload(
         applicantData,
