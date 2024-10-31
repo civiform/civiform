@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -330,7 +331,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path, so the entity is generated.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(enumerator, new ApplicantModel(), applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Xylia"));
 
@@ -374,7 +375,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(enumerator, new ApplicantModel(), applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
 
@@ -422,7 +423,8 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            topLevelEnumerator, new ApplicantModel(), applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
     // Context for index 1 ('Alice')
@@ -435,7 +437,8 @@ public class JsonPathPredicateGeneratorTest {
 
     // Create entities for the nested enumerator
     ApplicantQuestion nestedApplicantEnumerator =
-        new ApplicantQuestion(nestedEnumerator, applicantData, topLevelRepeatedEntity);
+        new ApplicantQuestion(
+            nestedEnumerator, new ApplicantModel(), applicantData, topLevelRepeatedEntity);
     applicantData.putRepeatedEntities(
         nestedApplicantEnumerator.getContextualizedPath(), ImmutableList.of("Software Engineer"));
     Optional<RepeatedEntity> currentContext =
@@ -482,7 +485,8 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            topLevelEnumerator, new ApplicantModel(), applicantData, Optional.empty());
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Alice"));
     // Context for 'Alice'

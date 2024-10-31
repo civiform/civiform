@@ -1803,7 +1803,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName("Hello World");
+    applicant.setUserName("Hello World");
     applicant.save();
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
@@ -1831,7 +1831,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithThreeNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Middle Last");
+    applicant.setUserName("First Middle Last");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -1848,7 +1848,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithManyNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Second Third Fourth Fifth");
+    applicant.setUserName("First Second Third Fourth Fifth");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -3569,7 +3569,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3681,7 +3681,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3775,7 +3775,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3887,7 +3887,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -3919,7 +3923,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -3963,7 +3971,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -3980,13 +3992,13 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
-        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    ApplicantModel applicantAfter = accountRepository.lookupApplicantSync(applicant.id).get();
 
     return new Block(
         String.valueOf(blockDefinition.id()),
         blockDefinition,
-        applicantDataAfter,
+        applicantAfter,
+        applicantAfter.getApplicantData(),
         Optional.empty());
   }
 

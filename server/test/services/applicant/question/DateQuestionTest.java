@@ -48,7 +48,7 @@ public class DateQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
 
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
@@ -58,7 +58,7 @@ public class DateQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerDateQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "2021-05-10");
 
@@ -79,7 +79,7 @@ public class DateQuestionTest extends ResetPostgres {
             .join(Scalar.DATE);
     applicantData.setFailedUpdates(ImmutableMap.of(datePath, "invalid_input"));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
 
     DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
@@ -112,7 +112,8 @@ public class DateQuestionTest extends ResetPostgres {
     applicant.setDateOfBirth("2001-01-01");
 
     DateQuestion dateQuestion =
-        new ApplicantQuestion(dateQuestionDefinitionWithPAI, applicantData, Optional.empty())
+        new ApplicantQuestion(
+                dateQuestionDefinitionWithPAI, applicant, applicantData, Optional.empty())
             .createDateQuestion();
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
