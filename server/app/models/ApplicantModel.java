@@ -171,7 +171,9 @@ public class ApplicantModel extends BaseModel {
   }
 
   public Optional<String> getApplicantDisplayName() {
-    return getApplicantName().or(() -> getEmailAddress());
+    return getApplicantName()
+        .or(() -> getEmailAddress())
+        .or(() -> Optional.ofNullable(getAccount().getEmailAddress()));
   }
 
   /**
