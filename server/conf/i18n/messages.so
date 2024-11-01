@@ -873,19 +873,19 @@ banner.endYourSession=dhammee kulankaaga
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=Xanaanada caruurta
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=Dhaqaale
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=Waxbarasho
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=Cunto
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=Guud
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
 category.tag.healthcare=Healthcare
