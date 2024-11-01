@@ -894,7 +894,7 @@ category.tag.healthcare=የጤና እንክብካቤ
 category.tag.housing=ቤት
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-category.tag.internet=Internet
+category.tag.internet=በይነመረብ
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transportation
