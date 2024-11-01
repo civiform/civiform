@@ -409,6 +409,8 @@ title.programSummary=計畫申請摘要
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +531,8 @@ content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
@@ -861,3 +865,39 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 banner.guestBannerText=您目前是以訪客身分申請。申請完成後，請{0}來保護您的資料。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Childcare
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Economic
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Education
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Food
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=General
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Healthcare
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Housing
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transportation
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Utilities

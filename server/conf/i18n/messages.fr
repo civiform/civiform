@@ -409,6 +409,8 @@ title.programSummary=Résumé de la demande d''inscription au programme
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +531,8 @@ content.commonIntakeNoMatchingProgramsTi=L''outil de présélection n''a trouvé
 content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner à la page précédente pour modifier vos réponses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
@@ -861,3 +865,39 @@ banner.notForProductionBannerLine2=Pour vous inscrire à un programme ou à un s
 banner.guestBannerText=Vous effectuez une demande d''inscription en tant qu''invité. À la fin de celle-ci, {0} pour protéger vos données.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=fermez votre session
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Childcare
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Economic
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Education
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Food
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=General
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Healthcare
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Housing
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transportation
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Utilities
