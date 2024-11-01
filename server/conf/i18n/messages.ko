@@ -873,10 +873,10 @@ banner.endYourSession=세션을 종료
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=육아
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=경제
 
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Education
