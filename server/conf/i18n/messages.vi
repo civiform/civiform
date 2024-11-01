@@ -888,10 +888,10 @@ category.tag.food=Thực phẩm
 category.tag.general=Mục đích chung
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=Dịch vụ chăm sóc sức khoẻ
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=Nhà ở\n\n
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
