@@ -891,7 +891,7 @@ category.tag.general=Pangkalahatan
 category.tag.healthcare=Pangangalagang Pangkalusugan
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=Pabahay
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
