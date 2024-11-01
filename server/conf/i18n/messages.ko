@@ -885,19 +885,19 @@ category.tag.education=교육
 category.tag.food=음식
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=일반
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=의료
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=주택
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-category.tag.internet=Internet
+category.tag.internet=인터넷
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=교통
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=유틸리티
