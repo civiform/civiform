@@ -891,7 +891,7 @@ category.tag.general=General
 category.tag.healthcare=Salud
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=Vivienda
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
