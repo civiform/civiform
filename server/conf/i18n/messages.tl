@@ -897,7 +897,7 @@ category.tag.housing=Pabahay
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=Mga Utility
