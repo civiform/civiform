@@ -886,7 +886,7 @@ category.tag.economic=ኢኮኖሚያዊ
 category.tag.education=ትምህርት
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=ሥራ
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=ምግብ
