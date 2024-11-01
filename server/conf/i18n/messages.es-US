@@ -885,6 +885,9 @@ category.tag.economic=Economía
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Educación
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Alimentos
 
@@ -899,6 +902,9 @@ category.tag.housing=Vivienda
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transporte
