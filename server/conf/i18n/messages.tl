@@ -879,10 +879,10 @@ category.tag.childcare=Pangangalaga ng Bata
 category.tag.economic=Pang-ekonomiya
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=Edukasyon
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=Pagkain
 
 # A tag used to filter the list of programs down to those that have a general purpose.
 category.tag.general=General
