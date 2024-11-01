@@ -876,10 +876,10 @@ banner.endYourSession=結束訪客工作階段
 category.tag.childcare=兒童保育
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=經濟
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=教育
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Food
