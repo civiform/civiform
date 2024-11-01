@@ -879,10 +879,10 @@ category.tag.childcare=육아
 category.tag.economic=경제
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=교육
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=음식
 
 # A tag used to filter the list of programs down to those that have a general purpose.
 category.tag.general=General
