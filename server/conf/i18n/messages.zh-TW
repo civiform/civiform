@@ -63,6 +63,10 @@ button.close=關閉
 button.review=檢查
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -881,6 +885,9 @@ category.tag.economic=經濟
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=教育
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=食物
 
@@ -895,6 +902,9 @@ category.tag.housing=住宅
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=網際網路
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=交通運輸

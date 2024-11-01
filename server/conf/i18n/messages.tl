@@ -63,6 +63,10 @@ button.close=Isara
 button.review=Pagsusuri
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -881,6 +885,9 @@ category.tag.economic=Pang-ekonomiya
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Edukasyon
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Pagkain
 
@@ -895,6 +902,9 @@ category.tag.housing=Pabahay
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transportasyon

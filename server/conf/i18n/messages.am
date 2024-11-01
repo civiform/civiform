@@ -63,6 +63,10 @@ button.close=ዝጋ
 button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -881,6 +885,9 @@ category.tag.economic=ኢኮኖሚያዊ
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=ትምህርት
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=ሥራ
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=ምግብ
 
@@ -895,6 +902,9 @@ category.tag.housing=ቤት
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=በይነመረብ
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=መጓጓዣ

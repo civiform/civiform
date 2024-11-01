@@ -63,6 +63,10 @@ button.close=닫기
 button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -881,6 +885,9 @@ category.tag.economic=경제
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=교육
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=음식
 
@@ -895,6 +902,9 @@ category.tag.housing=주택
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=인터넷
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=교통
