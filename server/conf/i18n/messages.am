@@ -885,7 +885,7 @@ category.tag.education=ትምህርት
 category.tag.food=ምግብ
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=ጠቅላላ
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
 category.tag.healthcare=Healthcare
