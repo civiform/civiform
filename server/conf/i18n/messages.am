@@ -873,7 +873,7 @@ banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=የልጅ እንክብካቤ
 
 # A tag used to filter the list of programs down to those that are related to economy.
 category.tag.economic=Economic
