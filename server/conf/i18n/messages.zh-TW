@@ -891,7 +891,7 @@ category.tag.general=一般
 category.tag.healthcare=醫療照護
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=住宅
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
