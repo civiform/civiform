@@ -873,16 +873,16 @@ banner.endYourSession=kết thúc phiên của bạn
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=Dịch vụ chăm sóc trẻ em
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=Kinh tế
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=Giáo dục
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=Thực phẩm
 
 # A tag used to filter the list of programs down to those that have a general purpose.
 category.tag.general=General
