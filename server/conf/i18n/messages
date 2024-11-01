@@ -871,31 +871,31 @@ banner.endYourSession=end your session
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-tag.childcare=Childcare
+category.tag.childcare=Childcare
 
 # A tag used to filter the list of programs down to those that are related to economy.
-tag.economic=Economic
+category.tag.economic=Economic
 
 # A tag used to filter the list of programs down to those that are related to education.
-tag.education=Education
+category.tag.education=Education
 
 # A tag used to filter the list of programs down to those that are related to food.
-tag.food=Food
+category.tag.food=Food
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-tag.general=General
+category.tag.general=General
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-tag.healthcare=Healthcare
+category.tag.healthcare=Healthcare
 
 # A tag used to filter the list of programs down to those that are related to housing.
-tag.housing=Housing
+category.tag.housing=Housing
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-tag.internet=Internet
+category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-tag.transportation=Transportation
+category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-tag.utilities=Utilities
+category.tag.utilities=Utilities
