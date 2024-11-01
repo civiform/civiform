@@ -63,6 +63,10 @@ button.close=닫기
 button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
