@@ -888,10 +888,10 @@ category.tag.food=ምግብ
 category.tag.general=ጠቅላላ
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=የጤና እንክብካቤ
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=ቤት
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
