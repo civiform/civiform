@@ -865,3 +865,39 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Childcare
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Economic
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Education
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Food
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=General
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Healthcare
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Housing
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transportation
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Utilities
