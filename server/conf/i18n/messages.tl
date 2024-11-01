@@ -873,31 +873,31 @@ banner.endYourSession=tapusin ang session mo
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=Pangangalaga ng Bata
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=Pang-ekonomiya
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=Edukasyon
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=Pagkain
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=Pangkalahatan
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=Pangangalagang Pangkalusugan
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=Pabahay
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=Mga Utility

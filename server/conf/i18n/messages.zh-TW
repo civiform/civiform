@@ -873,31 +873,31 @@ banner.endYourSession=結束訪客工作階段
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=兒童保育
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=經濟
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=教育
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=食物
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=一般
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=醫療照護
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=住宅
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-category.tag.internet=Internet
+category.tag.internet=網際網路
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=交通運輸
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=公用事業
