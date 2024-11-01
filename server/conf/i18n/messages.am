@@ -879,7 +879,7 @@ category.tag.childcare=የልጅ እንክብካቤ
 category.tag.economic=ኢኮኖሚያዊ
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=ትምህርት
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Food
