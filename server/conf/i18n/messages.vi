@@ -885,6 +885,9 @@ category.tag.economic=Kinh tế
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Giáo dục
 
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Thực phẩm
 
@@ -899,6 +902,9 @@ category.tag.housing=Nhà ở
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
 category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Vận tải
