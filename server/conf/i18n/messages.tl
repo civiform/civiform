@@ -873,10 +873,10 @@ banner.endYourSession=tapusin ang session mo
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=Pangangalaga ng Bata
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=Pang-ekonomiya
 
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Education
