@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import services.LocalizedStrings;
 import services.Path;
@@ -19,10 +18,7 @@ import services.applicant.predicate.JsonPathPredicateGenerator;
 import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.CurrencyQuestion;
-import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -46,7 +42,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final ApplicantData applicantData;
 
   private final ProgramDefinition programDefinition;
-  private final String baseUrl;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allActiveBlockList;
   private ImmutableList<Block> allHiddenBlockList;
@@ -55,13 +50,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantData applicantData,
-      ProgramDefinition programDefinition,
-      String baseUrl) {
+      ProgramDefinition programDefinition) {
     this(
         jsonPathPredicateGeneratorFactory,
         applicantData,
         programDefinition,
-        baseUrl,
         /* failedUpdates= */ ImmutableMap.of());
   }
 
@@ -69,7 +62,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
-      String baseUrl,
       ImmutableMap<Path, String> failedUpdates) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicantData =
@@ -78,7 +70,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
-    this.baseUrl = checkNotNull(baseUrl);
   }
 
   @Override
@@ -435,7 +426,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
                 .build();
         builder.add(data);
       }
@@ -568,82 +558,5 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             block.getRepeatedEntity());
     return new PredicateEvaluator(this.applicantData, predicateGenerator)
         .evaluate(predicate.rootNode());
-  }
-
-  /**
-   * Returns the {@link Path}s and their corresponding scalar answers to a {@link
-   * ApplicantQuestion}. Answers do not include metadata.
-   */
-  // TODO(#4872): remove this method.
-  private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question) {
-    switch (question.getType()) {
-      case DROPDOWN:
-      case RADIO_BUTTON:
-        return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTION),
-            question.createSingleSelectQuestion().getSelectedOptionAdminName().orElse(""));
-      case CURRENCY:
-        CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
-        return ImmutableMap.of(
-            currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
-      case CHECKBOX:
-        return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTIONS),
-            question
-                .createMultiSelectQuestion()
-                .getSelectedOptionAdminNames()
-                .map(
-                    selectedOptions ->
-                        selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
-                .orElse(""));
-      case FILEUPLOAD:
-        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
-        if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
-          return ImmutableMap.of(
-              question.getContextualizedPath().join(Scalar.FILE_KEY_LIST),
-              fileUploadQuestion.getFileKeyListValue().orElse(ImmutableList.of()).stream()
-                  .map(
-                      fileKey ->
-                          baseUrl
-                              + controllers.routes.FileController.adminShow(
-                                      programDefinition.id(),
-                                      URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                                  .url())
-                  .collect(Collectors.joining(", ")));
-        } else {
-          String fileUrl =
-              fileUploadQuestion
-                  .getFileKeyValue()
-                  .map(
-                      fileKey ->
-                          baseUrl
-                              + controllers.routes.FileController.adminShow(
-                                      programDefinition.id(),
-                                      URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                                  .url())
-                  .orElse("");
-
-          return ImmutableMap.of(
-              // legacy single-upload scalar
-              question.getContextualizedPath().join(Scalar.FILE_KEY),
-              fileUrl,
-              // multi-upload scalar
-              question.getContextualizedPath().join(Scalar.FILE_KEY_LIST),
-              fileUrl);
-        }
-      case ENUMERATOR:
-        return ImmutableMap.of(
-            question.getContextualizedPath(),
-            question.createEnumeratorQuestion().getAnswerString());
-      case DATE:
-        DateQuestion dateQuestion = question.createDateQuestion();
-        return ImmutableMap.of(dateQuestion.getDatePath(), dateQuestion.getAnswerString());
-      default:
-        return question.getContextualizedScalars().keySet().stream()
-            .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    path -> path, path -> applicantData.readAsString(path).orElse("")));
-    }
   }
 }

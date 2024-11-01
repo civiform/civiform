@@ -121,6 +121,10 @@ public abstract class Question {
     return "-";
   }
 
+  public Path getContextualizedPath() {
+    return applicantQuestion.getContextualizedPath();
+  }
+
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
