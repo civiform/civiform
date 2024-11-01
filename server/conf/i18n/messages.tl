@@ -888,7 +888,7 @@ category.tag.food=Pagkain
 category.tag.general=Pangkalahatan
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=Pangangalagang Pangkalusugan
 
 # A tag used to filter the list of programs down to those that are related to housing.
 category.tag.housing=Housing
