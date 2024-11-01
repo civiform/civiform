@@ -876,7 +876,7 @@ banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
 category.tag.childcare=የልጅ እንክብካቤ
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=ኢኮኖሚያዊ
 
 # A tag used to filter the list of programs down to those that are related to education.
 category.tag.education=Education
