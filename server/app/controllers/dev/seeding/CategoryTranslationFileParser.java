@@ -2,7 +2,6 @@ package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.mockito.ArgumentMatchers.startsWith;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
@@ -25,8 +24,8 @@ import play.Environment;
 import play.i18n.Lang;
 
 /**
- * Parses the program translation files to create {@code CategoryModel}s used to seed the
- * database with pre-defined categories.
+ * Parses the program translation files to create {@code CategoryModel}s used to seed the database
+ * with pre-defined categories.
  */
 public final class CategoryTranslationFileParser {
 
@@ -107,7 +106,10 @@ public final class CategoryTranslationFileParser {
         if (!file.getName().startsWith("messages") || file.getName().equals("messages.en-US")) {
           continue;
         }
-        String fileLanguage = file.getName().equals("messages") ? "en-US" : FilenameUtils.getExtension(file.getName());
+        String fileLanguage =
+            file.getName().equals("messages")
+                ? "en-US"
+                : FilenameUtils.getExtension(file.getName());
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
 
           Properties prop = new Properties();
