@@ -2,6 +2,7 @@ package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.mockito.ArgumentMatchers.startsWith;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
@@ -24,12 +25,12 @@ import play.Environment;
 import play.i18n.Lang;
 
 /**
- * Parses the program category translation files to create {@code CategoryModel}s used to seed the
+ * Parses the program translation files to create {@code CategoryModel}s used to seed the
  * database with pre-defined categories.
  */
 public final class CategoryTranslationFileParser {
 
-  public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/categories/messages";
+  public static final String CATEGORY_TRANSLATIONS_DIRECTORY = "conf/i18n/";
   private final Environment environment;
   private Map<String, String> childcareMap = new HashMap<>();
   private Map<String, String> economicMap = new HashMap<>();
@@ -102,7 +103,11 @@ public final class CategoryTranslationFileParser {
         return;
       }
       for (File file : files) {
-        String fileLanguage = FilenameUtils.getExtension(file.getName());
+        // We should only parse messages files. We skip the english file, since that is blank.
+        if (!file.getName().startsWith("messages") || file.getName().equals("messages.en-US")) {
+          continue;
+        }
+        String fileLanguage = file.getName().equals("messages") ? "en-US" : FilenameUtils.getExtension(file.getName());
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), UTF_8)) {
 
           Properties prop = new Properties();
@@ -111,6 +116,10 @@ public final class CategoryTranslationFileParser {
           prop.entrySet()
               .forEach(
                   entry -> {
+                    // Ignore any non-category strings
+                    if (!entry.getKey().toString().startsWith("category")) {
+                      return;
+                    }
                     switch ((String) entry.getKey()) {
                       case "category.tag.childcare":
                         childcareMap.put(fileLanguage, (String) entry.getValue());
