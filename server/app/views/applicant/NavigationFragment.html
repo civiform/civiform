@@ -59,16 +59,15 @@
   th:fragment="officialGovermentWebsiteBanner"
   class="usa-banner"
   data-testId="governmentBanner"
-  role="banner"
+  role="complementary"
 >
   <div class="usa-accordion">
-    <header class="usa-banner__header">
+    <header class="usa-banner__header" >
       <div class="usa-banner__inner">
         <div class="grid-col-fill tablet:grid-col-auto">
           <p
             class="usa-banner__header-text"
             th:text="#{banner.northStarTitle}"
-            role="banner"
           ></p>
           <p class="usa-banner__header-action" th:text="#{banner.link}"></p>
         </div>
