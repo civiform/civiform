@@ -897,7 +897,7 @@ category.tag.housing=Guriyaynta
 category.tag.internet=Khadka
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=Gaadiidka
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
