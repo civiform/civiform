@@ -54,6 +54,14 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
+    String pageTitle =
+        pageTitleWithBlockProgress(
+            params.programTitle(),
+            params.blockIndex(),
+            params.blockList().size(),
+            params.messages());
+    context.setVariable("pageTitle", pageTitle);
+
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programDescription", params.programDescription());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
@@ -61,6 +69,11 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
+
+    // Progress bar
+    ProgressBar progressBar =
+        new ProgressBar(params.blockList(), params.blockIndex(), params.messages());
+    context.setVariable("progressBar", progressBar);
 
     boolean anySuggestions = addressSuggestionGroup.getAddressSuggestions().size() > 0;
     context.setVariable("anySuggestions", anySuggestions);

@@ -29,7 +29,7 @@
                fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
                hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
       class="cf-address-street-1 cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-street-1-error' : ''}"
     >
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
@@ -60,7 +60,7 @@
                fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
                hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
       class="cf-address-street-2 cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-street-2-error' : ''}"
     >
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
@@ -89,7 +89,7 @@
                fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
                hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
       class="cf-address-city cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-city-error' : ''}"
     >
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
@@ -120,7 +120,7 @@
                fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
                hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
       class="cf-address-state cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-state-error' : ''}"
     >
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
@@ -158,7 +158,7 @@
                fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
                hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
       class="cf-address-zip cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
     >
       <div
         th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"

@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.typesafe.config.Config;
 import java.util.Map;
 import java.util.Optional;
@@ -201,6 +202,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     // from the auth request.
     config.setResponseMode(responseMode);
     config.setResponseType(responseType);
+    config.setPreferredJwsAlgorithm(JWSAlgorithm.RS256);
 
     config.setUseNonce(true);
     config.setWithState(getUseCsrf());
@@ -239,7 +241,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
       logger.error("Error while initializing OIDC provider", e);
       throw e;
     }
-    var providerMetadata = client.getConfiguration().getProviderMetadata();
+    var providerMetadata = client.getConfiguration().getOpMetadataResolver().load();
     String responseMode = config.getResponseMode();
     String responseType = config.getResponseType();
     if (providerMetadata.supportsAuthorizationResponseIssuerParam()

@@ -27,7 +27,7 @@
 
               <div class="section-external">
                 <div
-                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar}"
+                  th:replace="~{applicant/ApplicantBaseFragment :: progressBar(${progressBar})}"
                 ></div>
               </div>
 
@@ -68,7 +68,7 @@
                   th:formaction="${reviewFormAction}"
                   id="review-application-button"
                   class="usa-button usa-button--unstyled margin-bottom-4"
-                  th:text="#{button.saveAndExit}"
+                  th:text="#{button.reviewAndExit}"
                 ></button>
               </div>
             </form>

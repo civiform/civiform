@@ -8,20 +8,20 @@ import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
@@ -109,6 +109,11 @@ public class QuestionModel extends BaseModel {
   @PreUpdate
   @PrePersist
   public void persistChangesToQuestionDefinition() {
+    // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
+    // had relied on to mark the json fields as dirty. We now need to manually
+    // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
+    // get triggered.
+    io.ebean.DB.markAsDirty(this);
     setFieldsFromQuestionDefinition(questionDefinition);
   }
 
@@ -122,6 +127,9 @@ public class QuestionModel extends BaseModel {
     if (questionType.equalsIgnoreCase("REPEATER")) {
       questionType = "ENUMERATOR";
     }
+
+    initTags();
+
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setId(id)
@@ -176,11 +184,12 @@ public class QuestionModel extends BaseModel {
     }
   }
 
-  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private QuestionModel setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
+    return this;
   }
 
   public QuestionDefinition getQuestionDefinition() {

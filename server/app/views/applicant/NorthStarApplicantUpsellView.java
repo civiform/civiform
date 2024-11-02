@@ -53,6 +53,9 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
+
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programDescription", params.programDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
@@ -101,7 +104,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             /* preferredLocale= */ params.messages().lang().toLocale(),
             Optional.of(params.profile()),
             Optional.of(params.applicantId()),
-            params.applicantPersonalInfo());
+            params.applicantPersonalInfo(),
+            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
     context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);

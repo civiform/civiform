@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -191,65 +190,6 @@ test.describe('Id question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
-
-  test.describe(
-    'single id question with north star flag enabled',
-    {tag: ['@northstar']},
-    () => {
-      const programName = 'Test program for single id'
-
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setUpProgramWithSingleIdQuestion(
-          programName,
-          page,
-          adminQuestions,
-          adminPrograms,
-        )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('validate screenshot with north star flag enabled', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'id-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'id-errors-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      })
-
-      test('has no accessiblity violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await validateAccessibility(page)
-      })
-    },
-  )
 
   async function setUpProgramWithSingleIdQuestion(
     programName: string,

@@ -63,6 +63,10 @@ button.close=ዝጋ
 button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -117,7 +121,7 @@ button.previousScreen=ቀዳሚ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=ተመለስ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=ማመልከቻውን አስቀምጥ እና በኋላ ላይ ጨርስ
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ዝለል
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +130,8 @@ content.blockProgress={0} ከ {1}
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +378,8 @@ title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮች
 
 # Submit application button
 button.submit=አስገባ
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=ቀጥል
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -407,6 +413,8 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -527,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛ�
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=PDF አውርድ
 # A button prompting users to apply to programs.
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
@@ -542,8 +552,6 @@ heading.dateSubmitted=የገባበት ቀን
 heading.forYourRecords=የመዝገቦችዎ ማረጋገጫ
 # Text above a button to print this page
 content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም ይችላሉ።
-# Button to print this webpage
-button.print=ይህን ገጽ ያትሙ
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -704,9 +712,9 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 button.chooseFile=ፋይል ይምረጡ
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=በመስቀል ላይ
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=የተሰቀሉ ፋይሎች
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገ
 banner.guestBannerText=እንደ እንግዳ እያመለከቱ ነው። ማመልከቻውን ከጨረሱ በኋላ ውሂብዎን ለመጠበቅ {0}።
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=የልጅ እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=ኢኮኖሚያዊ
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=ትምህርት
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=ሥራ
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=ምግብ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=ጠቅላላ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=የጤና እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=ቤት
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=በይነመረብ
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=መጓጓዣ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=መገልገያዎች

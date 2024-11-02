@@ -766,12 +766,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Overrides the default configuration for the content security policy. If set to true, the
-   * browser reports content security policy violations but does not enforce the policy. If set to
-   * false, the browser enforces the policy.
+   * Specifies the allowed file types that can be uploaded. Uses any valid [file type
+   * specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers).
+   * Multiple are separated by commas. Default: "image/*,.pdf"
    */
-  public boolean getCspReportOnly() {
-    return getBool("CSP_REPORT_ONLY");
+  public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
+    return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
   }
 
   /**
@@ -953,6 +953,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getFastforwardEnabled(RequestHeader request) {
     return getBool("FASTFORWARD_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
   /**
@@ -2050,6 +2058,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
+                      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                          + " eligibility message per screen.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "BULK_STATUS_UPDATE_ENABLED",
                       "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
                           + " applications for status updates",
@@ -2204,12 +2219,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "CSP_REPORT_ONLY",
-                      "Overrides the default configuration for the content security policy. If set"
-                          + " to true, the browser reports content security policy violations but"
-                          + " does not enforce the policy. If set to false, the browser enforces"
-                          + " the policy.",
+                      "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS",
+                      "Specifies the allowed file types that can be uploaded. Uses any valid [file"
+                          + " type"
+                          + " specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers)."
+                          + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                       /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))));
+                      SettingType.STRING,
+                      SettingMode.ADMIN_READABLE))));
 }

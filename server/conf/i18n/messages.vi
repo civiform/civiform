@@ -63,6 +63,10 @@ button.close=Đóng
 button.review=Xem lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -117,7 +121,7 @@ button.previousScreen=Trước
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Quay lại
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Lưu và hoàn tất quá trình đăng ký sau
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Bỏ qua
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +130,8 @@ content.blockProgress={0}/{1}
 content.blockProgressFull={0} trong tổng số {1} câu hỏi đã hoàn thành
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Tiến trình đăng ký
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} trong tổng số {1} tệp đã tải lên
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +378,8 @@ title.tiAccountSettings=Trung gian đáng tin cậy — Xem Cài đặt tài kho
 
 # Submit application button
 button.submit=Gửi
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Tiếp tục
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -407,6 +413,8 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -527,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không th�
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Tải bản PDF xuống
 # A button prompting users to apply to programs.
 button.applyToPrograms=Đăng ký chương trình
@@ -542,8 +552,6 @@ heading.dateSubmitted=Ngày gửi
 heading.forYourRecords=Bản xác nhận để lưu hồ sơ
 # Text above a button to print this page
 content.youCanPrint=Bạn có thể in bản xác nhận này để lưu hồ sơ.
-# Button to print this webpage
-button.print=In trang này
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -704,9 +712,9 @@ validation.fileRequired=Vui lòng chọn một tệp.
 validation.fileTooLarge=Tệp của bạn quá lớn. Vui lòng chọn tệp có kích thước dưới {0} MB.
 button.chooseFile=Chọn tệp
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=Đang tải lên
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=Tệp đã tải lên
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc
 banner.guestBannerText=Bạn đang đăng ký với tư cách là khách. Sau khi đăng ký xong, hãy {0} để bảo vệ dữ liệu của bạn.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=kết thúc phiên của bạn
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Dịch vụ chăm sóc trẻ em
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Kinh tế
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Giáo dục
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Thực phẩm
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=Mục đích chung
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Dịch vụ chăm sóc sức khoẻ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Nhà ở
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Vận tải
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Dịch vụ tiện ích

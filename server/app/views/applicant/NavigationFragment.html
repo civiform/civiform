@@ -30,7 +30,11 @@
           th:text="#{header.menu}"
         ></button>
       </div>
-      <nav aria-label="Primary navigation" class="usa-nav" role="navigation">
+      <nav
+        th:aria-label="#{label.primaryNavigation}"
+        class="usa-nav"
+        role="navigation"
+      >
         <button
           type="button"
           class="usa-nav__close"
@@ -54,13 +58,13 @@
 <section
   th:fragment="officialGovermentWebsiteBanner"
   class="usa-banner"
-  aria-label="Official website of the United States government"
   data-testId="governmentBanner"
+  role="complementary"
 >
   <div class="usa-accordion">
     <header class="usa-banner__header">
       <div class="usa-banner__inner">
-        <div class="grid-col-fill tablet:grid-col-auto" aria-hidden="true">
+        <div class="grid-col-fill tablet:grid-col-auto">
           <p
             class="usa-banner__header-text"
             th:text="#{banner.northStarTitle}"
@@ -233,8 +237,8 @@
   <div class="usa-footer__primary-section">
     <div class="usa-footer__primary-container grid-row">
       <div class="mobile-lg:grid-col-8">
-        <nav class="usa-footer__nav" aria-label="Footer navigation,">
-          <ul class="grid-row grid-gap">
+        <nav class="usa-footer__nav" aria-labelledby="footer-navigation">
+          <ul class="grid-row grid-gap" id="footer-navigation">
             <li
               class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content"
             >
@@ -268,7 +272,7 @@
   <div class="usa-identifier">
     <section
       class="usa-identifier__section usa-identifier__section--masthead"
-      aria-label="Agency identifier,"
+      th:aria-label="#{label.agencyIdentifier}"
     >
       <div class="usa-identifier__container">
         <div class="usa-identifier__logos">

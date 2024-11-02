@@ -15,6 +15,7 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -76,7 +77,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -112,7 +113,7 @@ public final class ApplicantService {
   private final ProgramRepository programRepository;
   private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
-  private final SimpleEmail amazonSESClient;
+  private final EmailSendClient emailSendClient;
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
@@ -137,7 +138,7 @@ public final class ApplicantService {
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
-      SimpleEmail amazonSESClient,
+      EmailSendClient emailSendClient,
       Clock clock,
       Config configuration,
       ClassLoaderExecutionContext classLoaderExecutionContext,
@@ -155,7 +156,7 @@ public final class ApplicantService {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
-    this.amazonSESClient = checkNotNull(amazonSESClient);
+    this.emailSendClient = checkNotNull(emailSendClient);
     this.clock = checkNotNull(clock);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
@@ -501,7 +502,7 @@ public final class ApplicantService {
         .getFullProgramDefinition(applicationProgram)
         .thenComposeAsync(
             programDefinition -> {
-              database.beginTransaction();
+              Transaction transaction = database.beginTransaction();
               programDefinition
                   .getQuestionsWithPrimaryApplicantInfoTags()
                   .forEach(
@@ -557,7 +558,7 @@ public final class ApplicantService {
                                 });
                       });
               applicant.save();
-              database.commitTransaction();
+              transaction.commit();
               return CompletableFuture.completedFuture(optionalApplication);
             });
   }
@@ -770,7 +771,8 @@ public final class ApplicantService {
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
                     Optional.of(applicationViewLink),
-                    /* showDownloadModal= */ Optional.empty())
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);
@@ -780,9 +782,9 @@ public final class ApplicantService {
                 + "View the application at %s.",
             applicantId, applicationId, programName, viewLink);
     if (isStaging) {
-      amazonSESClient.send(stagingProgramAdminNotificationMailingList, subject, message);
+      emailSendClient.send(stagingProgramAdminNotificationMailingList, subject, message);
     } else {
-      amazonSESClient.send(
+      emailSendClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
     }
   }
@@ -843,9 +845,9 @@ public final class ApplicantService {
                       messages.at(
                           MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(), tiDashLink));
               if (isStaging) {
-                amazonSESClient.send(stagingTiNotificationMailingList, subject, message);
+                emailSendClient.send(stagingTiNotificationMailingList, subject, message);
               } else {
-                amazonSESClient.send(tiEmail, subject, message);
+                emailSendClient.send(tiEmail, subject, message);
               }
             },
             classLoaderExecutionContext.current())
@@ -893,9 +895,9 @@ public final class ApplicantService {
                           applicationId),
                   messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
           if (isStaging) {
-            amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
+            emailSendClient.send(stagingApplicantNotificationMailingList, subject, message);
           } else {
-            amazonSESClient.send(applicantEmail, subject, message);
+            emailSendClient.send(applicantEmail, subject, message);
           }
         },
         classLoaderExecutionContext.current());

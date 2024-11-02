@@ -274,7 +274,7 @@ test.describe('Radio button question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'radio-button-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -284,7 +284,7 @@ test.describe('Radio button question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'radio-button-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })
@@ -352,7 +352,7 @@ test.describe('Radio button question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'radio-button-markdown-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

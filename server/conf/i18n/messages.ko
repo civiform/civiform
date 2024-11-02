@@ -63,6 +63,10 @@ button.close=닫기
 button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -117,7 +121,7 @@ button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=저장하고 나중에 신청 완료
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +130,8 @@ content.blockProgress={1} 중 {0}
 content.blockProgressFull={1}개 중 {0}개 완료됨
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=신청 절차
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={1}개 중 {0}개 업로드됨
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +378,8 @@ title.tiAccountSettings=신뢰할 수 있는 중개자 - 계정 설정 보기 - 
 
 # Submit application button
 button.submit=제출
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=계속
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -407,6 +413,8 @@ title.programSummary=프로그램 신청 요약
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -527,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=관심 있을 만한 다른 프로그램
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청
@@ -542,8 +552,6 @@ heading.dateSubmitted=제출일
 heading.forYourRecords=기록을 위한 확인
 # Text above a button to print this page
 content.youCanPrint=기록을 위해 이 확인 페이지를 인쇄할 수 있습니다.
-# Button to print this webpage
-button.print=이 페이지 인쇄
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -704,9 +712,9 @@ validation.fileRequired=파일을 선택하세요.
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
 button.chooseFile=파일 선택
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=업로드 중
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=업로드된 파일
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려�
 banner.guestBannerText=비회원으로 신청 중입니다. 신청을 완료한 후에는 {0}하여 데이터를 보호하세요.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=세션을 종료
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=육아
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=경제
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=교육
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=음식
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=일반
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=의료
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=주택
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=인터넷
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=교통
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=유틸리티

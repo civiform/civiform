@@ -63,6 +63,10 @@ button.close=إغلاق
 button.review=مراجعة الإجابات
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=يفتح الرابط علامة تبويب جديدة
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -117,7 +121,7 @@ button.previousScreen=الشاشة السابقة
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=الرجوع
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=حفظ الطلب وإكماله لاحقًا
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=التخطّي
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +130,8 @@ content.blockProgress=‫{0} من {1}
 content.blockProgressFull=تم إكمال {0} من {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=مستوى تقدُّم الطلب
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull=تم تحميل {0} من {1}
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel=‏{0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -374,6 +378,8 @@ title.tiAccountSettings=وسيط موثوق به - عرض إعدادات الح�
 
 # Submit application button
 button.submit=إرسال
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=متابعة
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -407,6 +413,8 @@ title.programSummary=ملخّص طلب البرنامج
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=بناءً على إجاباتك عن الأسئلة التالية، قد لا يكون حسابك مؤهلاً للانضمام إلى "{0}".
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -527,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=لم يتمكن الفحص المُسب
 content.commonIntakeNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=تنزيل ملف PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
@@ -542,8 +552,6 @@ heading.dateSubmitted=تاريخ الإرسال
 heading.forYourRecords=الاحتفاظ برسالة التأكيد
 # Text above a button to print this page
 content.youCanPrint=يمكنك طباعة رسالة التأكيد هذه للاحتفاظ بها.
-# Button to print this webpage
-button.print=طباعة هذه الصفحة
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ما هي خطواتي التالية؟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -704,9 +712,9 @@ validation.fileRequired=يُرجى اختيار ملف.
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
 button.chooseFile=اختيار ملف
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=جارٍ التحميل
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=الملفات التي تم تحميلها
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=لإرسال طلب للانضمام إلى �
 banner.guestBannerText=يتم إرسال الطلب كضيف. بعد إكماله، يُرجى {0} لحماية بياناتك.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=إنهاء الجلسة
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=رعاية الأطفال
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=الاقتصاد
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=التعليم
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=الطعام
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=عام
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=الرعاية الصحية
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=الإسكان
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=الإنترنت
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=النقل
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=شركات الطاقة

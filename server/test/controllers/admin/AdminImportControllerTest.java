@@ -276,6 +276,44 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_negativeBlockId_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // attempt to import a program with a negative block id
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_NEGATIVE_BLOCK_ID))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Block definition ids must be greater than 0.");
+    assertThat(contentAsString(result))
+        .contains("Please check your block definition ids and try again.");
+  }
+
+  @Test
+  public void hxImportProgram_handlesServerError() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+
+    // attempt to import program with bad json - question id in block definition does not match
+    // question id on question
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("There was an error rendering your program.");
+    assertThat(contentAsString(result)).contains("Please check your data and try again.");
+  }
+
+  @Test
   public void hxImportProgram_noDuplicatesNotEnabled_draftsExist_noError() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
 
@@ -980,408 +1018,479 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 9,\n"
-          + "    \"adminName\" : \"no-questions\",\n"
-          + "    \"adminDescription\" : \"\",\n"
-          + "    \"externalLink\" : \"https://www.example.com\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"Program With No Questions\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"No questions\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"Screen 1 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ ]\n"
-          + "    } ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    },\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"categories\" : [ ], \n"
-          + "    \"localizedSummaryImageDescription\" : null\n"
-          + "  }\n"
-          + "}";
+      """
+      {
+            "program" : {
+              "id" : 9,
+              "adminName" : "no-questions",
+              "adminDescription" : "",
+              "externalLink" : "https://www.example.com",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [ ],
+              "localizedName" : {
+                "translations" : {
+                  "en_US" : "Program With No Questions"
+                },
+                "isRequired" : true
+              },
+              "localizedDescription" : {
+                "translations" : {
+                  "en_US" : "No questions"
+                },
+                "isRequired" : true
+              },
+              "localizedConfirmationMessage" : {
+                "translations" : {
+                  "en_US" : ""
+                },
+                "isRequired" : true
+              },
+              "blockDefinitions" : [ {
+                "id" : 1,
+                "name" : "Screen 1",
+                "description" : "Screen 1 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 1 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : null,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ ]
+              } ],
+              "statusDefinitions" : {
+                "statuses" : [ ]
+              },
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+                "tiProgramViewAcls" : [ ]
+              },
+              "categories" : [ ],
+              "localizedSummaryImageDescription" : null
+            }
+          }
+      """;
+
+  public static final String PROGRAM_JSON_WITH_NEGATIVE_BLOCK_ID =
+      """
+      {
+            "program" : {
+              "id" : 9,
+              "adminName" : "no-questions",
+              "adminDescription" : "",
+              "externalLink" : "https://www.example.com",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [ ],
+              "localizedName" : {
+                "translations" : {
+                  "en_US" : "Program With No Questions"
+                },
+                "isRequired" : true
+              },
+              "localizedDescription" : {
+                "translations" : {
+                  "en_US" : "No questions"
+                },
+                "isRequired" : true
+              },
+              "localizedConfirmationMessage" : {
+                "translations" : {
+                  "en_US" : ""
+                },
+                "isRequired" : true
+              },
+              "blockDefinitions" : [ {
+                "id" : -1,
+                "name" : "Screen 1",
+                "description" : "Screen 1 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 1 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : null,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ ]
+              } ],
+              "statusDefinitions" : {
+                "statuses" : [ ]
+              },
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+                "tiProgramViewAcls" : [ ]
+              },
+              "categories" : [ ],
+              "localizedSummaryImageDescription" : null
+            }
+          }
+      """;
 
   public static final String PROGRAM_JSON_WITH_ONE_QUESTION =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 7,\n"
-          + "    \"adminName\" : \"minimal-sample-program\",\n"
-          + "    \"adminDescription\" : \"desc\",\n"
-          + "    \"externalLink\" : \"https://github.com/civiform/civiform\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"Minimal Sample Program\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"display description\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"Screen 1\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 1,\n"
-          + "        \"optional\" : true,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    } ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    },\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"categories\" : [ ], \n"
-          + "    \"localizedSummaryImageDescription\" : null\n"
-          + "  },\n"
-          + "  \"questions\" : [ {\n"
-          + "    \"type\" : \"name\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"Name\",\n"
-          + "      \"description\" : \"The applicant's name\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"am\" : \"ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)\",\n"
-          + "          \"ko\" : \"성함 (이름 및 성의 경우 이니셜도 괜찮음)\",\n"
-          + "          \"lo\" : \"ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)\",\n"
-          + "          \"so\" : \"Magaca (magaca koowaad iyo kan dambe okay)\",\n"
-          + "          \"tl\" : \"Pangalan (unang pangalan at ang unang titik ng apilyedo ay"
-          + " okay)\",\n"
-          + "          \"vi\" : \"Tên (tên và họ viết tắt đều được)\",\n"
-          + "          \"en_US\" : \"Please enter your first and last name\",\n"
-          + "          \"es_US\" : \"Nombre (nombre y la inicial del apellido está bien)\",\n"
-          + "          \"zh_TW\" : \"姓名（名字和姓氏第一個字母便可）\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"name\"\n"
-          + "      },\n"
-          + "      \"id\" : 1,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  } ]\n"
-          + "}";
+      """
+          {
+          "program" : {
+              "id" : 7,
+              "adminName" : "minimal-sample-program",
+              "adminDescription" : "desc",
+              "externalLink" : "https://github.com/civiform/civiform",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [ ],
+              "localizedName" : {
+              "translations" : {
+                  "en_US" : "Minimal Sample Program"
+              },
+              "isRequired" : true
+              },
+              "localizedDescription" : {
+              "translations" : {
+                  "en_US" : "display description"
+              },
+              "isRequired" : true
+              },
+              "localizedConfirmationMessage" : {
+              "translations" : {
+                  "en_US" : ""
+              },
+              "isRequired" : true
+              },
+              "blockDefinitions" : [ {
+              "id" : 1,
+              "name" : "Screen 1",
+              "description" : "Screen 1",
+              "localizedName" : {
+                  "translations" : {
+                  "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+              },
+              "localizedDescription" : {
+                  "translations" : {
+                  "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+              },
+              "repeaterId" : null,
+              "hidePredicate" : null,
+              "optionalPredicate" : null,
+              "questionDefinitions" : [ {
+                  "id" : 1,
+                  "optional" : true,
+                  "addressCorrectionEnabled" : false
+              } ]
+              } ],
+              "statusDefinitions" : {
+              "statuses" : [ ]
+              },
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+              "tiProgramViewAcls" : [ ]
+              },
+              "categories" : [ ],
+              "localizedSummaryImageDescription" : null
+          },
+          "questions" : [ {
+              "type" : "name",
+              "config" : {
+              "name" : "Name",
+              "description" : "The applicant's name",
+              "questionText" : {
+                  "translations" : {
+                  "am" : "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                  "ko" : "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+                  "lo" : "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+                  "so" : "Magaca (magaca koowaad iyo kan dambe okay)",
+                  "tl" : "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+                  "vi" : "Tên (tên và họ viết tắt đều được)",
+                  "en_US" : "Please enter your first and last name",
+                  "es_US" : "Nombre (nombre y la inicial del apellido está bien)",
+                  "zh_TW" : "姓名（名字和姓氏第一個字母便可）"
+                  },
+                  "isRequired" : true
+              },
+              "questionHelpText" : {
+                  "translations" : { },
+                  "isRequired" : false
+              },
+              "validationPredicates" : {
+                  "type" : "name"
+              },
+              "id" : 1,
+              "universal" : false,
+              "primaryApplicantInfoTags" : [ ]
+              }
+          } ]
+          }
+      """;
+
   public static final String PROGRAM_JSON_WITH_ENUMERATORS =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 18,\n"
-          + "    \"adminName\" : \"nested-enumerator\",\n"
-          + "    \"adminDescription\" : \"\",\n"
-          + "    \"externalLink\" : \"\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"nest enumerator program\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"nested enumerator program\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 5,\n"
-          + "      \"name\" : \"Screen 5\",\n"
-          + "      \"description\" : \"Screen 5 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 5\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 5 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 13,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"Screen 1 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 10,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 3,\n"
-          + "      \"name\" : \"Screen 3 (repeated from 1)\",\n"
-          + "      \"description\" : \"Screen 3 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3 (repeated from 1)\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : 1,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 94,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 4,\n"
-          + "      \"name\" : \"Screen 4 (repeated from 3)\",\n"
-          + "      \"description\" : \"Screen 4 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4 (repeated from 3)\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : 3,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 95,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    } ],\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\" : null,\n"
-          + "    \"categories\" : [ ]\n"
-          + "  },\n"
-          + "  \"questions\" : [ {\n"
-          + "    \"type\" : \"name\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"Sample Name Question\",\n"
-          + "      \"description\" : \"description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"What is your name?\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"name\"\n"
-          + "      },\n"
-          + "      \"id\" : 13,\n"
-          + "      \"universal\" : true,\n"
-          + "      \"primaryApplicantInfoTags\" : [ \"APPLICANT_NAME\" ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"enumerator\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"Sample Enumerator Question\",\n"
-          + "      \"description\" : \"description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"List all members of your household.\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"enumerator\",\n"
-          + "        \"minEntities\" : null,\n"
-          + "        \"maxEntities\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 10,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    },\n"
-          + "    \"entityType\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"household member\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"enumerator\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"cats\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Please list each cat owned by $this\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"enumerator\",\n"
-          + "        \"minEntities\" : null,\n"
-          + "        \"maxEntities\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 94,\n"
-          + "      \"enumeratorId\" : 10,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    },\n"
-          + "    \"entityType\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"cat\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"text\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"cat-color\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"What color is $this?\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"text\",\n"
-          + "        \"minLength\" : null,\n"
-          + "        \"maxLength\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 95,\n"
-          + "      \"enumeratorId\" : 94,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  } ]\n"
-          + "}";
+      """
+      {
+            "program" : {
+              "id" : 18,
+              "adminName" : "nested-enumerator",
+              "adminDescription" : "",
+              "externalLink" : "",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [ ],
+              "localizedName" : {
+                "translations" : {
+                  "en_US" : "nest enumerator program"
+                },
+                "isRequired" : true
+              },
+              "localizedDescription" : {
+                "translations" : {
+                  "en_US" : "nested enumerator program"
+                },
+                "isRequired" : true
+              },
+              "localizedConfirmationMessage" : {
+                "translations" : {
+                  "en_US" : ""
+                },
+                "isRequired" : true
+              },
+              "blockDefinitions" : [ {
+                "id" : 5,
+                "name" : "Screen 5",
+                "description" : "Screen 5 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 5"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 5 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : null,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ {
+                  "id" : 13,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+                } ]
+              }, {
+                "id" : 1,
+                "name" : "Screen 1",
+                "description" : "Screen 1 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 1 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : null,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ {
+                  "id" : 10,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+                } ]
+              }, {
+                "id" : 3,
+                "name" : "Screen 3 (repeated from 1)",
+                "description" : "Screen 3 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 3 (repeated from 1)"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 3 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : 1,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ {
+                  "id" : 94,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+                } ]
+              }, {
+                "id" : 4,
+                "name" : "Screen 4 (repeated from 3)",
+                "description" : "Screen 4 description",
+                "localizedName" : {
+                  "translations" : {
+                    "en_US" : "Screen 4 (repeated from 3)"
+                  },
+                  "isRequired" : true
+                },
+                "localizedDescription" : {
+                  "translations" : {
+                    "en_US" : "Screen 4 description"
+                  },
+                  "isRequired" : true
+                },
+                "repeaterId" : 3,
+                "hidePredicate" : null,
+                "optionalPredicate" : null,
+                "questionDefinitions" : [ {
+                  "id" : 95,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+                } ]
+              } ],
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+                "tiProgramViewAcls" : [ ]
+              },
+              "localizedSummaryImageDescription" : null,
+              "categories" : [ ]
+            },
+            "questions" : [ {
+              "type" : "name",
+              "config" : {
+                "name" : "Sample Name Question",
+                "description" : "description",
+                "questionText" : {
+                  "translations" : {
+                    "en_US" : "What is your name?"
+                  },
+                  "isRequired" : true
+                },
+                "questionHelpText" : {
+                  "translations" : {
+                    "en_US" : "help text"
+                  },
+                  "isRequired" : true
+                },
+                "validationPredicates" : {
+                  "type" : "name"
+                },
+                "id" : 13,
+                "universal" : true,
+                "primaryApplicantInfoTags" : [ "APPLICANT_NAME" ]
+              }
+            }, {
+              "type" : "enumerator",
+              "config" : {
+                "name" : "Sample Enumerator Question",
+                "description" : "description",
+                "questionText" : {
+                  "translations" : {
+                    "en_US" : "List all members of your household."
+                  },
+                  "isRequired" : true
+                },
+                "questionHelpText" : {
+                  "translations" : {
+                    "en_US" : "help text"
+                  },
+                  "isRequired" : true
+                },
+                "validationPredicates" : {
+                  "type" : "enumerator",
+                  "minEntities" : null,
+                  "maxEntities" : null
+                },
+                "id" : 10,
+                "universal" : false,
+                "primaryApplicantInfoTags" : [ ]
+              },
+              "entityType" : {
+                "translations" : {
+                  "en_US" : "household member"
+                },
+                "isRequired" : true
+              }
+            }, {
+              "type" : "enumerator",
+              "config" : {
+                "name" : "cats",
+                "description" : "",
+                "questionText" : {
+                  "translations" : {
+                    "en_US" : "Please list each cat owned by $this"
+                  },
+                  "isRequired" : true
+                },
+                "questionHelpText" : {
+                  "translations" : { },
+                  "isRequired" : false
+                },
+                "validationPredicates" : {
+                  "type" : "enumerator",
+                  "minEntities" : null,
+                  "maxEntities" : null
+                },
+                "id" : 94,
+                "enumeratorId" : 10,
+                "universal" : false,
+                "primaryApplicantInfoTags" : [ ]
+              },
+              "entityType" : {
+                "translations" : {
+                  "en_US" : "cat"
+                },
+                "isRequired" : true
+              }
+            }, {
+              "type" : "text",
+              "config" : {
+                "name" : "cat-color",
+                "description" : "",
+                "questionText" : {
+                  "translations" : {
+                    "en_US" : "What color is $this?"
+                  },
+                  "isRequired" : true
+                },
+                "questionHelpText" : {
+                  "translations" : { },
+                  "isRequired" : false
+                },
+                "validationPredicates" : {
+                  "type" : "text",
+                  "minLength" : null,
+                  "maxLength" : null
+                },
+                "id" : 95,
+                "enumeratorId" : 94,
+                "universal" : false,
+                "primaryApplicantInfoTags" : [ ]
+              }
+            } ]
+          }
+      """;
+
+  // Can't use multistring here because of escaped characters in predicates
   public static final String PROGRAM_JSON_WITH_PREDICATES =
       "{\n"
           + "  \"program\" : {\n"
@@ -1692,186 +1801,270 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "}";
 
   public static final String PROGRAM_JSON_WITH_PAI_TAGS =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 2,\n"
-          + "    \"adminName\" : \"pai-program\",\n"
-          + "    \"adminDescription\" : \"admin description\",\n"
-          + "    \"externalLink\" : \"https:usa.gov\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"PAI Program\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"program description\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"This is the _custom confirmation message_ with markdown\\r\\n"
-          + "[This is a link](https:www.example.com)\\r\\n"
-          + "This is a list:\\r\\n"
-          + "* Item 1\\r\\n"
-          + "* Item 2\\r\\n"
-          + "\\r\\n"
-          + "There are some empty lines below this that should be preserved\\r\\n"
-          + "\\r\\n"
-          + "\\r\\n"
-          + "This link should be autodetected: https:www.example.com\\r\\n"
-          + "\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"dummy description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"dummy description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 3,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      }, {\n"
-          + "        \"id\" : 4,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      }, {\n"
-          + "        \"id\" : 5,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      }, {\n"
-          + "        \"id\" : 6,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    } ],\n"
-          + "    \"statusDefinitions\" : {\n"
-          + "      \"statuses\" : [ ]\n"
-          + "    },\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"categories\" : [ ], \n"
-          + "    \"localizedSummaryImageDescription\" : null\n"
-          + "  },\n"
-          + "  \"questions\" : [ {\n"
-          + "    \"type\" : \"date\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"dob\",\n"
-          + "      \"description\" : \"date description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Date of birth\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"date question help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"date\"\n"
-          + "      },\n"
-          + "      \"id\" : 3,\n"
-          + "      \"universal\" : true,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"name\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"name\",\n"
-          + "      \"description\" : \"name description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Name\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"name question help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"name\"\n"
-          + "      },\n"
-          + "      \"id\" : 4,\n"
-          + "      \"universal\" : true,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"phone\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"phone\",\n"
-          + "      \"description\" : \"Phone description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Phone\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Phone question help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"phone\"\n"
-          + "      },\n"
-          + "      \"id\" : 5,\n"
-          + "      \"universal\" : true,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"email\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"email\",\n"
-          + "      \"description\" : \"email description\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Email\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"email question help text\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"email\"\n"
-          + "      },\n"
-          + "      \"id\" : 6,\n"
-          + "      \"universal\" : true,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  } ]\n"
-          + "}";
+      """
+          {
+          "program" : {
+              "id" : 2,
+              "adminName" : "pai-program",
+              "adminDescription" : "admin description",
+              "externalLink" : "https:usa.gov",
+              "displayMode" : "PUBLIC",
+              "notificationPreferences" : [],
+              "localizedName" : {
+              "translations" : {
+                  "en_US" : "PAI Program"
+              },
+              "isRequired" : true
+              },
+              "localizedDescription" : {
+              "translations" : {
+                  "en_US" : "program description"
+              },
+              "isRequired" : true
+              },
+              "blockDefinitions" : [{
+              "id" : 1,
+              "name" : "Screen 1",
+              "description" : "dummy description",
+              "localizedName" : {
+                  "translations" : {
+                  "en_US" : "Screen 1"
+                  },
+                  "isRequired" : true
+              },
+              "localizedDescription" : {
+                  "translations" : {
+                  "en_US" : "dummy description"
+                  },
+                  "isRequired" : true
+              },
+              "repeaterId" : null,
+              "hidePredicate" : null,
+              "optionalPredicate" : null,
+              "questionDefinitions" : [{
+                  "id" : 3,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+              }, {
+                  "id" : 4,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+              }, {
+                  "id" : 5,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+              }, {
+                  "id" : 6,
+                  "optional" : false,
+                  "addressCorrectionEnabled" : false
+              }]
+              }],
+              "statusDefinitions" : {
+              "statuses" : []
+              },
+              "programType" : "DEFAULT",
+              "eligibilityIsGating" : true,
+              "acls" : {
+              "tiProgramViewAcls" : []
+              },
+              "categories" : [],
+              "localizedSummaryImageDescription" : null
+          },
+          "questions" : [{
+              "type" : "date",
+              "config" : {
+              "name" : "dob",
+              "description" : "date description",
+              "questionText" : {
+                  "translations" : {
+                  "en_US" : "Date of birth"
+                  },
+                  "isRequired" : true
+              },
+              "questionHelpText" : {
+                  "translations" : {
+                  "en_US" : "date question help text"
+                  },
+                  "isRequired" : true
+              },
+              "validationPredicates" : {
+                  "type" : "date"
+              },
+              "id" : 3,
+              "universal" : true,
+              "primaryApplicantInfoTags" : []
+              }
+          }, {
+              "type" : "name",
+              "config" : {
+              "name" : "name",
+              "description" : "name description",
+              "questionText" : {
+                  "translations" : {
+                  "en_US" : "Name"
+                  },
+                  "isRequired" : true
+              },
+              "questionHelpText" : {
+                  "translations" : {
+                  "en_US" : "name question help text"
+                  },
+                  "isRequired" : true
+              },
+              "validationPredicates" : {
+                  "type" : "name"
+              },
+              "id" : 4,
+              "universal" : true,
+              "primaryApplicantInfoTags" : []
+              }
+          }, {
+              "type" : "phone",
+              "config" : {
+              "name" : "phone",
+              "description" : "Phone description",
+              "questionText" : {
+                  "translations" : {
+                  "en_US" : "Phone"
+                  },
+                  "isRequired" : true
+              },
+              "questionHelpText" : {
+                  "translations" : {
+                  "en_US" : "Phone question help text"
+                  },
+                  "isRequired" : true
+              },
+              "validationPredicates" : {
+                  "type" : "phone"
+              },
+              "id" : 5,
+              "universal" : true,
+              "primaryApplicantInfoTags" : []
+              }
+          }, {
+              "type" : "email",
+              "config" : {
+              "name" : "email",
+              "description" : "email description",
+              "questionText" : {
+                  "translations" : {
+                  "en_US" : "Email"
+                  },
+                  "isRequired" : true
+              },
+              "questionHelpText" : {
+                  "translations" : {
+                  "en_US" : "email question help text"
+                  },
+                  "isRequired" : true
+              },
+              "validationPredicates" : {
+                  "type" : "email"
+              },
+              "id" : 6,
+              "universal" : true,
+              "primaryApplicantInfoTags" : []
+              }
+          }]
+          }
+      """;
+
+  public static final String PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID =
+      """
+      {
+        "program" : {
+          "id" : 7,
+          "adminName" : "minimal-sample-program",
+          "adminDescription" : "desc",
+          "externalLink" : "https://github.com/civiform/civiform",
+          "displayMode" : "PUBLIC",
+          "notificationPreferences" : [ ],
+          "localizedName" : {
+            "translations" : {
+              "en_US" : "Minimal Sample Program"
+            },
+            "isRequired" : true
+          },
+          "localizedDescription" : {
+            "translations" : {
+              "en_US" : "display description"
+            },
+            "isRequired" : true
+          },
+          "localizedConfirmationMessage" : {
+            "translations" : {
+              "en_US" : ""
+            },
+            "isRequired" : true
+          },
+          "blockDefinitions" : [ {
+            "id" : 1,
+            "name" : "Screen 1",
+            "description" : "Screen 1",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 2,
+              "optional" : true,
+              "addressCorrectionEnabled" : false
+            } ]
+          } ],
+          "statusDefinitions" : {
+            "statuses" : [ ]
+          },
+          "programType" : "DEFAULT",
+          "eligibilityIsGating" : true,
+          "acls" : {
+            "tiProgramViewAcls" : [ ]
+          },
+          "categories" : [ ],
+          "localizedSummaryImageDescription" : null
+        },
+        "questions" : [ {
+          "type" : "name",
+          "config" : {
+            "name" : "Name",
+            "description" : "The applicants name",
+            "questionText" : {
+              "translations" : {
+                "am" : "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                "ko" : "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+                "lo" : "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+                "so" : "Magaca (magaca koowaad iyo kan dambe okay)",
+                "tl" : "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+                "vi" : "Tên (tên và họ viết tắt đều được)",
+                "en_US" : "Please enter your first and last name",
+                "es_US" : "Nombre (nombre y la inicial del apellido está bien)",
+                "zh_TW" : "姓名（名字和姓氏第一個字母便可）"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "name"
+            },
+            "id" : 1,
+            "universal" : false,
+            "primaryApplicantInfoTags" : [ ]
+          }
+        } ]
+      }
+      """;
 }

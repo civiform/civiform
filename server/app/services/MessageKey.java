@@ -87,6 +87,7 @@ public enum MessageKey {
   BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT("button.continueWithoutAnAccount"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
   BUTTON_DELETE_ACCT("button.deleteAcct"),
+  BUTTON_DOWNLOAD_APPLICATION("button.downloadApplication"),
   BUTTON_DOWNLOAD_PDF("button.downloadPdf"),
   BUTTON_EDIT("button.edit"),
   BUTTON_EDIT_SR("button.editSr"),
@@ -103,9 +104,8 @@ public enum MessageKey {
   BUTTON_NEXT("button.nextPage"),
   BUTTON_NEXT_SCREEN("button.nextScreen"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
-  BUTTON_PRINT("button.print"), // North Star only
   BUTTON_BACK("button.back"),
-  BUTTON_SAVE_AND_EXIT("button.saveAndExit"),
+  BUTTON_REVIEW_AND_EXIT("button.reviewAndExit"),
   BUTTON_REVIEW("button.review"),
   BUTTON_DELETE_FILE("button.deleteFile"),
   BUTTON_KEEP_ACCT("button.keepAcct"),
@@ -133,7 +133,6 @@ public enum MessageKey {
   CONTENT_BLOCK_PROGRESS("content.blockProgress"),
   CONTENT_BLOCK_PROGRESS_FULL("content.blockProgressFull"),
   CONTENT_BLOCK_PROGRESS_LABEL("content.blockProgressLabel"),
-  CONTENT_FILE_UPLOAD_BLOCK_PROGRESS_FULL("content.fileUploadBlockProgressFull"),
   CONTENT_SAVE_TIME("content.saveTimeServices"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS("content.changeAnswersForEligibility"),
   CONTENT_CHANGE_ELIGIBILITY_ANSWERS_V2(
@@ -239,6 +238,7 @@ public enum MessageKey {
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
+  HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
@@ -258,6 +258,8 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
+  LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
+  LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
@@ -352,6 +354,7 @@ public enum MessageKey {
   TITLE_EDIT_CLIENT("title.editClient"),
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_GET_STARTED("title.getStarted"),
+  TITLE_INELIGIBLE("title.ineligible"),
   TITLE_LOGIN("title.login"),
   TITLE_MY_APPLICATIONS_SECTION("title.myApplicationsSection"),
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),

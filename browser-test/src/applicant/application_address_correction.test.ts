@@ -422,6 +422,11 @@ test.describe('address correction', () => {
           /* northStarEnabled= */ true,
         )
 
+        await applicantQuestions.expectTitle(
+          page,
+          'Address correction single-block, single-address program — 1 of 2',
+        )
+
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
           '',
@@ -447,7 +452,7 @@ test.describe('address correction', () => {
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
 
-        await applicantQuestions.clickReview()
+        await applicantQuestions.clickEdit()
         await applicantQuestions.checkAddressQuestionValue(
           'Address In Area',
           '',
