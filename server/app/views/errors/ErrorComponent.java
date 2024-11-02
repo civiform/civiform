@@ -3,10 +3,8 @@ package views.errors;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
-import static j2html.TagCreator.ul;
 
 import controllers.routes;
 import j2html.tags.UnescapedText;
@@ -35,14 +33,10 @@ public final class ErrorComponent {
         div()
             .withClass("margin-y-5")
             .with(
-                ul().withClass("usa-button-group")
-                    .with(
-                        li().withClass("usa-button-group__item")
-                            .with(
-                                a().withClass("usa-button")
-                                    .withId("visit-home-page-button")
-                                    .withText(buttonText)
-                                    .withHref(routes.HomeController.index().url()))));
+                a().withClass("usa-button")
+                    .withId("visit-home-page-button")
+                    .withText(buttonText)
+                    .withHref(routes.HomeController.index().url()));
 
     return div()
         .with(

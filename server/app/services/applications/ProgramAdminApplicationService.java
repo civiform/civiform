@@ -2,11 +2,14 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -28,7 +31,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.statuses.StatusDefinitions.Status;
@@ -42,7 +45,7 @@ public final class ProgramAdminApplicationService {
   private final AccountRepository accountRepository;
 
   private final ProgramRepository programRepository;
-  private final SimpleEmail emailClient;
+  private final EmailSendClient emailClient;
   private final String baseUrl;
   private final boolean isStaging;
   private final String stagingApplicantNotificationMailingList;
@@ -58,7 +61,7 @@ public final class ProgramAdminApplicationService {
       AccountRepository accountRepository,
       ProgramRepository programRepository,
       Config configuration,
-      SimpleEmail emailClient,
+      EmailSendClient emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi,
       ApplicationRepository applicationRepository,
@@ -90,9 +93,8 @@ public final class ProgramAdminApplicationService {
    */
   public void setStatus(
       ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
-      throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
+      throws StatusEmailNotFoundException, StatusNotFoundException {
     ProgramModel program = application.getProgram();
-    ApplicantModel applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
@@ -113,30 +115,7 @@ public final class ProgramAdminApplicationService {
 
     // Send email if requested and present.
     if (sendEmail) {
-      if (statusDef.localizedEmailBodyText().isEmpty()) {
-        throw new StatusEmailNotFoundException(newStatusText, program.id);
-      }
-      // Notify an Admin/TI if they applied.
-      Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
-      if (adminSubmitterEmail.isPresent()) {
-        sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
-      }
-      // Notify the applicant.
-      ApplicantPersonalInfo applicantPersonalInfo =
-          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
-      Optional<ImmutableSet<String>> applicantEmails =
-          applicantService.getApplicantEmails(applicantPersonalInfo);
-      if (applicantEmails.isPresent()) {
-        applicantEmails
-            .get()
-            .forEach(
-                email ->
-                    sendApplicantEmail(
-                        program.getProgramDefinition(), applicant, statusDef, Optional.of(email)));
-      } else {
-        // An email was requested to be sent but the applicant doesn't have one.
-        throw new AccountHasNoEmailException(applicant.getAccount().id);
-      }
+      sendEmail(List.of(application), statusDef, newStatusText, programDef);
     }
     eventRepository
         .insertStatusEvent(application, Optional.of(admin), newStatusEvent)
@@ -238,6 +217,53 @@ public final class ProgramAdminApplicationService {
     }
   }
 
+  /*
+   * Retrieves the applications for the give ApplicationIds and validates that it is associated with the given
+   * program.
+   */
+  private ImmutableList<ApplicationModel> getApplications(
+      ImmutableList<Long> applicationIds, ProgramDefinition program) {
+    List<ApplicationModel> applicationList = applicationRepository.getApplications(applicationIds);
+
+    try {
+      validateApplications(applicationIds, applicationList, program);
+    } catch (ProgramNotFoundException e) {
+      return ImmutableList.of();
+    }
+    return applicationList.stream().collect(ImmutableList.toImmutableList());
+  }
+
+  /* Validates that the given application is part of the given program. */
+  private void validateApplications(
+      ImmutableList<Long> applicationIds,
+      List<ApplicationModel> applications,
+      ProgramDefinition program)
+      throws ProgramNotFoundException {
+    List<Long> applicationIdFromRepo =
+        applications.stream()
+            .map(applicationModel -> applicationModel.id)
+            .collect(Collectors.toList());
+
+    for (Long appId : applicationIds) {
+      if (!applicationIdFromRepo.contains(appId)) {
+        throw new ApplicationNotFoundException(appId);
+      }
+    }
+    for (ApplicationModel application : applications) {
+      if (programRepository
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .isEmpty()
+          || !programRepository
+              .getShallowProgramDefinition(application.getProgram())
+              .adminName()
+              .equals(program.adminName())) {
+        throw new ProgramNotFoundException(
+            String.format("Application %d or program is empty or mismatched", application.id));
+      }
+    }
+  }
+
   /* Validates that the given application is part of the given program. */
   private Optional<ApplicationModel> validateProgram(
       Optional<ApplicationModel> application, ProgramDefinition program)
@@ -254,5 +280,79 @@ public final class ProgramAdminApplicationService {
       throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
+  }
+
+  /**
+   * Sets the status on the give applications. Also verifies if the application all belong to the
+   * same program.
+   *
+   * @param applicationIds the application ids which needs the new status
+   * @param programDef the program that the applications belong to
+   * @param newStatusEvent the StatusEvent carrying the new status
+   * @param admin the admin account initiating the request
+   */
+  public void setStatus(
+      ImmutableList<Long> applicationIds,
+      ProgramDefinition programDef,
+      StatusEvent newStatusEvent,
+      AccountModel admin)
+      throws StatusNotFoundException, StatusEmailNotFoundException {
+
+    String newStatusText = newStatusEvent.statusText();
+    // The send/sent phrasing is a little weird as the service layer is converting between intent
+    // and reality.
+    boolean sendEmail = newStatusEvent.emailSent();
+
+    Optional<Status> statusDefMaybe =
+        applicationStatusesRepository
+            .lookupActiveStatusDefinitions(programDef.adminName())
+            .getStatuses()
+            .stream()
+            .filter(s -> s.statusText().equals(newStatusText))
+            .findFirst();
+    if (statusDefMaybe.isEmpty()) {
+      throw new StatusNotFoundException(newStatusText, programDef.id());
+    }
+    Status statusDef = statusDefMaybe.get();
+    ImmutableList<ApplicationModel> applications = getApplications(applicationIds, programDef);
+
+    // Send email if requested and present.
+    if (sendEmail) {
+      sendEmail(applications, statusDef, newStatusText, programDef);
+    }
+    eventRepository.insertStatusEvents(applications, Optional.of(admin), newStatusEvent);
+  }
+
+  private void sendEmail(
+      List<ApplicationModel> applicationList,
+      Status statusDef,
+      String newStatusText,
+      ProgramDefinition programDef)
+      throws StatusEmailNotFoundException {
+
+    if (statusDef.localizedEmailBodyText().isEmpty()) {
+      throw new StatusEmailNotFoundException(newStatusText, programDef.id());
+    }
+    for (ApplicationModel application : applicationList) {
+      ApplicantModel applicant = application.getApplicant();
+
+      // Notify an Admin/TI if they applied.
+      Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
+      if (adminSubmitterEmail.isPresent()) {
+        sendAdminSubmitterEmail(programDef, applicant, statusDef, adminSubmitterEmail);
+      }
+
+      // Notify the applicant.
+      ApplicantPersonalInfo applicantPersonalInfo =
+          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
+      Optional<ImmutableSet<String>> applicantEmails =
+          applicantService.getApplicantEmails(applicantPersonalInfo);
+      if (applicantEmails.isPresent()) {
+        applicantEmails
+            .get()
+            .forEach(
+                email -> sendApplicantEmail(programDef, applicant, statusDef, Optional.of(email)));
+      }
+    }
   }
 }

@@ -8,17 +8,18 @@ import controllers.AssetsFinder;
 import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.DeploymentType;
+import services.MessageKey;
+import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -52,14 +53,27 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    // Create a string such as "Program appplication summary - Pet Assistance Program"
+    String summarySubstring =
+        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+            ? params.messages().at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
+            : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
+    String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
+    context.setVariable("pageTitle", pageTitle);
+
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programDescription", params.programDescription());
     context.setVariable("blocks", params.blocks());
-    context.setVariable("blockEditUrlMap", blockEditUrlMap(params));
     context.setVariable("continueUrl", getContinueUrl(params));
     context.setVariable(
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
+
+    // Progress Bar
+    ProgressBar progressBar =
+        new ProgressBar(params.blocks(), params.blocks().size(), params.messages());
+    context.setVariable("progressBar", progressBar);
 
     // Toasts
     context.setVariable("alertBannerMessage", params.alertBannerMessage());
@@ -95,13 +109,27 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
           settingsManifest.getApplicantPortalName(request).get());
     }
 
-    return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
-  }
+    // Summary data (List of blocks. Each block contains a list of questions and answers)
 
-  // Returns a map of block ids to edit urls.
-  private Map<String, String> blockEditUrlMap(Params params) {
-    return params.blocks().stream()
-        .collect(Collectors.toMap(value -> value.getId(), value -> getBlockEditUrl(params, value)));
+    ImmutableList<NorthStarAnswerData> northStarSummaryData =
+        params.summaryData().stream()
+            .map(datum -> new NorthStarAnswerData(datum))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<NorthStarBlockSummary> blockSummaries =
+        params.blocks().stream()
+            .map(block -> new NorthStarBlockSummary(block, getBlockEditUrl(params, block)))
+            .collect(ImmutableList.toImmutableList());
+
+    blockSummaries.forEach(
+        blockSummary ->
+            northStarSummaryData.stream()
+                .filter(datum -> blockSummary.block().getId().equals(datum.blockId()))
+                .forEach(blockSummary::addAnswerData));
+
+    context.setVariable("blockSummaries", blockSummaries);
+
+    return templateEngine.process("applicant/ApplicantProgramSummaryTemplate", context);
   }
 
   private String getBlockEditUrl(Params params, Block block) {
@@ -169,6 +197,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
     abstract AlertSettings eligibilityAlertSettings();
 
+    abstract ImmutableList<AnswerData> summaryData();
+
+    abstract ProgramType programType();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -200,6 +232,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
           Optional<String> notEligibleBannerMessage);
 
       public abstract Builder setEligibilityAlertSettings(AlertSettings eligibilityAlertSettings);
+
+      public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
+
+      public abstract Builder setProgramType(ProgramType programType);
 
       public abstract Params build();
     }

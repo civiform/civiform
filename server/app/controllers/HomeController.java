@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
@@ -51,7 +52,8 @@ public class HomeController extends Controller {
     Optional<CiviFormProfile> optionalProfile = profileUtils.optionalCurrentUserProfile(request);
     if (optionalProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
-          redirect(controllers.applicant.routes.ApplicantProgramsController.index()));
+          redirect(
+              controllers.applicant.routes.ApplicantProgramsController.index(ImmutableList.of())));
     }
     CiviFormProfile profile = optionalProfile.get();
 

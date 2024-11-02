@@ -117,7 +117,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +126,8 @@ content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Application progress
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -409,6 +409,8 @@ title.programSummary=Program application summary
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +531,8 @@ content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find program
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Download PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs
@@ -544,8 +548,6 @@ heading.dateSubmitted=Date submitted
 heading.forYourRecords=Confirmation for your records
 # Text above a button to print this page
 content.youCanPrint=You can print this confirmation for your records.
-# Button to print this webpage
-button.print=Print this page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"

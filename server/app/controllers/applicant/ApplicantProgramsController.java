@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -27,14 +26,11 @@ import play.mvc.Results;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.ApplicantProgramInfoView;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -51,7 +47,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantDisabledProgramView disabledProgramInfoView;
-  private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
@@ -64,7 +59,6 @@ public final class ApplicantProgramsController extends CiviFormController {
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
       ApplicantDisabledProgramView disabledProgramInfoView,
-      ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
@@ -77,7 +71,6 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
     this.programIndexView = checkNotNull(programIndexView);
-    this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -178,64 +171,18 @@ public final class ApplicantProgramsController extends CiviFormController {
         });
   }
 
-  public CompletionStage<Result> index(Request request) {
+  public CompletionStage<Result> index(Request request, List<String> categories) {
     if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
-      return indexWithoutApplicantId(request, ImmutableList.of());
+      return indexWithoutApplicantId(request, categories);
     }
 
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
-      return indexWithoutApplicantId(request, ImmutableList.of());
+      return indexWithoutApplicantId(request, categories);
     }
-    return indexWithApplicantId(request, applicantId.get(), ImmutableList.of());
-  }
-
-  @Secure
-  public CompletionStage<Result> showWithApplicantId(
-      Request request, long applicantId, long programId) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
-        .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, profile, request),
-            classLoaderExecutionContext.current())
-        .thenApplyAsync(
-            relevantPrograms -> {
-              Optional<ProgramDefinition> programDefinition =
-                  relevantPrograms.allPrograms().stream()
-                      .map(ApplicantProgramData::program)
-                      .filter(program -> program.id() == programId)
-                      .findFirst();
-              if (programDefinition.isPresent()) {
-                return ok(
-                    programInfoView.render(
-                        messagesApi.preferred(request),
-                        programDefinition.get(),
-                        request,
-                        applicantId,
-                        applicantStage.toCompletableFuture().join(),
-                        profile));
-              }
-              return badRequest(String.format("Program %d not found", programId));
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                if (ex.getCause() instanceof SecurityException) {
-                  // If the applicant id in the URL does not correspond to the current user, start
-                  // from scratch. This could happen if a user bookmarks a URL.
-                  return redirectToHome();
-                }
-              }
-              throw new RuntimeException(ex);
-            });
+    return indexWithApplicantId(request, applicantId.get(), categories);
   }
 
   // This controller method disambiguates between two routes:
@@ -243,21 +190,12 @@ public final class ApplicantProgramsController extends CiviFormController {
   // - /programs/<program-id>
   // - /programs/<program-slug>
   //
-  // Because the second use is public, this controller is not annotated as @Secure. For the first
-  // use, the delegated-to method *is* annotated as such.
+  // The program id route is deprecated, so it always redirects to home.
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
-      // The path parameter specifies a program by (numeric) id.
-      Optional<Long> applicantId = getApplicantId(request);
-      if (applicantId.isEmpty()) {
-        // This route should not have been computed for the user in this case, but they may have
-        // gotten the URL from another source.
-        return CompletableFuture.completedFuture(redirectToHome());
-      }
-      return showWithApplicantId(
-          request,
-          applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-          Long.parseLong(programParam));
+      // We no longer support (or provide) links to numeric program ID (See issue #8599), redirect
+      // to home.
+      return CompletableFuture.completedFuture(redirectToHome());
     } else {
       return programSlugHandler.showProgram(this, request, programParam);
     }

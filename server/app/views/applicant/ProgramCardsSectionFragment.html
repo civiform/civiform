@@ -7,19 +7,19 @@
 >
   <div class="grid-container">
     <div class="grid-row">
-      <h3
+      <h2
         th:if="${section.title().isPresent()}"
         th:id="${section.id().get()}"
         th:text="${section.title().get()}"
         class="my-4 text-lg"
-      ></h3>
+      ></h2>
     </div>
   </div>
   <div class="grid-container">
     <ul class="usa-card-group cf-program-card-group">
       <th:block th:each="card : ${section.cards()}">
         <li
-          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card})}"
+          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
         ></li>
       </th:block>
     </ul>
@@ -27,13 +27,13 @@
 </div>
 
 <li
-  th:fragment="card (card)"
+  th:fragment="card (card, sectionType)"
   class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4 cf-application-card"
 >
   <div class="usa-card__container">
     <div class="usa-card__header">
       <img
-        th:if="${card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
+        th:if="${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
         th:src="${card.imageSourceUrl().get()}"
         th:alt="${card.altText().orElse('')}"
         class="cf-program-card-image"
@@ -45,6 +45,18 @@
     </div>
 
     <div class="usa-card__body">
+      <div
+        th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
+        class="flex flex-wrap gap-2 mx-4 mt-4"
+      >
+        <th:block th:each="category : ${card.categories()}">
+          <div
+            th:text="${category}"
+            class="text-xs bg-gray-200 px-2 py-1"
+          ></div>
+        </th:block>
+      </div>
+
       <p
         th:if="${card.applicationStatus().isPresent()}"
         class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"

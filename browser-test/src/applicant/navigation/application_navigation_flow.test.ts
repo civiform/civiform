@@ -92,11 +92,23 @@ test.describe('Applicant navigation flow', () => {
     })
 
     test.describe(
-      'review page with North Star enabled',
+      'flows with North Star enabled',
       {tag: ['@northstar']},
       () => {
         test.beforeEach(async ({page}) => {
           await enableFeatureFlag(page, 'north_star_applicant_ui')
+        })
+
+        test('validate block edit page title', async ({
+          page,
+          applicantQuestions,
+        }) => {
+          await applicantQuestions.clickApplyProgramButton(programName)
+
+          await applicantQuestions.expectTitle(
+            page,
+            'Test program for navigation flows — 1 of 6',
+          )
         })
 
         test('validate screenshot', async ({page, applicantQuestions}) => {

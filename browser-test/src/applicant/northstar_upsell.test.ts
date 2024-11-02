@@ -7,6 +7,7 @@ import {
   validateScreenshot,
   validateAccessibility,
   AdminPrograms,
+  ApplicantQuestions,
 } from '../support'
 import {Page} from 'playwright'
 
@@ -53,13 +54,13 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
       page,
       /* expectRelatedProgram= */ true,
+      applicantQuestions,
     )
 
     await test.step('Validate screenshot and accessibility', async () => {
@@ -92,13 +93,13 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
     await validateApplicationSubmittedPage(
       page,
       /* expectRelatedProgram= */ false,
+      applicantQuestions,
     )
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
@@ -121,7 +122,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -151,7 +151,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -159,7 +158,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Apply to related program', async () => {
       await applicantQuestions.clickApplyProgramButton(relatedProgramName)
-      await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -175,8 +173,11 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   async function validateApplicationSubmittedPage(
     page: Page,
     expectRelatedProgram: boolean,
+    applicantQuestions: ApplicantQuestions,
   ) {
     await test.step('Validate application submitted page', async () => {
+      await applicantQuestions.expectTitle(page, 'Application confirmation')
+
       await expect(
         page.getByRole('heading', {name: programName, exact: true}),
       ).toBeVisible()

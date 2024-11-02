@@ -65,7 +65,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -118,7 +118,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicantModel tiApplicant;
   private ProgramService programService;
   private String baseUrl;
-  private SimpleEmail amazonSESClient;
+  private EmailSendClient emailSendClient;
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
@@ -158,8 +158,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     programService = instanceOf(ProgramService.class);
 
-    amazonSESClient = Mockito.mock(SimpleEmail.class);
-    FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);
+    emailSendClient = Mockito.mock(EmailSendClient.class);
+    FieldUtils.writeField(subject, "emailSendClient", emailSendClient, true);
 
     messagesApi = instanceOf(MessagesApi.class);
   }
@@ -998,7 +998,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Messages messages = getMessages(Locale.US);
     String programName = progDef.adminName();
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "picard@starfleet.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1358,7 +1358,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1373,7 +1373,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1392,7 +1392,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1447,7 +1447,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1462,7 +1462,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1477,7 +1477,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1524,7 +1524,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@example.com",
             koMessages.at(
@@ -1539,7 +1539,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user2@example.com",
             enMessages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1582,7 +1582,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user3@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1623,7 +1623,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     application.refresh();
 
     // Program admin email not sent
-    Mockito.verify(amazonSESClient, Mockito.times(0))
+    Mockito.verify(emailSendClient, Mockito.times(0))
         .send(eq(ImmutableList.of("admin@example.com")), anyString(), anyString());
   }
 

@@ -41,7 +41,7 @@ import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.program.ProgramDefinition;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
@@ -181,7 +181,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void setStatus_sendsEmail() throws Exception {
     Instant start = Instant.now();
     String userEmail = "user@email.com";
-    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     ApplicationStatusesRepository repo = instanceOf(ApplicationStatusesRepository.class);
@@ -192,7 +192,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(AccountRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
-            simpleEmail,
+            emailSendClient,
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
@@ -221,7 +221,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
 
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(userEmail),
             eq(
@@ -247,7 +247,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Locale userLocale = Locale.KOREA;
     String userEmail = "user@email.com";
     String programDisplayName = "Some Program";
-    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     service =
         new ProgramAdminApplicationService(
@@ -256,7 +256,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(AccountRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
-            simpleEmail,
+            emailSendClient,
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
@@ -287,7 +287,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(userLocale.toLanguageTag())));
 
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(userEmail),
             eq(
@@ -301,7 +301,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void setStatus_tiApplicant_sendsEmail() throws Exception {
     String userEmail = "user@email.com";
     String tiEmail = "ti@email.com";
-    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     service =
@@ -311,7 +311,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(AccountRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
-            simpleEmail,
+            emailSendClient,
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
@@ -340,7 +340,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
 
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(tiEmail),
             eq(
@@ -350,7 +350,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
                     applicant.id)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(userEmail),
             eq(
@@ -364,7 +364,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   public void setStatus_tiApplicant_sendsEmail_nonDefaultLocale() throws Exception {
     String userEmail = "user@email.com";
     String tiEmail = "ti-ko@email.com";
-    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     service =
@@ -374,7 +374,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(AccountRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
-            simpleEmail,
+            emailSendClient,
             instanceOf(DeploymentType.class),
             messagesApi,
             instanceOf(ApplicationRepository.class),
@@ -408,7 +408,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages koMessages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.KOREA.toLanguageTag())));
 
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(tiEmail),
             eq(
@@ -418,7 +418,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
                     applicant.id)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
-    verify(simpleEmail, times(1))
+    verify(emailSendClient, times(1))
         .send(
             eq(userEmail),
             eq(
@@ -476,7 +476,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setStatus_sendEmailWithNoUserEmail_throws() throws Exception {
+  public void setStatus_sendEmailWithNoUserEmail_succeeds() throws Exception {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
@@ -492,18 +492,17 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setEmailSent(true)
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
+    service.setStatus(application, event, account);
 
-    assertThatThrownBy(() -> service.setStatus(application, event, account))
-        .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
-    assertThat(application.getApplicationEvents()).isEmpty();
+    assertThat(application.getApplicationEvents()).isNotEmpty();
   }
 
   @Test
   public void setStatus_sentEmailFalse_doesNotSendEmail() throws Exception {
     Instant start = Instant.now();
     String status = STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText();
-    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
@@ -511,7 +510,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(AccountRepository.class),
             instanceOf(ProgramRepository.class),
             instanceOf(Config.class),
-            simpleEmail,
+            emailSendClient,
             instanceOf(DeploymentType.class),
             instanceOf(MessagesApi.class),
             instanceOf(ApplicationRepository.class),
@@ -532,7 +531,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     service.setStatus(application, event, account);
 
-    verify(simpleEmail, never()).send(anyString(), anyString(), anyString());
+    verify(emailSendClient, never()).send(anyString(), anyString(), anyString());
 
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);

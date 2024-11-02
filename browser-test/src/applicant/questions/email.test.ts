@@ -145,7 +145,7 @@ test.describe('Email question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'email-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
@@ -155,7 +155,7 @@ test.describe('Email question for applicant flow', () => {
             page.getByTestId('questionRoot'),
             'email-errors-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })

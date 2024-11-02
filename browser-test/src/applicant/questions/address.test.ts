@@ -3,7 +3,6 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -345,62 +344,6 @@ test.describe('address applicant flow', () => {
       })
     })
   })
-
-  test.describe(
-    'single required address question with north star flag enabled',
-    {tag: ['@northstar']},
-    () => {
-      const programName = 'Test program for single address'
-
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setUpProgramWithSingleAddressQuestion(
-          page,
-          adminQuestions,
-          adminPrograms,
-          programName,
-        )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'address-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'address-errors-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      })
-
-      test('has no accessiblity violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await validateAccessibility(page)
-      })
-    },
-  )
 
   async function setUpProgramWithSingleAddressQuestion(
     page: Page,

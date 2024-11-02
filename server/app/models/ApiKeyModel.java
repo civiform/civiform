@@ -7,10 +7,10 @@ import com.google.common.collect.Streams;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 /** An EBean mapped class that represents an API key in CiviForm. */
 @Entity

@@ -720,19 +720,21 @@ test.describe('file upload applicant flow', () => {
             page.getByTestId('questionRoot'),
             'file-required-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
 
-        await test.step('Show missing file alert', async () => {
-          await applicantQuestions.clickNext()
-          await applicantFileQuestion.expectFileSelectionErrorShown()
+        await test.step('Show required question alert', async () => {
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.expectRequiredQuestionError(
+            '.cf-question-fileupload',
+          )
 
           await validateScreenshot(
             page.getByTestId('questionRoot'),
-            'file-missing-north-star',
+            'file-required-error-north-star',
             /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
+            /* mobileScreenshot= */ false,
           )
         })
       })
@@ -782,7 +784,6 @@ test.describe('file upload applicant flow', () => {
           programName,
           /* northStarEnabled= */ true,
         )
-        await applicantQuestions.clickNext()
 
         const formInputs = await page
           .locator('#cf-block-form')
@@ -794,31 +795,7 @@ test.describe('file upload applicant flow', () => {
         await expect(lastFormInput).toHaveAttribute('type', 'file')
       })
 
-      test('no continue button initially', async ({
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantFileQuestion.expectNoContinueButton()
-      })
-
-      test('does not show skip button for required question', async ({
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantFileQuestion.expectNoSkipButton()
-      })
-
-      test('can upload file', async ({
+      test('validate happy upload case', async ({
         page,
         applicantQuestions,
         applicantFileQuestion,
@@ -828,40 +805,80 @@ test.describe('file upload applicant flow', () => {
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload.png',
-        )
+        await test.step('Upload multiple files and validate screenshot', async () => {
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload.png',
+          )
 
-        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
-        await validateScreenshot(
-          page,
-          'file-uploaded-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload-second.png',
+          )
+
+          await applicantFileQuestion.expectFileNameCount(
+            'file-upload-second.png',
+            1,
+          )
+
+          await validateScreenshot(
+            page,
+            'file-uploaded-north-star',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('uploading duplicate file appends suffix', async () => {
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload.png',
+          )
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 1)
+
+          await applicantFileQuestion.expectFileNameCount(
+            'file-upload-2.png',
+            1,
+          )
+        })
+
+        await test.step('Remove files', async () => {
+          await applicantFileQuestion.removeFileUpload('file-upload.png')
+
+          await applicantFileQuestion.expectFileNameCount('file-upload.png', 0)
+
+          await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+
+          await applicantFileQuestion.expectFileNameCount(
+            'file-upload-second.png',
+            0,
+          )
+        })
       })
 
-      /** Regression test for https://github.com/civiform/civiform/issues/6221. */
-      test('can replace file', async ({
-        applicantQuestions,
-        applicantFileQuestion,
-      }) => {
+      // TODO remove ".fixme" once https://github.com/civiform/civiform/issues/8143 is fixed
+      test.fixme('can download file content', async ({applicantQuestions}) => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload.png',
+        await applicantQuestions.answerFileUploadQuestion(
+          'file 1 content',
+          'file1.txt',
         )
-        await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
+        await applicantQuestions.answerFileUploadQuestion(
+          'file 2 content',
+          'file2.txt',
+        )
 
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-second.png',
-        )
-        await applicantFileQuestion.expectFileNameDisplayed(
-          'file-upload-second.png',
-        )
+        await applicantQuestions.clickContinue()
+
+        expect(
+          await applicantQuestions.downloadFileFromReviewPage('file1.txt'),
+        ).toEqual('file 1 content')
+        expect(
+          await applicantQuestions.downloadFileFromReviewPage('file2.txt'),
+        ).toEqual('file 2 content')
       })
 
       test('has no accessiblity violations', async ({
