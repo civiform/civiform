@@ -77,6 +77,17 @@ public final class TextFormatter {
     return sanitizeHtml(markdownText);
   }
 
+  /** Passes provided text through Markdown formatter, generating an HTML String */
+  public static String formatTextToSanitizedHTML(String text, boolean preserveEmptyLines) {
+    if (preserveEmptyLines) {
+      text = preserveEmptyLines(text);
+    }
+
+    String markdownText = CIVIFORM_MARKDOWN.render(text);
+
+    return sanitizeHtml(markdownText);
+  }
+
   /** Used for testing */
   public static void resetAriaLabelToDefault() {
     CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);
