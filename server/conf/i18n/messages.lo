@@ -185,8 +185,6 @@ button.startHereCommonIntakeSr=ເລີ່ມຕົ້ນບ່ອນນີ້�
 button.editCommonIntakeSr=ແກ້ໄຂຂໍ້ມູນທີ່ສົ່ງສຳລັບ {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=ສືບຕໍ່ຕື່ມຂໍ້ມູນ {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=ເບິ່ງລາຍລະອຽດ
 # Text describing the date the application was last submitted.
 content.submittedDate=ສົ່ງ {0} ແລ້ວ
 # Text for applicants to understand the section is for finding programs
