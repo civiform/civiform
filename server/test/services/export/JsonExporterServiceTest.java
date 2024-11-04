@@ -6,6 +6,7 @@ import static play.api.test.Helpers.testServerPort;
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Optional;
 import models.ApplicantModel;
 import models.ProgramModel;
 import org.junit.Test;
@@ -155,7 +156,9 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     var fakeApplicationFiller0 = FakeApplicationFiller.newFillerFor(fakeProgram).submit();
     var fakeApplication0 = fakeApplicationFiller0.getApplication();
     programAdminApplicationService.setStatus(
-        fakeApplication0,
+        fakeApplication0.id,
+        fakeProgram.getProgramDefinition(),
+        Optional.empty(),
         StatusEvent.builder().setEmailSent(false).setStatusText(status).build(),
         admin);
 
