@@ -886,7 +886,7 @@ category.tag.economic=Économie
 category.tag.education=Éducation
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=Emploi
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Alimentation
@@ -904,7 +904,7 @@ category.tag.housing=Logement
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Formation
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transports

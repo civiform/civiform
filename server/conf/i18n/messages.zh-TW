@@ -886,7 +886,7 @@ category.tag.economic=經濟
 category.tag.education=教育
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=就業
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=食物
@@ -904,7 +904,7 @@ category.tag.housing=住宅
 category.tag.internet=網際網路
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=訓練
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=交通運輸

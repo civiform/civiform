@@ -886,7 +886,7 @@ category.tag.economic=الاقتصاد
 category.tag.education=التعليم
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=التوظيف
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=الطعام
@@ -904,7 +904,7 @@ category.tag.housing=الإسكان
 category.tag.internet=الإنترنت
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=التدريب
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=النقل
