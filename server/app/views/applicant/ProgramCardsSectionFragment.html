@@ -33,6 +33,7 @@
   th:classappend="${showImage} ? usa-card--header-first : '' "
 >
   <div class="usa-card__container">
+    <!-- Title -->
     <div class="usa-card__header usa-prose">
       <h3
         class="usa-card__heading cf-application-card-title cf-prose-h4"
@@ -40,6 +41,7 @@
       ></h3>
     </div>
 
+    <!-- Optional image -->
     <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
       <div class="usa-card__img">
         <img
@@ -50,23 +52,23 @@
       </div>
     </div>
 
+    <!-- Program categories -->
     <div class="usa-card__body">
       <div
         th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
-        class="flex flex-wrap gap-2 mx-4 mt-4"
+        class="flex flex-wrap gap-2 section-bottom"
       >
         <th:block th:each="category : ${card.categories()}">
-          <div
-            th:text="${category}"
-            class="text-xs bg-gray-200 px-2 py-1"
-          ></div>
+          <div th:text="${category}" class="usa-tag"></div>
         </th:block>
       </div>
 
+      <!-- Program description -->
       <div class="usa-prose">
         <p th:text="${card.body()}"></p>
       </div>
 
+      <!-- Application status -->
       <p
         th:if="${card.applicationStatus().isPresent()}"
         class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"
@@ -75,6 +77,7 @@
         <span th:text="${card.applicationStatus().get()}"></span>
       </p>
 
+      <!-- Eligibility tag -->
       <div th:if="${card.eligible().isPresent()}">
         <div class="content-spacing"></div>
         <div class="flex-parent">
@@ -90,6 +93,7 @@
       </div>
     </div>
 
+    <!-- Action button (usually "View and apply") -->
     <div class="usa-card__footer cf-card-footer">
       <a
         th:href="${card.actionUrl()}"
