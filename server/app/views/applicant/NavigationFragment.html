@@ -53,6 +53,7 @@
     </div>
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
+  <div th:replace="~{this :: tiAlert}"></div>
 </th:block>
 
 <section
@@ -163,6 +164,30 @@
     </div>
   </section>
 </nav>
+
+<div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
+  <section
+    class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
+    id="ti-banner"
+  >
+    <div class="usa-alert" aria-role="status">
+      <div class="usa-alert__body">
+        <div class="ti-banner-internal">
+          <span
+            class="usa-alert__text"
+            th:text="#{banner.viewApplication(${applicantDisplayName})}"
+          ></span>
+          <a
+            th:href="${tiDashboardHref}"
+            th:text="#{link.selectNewClient}"
+            class="usa-link"
+            id="ti-clients-link"
+          ></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
 
 <div th:fragment="showDebugTools">
   <a
