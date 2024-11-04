@@ -2207,7 +2207,20 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setBlockEligibilityMessage_throwsIlleagalProdicateOrderingException() {}
+  public void setBlockEligibilityMessage_updatesBlock() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id());
+    Optional<LocalizedStrings> eligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
+
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
+
+    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage().equals(eligibilityMsg));
+  }
 
   @Test
   public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {

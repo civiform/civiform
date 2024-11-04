@@ -1315,21 +1315,23 @@ public final class ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
-   * @throws IllegalPredicateOrderingException
    */
   public ProgramDefinition setBlockEligibilityMessage(
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
-      throws ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setLocalizedEligibilityMessage(message)
             .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    try {
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // Removing a predicate should never invalidate another.
+      throw new RuntimeException(
+          "Unexpected error: setting this eligibility message invalidates another");
+    }
   }
 
   /**
