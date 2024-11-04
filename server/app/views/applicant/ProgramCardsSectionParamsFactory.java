@@ -134,17 +134,6 @@ public final class ProgramCardsSectionParamsFactory {
       actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
     }
 
-    // Note this doesn't yet manage markdown, links and appropriate aria labels for
-    // links, and whatever else our current cards do.
-    String detailsUrl = program.externalLink();
-    if (detailsUrl.isEmpty() || detailsUrl.isBlank()) {
-      // TODO: Update this to point to the new northstar details page.
-      detailsUrl =
-          profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.review(program.id()).url();
-    }
-
     boolean isGuest = personalInfo.getType() == GUEST;
 
     ImmutableList.Builder<String> categoriesBuilder = ImmutableList.builder();
@@ -156,7 +145,6 @@ public final class ProgramCardsSectionParamsFactory {
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
         .setBody(program.localizedDescription().getOrDefault(preferredLocale))
-        .setDetailsUrl(detailsUrl)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())
@@ -256,8 +244,6 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String body();
 
-    public abstract String detailsUrl();
-
     public abstract String actionUrl();
 
     public abstract boolean isGuest();
@@ -289,8 +275,6 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setActionText(String actionText);
 
       public abstract Builder setBody(String body);
-
-      public abstract Builder setDetailsUrl(String detailsUrl);
 
       public abstract Builder setActionUrl(String actionUrl);
 

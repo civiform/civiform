@@ -19,7 +19,6 @@ import services.applicant.AnswerData;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
-import services.program.Column;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;

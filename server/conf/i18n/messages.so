@@ -63,6 +63,10 @@ button.close=Xidh
 button.review=Dib u eeg
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -179,8 +183,6 @@ button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
 button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Sii wad buuxinta {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Eeg faahfaahinada
 # Text describing the date the application was last submitted.
 content.submittedDate=La gudbiyay {0}
 # Text for applicants to understand the section is for finding programs
@@ -409,6 +411,8 @@ title.programSummary=Soo koobida barnaamijka codsiga
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +533,8 @@ content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Soo.deji.PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Codso barnaamijyada
@@ -861,3 +867,45 @@ banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0
 banner.guestBannerText=Waxaad u codsanaysaa sidii qof marti ah. Markaad dhammayso codsiga, {0} si aad u ilaaliso xogtaada.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=dhammee kulankaaga
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Xanaanada caruurta
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Dhaqaale
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Waxbarasho
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Cunto
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=Guud
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Daryeelka caafimaadka
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Guriyaynta
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Khadka
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Gaadiidka
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Adeegyada lagama maarmaanka ah

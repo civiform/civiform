@@ -162,6 +162,8 @@ public class MessagesTest {
       prop.load(reader);
 
       return prop.entrySet().stream()
+          // Filter out categories, which won't be used like other static strings.
+          .filter(entry -> !entry.getKey().toString().startsWith("category.tag."))
           .collect(
               Collectors.toMap(
                   entry -> (String) entry.getKey(),

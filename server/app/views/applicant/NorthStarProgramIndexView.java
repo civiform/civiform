@@ -119,7 +119,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
               request,
               messages,
               Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
-              MessageKey.BUTTON_APPLY,
+              MessageKey.BUTTON_VIEW_AND_APPLY,
               applicationPrograms.unapplied(),
               /* preferredLocale= */ messages.lang().toLocale(),
               profile,
