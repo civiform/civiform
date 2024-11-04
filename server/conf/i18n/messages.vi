@@ -904,7 +904,7 @@ category.tag.housing=Nhà ở
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Đào tạo
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Vận tải
