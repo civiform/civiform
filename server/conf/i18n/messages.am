@@ -904,7 +904,7 @@ category.tag.housing=ቤት
 category.tag.internet=በይነመረብ
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=ሥልጠና
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=መጓጓዣ
