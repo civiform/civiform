@@ -206,18 +206,14 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
-  async answerQuestionFromReviewPage(questionText: string) {
-    await this.page.click(
-      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
-    )
-    await waitForPageJsLoad(this.page)
-  }
-
-  /** On the review page, click "Edit" to change an answer to a previously answered question. */
-  async editQuestionFromReviewPage(questionText: string) {
-    await this.page.click(
-      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
-    )
+  async editQuestionFromReviewPage(
+    questionText: string,
+    northStarEnabled = false,
+  ) {
+    const element = northStarEnabled
+      ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+      : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
+    await this.page.click(element)
     await waitForPageJsLoad(this.page)
   }
 
@@ -453,8 +449,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickReview() {
-    await this.page.click('text="Review"')
+  async clickReview(northStarEnabled = false) {
+    const reviewButton = northStarEnabled
+      ? 'text="Review and exit"'
+      : 'text="Review"'
+    await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
   }
 
