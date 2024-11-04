@@ -99,7 +99,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.request(),
             params.messages(),
             Optional.empty(),
-            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_VIEW_AND_APPLY,
             params.eligiblePrograms().get(),
             /* preferredLocale= */ params.messages().lang().toLocale(),
             Optional.of(params.profile()),
