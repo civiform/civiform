@@ -185,8 +185,6 @@ button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
 button.editCommonIntakeSr=Editar la información enviada para {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continuar completando la solicitud {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Ver detalles
 # Text describing the date the application was last submitted.
 content.submittedDate=Enviada el {0}
 # Text for applicants to understand the section is for finding programs
