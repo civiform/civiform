@@ -20,7 +20,7 @@ import play.Environment;
 import repository.CategoryRepository;
 import services.LocalizedStrings;
 
-/** Iterates through all categories and ensures translations aren't missing. */
+/* Iterates through all categories and ensures translations aren't missing. */
 public final class AddCategoryAndTranslationsJob extends DurableJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(AddCategoryAndTranslationsJob.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -91,7 +91,7 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
             }
           }
         }
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         errorCount++;
         LOGGER.error(e.getMessage(), e);
       }
