@@ -183,8 +183,6 @@ button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền và
 button.editCommonIntakeSr=Chỉnh sửa thông tin đã gửi cho {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Tiếp tục điền vào {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Xem chi tiết
 # Text describing the date the application was last submitted.
 content.submittedDate=Đã gửi {0}
 # Text for applicants to understand the section is for finding programs

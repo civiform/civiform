@@ -183,8 +183,6 @@ button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
 button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Sii wad buuxinta {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Eeg faahfaahinada
 # Text describing the date the application was last submitted.
 content.submittedDate=La gudbiyay {0}
 # Text for applicants to understand the section is for finding programs

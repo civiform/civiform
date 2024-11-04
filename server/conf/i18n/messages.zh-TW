@@ -183,8 +183,6 @@ button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
 button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=繼續填寫「{0}」
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=查看詳細資料
 # Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
 # Text for applicants to understand the section is for finding programs

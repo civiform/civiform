@@ -183,8 +183,6 @@ button.startHereCommonIntakeSr={0} 작성
 button.editCommonIntakeSr={0}에 대해 제출한 정보 수정
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr={0} 계속 작성
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=세부정보 보기
 # Text describing the date the application was last submitted.
 content.submittedDate=제출 날짜: {0}
 # Text for applicants to understand the section is for finding programs
