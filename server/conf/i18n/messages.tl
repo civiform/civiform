@@ -886,7 +886,7 @@ category.tag.economic=Pang-ekonomiya
 category.tag.education=Edukasyon
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=Pagtatrabaho
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Pagkain
@@ -904,7 +904,7 @@ category.tag.housing=Pabahay
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Pagsasanay
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transportasyon
