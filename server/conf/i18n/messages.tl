@@ -185,8 +185,6 @@ button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0
 button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Tingnan ang mga detalye
 # Text describing the date the application was last submitted.
 content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
