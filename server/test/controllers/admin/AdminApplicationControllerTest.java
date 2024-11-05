@@ -332,6 +332,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    application.save();
+    programAdminApplicationService.setStatus(
+        application.id,
+        program.getProgramDefinition(),
+        Optional.empty(),
+        StatusEvent.builder()
+            .setStatusText(APPROVED_STATUS.statusText())
+            .setEmailSent(false)
+            .build(),
+        adminAccount);
 
     Request request =
         fakeRequestBuilder()
@@ -340,19 +350,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     "redirectUri",
                     "/",
                     "sendEmail",
-                    "",
+                    "on",
                     "currentStatus",
                     "unset shouldn't have a value",
                     "newStatus",
-                    APPROVED_STATUS.statusText()))
+                    REJECTED_STATUS.statusText()))
             .build();
 
     // Execute
-    Result result = controller.updateStatus(request, program.id, application.id);
-
-    // Evaluate
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
-    assertThat(contentAsString(result)).contains("field should be empty");
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
