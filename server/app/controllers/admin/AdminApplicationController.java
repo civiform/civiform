@@ -380,9 +380,6 @@ public final class AdminApplicationController extends CiviFormController {
     }
     if (maybeRedirectUri.isEmpty()) {
       return badRequest(String.format("The %s field is not present", REDIRECT_URI_KEY));
-    } else if (!maybeCurrentStatus.get().isBlank()) {
-      return badRequest(
-          String.format("The %s field should be empty as there is no status set", CURRENT_STATUS));
     }
     // Save the new data.
     String newStatus = maybeNewStatus.get();
