@@ -175,6 +175,8 @@ button.editSr={0}에 제출된 신청서 편집
 button.continueSr={0} 신청 계속하기
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=여기부터 시작
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=애플리케이션으로 계속하기
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
