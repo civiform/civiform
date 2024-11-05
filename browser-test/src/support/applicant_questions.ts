@@ -218,10 +218,12 @@ export class ApplicantQuestions {
     questionText: string,
     northStarEnabled = false,
   ) {
-    const element = northStarEnabled
-      ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
-      : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
-    await this.page.click(element)
+    const locator = this.page.locator(
+      northStarEnabled
+        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
+    );
+    await locator.click(); 
     await waitForPageJsLoad(this.page)
   }
 
