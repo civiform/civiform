@@ -111,9 +111,11 @@
           </fieldset>
         </form>
         <div id="not-started-programs">
-          <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
-          ></div>
+          <th:block th:if="${unfilteredSection.isPresent()}">
+            <div
+              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
+            ></div>
+          </th:block>
         </div>
       </div>
     </main>
