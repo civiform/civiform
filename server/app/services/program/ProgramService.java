@@ -1308,9 +1308,9 @@ public final class ProgramService {
   /**
    * Update the eligibility message for a block.
    *
-   * @param programId
-   * @param blockDefinitionId
-   * @param message
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param message the custom eligibility message to add to the block
    * @return the updated block
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1328,7 +1328,6 @@ public final class ProgramService {
     try {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
     } catch (IllegalPredicateOrderingException e) {
-      // Removing a predicate should never invalidate another.
       throw new RuntimeException(
           "Unexpected error: setting this eligibility message invalidates another");
     }
