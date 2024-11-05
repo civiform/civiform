@@ -78,7 +78,7 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
               LOGGER.debug("Translation change. Updated database.");
             } catch (JsonProcessingException e) {
               errorCount++;
-              e.printStackTrace();
+              LOGGER.error(e.getMessage(), e);
             }
           }
         }
