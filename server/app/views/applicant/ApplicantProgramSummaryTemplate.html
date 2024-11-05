@@ -24,6 +24,11 @@
             <div
               th:replace="~{components/AlertFragment :: alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H2')}"
             ></div>
+            <!-- If an alert is visible, add some extra spacing. -->
+            <div
+              th:if="${eligibilityAlertSettings.title.isPresent()}"
+              class="section-spacing"
+            ></div>
 
             <div
               th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
