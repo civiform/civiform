@@ -263,7 +263,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     page: Page,
     expectApplicationDownloadLink: boolean,
   ) {
-    await test.step('Validate application submitted page', async () => {
+    await test.step('Validate application download link', async () => {
       if (expectApplicationDownloadLink) {
         await expect(page.getByText('Download your application')).toBeVisible()
       } else {
