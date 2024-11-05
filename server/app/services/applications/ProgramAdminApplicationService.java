@@ -100,7 +100,7 @@ public final class ProgramAdminApplicationService {
       Optional<String> currentStatus,
       StatusEvent newStatusEvent,
       AccountModel admin)
-      throws StatusEmailNotFoundException, StatusNotFoundException, ApplicationNotFoundException {
+      throws StatusEmailNotFoundException, StatusNotFoundException {
 
     Optional<ApplicationModel> applicationMaybe = getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
@@ -114,7 +114,7 @@ public final class ProgramAdminApplicationService {
       if (application.getLatestStatus().get().equals(newStatusText)) {
         throw new ApplicationAlreadyInStatus(applicationId, newStatusText);
       }
-      if (!application.getLatestStatus().get().equals(currentStatus)) {
+      if (!application.getLatestStatus().get().equals(currentStatus.get())) {
         throw new RuntimeException(
             "The application state has changed since the page was loaded. Please reload and"
                 + " try again.");

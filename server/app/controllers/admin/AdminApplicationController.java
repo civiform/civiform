@@ -43,7 +43,6 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
-import services.applications.ApplicationNotFoundException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
@@ -355,10 +354,7 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException,
-          StatusEmailNotFoundException,
-          StatusNotFoundException,
-          ApplicationNotFoundException {
+      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
