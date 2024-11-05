@@ -99,6 +99,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
+            "short description",
             "",
             "https://usa.gov",
             displayMode.getValue(),
@@ -240,6 +241,7 @@ public class ProgramBuilder {
             /* adminDescription */ description,
             /* defaultDisplayName */ displayName,
             /* defaultDisplayDescription */ description,
+            /* defaultShortDescription */ "short description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
@@ -265,6 +267,7 @@ public class ProgramBuilder {
     obsoleteVersion.save();
     ProgramModel program =
         new ProgramModel(
+            adminName,
             adminName,
             adminName,
             adminName,

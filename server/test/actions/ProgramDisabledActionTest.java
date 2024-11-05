@@ -47,6 +47,7 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* adminDescription */ "admin-description",
             /* defaultDisplayName */ "admin-name",
             /* defaultDisplayDescription */ "description",
+            /* defaultShortDescription */ "short description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
