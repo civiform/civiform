@@ -57,6 +57,8 @@
       <button
         th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
         id="enumerator-field-add-button"
+        th:attr="data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
+                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : ''}"
         type="button"
         class="usa-button usa-button--outline margin-top-105"
       ></button>
