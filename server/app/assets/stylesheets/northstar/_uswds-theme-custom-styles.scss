@@ -127,6 +127,10 @@ it is around the label */
   @include u-height(3);
 }
 
+.section-bottom {
+  @include u-margin-bottom(1);
+}
+
 .container {
   display: flex;
   justify-content: space-between;
