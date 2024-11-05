@@ -338,6 +338,7 @@ public final class ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultShortDescription,
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
@@ -382,6 +383,7 @@ public final class ProgramService {
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
+            defaultShortDescription,
             defaultConfirmationMessage,
             externalLink,
             displayMode,
@@ -492,6 +494,7 @@ public final class ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String shortDescription,
       String confirmationMessage,
       String externalLink,
       String displayMode,
@@ -543,6 +546,10 @@ public final class ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setLocalizedShortDescription(
+                programDefinition
+                    .localizedShortDescription()
+                    .updateTranslation(locale, shortDescription))
             .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
