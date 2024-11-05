@@ -206,6 +206,14 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
+  async answerQuestionFromReviewPage(questionText: string) {
+    await this.page.click(
+      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Answer")`,
+    )
+    await waitForPageJsLoad(this.page)
+  }
+
+  /** On the review page, click "Edit" to change an answer to a previously answered question. */
   async editQuestionFromReviewPage(
     questionText: string,
     northStarEnabled = false,
