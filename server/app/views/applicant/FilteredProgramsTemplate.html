@@ -1,0 +1,19 @@
+<!--HTMX partial template for the filtered programs section of the landing page.-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div
+      th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${recommendedSection})}"
+    ></div>
+    <th:block th:if="${otherProgramsSection.isPresent()}">
+      <div
+        th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${otherProgramsSection.get()})}"
+      ></div>
+    </th:block>
+  </body>
+</html>

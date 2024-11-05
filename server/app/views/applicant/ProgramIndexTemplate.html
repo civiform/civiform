@@ -66,7 +66,7 @@
           </li>
         </ul>
       </div>
-      <div>
+      <div id="programs-list">
         <div th:if="${myApplicationsSection.isPresent()}">
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
@@ -82,35 +82,39 @@
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
-        <div
+        <form
           th:if="${!categoryOptions.isEmpty()}"
+          id="ns-category-filter-form"
           class="grid-container"
-          id="category-filter-form"
+          hx-get="/programs/hx/filter"
+          hx-target="#not-started-programs"
         >
           <fieldset class="grid-row grid-gap">
             <legend th:text="#{label.programFilters}"></legend>
             <th:block th:each="categoryOption : ${categoryOptions}">
-              <div class="filter-chip">
+              <div>
                 <input
-                  th:id="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  th:id="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
                   type="checkbox"
                   name="categories"
                   th:value="${categoryOption}"
-                  class="sr-only"
                 />
                 <label
-                  th:for="${'check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+                  th:for="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
                   th:text="${categoryOption}"
                 ></label>
               </div>
             </th:block>
+            <button id="filter-submit" type="submit" class="usa-button">
+              Filter
+            </button>
           </fieldset>
-        </div>
-        <th:block th:each="section : ${sections}">
+        </form>
+        <div id="not-started-programs">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${section})}"
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
           ></div>
-        </th:block>
+        </div>
       </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>

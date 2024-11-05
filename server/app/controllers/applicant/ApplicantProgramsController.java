@@ -31,6 +31,7 @@ import services.applicant.Block;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
+import views.applicant.NorthStarFilteredProgramsViewPartial;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -51,6 +52,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
+  private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
 
   @Inject
   public ApplicantProgramsController(
@@ -64,7 +66,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView) {
+      NorthStarProgramIndexView northStarProgramIndexView,
+      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
@@ -75,6 +78,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
+    this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
   }
 
   @Secure
@@ -276,5 +280,37 @@ public final class ApplicantProgramsController extends CiviFormController {
                 request,
                 applicantId.orElseThrow(),
                 applicantStage.toCompletableFuture().join())));
+  }
+
+  /**
+   * Serves an HTMX partial view when the user selects program category filters. The partial view
+   * displays recommended and other programs based on the selected categories.
+   */
+  @Secure
+  public CompletionStage<Result> hxFilter(Request request, List<String> categories) {
+    Optional<Long> applicantId = getApplicantId(request);
+    CompletableFuture<ApplicationPrograms> programsFuture;
+
+    if (applicantId.isEmpty()) {
+      programsFuture =
+          applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
+    } else {
+      CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
+      programsFuture =
+          applicantService
+              .relevantProgramsForApplicant(applicantId.get(), requesterProfile, request)
+              .toCompletableFuture();
+    }
+
+    return CompletableFuture.completedFuture(
+        Results.ok(
+            northStarFilteredProgramsViewPartial.render(
+                messagesApi.preferred(request),
+                request,
+                Optional.empty(),
+                ApplicantPersonalInfo.ofGuestUser(),
+                programsFuture.join(),
+                Optional.empty(),
+                ImmutableList.copyOf(categories))));
   }
 }
