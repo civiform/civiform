@@ -17,10 +17,18 @@
 <th:block th:fragment="multilineAnswer(answerData)">
   <ol id="summary-multiline-list" class="grid-col-6 right-align">
     <li
-      th:each="answerLine : ${answerData.multilineAnswerText()}"
+      th:each="answerLine, status : ${answerData.multilineAnswerText()}"
       class="usa-prose"
+      th:with="useLink=${status.index < answerData.urls().size()}"
     >
+      <a
+        th:if="${useLink}"
+        th:text="${answerLine}"
+        th:href="${answerData.urls().get(status.index)}"
+        class="zero-margin summary-answer mobile-truncate-3 summary-download-file-link"
+      ></a>
       <span
+        th:if="${!useLink}"
         th:text="${answerLine}"
         class="zero-margin summary-answer mobile-truncate-3"
       ></span>

@@ -11,9 +11,11 @@ import services.question.types.QuestionType;
 // It's safer to process data in Java than at runtime in Thymeleaf.
 public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
   private final AnswerData answerData;
+  private final long applicantId;
 
-  public NorthStarAnswerData(AnswerData data) {
+  public NorthStarAnswerData(AnswerData data, long applicantId) {
     this.answerData = checkNotNull(data);
+    this.applicantId = applicantId;
   }
 
   public String blockId() {
@@ -60,6 +62,25 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
       fileNames.add(fileName);
     }
     return ImmutableList.copyOf(fileNames);
+  }
+
+  public ImmutableList<String> urls() {
+    ArrayList<String> urls = new ArrayList<String>();
+
+    AnswerData data = this.answerData;
+    if (!data.encodedFileKeys().isEmpty()) {
+      for (int i = 0; i < data.encodedFileKeys().size(); i++) {
+        String encodedFileKey = data.encodedFileKeys().get(i);
+        String fileUrl = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+        urls.add(fileUrl);
+      }
+    } else if (data.encodedFileKey().isPresent()) {
+      // TODO(#7493): When single encoded file key is deprecated, delete this branch
+      String encodedFileKey = data.encodedFileKey().get();
+      String fileUrl = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+      urls.add(fileUrl);
+    }
+    return ImmutableList.copyOf(urls);
   }
 
   @Override

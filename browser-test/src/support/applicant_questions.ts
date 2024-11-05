@@ -522,11 +522,15 @@ export class ApplicantQuestions {
     await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
-  async downloadSingleQuestionFromReviewPage() {
+  async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+    if (northStarEnabled) {
+      await expect(this.page.getByText('Review and submit')).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByText('Program application summary'),
+      ).toBeVisible()
+    }
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
