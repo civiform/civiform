@@ -340,7 +340,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages messages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
 
-    verify(emailSendClient, times(1))
+    verify(emailSendClient, times(2))
         .send(
             eq(tiEmail),
             eq(
@@ -408,7 +408,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Messages koMessages =
         messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.KOREA.toLanguageTag())));
 
-    verify(emailSendClient, times(1))
+    verify(emailSendClient, times(2))
         .send(
             eq(tiEmail),
             eq(

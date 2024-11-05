@@ -497,9 +497,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     "sendEmail",
                     "",
                     "currentStatus",
-                    REJECTED_STATUS.statusText(),
+                    UNSET_STATUS_TEXT,
                     "newStatus",
-                    APPROVED_STATUS.statusText()))
+                    REJECTED_STATUS.statusText()))
             .build();
 
     // Execute
