@@ -68,20 +68,11 @@ public final class AddCategoryAndTranslationsJob extends DurableJob {
           // Update the database if the translations in the messages file differs
           if (!dbTranslations.equals(fileTranslations)) {
             LOGGER.info("Translations mismatch for category ID: {}", dbCategory.id);
-            String updateSql =
-                """
-                update categories
-                set localized_name = CAST(:localized_name AS jsonb)
-                where id = :id
-                """;
             try (Transaction stepTransaction = database.beginTransaction(TxScope.mandatory())) {
               JsonNode localizedNameToSet =
                   objectMapper.readTree(objectMapper.writeValueAsString(fileTranslations));
-              database
-                  .sqlUpdate(updateSql)
-                  .setParameter("id", dbCategory.id)
-                  .setParameter("localized_name", localizedNameToSet.toString())
-                  .execute();
+              categoryRepository.updateCategoryLocalizedName(
+                  dbCategory.id, localizedNameToSet.toString());
 
               stepTransaction.commit();
               LOGGER.debug("Translation change. Updated database.");

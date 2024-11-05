@@ -180,6 +180,7 @@ public final class DurableJobModule extends AbstractModule {
         JobType.RUN_ONCE,
         persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
 
+    // TODO(#8833): Remove job from registry once all category translations are in.
     durableJobRegistry.registerStartupJob(
         DurableJobName.ADD_CATEGORY_AND_TRANSLATION,
         JobType.RUN_ON_EACH_STARTUP,
