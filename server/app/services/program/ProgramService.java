@@ -351,7 +351,7 @@ public final class ProgramService {
         validateProgramDataForCreate(
             adminName,
             defaultDisplayName,
-            defaultDisplayDescription,
+            defaultShortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -413,7 +413,7 @@ public final class ProgramService {
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
    * @param displayName a name for this program
-   * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
@@ -422,7 +422,7 @@ public final class ProgramService {
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
       String adminName,
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       ImmutableList<String> notificationPreferences,
@@ -432,7 +432,7 @@ public final class ProgramService {
     errorsBuilder.addAll(
         validateProgramData(
             displayName,
-            displayDescription,
+            shortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -470,6 +470,7 @@ public final class ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param confirmationMessage a custom message to display on the confirmation screen when the
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
@@ -508,7 +509,7 @@ public final class ProgramService {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
             displayName,
-            displayDescription,
+            shortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
@@ -629,14 +630,14 @@ public final class ProgramService {
    * actually update any programs.
    *
    * @param displayName a name for this program
-   * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
@@ -644,7 +645,7 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups) {
     return validateProgramData(
         displayName,
-        displayDescription,
+        shortDescription,
         externalLink,
         displayMode,
         notificationPreferences,
@@ -663,7 +664,7 @@ public final class ProgramService {
 
   private ImmutableSet<CiviFormError> validateProgramData(
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
@@ -673,7 +674,7 @@ public final class ProgramService {
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
-    if (displayDescription.isBlank()) {
+    if (shortDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
       errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));

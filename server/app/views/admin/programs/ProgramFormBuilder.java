@@ -32,10 +32,12 @@ import modules.MainModule;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
+import services.AlertType;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
+import views.AlertComponent;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -144,15 +146,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(displayName)
             .getInputTag(),
+        AlertComponent.renderSlimAlert(
+            AlertType.INFO,
+            "Short description will be visible to applicants at a future date.",
+            false,
+            ""),
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
-            .setFieldName("localizedShortDisplayDescription")
+            .setFieldName("localizedShortDescription")
             .setLabelText(
                 "Short description of this program for the public. Maximum 100 characters.")
             .setMaxLength(100)
             .setRequired(true)
-            .setMarkdownSupported(true)
-            .setValue(displayDescription)
+            .setValue(shortDescription)
             .getTextareaTag(),
         programUrlField(adminName, programEditStatus),
         FieldWithLabel.textArea()
@@ -294,15 +300,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Link to program website (optional)")
             .setValue(externalLink)
             .getInputTag(),
-        h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        div()
-            .withId("apply-steps")
-            .with(
-                buildApplicationStepDiv("1"),
-                buildApplicationStepDiv("2"),
-                buildApplicationStepDiv("3"),
-                buildApplicationStepDiv("4"),
-                buildApplicationStepDiv("5")),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -318,30 +315,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
     formTag.with(createSubmitButton(programEditStatus));
     return formTag;
-  }
-
-  private DivTag buildApplicationStepDiv(String number) {
-    FieldWithLabel title =
-        FieldWithLabel.input()
-            .setId("apply-step-" + number + "-title")
-            .setFieldName("applyStep" + number + "Title")
-            .setValue("");
-    FieldWithLabel description =
-        FieldWithLabel.textArea()
-            .setId("apply-step-" + number + "-description")
-            .setFieldName("applyStep" + number + "Description")
-            .setMarkdownSupported(true)
-            .setValue("");
-    if (number.equals("1")) {
-      title.setLabelText("Step " + number + " title").setRequired(true);
-      description.setLabelText("Step " + number + " description").setRequired(true);
-    } else {
-      title.setLabelText("Step " + number + " title (optional)");
-      description.setLabelText("Step " + number + " description (optional)");
-    }
-    return div()
-        .withId("apply-step-" + number + "-div")
-        .with(title.getInputTag(), description.getTextareaTag());
   }
 
   private DivTag showCategoryCheckboxes(

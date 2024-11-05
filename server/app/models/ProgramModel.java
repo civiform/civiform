@@ -216,6 +216,7 @@ public class ProgramModel extends BaseModel {
       ImmutableList<CategoryModel> categories) {
     this.name = adminName;
     this.description = adminDescription;
+
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
