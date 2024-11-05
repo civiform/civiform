@@ -11,14 +11,16 @@
 
     <div class="content-spacing"></div>
 
-    <div style="display: inline-flex">
-      <button
-        type="button"
-        class="usa-button usa-button--inverse"
-        th:text="#{button.createAnAccount}"
-        id="create-account"
-        th:attr="data-redirect-to=${createAccountLink}"
-      ></button>
+    <div class="grid-row">
+      <div class="grid-col-auto">
+        <button
+          type="button"
+          class="usa-button usa-button--inverse"
+          th:text="#{button.createAnAccount}"
+          id="create-account"
+          th:attr="data-redirect-to=${createAccountLink}"
+        ></button>
+      </div>
     </div>
 
     <div class="text-medium-spacing"></div>
