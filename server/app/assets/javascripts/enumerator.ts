@@ -105,7 +105,7 @@ function removeEnumeratorField(event: Event) {
   }
 
   // Get the parent div, which contains the input field and remove button, and remove it.
-  let enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
+  const enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
   enumeratorFieldDiv.remove()
 
   // Need to re-index all enumerator entities when one is removed so labels are consistent
@@ -129,7 +129,7 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
-  let enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
+  const enumeratorFieldDiv = findEnumeratorFieldDiv(removeButton)
   enumeratorFieldDiv.classList.add('hidden')
   // We must hide the child in addition to the parent since we
   // want to prevent this input from being considered when
