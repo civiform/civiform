@@ -4,9 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.StoredFileAcls;
 import io.ebean.annotation.DbJsonB;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /** The EBean mapped class for a file stored in AWS S3 */

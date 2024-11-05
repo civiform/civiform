@@ -1,10 +1,11 @@
-package services.program;
+package services.export;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import services.Path;
+import services.export.enums.ColumnType;
 
 /** Represents a data column in a CSV export file. */
 @AutoValue

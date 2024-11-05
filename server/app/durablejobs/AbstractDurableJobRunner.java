@@ -20,7 +20,7 @@ import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.email.aws.SimpleEmail;
+import services.email.EmailSendClient;
 
 /**
  * Executes {@link DurableJob}s when their time has come.
@@ -39,7 +39,7 @@ public abstract class AbstractDurableJobRunner {
   private final String itEmailAddress;
   private final int jobTimeoutMinutes;
   private final Provider<LocalDateTime> nowProvider;
-  private final SimpleEmail simpleEmail;
+  private final EmailSendClient emailSendClient;
   private final ZoneOffset zoneOffset;
 
   public AbstractDurableJobRunner(
@@ -47,7 +47,7 @@ public abstract class AbstractDurableJobRunner {
       DurableJobExecutionContext durableJobExecutionContext,
       DurableJobRegistry durableJobRegistry,
       Provider<LocalDateTime> nowProvider,
-      SimpleEmail simpleEmail,
+      EmailSendClient emailSendClient,
       ZoneId zoneId) {
     this.hostName =
         config.getString("base_url").replace("https", "").replace("http", "").replace("://", "");
@@ -59,7 +59,7 @@ public abstract class AbstractDurableJobRunner {
             : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
 
-    this.simpleEmail = Preconditions.checkNotNull(simpleEmail);
+    this.emailSendClient = Preconditions.checkNotNull(emailSendClient);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
@@ -116,7 +116,7 @@ public abstract class AbstractDurableJobRunner {
         String.format("Error report for: job_name=\"%s\", job_ID=%d\n", job.getJobName(), job.id));
     contents.append(job.getErrorMessage().orElse("Job is missing error messages."));
 
-    simpleEmail.send(itEmailAddress, subject, contents.toString());
+    emailSendClient.send(itEmailAddress, subject, contents.toString());
   }
 
   private void runJob(PersistedDurableJobModel persistedDurableJob) {

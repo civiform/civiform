@@ -63,6 +63,10 @@ button.close=Fermer
 button.review=Vérifier
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=s''ouvre dans un nouvel onglet
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -179,8 +183,6 @@ button.startHereCommonIntakeSr=Commencer ici en remplissant {0}
 button.editCommonIntakeSr=Modifier les informations fournies pour {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continuer à remplir {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Afficher les détails
 # Text describing the date the application was last submitted.
 content.submittedDate=Date d''envoi : {0}
 # Text for applicants to understand the section is for finding programs
@@ -409,6 +411,8 @@ title.programSummary=Résumé de la demande d''inscription au programme
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +533,8 @@ content.commonIntakeNoMatchingProgramsTi=L''outil de présélection n''a trouvé
 content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner à la page précédente pour modifier vos réponses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
@@ -861,3 +867,45 @@ banner.notForProductionBannerLine2=Pour vous inscrire à un programme ou à un s
 banner.guestBannerText=Vous effectuez une demande d''inscription en tant qu''invité. À la fin de celle-ci, {0} pour protéger vos données.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=fermez votre session
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Garde d'enfants
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Économie
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Éducation
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Emploi
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Alimentation
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=Général
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Santé
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Logement
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Formation
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transports
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Énergie

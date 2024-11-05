@@ -124,7 +124,7 @@ public enum MessageKey {
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
-  BUTTON_VIEW_DETAILS("button.viewDetails"),
+  BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
@@ -258,6 +258,8 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
+  LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
+  LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),

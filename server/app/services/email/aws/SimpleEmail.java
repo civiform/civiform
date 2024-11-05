@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.aws.AwsRegion;
+import services.email.EmailSendClient;
 import software.amazon.awssdk.http.HttpStatusCode;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.Body;
@@ -31,7 +32,7 @@ import software.amazon.awssdk.services.ses.model.SesException;
  * SimpleEmail provides methods to send email notifications through AWS Simple Email Service (SES).
  */
 @Singleton
-public final class SimpleEmail {
+public final class SimpleEmail implements EmailSendClient {
   public static final String AWS_SES_SENDER_CONF_PATH = "email.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
@@ -79,10 +80,12 @@ public final class SimpleEmail {
         });
   }
 
+  @Override
   public void send(String toAddress, String subject, String bodyText) {
     send(ImmutableList.of(toAddress), subject, bodyText);
   }
 
+  @Override
   public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
     if (toAddresses.isEmpty()) {
       return;

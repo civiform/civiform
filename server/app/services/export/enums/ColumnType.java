@@ -1,4 +1,4 @@
-package services.program;
+package services.export.enums;
 
 /**
  * Defines types of columns that will be handled differently in {@link services.export.CsvExporter}.

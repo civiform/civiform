@@ -29,20 +29,26 @@
 
 <li
   th:fragment="card (card, sectionType)"
+  th:with="showImage=(${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())})"
   class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4 cf-application-card"
+  th:classappend="${showImage} ? usa-card--header-first : '' "
 >
   <div class="usa-card__container">
-    <div class="usa-card__header">
-      <img
-        th:if="${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
-        th:src="${card.imageSourceUrl().get()}"
-        th:alt="${card.altText().orElse('')}"
-        class="cf-program-card-image"
-      />
-      <h2
-        class="usa-card__heading cf-application-card-title"
+    <div class="usa-card__header usa-prose">
+      <h3
+        class="usa-card__heading cf-application-card-title cf-prose-h4"
         th:text="${card.title()}"
-      ></h2>
+      ></h3>
+    </div>
+
+    <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
+      <div class="usa-card__img">
+        <img
+          th:src="${card.imageSourceUrl().get()}"
+          th:alt="${card.altText().orElse('')}"
+          class="cf-program-card-image"
+        />
+      </div>
     </div>
 
     <div class="usa-card__body">
@@ -58,6 +64,10 @@
         </th:block>
       </div>
 
+      <div class="usa-prose">
+        <p th:text="${card.body()}"></p>
+      </div>
+
       <p
         th:if="${card.applicationStatus().isPresent()}"
         class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"
@@ -65,8 +75,6 @@
         <span th:text="#{title.status}"></span>:
         <span th:text="${card.applicationStatus().get()}"></span>
       </p>
-
-      <p th:text="${card.body()}"></p>
 
       <div th:if="${card.eligible().isPresent()}">
         <div class="content-spacing"></div>
@@ -82,17 +90,11 @@
         </div>
       </div>
     </div>
+
     <div class="usa-card__footer cf-card-footer">
       <a
-        th:href="${card.detailsUrl()}"
-        target="_blank"
-        class="usa-button usa-button--outline"
-        th:text="#{button.viewDetails}"
-      ></a>
-
-      <a
         th:href="${card.actionUrl()}"
-        class="usa-button cf-apply-button"
+        class="usa-button usa-button--outline cf-apply-button"
         th:text="${card.actionText()}"
       ></a>
     </div>
