@@ -17,6 +17,7 @@ public enum DurableJobName {
   ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA("ADD_OPERATOR_TO_LEAF_ADDRESS_SERVICE_AREA"),
   COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD("COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD"),
   CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY("CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY"),
+  ADD_CATEGORY_AND_TRANSLATION("ADD_CATEGORY_AND_TRANSLATION"),
 
   // Jobs below this line are deprecated, but must be kept around so that durableJobRegistry.get
   // does not throw an IllegalArgumentException error
