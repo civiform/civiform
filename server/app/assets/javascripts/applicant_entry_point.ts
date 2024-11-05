@@ -16,15 +16,8 @@ import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
-import * as htmx from './htmx'
-
-declare global {
-  interface Window {
-    htmx: typeof htmx
-  }
-}
-
-window.htmx = htmx
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import htmx from './htmx'
 
 window.addEventListener('load', () => {
   main.init()
