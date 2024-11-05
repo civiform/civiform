@@ -328,6 +328,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow()
             .setSubmitterEmail(tiEmail);
+    application.save();
 
     StatusEvent event =
         StatusEvent.builder()
@@ -390,10 +391,12 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     ApplicantModel tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
     tiApplicant.save();
+
     ApplicationModel application =
         ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
             .setSubmitTimeToNow()
             .setSubmitterEmail(tiEmail);
+    application.save();
 
     StatusEvent event =
         StatusEvent.builder()
