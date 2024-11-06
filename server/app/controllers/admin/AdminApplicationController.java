@@ -43,6 +43,7 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
+import services.applications.ApplicationAlreadyInStatusException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
@@ -392,18 +393,21 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(
           String.format("%s value is invalid: %s", SEND_EMAIL, shouldSendEmail.get()));
     }
-
-    programAdminApplicationService.setStatus(
-        applicationId,
-        program,
-        maybeCurrentStatus,
-        ApplicationEventDetails.StatusEvent.builder()
-            .setStatusText(newStatus)
-            .setEmailSent(sendEmail)
-            .build(),
-        profileUtils.currentUserProfile(request).getAccount().join());
-    // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+    try {
+      programAdminApplicationService.setStatus(
+          applicationId,
+          program,
+          maybeCurrentStatus,
+          ApplicationEventDetails.StatusEvent.builder()
+              .setStatusText(newStatus)
+              .setEmailSent(sendEmail)
+              .build(),
+          profileUtils.currentUserProfile(request).getAccount().join());
+    } catch (ApplicationAlreadyInStatusException e) {
+      return redirect(redirectUrl).flashing("error", e.getMessage());
+    }
+    // Only allow relative URLs to ensure that we redirect to the same domain.
     return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
   }
 

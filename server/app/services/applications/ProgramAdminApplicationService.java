@@ -100,7 +100,9 @@ public final class ProgramAdminApplicationService {
       Optional<String> currentStatus,
       StatusEvent newStatusEvent,
       AccountModel admin)
-      throws StatusEmailNotFoundException, StatusNotFoundException {
+      throws StatusEmailNotFoundException,
+          StatusNotFoundException,
+          ApplicationAlreadyInStatusException {
 
     Optional<ApplicationModel> applicationMaybe = getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
@@ -112,7 +114,7 @@ public final class ProgramAdminApplicationService {
     // Verify the current application status is not the same as the new status
     if (application.getLatestStatus().isPresent()) {
       if (application.getLatestStatus().get().equals(newStatusText)) {
-        throw new ApplicationAlreadyInStatus(applicationId, newStatusText);
+        throw new ApplicationAlreadyInStatusException(applicationId, newStatusText);
       }
       if (!application.getLatestStatus().get().equals(currentStatus.get())) {
         throw new RuntimeException(

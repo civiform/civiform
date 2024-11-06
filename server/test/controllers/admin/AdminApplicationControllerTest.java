@@ -54,7 +54,6 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.applications.ApplicationAlreadyInStatus;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.export.CsvExporterService;
@@ -552,8 +551,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
-        .isInstanceOf(ApplicationAlreadyInStatus.class);
+    var result = controller.updateStatus(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().get("error")).isNotEmpty();
   }
 
   @Test
