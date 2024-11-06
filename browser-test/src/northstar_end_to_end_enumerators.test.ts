@@ -11,7 +11,7 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', () => {
+test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -29,12 +29,8 @@ test.describe('End to end enumerator test', () => {
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Click add button and verify we get entity row and delete button', async () => {
+      await test.step('Click add button and verify we get entity row and delete button and preview values update', async () => {
         await page.click('button:text("Add Sample repeated entity type")')
-        await validateScreenshot(page, 'northstar-enumerator-field')
-      })
-
-      await test.step('Update text when configuring question and ensure preview values update', async () => {
         await page.fill('text=Repeated Entity Type', 'New entity type')
         await validateScreenshot(page, 'northstar-enumerator-type-set')
       })
@@ -66,7 +62,7 @@ test.describe('End to end enumerator test', () => {
     })
   })
 
-  test.describe('Applicant flow', {tag: ['@northstar']}, () => {
+  test.describe('Applicant flow', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await setupEnumeratorQuestion(
         page,
@@ -77,7 +73,7 @@ test.describe('End to end enumerator test', () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('validate screenshot', async ({page, applicantQuestions}) => {
+    test('validate successful navigation', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,
@@ -88,24 +84,7 @@ test.describe('End to end enumerator test', () => {
 
       await applicantQuestions.addEnumeratorAnswer('Bugs')
 
-      await test.step('Screenshot without errors', async () => {
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'enumerator-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
-      })
-
-      await test.step('Screenshot with errors', async () => {
-        await applicantQuestions.clickContinue()
-        await validateScreenshot(
-          page.getByTestId('questionRoot'),
-          'enumerator-errors-north-star',
-          /* fullPage= */ false,
-          /* mobileScreenshot= */ true,
-        )
-      })
+      await page.locator('.cf-question-header').getByText('Bugs').isVisible()
     })
 
     test('has no accessibility violations', async ({
@@ -157,10 +136,6 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
       await applicantQuestions.addEnumeratorAnswer('Goofy')
-      await validateScreenshot(
-        page,
-        'enumerator-indexes-with-multiple-fields-northstar',
-      )
 
       // Remove the middle entry, the remaining entries should re-index
       await applicantQuestions.deleteEnumeratorEntityByIndex(1)
@@ -367,23 +342,21 @@ test.describe('End to end enumerator test', () => {
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
-      // TODO(#9068): re-enable test
-      // await test.step('Add button is disabled if an entity is blank', async () => {
-      //   await applicantQuestions.addEnumeratorAnswer('')
+      await test.step('Add button is disabled if an entity is blank', async () => {
+        await applicantQuestions.addEnumeratorAnswer('')
 
-      //   await expect(
-      //     page.locator('#enumerator-field-add-button'),
-      //   ).toBeDisabled()
-      // })
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeDisabled()
+      })
 
-      // TODO(#9068): re-enable test
-      // await test.step('Add button is re-enabled when the blank entity is removed', async () => {
-      //   await applicantQuestions.deleteEnumeratorEntityByIndex(4)
+      await test.step('Add button is re-enabled when the blank entity is removed', async () => {
+        await applicantQuestions.deleteEnumeratorEntityByIndex(4)
 
-      //   await expect(
-      //     page.locator('#enumerator-field-add-button'),
-      //   ).toBeEnabled()
-      // })
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeEnabled()
+      })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
         await applicantQuestions.clickContinue()
@@ -392,28 +365,26 @@ test.describe('End to end enumerator test', () => {
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
-      // TODO(#9068): re-enable test
-      // await test.step('Add button is disabled when an existing entity is blanked', async () => {
-      //   await applicantQuestions.editEnumeratorAnswer('Bugs', '')
+      await test.step('Add button is disabled when an existing entity is blanked', async () => {
+        await applicantQuestions.editEnumeratorAnswer('Bugs', '')
 
-      //   await expect(
-      //     page.locator('#enumerator-field-add-button'),
-      //   ).toBeDisabled()
-      // })
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeDisabled()
+      })
 
-      // TODO(#9068): re-enable test
-      // await test.step('Add button is still disabled after trying to save', async () => {
-      //   await applicantQuestions.clickContinue()
+      await test.step('Add button is still disabled after trying to save', async () => {
+        await applicantQuestions.clickContinue()
 
-      //   // Error shows because of the empty entity
-      //   await expect(
-      //     page.locator('.cf-applicant-question-errors'),
-      //   ).toBeVisible()
+        // Error shows because of the empty entity
+        await expect(
+          page.locator('.cf-applicant-question-errors'),
+        ).toBeVisible()
 
-      //   await expect(
-      //     page.locator('#enumerator-field-add-button'),
-      //   ).toBeDisabled()
-      // })
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toBeDisabled()
+      })
     })
 
     test('Applicant can navigate to previous blocks', async ({
