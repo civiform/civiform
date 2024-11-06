@@ -1165,6 +1165,12 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "isRequired" : true
               },
+              "localizedShortDescription" : {
+              "translations" : {
+                  "en_US" : "short display description"
+              },
+              "isRequired" : true
+              },
               "localizedConfirmationMessage" : {
               "translations" : {
                   "en_US" : ""
@@ -1989,6 +1995,12 @@ public class AdminImportControllerTest extends ResetPostgres {
           "localizedDescription" : {
             "translations" : {
               "en_US" : "display description"
+            },
+            "isRequired" : true
+          },
+          "localizedShortDescription" : {
+            "translations" : {
+              "en_US" : "short display description"
             },
             "isRequired" : true
           },
