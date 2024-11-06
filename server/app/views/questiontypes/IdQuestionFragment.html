@@ -7,7 +7,7 @@
               questionErrors=${idQuestion.getValidationErrors().get(question.getContextualizedPath())},
               hasErrors=${questionRendererParams.shouldShowErrors() && !idQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-applicant-question-field cf-question-text"
+  class="cf-applicant-question-field cf-question-id"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >

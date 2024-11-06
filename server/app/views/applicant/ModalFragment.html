@@ -109,7 +109,7 @@
 
 <div
   th:fragment="loginPromptModal(dialogId, bypassUrl, loginLink, descriptionText, bypassButtonText, onlyShowOnceGroup, showOnLoad)"
-  class="usa-modal cf-ns-modal"
+  class="usa-modal cf-modal cf-ns-modal"
   th:id="${dialogId}"
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
@@ -168,7 +168,7 @@
 
 <div th:fragment="blockValidation">
   <div
-    class="usa-modal"
+    class="usa-modal cf-modal"
     id="validation-modal"
     aria-labelledby="validation-modal-heading"
     aria-describedby="validation-modal-heading"
@@ -225,7 +225,7 @@
 <!-- TODO(#8707): Modal sometimes flashes in incorrect position -->
 <div th:fragment="preventDuplicateSubmission (programTitle, exitHref)">
   <div
-    class="usa-modal is-hidden"
+    class="usa-modal cf-modal is-hidden"
     id="duplicate-submission-modal"
     aria-labelledby="duplicate-submission-modal-heading"
     aria-describedby="duplicate-submission-modal-heading"
