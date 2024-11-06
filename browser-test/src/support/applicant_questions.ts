@@ -201,11 +201,13 @@ export class ApplicantQuestions {
     northStarEnabled = false,
   ) {
     const fieldName = northStarEnabled
-      ? ".cf-north-star-enumerator-field .cf-entity-name-input"
-      : ".cf-enumerator-field"
-    const element = await this.page.locator(
-      fieldName).nth(index)
-    element.getByText(entityName)
+      ? '.cf-north-star-enumerator-field .cf-entity-name-input'
+      : '.cf-enumerator-field'
+    await this.page
+      .locator(fieldName)
+      .nth(index)
+      .getByText(entityName)
+      .isVisible()
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
@@ -221,10 +223,12 @@ export class ApplicantQuestions {
     questionText: string,
     northStarEnabled = false,
   ) {
-    const element = northStarEnabled
-      ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
-      : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
-    await this.page.click(element)
+    const locator = this.page.locator(
+      northStarEnabled
+        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
+    )
+    await locator.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -237,7 +241,7 @@ export class ApplicantQuestions {
   }
 
   async validateInputValue(value: string, element = 'input') {
-    await this.page.locator(element).getByText(value)
+    await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
   async applyProgram(programName: string, northStarEnabled = false) {
@@ -519,8 +523,10 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    const enumField = this.page.locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
-    await enumField.getByRole("button").click()
+    const enumField = this.page.locator(
+      `.cf-enumerator-field:has(input[value="${entityName}"])`,
+    )
+    await enumField.getByRole('button').click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */

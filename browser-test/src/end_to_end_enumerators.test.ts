@@ -2,7 +2,6 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -469,8 +468,7 @@ test.describe('End to end enumerator test', () => {
 
       await logout(page)
     })
-    },
-  )
+  })
 
   async function setupEnumeratorQuestion(
     page: Page,
