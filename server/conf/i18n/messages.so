@@ -175,6 +175,8 @@ button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
 button.continueSr=U sii wad codsiga ila {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Halkan ka bilow.
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.

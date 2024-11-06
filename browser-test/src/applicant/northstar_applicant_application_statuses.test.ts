@@ -44,7 +44,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
     },
   )
 
-  test.describe('applicant program index page with northstar UI', () => {
+  test.describe('applicant program index page', () => {
     test('displays status', async ({page}) => {
       await loginAsTestUser(page)
 

@@ -171,6 +171,7 @@ POST    /applicants                                 controllers.applicant.Applic
 # Program methods for applicants (new)
 GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request, categories: java.util.List[String])
 GET     /applicants/programs        controllers.applicant.ApplicantProgramsController.indexWithoutApplicantId(request: Request, categories: java.util.List[String])
+GET     /programs/hx/filter         controllers.applicant.ApplicantProgramsController.hxFilter(request: Request, categories: java.util.List[String])
 GET     /programs/:programId/edit   controllers.applicant.ApplicantProgramsController.edit(request: Request, programId: Long)
 GET     /programs/:programId/review controllers.applicant.ApplicantProgramReviewController.review(request: Request, programId: Long)
 POST    /programs/:programId/submit controllers.applicant.ApplicantProgramReviewController.submit(request: Request, programId: Long)
