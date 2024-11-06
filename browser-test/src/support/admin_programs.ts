@@ -149,6 +149,7 @@ export class AdminPrograms {
   async addProgram(
     programName: string,
     description = 'program description',
+    shortDescription = 'short program description',
     externalLink = 'https://usa.gov',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
@@ -176,6 +177,10 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
+    await this.page.fill(
+      '#program-display-short-description-textarea',
+      shortDescription,
+    )
     await this.page.fill('#program-external-link-input', externalLink)
     await this.page.fill(
       '#program-confirmation-message-textarea',
