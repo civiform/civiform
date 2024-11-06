@@ -195,14 +195,17 @@ export class ApplicantQuestions {
     )
   }
 
-  async checkEnumeratorAnswerValue(entityName: string, index: number) {
-    await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
-    await this.validateInputValue(
-      entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
+  async checkEnumeratorAnswerValue(
+    entityName: string,
+    index: number,
+    northStarEnabled = false,
+  ) {
+    const fieldName = northStarEnabled
+      ? ".cf-north-star-enumerator-field .cf-entity-name-input"
+      : ".cf-enumerator-field"
+    const element = await this.page.locator(
+      fieldName).nth(index)
+    element.getByText(entityName)
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
@@ -218,12 +221,10 @@ export class ApplicantQuestions {
     questionText: string,
     northStarEnabled = false,
   ) {
-    const locator = this.page.locator(
-      northStarEnabled
-        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
-        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
-    )
-    await locator.click()
+    const element = northStarEnabled
+      ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+      : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`
+    await this.page.click(element)
     await waitForPageJsLoad(this.page)
   }
 
@@ -236,7 +237,7 @@ export class ApplicantQuestions {
   }
 
   async validateInputValue(value: string, element = 'input') {
-    await this.page.waitForSelector(`${element}[value="${value}"]`)
+    await this.page.locator(element).getByText(value)
   }
 
   async applyProgram(programName: string, northStarEnabled = false) {
@@ -518,9 +519,8 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await this.page.click(
-      `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
-    )
+    const enumField = this.page.locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
+    await enumField.getByRole("button").click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
@@ -737,6 +737,18 @@ export class ApplicantQuestions {
   }
 
   async expectQuestionAnsweredOnReviewPage(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionAnsweredOnReviewPageNorthstar(
     questionText: string,
     answerText: string,
   ) {
