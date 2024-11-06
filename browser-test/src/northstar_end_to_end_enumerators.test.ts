@@ -457,7 +457,6 @@ test.describe('End to end enumerator test', () => {
       await applicantQuestions.checkEnumeratorAnswerValue(
         'Cartoon Character',
         1,
-        /* northStarEnabled= */ true,
       )
 
       // Click previous and see name question
@@ -466,16 +465,8 @@ test.describe('End to end enumerator test', () => {
 
       // Click previous and see enumerator question
       await applicantQuestions.clickBack()
-      await applicantQuestions.checkEnumeratorAnswerValue(
-        'Bugs',
-        1,
-        /* northStarEnabled= */ true,
-      )
-      await applicantQuestions.checkEnumeratorAnswerValue(
-        'Daffy',
-        2,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.checkEnumeratorAnswerValue('Bugs', 1)
+      await applicantQuestions.checkEnumeratorAnswerValue('Daffy', 2)
 
       // Click previous and see name question
       await applicantQuestions.clickBack()

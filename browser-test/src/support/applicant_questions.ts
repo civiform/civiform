@@ -195,16 +195,9 @@ export class ApplicantQuestions {
     )
   }
 
-  async checkEnumeratorAnswerValue(
-    entityName: string,
-    index: number,
-    northStarEnabled = false,
-  ) {
-    const fieldName = northStarEnabled
-      ? '.cf-north-star-enumerator-field .cf-entity-name-input'
-      : '.cf-enumerator-field'
+  async checkEnumeratorAnswerValue(entityName: string, index: number) {
     await this.page
-      .locator(fieldName)
+      .locator('#enumerator-fields .cf-enumerator-field')
       .nth(index)
       .getByText(entityName)
       .isVisible()
@@ -523,10 +516,10 @@ export class ApplicantQuestions {
     this.page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    const enumField = this.page.locator(
-      `.cf-enumerator-field:has(input[value="${entityName}"])`,
-    )
-    await enumField.getByRole('button').click()
+    await this.page
+      .locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
+      .getByRole('button')
+      .click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
