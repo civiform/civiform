@@ -73,7 +73,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
-    test('validate successful navigation', async ({page, applicantQuestions}) => {
+    test('validate successful navigation', async ({
+      page,
+      applicantQuestions,
+    }) => {
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,
@@ -353,9 +356,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await test.step('Add button is re-enabled when the blank entity is removed', async () => {
         await applicantQuestions.deleteEnumeratorEntityByIndex(4)
 
-        await expect(
-          page.locator('#enumerator-field-add-button'),
-        ).toBeEnabled()
+        await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
