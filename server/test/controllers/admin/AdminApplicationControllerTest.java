@@ -19,7 +19,6 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
-import controllers.FlashKey;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -332,6 +331,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    application.save();
+    programAdminApplicationService.setStatus(
+        application.id,
+        program.getProgramDefinition(),
+        Optional.empty(),
+        StatusEvent.builder()
+            .setStatusText(APPROVED_STATUS.statusText())
+            .setEmailSent(false)
+            .build(),
+        adminAccount);
 
     Request request =
         fakeRequestBuilder()
@@ -340,19 +349,16 @@ public class AdminApplicationControllerTest extends ResetPostgres {
                     "redirectUri",
                     "/",
                     "sendEmail",
-                    "",
+                    "on",
                     "currentStatus",
                     "unset shouldn't have a value",
                     "newStatus",
-                    APPROVED_STATUS.statusText()))
+                    REJECTED_STATUS.statusText()))
             .build();
 
     // Execute
-    Result result = controller.updateStatus(request, program.id, application.id);
-
-    // Evaluate
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
-    assertThat(contentAsString(result)).contains("field should be empty");
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(RuntimeException.class);
   }
 
   @Test
@@ -479,7 +485,51 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     ApplicationModel application =
         ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     programAdminApplicationService.setStatus(
-        application,
+        application.id,
+        program.getProgramDefinition(),
+        Optional.empty(),
+        StatusEvent.builder()
+            .setStatusText(APPROVED_STATUS.statusText())
+            .setEmailSent(false)
+            .build(),
+        adminAccount);
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    REJECTED_STATUS.statusText()))
+            .build();
+
+    // Execute
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining(
+            "The application state has changed since the page was loaded. Please reload and");
+  }
+
+  @Test
+  public void updateStatus_ApplicationAlreadyInCurrentStatus_fails() throws Exception {
+    // Setup
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+    programAdminApplicationService.setStatus(
+        application.id,
+        program.getProgramDefinition(),
+        Optional.empty(),
         StatusEvent.builder()
             .setStatusText(APPROVED_STATUS.statusText())
             .setEmailSent(false)
@@ -501,12 +551,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    Result result = controller.updateStatus(request, program.id, application.id);
-
-    // Evaluate
+    var result = controller.updateStatus(request, program.id, application.id);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
-    assertThat(result.flash().get(FlashKey.ERROR).get()).contains("application state has changed");
+    assertThat(result.flash().get("error")).isNotEmpty();
   }
 
   @Test
