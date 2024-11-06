@@ -238,18 +238,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     ApplicationStatusesRepository repo = instanceOf(ApplicationStatusesRepository.class);
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            repo);
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -330,18 +319,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     ApplicationStatusesRepository repo = instanceOf(ApplicationStatusesRepository.class);
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            repo);
+    service =createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -394,18 +372,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     String programDisplayName = "Some Program";
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service =createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -449,18 +416,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -513,18 +469,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -577,18 +522,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -647,18 +581,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
     MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            messagesApi,
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -859,18 +782,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Instant start = Instant.now();
     String status = STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText();
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
@@ -905,18 +817,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Instant start = Instant.now();
     String status = STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText();
     EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
-    service =
-        new ProgramAdminApplicationService(
-            instanceOf(ApplicantService.class),
-            instanceOf(ApplicationEventRepository.class),
-            instanceOf(AccountRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(Config.class),
-            emailSendClient,
-            instanceOf(DeploymentType.class),
-            instanceOf(MessagesApi.class),
-            instanceOf(ApplicationRepository.class),
-            instanceOf(ApplicationStatusesRepository.class));
+    service = createServiceWithMockEmailSendClient(emailSendClient);
 
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
@@ -955,5 +856,20 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
       returnList.add(application.id);
     }
     return returnList.stream().collect(ImmutableList.toImmutableList());
+  }
+  private ProgramAdminApplicationService createServiceWithMockEmailSendClient(EmailSendClient emailSendClient)
+  {
+
+    return new ProgramAdminApplicationService(
+      instanceOf(ApplicantService.class),
+      instanceOf(ApplicationEventRepository.class),
+      instanceOf(AccountRepository.class),
+      instanceOf(ProgramRepository.class),
+      instanceOf(Config.class),
+      emailSendClient,
+      instanceOf(DeploymentType.class),
+      instanceOf(MessagesApi.class),
+      instanceOf(ApplicationRepository.class),
+      instanceOf(ApplicationStatusesRepository.class));
   }
 }
