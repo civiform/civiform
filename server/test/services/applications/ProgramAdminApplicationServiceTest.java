@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +23,7 @@ import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,9 +111,46 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getApplications() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+
+    ImmutableList<Long> appIdList = createApplicationList(3, program);
+
+    var result = service.getApplications(appIdList, program.getProgramDefinition());
+    assertThat(result).isNotEmpty();
+    assertThat(result.size()).isEqualTo(3);
+
+    result.stream()
+        .forEach(
+            e -> {
+              assertThat(appIdList.contains(e));
+            });
+  }
+
+  @Test
   public void getApplication_notFound() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
     assertThat(service.getApplication(Long.MAX_VALUE, program)).isEmpty();
+  }
+
+  @Test
+  public void getApplications_notFound() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    assertThatThrownBy(() -> service.getApplications(ImmutableList.of(Long.MAX_VALUE), program))
+        .isInstanceOf(ApplicationNotFoundException.class)
+        .hasMessageContaining("Application for the id 9223372036854775807, is not found.");
+  }
+
+  @Test
+  public void getApplications_programMismatch() {
+    ProgramDefinition firstProgram =
+        ProgramBuilder.newActiveProgram("first-program").buildDefinition();
+
+    ProgramDefinition secondProgram =
+        ProgramBuilder.newActiveProgram("second-program").buildDefinition();
+    var appIdList = createApplicationList(3, firstProgram.toProgram());
+
+    assertThat(service.getApplications(appIdList, secondProgram)).isEmpty();
   }
 
   @Test
@@ -138,6 +178,18 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setSubmitTimeToNow();
 
     assertThat(service.getApplication(application.id, program)).isEmpty();
+  }
+
+  @Test
+  public void getApplications_emptyAdminName() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("").buildDefinition();
+
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    assertThat(service.getApplications(ImmutableList.of(application.id), program)).isEmpty();
   }
 
   @Test
@@ -175,6 +227,99 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     // Execute, verify.
     assertThat(service.getNote(application)).contains(note);
     assertThat(application.getLatestNote().get()).isEqualTo(note);
+  }
+
+  @Test
+  public void setStatuses_sendsEmail() throws Exception {
+    Instant start = Instant.now();
+    String userEmail1 = "user1@email.com";
+    String userEmail2 = "user2@email.com";
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
+    String programDisplayName = "Some Program";
+    ApplicationStatusesRepository repo = instanceOf(ApplicationStatusesRepository.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(Config.class),
+            emailSendClient,
+            instanceOf(DeploymentType.class),
+            messagesApi,
+            instanceOf(ApplicationRepository.class),
+            repo);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
+            .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(),
+        new StatusDefinitions(ImmutableList.of(STATUS_WITH_ONLY_ENGLISH_EMAIL)));
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail1));
+    ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail2));
+    ApplicationModel application1 =
+        ApplicationModel.create(applicant1, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+    ApplicationModel application2 =
+        ApplicationModel.create(applicant2, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+    ImmutableList.Builder<Long> builder = ImmutableList.builder();
+    builder.add(application1.id);
+    builder.add(application2.id);
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatuses(builder.build(), program, event, adminAccount);
+
+    Messages messages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+
+    verify(emailSendClient, times(1))
+        .send(
+            eq(userEmail1),
+            eq(
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+
+    application1.refresh();
+    assertThat(application1.getApplicationEvents()).hasSize(1);
+    ApplicationEventModel statusEvent1 = application1.getApplicationEvents().get(0);
+    assertThat(statusEvent1.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(statusEvent1.getDetails().statusEvent()).isPresent();
+    assertThat(statusEvent1.getDetails().statusEvent().get().statusText())
+        .isEqualTo(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText());
+    assertThat(statusEvent1.getDetails().statusEvent().get().emailSent()).isTrue();
+    assertThat(statusEvent1.getCreator()).isEqualTo(Optional.of(adminAccount));
+    assertThat(statusEvent1.getCreateTime()).isAfter(start);
+
+    verify(emailSendClient, times(1))
+        .send(
+            eq(userEmail2),
+            eq(
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+
+    application2.refresh();
+    assertThat(application2.getApplicationEvents()).hasSize(1);
+    ApplicationEventModel statusEvent2 = application2.getApplicationEvents().get(0);
+    assertThat(statusEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(statusEvent2.getDetails().statusEvent()).isPresent();
+    assertThat(statusEvent2.getDetails().statusEvent().get().statusText())
+        .isEqualTo(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText());
+    assertThat(statusEvent2.getDetails().statusEvent().get().emailSent()).isTrue();
+    assertThat(statusEvent2.getCreator()).isEqualTo(Optional.of(adminAccount));
+    assertThat(statusEvent2.getCreateTime()).isAfter(start);
   }
 
   @Test
@@ -298,6 +443,70 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setStatuses_tiApplicant_sendsEmail() throws Exception {
+    String userEmail = "user@email.com";
+    String tiEmail = "ti@email.com";
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
+    String programDisplayName = "Some Program";
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(Config.class),
+            emailSendClient,
+            instanceOf(DeploymentType.class),
+            messagesApi,
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationStatusesRepository.class));
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
+            .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow()
+            .setSubmitterEmail(tiEmail);
+    application.save();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatuses(ImmutableList.of(application.id), program, event, account);
+
+    Messages messages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+
+    verify(emailSendClient, times(1))
+        .send(
+            eq(tiEmail),
+            eq(
+                messages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_SUBJECT.getKeyName(),
+                    programDisplayName,
+                    applicant.id)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+    verify(emailSendClient, times(1))
+        .send(
+            eq(userEmail),
+            eq(
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+  }
+
+  @Test
   public void setStatus_tiApplicant_sendsEmail() throws Exception {
     String userEmail = "user@email.com";
     String tiEmail = "ti@email.com";
@@ -356,6 +565,76 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             eq(userEmail),
             eq(
                 messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+  }
+
+  @Test
+  public void setStatuses_tiApplicant_sendsEmail_nonDefaultLocale() throws Exception {
+    String userEmail = "user@email.com";
+    String tiEmail = "ti-ko@email.com";
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
+    String programDisplayName = "Some Program";
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(Config.class),
+            emailSendClient,
+            instanceOf(DeploymentType.class),
+            messagesApi,
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationStatusesRepository.class));
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
+            .buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicantModel tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
+    tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
+    tiApplicant.save();
+
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow()
+            .setSubmitterEmail(tiEmail);
+    application.save();
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatuses(ImmutableList.of(application.id), program, event, account);
+
+    Messages enMessages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+    Messages koMessages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.KOREA.toLanguageTag())));
+
+    verify(emailSendClient, times(1))
+        .send(
+            eq(tiEmail),
+            eq(
+                koMessages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_SUBJECT.getKeyName(),
+                    programDisplayName,
+                    applicant.id)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+    verify(emailSendClient, times(1))
+        .send(
+            eq(userEmail),
+            eq(
+                enMessages.at(
                     MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
@@ -432,7 +711,30 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setStatus_invalidStatus_throws() throws Exception {
+  public void setStatuses_invalidStatuses_throws() throws Exception {
+    String userEmail = "user@email.com";
+
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    StatusEvent event =
+        StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
+
+    assertThatThrownBy(
+            () -> service.setStatuses(ImmutableList.of(application.id), program, event, account))
+        .isInstanceOf(StatusNotFoundException.class);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).isEmpty();
+  }
+
+  @Test
+  public void setStatus_invalidStatuses_throws() throws Exception {
     String userEmail = "user@email.com";
 
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
@@ -455,7 +757,33 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void setStatus_sendEmailWithNoStatusEmail_throws() throws Exception {
+  public void setStatuses_sendEmailWithNoStatusesEmail_throws() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    // Request email to be sent when there is not one.
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
+            .build();
+
+    assertThatThrownBy(
+            () -> service.setStatuses(ImmutableList.of(application.id), program, event, account))
+        .isInstanceOf(StatusEmailNotFoundException.class);
+    application.refresh();
+    assertThat(application.getApplicationEvents()).isEmpty();
+  }
+
+  @Test
+  public void setStatus_sendEmailWithNoStatusesEmail_throws() throws Exception {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
         program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
@@ -481,6 +809,29 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setStatuses_sendEmailWithNoUserEmail_succeeds() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    // Request email to be sent when the user doesn't have one.
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+    service.setStatuses(ImmutableList.of(application.id), program, event, account);
+
+    application.refresh();
+    assertThat(application.getApplicationEvents()).isNotEmpty();
+  }
+
+  @Test
   public void setStatus_sendEmailWithNoUserEmail_succeeds() throws Exception {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
     repo.createOrUpdateStatusDefinitions(
@@ -501,6 +852,52 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     application.refresh();
     assertThat(application.getApplicationEvents()).isNotEmpty();
+  }
+
+  @Test
+  public void setStatuses_sentEmailFalse_doesNotSendEmail() throws Exception {
+    Instant start = Instant.now();
+    String status = STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText();
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(Config.class),
+            emailSendClient,
+            instanceOf(DeploymentType.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationStatusesRepository.class));
+
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow();
+
+    // Do not request an email to be sent.
+    StatusEvent event = StatusEvent.builder().setEmailSent(false).setStatusText(status).build();
+
+    service.setStatuses(ImmutableList.of(application.id), program, event, account);
+
+    verify(emailSendClient, never()).send(anyString(), anyString(), anyString());
+
+    application.refresh();
+    assertThat(application.getApplicationEvents()).hasSize(1);
+    ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
+    assertThat(gotEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(gotEvent.getDetails().statusEvent()).isPresent();
+    assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(status);
+    assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
+    assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
   @Test
@@ -547,5 +944,16 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
     assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
+  }
+
+  private ImmutableList<Long> createApplicationList(int count, ProgramModel program) {
+    List<Long> returnList = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+      ApplicationModel application =
+          ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+      returnList.add(application.id);
+    }
+    return returnList.stream().collect(ImmutableList.toImmutableList());
   }
 }
