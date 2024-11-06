@@ -17,6 +17,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -43,6 +45,7 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProgramsController.class);
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -302,15 +305,26 @@ public final class ApplicantProgramsController extends CiviFormController {
               .toCompletableFuture();
     }
 
-    return CompletableFuture.completedFuture(
-        Results.ok(
-            northStarFilteredProgramsViewPartial.render(
-                messagesApi.preferred(request),
-                request,
-                Optional.empty(),
-                ApplicantPersonalInfo.ofGuestUser(),
-                programsFuture.join(),
-                Optional.empty(),
-                ImmutableList.copyOf(categories))));
+    return CompletableFuture.supplyAsync(
+            () ->
+                Results.ok(
+                        northStarFilteredProgramsViewPartial.render(
+                            messagesApi.preferred(request),
+                            request,
+                            Optional.empty(),
+                            ApplicantPersonalInfo.ofGuestUser(),
+                            programsFuture.join(),
+                            Optional.empty(),
+                            ImmutableList.copyOf(categories)))
+                    .as("text/html"))
+        .exceptionally(
+            ex -> {
+              LOGGER.error(
+                  "There was an error in rendering the filtered programs"
+                      + " partial view with these categories: "
+                      + String.join(",", categories),
+                  ex);
+              return Results.internalServerError("There was an error in filtering the programs.");
+            });
   }
 }
