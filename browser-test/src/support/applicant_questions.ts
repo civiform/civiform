@@ -719,8 +719,8 @@ export class ApplicantQuestions {
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
-    expect(
-      await this.page.getByRole('heading', {name: 'Confirm your address'}),
+    await expect(
+      this.page.getByRole('heading', {name: 'Confirm your address'}),
     ).toBeVisible()
 
     //    expect(await this.page.innerText('h2')).toContain('Confirm your address')
