@@ -17,6 +17,7 @@ import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
+import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
 import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
@@ -30,8 +31,10 @@ import java.util.Random;
 import models.JobType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
@@ -163,7 +166,8 @@ public final class DurableJobModule extends AbstractModule {
 
   @Provides
   @StartupJobsProviderName
-  public DurableJobRegistry provideStartupDurableJobRegistry() {
+  public DurableJobRegistry provideStartupDurableJobRegistry(
+      CategoryRepository categoryRepository, Environment environment) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.registerStartupJob(
@@ -175,6 +179,14 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
         JobType.RUN_ONCE,
         persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
+
+    // TODO(#8833): Remove job from registry once all category translations are in.
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.ADD_CATEGORY_AND_TRANSLATION,
+        JobType.RUN_ON_EACH_STARTUP,
+        persistedDurableJob ->
+            new AddCategoryAndTranslationsJob(
+                categoryRepository, environment, persistedDurableJob));
 
     return durableJobRegistry;
   }

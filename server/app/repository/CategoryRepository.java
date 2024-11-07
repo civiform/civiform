@@ -68,6 +68,22 @@ public final class CategoryRepository {
     return saveCategory(category);
   }
 
+  /** Updates the localized name of the category with a specified ID. */
+  public void updateCategoryLocalizedName(long categoryId, String localizedNameString) {
+    String updateSql =
+        """
+        update categories
+        set localized_name = CAST(:localized_name AS jsonb)
+        where id = :id
+        """;
+
+    database
+        .sqlUpdate(updateSql)
+        .setParameter("id", categoryId)
+        .setParameter("localized_name", localizedNameString)
+        .execute();
+  }
+
   private CategoryModel saveCategory(CategoryModel category) {
     category.id = null;
     database.save(category);

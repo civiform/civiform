@@ -214,10 +214,16 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
-  async editQuestionFromReviewPage(questionText: string) {
-    await this.page.click(
-      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
+  async editQuestionFromReviewPage(
+    questionText: string,
+    northStarEnabled = false,
+  ) {
+    const locator = this.page.locator(
+      northStarEnabled
+        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
+    await locator.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -453,8 +459,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickReview() {
-    await this.page.click('text="Review"')
+  async clickReview(northStarEnabled = false) {
+    const reviewButton = northStarEnabled
+      ? 'text="Review and exit"'
+      : 'text="Review"'
+    await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
   }
 
@@ -522,11 +531,15 @@ export class ApplicantQuestions {
     await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
   }
 
-  async downloadSingleQuestionFromReviewPage() {
+  async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+    if (northStarEnabled) {
+      await expect(this.page.getByText('Review and submit')).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByText('Program application summary'),
+      ).toBeVisible()
+    }
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),

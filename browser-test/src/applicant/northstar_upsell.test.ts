@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -51,6 +52,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await loginAsTestUser(page)
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'application_exportable')
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -63,7 +65,12 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       applicantQuestions,
     )
 
-    await test.step('Validate screenshot and accessibility', async () => {
+    await validateApplicationDownloadLink(
+      page,
+      /* expectedDownloadApplicationLink= */ true,
+    )
+
+    await test.step('Validate screenshot', async () => {
       await validateScreenshot(
         page,
         'upsell-north-star',
@@ -85,11 +92,33 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('view application submitted page while logged in without download link', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    // This test will only validate that the download link is no longer visible.
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await disableFeatureFlag(page, 'application_exportable')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await validateApplicationDownloadLink(
+      page,
+      /* expectedDownloadApplicationLink= */ false,
+    )
+  })
+
   test('view application submitted page while logged out', async ({
     page,
     applicantQuestions,
   }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'application_exportable')
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -100,6 +129,11 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       page,
       /* expectRelatedProgram= */ false,
       applicantQuestions,
+    )
+
+    await validateApplicationDownloadLink(
+      page,
+      /* expectedDownloadApplicationLink= */ true,
     )
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
@@ -115,6 +149,25 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
       await validateAccessibility(page)
     })
+  })
+
+  test('view application submitted page while logged out without download link', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    // This test will only validate that the download link is no longer visible.
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await disableFeatureFlag(page, 'application_exportable')
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await validateApplicationDownloadLink(
+      page,
+      /* expectedDownloadApplicationLink= */ false,
+    )
   })
 
   test('Validate login link in alert', async ({page, applicantQuestions}) => {
@@ -202,6 +255,19 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
             name: relatedProgramsHeading,
           }),
         ).toBeHidden()
+      }
+    })
+  }
+
+  async function validateApplicationDownloadLink(
+    page: Page,
+    expectApplicationDownloadLink: boolean,
+  ) {
+    await test.step('Validate application download link', async () => {
+      if (expectApplicationDownloadLink) {
+        await expect(page.getByText('Download your application')).toBeVisible()
+      } else {
+        await expect(page.getByText('Download your application')).toBeHidden()
       }
     })
   }
