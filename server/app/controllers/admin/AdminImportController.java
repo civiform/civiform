@@ -37,6 +37,7 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -243,7 +244,16 @@ public class AdminImportController extends CiviFormController {
 
     ImmutableSet<CiviFormError> questionErrors =
         questions.stream()
-            .map(question -> question.validate())
+            .map(
+                question -> {
+                  if (question.getQuestionType().isMultiOptionType()) {
+                    MultiOptionQuestionDefinition multiOptionQuestion =
+                        (MultiOptionQuestionDefinition) question;
+                    multiOptionQuestion.setValidateQuestionOptionAdminNames(false);
+                    return multiOptionQuestion.validate();
+                  }
+                  return question.validate();
+                })
             .flatMap(errors -> errors.stream())
             .collect(ImmutableSet.toImmutableSet());
     if (!questionErrors.isEmpty()) {

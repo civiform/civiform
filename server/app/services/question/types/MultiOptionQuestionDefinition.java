@@ -38,6 +38,8 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   @JsonProperty("multiOptionQuestionType")
   private final MultiOptionQuestionType multiOptionQuestionType;
 
+  private boolean validateQuestionOptionAdminNames;
+
   public MultiOptionQuestionDefinition(
       @JsonProperty("config") QuestionDefinitionConfig questionDefinitionConfig,
       @JsonProperty("questionOptions") ImmutableList<QuestionOption> questionOptions,
@@ -45,6 +47,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
     this.questionOptions = questionOptions;
     this.multiOptionQuestionType = multiOptionQuestionType;
+    this.validateQuestionOptionAdminNames = true;
   }
 
   // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
@@ -85,6 +88,10 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, getSupportedOptionLocales()));
   }
 
+  public void setValidateQuestionOptionAdminNames(boolean shouldValidateOptionAdminNames) {
+    this.validateQuestionOptionAdminNames = shouldValidateOptionAdminNames;
+  }
+
   @Override
   ImmutableSet<CiviFormError> internalValidate(Optional<QuestionDefinition> previousDefinition) {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
@@ -108,10 +115,11 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
             .map(o -> o.toLowerCase(Locale.ROOT))
             .collect(ImmutableList.toImmutableList());
 
-    if (getOptionAdminNames().stream()
-        // This is O(n^2) but the list is small and it's simpler than creating a Set
-        .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
-        .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
+    if (this.validateQuestionOptionAdminNames
+        && getOptionAdminNames().stream()
+            // This is O(n^2) but the list is small and it's simpler than creating a Set
+            .filter(n -> !existingAdminNames.contains(n.toLowerCase(Locale.ROOT)))
+            .anyMatch(s -> !s.matches("[0-9a-z_-]+"))) {
       errors.add(
           CiviFormError.of(
               "Multi-option admin names can only contain lowercase letters, numbers, underscores,"
