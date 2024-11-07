@@ -63,6 +63,10 @@ button.close=ປິດ
 button.review=ກວດສອບ
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=ເປີດໃນແຖບໃໝ່
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -409,6 +413,8 @@ title.programSummary=ສະຫຼຸບການສະໝັກໂຄງກາ�
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງ
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=ດາວໂຫຼດ PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າ
 banner.guestBannerText=ທ່ານກຳລັງສະໝັກໃນຖານະຜູ້ເຂົ້າຮ່ວມ. ຫຼັງຈາກທີ່ທ່ານສະໝັກສຳເລັດແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=ການເບິ່ງແຍງເດັກນ້ອຍ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=ເສດຖະກິດ
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=ການສຶກສາ
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=ອາຫານ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=ທົ່ວໄປ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=ການເບິ່ງແຍງສຸຂະພາບ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=ທີ່ຢູ່ອາໄສ
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=ອິນເຕີເນັດ
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=ການຂົນສົ່ງ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=ສາທາລະນູປະໂພກ

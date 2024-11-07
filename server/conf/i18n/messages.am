@@ -63,6 +63,10 @@ button.close=ዝጋ
 button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -409,6 +413,8 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛ�
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=PDF አውርድ
 # A button prompting users to apply to programs.
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገ
 banner.guestBannerText=እንደ እንግዳ እያመለከቱ ነው። ማመልከቻውን ከጨረሱ በኋላ ውሂብዎን ለመጠበቅ {0}።
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=የልጅ እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=ኢኮኖሚያዊ
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=ትምህርት
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=ሥራ
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=ምግብ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=ጠቅላላ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=የጤና እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=ቤት
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=በይነመረብ
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=መጓጓዣ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=መገልገያዎች

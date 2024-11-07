@@ -63,6 +63,10 @@ button.close=Isara
 button.review=Pagsusuri
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -409,6 +413,8 @@ title.programSummary=Buod ng application para sa programa
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -529,6 +535,8 @@ content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa
@@ -861,3 +869,45 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 banner.guestBannerText=Nag-a-apply ka bilang bisita. Pagkatapos mong mag-apply, {0} para protektahan ang data mo.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Pangangalaga ng Bata
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Pang-ekonomiya
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Edukasyon
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Pagkain
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=Pangkalahatan
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Pangangalagang Pangkalusugan
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Pabahay
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transportasyon
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Mga Utility
