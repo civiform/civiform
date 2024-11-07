@@ -222,7 +222,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
     if (status != null && admin != null) {
       programAdminApplicationService.setStatus(
-          application,
+          application.id,
+          program.getProgramDefinition(),
+          Optional.empty(),
           StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
           admin);
     }
