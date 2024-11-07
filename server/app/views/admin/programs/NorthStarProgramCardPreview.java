@@ -60,7 +60,7 @@ public class NorthStarProgramCardPreview extends NorthStarBaseView {
         programCardsSectionParamsFactory.getCard(
             params.request(),
             params.messages(),
-            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_VIEW_AND_APPLY,
             params.applicantProgramData(),
             LocalizedStrings.DEFAULT_LOCALE, // Admin console is not localized
             Optional.of(params.profile()),

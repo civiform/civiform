@@ -57,7 +57,8 @@
 
               <div>
                 <a
-                  th:href="${downloadHref}"
+                  th:if="${isApplicationExportable}"
+                  href="${downloadHref}"
                   class="usa-button"
                   th:text="#{button.downloadApplication}"
                 ></a>

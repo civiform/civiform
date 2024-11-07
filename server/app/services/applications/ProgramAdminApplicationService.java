@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
-import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -86,36 +85,63 @@ public final class ProgramAdminApplicationService {
         configuration.getString("staging_ti_notification_mailing_list");
   }
 
-  /*
+  /**
    * Sets the status on the {@code Application}.
    *
-   * @param admin The Account that instigated the change.
+   * @param applicationId the application id which needs the new status
+   * @param program the programDefinitions that the application belongs to
+   * @param currentStatus the current status text passed from the status update form
+   * @param newStatusEvent the StatusEvent carrying the new status
+   * @param admin the admin account initiating the request
    */
   public void setStatus(
-      ApplicationModel application, StatusEvent newStatusEvent, AccountModel admin)
-      throws StatusEmailNotFoundException, StatusNotFoundException {
-    ProgramModel program = application.getProgram();
+      Long applicationId,
+      ProgramDefinition program,
+      Optional<String> currentStatus,
+      StatusEvent newStatusEvent,
+      AccountModel admin)
+      throws StatusEmailNotFoundException,
+          StatusNotFoundException,
+          ApplicationAlreadyInStatusException {
+
+    Optional<ApplicationModel> applicationMaybe = getApplication(applicationId, program);
+    if (applicationMaybe.isEmpty()) {
+      throw new ApplicationNotFoundException(applicationId);
+    }
+    var application = applicationMaybe.get();
     String newStatusText = newStatusEvent.statusText();
+
+    // Verify the current application status is not the same as the new status
+    if (application.getLatestStatus().isPresent()) {
+      if (application.getLatestStatus().get().equals(newStatusText)) {
+        throw new ApplicationAlreadyInStatusException(applicationId, newStatusText);
+      }
+      if (!application.getLatestStatus().get().equals(currentStatus.get())) {
+        throw new RuntimeException(
+            "The application state has changed since the page was loaded. Please reload and"
+                + " try again.");
+      }
+    }
+
     // The send/sent phrasing is a little weird as the service layer is converting between intent
     // and reality.
     boolean sendEmail = newStatusEvent.emailSent();
-    ProgramDefinition programDef = programRepository.getShallowProgramDefinition(program);
 
     Optional<Status> statusDefMaybe =
         applicationStatusesRepository
-            .lookupActiveStatusDefinitions(programDef.adminName())
+            .lookupActiveStatusDefinitions(program.adminName())
             .getStatuses()
             .stream()
             .filter(s -> s.statusText().equals(newStatusText))
             .findFirst();
     if (statusDefMaybe.isEmpty()) {
-      throw new StatusNotFoundException(newStatusText, program.id);
+      throw new StatusNotFoundException(newStatusText, program.id());
     }
     Status statusDef = statusDefMaybe.get();
 
     // Send email if requested and present.
     if (sendEmail) {
-      sendEmail(List.of(application), statusDef, newStatusText, programDef);
+      sendEmail(List.of(application), statusDef, newStatusText, program);
     }
     eventRepository
         .insertStatusEvent(application, Optional.of(admin), newStatusEvent)

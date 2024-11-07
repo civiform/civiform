@@ -65,11 +65,9 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
 
     context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
-
-    ImmutableList.Builder<ProgramSectionParams> sectionParamsBuilder = ImmutableList.builder();
-
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> intakeSection = Optional.empty();
+    Optional<ProgramSectionParams> unfilteredSection = Optional.empty();
 
     Locale preferredLocale = messages.lang().toLocale();
 
@@ -114,24 +112,25 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     }
 
     if (!applicationPrograms.unapplied().isEmpty()) {
-      sectionParamsBuilder.add(
-          programCardsSectionParamsFactory.getSection(
-              request,
-              messages,
-              Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
-              MessageKey.BUTTON_APPLY,
-              applicationPrograms.unapplied(),
-              /* preferredLocale= */ messages.lang().toLocale(),
-              profile,
-              applicantId,
-              personalInfo,
-              ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+      unfilteredSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  request,
+                  messages,
+                  Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2),
+                  MessageKey.BUTTON_VIEW_AND_APPLY,
+                  applicationPrograms.unapplied(),
+                  /* preferredLocale= */ messages.lang().toLocale(),
+                  profile,
+                  applicantId,
+                  personalInfo,
+                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
     }
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);
 
-    context.setVariable("sections", sectionParamsBuilder.build());
+    context.setVariable("unfilteredSection", unfilteredSection);
     context.setVariable(
         "authProviderName",
         // The applicant portal name should always be set (there is a

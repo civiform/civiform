@@ -175,6 +175,8 @@ button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
 button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Magsimula rito
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -183,8 +185,6 @@ button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0
 button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Tingnan ang mga detalye
 # Text describing the date the application was last submitted.
 content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
@@ -886,7 +886,7 @@ category.tag.economic=Pang-ekonomiya
 category.tag.education=Edukasyon
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=Pagtatrabaho
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Pagkain
@@ -904,7 +904,7 @@ category.tag.housing=Pabahay
 category.tag.internet=Internet
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Pagsasanay
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Transportasyon

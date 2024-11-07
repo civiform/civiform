@@ -127,6 +127,10 @@ it is around the label */
   @include u-height(3);
 }
 
+.section-bottom {
+  @include u-margin-bottom(1);
+}
+
 .container {
   display: flex;
   justify-content: space-between;
@@ -195,6 +199,10 @@ it is around the label */
   text-align: right;
   text-overflow: ellipsis;
   word-break: break-word;
+}
+
+.summary-download-file-link {
+  text-decoration-line: underline;
 }
 
 .summary-button-section {
@@ -354,4 +362,8 @@ main {
 
 .auto-width {
   width: auto;
+}
+
+.ti-banner-internal {
+  display: inline;
 }

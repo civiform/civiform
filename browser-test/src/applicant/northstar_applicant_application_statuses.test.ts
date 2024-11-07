@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -9,7 +10,7 @@ import {
   validateScreenshot,
 } from '../support'
 
-test.describe('with program statuses', () => {
+test.describe('with program statuses', {tag: ['@northstar']}, () => {
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
@@ -38,12 +39,20 @@ test.describe('with program statuses', () => {
         await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
       await logout(page)
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
     },
   )
 
-  test('displays status and passes accessibility checks', async ({page}) => {
-    await loginAsTestUser(page)
-    await validateAccessibility(page)
-    await validateScreenshot(page, 'program-list-with-status')
+  test.describe('applicant program index page', () => {
+    test('displays status', async ({page}) => {
+      await loginAsTestUser(page)
+
+      await validateScreenshot(
+        page.locator('.cf-application-card'),
+        'program-card-with-status-northstar',
+      )
+      await validateAccessibility(page)
+    })
   })
 })

@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -126,6 +127,60 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
         await validateAccessibility(page)
       })
+    })
+  })
+
+  test('Click to download file', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    const programName = 'Test program for single file upload'
+    const fileUploadQuestionText = 'Required file upload question'
+    const fileName = 'foo.txt'
+    const fileContent = 'some sample text'
+
+    // TODO(#8143): File uploads in North Star tests are blocked by CSP errors. After those
+    // errors are fixed, this entire test can run with north_star_applicant_ui enabled
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('As admin, set up program', async () => {
+      await loginAsAdmin(page)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload-test-q',
+        questionText: fileUploadQuestionText,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    await test.step('Upload file', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Download file in North Star', async () => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await expect(page.getByText(fileName)).toBeVisible()
+
+      const downloadedFileContent =
+        await applicantQuestions.downloadSingleQuestionFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      expect(downloadedFileContent).toEqual(fileContent)
     })
   })
 })

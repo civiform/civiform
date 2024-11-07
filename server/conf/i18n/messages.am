@@ -175,6 +175,8 @@ button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
 button.continueSr=ወደ {0} ማመልከትን ቀጥል
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=እዚህ ይጀምሩ
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -183,8 +185,6 @@ button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
 button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=ዝርዝሮችን አሳይ
 # Text describing the date the application was last submitted.
 content.submittedDate={0} ገብቷል
 # Text for applicants to understand the section is for finding programs
@@ -904,7 +904,7 @@ category.tag.housing=ቤት
 category.tag.internet=በይነመረብ
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=ሥልጠና
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=መጓጓዣ

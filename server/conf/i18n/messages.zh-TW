@@ -175,6 +175,8 @@ button.editSr=編輯已提交的「{0}」申請資料
 button.continueSr=繼續申請「{0}」
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -183,8 +185,6 @@ button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
 button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=繼續填寫「{0}」
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=查看詳細資料
 # Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
 # Text for applicants to understand the section is for finding programs
@@ -886,7 +886,7 @@ category.tag.economic=經濟
 category.tag.education=教育
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=就業
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=食物
@@ -904,7 +904,7 @@ category.tag.housing=住宅
 category.tag.internet=網際網路
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=訓練
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=交通運輸

@@ -175,6 +175,8 @@ button.editSr=Edit submitted application to {0}
 button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continue to application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -183,8 +185,6 @@ button.startHereCommonIntakeSr=Start here by filling out {0}
 button.editCommonIntakeSr=Edit submitted information for {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continue filling out {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
 # Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
 # Text for applicants to understand the section is for finding programs
