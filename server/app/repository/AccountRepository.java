@@ -387,9 +387,10 @@ public final class AccountRepository {
       return Optional.of(
           CiviFormError.of(
               String.format(
-                  "Cannot add %s as a Program Admin because they do not have an admin account."
-                      + " Have the user log in as admin on the home page, then they can be added"
-                      + " as a Program Admin.",
+                "Cannot add %s as a Program Admin because they haven't created an admin account yet. " +
+                  "Program Admin access is specifically for reviewing and managing submitted applications " +
+                  "and is different from the broader CiviForm Admin role. " +
+                  "To proceed, ask the user to log in on the home page to establish their Program Admin account.",
                   accountEmail)));
     } else {
       maybeAccount.ifPresent(
