@@ -312,6 +312,27 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
+  public void
+      validate_validateQuestionOptionAdminNamesFalse_invalidOptionAdminNames_doesNotReturnError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    MultiOptionQuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    question.setValidateQuestionOptionAdminNames(false);
+    assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
   public void validate_withCapitalLetterInOptionAdminNames_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
