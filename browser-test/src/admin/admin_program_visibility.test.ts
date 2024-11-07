@@ -26,6 +26,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.HIDDEN,
     )
@@ -52,6 +53,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
     )
@@ -81,6 +83,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.TI_ONLY,
     )
@@ -140,6 +143,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
@@ -219,6 +223,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
@@ -295,6 +300,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       await adminPrograms.addProgram(
         programName,
         programDescription,
+        'Short description',
         'https://usa.gov',
         ProgramVisibility.DISABLED,
       )

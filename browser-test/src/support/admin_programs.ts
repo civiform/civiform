@@ -132,6 +132,7 @@ export class AdminPrograms {
     await this.addProgram(
       programName,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.DISABLED,
     )

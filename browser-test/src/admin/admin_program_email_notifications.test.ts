@@ -13,6 +13,7 @@ test.describe('program email notifications', () => {
       await adminPrograms.addProgram(
         '', // empty string will error
         'program description',
+        'short program description',
         undefined,
         undefined,
         undefined,

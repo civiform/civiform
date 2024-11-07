@@ -234,6 +234,7 @@ test.describe('applicant program index page', () => {
       await adminPrograms.addProgram(
         programWithoutExternalLink,
         'program description',
+        'short program description',
         '' /* no external link */,
       )
     })
@@ -242,6 +243,7 @@ test.describe('applicant program index page', () => {
       await adminPrograms.addProgram(
         programWithLink,
         'program description',
+        'short program description',
         'https://www.civiform.us',
       )
     })
@@ -279,6 +281,7 @@ test.describe('applicant program index page', () => {
       await adminPrograms.addProgram(
         commonIntakeFormProgramName,
         'program description',
+        'short program description',
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
@@ -942,6 +945,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.addProgram(
       commonIntakeFormProgramName,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
