@@ -146,11 +146,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(displayName)
             .getInputTag(),
+        insertSpacingDiv(),
         AlertComponent.renderSlimAlert(
             AlertType.INFO,
             "Short description will be visible to applicants at a future date.",
             false,
-            ""),
+            "my-2"),
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
             .setFieldName("localizedShortDescription")
@@ -160,13 +161,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(shortDescription)
             .getTextareaTag(),
+        insertSpacingDiv(),
         programUrlField(adminName, programEditStatus),
+        insertSpacingDiv(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only (optional)")
             .setValue(adminDescription)
             .getTextareaTag(),
+        insertSpacingDiv(),
         FieldWithLabel.checkbox()
             .setId("common-intake-checkbox")
             .setFieldName("isCommonIntakeForm")
@@ -215,9 +219,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(String.valueOf(false))
                     .setChecked(!eligibilityIsGating)
                     .getRadioTag()),
+        insertSpacingDiv(),
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
+        insertSpacingDiv(),
         fieldset()
             .with(
                 legend("Program visibility")
@@ -269,6 +275,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.DISABLED.getValue())
                     .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
                     .getRadioTag()),
+        insertSpacingDiv(),
         fieldset()
             .with(
                 legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
@@ -286,6 +293,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                                 .getValue()))
                     .getCheckboxTag()),
+        insertSpacingDiv(),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
@@ -294,12 +302,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setMarkdownSupported(true)
             .setValue(displayDescription)
             .getTextareaTag(),
+        insertSpacingDiv(),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
             .setLabelText("Link to program website (optional)")
             .setValue(externalLink)
             .getInputTag(),
+        insertSpacingDiv(),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -471,5 +481,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return submitButton(saveProgramDetailsText)
         .withId("program-update-button")
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
+  }
+
+  private DivTag insertSpacingDiv() {
+    return div().withClass("my-4");
   }
 }
