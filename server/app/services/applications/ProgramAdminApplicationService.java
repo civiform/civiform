@@ -2,7 +2,7 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
