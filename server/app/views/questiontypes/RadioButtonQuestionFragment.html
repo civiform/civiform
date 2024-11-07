@@ -4,7 +4,7 @@
   singleSelectQuestion=${question.createSingleSelectQuestion()},
   hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
-  class="cf-applicant-question-field"
+  class="cf-question-radio cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
 >
