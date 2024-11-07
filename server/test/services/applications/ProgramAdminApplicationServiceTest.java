@@ -123,7 +123,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     result.stream()
         .forEach(
             e -> {
-              assertThat(appIdList).contains(e);
+              assertThat(appIdList).contains(e.id);
             });
   }
 
