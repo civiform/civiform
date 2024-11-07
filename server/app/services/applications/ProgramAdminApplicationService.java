@@ -2,6 +2,7 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -247,7 +248,8 @@ public final class ProgramAdminApplicationService {
    * Retrieves the applications for the give ApplicationIds and validates that it is associated with the given
    * program.
    */
-  private ImmutableList<ApplicationModel> getApplications(
+  @VisibleForTesting
+  ImmutableList<ApplicationModel> getApplications(
       ImmutableList<Long> applicationIds, ProgramDefinition program) {
     List<ApplicationModel> applicationList = applicationRepository.getApplications(applicationIds);
 
@@ -317,7 +319,7 @@ public final class ProgramAdminApplicationService {
    * @param newStatusEvent the StatusEvent carrying the new status
    * @param admin the admin account initiating the request
    */
-  public void setStatus(
+  public void setStatuses(
       ImmutableList<Long> applicationIds,
       ProgramDefinition programDef,
       StatusEvent newStatusEvent,
