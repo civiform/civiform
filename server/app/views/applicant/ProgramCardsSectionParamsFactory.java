@@ -148,7 +148,8 @@ public final class ProgramCardsSectionParamsFactory {
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())
-        .setActionText(messages.at(buttonText.getKeyName()));
+        .setActionText(messages.at(buttonText.getKeyName()))
+        .setProgramId(program.id());
 
     if (isGuest) {
       cardBuilder.setLoginModalId("login-dialog-" + program.id());
@@ -262,6 +263,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract ImmutableList<String> categories();
 
+    public abstract long programId();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
     }
@@ -293,6 +296,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setAltText(String altText);
 
       public abstract Builder setCategories(ImmutableList<String> categories);
+
+      public abstract Builder setProgramId(long id);
 
       public abstract ProgramCardParams build();
     }
