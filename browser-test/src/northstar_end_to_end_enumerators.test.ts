@@ -330,14 +330,14 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
         ).toHaveAttribute('disabled')
       })
 
-      // await test.step('Add button is still disabled after navigating away and back', async () => {
-      //   await applicantQuestions.clickContinue()
-      //   await applicantQuestions.clickBack()
+      await test.step('Add button is still disabled after navigating away and back', async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickBack()
 
-      //   await expect(
-      //     page.locator('#enumerator-field-add-button'),
-      //   ).toHaveAttribute('disabled')
-      // })
+        await expect(
+          page.locator('#enumerator-field-add-button'),
+        ).toHaveAttribute('disabled')
+      })
 
       await test.step('Add button is enabled with less than the maximum entities', async () => {
         await applicantQuestions.deleteEnumeratorEntityByIndex(4)
