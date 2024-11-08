@@ -96,7 +96,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application2 = resourceCreator.insertActiveApplication(applicant2, program);
 
-    ApplicationEventDetails details =
+    ApplicationEventDetails initialStatus =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(
@@ -106,7 +106,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     repo.insertStatusEvents(
         ImmutableList.of(application1, application2),
         Optional.of(actor),
-        details.statusEvent().get());
+        initialStatus.statusEvent().get());
 
     ImmutableList<ApplicationEventModel> insertedEventFor1 =
         repo.getEventsOrderByCreateTimeDesc(application1.id);
@@ -130,11 +130,11 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Pass through values.
     assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
     assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
-    assertThat(insertedEvent1.getDetails()).isEqualTo(details);
+    assertThat(insertedEvent1.getDetails()).isEqualTo(initialStatus);
     assertThat(insertedEvent1.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(insertedEvent2.getApplication()).isEqualTo(application2);
     assertThat(insertedEvent2.getCreator()).isEqualTo(Optional.of(actor));
-    assertThat(insertedEvent2.getDetails()).isEqualTo(details);
+    assertThat(insertedEvent2.getDetails()).isEqualTo(initialStatus);
     assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
 
     application2.refresh();
@@ -156,7 +156,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount();
     ApplicationModel application2 = resourceCreator.insertActiveApplication(applicant2, program);
 
-    ApplicationEventDetails details =
+    ApplicationEventDetails initialStatus =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
             .setStatusEvent(
@@ -178,7 +178,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     repo.insertStatusEvents(
         ImmutableList.of(application1, application2),
         Optional.of(actor),
-        details.statusEvent().get());
+        initialStatus.statusEvent().get());
 
     repo.insertStatusEvents(
         ImmutableList.of(application1), Optional.of(actor), statusChange.statusEvent().get());
@@ -204,11 +204,11 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
     assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
-    assertThat(insertedEvent1.getDetails()).isEqualTo(details);
+    assertThat(insertedEvent1.getDetails()).isEqualTo(initialStatus);
     assertThat(insertedEvent1.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
     assertThat(insertedEvent2.getApplication()).isEqualTo(application2);
     assertThat(insertedEvent2.getCreator()).isEqualTo(Optional.of(actor));
-    assertThat(insertedEvent2.getDetails()).isEqualTo(details);
+    assertThat(insertedEvent2.getDetails()).isEqualTo(initialStatus);
     assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
 
     application2.refresh();
