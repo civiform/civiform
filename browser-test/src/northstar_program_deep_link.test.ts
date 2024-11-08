@@ -6,13 +6,14 @@ import {
   logout,
   selectApplicantLanguage,
   validateAccessibility,
-  validateScreenshot,
 } from './support'
 
-test.describe('navigating to a deep link', () => {
+test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
     // Arrange
     await loginAsAdmin(page)
 
@@ -37,21 +38,20 @@ test.describe('navigating to a deep link', () => {
 
   test('shows a login prompt for guest users', async ({page}) => {
     await page.goto('/programs/test-deep-link')
-    await expect(page.locator('#modal-container')).toContainText(
-      'Create an account or sign in',
-    )
-    await validateScreenshot(
-      page,
-      'login-prompt-for-guest-users-using-program-slug',
-    )
+    await expect(
+      page
+        .getByRole('dialog', {name: 'Create an account or sign in'})
+        .getByRole('heading'),
+    ).toBeVisible()
+    await validateAccessibility(page)
   })
 
   test('does not show login prompt for logged in users', async ({page}) => {
+    await loginAsTestUser(page)
     await page.goto('/programs/test-deep-link')
-    await loginAsTestUser(page, 'button:has-text("Log in")')
-    await expect(page.locator('#modal-container')).not.toContainText(
-      'Create an account or sign in',
-    )
+    await expect(
+      page.getByRole('dialog', {name: 'Create an account or sign in'}),
+    ).toHaveCount(0)
   })
 
   test('takes guests and logged in users through the flow correctly', async ({
@@ -61,7 +61,7 @@ test.describe('navigating to a deep link', () => {
     // Exercise guest path
     // Act
     await page.goto('/programs/test-deep-link')
-    await page.getByRole('button', {name: 'Continue to application'}).click()
+    await page.getByRole('link', {name: 'Continue to application'}).click()
 
     // Assert
     await page.getByRole('link', {name: 'Continue'}).click()
@@ -72,7 +72,7 @@ test.describe('navigating to a deep link', () => {
     // Exercise test user path
     // Act
     await page.goto('/programs/test-deep-link')
-    await loginAsTestUser(page, 'button:has-text("Log in")')
+    await loginAsTestUser(page, '[role=dialog] a:has-text("Log in")')
 
     // Assert
     await page.getByRole('link', {name: 'Continue'}).click()
@@ -84,7 +84,7 @@ test.describe('navigating to a deep link', () => {
     applicantQuestions,
   }) => {
     await page.goto('/programs/test-deep-link')
-    await page.getByRole('button', {name: 'Continue to application'}).click()
+    await page.getByRole('link', {name: 'Continue to application'}).click()
 
     await selectApplicantLanguage(page, 'English')
 
@@ -107,7 +107,7 @@ test.describe('navigating to a deep link', () => {
     // Go to deep link as a guest
     await page.goto('/programs/test-deep-link')
     // Log in as the same test user
-    await loginAsTestUser(page, 'button:has-text("Log in")')
+    await loginAsTestUser(page, '[role=dialog] a:has-text("Log in")')
 
     await page.getByRole('link', {name: 'Continue'}).click()
     await applicantQuestions.validateQuestionIsOnPage(questionText)
@@ -120,7 +120,7 @@ test.describe('navigating to a deep link', () => {
   }) => {
     // Go to a deep link
     await page.goto('/programs/test-deep-link')
-    await page.getByRole('button', {name: 'Continue to application'}).click()
+    await page.getByRole('link', {name: 'Continue to application'}).click()
 
     // Logging out should not take us back to /programs/test-deep-link, but rather
     // to the program index page.
@@ -153,38 +153,19 @@ test.describe('navigating to a deep link', () => {
     await test.step(`opens the deep link of the disabled program and gets redirected to an error info page`, async () => {
       await page.goto('/programs/dis1')
       expect(page.url()).toContain('/disabled')
-      await validateScreenshot(page, 'disabled-program-error-info-page')
+      await expect(
+        page.getByRole('heading', {name: 'This program is no longer'}),
+      ).toBeVisible()
     })
 
     await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
       await page.click('#visit-home-page-button')
       expect(page.url()).toContain('/programs')
-      await validateScreenshot(page, 'home-page')
-    })
-  })
-
-  test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test('shows a login prompt for guest users', async ({page}) => {
-      await page.goto('/programs/test-deep-link')
-      await expect(page.getByTestId('login')).toContainText(
-        'Create an account or sign in',
-      )
-      await validateScreenshot(
-        page,
-        'login-prompt-for-guest-users-using-program-slug-north-star',
-      )
-
-      await validateAccessibility(page)
-    })
-
-    test('does not show login prompt for logged in users', async ({page}) => {
-      await loginAsTestUser(page)
-      await page.goto('/programs/test-deep-link')
-      await expect(page.locator('[data-testId="login"]')).toHaveCount(0)
+      await expect(
+        page.getByRole('heading', {
+          name: 'Save time applying for programs and services',
+        }),
+      ).toBeVisible()
     })
   })
 })
