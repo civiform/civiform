@@ -201,7 +201,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     // Evaluate.
     assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
-    
+
     assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
     assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
     assertThat(insertedEvent1.getDetails()).isEqualTo(details);
