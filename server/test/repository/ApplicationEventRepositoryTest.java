@@ -144,9 +144,9 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void insertStatusEvents_removesApplicationStatus_succeeds() {
-    // for  application1 we will change the status
-    // for application2, we will remove the status
+  public void insertStatusEvents_changeApplicationStatus_succeeds() {
+    // For  application1, we will change the status from "Status" to "Denied".
+    // For application2, we will change the status from "Status" to no status.
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
@@ -201,8 +201,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     // Evaluate.
     assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
-
-    // Pass through values.
+    
     assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
     assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
     assertThat(insertedEvent1.getDetails()).isEqualTo(details);
