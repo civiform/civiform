@@ -157,10 +157,42 @@ export class ApplicantQuestions {
     index = 0,
   ) {
     await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+
+    // Empty string means "delete this answer". The dropdown default is "Select"
+    if (month == '') {
+      month = 'Select'
+    }
+
     await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
       label: month,
     })
     await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
+  }
+
+  async checkMemorableDateQuestionValue(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    const yearValue = await this.page
+      .locator(`.cf-date-year input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(yearValue)).toBe(year)
+
+    const monthValue = await this.page
+      .locator(`.cf-date-month select >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(monthValue)).toBe(month)
+
+    const dayValue = await this.page
+      .locator(`.cf-date-day input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(dayValue)).toBe(day)
+  }
+
+  trimLeadingZeros(str: string): string {
+    return str.replace(/^0+/, '')
   }
 
   async answerTextQuestion(text: string, index = 0) {
@@ -825,6 +857,7 @@ export class ApplicantQuestions {
     )
     expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
+
   async clickReviewWithoutSaving() {
     await this.page.click(
       'button:has-text("Continue to review page without saving")',
@@ -919,5 +952,17 @@ export class ApplicantQuestions {
 
   async expectTitle(page: Page, title: string) {
     await expect(page).toHaveTitle(title)
+  }
+
+  // On the North Star application summary page, find the block with the given name
+  // and click "Edit"
+  async editBlock(blockName: string) {
+    await this.page
+      .locator(
+        '.block-summary:has-text("' +
+          blockName +
+          '") >> .summary-edit-button:has-text("Edit")',
+      )
+      .click()
   }
 }
