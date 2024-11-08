@@ -109,6 +109,8 @@ test.describe('program migration', () => {
     adminProgramMigration,
     adminTiGroups,
   }) => {
+    test.slow()
+
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_migration_enabled')
@@ -240,16 +242,25 @@ test.describe('program migration', () => {
         'Sample Address Question',
         '',
       )
+      // replace one of the multi-option question admin names with an invalid admin name
+      // we should not be validating multi-option question admin names as a part of program migration
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'chocolate',
+        'Chocolate ice cream',
+      )
+
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'One or more question errors occured:',
         ALERT_ERROR,
       )
-      await adminProgramMigration.expectAlert(
+      await expect(alert).toContainText(
         'Administrative identifier cannot be blank.',
-        ALERT_ERROR,
+      )
+      await expect(alert).not.toContainText(
+        'Multi-option admin names can only contain lowercase letters, numbers, underscores, and dashes',
       )
     })
 

@@ -16,11 +16,11 @@ import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
@@ -128,7 +128,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   public Optional<RedirectionAction> getLogoutAction(
       CallContext callContext, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
-    if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
+    if (StringUtils.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
 
