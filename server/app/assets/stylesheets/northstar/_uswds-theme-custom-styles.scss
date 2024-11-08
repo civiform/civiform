@@ -140,6 +140,10 @@ it is around the label */
   @include u-height(1);
 }
 
+.text-medium-margin-top {
+  @include u-margin-top(1);
+}
+
 .zero-margin {
   margin: 0;
 }
@@ -366,4 +370,18 @@ main {
 
 .ti-banner-internal {
   display: inline;
+}
+
+.cf-program-card-tag {
+  @include u-padding-x(1);
+  @include u-padding-y(0.5);
+  @include u-radius('sm');
+}
+
+.tag-in-progress {
+  @include u-bg('warning-lighter');
+}
+
+.tag-submitted {
+  background: var(--State-tokens-info-info-light, #99deea);
 }
