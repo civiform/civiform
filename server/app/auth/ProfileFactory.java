@@ -10,12 +10,12 @@ import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
-import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ProgramRepository;
 import repository.VersionRepository;
+import services.RandomStringUtils;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
 
@@ -233,8 +233,6 @@ public final class ProfileFactory {
   }
 
   private static String generateFakeAdminAuthorityId() {
-    return FAKE_ADMIN_AUTHORITY_ID
-        + "-"
-        + RandomStringUtils.random(12, /* letters= */ true, /* numbers= */ true);
+    return FAKE_ADMIN_AUTHORITY_ID + "-" + RandomStringUtils.randomAlphanumeric(12);
   }
 }
