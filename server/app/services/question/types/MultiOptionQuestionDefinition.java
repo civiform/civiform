@@ -88,8 +88,10 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, getSupportedOptionLocales()));
   }
 
-  public void setValidateQuestionOptionAdminNames(boolean shouldValidateOptionAdminNames) {
+  public MultiOptionQuestionDefinition setValidateQuestionOptionAdminNames(
+      boolean shouldValidateOptionAdminNames) {
     this.validateQuestionOptionAdminNames = shouldValidateOptionAdminNames;
+    return this;
   }
 
   @Override

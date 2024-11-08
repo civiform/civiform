@@ -328,8 +328,7 @@ public class MultiOptionQuestionDefinitionTest {
     MultiOptionQuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
-    question.setValidateQuestionOptionAdminNames(false);
-    assertThat(question.validate()).isEmpty();
+    assertThat(question.setValidateQuestionOptionAdminNames(false).validate()).isEmpty();
   }
 
   @Test

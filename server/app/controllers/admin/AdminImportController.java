@@ -249,8 +249,9 @@ public class AdminImportController extends CiviFormController {
                   if (question.getQuestionType().isMultiOptionType()) {
                     MultiOptionQuestionDefinition multiOptionQuestion =
                         (MultiOptionQuestionDefinition) question;
-                    multiOptionQuestion.setValidateQuestionOptionAdminNames(false);
-                    return multiOptionQuestion.validate();
+                    return multiOptionQuestion
+                        .setValidateQuestionOptionAdminNames(false)
+                        .validate();
                   }
                   return question.validate();
                 })
