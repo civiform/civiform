@@ -200,8 +200,7 @@ export class ApplicantQuestions {
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
     await this.page
-      .locator('#enumerator-fields .cf-enumerator-field')
-      .nth(index)
+      .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
       .getByText(entityName)
       .isVisible()
   }
@@ -532,9 +531,8 @@ export class ApplicantQuestions {
     })
     await this.page
       .locator(
-        '#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button',
+        `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
       )
-      .nth(entityIndex)
       .click()
   }
 

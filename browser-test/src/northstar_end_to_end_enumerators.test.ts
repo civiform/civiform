@@ -194,7 +194,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
         page.locator('.cf-applicant-question-errors:visible'),
       ).toContainText('Error: Please enter a value for each line.')
       // Put two things in the nested enumerator for enum two
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntity('')
       await applicantQuestions.addEnumeratorAnswer('Banker')
       await applicantQuestions.addEnumeratorAnswer('Banker')
       await applicantQuestions.clickContinue()
@@ -207,7 +207,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
       await applicantQuestions.addEnumeratorAnswer('Painter')
       await applicantQuestions.clickContinue()
 
@@ -340,7 +340,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Add button is enabled with less than the maximum entities', async () => {
-        await applicantQuestions.deleteEnumeratorEntityByIndex(4)
+        await applicantQuestions.deleteEnumeratorEntity('Tweety')
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
@@ -354,7 +354,7 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Add button is re-enabled when the blank entity is removed', async () => {
-        await applicantQuestions.deleteEnumeratorEntityByIndex(4)
+        await applicantQuestions.deleteEnumeratorEntity('')
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
