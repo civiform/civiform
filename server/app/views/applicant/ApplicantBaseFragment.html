@@ -80,6 +80,8 @@
 <svg
   th:fragment="icon(icon)"
   class="usa-icon"
+  aria-hidden="true"
+  role="img"
   th:attr="viewBox=${icon.getViewBox()}"
 >
   <path th:attr="d=${icon.path}"></path>
