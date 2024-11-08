@@ -42,11 +42,11 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.6",
-      "software.amazon.awssdk" % "ses" % "2.29.6",
+      "software.amazon.awssdk" % "s3" % "2.29.8",
+      "software.amazon.awssdk" % "ses" % "2.29.8",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.14.0",
+      "com.azure" % "azure-identity" % "1.14.1",
       "com.azure" % "azure-storage-blob" % "12.28.1",
 
       // Database and database testing libraries
@@ -75,13 +75,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY2.9",
-      "org.pac4j" % "pac4j-core" % "6.0.6",
+      "org.pac4j" % "pac4j-core" % "6.1.0",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.0.6",
+      "org.pac4j" % "pac4j-http" % "6.1.0",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.0.6",
+      "org.pac4j" % "pac4j-oidc" % "6.1.0",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.0.6",
+      "org.pac4j" % "pac4j-saml" % "6.1.0",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -180,6 +180,9 @@ lazy val root = (project in file("."))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
+
+    // Enable Java Assertions in Unit Tests
+    Test / javaOptions += "-enableassertions",
 
     // When forking is disabled, we need to pass system properties to the running JVM.
     // We can only pass system properties (-D), not ones like -Xmx.
