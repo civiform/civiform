@@ -181,6 +181,9 @@ lazy val root = (project in file("."))
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
 
+    // Enable Java Assertions in Unit Tests
+    Test / javaOptions += "-enableassertions",
+
     // When forking is disabled, we need to pass system properties to the running JVM.
     // We can only pass system properties (-D), not ones like -Xmx.
     Test / testOptions ++= Def.task {
