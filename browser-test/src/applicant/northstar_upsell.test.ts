@@ -31,6 +31,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         customConfirmationText,
       )
       await adminPrograms.publishProgram(programName)
