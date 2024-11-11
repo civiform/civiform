@@ -867,7 +867,6 @@ public abstract class ProgramDefinition {
       return this;
     }
 
-    // TODO: do I need this? how is it used?
     public Builder addLocalizedShortDescription(Locale locale, String description) {
       localizedShortDescriptionBuilder().put(locale, description);
       return this;

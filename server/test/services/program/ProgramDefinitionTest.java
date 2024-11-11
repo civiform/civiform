@@ -56,6 +56,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
@@ -87,6 +89,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -108,6 +112,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -239,6 +245,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -265,6 +273,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -278,7 +288,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "Applicant friendly name"));
     assertThat(program.localizedDescription())
         .isEqualTo(LocalizedStrings.of(Locale.US, "English description"));
-
+    assertThat(program.localizedShortDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "English short description"));
     assertThatThrownBy(() -> program.localizedName().get(Locale.FRANCE))
         .isInstanceOf(TranslationNotFoundException.class);
     assertThatThrownBy(() -> program.localizedDescription().get(Locale.FRANCE))
@@ -300,6 +311,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "existing short description"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -321,6 +334,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 program.localizedDescription().updateTranslation(Locale.US, "new description"))
             .build();
     assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new description");
+
+    program =
+        program.toBuilder()
+            .setLocalizedShortDescription(
+                program
+                    .localizedDescription()
+                    .updateTranslation(Locale.US, "new short description"))
+            .build();
+    assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new short description");
     assertThat(program.acls().getTiProgramViewAcls()).containsOnly(1L);
   }
 
@@ -335,6 +357,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description", Locale.ITALIAN, "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -387,6 +411,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description", Locale.ITALIAN, "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -459,6 +485,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .addBlockDefinition(block1QAQB)
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
@@ -551,6 +585,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .addBlockDefinition(block1QAQB)
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
@@ -663,6 +705,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -1098,6 +1148,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
@@ -1118,6 +1170,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1138,6 +1192,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
@@ -1158,6 +1214,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1178,6 +1236,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1200,6 +1260,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1221,6 +1283,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1253,6 +1317,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1276,6 +1342,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1296,6 +1364,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
@@ -1376,6 +1446,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "US description", Locale.GERMAN, "German description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US, "US short description", Locale.GERMAN, "German short description"))
             .setLocalizedConfirmationMessage(
                 LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"))
             .setLocalizedSummaryImageDescription(
@@ -1426,6 +1499,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.localizedDescription())
         .isEqualTo(
             LocalizedStrings.of(Locale.US, "US description", Locale.GERMAN, "German description"));
+    assertThat(result.localizedShortDescription())
+        .isEqualTo(
+            LocalizedStrings.of(
+                Locale.US, "US short description", Locale.GERMAN, "German short description"));
     assertThat(result.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"));
     assertThat(result.localizedSummaryImageDescription())
@@ -1553,6 +1630,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
