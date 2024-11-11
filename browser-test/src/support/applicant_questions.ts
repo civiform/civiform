@@ -525,15 +525,24 @@ export class ApplicantQuestions {
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
-  async deleteEnumeratorEntityByIndex(entityIndex: number) {
+  async deleteEnumeratorEntityByIndex(
+    entityIndex: number,
+    northStarEnabled = false,
+  ) {
     this.page.once('dialog', async (dialog) => {
       await dialog.accept()
     })
-    await this.page
-      .locator(
-        `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
+    if (northStarEnabled) {
+      await this.page
+        .locator(
+          `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
+        )
+        .click()
+    } else {
+      await this.page.click(
+        `:nth-match(:text("Remove entity"), ${entityIndex})`,
       )
-      .click()
+    }
   }
 
   async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {

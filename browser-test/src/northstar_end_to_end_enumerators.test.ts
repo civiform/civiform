@@ -120,7 +120,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       // Correspondingly, removing an element happens without a page refresh. Remove an
       // element and add another to ensure that element IDs remain unique.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.addEnumeratorAnswer('Porky')
       await validateAccessibility(page)
     })
@@ -144,7 +147,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await applicantQuestions.addEnumeratorAnswer('Goofy')
 
       // Remove the middle entry, the remaining entries should re-index
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
       await validateScreenshot(
         page,
         'enumerator-indexes-after-removing-field-northstar',
@@ -210,7 +216,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.addEnumeratorAnswer('Painter')
       await applicantQuestions.clickContinue()
 
