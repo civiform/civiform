@@ -339,10 +339,11 @@ public class ProgramDefinitionTest extends ResetPostgres {
         program.toBuilder()
             .setLocalizedShortDescription(
                 program
-                    .localizedDescription()
+                    .localizedShortDescription()
                     .updateTranslation(Locale.US, "new short description"))
             .build();
-    assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new short description");
+    assertThat(program.localizedShortDescription().get(Locale.US))
+        .isEqualTo("new short description");
     assertThat(program.acls().getTiProgramViewAcls()).containsOnly(1L);
   }
 
