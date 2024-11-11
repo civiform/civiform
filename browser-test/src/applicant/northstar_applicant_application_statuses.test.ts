@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -44,14 +44,18 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
     },
   )
 
-  test.describe('applicant program index page', () => {
-    test('displays status', async ({page}) => {
+  test.describe('application status', () => {
+    test('submitted with admin status only shows admin status', async ({
+      page,
+    }) => {
       await loginAsTestUser(page)
 
-      await validateScreenshot(
-        page.locator('.cf-application-card'),
-        'program-card-with-status-northstar',
-      )
+      const locator = page.locator('.cf-application-card')
+
+      await expect(locator.getByText('Submitted on 1/1/30')).toBeHidden()
+      await expect(locator.getByText(approvedStatusName)).toBeVisible()
+
+      await validateScreenshot(locator, 'program-card-with-status-northstar')
       await validateAccessibility(page)
     })
   })
