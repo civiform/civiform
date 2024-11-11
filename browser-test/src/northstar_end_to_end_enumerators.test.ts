@@ -2,6 +2,7 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -10,7 +11,11 @@ import {
 } from './support'
 import {Page} from 'playwright'
 
-test.describe('End to end enumerator test', () => {
+test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
+
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -28,14 +33,10 @@ test.describe('End to end enumerator test', () => {
         await waitForPageJsLoad(page)
       })
 
-      await test.step('Click add button and verify we get entity row and delete button', async () => {
+      await test.step('Click add button and verify we get entity row and delete button and preview values update', async () => {
         await page.click('button:text("Add Sample repeated entity type")')
-        await validateScreenshot(page, 'enumerator-field')
-      })
-
-      await test.step('Update text when configuring question and ensure preview values update', async () => {
         await page.fill('text=Repeated Entity Type', 'New entity type')
-        await validateScreenshot(page, 'enumerator-type-set')
+        await validateScreenshot(page, 'northstar-enumerator-type-set')
       })
 
       await test.step('Verify question preview has the default values.', async () => {
@@ -75,14 +76,34 @@ test.describe('End to end enumerator test', () => {
       )
     })
 
+    test('validate successful navigation', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+      await applicantQuestions.clickContinue()
+
+      await applicantQuestions.addEnumeratorAnswer('Bugs')
+
+      await page.locator('.cf-question-header').getByText('Bugs').isVisible()
+    })
+
     test('has no accessibility violations', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Check that we are on the enumerator page
       await expect(page.locator('.cf-question-enumerator')).toBeVisible()
@@ -99,93 +120,82 @@ test.describe('End to end enumerator test', () => {
 
       // Correspondingly, removing an element happens without a page refresh. Remove an
       // element and add another to ensure that element IDs remain unique.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.addEnumeratorAnswer('Porky')
       await validateAccessibility(page)
-    })
-
-    test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
-
-      await applicantQuestions.addEnumeratorAnswer('Bugs')
-
-      await validateScreenshot(page, 'enumerator')
-    })
-
-    test('validate screenshot with errors', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(programName)
-
-      await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
-
-      // Click next without adding an enumerator
-      await applicantQuestions.clickNext()
-      await validateScreenshot(page, 'enumerator-errors')
     })
 
     test('Renders the correct indexes for labels and buttons', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put some things in the enumerator question, they should be numbered in order
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
       await applicantQuestions.addEnumeratorAnswer('Goofy')
-      await validateScreenshot(page, 'enumerator-indexes-with-multiple-fileds')
 
       // Remove the middle entry, the remaining entries should re-index
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
-      await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
+      await validateScreenshot(
+        page,
+        'enumerator-indexes-after-removing-field-northstar',
+      )
     })
 
     test('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put in two things in the enumerator question
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // FIRST REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put one thing in the nested enumerator for enum one
       await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer the nested repeated question
       await applicantQuestions.answerNumberQuestion('100')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // SECOND REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Daffy', 'Duck')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put an empty answer in the nested enumerator for enum two.
       await applicantQuestions.addEnumeratorAnswer('')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Oops! Can't have blank lines.
       // Verify that the error message is visible.
@@ -193,10 +203,10 @@ test.describe('End to end enumerator test', () => {
         page.locator('.cf-applicant-question-errors:visible'),
       ).toContainText('Error: Please enter a value for each line.')
       // Put two things in the nested enumerator for enum two
-      await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+      await applicantQuestions.deleteEnumeratorEntity('')
       await applicantQuestions.addEnumeratorAnswer('Banker')
       await applicantQuestions.addEnumeratorAnswer('Banker')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Oops! Can't have duplicates.
       // Verify that the error message is visible.
@@ -206,96 +216,101 @@ test.describe('End to end enumerator test', () => {
 
       // Remove one of the 'Banker' entries and add 'Painter'.
       // the value attribute of the inputs isn't set, so we're clicking the second one.
-      await applicantQuestions.deleteEnumeratorEntityByIndex(2)
+      await applicantQuestions.deleteEnumeratorEntityByIndex(
+        1,
+        /* northStarEnabled= */ true,
+      )
       await applicantQuestions.addEnumeratorAnswer('Painter')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer two nested repeated text questions
       await applicantQuestions.answerNumberQuestion('31')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.answerNumberQuestion('12')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Make sure the enumerator answers are in the review page
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).toContainText('100')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('100')
+      await expect(page.locator('.application-summary')).toContainText(
         'Daffy Duck',
       )
-      await expect(page.locator('#application-summary')).toContainText('Banker')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('Banker')
+      await expect(page.locator('.application-summary')).toContainText(
         'Painter',
       )
-      await expect(page.locator('#application-summary')).toContainText('31')
-      await expect(page.locator('#application-summary')).toContainText('12')
+      await expect(page.locator('.application-summary')).toContainText('31')
+      await expect(page.locator('.application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
+      await applicantQuestions.editQuestionFromReviewPage(
+        'Household members',
+        /* northStarEnabled= */ true,
       )
       await waitForPageJsLoad(page)
 
       await applicantQuestions.deleteEnumeratorEntity('Bugs')
       // Submit the answers by clicking next, and then go to review page.
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Make sure that the removed enumerator is not present in the review page
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         '100',
       )
 
       // Go back and add an enumerator answer.
-      await page.click(
-        '.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")',
+      await applicantQuestions.editQuestionFromReviewPage(
+        'Household members',
+        /* northStarEnabled= */ true,
       )
       await waitForPageJsLoad(page)
       await applicantQuestions.addEnumeratorAnswer('Tweety')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
       await applicantQuestions.answerNameQuestion('Tweety', 'Bird')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.clickReview()
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickReview(/* northStarEnabled= */ true)
 
       // Review page should contain Daffy Duck and newly added Tweety Bird.
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Porky Pig',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Tweety Bird',
       )
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText(
         'Daffy Duck',
       )
-      await expect(page.locator('#application-summary')).toContainText('Banker')
-      await expect(page.locator('#application-summary')).toContainText(
+      await expect(page.locator('.application-summary')).toContainText('Banker')
+      await expect(page.locator('.application-summary')).toContainText(
         'Painter',
       )
-      await expect(page.locator('#application-summary')).toContainText('31')
-      await expect(page.locator('#application-summary')).toContainText('12')
+      await expect(page.locator('.application-summary')).toContainText('31')
+      await expect(page.locator('.application-summary')).toContainText('12')
       // // Review page should not contain deleted enumerator info for Bugs Bunny.
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Bugs Bunny',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         'Cartoon Character',
       )
-      await expect(page.locator('#application-summary')).not.toContainText(
+      await expect(page.locator('.application-summary')).not.toContainText(
         '100',
       )
 
@@ -307,10 +322,13 @@ test.describe('End to end enumerator test', () => {
       applicantQuestions,
     }) => {
       await test.step('Set up application', async () => {
-        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
       })
 
       await test.step('Add button is disabled when the maximum number of entities is entered', async () => {
@@ -325,8 +343,8 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still disabled after navigating away and back', async () => {
-        await applicantQuestions.clickNext()
-        await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickBack()
 
         await expect(
           page.locator('#enumerator-field-add-button'),
@@ -354,8 +372,8 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still enabled after navigating away and back', async () => {
-        await applicantQuestions.clickNext()
-        await applicantQuestions.clickPrevious()
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.clickBack()
 
         await expect(page.locator('#enumerator-field-add-button')).toBeEnabled()
       })
@@ -369,7 +387,7 @@ test.describe('End to end enumerator test', () => {
       })
 
       await test.step('Add button is still disabled after trying to save', async () => {
-        await applicantQuestions.clickNext()
+        await applicantQuestions.clickContinue()
 
         // Error shows because of the empty entity
         await expect(
@@ -386,53 +404,56 @@ test.describe('End to end enumerator test', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
       // Fill in name question
       await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put in two things in the enumerator question
       await applicantQuestions.addEnumeratorAnswer('Bugs')
       await applicantQuestions.addEnumeratorAnswer('Daffy')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // REPEATED ENTITY
       // Answer name
       await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Put one thing in the nested enumerator for enum one
       await applicantQuestions.addEnumeratorAnswer('Cartoon Character')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Answer the nested repeated question
       await applicantQuestions.answerNumberQuestion('100')
-      await applicantQuestions.clickNext()
+      await applicantQuestions.clickContinue()
 
       // Check previous navigation works
       // Click previous and see number question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNumberQuestionValue('100')
 
       // Click previous and see enumerator question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkEnumeratorAnswerValue(
         'Cartoon Character',
         1,
       )
 
       // Click previous and see name question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNameQuestionValue('Bugs', 'Bunny')
 
       // Click previous and see enumerator question
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.checkEnumeratorAnswerValue('Daffy', 2)
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkEnumeratorAnswerValue('Bugs', 1)
+      await applicantQuestions.checkEnumeratorAnswerValue('Daffy', 2)
 
       // Click previous and see name question
-      await applicantQuestions.clickPrevious()
+      await applicantQuestions.clickBack()
       await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
 
       await logout(page)

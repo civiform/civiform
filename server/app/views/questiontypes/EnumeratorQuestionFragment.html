@@ -88,6 +88,7 @@
       th:value="${existingEntity}"
       th:name="${path}"
       th:disabled="${hidden}"
+      th:attr="data-entity-input=${!hidden ? 'true' : null}"
     />
     <!--/* TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error */-->
     <div th:id="${inputId + '-errors'}"></div>

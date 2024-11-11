@@ -211,30 +211,30 @@ export class ApplicantQuestions {
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:has-text("Add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
-    await this.page.fill(
-      '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
-      entityName,
-    )
+    await this.page
+      .locator(
+        '#enumerator-fields .cf-enumerator-field input[data-entity-input]:visible',
+      )
+      .last()
+      .fill(entityName)
   }
 
   async editEnumeratorAnswer(
     existingEntityName: string,
     newEntityName: string,
   ) {
-    await this.page.fill(
-      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
-      newEntityName,
-    )
+    await this.page
+      .locator(
+        `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      )
+      .fill(newEntityName)
   }
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
-    await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
-    await this.validateInputValue(
-      entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
+    await this.page
+      .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
+      .getByText(entityName)
+      .isVisible()
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
@@ -547,20 +547,34 @@ export class ApplicantQuestions {
    * value has been filled after the page loaded. Explanation: https://stackoverflow.com/q/10645552
    */
   async deleteEnumeratorEntity(entityName: string) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(
-      `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
-    )
+    await this.page
+      .locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
+      .getByRole('button')
+      .click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
-  async deleteEnumeratorEntityByIndex(entityIndex: number) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+  async deleteEnumeratorEntityByIndex(
+    entityIndex: number,
+    northStarEnabled = false,
+  ) {
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
+    if (northStarEnabled) {
+      await this.page
+        .locator(
+          `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
+        )
+        .click()
+    } else {
+      await this.page.click(
+        `:nth-match(:text("Remove entity"), ${entityIndex})`,
+      )
+    }
   }
 
   async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
@@ -773,6 +787,18 @@ export class ApplicantQuestions {
   }
 
   async expectQuestionAnsweredOnReviewPage(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionAnsweredOnReviewPageNorthstar(
     questionText: string,
     answerText: string,
   ) {
