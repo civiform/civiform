@@ -9,9 +9,13 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.MessageKey;
@@ -148,7 +152,8 @@ public final class ProgramCardsSectionParamsFactory {
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())
-        .setActionText(messages.at(buttonText.getKeyName()));
+        .setActionText(messages.at(buttonText.getKeyName()))
+        .setProgramId(program.id());
 
     if (isGuest) {
       cardBuilder.setLoginModalId("login-dialog-" + program.id());
@@ -161,6 +166,13 @@ public final class ProgramCardsSectionParamsFactory {
               .get()
               .localizedStatusText()
               .getOrDefault(preferredLocale));
+    }
+
+    Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
+    cardBuilder.setLifecycleStage(lifecycleStage);
+    if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
+      // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
+      cardBuilder.setDateSubmitted(formattedDateString(programDatum, preferredLocale));
     }
 
     if (shouldShowEligibilityTag(programDatum)) {
@@ -203,6 +215,19 @@ public final class ProgramCardsSectionParamsFactory {
 
     return programData.program().eligibilityIsGating()
         || programData.isProgramMaybeEligible().get();
+  }
+
+  private static Optional<String> formattedDateString(
+      ApplicantProgramData datum, Locale preferredLocale) {
+    Optional<Instant> optionalInstant = datum.latestSubmittedApplicationTime();
+    if (optionalInstant.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Date submitDate = Date.from(optionalInstant.get());
+    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, preferredLocale);
+    String formattedDate = dateFormat.format(submitDate);
+    return Optional.of(formattedDate);
   }
 
   @AutoValue
@@ -256,11 +281,19 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> applicationStatus();
 
+    public abstract Optional<LifecycleStage> lifecycleStage();
+
+    // Localized date String for the date on which the application was submitted.
+    // If not submitted, this is empty.
+    public abstract Optional<String> dateSubmitted();
+
     public abstract Optional<String> imageSourceUrl();
 
     public abstract Optional<String> altText();
 
     public abstract ImmutableList<String> categories();
+
+    public abstract long programId();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
@@ -288,11 +321,17 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setApplicationStatus(String applicationStatus);
 
+      public abstract Builder setLifecycleStage(Optional<LifecycleStage> lifecycleStage);
+
+      public abstract Builder setDateSubmitted(Optional<String> dateSubmitted);
+
       public abstract Builder setImageSourceUrl(String imageSourceUrl);
 
       public abstract Builder setAltText(String altText);
 
       public abstract Builder setCategories(ImmutableList<String> categories);
+
+      public abstract Builder setProgramId(long id);
 
       public abstract ProgramCardParams build();
     }

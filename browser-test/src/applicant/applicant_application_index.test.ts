@@ -656,6 +656,7 @@ test.describe('applicant program index page', () => {
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
           })
+          await expect(page.getByText('Not yet submitted')).toBeVisible()
         })
 
         await test.step('Finish the primary program application', async () => {
@@ -683,6 +684,7 @@ test.describe('applicant program index page', () => {
             page,
             'program-index-page-submitted-northstar',
           )
+          await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
