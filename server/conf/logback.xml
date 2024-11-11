@@ -32,6 +32,7 @@
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />
   <logger name="controllers" level="INFO" />
+  <logger name="durablejobs" level="INFO" />
   <logger name="services" level="INFO" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
