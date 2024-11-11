@@ -108,6 +108,15 @@
             <button id="filter-submit" type="submit" class="usa-button">
               Filter
             </button>
+            <button
+              id="clear-filters"
+              th:attr="hx-get=${refreshUrl}"
+              hx-select="#programs-and-services"
+              hx-target="#not-started-programs"
+              class="usa-button"
+            >
+              Clear filters
+            </button>
           </fieldset>
         </form>
         <div id="not-started-programs">

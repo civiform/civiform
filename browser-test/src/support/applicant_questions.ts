@@ -916,4 +916,12 @@ export class ApplicantQuestions {
   async expectTitle(page: Page, title: string) {
     await expect(page).toHaveTitle(title)
   }
+
+  async filterProgramsByCategory(category: string) {
+    await this.page
+      .locator('#ns-category-filter-form')
+      .getByText(category)
+      .check()
+    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+  }
 }
