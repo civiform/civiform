@@ -232,6 +232,12 @@ title.submittedPrograms=제출됨
 toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 # Alert banner when an application was already completed
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
