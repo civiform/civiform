@@ -25,6 +25,7 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
+import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -146,9 +147,16 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
+    String sanitizedHtml =
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+            program.localizedDescription().getOrDefault(preferredLocale),
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
-        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setBody(sanitizedHtml)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setCategories(categoriesBuilder.build())

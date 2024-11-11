@@ -67,7 +67,8 @@
 
       <!-- Program description -->
       <div class="usa-prose">
-        <p th:text="${card.body()}"></p>
+        <!-- utext is used to allow markdown. The input must be sanitized. -->
+        <p th:utext="${card.body()}"></p>
       </div>
 
       <!-- In progress tag -->
