@@ -232,6 +232,12 @@ title.submittedPrograms=Вы отправили заявку
 toast.applicationSaved=Заявка с идентификатором {0} сохранена.
 # Alert banner when an application was already completed
 toast.programCompleted=Заявка уже заполнена.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
