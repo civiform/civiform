@@ -980,6 +980,14 @@ export class ApplicantQuestions {
     await expect(page).toHaveTitle(title)
   }
 
+  async filterProgramsByCategory(category: string) {
+    await this.page
+      .locator('#ns-category-filter-form')
+      .getByText(category)
+      .check()
+    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+  }
+
   // On the North Star application summary page, find the block with the given name
   // and click "Edit"
   async editBlock(blockName: string) {
