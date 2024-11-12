@@ -2,9 +2,9 @@ package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import akka.actor.ActorSystem;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.pekko.actor.ActorSystem;
 import play.libs.concurrent.CustomExecutionContext;
 
 /** Custom execution context wired to "database.dispatcher" thread pool */

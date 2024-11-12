@@ -13,7 +13,8 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.15",
+    crossScalaVersions := Seq("2.13.15", "3.3.3"),
+    scalaVersion := crossScalaVersions.value.head,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -54,7 +55,7 @@ lazy val root = (project in file("."))
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
-      "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
+      "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
@@ -74,7 +75,7 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY2.9",
+      "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
       "org.pac4j" % "pac4j-core" % "6.1.0",
       // basic http authentication (for the anonymous client)
       "org.pac4j" % "pac4j-http" % "6.1.0",
