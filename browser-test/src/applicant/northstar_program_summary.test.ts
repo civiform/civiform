@@ -5,11 +5,13 @@ import {
   loginAsAdmin,
   logout,
   validateAccessibility,
+  validateToastMessage,
 } from '../support'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+  const programName = 'Test program for summary page'
+
   test.describe('navigation with five blocks', () => {
-    const programName = 'Test program for summary page'
     const programDescription = 'Test description'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
@@ -127,6 +129,39 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
         await validateAccessibility(page)
       })
+    })
+
+    test('shows error toast with incomplete submission', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Clicking "Apply" navigates to the first block edit page
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      // Go to the review page
+      await applicantQuestions.clickBack()
+
+      // The UI correctly won't let us submit because the application isn't complete.
+      // To fake submitting an incomplete application add a submit button and click it.
+      // Note the form already triggers for the submit action.
+      // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
+      await page.evaluate(() => {
+        const buttonEl = document.createElement('button')
+        buttonEl.id = 'test-form-submit'
+        buttonEl.type = 'submit'
+        const formEl = document.querySelector('.cf-debounced-form')!
+        formEl.appendChild(buttonEl)
+      })
+      const submitButton = page.locator('#test-form-submit')
+      await submitButton.click()
+
+      await validateToastMessage(
+        page,
+        "Error: There's been an update to the application",
+      )
     })
   })
 
