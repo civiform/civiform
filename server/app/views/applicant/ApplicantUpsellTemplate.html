@@ -72,9 +72,11 @@
                 <p th:text="${customConfirmationMessage}"></p>
               </section>
 
-              <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
-              ></div>
+              <div th:if="${isGuest}">
+                <div
+                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
+                ></div>
+              </div>
 
               <div class="section-internal">
                 <a
