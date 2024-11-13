@@ -2,6 +2,7 @@ package services.cloud.azure;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.util.Optional;
@@ -13,12 +14,14 @@ import services.cloud.StorageUploadRequest;
 /**
  * An Azure Blob Storage implementation of public storage.
  *
- * <p>TODO(#9213): Complete program card image upload for azure, as is this is a no-op, test-only
+ * <p>TODO(#9213): Complete program card image upload for azure, as is, this is a no-op, test-only
  * implementation of the AzurePublicStorage class.
  */
 public class AzurePublicStorage extends PublicStorageClient {
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
-  public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
+
+  @VisibleForTesting
+  static final String AZURE_PUBLIC_CONTAINER_CONF_PATH = "azure.blob.public_container";
 
   private final String container;
   private final Client client;
@@ -27,7 +30,7 @@ public class AzurePublicStorage extends PublicStorageClient {
   @Inject
   public AzurePublicStorage(Config config) {
 
-    this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
+    this.container = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
 
     client = new NullClient();
