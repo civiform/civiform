@@ -315,6 +315,8 @@ public final class ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param defaultShortDescription a short description (<100 characters) for this program to
+   *     display to applicants
    * @param defaultConfirmationMessage a custom message to display on the confirmation screen when
    *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details

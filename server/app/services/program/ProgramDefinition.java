@@ -867,11 +867,6 @@ public abstract class ProgramDefinition {
       return this;
     }
 
-    public Builder addLocalizedShortDescription(Locale locale, String description) {
-      localizedShortDescriptionBuilder().put(locale, description);
-      return this;
-    }
-
     public Builder addLocalizedConfirmationMessage(Locale locale, String customText) {
       localizedConfirmationMessageBuilder().put(locale, customText);
       return this;
