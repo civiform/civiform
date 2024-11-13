@@ -656,6 +656,7 @@ test.describe('applicant program index page', () => {
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
           })
+          await expect(page.getByText('Not yet submitted')).toBeVisible()
         })
 
         await test.step('Finish the primary program application', async () => {
@@ -683,6 +684,7 @@ test.describe('applicant program index page', () => {
             page,
             'program-index-page-submitted-northstar',
           )
+          await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
@@ -877,11 +879,7 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
-            await page
-              .locator('#ns-category-filter-form')
-              .getByText('General')
-              .check()
-            await page.getByRole('button', {name: 'Filter'}).click()
+            await applicantQuestions.filterProgramsByCategory('General')
 
             await validateScreenshot(
               page.locator('#programs-list'),
@@ -929,6 +927,62 @@ test.describe('applicant program index page', () => {
               expectedProgramsInRecommendedSection: [],
               expectedProgramsInOtherProgramsSection: [],
             })
+          })
+        })
+
+        test('Clearing filters resets programs to unfiltered view and unchecks category checkboxes', async ({
+          page,
+          adminPrograms,
+          applicantQuestions,
+        }) => {
+          await test.step('publish programs with categories', async () => {
+            await adminPrograms.publishAllDrafts()
+          })
+
+          await test.step('Navigate to homepage', async () => {
+            await logout(page)
+            await loginAsTestUser(page)
+          })
+
+          await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
+            await applicantQuestions.filterProgramsByCategory('General')
+
+            // Check the program count in the section headings
+            await expect(
+              page.getByRole('heading', {
+                name: 'Programs based on your selections (1)',
+              }),
+            ).toBeVisible()
+            await expect(
+              page.getByRole('heading', {
+                name: 'Other programs and services (3)',
+              }),
+            ).toBeVisible()
+          })
+
+          await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
+            await page.getByRole('button', {name: 'Clear filters'}).click()
+
+            await expect(
+              page.getByRole('checkbox', {name: 'General'}),
+            ).not.toBeChecked()
+
+            await expect(
+              page.getByRole('heading', {
+                name: 'Programs and services (4)',
+              }),
+            ).toBeVisible()
+
+            await expect(
+              page.getByRole('heading', {
+                name: 'Programs based on your selections (1)',
+              }),
+            ).toBeHidden()
+            await expect(
+              page.getByRole('heading', {
+                name: 'Other programs and services (3)',
+              }),
+            ).toBeHidden()
           })
         })
       })

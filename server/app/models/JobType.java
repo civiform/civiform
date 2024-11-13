@@ -5,7 +5,7 @@ import io.ebean.annotation.DbEnumValue;
 
 /** Represents the job type for the durable jobs. */
 public enum JobType {
-  /** Runs via Akka scheduler. */
+  /** Runs via Pekko scheduler. */
   RECURRING,
   /**
    * Runs a job once each time the application is started, prior to the site being accessible to

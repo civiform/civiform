@@ -157,10 +157,42 @@ export class ApplicantQuestions {
     index = 0,
   ) {
     await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+
+    // Empty string means "delete this answer". The dropdown default is "Select"
+    if (month == '') {
+      month = 'Select'
+    }
+
     await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
       label: month,
     })
     await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
+  }
+
+  async checkMemorableDateQuestionValue(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    const yearValue = await this.page
+      .locator(`.cf-date-year input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(yearValue)).toBe(year)
+
+    const monthValue = await this.page
+      .locator(`.cf-date-month select >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(monthValue)).toBe(month)
+
+    const dayValue = await this.page
+      .locator(`.cf-date-day input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(dayValue)).toBe(day)
+  }
+
+  trimLeadingZeros(str: string): string {
+    return str.replace(/^0+/, '')
   }
 
   async answerTextQuestion(text: string, index = 0) {
@@ -179,30 +211,30 @@ export class ApplicantQuestions {
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:has-text("Add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
-    await this.page.fill(
-      '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
-      entityName,
-    )
+    await this.page
+      .locator(
+        '#enumerator-fields .cf-enumerator-field input[data-entity-input]:visible',
+      )
+      .last()
+      .fill(entityName)
   }
 
   async editEnumeratorAnswer(
     existingEntityName: string,
     newEntityName: string,
   ) {
-    await this.page.fill(
-      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
-      newEntityName,
-    )
+    await this.page
+      .locator(
+        `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      )
+      .fill(newEntityName)
   }
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
-    await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
-    await this.validateInputValue(
-      entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
+    await this.page
+      .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
+      .getByText(entityName)
+      .isVisible()
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
@@ -515,20 +547,34 @@ export class ApplicantQuestions {
    * value has been filled after the page loaded. Explanation: https://stackoverflow.com/q/10645552
    */
   async deleteEnumeratorEntity(entityName: string) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(
-      `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
-    )
+    await this.page
+      .locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
+      .getByRole('button')
+      .click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
-  async deleteEnumeratorEntityByIndex(entityIndex: number) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+  async deleteEnumeratorEntityByIndex(
+    entityIndex: number,
+    northStarEnabled = false,
+  ) {
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
+    if (northStarEnabled) {
+      await this.page
+        .locator(
+          `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
+        )
+        .click()
+    } else {
+      await this.page.click(
+        `:nth-match(:text("Remove entity"), ${entityIndex})`,
+      )
+    }
   }
 
   async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
@@ -719,7 +765,11 @@ export class ApplicantQuestions {
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
-    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    await expect(
+      this.page.getByRole('heading', {name: 'Confirm your address'}),
+    ).toBeVisible()
+
+    //    expect(await this.page.innerText('h2')).toContain('Confirm your address')
     // Note: If there's only one suggestion, the heading will be "Suggested address"
     // not "Suggested addresses". But, our browser setup always returns multiple
     // suggestions so we can safely assert the heading is always "Suggested addresses".
@@ -737,6 +787,18 @@ export class ApplicantQuestions {
   }
 
   async expectQuestionAnsweredOnReviewPage(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
+  async expectQuestionAnsweredOnReviewPageNorthstar(
     questionText: string,
     answerText: string,
   ) {
@@ -821,6 +883,7 @@ export class ApplicantQuestions {
     )
     expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
+
   async clickReviewWithoutSaving() {
     await this.page.click(
       'button:has-text("Continue to review page without saving")',
@@ -915,5 +978,25 @@ export class ApplicantQuestions {
 
   async expectTitle(page: Page, title: string) {
     await expect(page).toHaveTitle(title)
+  }
+
+  async filterProgramsByCategory(category: string) {
+    await this.page
+      .locator('#ns-category-filter-form')
+      .getByText(category)
+      .check()
+    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+  }
+
+  // On the North Star application summary page, find the block with the given name
+  // and click "Edit"
+  async editBlock(blockName: string) {
+    await this.page
+      .locator(
+        '.block-summary:has-text("' +
+          blockName +
+          '") >> .summary-edit-button:has-text("Edit")',
+      )
+      .click()
   }
 }

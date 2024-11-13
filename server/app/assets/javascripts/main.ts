@@ -375,6 +375,16 @@ export function init() {
     form.submit()
   })
 
+  /* Uncheck all program filter checkboxes when the clear filters button is clicked */
+  addEventListenerToElements('#clear-filters', 'click', () => {
+    const checkboxes = document.querySelectorAll('[id*="ns-check-category"]')
+
+    checkboxes.forEach((checkbox) => {
+      const checkboxInput = checkbox as HTMLInputElement
+      checkboxInput.checked = false
+    })
+  })
+
   attachFormDebouncers()
 
   attachRedirectToPageListeners()
