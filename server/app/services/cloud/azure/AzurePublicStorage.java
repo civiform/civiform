@@ -13,7 +13,8 @@ import services.cloud.StorageUploadRequest;
 /**
  * An Azure Blob Storage implementation of public storage.
  *
- * <p>TODO(#9213): Complete program card image upload for azure.
+ * <p>TODO(#9213): Complete program card image upload for azure, as is this is a no-op, test-only
+ * implementation of the AzurePublicStorage class.
  */
 public class AzurePublicStorage extends PublicStorageClient {
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
