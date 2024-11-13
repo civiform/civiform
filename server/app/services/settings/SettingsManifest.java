@@ -537,6 +537,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AZURE_STORAGE_ACCOUNT_CONTAINER");
   }
 
+  /** Azure blob storage container name to store public files in. */
+  public Optional<String> getAzureStorageAccountPublicContainer() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER");
+  }
+
   /**
    * Allows local [Azurite
    * emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be
@@ -1629,6 +1634,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_CONTAINER",
                               "Azure blob storage container name to store files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER",
+                              "Azure blob storage container name to store public files in.",
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
