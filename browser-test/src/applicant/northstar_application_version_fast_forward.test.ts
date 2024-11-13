@@ -13,6 +13,10 @@ import {
   disableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
+import {
+  ApplicantProgramList,
+  ApplicationStatusCardGroupName,
+} from '../support/applicant_program_list'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe(
@@ -1673,6 +1677,7 @@ class FastForwardApplicantActor {
   private programName: string
   private page: Page
   private applicantQuestions: ApplicantQuestions
+  private applicantProgramList: ApplicantProgramList
 
   /**
    * @constructor
@@ -1683,6 +1688,7 @@ class FastForwardApplicantActor {
     this.programName = programName
     this.page = page
     this.applicantQuestions = new ApplicantQuestions(page)
+    this.applicantProgramList = new ApplicantProgramList(page)
   }
 
   /**
@@ -1741,7 +1747,9 @@ class FastForwardApplicantActor {
   getCardListLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
   ): Locator {
-    return this.page.getByRole('region', {name: applicationStatusCardGroupName})
+    return this.applicantProgramList.getCardGroupLocator(
+      applicationStatusCardGroupName,
+    )
   }
 
   /**
@@ -1752,11 +1760,9 @@ class FastForwardApplicantActor {
   getCardHeadingLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).getByRole(
-      'heading',
-      {
-        name: this.programName,
-      },
+    return this.applicantProgramList.getCardHeadingLocator(
+      applicationStatusCardGroupName,
+      this.programName,
     )
   }
 
@@ -1768,8 +1774,8 @@ class FastForwardApplicantActor {
   getCardEligibleTagLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-eligible-tag',
+    return this.applicantProgramList.getCardEligibleTagLocator(
+      applicationStatusCardGroupName,
     )
   }
 
@@ -1781,8 +1787,8 @@ class FastForwardApplicantActor {
   getCardNotEligibleTagLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-not-eligible-tag',
+    return this.applicantProgramList.getCardNotEligibleTagLocator(
+      applicationStatusCardGroupName,
     )
   }
 
@@ -1819,17 +1825,9 @@ class FastForwardApplicantActor {
   }
 
   /**
-   * Navigates to the next page of an application
+   * Navigates to the review page of an application
    *
    * Must be on an application edit page
-   * @param question
-   */
-  async gotoNextPage() {
-    await this.applicantQuestions.clickNext()
-  }
-
-  /**
-   *
    */
   async gotoReviewPage() {
     await this.applicantQuestions.clickReview(true)
@@ -2056,14 +2054,4 @@ enum Block {
   Third = 'Screen 3',
   Fourth = 'Screen 4',
   Fifth = 'Screen 5',
-}
-
-/**
- * List of heading names used for different groups of application cards used in
- * this test suite. This is not a really a concrete system-wide term and is mostly
- * used in relation to what the user sees on the `/programs` page
- */
-enum ApplicationStatusCardGroupName {
-  MyApplications = 'My applications',
-  ProgramsAndServices = 'Programs and services',
 }
