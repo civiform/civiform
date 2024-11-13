@@ -301,8 +301,7 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns where admins should be taken to after saving program detail edits. */
   private Result getSaveProgramDetailsRedirect(
       long programId, ProgramEditStatus programEditStatus) {
-    if (programEditStatus == ProgramEditStatus.CREATION
-        || programEditStatus == ProgramEditStatus.CREATION_EDIT) {
+    if (false) {
       // While creating a new program, we want to direct admins to also add a program image.
       return redirect(
           routes.AdminProgramImageController.index(programId, programEditStatus.name()).url());
