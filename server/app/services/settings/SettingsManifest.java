@@ -502,6 +502,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SENDER_EMAIL_ADDRESS");
   }
 
+  /** The provider to use for sending emails. */
+  public Optional<String> getEmailProvider() {
+    return getString("EMAIL_PROVIDER");
+  }
+
   /** What static file storage provider to use. */
   public Optional<String> getStorageServiceName() {
     return getString("STORAGE_SERVICE_NAME");
@@ -1769,7 +1774,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " CiviForm.",
                       /* isRequired= */ true,
                       SettingType.STRING,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "EMAIL_PROVIDER",
+                      "The provider to use for sending emails.",
+                      /* isRequired= */ false,
+                      SettingType.ENUM,
+                      SettingMode.HIDDEN,
+                      ImmutableList.of("aws-ses", "graph-api")))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",

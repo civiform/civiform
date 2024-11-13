@@ -413,6 +413,12 @@
         "type": "string",
         "required": true
       },
+      "EMAIL_PROVIDER": {
+        "mode": "HIDDEN",
+        "description": "The provider to use for sending emails.",
+        "type": "string",
+        "values": ["aws-ses", "graph-api"]
+      },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
         "members": {
