@@ -214,7 +214,10 @@ public class AdminImportController extends CiviFormController {
     // before the import process begins.
     if (!withDuplicates
         && versionRepository.getDraftVersion().isPresent()
-        && !versionRepository.getDraftVersion().get().getPrograms().isEmpty()) {
+        // In any other case we'd use the cache here, but because its a draft, nothing will be cached.
+        // If this ends up being slow, we can make a more efficient query.
+        && !versionRepository.getDraftVersion().get().getPrograms().isEmpty()
+        && !versionRepository.getDraftVersion().get().getQuestions().isEmpty()) {
       return ok(
           adminImportViewPartial
               .renderError(
