@@ -20,16 +20,37 @@ jobs:
     steps:
       - run: 'echo "skipping"'
 
-  run_browser_tests_aws:
-    strategy:
-      matrix:
-        shard_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  setup-browser-test-matrix:
     runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "skipping"'
 
-  run_browser_tests_azure:
-    if: false
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+
+    steps:
+      - id: build-matrix
+        env:
+          # Need to access the branch name differently between 
+          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+        run: |
+          # Temporarily ignore errors so we can check grep for matches
+          set +e
+          echo "BranchName: ${{ env.BRANCH_NAME }}"
+          echo "${{ env.BRANCH_NAME }}" | grep --quiet --ignore-case "azure"
+          if [[ $? -eq 0 ]]; then
+              matrix='{"cloud": ["aws", "azure"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
+          else
+              matrix='{"cloud": ["aws"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
+          fi
+          # Re-enable error checking
+          set -e
+          echo "matrix=${matrix}"
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  run_browser_tests:
+    needs: setup-browser-test-matrix
+    strategy:
+      # Default to only aws. If the branch name contains azure use aws and azure
+      matrix: ${{ fromJson(needs.setup-browser-test-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
@@ -43,3 +64,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
+
