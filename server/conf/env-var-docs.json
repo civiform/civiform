@@ -452,7 +452,7 @@
             "description": "Azure blob storage container name to store files in.",
             "type": "string"
           },
-          "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER": {
+          "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME": {
             "mode": "HIDDEN",
             "description": "Azure blob storage container name to store public files in.",
             "type": "string"

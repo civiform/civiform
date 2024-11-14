@@ -21,16 +21,16 @@ public class AzurePublicStorage extends PublicStorageClient {
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
 
   @VisibleForTesting
-  static final String AZURE_PUBLIC_CONTAINER_CONF_PATH = "azure.blob.public_container";
+  static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
 
-  private final String container;
+  private final String containerName;
   private final Client client;
   private final String accountName;
 
   @Inject
   public AzurePublicStorage(Config config) {
 
-    this.container = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_CONF_PATH);
+    this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
 
     client = new NullClient();
@@ -38,7 +38,7 @@ public class AzurePublicStorage extends PublicStorageClient {
 
   @Override
   public String getBucketName() {
-    return container;
+    return containerName;
   }
 
   @Override
@@ -60,7 +60,7 @@ public class AzurePublicStorage extends PublicStorageClient {
         BlobStorageUploadRequest.builder()
             .setFileName(fileKey)
             .setAccountName(accountName)
-            .setContainerName(container)
+            .setContainerName(containerName)
             .setBlobUrl(client.getBlobUrl(fileKey))
             .setSasToken(client.getSasToken(fileKey, Optional.empty()))
             .setSuccessActionRedirect(successRedirectActionLink);
@@ -99,7 +99,7 @@ public class AzurePublicStorage extends PublicStorageClient {
 
     @Override
     public String getBlobUrl(String fileName) {
-      return "http://www.blobUrl.com";
+      return "http://localhost";
     }
   }
 }
