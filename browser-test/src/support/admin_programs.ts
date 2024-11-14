@@ -1009,13 +1009,13 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
+    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
       expectedCount,
     )
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
-    return `.cf-admin-application-row:has-text("${applicantName}")`
+    return `.cf-admin-application-card:has-text("${applicantName}")`
   }
 
   selectWithinApplicationForApplicant(applicantName: string, selector: string) {
@@ -1090,27 +1090,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  // private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
-
-  // applicationFrame(): Frame {
-  //   return this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!
-  // }
-
-  // applicationFrameLocator() {
-  //   return this.page.frameLocator(
-  //     `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
-  //   )
-  // }
-
-  // async waitForApplicationFrame() {
-  //   const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-  //   if (!frame) {
-  //     throw new Error('Expected an application frame')
-  //   }
-  //   await frame.waitForNavigation()
-  //   await waitForPageJsLoad(frame)
-  // }
-
   async expectApplicationAnswers(
     blockName: string,
     questionName: string,
@@ -1158,6 +1137,7 @@ export class AdminPrograms {
     await this.page
       .locator(this.statusSelector())
       .selectOption(status)
+
     return waitForAnyModal(this.page)
   }
 
@@ -1168,11 +1148,9 @@ export class AdminPrograms {
   async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-      const confirmButton = (await modal.$('text=Confirm'))!
-      await Promise.all([
-         this.page.waitForNavigation(),
-        confirmButton.click()])
-      await waitForPageJsLoad(this.page)
+    const confirmButton = (await modal.$('text=Confirm'))!
+    await confirmButton.click()
+    await waitForPageJsLoad(this.page)
   }
 
   async expectUpdateStatusToast() {
@@ -1198,10 +1176,6 @@ export class AdminPrograms {
       .locator(this.editNoteSelector())
       .click()
 
-    // const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    // if (!frame) {
-    //   throw new Error('Expected an application frame')
-    // }
     const editModal = await waitForAnyModal(this.page)
     const noteContentArea = (await editModal.$('textarea'))!
     return noteContentArea.inputValue()
@@ -1215,10 +1189,6 @@ export class AdminPrograms {
       .locator(this.editNoteSelector())
       .click()
 
-    // const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    // if (!frame) {
-    //   throw new Error('Expected an application frame')
-    // }
     return await waitForAnyModal(this.page)
   }
 
@@ -1270,7 +1240,7 @@ export class AdminPrograms {
   async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.applicationFrameLocator()
+      this.page
         .locator('button:has-text("Export to PDF")')
         .click(),
     ])
