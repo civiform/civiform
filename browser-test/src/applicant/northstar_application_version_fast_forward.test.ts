@@ -13,6 +13,10 @@ import {
   disableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
+import {
+  ApplicantProgramList,
+  CardSectionName,
+} from '../support/applicant_program_list'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe(
@@ -178,18 +182,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
           await expect(
             applicantActor.getCardHeadingLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
         })
@@ -213,18 +217,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
 
@@ -236,12 +240,12 @@ test.describe(
         await test.step('check program list shows eligible tag', async () => {
           await expect(
             applicantActor.getCardEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).toBeVisible()
           await expect(
             applicantActor.getCardNotEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
         })
@@ -322,18 +326,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -351,18 +355,18 @@ test.describe(
         await test.step('As applicant - check program list has one in-progress application for program v1', async () => {
           await applicantActor.gotoApplicantHomePage()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -426,18 +430,18 @@ test.describe(
         await test.step('As applicant - check program list has one submitted application for program v1', async () => {
           await applicantActor.gotoApplicantHomePage()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
 
@@ -450,12 +454,12 @@ test.describe(
         await test.step('check program list shows eligible tag', async () => {
           await expect(
             applicantActor.getCardEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).toBeVisible()
           await expect(
             applicantActor.getCardNotEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
         })
@@ -653,18 +657,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
           await expect(
             applicantActor.getCardHeadingLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
         })
@@ -688,18 +692,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
 
@@ -711,12 +715,12 @@ test.describe(
         await test.step('check program list shows eligible tag', async () => {
           await expect(
             applicantActor.getCardEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).toBeVisible()
           await expect(
             applicantActor.getCardNotEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
         })
@@ -806,18 +810,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -835,18 +839,18 @@ test.describe(
         await test.step('As applicant - check program list has one in-progress application for program v2', async () => {
           await applicantActor.gotoApplicantHomePage()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -924,18 +928,18 @@ test.describe(
         await test.step('As applicant - check program list has one submitted application for program v3', async () => {
           await applicantActor.gotoApplicantHomePage()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
 
@@ -948,13 +952,13 @@ test.describe(
         await test.step('check program list shows eligible tag', async () => {
           await expect(
             applicantActor.getCardEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).toBeVisible()
 
           await expect(
             applicantActor.getCardNotEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
         })
@@ -1134,18 +1138,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
           await expect(
             applicantActor.getCardHeadingLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+              CardSectionName.ProgramsAndServices,
             ),
           ).toBeAttached()
         })
@@ -1169,18 +1173,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
 
@@ -1192,12 +1196,12 @@ test.describe(
         await test.step('check program list shows eligible tag', async () => {
           await expect(
             applicantActor.getCardEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).toBeVisible()
           await expect(
             applicantActor.getCardNotEligibleTagLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+              CardSectionName.MyApplications,
             ),
           ).not.toBeAttached()
         })
@@ -1287,18 +1291,18 @@ test.describe(
           await applicantActor.gotoApplicantHomePage()
 
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -1316,18 +1320,18 @@ test.describe(
         await test.step('As applicant - check program list has one in-progress application for program v2', async () => {
           await applicantActor.gotoApplicantHomePage()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.ProgramsAndServices,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.ProgramsAndServices,
             ),
           ).not.toBeAttached()
           await expect(
-            applicantActor.getCardListLocator(
-              ApplicationStatusCardGroupName.MyApplications,
+            applicantActor.getCardSectionLocator(
+              CardSectionName.MyApplications,
             ),
           ).toBeAttached()
 
           const headingLocator = applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.MyApplications,
+            CardSectionName.MyApplications,
           )
           await expect(headingLocator).toBeAttached()
           expect(
@@ -1673,6 +1677,7 @@ class FastForwardApplicantActor {
   private programName: string
   private page: Page
   private applicantQuestions: ApplicantQuestions
+  private applicantProgramList: ApplicantProgramList
 
   /**
    * @constructor
@@ -1683,6 +1688,7 @@ class FastForwardApplicantActor {
     this.programName = programName
     this.page = page
     this.applicantQuestions = new ApplicantQuestions(page)
+    this.applicantProgramList = new ApplicantProgramList(page)
   }
 
   /**
@@ -1734,55 +1740,43 @@ class FastForwardApplicantActor {
   }
 
   /**
-   * Get the card list locator for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * Get the card section locator for the desired application status card section name
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator to the card list
    */
-  getCardListLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.page.getByRole('region', {name: applicationStatusCardGroupName})
+  getCardSectionLocator(cardSectionName: CardSectionName): Locator {
+    return this.applicantProgramList.getCardSectionLocator(cardSectionName)
   }
 
   /**
    * Get the locator for program card heading in the desired list
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator for program card in the desired list
    */
-  getCardHeadingLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).getByRole(
-      'heading',
-      {
-        name: this.programName,
-      },
+  getCardHeadingLocator(cardSectionName: CardSectionName): Locator {
+    return this.applicantProgramList.getCardHeadingLocator(
+      cardSectionName,
+      this.programName,
     )
   }
 
   /**
    * Get the eligibile tag for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator to the eligible tag
    */
-  getCardEligibleTagLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-eligible-tag',
-    )
+  getCardEligibleTagLocator(cardSectionName: CardSectionName): Locator {
+    return this.applicantProgramList.getCardEligibleTagLocator(cardSectionName)
   }
 
   /**
    * Get the not eligibile tag for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator to the not eligible tag
    */
-  getCardNotEligibleTagLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-not-eligible-tag',
+  getCardNotEligibleTagLocator(cardSectionName: CardSectionName): Locator {
+    return this.applicantProgramList.getCardNotEligibleTagLocator(
+      cardSectionName,
     )
   }
 
@@ -1819,17 +1813,9 @@ class FastForwardApplicantActor {
   }
 
   /**
-   * Navigates to the next page of an application
+   * Navigates to the review page of an application
    *
    * Must be on an application edit page
-   * @param question
-   */
-  async gotoNextPage() {
-    await this.applicantQuestions.clickNext()
-  }
-
-  /**
-   *
    */
   async gotoReviewPage() {
     await this.applicantQuestions.clickReview(true)
@@ -2056,14 +2042,4 @@ enum Block {
   Third = 'Screen 3',
   Fourth = 'Screen 4',
   Fifth = 'Screen 5',
-}
-
-/**
- * List of heading names used for different groups of application cards used in
- * this test suite. This is not a really a concrete system-wide term and is mostly
- * used in relation to what the user sees on the `/programs` page
- */
-enum ApplicationStatusCardGroupName {
-  MyApplications = 'My applications',
-  ProgramsAndServices = 'Programs and services',
 }
