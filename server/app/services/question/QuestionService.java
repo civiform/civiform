@@ -19,6 +19,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
+import services.Path;
 import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
@@ -333,24 +334,13 @@ public final class QuestionService {
     if (maybeConflict.isPresent()) {
       QuestionModel conflict = maybeConflict.get();
       String errorMessage;
-      if (questionDefinition.getEnumeratorId().isEmpty()) {
-        errorMessage =
-            String.format(
-                "Administrative identifier '%s' generates JSON path '%s' which would conflict with"
-                    + " the existing question with admin ID '%s'",
-                questionDefinition.getName(),
-                questionDefinition.getQuestionPathSegment(),
-                questionRepository.getQuestionDefinition(conflict).getName());
-      } else {
-        errorMessage =
-            String.format(
-                "Administrative identifier '%s' with Enumerator ID %d generates JSON path '%s'"
-                    + " which would conflict with the existing question with admin ID '%s'",
-                questionDefinition.getName(),
-                questionDefinition.getEnumeratorId().get(),
-                questionDefinition.getQuestionPathSegment(),
-                questionRepository.getQuestionDefinition(conflict).getName());
-      }
+      errorMessage =
+          String.format(
+              "Administrative identifier '%s' generates JSON path '%s' which would conflict with"
+                  + " the existing question with admin ID '%s'",
+              questionDefinition.getName(),
+              Path.create(questionDefinition.getQuestionNameKey()).toString(),
+              questionRepository.getQuestionDefinition(conflict).getName());
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
     return ImmutableSet.of();
