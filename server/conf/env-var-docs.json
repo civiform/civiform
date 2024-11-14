@@ -458,6 +458,11 @@
             "description": "Azure blob storage container name to store files in.",
             "type": "string"
           },
+          "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME": {
+            "mode": "HIDDEN",
+            "description": "Azure blob storage container name to store public files in.",
+            "type": "string"
+          },
           "AZURE_LOCAL_CONNECTION_STRING": {
             "mode": "HIDDEN",
             "description": "Allows local [Azurite emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be used for developer deployments.",
