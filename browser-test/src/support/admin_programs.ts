@@ -1149,9 +1149,6 @@ export class AdminPrograms {
   async setStatusOptionAndAwaitModal(
     status: string,
   ): Promise<ElementHandle<HTMLElement>> {
-    const text = await this.page.textContent('html')
-
-    await console.log(text)
     await this.page
       .locator(this.statusSelector())
       .selectOption(status)
@@ -1165,12 +1162,11 @@ export class AdminPrograms {
   async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-    const confirmButton = (await modal.$('text=Confirm'))!
-    await Promise.all([
-      this.page.waitForNavigation(), 
-      confirmButton.click()])
-    await waitForPageJsLoad(this.page)
-    await this.page.getByRole('link', {name: 'Back'}).click()
+      const confirmButton = (await modal.$('text=Confirm'))!
+      await Promise.all([
+         this.page.waitForNavigation(),
+        confirmButton.click()])
+      await waitForPageJsLoad(this.page)
   }
 
   async expectUpdateStatusToast() {
