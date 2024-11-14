@@ -94,6 +94,8 @@ public abstract class NorthStarBaseView {
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
     context.setVariable("hasProfile", profile.isPresent());
+    context.setVariable("applicantDisplayName", applicantPersonalInfo.getDisplayString(messages));
+    context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
@@ -146,6 +148,11 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
+
+    // Other options
+    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
+    context.setVariable("isApplicationExportable", isApplicationExportable);
+
     return context;
   }
 
@@ -237,5 +244,15 @@ public abstract class NorthStarBaseView {
     String blockNumberText =
         messages.at(MessageKey.CONTENT_BLOCK_PROGRESS.getKeyName(), blockIndex, totalBlockCount);
     return String.format("%s — %s", programTitle, blockNumberText);
+  }
+
+  private String getTiDashboardHref() {
+    return controllers.ti.routes.TrustedIntermediaryController.dashboard(
+            /* nameQuery= */ Optional.empty(),
+            /* dayQuery= */ Optional.empty(),
+            /* monthQuery= */ Optional.empty(),
+            /* yearQuery= */ Optional.empty(),
+            /* page= */ Optional.of(1))
+        .url();
   }
 }

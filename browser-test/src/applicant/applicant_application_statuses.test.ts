@@ -1,6 +1,5 @@
 import {test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -47,21 +46,4 @@ test.describe('with program statuses', () => {
     await validateAccessibility(page)
     await validateScreenshot(page, 'program-list-with-status')
   })
-
-  test.describe(
-    'applicant program index page with northstar UI',
-    {tag: ['@northstar']},
-    () => {
-      test('displays status', async ({page}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-        await loginAsTestUser(page)
-        await validateScreenshot(
-          page.locator('.cf-application-card'),
-          'program-card-with-status-northstar',
-        )
-        await logout(page)
-      })
-    },
-  )
 })

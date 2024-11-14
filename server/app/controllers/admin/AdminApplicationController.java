@@ -43,7 +43,7 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
-import services.applications.AccountHasNoEmailException;
+import services.applications.ApplicationAlreadyInStatusException;
 import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
@@ -355,10 +355,7 @@ public final class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result updateStatus(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException,
-          StatusEmailNotFoundException,
-          StatusNotFoundException,
-          AccountHasNoEmailException {
+      throws ProgramNotFoundException, StatusEmailNotFoundException, StatusNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
     String programName = program.adminName();
 
@@ -367,13 +364,6 @@ public final class AdminApplicationController extends CiviFormController {
     } catch (CompletionException | MissingOptionalException e) {
       return unauthorized();
     }
-
-    Optional<ApplicationModel> applicationMaybe =
-        programAdminApplicationService.getApplication(applicationId, program);
-    if (applicationMaybe.isEmpty()) {
-      return notFound(String.format("Application %d does not exist.", applicationId));
-    }
-    ApplicationModel application = applicationMaybe.get();
 
     Map<String, String> formData = formFactory.form().bindFromRequest(request).rawData();
     Optional<String> maybeCurrentStatus = Optional.ofNullable(formData.get(CURRENT_STATUS));
@@ -392,21 +382,6 @@ public final class AdminApplicationController extends CiviFormController {
     if (maybeRedirectUri.isEmpty()) {
       return badRequest(String.format("The %s field is not present", REDIRECT_URI_KEY));
     }
-    // Verify the UI is changing from the actual current status to detect an out of date UI.
-    if (application.getLatestStatus().isPresent()) {
-      if (!application.getLatestStatus().get().equals(maybeCurrentStatus.get())) {
-        // Only allow relative URLs to ensure that we redirect to the same domain.
-        String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
-        return redirect(redirectUrl)
-            .flashing(
-                "error",
-                "The application state has changed since the page was loaded. Please reload and"
-                    + " try again.");
-      }
-    } else if (!maybeCurrentStatus.get().isBlank()) {
-      return badRequest(
-          String.format("The %s field should be empty as there is no status set", CURRENT_STATUS));
-    }
     // Save the new data.
     String newStatus = maybeNewStatus.get();
     final boolean sendEmail;
@@ -418,16 +393,21 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(
           String.format("%s value is invalid: %s", SEND_EMAIL, shouldSendEmail.get()));
     }
-
-    programAdminApplicationService.setStatus(
-        application,
-        ApplicationEventDetails.StatusEvent.builder()
-            .setStatusText(newStatus)
-            .setEmailSent(sendEmail)
-            .build(),
-        profileUtils.currentUserProfile(request).getAccount().join());
-    // Only allow relative URLs to ensure that we redirect to the same domain.
     String redirectUrl = UrlUtils.checkIsRelativeUrl(maybeRedirectUri.orElse(""));
+    try {
+      programAdminApplicationService.setStatus(
+          applicationId,
+          program,
+          maybeCurrentStatus,
+          ApplicationEventDetails.StatusEvent.builder()
+              .setStatusText(newStatus)
+              .setEmailSent(sendEmail)
+              .build(),
+          profileUtils.currentUserProfile(request).getAccount().join());
+    } catch (ApplicationAlreadyInStatusException e) {
+      return redirect(redirectUrl).flashing("error", e.getMessage());
+    }
+    // Only allow relative URLs to ensure that we redirect to the same domain.
     return redirect(redirectUrl).flashing(FlashKey.SUCCESS, "Application status updated");
   }
 
@@ -601,7 +581,7 @@ public final class AdminApplicationController extends CiviFormController {
         form.get().getApplicationsIds().stream().collect(ImmutableList.toImmutableList());
 
     boolean sendEmail = form.get().getShouldSendEmail();
-    programAdminApplicationService.setStatus(
+    programAdminApplicationService.setStatuses(
         applicationIdList,
         program,
         ApplicationEventDetails.StatusEvent.builder()

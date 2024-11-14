@@ -127,6 +127,10 @@ it is around the label */
   @include u-height(3);
 }
 
+.section-bottom {
+  @include u-margin-bottom(1);
+}
+
 .container {
   display: flex;
   justify-content: space-between;
@@ -134,6 +138,10 @@ it is around the label */
 
 .text-medium-spacing {
   @include u-height(1);
+}
+
+.text-medium-margin-top {
+  @include u-margin-top(1);
 }
 
 .zero-margin {
@@ -195,6 +203,10 @@ it is around the label */
   text-align: right;
   text-overflow: ellipsis;
   word-break: break-word;
+}
+
+.summary-download-file-link {
+  text-decoration-line: underline;
 }
 
 .summary-button-section {
@@ -354,4 +366,22 @@ main {
 
 .auto-width {
   width: auto;
+}
+
+.ti-banner-internal {
+  display: inline;
+}
+
+.cf-program-card-tag {
+  @include u-padding-x(1);
+  @include u-padding-y(0.5);
+  @include u-radius('sm');
+}
+
+.tag-in-progress {
+  @include u-bg('warning-lighter');
+}
+
+.tag-submitted {
+  background: var(--State-tokens-info-info-light, #99deea);
 }

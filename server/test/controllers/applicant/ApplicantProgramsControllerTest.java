@@ -433,6 +433,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
                 .url());
   }
 
+  @Test
+  public void hxFilter_isOk() {
+    Result result =
+        controller.hxFilter(fakeRequest(), ImmutableList.of()).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
   // TODO(https://github.com/seattle-uat/universal-application-tool/issues/256): Should redirect to
   //  end of program submission.
   @Ignore

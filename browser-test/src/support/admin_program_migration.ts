@@ -67,6 +67,7 @@ export class AdminProgramMigration {
   }
 
   async submitProgramJson(content: string) {
+    await waitForPageJsLoad(this.page)
     await this.page.getByRole('textbox').fill(content)
     await this.clickButton('Preview program')
   }
@@ -75,6 +76,7 @@ export class AdminProgramMigration {
     const alert = this.page.getByRole('alert').filter({hasText: alertText})
     await expect(alert).toBeVisible()
     await expect(alert).toHaveClass(new RegExp(alertType))
+    return alert
   }
 
   async expectProgramImported(programName: string) {

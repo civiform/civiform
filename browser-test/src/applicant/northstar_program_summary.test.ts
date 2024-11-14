@@ -1,14 +1,17 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
+  validateToastMessage,
 } from '../support'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+  const programName = 'Test program for summary page'
+
   test.describe('navigation with five blocks', () => {
-    const programName = 'Test program for summary page'
     const programDescription = 'Test description'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
@@ -126,6 +129,93 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
         await validateAccessibility(page)
       })
+    })
+
+    test('shows error toast with incomplete submission', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Clicking "Apply" navigates to the first block edit page
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      // Go to the review page
+      await applicantQuestions.clickBack()
+
+      // The UI correctly won't let us submit because the application isn't complete.
+      // To fake submitting an incomplete application add a submit button and click it.
+      // Note the form already triggers for the submit action.
+      // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
+      await page.evaluate(() => {
+        const buttonEl = document.createElement('button')
+        buttonEl.id = 'test-form-submit'
+        buttonEl.type = 'submit'
+        const formEl = document.querySelector('.cf-debounced-form')!
+        formEl.appendChild(buttonEl)
+      })
+      const submitButton = page.locator('#test-form-submit')
+      await submitButton.click()
+
+      await validateToastMessage(
+        page,
+        "Error: There's been an update to the application",
+      )
+    })
+  })
+
+  test('Click to download file', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    const programName = 'Test program for single file upload'
+    const fileUploadQuestionText = 'Required file upload question'
+    const fileName = 'foo.txt'
+    const fileContent = 'some sample text'
+
+    // TODO(#8143): File uploads in North Star tests are blocked by CSP errors. After those
+    // errors are fixed, this entire test can run with north_star_applicant_ui enabled
+    await disableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('As admin, set up program', async () => {
+      await loginAsAdmin(page)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload-test-q',
+        questionText: fileUploadQuestionText,
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName,
+      )
+
+      await logout(page)
+    })
+
+    await test.step('Upload file', async () => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+      await applicantQuestions.clickNext()
+    })
+
+    await test.step('Download file in North Star', async () => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await expect(page.getByText(fileName)).toBeVisible()
+
+      const downloadedFileContent =
+        await applicantQuestions.downloadSingleQuestionFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      expect(downloadedFileContent).toEqual(fileContent)
     })
   })
 })

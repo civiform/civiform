@@ -57,6 +57,8 @@
       <button
         th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
         id="enumerator-field-add-button"
+        th:attr="data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
+                data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : ''}"
         type="button"
         class="usa-button usa-button--outline margin-top-105"
       ></button>
@@ -86,6 +88,7 @@
       th:value="${existingEntity}"
       th:name="${path}"
       th:disabled="${hidden}"
+      th:attr="data-entity-input=${!hidden ? 'true' : null}"
     />
     <!--/* TODO(#7166): Load the errors for the field properly. For now this is a placeholder div so TS won't error */-->
     <div th:id="${inputId + '-errors'}"></div>

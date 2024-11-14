@@ -4,7 +4,7 @@
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
-  <dialog
+  <div
     class="usa-modal cf-ns-modal"
     id="debug-content-modal"
     aria-labelledby="debug-content-modal-heading"
@@ -61,7 +61,7 @@
         ></svg>
       </button>
     </div>
-  </dialog>
+  </div>
 </div>
 
 <div
@@ -107,9 +107,9 @@
   ></div>
 </div>
 
-<dialog
+<div
   th:fragment="loginPromptModal(dialogId, bypassUrl, loginLink, descriptionText, bypassButtonText, onlyShowOnceGroup, showOnLoad)"
-  class="usa-modal cf-ns-modal"
+  class="usa-modal cf-modal cf-ns-modal"
   th:id="${dialogId}"
   th:aria-labelledby="${dialogId + '-heading'}"
   th:aria-describedby="${dialogId + '-description'}"
@@ -164,11 +164,11 @@
       ></svg>
     </button>
   </div>
-</dialog>
+</div>
 
 <div th:fragment="blockValidation">
-  <dialog
-    class="usa-modal"
+  <div
+    class="usa-modal cf-modal"
     id="validation-modal"
     aria-labelledby="validation-modal-heading"
     aria-describedby="validation-modal-heading"
@@ -209,7 +209,7 @@
         ></svg>
       </button>
     </div>
-  </dialog>
+  </div>
   <!--/* Create an invisible button that we will use to trigger this modal on load */-->
   <a
     id="invisible-validation-modal-button"
@@ -224,8 +224,8 @@
 
 <!-- TODO(#8707): Modal sometimes flashes in incorrect position -->
 <div th:fragment="preventDuplicateSubmission (programTitle, exitHref)">
-  <dialog
-    class="usa-modal is-hidden"
+  <div
+    class="usa-modal cf-modal is-hidden"
     id="duplicate-submission-modal"
     aria-labelledby="duplicate-submission-modal-heading"
     aria-describedby="duplicate-submission-modal-heading"
@@ -275,7 +275,7 @@
         ></svg>
       </button>
     </div>
-  </dialog>
+  </div>
   <!--/* Create an invisible button that we will use to trigger this modal on load */-->
   <a
     id="invisible-duplicate-submission-modal-button"

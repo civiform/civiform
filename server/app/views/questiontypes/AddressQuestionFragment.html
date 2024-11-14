@@ -2,6 +2,7 @@
   th:fragment="address (question, questionRendererParams, stateAbbreviations)"
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
+  class="cf-question-address"
   data-testid="questionRoot"
   data-load-question="true"
 >

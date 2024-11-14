@@ -1,9 +1,12 @@
 package support;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import controllers.dev.seeding.CategoryTranslationFileParser;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,11 +14,14 @@ import models.AccountModel;
 import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.CategoryModel;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.TrustedIntermediaryGroupModel;
+import play.Environment;
+import play.Mode;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
@@ -180,6 +186,30 @@ public class ResourceCreator {
         new TrustedIntermediaryGroupModel(groupName, "A TI group for all your TI needs!");
     tiGroup.save();
     return tiGroup;
+  }
+
+  public CategoryModel insertCategory(ImmutableMap<Locale, String> translations) {
+    CategoryModel category = new CategoryModel(translations);
+    category.save();
+    return category;
+  }
+
+  public ImmutableList<CategoryModel> insertCategoriesFromParser() {
+    CategoryTranslationFileParser parser =
+        new CategoryTranslationFileParser(new Environment(Mode.PROD));
+    List<CategoryModel> parsedCategories = parser.createCategoryModelList();
+    ImmutableList.Builder<CategoryModel> savedCategoriesBuilder =
+        ImmutableList.<CategoryModel>builder();
+
+    parsedCategories.forEach(
+        parsedCategory -> {
+          parsedCategory.id = null;
+          database.save(parsedCategory);
+          parsedCategory.refresh();
+          savedCategoriesBuilder.add(parsedCategory);
+        });
+
+    return savedCategoriesBuilder.build();
   }
 
   public ApplicantModel insertApplicantWithAccount() {
