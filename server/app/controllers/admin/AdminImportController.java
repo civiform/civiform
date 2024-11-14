@@ -14,8 +14,10 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
+import parsers.ProgramMigrationParser;
 import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationStatusesRepository;
@@ -103,6 +105,7 @@ public class AdminImportController extends CiviFormController {
 
   /** HTMX Partial that parses and renders the program data included in the request. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @BodyParser.Of(ProgramMigrationParser.class)
   public Result hxImportProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
