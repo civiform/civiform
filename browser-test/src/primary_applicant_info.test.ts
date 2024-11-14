@@ -6,6 +6,7 @@ import {
   logout,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
 } from './support'
 import {
   PrimaryApplicantInfoAlertType,
@@ -234,6 +235,8 @@ test.describe('primary applicant info questions', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
+
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // For now, we use the preseeded question since we still fall back
     // to reading the well known path in getApplicantName when there is

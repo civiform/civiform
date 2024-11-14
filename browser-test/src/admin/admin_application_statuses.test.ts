@@ -13,6 +13,7 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -25,6 +26,9 @@ test.describe('view program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
     test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
+
+      //enable bulk status feature flag
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithoutStatusesName)

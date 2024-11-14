@@ -1003,13 +1003,13 @@ export class AdminPrograms {
   }
 
   async expectApplicationCount(expectedCount: number) {
-    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
+    await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
       expectedCount,
     )
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
-    return `.cf-admin-application-card:has-text("${applicantName}")`
+    return `.cf-admin-application-row:has-text("${applicantName}")`
   }
 
   selectWithinApplicationForApplicant(applicantName: string, selector: string) {
@@ -1080,15 +1080,20 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await Promise.all([
-      this.waitForApplicationFrame(),
-      this.page.click(
-        this.selectWithinApplicationForApplicant(
-          applicantName,
-          'a:text("View")',
-        ),
-      ),
-    ])
+    await this.page.getByRole('link', {name: applicantName}).click()
+    await waitForPageJsLoad(this.page)
+    await this.waitForApplicationFrame()
+
+
+    // await Promise.all([
+    //   this.waitForApplicationFrame(),
+    //   this.page.click(
+    //     this.selectWithinApplicationForApplicant(
+    //       applicantName,
+    //       `a:text("${applicantName}")`,
+    //     ),
+    //   ),
+    // ])
   }
 
   private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'

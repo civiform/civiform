@@ -494,7 +494,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             ? "Meets eligibility"
             : "Doesn't meet eligibility";
 
-    return tr().withClasses("has:checked:text-red-500")
+    return tr().withClasses("has:checked:text-red-500", ReferenceClasses.ADMIN_APPLICATION_ROW)
         .condWith(
             displayStatus,
             td(
@@ -520,7 +520,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
-        .opensInNewTab()
         .setStyles(
             "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
         .asAnchorText();
