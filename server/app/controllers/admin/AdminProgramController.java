@@ -119,7 +119,7 @@ public final class AdminProgramController extends CiviFormController {
         programService.validateProgramDataForCreate(
             programData.getAdminName(),
             programData.getLocalizedDisplayName(),
-            programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
@@ -147,6 +147,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
@@ -253,7 +254,7 @@ public final class AdminProgramController extends CiviFormController {
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
             programData.getLocalizedDisplayName(),
-            programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
             programData.getNotificationPreferences(),
@@ -287,6 +288,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getAdminDescription(),
         programData.getLocalizedDisplayName(),
         programData.getLocalizedDisplayDescription(),
+        programData.getLocalizedShortDescription(),
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),

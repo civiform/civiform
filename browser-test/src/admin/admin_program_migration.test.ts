@@ -208,7 +208,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // replace the program admin name with an invalid admin name to trigger an error
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program',
@@ -231,7 +230,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from the questionDefinition.validate
       // there are other errors that might bubble up (such as a blank question text) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // set the program admin name back to a valid admin name
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program ##4L!',
@@ -272,6 +270,7 @@ test.describe('program migration', () => {
       await adminPrograms.addProgram(
         'New Program',
         'program description',
+        'short program description',
         'https://usa.gov',
         ProgramVisibility.SELECT_TI,
         'admin description',

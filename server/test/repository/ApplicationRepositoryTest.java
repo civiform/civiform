@@ -421,6 +421,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             "desc",
             name,
             "desc",
+            "short desc",
             "",
             "",
             DisplayMode.PUBLIC.getValue(),

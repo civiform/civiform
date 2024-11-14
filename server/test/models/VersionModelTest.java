@@ -32,6 +32,7 @@ public class VersionModelTest extends ResetPostgres {
             "adminDescription",
             "displayName",
             "displayDescription",
+            "shortDescription",
             "confirmationMessage",
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
