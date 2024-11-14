@@ -29,7 +29,9 @@ jobs:
     steps:
       - id: build-matrix
         env:
-          # Need to access the branch name differently between 
+          # To get the branch name that we want we have to consider the event type. A PR will
+          # use the head_ref whereas a push event (i.e. pushing an approve pr to main) needs
+          # to look at the ref_name.          
           BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
         run: |
           # Temporarily ignore errors so we can check grep for matches
