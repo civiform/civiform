@@ -13,104 +13,100 @@ export class ApplicantProgramList {
   }
 
   /**
-   * Get the card group locator for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
-   * @returns {Locator} Locator to the card group
+   * Get the card section locator for the desired application status card section name
+   * @param {CardSectionName} cardSectionName to find
+   * @returns {Locator} Locator to the card section
    */
-  getCardGroupLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.page.getByRole('region', {name: applicationStatusCardGroupName})
+  getCardSectionLocator(cardSectionName: CardSectionName): Locator {
+    return this.page.getByRole('region', {name: cardSectionName})
   }
 
   /**
-   * Get the locator for program card heading in the desired group
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * Get the locator for program card heading in the desired section
+   * @param {CardSectionName} cardSectionName to find
    * @param {String} programName to find
-   * @returns {Locator} Locator for program card in the desired group
+   * @returns {Locator} Locator for program card in the desired section
    */
   getCardLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardSectionName: CardSectionName,
     programName: string,
   ): Locator {
-    return this.getCardGroupLocator(applicationStatusCardGroupName).getByRole(
-      'listitem',
-      {name: programName},
-    )
+    return this.getCardSectionLocator(cardSectionName).getByRole('listitem', {
+      name: programName,
+    })
   }
 
   /**
-   * Get the locator for program card heading in the desired group
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * Get the locator for program card heading in the desired section
+   * @param {CardSectionName} cardSectionName to find
    * @param {String} programName to find
-   * @returns {Locator} Locator for program card in the desired group
+   * @returns {Locator} Locator for program card in the desired section
    */
   getCardHeadingLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardSectionName: CardSectionName,
     programName: string,
   ): Locator {
-    return this.getCardGroupLocator(applicationStatusCardGroupName).getByRole(
-      'heading',
-      {name: programName},
-    )
+    return this.getCardSectionLocator(cardSectionName).getByRole('heading', {
+      name: programName,
+    })
   }
 
   /**
-   * Clicks the apply button for the specified program within the specified card group
+   * Clicks the apply button for the specified program within the specified card section
    *
    * @async
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param {CardSectionName} cardSectionName to find
    * @param {String} programName to apply to
    */
   async clickApplyButton(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardSectionName: CardSectionName,
     programName: string,
   ): Promise<void> {
-    await this.getCardLocator(applicationStatusCardGroupName, programName)
+    await this.getCardLocator(cardSectionName, programName)
       .getByRole('link', {
-        name: this.getCardGroupApplyButtonText(applicationStatusCardGroupName),
+        name: this.getCardSectionApplyButtonText(cardSectionName),
       })
       .click()
   }
 
   /**
    * @private
-   * Get the label text for the specific card group
+   * Get the label text for the specific card section
    *
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param {CardSectionName} cardSectionName to find
    * @returns {String} String of the context specific apply button label text
    */
-  private getCardGroupApplyButtonText(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): ApplicationStatusApplyButtonText {
-    return applicationStatusCardGroupName ==
-      ApplicationStatusCardGroupName.MyApplications
-      ? ApplicationStatusApplyButtonText.Edit
-      : ApplicationStatusApplyButtonText.ViewAndApply
+  private getCardSectionApplyButtonText(
+    cardSectionName: CardSectionName,
+  ): CardSectionApplyButtonText {
+    switch (cardSectionName) {
+      case CardSectionName.MyApplications:
+        return CardSectionApplyButtonText.Edit
+      case CardSectionName.ProgramsAndServices:
+        return CardSectionApplyButtonText.ViewAndApply
+      default:
+        throw new Error(`'${String(cardSectionName)}' is not supported.`)
+    }
   }
 
   /**
-   * Get the eligibility tag for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * Get the eligibility tag for the desired application status card section name
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator to the eligible tag
    */
-  getCardEligibleTagLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.getCardGroupLocator(applicationStatusCardGroupName).locator(
+  getCardEligibleTagLocator(cardSectionName: CardSectionName): Locator {
+    return this.getCardSectionLocator(cardSectionName).locator(
       '.cf-eligible-tag',
     )
   }
 
   /**
-   * Get the not eligibility tag for the desired application status card group name
-   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * Get the not eligibility tag for the desired application status card section name
+   * @param {CardSectionName} cardSectionName to find
    * @returns {Locator} Locator to the not eligible tag
    */
-  getCardNotEligibleTagLocator(
-    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
-  ): Locator {
-    return this.getCardGroupLocator(applicationStatusCardGroupName).locator(
+  getCardNotEligibleTagLocator(cardSectionName: CardSectionName): Locator {
+    return this.getCardSectionLocator(cardSectionName).locator(
       '.cf-not-eligible-tag',
     )
   }
@@ -119,10 +115,10 @@ export class ApplicantProgramList {
 /**
  * @readonly
  * @enum {string}
- * List of heading names used for different groups of application cards used in this test
+ * List of heading names used for different groups of cards used in this test
  * suite. This is used in relation to what the user sees on the `/programs` page
  */
-export enum ApplicationStatusCardGroupName {
+export enum CardSectionName {
   MyApplications = 'My applications',
   ProgramsAndServices = 'Programs and services',
 }
@@ -131,9 +127,9 @@ export enum ApplicationStatusCardGroupName {
  * @private
  * @readonly
  * @enum {string}
- * List of button label text used within different groups of application cards.
+ * List of button label text used within different groups of cards.
  */
-enum ApplicationStatusApplyButtonText {
+enum CardSectionApplyButtonText {
   Edit = 'Edit',
   ViewAndApply = 'View and apply',
 }
