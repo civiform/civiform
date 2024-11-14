@@ -127,6 +127,14 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   ProgramCardsSectionParamsFactory.SectionType.STANDARD));
     }
 
+    // Used with hx-select to reload the Programs and services section and clear filters
+    String refreshUrl =
+        applicantId.isPresent() && profile.isPresent()
+            ? applicantRoutes.index(profile.get(), applicantId.get()).url()
+            : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
+                    ImmutableList.of())
+                .url();
+
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);
 
@@ -140,6 +148,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
+    context.setVariable("refreshUrl", refreshUrl);
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

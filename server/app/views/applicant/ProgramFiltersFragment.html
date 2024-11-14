@@ -1,0 +1,40 @@
+<th:block th:fragment="programFiltersFragment(categoryOptions)">
+  <form
+    th:if="${!categoryOptions.isEmpty()}"
+    id="ns-category-filter-form"
+    class="grid-container"
+    hx-get="/programs/hx/filter"
+    hx-target="#not-started-programs"
+    hx-swap="innerHTML show:top"
+  >
+    <fieldset class="grid-row grid-gap">
+      <legend th:text="#{label.programFilters}"></legend>
+      <th:block th:each="categoryOption : ${categoryOptions}">
+        <div>
+          <input
+            th:id="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+            type="checkbox"
+            name="categories"
+            th:value="${categoryOption}"
+          />
+          <label
+            th:for="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+            th:text="${categoryOption}"
+          ></label>
+        </div>
+      </th:block>
+      <button id="filter-submit" type="submit" class="usa-button">
+        Filter
+      </button>
+      <button
+        id="clear-filters"
+        th:attr="hx-get=${refreshUrl}"
+        hx-select="#programs-and-services"
+        hx-target="#not-started-programs"
+        class="usa-button"
+      >
+        Clear filters
+      </button>
+    </fieldset>
+  </form>
+</th:block>

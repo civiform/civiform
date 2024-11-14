@@ -260,6 +260,9 @@ public enum MessageKey {
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
   LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
+  LABEL_IN_PROGRESS("label.inProgress"), // North Star only
+  LABEL_SUBMITTED("label.submitted"), // North Star only
+  LABEL_SUBMITTED_ON("label.submittedOn"), // North Star only
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),

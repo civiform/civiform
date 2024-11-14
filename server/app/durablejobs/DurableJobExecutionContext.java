@@ -2,9 +2,9 @@ package durablejobs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import akka.actor.ActorSystem;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.pekko.actor.ActorSystem;
 import play.libs.concurrent.CustomExecutionContext;
 
 /** Thread pool for executing durable jobs. */
