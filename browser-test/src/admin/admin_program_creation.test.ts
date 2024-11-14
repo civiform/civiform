@@ -23,6 +23,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       programName,
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -52,6 +53,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'program name',
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.DISABLED,
       'admin description',
@@ -87,6 +89,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'program name',
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -122,6 +125,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       programName,
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -956,6 +960,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       commonIntakeFormProgramName,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1005,6 +1010,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'cif',
       'desc',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1024,6 +1030,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'cif',
       'desc',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1103,6 +1110,7 @@ test.describe('program creation', () => {
         await adminPrograms.addProgram(
           programName,
           'description',
+          'short program description',
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',

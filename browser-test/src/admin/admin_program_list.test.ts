@@ -157,6 +157,7 @@ test.describe('Program list page.', () => {
     await adminPrograms.addProgram(
       programTwo,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
