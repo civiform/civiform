@@ -32,7 +32,7 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   public void getBlobUrl() {
     String blobUrl = azureApplicantStorage.getClient().getBlobUrl(TEST_FILE_NAME);
 
-    assertThat(blobUrl).isEqualTo("http://www.blobUrl.com");
+    assertThat(blobUrl).isEqualTo("http://localhost");
   }
 
   @Test
@@ -54,7 +54,7 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   public void getPresignedUrl() {
     String url = azureApplicantStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.empty());
 
-    assertThat(url).isEqualTo("http://www.blobUrl.com?sasToken");
+    assertThat(url).isEqualTo("http://localhost?sasToken");
   }
 
   @Test
@@ -68,18 +68,18 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   public void getFileUploadRequest() {
     BlobStorageUploadRequest expectedRequest =
         BlobStorageUploadRequest.builder()
-            .setBlobUrl("http://www.blobUrl.com")
+            .setBlobUrl("http://localhost")
             .setAccountName("my awesome azure account name")
             .setFileName(TEST_FILE_NAME)
             .setContainerName("super cool blob container name")
             .setSasToken("sasToken")
-            .setSuccessActionRedirect("www.redirectlink.com")
+            .setSuccessActionRedirect("localhost")
             .setServiceName(StorageServiceName.AZURE_BLOB.getString())
             .build();
 
     BlobStorageUploadRequest blobStorageUploadRequest =
         azureApplicantStorage.getSignedUploadRequest(
-            TEST_FILE_NAME, /* successActionRedirectUrl= */ "www.redirectlink.com");
+            TEST_FILE_NAME, /* successActionRedirectUrl= */ "localhost");
 
     assertThat(blobStorageUploadRequest).isEqualTo(expectedRequest);
   }

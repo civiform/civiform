@@ -539,7 +539,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /** Azure blob storage container name to store files in. */
   public Optional<String> getAzureStorageAccountContainer() {
-    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER");
+    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME");
   }
 
   /** Azure blob storage container name to store public files in. */
@@ -1637,7 +1637,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
-                              "AZURE_STORAGE_ACCOUNT_CONTAINER",
+                              "AZURE_STORAGE_ACCOUNT_CONTAINER_NAME",
                               "Azure blob storage container name to store files in.",
                               /* isRequired= */ false,
                               SettingType.STRING,
