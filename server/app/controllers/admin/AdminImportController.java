@@ -13,6 +13,7 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
+import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -212,12 +213,13 @@ public class AdminImportController extends CiviFormController {
 
     // When we are importing without duplicate questions, we expect all drafts to be published
     // before the import process begins.
+    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
     if (!withDuplicates
-        && versionRepository.getDraftVersion().isPresent()
-        // In any other case we'd use the cache here, but because its a draft, nothing will be cached.
-        // If this ends up being slow, we can make a more efficient query.
-        && !versionRepository.getDraftVersion().get().getPrograms().isEmpty()
-        && !versionRepository.getDraftVersion().get().getQuestions().isEmpty()) {
+        && draftVersion.isPresent()
+        // If there are either questions or programs in the draft, we should show this error
+        && (versionRepository.getProgramCountForVersion(draftVersion.get())
+                + versionRepository.getQuestionCountForVersion(draftVersion.get())
+            > 0)) {
       return ok(
           adminImportViewPartial
               .renderError(

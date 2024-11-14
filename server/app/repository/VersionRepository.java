@@ -475,6 +475,34 @@ public final class VersionRepository {
         .findAny();
   }
 
+  /** Return the number of programs that exist in a given version. */
+  public Long getProgramCountForVersion(VersionModel version) {
+    String sql =
+        """
+        SELECT count(1) FROM versions_programs WHERE versions_programs.versions_id = :versionId
+        """;
+    return database
+        .sqlQuery(sql)
+        .setParameter("versionId", version.id)
+        .mapToScalar(Long.class)
+        .findOneOrEmpty()
+        .orElse(0L);
+  }
+
+  /** Return the number of questions that exist in a given version. */
+  public Long getQuestionCountForVersion(VersionModel version) {
+    String sql =
+        """
+        SELECT count(1) FROM versions_questions WHERE versions_questions.versions_id = :versionId
+        """;
+    return database
+        .sqlQuery(sql)
+        .setParameter("versionId", version.id)
+        .mapToScalar(Long.class)
+        .findOneOrEmpty()
+        .orElse(0L);
+  }
+
   /**
    * Returns the questions for a version.
    *

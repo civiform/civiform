@@ -337,12 +337,38 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxImportProgram_noDuplicatesEnabled_draftsExist_error() {
+  public void hxImportProgram_noDuplicatesEnabled_draftProgramExists_error() {
     when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
     when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
 
     // Create a draft program, so that there are unpublished programs
     ProgramBuilder.newDraftProgram("draft-program").build();
+
+    // save a program
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    // see the error
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("There are draft programs and questions in our system.");
+    assertThat(contentAsString(result)).contains("Please publish all drafts and try again.");
+  }
+
+  @Test
+  public void hxImportProgram_noDuplicatesEnabled_draftQuestionExists_error() {
+    when(mockSettingsManifest.getProgramMigrationEnabled(any())).thenReturn(true);
+    when(mockSettingsManifest.getNoDuplicateQuestionsForMigrationEnabled(any())).thenReturn(true);
+
+    // Create a draft question, so there is an unpublished question
+    versionRepository
+        .getDraftVersionOrCreate()
+        .addQuestion(resourceCreator.insertQuestion("draft-question"))
+        .save();
 
     // save a program
     Result result =
