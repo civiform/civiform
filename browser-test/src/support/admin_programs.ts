@@ -1082,47 +1082,35 @@ export class AdminPrograms {
   async viewApplicationForApplicant(applicantName: string) {
     await this.page.getByRole('link', {name: applicantName}).click()
     await waitForPageJsLoad(this.page)
-    await this.waitForApplicationFrame()
-
-
-    // await Promise.all([
-    //   this.waitForApplicationFrame(),
-    //   this.page.click(
-    //     this.selectWithinApplicationForApplicant(
-    //       applicantName,
-    //       `a:text("${applicantName}")`,
-    //     ),
-    //   ),
-    // ])
   }
 
-  private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
+  // private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
 
-  applicationFrame(): Frame {
-    return this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!
-  }
+  // applicationFrame(): Frame {
+  //   return this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!
+  // }
 
-  applicationFrameLocator() {
-    return this.page.frameLocator(
-      `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
-    )
-  }
+  // applicationFrameLocator() {
+  //   return this.page.frameLocator(
+  //     `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
+  //   )
+  // }
 
-  async waitForApplicationFrame() {
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    await frame.waitForNavigation()
-    await waitForPageJsLoad(frame)
-  }
+  // async waitForApplicationFrame() {
+  //   const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+  //   if (!frame) {
+  //     throw new Error('Expected an application frame')
+  //   }
+  //   await frame.waitForNavigation()
+  //   await waitForPageJsLoad(frame)
+  // }
 
   async expectApplicationAnswers(
     blockName: string,
     questionName: string,
     answer: string,
   ) {
-    const blockText = await this.applicationFrameLocator()
+    const blockText = await this.page
       .locator(this.selectApplicationBlock(blockName))
       .innerText()
 
@@ -1132,25 +1120,25 @@ export class AdminPrograms {
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(
-      await this.applicationFrameLocator()
+      await this.page
         .locator(this.selectApplicationBlock(blockName))
         .innerText(),
     ).toContain(questionName)
     expect(
-      await this.applicationFrameLocator()
+      await this.page
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrameLocator()
+    return this.page
       .locator(this.statusSelector())
       .isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrameLocator()
+    return this.page
       .locator(this.statusSelector())
       .inputValue()
   }
@@ -1161,16 +1149,13 @@ export class AdminPrograms {
   async setStatusOptionAndAwaitModal(
     status: string,
   ): Promise<ElementHandle<HTMLElement>> {
-    await this.applicationFrameLocator()
+    const text = await this.page.textContent('html')
+
+    await console.log(text)
+    await this.page
       .locator(this.statusSelector())
       .selectOption(status)
-
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-
-    return waitForAnyModal(frame)
+    return waitForAnyModal(this.page)
   }
 
   /**
@@ -1181,8 +1166,11 @@ export class AdminPrograms {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
     const confirmButton = (await modal.$('text=Confirm'))!
-    await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
+    await Promise.all([
+      this.page.waitForNavigation(), 
+      confirmButton.click()])
     await waitForPageJsLoad(this.page)
+    await this.page.getByRole('link', {name: 'Back'}).click()
   }
 
   async expectUpdateStatusToast() {
@@ -1195,7 +1183,7 @@ export class AdminPrograms {
   }
 
   async isEditNoteVisible(): Promise<boolean> {
-    return this.applicationFrameLocator()
+    return this.page
       .locator(this.editNoteSelector())
       .isVisible()
   }
@@ -1204,15 +1192,15 @@ export class AdminPrograms {
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.applicationFrameLocator()
+    await this.page
       .locator(this.editNoteSelector())
       .click()
 
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    const editModal = await waitForAnyModal(frame)
+    // const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    // if (!frame) {
+    //   throw new Error('Expected an application frame')
+    // }
+    const editModal = await waitForAnyModal(this.page)
     const noteContentArea = (await editModal.$('textarea'))!
     return noteContentArea.inputValue()
   }
@@ -1221,15 +1209,15 @@ export class AdminPrograms {
    * Clicks the edit note button, and returns the modal.
    */
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.applicationFrameLocator()
+    await this.page
       .locator(this.editNoteSelector())
       .click()
 
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    return await waitForAnyModal(frame)
+    // const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
+    // if (!frame) {
+    //   throw new Error('Expected an application frame')
+    // }
+    return await waitForAnyModal(this.page)
   }
 
   /**
