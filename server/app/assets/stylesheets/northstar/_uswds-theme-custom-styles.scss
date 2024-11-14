@@ -131,6 +131,10 @@ it is around the label */
   @include u-margin-bottom(1);
 }
 
+.padding-section-large {
+  @include u-padding(4);
+}
+
 .container {
   display: flex;
   justify-content: space-between;

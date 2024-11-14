@@ -193,9 +193,13 @@ content.findPrograms=Find programs
 content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Save time applying for programs and services
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Program filters
 # Link text to read more about a program.
