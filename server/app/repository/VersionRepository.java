@@ -483,6 +483,7 @@ public final class VersionRepository {
         """;
     return database
         .sqlQuery(sql)
+        .setLabel("VersionModel.getProgramCount")
         .setParameter("versionId", version.id)
         .mapToScalar(Long.class)
         .findOneOrEmpty()
@@ -497,6 +498,7 @@ public final class VersionRepository {
         """;
     return database
         .sqlQuery(sql)
+        .setLabel("VersionModel.getQuestionCount")
         .setParameter("versionId", version.id)
         .mapToScalar(Long.class)
         .findOneOrEmpty()
