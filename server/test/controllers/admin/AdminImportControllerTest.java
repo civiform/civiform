@@ -453,7 +453,7 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains("Importing this program will add 1 duplicate question to the question bank.");
     // question has the new admin name
-    assertThat(contentAsString(result)).contains("Name-1");
+    assertThat(contentAsString(result)).contains("Name -_- a");
     // other information in the question is unchanged
     assertThat(contentAsString(result)).contains("Please enter your first and last name");
   }
