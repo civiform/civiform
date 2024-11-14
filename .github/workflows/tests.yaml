@@ -57,6 +57,8 @@ jobs:
       - name: Run tests
         run: bin/run-ts-tests
 
+  # Dynamically builds the matrix for the next job. Defaults to only aws. If the
+  # branch name contains azure we'll run against both aws and azure.
   setup-browser-test-matrix:
     runs-on: ubuntu-latest
 
@@ -66,6 +68,9 @@ jobs:
     steps:
       - id: build-matrix
         env:
+          # To get the branch name that we want we have to consider the event type. A PR will
+          # use the head_ref whereas a push event (i.e. pushing an approve pr to main) needs
+          # to look at the ref_name.
           BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
         run: |
           # Temporarily ignore errors so we can check grep for matches
@@ -86,7 +91,6 @@ jobs:
     needs: setup-browser-test-matrix
     strategy:
       fail-fast: false
-      # Default to only aws. If the branch name contains azure use aws and azure
       matrix: ${{ fromJson(needs.setup-browser-test-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
@@ -139,20 +143,26 @@ jobs:
           CI: true
         run: bin/run-browser-tests-ci --shard=${{ matrix.shard_number }}/${{strategy.job-total}}
 
+      # We'll treat aws as the source of truth for images snapshots. Attempts to run both will
+      # end up with two places trying to update the same images.
       - name: Verify no new image snapshots added
         if: ${{ matrix.cloud == 'aws' }}
         # jest-image-snapshots automatically adds snapshot if it's missing.
         # Use git diff to fail if we detect new images.
         run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
 
+      # Upload image diff files, these are the single image containing the before, after, and diff parts.
+      # We want this for aws and azure so we have access to what happened in failed tests.
       - name: Upload image diff outputs
-        if: ${{ matrix.cloud == 'aws' && failure() }}
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: image diff output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: browser-test/diff_output
 
+      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure 
+      # attempt to update the same images
       - name: Upload updated snapshots
         if: ${{ matrix.cloud == 'aws' && failure() }}
         uses: actions/upload-artifact@v4
@@ -161,6 +171,8 @@ jobs:
           retention-days: 3
           path: browser-test/updated_snapshots
 
+      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we 
+      # have access to what happened in failed tests.
       - name: Upload test videos on failure
         if: failure()
         uses: actions/upload-artifact@v4
