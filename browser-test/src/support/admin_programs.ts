@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Frame, Page} from 'playwright'
+import {ElementHandle, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -1117,15 +1117,11 @@ export class AdminPrograms {
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.page
-      .locator(this.statusSelector())
-      .isVisible()
+    return this.page.locator(this.statusSelector()).isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.page
-      .locator(this.statusSelector())
-      .inputValue()
+    return this.page.locator(this.statusSelector()).inputValue()
   }
 
   /**
@@ -1134,9 +1130,7 @@ export class AdminPrograms {
   async setStatusOptionAndAwaitModal(
     status: string,
   ): Promise<ElementHandle<HTMLElement>> {
-    await this.page
-      .locator(this.statusSelector())
-      .selectOption(status)
+    await this.page.locator(this.statusSelector()).selectOption(status)
 
     return waitForAnyModal(this.page)
   }
@@ -1148,8 +1142,8 @@ export class AdminPrograms {
   async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-    const confirmButton = (await modal.$('text=Confirm'))!
-    await confirmButton.click()
+    await (await modal.$('text=Confirm'))!.click()
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -1163,18 +1157,14 @@ export class AdminPrograms {
   }
 
   async isEditNoteVisible(): Promise<boolean> {
-    return this.page
-      .locator(this.editNoteSelector())
-      .isVisible()
+    return this.page.locator(this.editNoteSelector()).isVisible()
   }
 
   /**
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.page
-      .locator(this.editNoteSelector())
-      .click()
+    await this.page.locator(this.editNoteSelector()).click()
 
     const editModal = await waitForAnyModal(this.page)
     const noteContentArea = (await editModal.$('textarea'))!
@@ -1185,9 +1175,7 @@ export class AdminPrograms {
    * Clicks the edit note button, and returns the modal.
    */
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.page
-      .locator(this.editNoteSelector())
-      .click()
+    await this.page.locator(this.editNoteSelector()).click()
 
     return await waitForAnyModal(this.page)
   }
@@ -1240,9 +1228,7 @@ export class AdminPrograms {
   async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page
-        .locator('button:has-text("Export to PDF")')
-        .click(),
+      this.page.locator('button:has-text("Export to PDF")').click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {

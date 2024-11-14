@@ -27,7 +27,7 @@ test.describe('view program statuses', () => {
     test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
 
-      //enable bulk status feature flag
+      // enable bulk status feature flag
       await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
       // Add a program, no questions are needed.
@@ -150,14 +150,16 @@ test.describe('view program statuses', () => {
       })
 
       test('when rejecting, the selected status is not changed', async ({
+        page,
         adminPrograms,
       }) => {
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
-        await dismissModal(adminPrograms.applicationFrame())
+        await dismissModal(page)
         expect(await adminPrograms.getStatusOption()).toBe('Choose an option:')
       })
 
       test('when confirmed, the page is redirected with a success toast and preserves the selected application', async ({
+        page,
         adminPrograms,
       }) => {
         const modal =
@@ -170,14 +172,14 @@ test.describe('view program statuses', () => {
         await adminPrograms.expectUpdateStatusToast()
 
         // Confirm that the application is shown after reloading the page.
-        const applicationText = await adminPrograms
-          .applicationFrameLocator()
+        const applicationText = await page
           .locator('#application-view')
           .innerText()
         expect(applicationText).toContain('Guest')
       })
 
       test('when no email is configured for the status, a warning is shown', async ({
+        page,
         adminPrograms,
       }) => {
         const modal =
@@ -185,10 +187,11 @@ test.describe('view program statuses', () => {
         expect(await modal.innerText()).toContain(
           'will not receive an email because there is no email content set for this status. Connect with your CiviForm Admin to add an email to this status',
         )
-        await dismissModal(adminPrograms.applicationFrame())
+        await dismissModal(page)
       })
 
       test('when no email is configured for the applicant, a warning is shown', async ({
+        page,
         adminPrograms,
       }) => {
         const modal =
@@ -196,10 +199,11 @@ test.describe('view program statuses', () => {
         expect(await modal.innerText()).toContain(
           'will not receive an email for this change since they have not provided an email address.',
         )
-        await dismissModal(adminPrograms.applicationFrame())
+        await dismissModal(page)
       })
 
       test('when changing status, the previous status is shown', async ({
+        page,
         adminPrograms,
       }) => {
         await test.step('Set initial status', async () => {
@@ -214,7 +218,7 @@ test.describe('view program statuses', () => {
         expect(await modal.innerText()).toContain(
           `Status Change: ${noEmailStatusName} -> ${emailStatusName}`,
         )
-        await dismissModal(adminPrograms.applicationFrame())
+        await dismissModal(page)
       })
 
       test('when changing status, the updated application status is reflected in the application list', async ({
@@ -302,14 +306,14 @@ test.describe('view program statuses', () => {
     })
 
     test('allows editing a note and preserves the selected application', async ({
+      page,
       adminPrograms,
     }) => {
       await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
 
       // Confirm that the application is shown after reloading the page.
-      const applicationText = await adminPrograms
-        .applicationFrameLocator()
+      const applicationText = await page
         .locator('#application-view')
         .innerText()
       expect(applicationText).toContain('Guest')
@@ -629,6 +633,7 @@ test.describe('view program statuses', () => {
     })
 
     test('shows the application on reload after the status is updated to something no longer in the filter', async ({
+      page,
       adminPrograms,
     }) => {
       await test.step('explicitly set a status for the application', async () => {
@@ -651,8 +656,7 @@ test.describe('view program statuses', () => {
       // However, it should still be displayed in the viewer since admins may want to easily revert
       // the status update.
       await adminPrograms.expectApplicationCount(0)
-      const applicationText = await adminPrograms
-        .applicationFrameLocator()
+      const applicationText = await page
         .locator('#application-view')
         .innerText()
       expect(applicationText).toContain('Guest')

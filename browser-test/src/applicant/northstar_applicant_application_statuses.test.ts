@@ -18,9 +18,9 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
       await loginAsAdmin(page)
 
-      //enable bulk status feature flag
+      // enable bulk status feature flag
       await enableFeatureFlag(page, 'bulk_status_update_enabled')
-      
+
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
       await adminProgramStatuses.createStatus(approvedStatusName)
