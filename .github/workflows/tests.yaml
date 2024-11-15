@@ -57,11 +57,41 @@ jobs:
       - name: Run tests
         run: bin/run-ts-tests
 
-  run_browser_tests_aws:
+  # Dynamically builds the matrix for the next job. Defaults to only aws. If the
+  # branch name contains azure we'll run against both aws and azure.
+  setup-browser-test-matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+
+    steps:
+      - id: build-matrix
+        env:
+          # To get the branch name that we want we have to consider the event type. A PR will
+          # use the head_ref whereas a push event (i.e. pushing an approve pr to main) needs
+          # to look at the ref_name.
+          BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+        run: |
+          # Temporarily ignore errors so we can check grep for matches
+          set +e
+          echo "BranchName: ${{ env.BRANCH_NAME }}"
+          echo "${{ env.BRANCH_NAME }}" | grep --quiet --ignore-case "azure"
+          if [[ $? -eq 0 ]]; then
+              matrix='{"cloud": ["aws", "azure"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
+          else
+              matrix='{"cloud": ["aws"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
+          fi
+          # Re-enable error checking
+          set -e
+          echo "matrix=${matrix}"
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  run_browser_tests:
+    needs: setup-browser-test-matrix
     strategy:
       fail-fast: false
-      matrix:
-        shard_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      matrix: ${{ fromJson(needs.setup-browser-test-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
@@ -103,109 +133,56 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
 
-      - name: Bring up test env with Localstack
+      - name: Bring up test env with ${{ matrix.cloud }}
         env:
           CI: true
-        run: bin/run-browser-test-env --aws --ci
+        run: bin/run-browser-test-env --${{ matrix.cloud }} --ci
 
-      - name: Run browser tests with Localstack
+      - name: Run browser tests with ${{ matrix.cloud }}
         env:
           CI: true
         run: bin/run-browser-tests-ci --shard=${{ matrix.shard_number }}/${{strategy.job-total}}
 
+      # We'll treat aws as the source of truth for images snapshots. Attempts to run both will
+      # end up with two places trying to update the same images.
       - name: Verify no new image snapshots added
+        if: ${{ matrix.cloud == 'aws' }}
         # jest-image-snapshots automatically adds snapshot if it's missing.
         # Use git diff to fail if we detect new images.
         run: git add browser-test/image_snapshots ; git diff --compact-summary --exit-code HEAD
 
+      # Upload image diff files, these are the single image containing the before, after, and diff parts.
+      # We want this for aws and azure so we have access to what happened in failed tests.
       - name: Upload image diff outputs
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: image diff output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          name: image diff output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: browser-test/diff_output
-        if: failure()
 
+      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure 
+      # attempt to update the same images
       - name: Upload updated snapshots
+        if: ${{ matrix.cloud == 'aws' && failure() }}
         uses: actions/upload-artifact@v4
         with:
-          name: updated snapshots output directory (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          name: updated snapshots output directory (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: browser-test/updated_snapshots
-        if: failure()
 
+      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we 
+      # have access to what happened in failed tests.
       - name: Upload test videos on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: tests videos (aws) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          name: tests videos (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
           retention-days: 3
           path: |
             browser-test/tmp/html-output/
             browser-test/tmp/videos/
-        if: failure()
-        
-      - name: Print logs on failure
-        if: failure()
-        run: cat .dockerlogs
 
-  run_browser_tests_azure:
-    if: false
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: check out ${{ env.GITHUB_REF }}
-        uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build test app container
-        env:
-          DOCKER_BUILDKIT: 1
-        run: bin/build-dev
-      - name: Build browser testing container
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: bin/build-browser-tests
-      - name: Build dev-oidc
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: bin/build-dev-oidc
-      - name: Build localstack
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        run: bin/build-localstack-env
-      - name: Build mock-web-services
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: civiform
-        run: bin/build-mock-web-services
-      - name: Bring up test env with Azurite
-        env:
-          CI: true
-        run: bin/run-browser-test-env --azure --ci
-      - name: Run browser tests with Azurite
-        env:
-          CI: true
-        run: bin/run-browser-tests-azure
-      - name: Upload image diff outputs
-        uses: actions/upload-artifact@v4
-        with:
-          name: image diff output directory (azure) - run-${{ github.run_attempt }}
-          path: browser-test/diff_output
-        if: failure()
-      - name: Upload test videos on failure
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests videos (azure) - run-${{ github.run_attempt }}
-          path: browser-test/tmp
-        if: failure()
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -235,3 +212,4 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
+
