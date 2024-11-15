@@ -1358,7 +1358,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.numberApplicantJugglingNumber())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerNumberQuestion(testQuestionBank.numberApplicantJugglingNumber(), 42)
+        .answerNumberQuestion(testQuestionBank.numberApplicantJugglingNumber(), 4200)
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1375,7 +1375,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         ".number_of_items_applicant_can_juggle",
         """
         {
-          "number" : 42,
+          "number" : 4200,
           "question_type" : "NUMBER"
         }""");
   }
@@ -1576,7 +1576,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
-  public void export_whnRadioButtonQuestionIsRepeated_answersAreCorrectlyNested() {
+  public void export_whenRadioButtonQuestionIsRepeated_answersAreCorrectlyNested() {
     createFakeQuestions();
     var fakeProgram =
         FakeProgramBuilder.newActiveProgram()
@@ -1653,7 +1653,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.textApplicantFavoriteColor())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerTextQuestion(testQuestionBank.textApplicantFavoriteColor(), "circle 💖")
+        .answerTextQuestion(testQuestionBank.textApplicantFavoriteColor(), "red 💖")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
@@ -1671,7 +1671,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         """
         {
           "question_type" : "TEXT",
-          "text" : "circle 💖"
+          "text" : "red 💖"
         }""");
   }
 
