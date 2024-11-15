@@ -3,7 +3,7 @@
   th:if="${alertSettings.title.isPresent()}"
   th:class="${'usa-alert usa-alert--' + alertSettings.alertType.name().toLowerCase()}"
   aria-live="polite"
-  role="alert"
+  th:attr="role=${role != null ? role : 'alert'}"
 >
   <div class="usa-alert__body">
     <h2
