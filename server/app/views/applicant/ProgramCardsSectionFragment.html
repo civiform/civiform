@@ -133,6 +133,7 @@
         th:href="${card.actionUrl()}"
         class="usa-button usa-button--outline cf-apply-button"
         th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
       ></a>
     </div>
   </div>

@@ -125,6 +125,7 @@ public enum MessageKey {
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
+  BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
