@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Function;
 import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.DateConverter;
 import services.Path;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -29,6 +32,7 @@ import services.program.ProgramDefinition;
  * CSVPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
   private final String EMPTY_VALUE = "";
 
   private final ImmutableList<Column> columns;
@@ -62,7 +66,20 @@ public final class CsvExporter implements AutoCloseable {
     ImmutableMap<Path, ApplicantQuestion> questionMap =
         roApplicantProgramService
             .getAllQuestions()
-            .collect(ImmutableMap.toImmutableMap(aq -> aq.getContextualizedPath(), aq -> aq));
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    aq -> aq.getContextualizedPath(),
+                    Function.identity(),
+                    // TODO(#9212): There should never be duplicate entries because question paths
+                    // should be unique, but due to #9212 there sometimes are. They point at the
+                    // same location in the applicant data so it doesn't matter which one we keep.
+                    (existing, replacement) -> {
+                      LOGGER.warn(
+                          "Duplicate questions with path '{}', which may be resulting in data"
+                              + " loss.",
+                          existing.getContextualizedPath());
+                      return replacement;
+                    }));
 
     for (Column column : columns) {
       switch (column.columnType()) {
