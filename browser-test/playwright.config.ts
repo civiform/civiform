@@ -8,7 +8,7 @@ export default defineConfig({
   // this a little bit again to find a middle ground. We could eventually
   // make the timeout an environment variable so we can have a longer
   // timeout for staging.
-  timeout: 80000, // 80s
+  timeout: 90000, // 90s
   testDir: './src',
   // Exit with error immediately if test.only() or test.describe.only()
   // was committed
