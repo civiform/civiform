@@ -42,7 +42,8 @@ class AzureBlobStorageClientForDev extends BaseAzureBlobStorageClient {
         new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
     String baseUrl = checkNotNull(config).getString("base_url");
     super.setCorsRules(blobServiceClient, baseUrl);
-    this.blobContainerClient = blobServiceClient.getBlobContainerClient(checkNotNull(containerName));
+    this.blobContainerClient =
+        blobServiceClient.getBlobContainerClient(checkNotNull(containerName));
     if (!blobContainerClient.exists()) {
       blobContainerClient.create();
     }
