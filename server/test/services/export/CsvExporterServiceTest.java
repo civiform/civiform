@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionTag;
 import org.apache.commons.csv.CSVFormat;
@@ -38,6 +39,8 @@ import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.TextQuestionDefinition;
 
 public class CsvExporterServiceTest extends AbstractExporterTest {
 
@@ -698,6 +701,47 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(record.get("Submitter Type")).isEqualTo("APPLICANT");
     assertThat(record.get("TI Email (Opaque)")).isEmpty();
     assertThat(record.get("TI Organization")).isEmpty();
+  }
+
+  // TODO(#9212): There should never be duplicate entries because question paths should be unique,
+  // but due to #9212 there sometimes are. They point at the same location in the applicant data so
+  // it doesn't matter which one we keep. Remove this test after this is fixed.
+  @Test
+  public void getProgramAllVersionsCsv_exportDoesNotFailWithDuplicateQuestion() throws Exception {
+    var questionOne =
+        testQuestionBank.maybeSave(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("dupe question 1")
+                    .setDescription("")
+                    .setQuestionText(LocalizedStrings.of())
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build()),
+            LifecycleStage.ACTIVE);
+    var questionTwo =
+        testQuestionBank.maybeSave(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("dupe question 2")
+                    .setDescription("")
+                    .setQuestionText(LocalizedStrings.of())
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build()),
+            LifecycleStage.ACTIVE);
+
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(questionOne)
+            .withQuestion(questionTwo)
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerTextQuestion(questionOne, "answer one")
+        .answerTextQuestion(questionTwo, "answer two")
+        .submit();
+
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
+
+    assertThat(record.get("dupe question  (text)")).isEqualTo("answer two");
   }
 
   @Test

@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicantModel;
+import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -33,6 +34,8 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.TextQuestionDefinition;
 
 public class JsonExporterServiceTest extends AbstractExporterTest {
 
@@ -177,6 +180,61 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // results are in reverse order from submission
     resultAsserter.assertNullValueAtPath(0, "status");
     resultAsserter.assertValueAtPath(1, "status", "approved");
+  }
+
+  // TODO(#9212): There should never be duplicate entries because question paths should be unique,
+  // but due to #9212 there sometimes are. They point at the same location in the applicant data so
+  // it doesn't matter which one we keep. Remove this test after this is fixed.
+  @Test
+  public void export_exportDoesNotFailWithDuplicateQuestion() throws Exception {
+    var questionOne =
+        testQuestionBank.maybeSave(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("dupe question 1")
+                    .setDescription("")
+                    .setQuestionText(LocalizedStrings.of())
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build()),
+            LifecycleStage.ACTIVE);
+    var questionTwo =
+        testQuestionBank.maybeSave(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("dupe question 2")
+                    .setDescription("")
+                    .setQuestionText(LocalizedStrings.of())
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build()),
+            LifecycleStage.ACTIVE);
+
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram()
+            .withQuestion(questionOne)
+            .withQuestion(questionTwo)
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerTextQuestion(questionOne, "answer one")
+        .answerTextQuestion(questionTwo, "answer two")
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            false);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".dupe_question_",
+        """
+        {
+          "question_type" : "TEXT",
+          "text" : "answer two"
+        }""");
   }
 
   @Test
