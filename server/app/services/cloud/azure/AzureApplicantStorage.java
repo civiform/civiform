@@ -44,7 +44,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
     if (environment.isDev()) {
       client =
-          new LocalAzureBlobStorageClient(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
+          new DevAzureBlobStorageClient(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
     } else if (environment.isTest()) {
       client = new TestAzureBlobStorageClient();
     } else {
