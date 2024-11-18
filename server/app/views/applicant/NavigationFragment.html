@@ -150,7 +150,13 @@
   </svg>
 </span>
 
-<section th:fragment="guestSessionAlert" th:if="${isGuest and hasProfile}">
+<section
+  th:fragment="guestSessionAlert"
+  th:if="${isGuest and hasProfile}"
+  role="alert"
+  aria-live="polite"
+  aria-label="Guest session informational alert"
+>
   <div
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
   >
