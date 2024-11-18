@@ -33,8 +33,8 @@ import views.style.BaseStyles;
 public class AdminImportView extends BaseHtmlView {
   /**
    * Play Framework defaults to 100KB memory limit per request which is too small for many programs.
-   * We set this to 512KB in {@link parsers.ProgramMigrationParser} to allow large programs to be
-   * imported. More info:
+   * We use a custom body parser {@link parsers.LargeFormUrlEncodedBodyParser} to allow large
+   * programs to be imported. More info:
    * https://www.playframework.com/documentation/2.9.x/JavaBodyParsers#Content-length-limits
    *
    * <p>Pasting in a json string above this limit will automatically truncate the string which

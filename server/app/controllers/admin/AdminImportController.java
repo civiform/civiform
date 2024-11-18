@@ -14,7 +14,7 @@ import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
-import parsers.ProgramMigrationParser;
+import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.BodyParser;
@@ -103,9 +103,13 @@ public class AdminImportController extends CiviFormController {
     return ok(adminImportView.render(request));
   }
 
-  /** HTMX Partial that parses and renders the program data included in the request. */
+  /**
+   * HTMX Partial that parses and renders the program data included in the request. This uses {@link
+   * parsers.LargeFormUrlEncodedBodyParser} to increase the request limit to 1 MiB. Program json is
+   * often quite large so we need to increase the buffer limit above the Play default.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  @BodyParser.Of(ProgramMigrationParser.class)
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxImportProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
