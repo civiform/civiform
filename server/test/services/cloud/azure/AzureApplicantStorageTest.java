@@ -22,7 +22,7 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   public void getClient_instanceOfAzureBlobStorageClientForTest() {
     AzureBlobStorageClientInterface client = azureApplicantStorage.getClient();
 
-    assertThat(client).isInstanceOf(AzureBlobStorageClientForTest.class);
+    assertThat(client).isInstanceOf(TestAzureBlobStorageClient.class);
     assertThat(client).isInstanceOf(AzureBlobStorageClientInterface.class);
   }
 

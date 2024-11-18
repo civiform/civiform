@@ -21,7 +21,7 @@ import java.util.Optional;
  *
  * <p>This client communicates with the Azurite simulator.
  */
-class AzureBlobStorageClientForDev extends BaseAzureBlobStorageClient {
+class LocalAzureBlobStorageClient extends BaseAzureBlobStorageClient {
   // Using Account SAS because Azurite emulator does not support User Delegation
   // SAS yet See https://github.com/Azure/Azurite/issues/656
 
@@ -33,7 +33,7 @@ class AzureBlobStorageClientForDev extends BaseAzureBlobStorageClient {
   private final ZoneId zoneId;
   private final Duration sasTokenDuration;
 
-  AzureBlobStorageClientForDev(
+  LocalAzureBlobStorageClient(
       Config config, ZoneId zoneId, String containerName, Duration sasTokenDuration) {
     this.zoneId = checkNotNull(zoneId);
     this.sasTokenDuration = checkNotNull(sasTokenDuration);

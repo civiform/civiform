@@ -3,9 +3,9 @@ package services.cloud.azure;
 import java.util.Optional;
 
 /** Class to use for BlobStorage unit tests. */
-class AzureBlobStorageClientForTest implements AzureBlobStorageClientInterface {
+class TestAzureBlobStorageClient implements AzureBlobStorageClientInterface {
 
-  AzureBlobStorageClientForTest() {}
+  TestAzureBlobStorageClient() {}
 
   @Override
   public String getSasToken(String fileName, Optional<String> originalFileName) {

@@ -33,7 +33,7 @@ public class AzurePublicStorage extends PublicStorageClient {
     this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
 
-    client = new AzureBlobStorageClientForTest();
+    client = new TestAzureBlobStorageClient();
   }
 
   @Override
