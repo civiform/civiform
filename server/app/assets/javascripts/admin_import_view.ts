@@ -1,4 +1,5 @@
 import {attachRedirectToPageListeners} from './main'
+import {HtmxRequest} from './htmx_request'
 
 class AdminImportView {
   constructor() {
@@ -21,12 +22,6 @@ class AdminImportView {
       customEvent.detail.formData.set('programJson', trimmedProgramJson)
     })
   }
-}
-
-// htmx does not provide Typescript definitions for its custom events, so we have to define them ourselves
-// For more info about fields on an htmx request see https://htmx.org/events/#htmx:configRequest
-interface HtmxRequest {
-  formData: FormData
 }
 
 export function init() {
