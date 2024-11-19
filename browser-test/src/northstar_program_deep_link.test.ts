@@ -128,7 +128,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
 
     await expect(
       page.getByRole('heading', {
-        name: 'Save time applying for programs and services',
+        name: 'Apply to programs in one place',
       }),
     ).toBeAttached()
   })
@@ -163,7 +163,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
-          name: 'Save time applying for programs and services',
+          name: 'Apply to programs in one place',
         }),
       ).toBeVisible()
     })

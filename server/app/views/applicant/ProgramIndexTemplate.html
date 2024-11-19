@@ -33,51 +33,23 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main class="grid-container padding-0">
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
         id="top-content"
-        class="relative flex flex-col items-center bg-blue-900 text-white text-center w-full"
+        class="bg-primary-darker text-white border-y border-primary usa-prose padding-section-large"
       >
-        <h1
-          th:text="${isGuest}? #{content.saveTimeServices} : #{content.findPrograms}"
-        ></h1>
-        <div
-          th:text="${isGuest}? #{content.guestDescription(${authProviderName})} : #{content.findProgramsDescription(${civicEntityShortName})}"
-        ></div>
-        <ul th:if="${isGuest}" class="usa-button-group">
-          <li class="usa-button-group__item">
-            <button
-              type="button"
-              class="usa-button usa-button--inverse"
-              th:text="#{button.login}"
-              id="login-button"
-              th:attr="data-redirect-to=${loginLink}"
-            ></button>
-          </li>
-          <li class="usa-button-group__item">
-            <button
-              type="button"
-              class="usa-button usa-button--inverse"
-              th:text="#{button.createAccount}"
-              id="create-account"
-              th:attr="data-redirect-to=${createAccountLink}"
-            ></button>
-          </li>
-        </ul>
+        <h1 th:text="#{heading.homepage}"></h1>
+        <div th:text="#{content.homepageIntro}"></div>
       </div>
-      <div id="programs-list">
+      <div id="programs-list" class="padding-section-large">
         <div th:if="${myApplicationsSection.isPresent()}">
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
           ></div>
         </div>
         <div th:if="${commonIntakeSection.isPresent()}">
-          <div class="grid-container">
-            <div class="grid-row">
-              <h2 th:text="#{title.getStartedSection}"></h2>
-            </div>
-          </div>
+          <h2 th:text="#{title.getStartedSection}"></h2>
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>

@@ -22,7 +22,7 @@ test.describe(
       await page.goto('/')
       await expect(
         page.getByRole('heading', {
-          name: 'Save time applying for programs and services',
+          name: 'Apply to programs in one place',
         }),
       ).toBeAttached()
     })
