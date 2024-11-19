@@ -5,6 +5,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+
+import play.Environment;
+
+import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -18,22 +23,28 @@ import services.cloud.StorageUploadRequest;
  * implementation of the AzurePublicStorage class.
  */
 public class AzurePublicStorage extends PublicStorageClient {
-  public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
-
   @VisibleForTesting
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
+
+  public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
+  public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
   private final String containerName;
   private final String accountName;
   private final AzureBlobStorageClientInterface client;
 
   @Inject
-  public AzurePublicStorage(Config config) {
+  public AzurePublicStorage(Config config, Environment environment, ZoneId zoneId) {
 
     this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
 
-    client = new AzureBlobStorageClientForTest();
+    if (environment.isDev()) {
+      client =
+          new AzureBlobStorageClientForDev(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
+    } else {
+      client = new AzureBlobStorageClientForTest();
+    }
   }
 
   @Override
@@ -50,26 +61,26 @@ public class AzurePublicStorage extends PublicStorageClient {
 
   @Override
   public StorageUploadRequest getSignedUploadRequest(
-      String fileKey, String successRedirectActionLink) {
+      String fileName, String successRedirectActionLink) {
     // Azure blob must know the name of a file to generate a SAS for it, so we'll
     // use a UUID When the file is uploaded, this UUID is stored along with the name
     // of the file.
-    fileKey = fileKey.replace("${fileKey}", UUID.randomUUID().toString());
+    fileName = fileName.replace("${filename}", UUID.randomUUID().toString());
 
     BlobStorageUploadRequest.Builder builder =
         BlobStorageUploadRequest.builder()
-            .setFileName(fileKey)
+            .setFileName(fileName)
             .setAccountName(accountName)
             .setContainerName(containerName)
-            .setBlobUrl(client.getBlobUrl(fileKey))
-            .setSasToken(client.getSasToken(fileKey, Optional.empty()))
+            .setBlobUrl(client.getBlobUrl(fileName))
+            .setSasToken(client.getSasToken(fileName, Optional.empty()))
             .setSuccessActionRedirect(successRedirectActionLink);
     return builder.build();
   }
 
   @Override
   protected String getPublicDisplayUrlInternal(String fileKey) {
-    throw new UnsupportedOperationException("not implemented");
+    return client.getBlobUrl(fileKey);
   }
 
   @Override
