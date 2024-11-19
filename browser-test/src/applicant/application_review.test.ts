@@ -24,6 +24,7 @@ test.describe('Program admin review of submitted applications', () => {
     const programName = 'A shiny new program'
 
     await enableFeatureFlag(page, 'multiple_file_upload_enabled')
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     await loginAsAdmin(page)
 
     await test.step('Create new questions', async () => {
@@ -301,6 +302,7 @@ test.describe('Program admin review of submitted applications', () => {
         'fileupload-q',
         'file-upload-second.png',
       )
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Log in as civiform admin', async () => {
@@ -331,6 +333,8 @@ test.describe('Program admin review of submitted applications', () => {
         'favorite-trees-q',
         'pine; cherry',
       )
+
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Click CiviForm logo and navigate to the programs admins home page', async () => {
@@ -669,6 +673,7 @@ test.describe('Program admin review of submitted applications', () => {
         'Screen 3',
         'fileupload-q',
       )
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Log in as civiform admin', async () => {
@@ -699,6 +704,7 @@ test.describe('Program admin review of submitted applications', () => {
         'favorite-trees-q',
         'pine; cherry',
       )
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Click CiviForm logo and navigate to the programs admins home page', async () => {
@@ -800,14 +806,15 @@ test.describe('Program admin review of submitted applications', () => {
 
       for (let i = 0; i < answers.length; i++) {
         await page.click(
-          `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
+          `:nth-match(.cf-admin-application-row, ${i + 1}) a:text("Guest")`,
         )
-        await adminPrograms.waitForApplicationFrame()
+        await waitForPageJsLoad(page)
         await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'fruit-text-q',
           answers[answers.length - i - 1],
         )
+        await page.getByRole('link', {name: 'Back'}).click()
       }
     })
   })
