@@ -67,6 +67,8 @@ link.opensNewTabSr=magbubukas sa bagong tab
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
