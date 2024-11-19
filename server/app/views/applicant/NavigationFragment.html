@@ -150,8 +150,13 @@
   </svg>
 </span>
 
-<nav th:fragment="guestSessionAlert" th:if="${isGuest and hasProfile}">
-  <section
+<section
+  th:fragment="guestSessionAlert"
+  th:if="${isGuest and hasProfile}"
+  role="region"
+  th:aria-label="#{label.guestSessionAlert}"
+>
+  <div
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
   >
     <div class="usa-alert">
@@ -162,8 +167,8 @@
         ></p>
       </div>
     </div>
-  </section>
-</nav>
+  </div>
+</section>
 
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
