@@ -206,12 +206,6 @@ public class ApplicantModel extends BaseModel {
         firstName = listSplit.get(0);
         lastName = Optional.of(listSplit.get(1));
         break;
-      case 4:
-        firstName = listSplit.get(0);
-        middleName = Optional.of(listSplit.get(1));
-        lastName = Optional.of(listSplit.get(2));
-        nameSuffix = Optional.of(listSplit.get(3));
-        break;
       case 3:
         firstName = listSplit.get(0);
         if (isSuffix(listSplit.get(2))) {
@@ -221,6 +215,12 @@ public class ApplicantModel extends BaseModel {
           middleName = Optional.of(listSplit.get(1));
           lastName = Optional.of(listSplit.get(2));
         }
+        break;
+      case 4:
+        firstName = listSplit.get(0);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
+        nameSuffix = Optional.of(listSplit.get(3));
         break;
       case 1:
         // fallthrough

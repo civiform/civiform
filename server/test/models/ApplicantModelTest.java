@@ -235,7 +235,6 @@ public class ApplicantModelTest extends ResetPostgres {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setUserName("First Middle Last Jr.");
     assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
-    assertThat(applicant.getApplicantName()).isEqualTo(Optional.of("Last, First"));
     assertThat(applicant.getFirstName()).isEqualTo(Optional.of("First"));
     assertThat(applicant.getMiddleName().get()).isEqualTo("Middle");
     assertThat(applicant.getLastName()).isEqualTo(Optional.of("Last"));
