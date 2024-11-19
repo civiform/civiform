@@ -195,9 +195,13 @@ content.findPrograms=Trouver des programmes
 content.findProgramsDescription=CiviForm vous aide à trouver des programmes auxquels vous pourriez être éligible dans l''État suivant : {0}. Pour commencer, choisissez un formulaire d'inscription ci-dessous.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # Link text to read more about a program.
