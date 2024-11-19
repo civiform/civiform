@@ -52,13 +52,20 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
   public void run() {
     LOGGER.info("Copying file keys for applicants.");
 
+    // Filter to only include rows that have a file_key key. Vastly improves the run time
+    // cutting out a large number of unneeded records.
+    String filter = String.format("jsonb_path_exists(object, '$.**.%s')", FILE_KEY_PROPERTY);
+
     try (Transaction jobTransaction = database.beginTransaction()) {
       int errorCount = 0;
+      int rowCount = 1;
 
       try (QueryIterator<ApplicantModel> applicants =
-          database.find(ApplicantModel.class).findIterate()) {
+          database.find(ApplicantModel.class).where().raw(filter).findIterate()) {
         while (applicants.hasNext()) {
           try {
+            LOGGER.debug("Applicant row count: {}", rowCount);
+            rowCount++;
             ApplicantModel applicant = applicants.next();
             ApplicantData migratedData = migrateApplicantData(applicant.getApplicantData());
             applicant.setApplicantData(migratedData);
@@ -71,10 +78,13 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
       }
 
       LOGGER.info("Copying file keys for applications.");
+      rowCount = 1;
 
       try (QueryIterator<ApplicationModel> applications =
-          database.find(ApplicationModel.class).findIterate()) {
+          database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
         while (applications.hasNext()) {
+          LOGGER.debug("Application row count: {}", rowCount);
+          rowCount++;
           try {
             ApplicationModel application = applications.next();
             application.setApplicantData(migrateApplicantData(application.getApplicantData()));
