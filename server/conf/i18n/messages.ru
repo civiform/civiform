@@ -195,9 +195,13 @@ content.findPrograms=Находите программы
 content.findProgramsDescription=CiviForm позволяет находить программы, которые могут быть доступны для вас в этом регионе ({0}). Чтобы приступить к заполнению данных, выберите форму или программу ниже.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # Link text to read more about a program.
