@@ -67,6 +67,8 @@ link.opensNewTabSr=在新分頁中開啟
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -121,7 +123,7 @@ button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=返回
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=查看並退出
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=略過
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +133,7 @@ content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請進度
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=查看並提交
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -177,6 +179,8 @@ button.continueSr=繼續申請「{0}」
 button.startHere=按這裡開始填寫
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -193,9 +197,13 @@ content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # Link text to read more about a program.
@@ -232,6 +240,12 @@ title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 # Alert banner when an application was already completed
 toast.programCompleted=已完成申請。
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -379,7 +393,7 @@ title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
 # Submit application button
 button.submit=提交
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=提交申請書
 # Continue application button
 button.continue=繼續
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -414,7 +428,7 @@ title.programSummary=計畫申請摘要
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=不符合計畫資格
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -536,7 +550,7 @@ content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=下載申請書
 button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
