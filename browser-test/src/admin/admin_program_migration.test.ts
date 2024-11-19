@@ -390,9 +390,9 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should be updated with "-1" on the end)
+      // admin name (should be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
-        'Admin name: Sample Address Question-1',
+        'Admin name: Sample Address Question -_- a',
       )
       // admin description
       await expect(programDataDiv).toContainText(
@@ -579,7 +579,7 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should not be updated with "-1" on the end)
+      // admin name (should not be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
         'Admin name: Sample Address Question',
       )

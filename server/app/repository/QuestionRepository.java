@@ -75,23 +75,6 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  /** Get any similar admin names to the admin name passed in */
-  public ImmutableList<String> getSimilarAdminNames(String adminName) {
-    return database
-        .find(QuestionModel.class)
-        .setLabel("QuestionModel.findList")
-        .setProfileLocation(queryProfileLocationBuilder.create("getSimilarAdminNames"))
-        .where()
-        .ilike("name", adminName + "%")
-        .findList()
-        .stream()
-        .map(
-            question -> {
-              return question.getQuestionDefinition().getName();
-            })
-        .collect(ImmutableList.toImmutableList());
-  }
-
   /**
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.

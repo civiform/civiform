@@ -350,7 +350,7 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void exportApplication_eligibilityShowsForAdmins() throws IOException, DocumentException {
-    createFakeProgramWithEligibilityPredicate();
+    createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
@@ -486,7 +486,7 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void exportProgram_hasEligibilityPredicate() throws IOException {
-    createFakeProgramWithEligibilityPredicate();
+    createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();

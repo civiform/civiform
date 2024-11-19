@@ -2,7 +2,6 @@ package services.applicant;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
@@ -102,13 +101,6 @@ public abstract class AnswerData {
   /** Whether the question was answered for another program. */
   public abstract boolean isPreviousResponse();
 
-  /**
-   * Paths and their answers for each scalar (in {@link services.LocalizedStrings#DEFAULT_LOCALE}
-   * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
-   */
-  // TODO(#4872): remove this attribute and rely on getJsonEntries on a per-question basis.
-  public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
-
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setProgramId(Long programId);
@@ -148,8 +140,6 @@ public abstract class AnswerData {
     public abstract Builder setTimestamp(Long timestamp);
 
     public abstract Builder setIsPreviousResponse(boolean isPreviousResponse);
-
-    public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
 
     public abstract AnswerData build();
   }

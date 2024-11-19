@@ -355,10 +355,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   /**
-   * Creates a program that has an eligibility predicate, three applicants, and three applications.
-   * The applications have submission times one month apart starting on 2022-01-01.
+   * Creates a program that has an eligibility predicate. An applicant is eligible if they answer
+   * that their favorite color is blue.
    */
-  protected void createFakeProgramWithEligibilityPredicate() {
+  protected ProgramModel createFakeProgramWithEligibilityPredicate(String name) {
     QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
     QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
@@ -371,20 +371,28 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     EligibilityDefinition colorEligibilityDefinition =
         EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
+    return ProgramBuilder.newActiveProgram()
+        .withName(name)
+        .withBlock("Screen 1")
+        .withRequiredQuestions(nameQuestion, colorQuestion)
+        .withEligibilityDefinition(colorEligibilityDefinition)
+        .build();
+  }
+
+  /**
+   * Creates a program that has an eligibility predicate, three applicants, and three applications.
+   * The applications have submission times one month apart starting on 2022-01-01.
+   */
+  protected void createFakeProgramWithEligibilityPredicateAndThreeApplications() {
     fakeProgramWithEligibility =
-        ProgramBuilder.newActiveProgram()
-            .withName("Fake Program With Enumerator")
-            .withBlock("Screen 1")
-            .withRequiredQuestions(nameQuestion, colorQuestion)
-            .withEligibilityDefinition(colorEligibilityDefinition)
-            .build();
+        createFakeProgramWithEligibilityPredicate("Fake Program With Eligibility");
 
     // First applicant is not eligible.
     applicantOne = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank.nameApplicantName().getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
         "Doe",
@@ -392,7 +400,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank
+                .textApplicantFavoriteColor()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         "coquelicot");
     applicantOne.save();
     applicationOne =
@@ -408,7 +419,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank.nameApplicantName().getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
         "Doe",
@@ -416,7 +427,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank
+                .textApplicantFavoriteColor()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         "blue");
     applicantTwo.save();
     applicationTwo =

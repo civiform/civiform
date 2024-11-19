@@ -44,15 +44,9 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await adminPrograms.publishProgram(programName)
     await logout(page)
 
-    // View the translated program details on index without an account
-    // User is viewing the page in Spanish (Español)
+    // Go to the home page and select Spanish as the language
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
-    await expect(
-      page.getByText(
-        'Ahorra tiempo cuando te inscribas en programas y servicios',
-      ),
-    ).toBeVisible()
 
     await applicantQuestions.applyProgram(
       programName,
