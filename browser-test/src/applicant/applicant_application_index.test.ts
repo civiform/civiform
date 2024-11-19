@@ -614,12 +614,9 @@ test.describe('applicant program index page', () => {
       })
 
       test('shows log in button for guest users', async ({page}) => {
-        // We cannot check that the login/create account buttons redirect the user to a particular
+        // We cannot check that the login button redirects the user to a particular
         // URL because it varies between environments, so just check for their existence.
-        expect(await page.textContent('#login-button')).toContain('Log in')
-        expect(await page.textContent('#create-account')).toContain(
-          'Create account',
-        )
+        await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
       })
 
       test('categorizes programs for draft and applied applications as guest user', async ({

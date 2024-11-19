@@ -9,19 +9,19 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Function;
 import models.ApplicationModel;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.DateConverter;
 import services.Path;
-import services.applicant.AnswerData;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.export.enums.MultiOptionSelectionExportType;
+import services.applicant.question.ApplicantQuestion;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
-import services.question.LocalizedQuestionOption;
-import services.question.types.QuestionType;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -32,6 +32,7 @@ import services.question.types.QuestionType;
  * CSVPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
   private final String EMPTY_VALUE = "";
 
   private final ImmutableList<Column> columns;
@@ -58,22 +59,32 @@ public final class CsvExporter implements AutoCloseable {
   /** Writes a single {@link ApplicationModel} record to the CSV. */
   public void exportRecord(
       ApplicationModel application,
-      ReadOnlyApplicantProgramService roApplicantService,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
       Optional<Boolean> optionalEligibilityStatus,
       ProgramDefinition programDefinition)
       throws IOException {
-    ImmutableMap.Builder<Path, AnswerData> answerMapBuilder = new ImmutableMap.Builder<>();
-    for (AnswerData answerData : roApplicantService.getSummaryDataAllQuestions()) {
-      for (Path p : answerData.createQuestion().getAllPaths()) {
-        answerMapBuilder.put(p, answerData);
-      }
-    }
-    ImmutableMap<Path, AnswerData> answerMap = answerMapBuilder.build();
+    ImmutableMap<Path, ApplicantQuestion> questionMap =
+        roApplicantProgramService
+            .getAllQuestions()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    aq -> aq.getContextualizedPath(),
+                    Function.identity(),
+                    // TODO(#9212): There should never be duplicate entries because question paths
+                    // should be unique, but due to #9212 there sometimes are. They point at the
+                    // same location in the applicant data so it doesn't matter which one we keep.
+                    (existing, replacement) -> {
+                      LOGGER.warn(
+                          "Duplicate questions with path '{}', which may be resulting in data"
+                              + " loss.",
+                          existing.getContextualizedPath());
+                      return replacement;
+                    }));
 
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
-          printer.print(getValueFromAnswerMap(column, answerMap));
+          printer.print(getValueFromQuestionMap(column, questionMap));
           break;
         case APPLICANT_ID:
           printer.print(application.getApplicant().id);
@@ -140,7 +151,7 @@ public final class CsvExporter implements AutoCloseable {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
-          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
+          printer.print(opaqueIdentifier(secret, getValueFromQuestionMap(column, questionMap)));
           break;
         case ELIGIBILITY_STATUS:
           if (optionalEligibilityStatus.isPresent()) {
@@ -168,49 +179,15 @@ public final class CsvExporter implements AutoCloseable {
    * from the raw value in applicant data, such as translating enum number to human-readable text in
    * default locale or mapping file key to download url.
    */
-  private String getValueFromAnswerMap(Column column, ImmutableMap<Path, AnswerData> answerMap) {
-    Path path = column.jsonPath().orElseThrow();
-    if (!answerMap.containsKey(path)) {
+  private String getValueFromQuestionMap(
+      Column column, ImmutableMap<Path, ApplicantQuestion> questionMap) {
+    Path path = column.questionPath().orElseThrow();
+    if (!questionMap.containsKey(path)) {
       return EMPTY_VALUE;
     }
 
-    var answerData = answerMap.get(path);
-    // if it's not a checkbox question, get the answer out of AnswerData
-    if (!answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
-      return answerData.scalarAnswersInDefaultLocale().get(path);
-    }
-
-    // if it is a checkbox question, use the optionAdminName in the Column to fill the column.
-    if (column.optionAdminName().isEmpty()) {
-      throw new IllegalStateException(
-          "CSV Column represents a checkbox question, but no option admin name is specified.");
-    }
-
-    if (!answerData.isAnswered()) {
-      return MultiOptionSelectionExportType.NOT_ANSWERED.toString();
-    }
-
-    ImmutableList<String> selectedList =
-        answerData
-            .applicantQuestion()
-            .createMultiSelectQuestion()
-            .getSelectedOptionAdminNames()
-            .orElse(ImmutableList.of());
-
-    ImmutableList<String> allOptionsShownInQuestionVersion =
-        answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
-            .map(LocalizedQuestionOption::adminName)
-            .collect(ImmutableList.toImmutableList());
-
-    if (!allOptionsShownInQuestionVersion.contains(column.optionAdminName().get())) {
-      return MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
-    }
-
-    if (selectedList.contains(column.optionAdminName().get())) {
-      return MultiOptionSelectionExportType.SELECTED.toString();
-    }
-
-    return MultiOptionSelectionExportType.NOT_SELECTED.toString();
+    // Extract the answer from the question using the function from the column.
+    return column.answerExtractor().get().apply(questionMap.get(path).getQuestion());
   }
 
   /** Returns an opaque identifier - the ID hashed with the application secret key. */

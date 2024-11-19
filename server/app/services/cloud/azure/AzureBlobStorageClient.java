@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
-/** Class to use for producttion file uploads to Azure blob storage. */
+/** Class to use for deployed file uploads to Azure blob storage. */
 class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
 
   private final BlobServiceClient blobServiceClient;

@@ -3,7 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -434,15 +433,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
-  }
-
-  @Test
-  public void getQuestionsWithSimilarAdminNames_returnsSimilarAdminNames() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question-1");
-    resourceCreator.insertQuestion("name-question-2");
-    ImmutableList<String> adminNames = repo.getSimilarAdminNames("name-question");
-    assertThat(adminNames.size()).isEqualTo(3);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

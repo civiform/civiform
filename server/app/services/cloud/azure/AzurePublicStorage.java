@@ -41,9 +41,9 @@ public class AzurePublicStorage extends PublicStorageClient {
 
     if (environment.isDev()) {
       client =
-          new AzureBlobStorageClientForDev(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
+          new DevAzureBlobStorageClient(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
     } else {
-      client = new AzureBlobStorageClientForTest();
+      client = new TestAzureBlobStorageClient();
     }
   }
 
