@@ -195,9 +195,13 @@ content.findPrograms=Hel barnaamijyo
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # Link text to read more about a program.
