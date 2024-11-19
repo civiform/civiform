@@ -121,7 +121,7 @@ button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Dib u eeg oo ka bax
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Ka bood
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +131,7 @@ content.blockProgressFull={0} ee {1} la dhameeyay
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Geeddi socodka arjiga
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Dib u eeg oo gudbi
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -391,7 +391,7 @@ title.tiAccountSettings=Dhexdhexaadiye la aamini karo - Eeg goobaha Koontada - C
 # Submit application button
 button.submit=Gudbi
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Gudbi codsiga
 # Continue application button
 button.continue=Sii wad
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -426,7 +426,7 @@ title.programSummary=Soo koobida barnaamijka codsiga
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Aan u qalmin barnaamijka
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -548,7 +548,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=Soo deji codsigaaga
 button.downloadPdf=Soo.deji.PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Codso barnaamijyada
