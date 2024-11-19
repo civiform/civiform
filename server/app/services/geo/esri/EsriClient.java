@@ -173,7 +173,9 @@ public abstract class EsriClient {
         // If there is no value in SubAddr return the value the user entered. It may not be
         // returned by the ESRI instance and we don't want to lose the value.
         .setLine2(
-            attributes.subAddr().isPresent() ? attributes.subAddr().get() : address.getLine2())
+            attributes.subAddr().orElse("").isBlank()
+                ? address.getLine2()
+                : attributes.subAddr().get())
         .setCity(attributes.city())
         .setState(getStateAbbreviationFromAttributes(attributes, address))
         .setZip(attributes.postal())

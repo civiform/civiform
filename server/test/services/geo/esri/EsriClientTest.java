@@ -272,6 +272,16 @@ public class EsriClientTest {
         attributes, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
   }
 
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useLine2AsEnteredIfEmpty() {
+    Attributes attributes =
+        new Attributes(
+            "", "street-expected", "city-expected", "WA", "Washington", "11111-expected");
+
+    runMapAddressAttributesJsonAndAssertResults(
+        attributes, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
+  }
+
   private void runMapAddressAttributesJsonAndAssertResults(
       Attributes attributes,
       String streetExpected,
