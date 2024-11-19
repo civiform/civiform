@@ -5,6 +5,7 @@
     class="grid-container"
     hx-get="/programs/hx/filter"
     hx-target="#not-started-programs"
+    hx-swap="innerHTML show:top"
   >
     <fieldset class="grid-row grid-gap">
       <legend th:text="#{label.programFilters}"></legend>

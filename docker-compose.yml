@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.4
+    image: postgres:16.5
     restart: always
     expose:
       - '5432'
@@ -71,12 +71,13 @@ services:
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-test}
       - AWS_REGION
       - SENDER_EMAIL_ADDRESS
+      - EMAIL_PROVIDER
       - AWS_S3_BUCKET_NAME
       - AWS_S3_PUBLIC_BUCKET_NAME
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
       - AZURE_LOCAL_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME
-      - AZURE_STORAGE_ACCOUNT_CONTAINER
+      - AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
       - CIVIFORM_TIME_ZONE_ID
       - STORAGE_SERVICE_NAME
       - LOGIN_RADIUS_API_KEY

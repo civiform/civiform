@@ -268,7 +268,9 @@ public final class AdminApplicationController extends CiviFormController {
             .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
+    String csv =
+        exporterService.getDemographicsCsv(
+            submitTimeFilter, /* isMultipleFileUploadEnabled= */ false);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));

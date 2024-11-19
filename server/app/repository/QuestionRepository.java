@@ -21,6 +21,7 @@ import javax.inject.Provider;
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
+import services.Path;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -72,23 +73,6 @@ public final class QuestionRepository {
                 .setId(id)
                 .findOneOrEmpty(),
         executionContext);
-  }
-
-  /** Get any similar admin names to the admin name passed in */
-  public ImmutableList<String> getSimilarAdminNames(String adminName) {
-    return database
-        .find(QuestionModel.class)
-        .setLabel("QuestionModel.findList")
-        .setProfileLocation(queryProfileLocationBuilder.create("getSimilarAdminNames"))
-        .where()
-        .ilike("name", adminName + "%")
-        .findList()
-        .stream()
-        .map(
-            question -> {
-              return question.getQuestionDefinition().getName();
-            })
-        .collect(ImmutableList.toImmutableList());
   }
 
   /**
@@ -247,15 +231,10 @@ public final class QuestionRepository {
    * themselves and previous versions, and new versions of an old question will conflict with the
    * old question.
    *
-   * <p>Questions collide if they share a {@link QuestionDefinition#getQuestionPathSegment()} and
-   * {@link QuestionDefinition#getEnumeratorId()}.
+   * <p>Questions collide if they share a name or a {@link QuestionDefinition#getQuestionNameKey()}.
    */
   public Optional<QuestionModel> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
-    ConflictDetector conflictDetector =
-        new ConflictDetector(
-            newQuestionDefinition.getEnumeratorId(),
-            newQuestionDefinition.getQuestionPathSegment(),
-            newQuestionDefinition.getName());
+    ConflictDetector conflictDetector = new ConflictDetector(newQuestionDefinition);
     database
         .find(QuestionModel.class)
         .setLabel("QuestionModel.findConflict")
@@ -310,15 +289,10 @@ public final class QuestionRepository {
 
   private final class ConflictDetector {
     private Optional<QuestionModel> conflictedQuestion = Optional.empty();
-    private final Optional<Long> enumeratorId;
-    private final String questionPathSegment;
-    private final String questionName;
+    private final QuestionDefinition newQuestionDefinition;
 
-    private ConflictDetector(
-        Optional<Long> enumeratorId, String questionPathSegment, String questionName) {
-      this.enumeratorId = checkNotNull(enumeratorId);
-      this.questionPathSegment = checkNotNull(questionPathSegment);
-      this.questionName = checkNotNull(questionName);
+    private ConflictDetector(QuestionDefinition questionDefinition) {
+      this.newQuestionDefinition = checkNotNull(questionDefinition);
     }
 
     private Optional<QuestionModel> getConflictedQuestion() {
@@ -327,10 +301,12 @@ public final class QuestionRepository {
 
     private boolean hasConflict(QuestionModel question) {
       QuestionDefinition definition = getQuestionDefinition(question);
-      boolean isSameName = definition.getName().equals(questionName);
-      boolean isSameEnumId = definition.getEnumeratorId().equals(enumeratorId);
-      boolean isSamePath = definition.getQuestionPathSegment().equals(questionPathSegment);
-      if (isSameName || (isSameEnumId && isSamePath)) {
+      boolean isSameName = definition.getName().equals(newQuestionDefinition.getName());
+      boolean isSamePath =
+          Path.create(definition.getQuestionNameKey())
+              .equals(Path.create(newQuestionDefinition.getQuestionNameKey()));
+
+      if (isSameName || isSamePath) {
         conflictedQuestion = Optional.of(question);
         return true;
       }

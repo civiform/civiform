@@ -502,6 +502,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SENDER_EMAIL_ADDRESS");
   }
 
+  /** The provider to use for sending emails. */
+  public Optional<String> getEmailProvider() {
+    return getString("EMAIL_PROVIDER");
+  }
+
   /** What static file storage provider to use. */
   public Optional<String> getStorageServiceName() {
     return getString("STORAGE_SERVICE_NAME");
@@ -533,8 +538,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Azure blob storage container name to store files in. */
-  public Optional<String> getAzureStorageAccountContainer() {
-    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER");
+  public Optional<String> getAzureStorageAccountContainerName() {
+    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME");
+  }
+
+  /** Azure blob storage container name to store public files in. */
+  public Optional<String> getAzureStorageAccountPublicContainerName() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME");
   }
 
   /**
@@ -1627,8 +1637,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
-                              "AZURE_STORAGE_ACCOUNT_CONTAINER",
+                              "AZURE_STORAGE_ACCOUNT_CONTAINER_NAME",
                               "Azure blob storage container name to store files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME",
+                              "Azure blob storage container name to store public files in.",
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
@@ -1769,7 +1785,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " CiviForm.",
                       /* isRequired= */ true,
                       SettingType.STRING,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "EMAIL_PROVIDER",
+                      "The provider to use for sending emails.",
+                      /* isRequired= */ false,
+                      SettingType.ENUM,
+                      SettingMode.HIDDEN,
+                      ImmutableList.of("aws-ses", "graph-api")))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",

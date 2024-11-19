@@ -111,6 +111,7 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.addProgram(
           programWithoutExternalLink,
           'program description',
+          'short program description',
           '' /* no external link */,
         )
         // Add the full program.

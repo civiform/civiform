@@ -99,6 +99,10 @@ public abstract class ProgramDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
+  /** A short description of a Program (<100 characters), localized for each supported locale. */
+  @JsonProperty("localizedShortDescription")
+  public abstract LocalizedStrings localizedShortDescription();
+
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
@@ -803,6 +807,10 @@ public abstract class ProgramDefinition {
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    @JsonProperty("localizedShortDescription")
+    public abstract Builder setLocalizedShortDescription(
+        LocalizedStrings localizedShortDescription);
+
     @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
         LocalizedStrings localizedConfirmationMessage);
@@ -815,6 +823,8 @@ public abstract class ProgramDefinition {
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
+    public abstract LocalizedStrings.Builder localizedShortDescriptionBuilder();
 
     public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
 

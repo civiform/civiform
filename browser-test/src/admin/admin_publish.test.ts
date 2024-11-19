@@ -21,6 +21,7 @@ test.describe(
       await adminPrograms.addProgram(
         hiddenProgramNoQuestions,
         'program description',
+        'short program description',
         'https://usa.gov',
         ProgramVisibility.HIDDEN,
       )

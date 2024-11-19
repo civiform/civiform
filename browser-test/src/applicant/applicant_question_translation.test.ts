@@ -33,6 +33,7 @@ test.describe('Admin can manage translations', () => {
     await adminPrograms.addProgram(
       programName,
       'program description',
+      'short program description',
       'http://seattle.gov',
     )
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
@@ -86,6 +87,7 @@ test.describe('Admin can manage translations', () => {
     await adminPrograms.addProgram(
       programName,
       'program description',
+      'short program description',
       'http://seattle.gov',
     )
     await adminPrograms.editProgramBlock(programName, 'block', [questionName])

@@ -212,7 +212,10 @@ public final class JsonExporterService {
         .setSubmitTime(application.getSubmitTime())
         .setStatus(application.getLatestStatus())
         .setRevisionState(toRevisionState(application.getLifecycleStage()))
-        .addApplicationEntries(entriesBuilder.build())
+        // TODO(#9212): There should never be duplicate entries because question paths should be
+        // unique, but due to #9212 there sometimes are. They point at the same location in the
+        // applicant data so it doesn't matter which one we keep.
+        .addApplicationEntries(entriesBuilder.buildKeepingLast())
         .build();
   }
 

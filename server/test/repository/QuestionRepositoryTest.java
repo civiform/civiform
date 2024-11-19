@@ -3,7 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -95,12 +94,14 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findConflictingQuestion_sameQuestionPathSegment_hasConflict() throws Exception {
+  public void findConflictingQuestion_sameQuestionNameKey_viaNumbers_hasConflict()
+      throws Exception {
+    // Name is `applicant address`, the generated key is `applicant_address`
     QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
-            .setName("applicant address!")
+            .setName("applicant address1") // key form is `applicant_address`
             .build();
 
     Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
@@ -109,19 +110,35 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void findConflictingQuestion_sameQuestionPathSegmentButDifferentEnumeratorId_ok()
+  public void findConflictingQuestion_sameQuestionNameKey_viaCapitalization_hasConflict()
       throws Exception {
+    // Name is `applicant address`, the generated key is `applicant_address`
     QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
     QuestionDefinition newQuestionDefinition =
         new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
             .clearId()
-            .setName("applicant_address")
-            .setEnumeratorId(Optional.of(1L))
+            .setName("applicant Address") // key form is `applicant_address`
             .build();
 
     Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
 
-    assertThat(maybeConflict).isEmpty();
+    assertThat(maybeConflict).contains(applicantAddress);
+  }
+
+  @Test
+  public void findConflictingQuestion_sameQuestionNameKey_viaPunctuation_hasConflict()
+      throws Exception {
+    // Name is `applicant address`, the generated key is `applicant_address`
+    QuestionModel applicantAddress = testQuestionBank.addressApplicantAddress();
+    QuestionDefinition newQuestionDefinition =
+        new QuestionDefinitionBuilder(applicantAddress.getQuestionDefinition())
+            .clearId()
+            .setName("applicant address!") // key form is `applicant_address`
+            .build();
+
+    Optional<QuestionModel> maybeConflict = repo.findConflictingQuestion(newQuestionDefinition);
+
+    assertThat(maybeConflict).contains(applicantAddress);
   }
 
   @Test
@@ -416,15 +433,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
-  }
-
-  @Test
-  public void getQuestionsWithSimilarAdminNames_returnsSimilarAdminNames() {
-    resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question-1");
-    resourceCreator.insertQuestion("name-question-2");
-    ImmutableList<String> adminNames = repo.getSimilarAdminNames("name-question");
-    assertThat(adminNames.size()).isEqualTo(3);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

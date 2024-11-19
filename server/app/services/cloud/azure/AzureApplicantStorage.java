@@ -32,7 +32,7 @@ import services.cloud.StorageServiceName;
 public class AzureApplicantStorage implements ApplicantStorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
-  public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
+  public static final String AZURE_CONTAINER_NAME_CONF_PATH = "azure.blob.container_name";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
   // A User Delegation Key is used to sign SAS tokens without having to store the
@@ -42,7 +42,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   public static final Duration AZURE_USER_DELEGATION_KEY_DURATION = Duration.ofMinutes(60);
 
   private final Credentials credentials;
-  private final String container;
+  private final String containerName;
   private final Client client;
   private final String accountName;
   private final String blobEndpoint;
@@ -53,7 +53,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
       Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.credentials = checkNotNull(credentials);
-    this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
+    this.containerName = checkNotNull(config).getString(AZURE_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
     this.zoneId = checkNotNull(zoneId);
     this.blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
@@ -108,7 +108,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
         BlobStorageUploadRequest.builder()
             .setFileName(fileName)
             .setAccountName(accountName)
-            .setContainerName(container)
+            .setContainerName(containerName)
             .setBlobUrl(client.getBlobUrl(fileName))
             .setSasToken(client.getSasToken(fileName, Optional.empty()))
             .setSuccessActionRedirect(successActionRedirectUrl);
@@ -161,7 +161,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String getBlobUrl(String fileName) {
-      return "http://www.blobUrl.com";
+      return "http://localhost";
     }
   }
 
@@ -204,7 +204,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
     @Override
     public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
       BlobClient blobClient =
-          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
+          blobServiceClient.getBlobContainerClient(containerName).getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission =
           new BlobSasPermission().setReadPermission(true).setWritePermission(true);
@@ -226,7 +226,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
     @Override
     public String getBlobUrl(String fileName) {
       BlobClient blobClient =
-          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
+          blobServiceClient.getBlobContainerClient(containerName).getBlobClient(fileName);
       return blobClient.getBlobUrl();
     }
   }
@@ -249,7 +249,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
           new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
       String baseUrl = checkNotNull(config).getString("base_url");
       super.setCorsRules(blobServiceClient, baseUrl);
-      this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
+      this.blobContainerClient = blobServiceClient.getBlobContainerClient(containerName);
       if (!blobContainerClient.exists()) {
         blobContainerClient.create();
       }
