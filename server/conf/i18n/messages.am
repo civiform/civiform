@@ -195,9 +195,13 @@ content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=የፕሮግራም ማጣሪያዎች
 # Link text to read more about a program.
