@@ -5,14 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-
-import play.Environment;
-
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
+import play.Environment;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 

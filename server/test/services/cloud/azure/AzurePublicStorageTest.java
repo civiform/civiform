@@ -64,12 +64,10 @@ public class AzurePublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getPublicDisplayUrl_correctlyFormatted_throwsUnsupported() {
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-        .isThrownBy(
-            () ->
-                azurePublicStorage.getPublicDisplayUrl(
-                    "program-summary-image/program-10/myFile.jpeg"));
+  public void getPublicDisplayUrl_correctlyFormatted() {
+    assertThat(
+            azurePublicStorage.getPublicDisplayUrl("program-summary-image/program-10/myFile.jpeg"))
+        .isEqualTo("http://localhost");
   }
 
   @Test
