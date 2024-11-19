@@ -379,44 +379,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(paginationResult.getNumPages()).isEqualTo(1);
   }
 
-  private static ImmutableList<Object[]> getSearchByNameOrEmailData() {
-    // Assumes that the test has been seeded with three applications:
-    // 1. bob@example.com - Bob Doe
-    // 2. jane@example.com - Jane Doe
-    // 3. chris@exAMPLE.com - Chris Person
-    return ImmutableList.<Object[]>of(
-        new Object[] {"Bob Doe", ImmutableSet.of("bob@example.com")},
-        new Object[] {"Doe Bob", ImmutableSet.of("bob@example.com")},
-        new Object[] {"Doe, Bob", ImmutableSet.of("bob@example.com")},
-        new Object[] {"Doe", ImmutableSet.of("bob@example.com", "jane@example.com")},
-        new Object[] {"Bob", ImmutableSet.of("bob@example.com")},
-        new Object[] {"Person", ImmutableSet.of("chris@exAMPLE.com")},
-        new Object[] {"Other Person", ImmutableSet.of()},
-
-        // Searching by applicant email or TI email returns the application
-        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
-        new Object[] {"bobs_ti@example.com", ImmutableSet.of("bob@example.com")},
-
-        // Searching by partial email returns the application
-        new Object[] {
-          "example", ImmutableSet.of("bob@example.com", "jane@example.com", "chris@exAMPLE.com")
-        },
-        new Object[] {"bobs_ti", ImmutableSet.of("bob@example.com")},
-
-        // Case insensitive search.
-        new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
-        new Object[] {"CHRIS@example.com", ImmutableSet.of("chris@exAMPLE.com")},
-
-        // Leading and trailing whitespace is ignored.
-        new Object[] {"    Bob Doe    ", ImmutableSet.of("bob@example.com")},
-
-        // Degenerate cases.
-        // Email isn't found.
-        new Object[] {"fake@example.com", ImmutableSet.of()},
-        // Only match a single space between first and last name.
-        new Object[] {"Bob  Doe", ImmutableSet.of()});
-  }
-
   @Test
   public void getApplicationsForAllProgramVersions_searchesByNameEmailPhone() {
     ProgramModel program = resourceCreator.insertActiveProgram("test program");
