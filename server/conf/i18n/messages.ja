@@ -195,9 +195,13 @@ content.findPrograms=プログラムを探す
 content.findProgramsDescription=CiviForm は、{0} で対象となり得るプログラムを探すことができます。下記の申請を選択して始めましょう。
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # Link text to read more about a program.
