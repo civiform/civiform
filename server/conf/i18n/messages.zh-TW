@@ -195,9 +195,13 @@ content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # Link text to read more about a program.
