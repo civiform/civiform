@@ -195,9 +195,13 @@ content.findPrograms=Maghanap ng mga program
 content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # Link text to read more about a program.
