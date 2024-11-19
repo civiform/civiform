@@ -121,7 +121,7 @@ button.previousScreen=Précédent
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Retour
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Examiner et quitter
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Passer
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +131,7 @@ content.blockProgressFull=Vous avez répondu à {0} question(s) sur {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Progression de la demande
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Examiner et envoyer
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -391,7 +391,7 @@ title.tiAccountSettings=Intermédiaire de confiance - Afficher les paramètres 
 # Submit application button
 button.submit=Envoyer
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Envoyer la demande d'inscription
 # Continue application button
 button.continue=Continuer
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -426,7 +426,7 @@ title.programSummary=Résumé de la demande d''inscription au programme
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Pas éligible au programme
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -548,7 +548,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner 
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=Télécharger votre demande d'inscription
 button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes
