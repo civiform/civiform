@@ -23,6 +23,7 @@ public enum DurableJobName {
   // TODO(#7347): remove the deprecated job names once we have logic in place to remove them from
   // the db when not found
   FIX_APPLICANT_DOB_DATA_PATH("FIX_APPLICANT_DOB_DATA_PATH"),
+  MIGRATE_PRIMARY_APPLICANT_INFO("MIGRATE_PRIMARY_APPLICANT_INFO"),
 
   // job names used for tests
   TEST("TEST");
