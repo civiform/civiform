@@ -153,9 +153,8 @@
 <section
   th:fragment="guestSessionAlert"
   th:if="${isGuest and hasProfile}"
-  role="alert"
-  aria-live="polite"
-  aria-label="Guest session informational alert"
+  role="region"
+  th:aria-label="#{label.guestSessionAlert}"
 >
   <div
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
