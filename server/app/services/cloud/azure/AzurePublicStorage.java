@@ -24,8 +24,8 @@ public class AzurePublicStorage extends PublicStorageClient {
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
 
   private final String containerName;
-  private final Client client;
   private final String accountName;
+  private final AzureBlobStorageClientInterface client;
 
   @Inject
   public AzurePublicStorage(Config config) {
@@ -33,7 +33,7 @@ public class AzurePublicStorage extends PublicStorageClient {
     this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
 
-    client = new NullClient();
+    client = new TestAzureBlobStorageClient();
   }
 
   @Override
@@ -75,31 +75,5 @@ public class AzurePublicStorage extends PublicStorageClient {
   @Override
   public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
     throw new UnsupportedOperationException("not implemented");
-  }
-
-  interface Client {
-
-    String getSasToken(String fileName, Optional<String> originalFileName);
-
-    String getBlobUrl(String fileName);
-  }
-
-  /** Class to use for BlobStorage unit tests. */
-  static class NullClient implements Client {
-
-    NullClient() {}
-
-    @Override
-    public String getSasToken(String fileName, Optional<String> originalFileName) {
-      if (originalFileName.isPresent()) {
-        return "sasTokenWithContentHeaders";
-      }
-      return "sasToken";
-    }
-
-    @Override
-    public String getBlobUrl(String fileName) {
-      return "http://localhost";
-    }
   }
 }
