@@ -11,6 +11,10 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import io.ebean.DB;
+import io.ebean.Database;
+import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -89,6 +93,7 @@ public final class ProgramService {
   private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final Database database;
 
   @Inject
   public ProgramService(
@@ -108,6 +113,7 @@ public final class ProgramService {
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.database = DB.getDefault();
   }
 
   /** Get the names for all programs. */
@@ -1318,19 +1324,19 @@ public final class ProgramService {
    */
   public ProgramDefinition setBlockEligibilityMessage(
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
+    Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
             .setLocalizedEligibilityMessage(message)
             .build();
-    try {
-      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
-    } catch (IllegalPredicateOrderingException e) {
-      throw new RuntimeException(
-          "Unexpected error: setting this eligibility message invalidates another");
-    }
+
+    transaction.commit();
+    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
   }
 
   /**
