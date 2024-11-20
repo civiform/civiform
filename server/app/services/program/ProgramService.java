@@ -11,8 +11,6 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
-import io.ebean.DB;
-import io.ebean.Database;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -91,7 +89,6 @@ public final class ProgramService {
   private final CategoryRepository categoryRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
   private final ApplicationStatusesRepository applicationStatusesRepository;
-  private final Database database;
 
   @Inject
   public ProgramService(
@@ -1334,8 +1331,7 @@ public final class ProgramService {
       return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
     } catch (IllegalPredicateOrderingException e) {
       // This method throws IllegalPredicateOrderingException, but in this context it should never
-      // happen
-      // because setting an eligibility message does not affect predicate order.
+      // happen because setting an eligibility message does not affect predicate order.
       // This try-catch block is included to satisfy the compiler and maintain code correctness.
       String errMsg =
           String.format(
