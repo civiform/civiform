@@ -1324,19 +1324,34 @@ public final class ProgramService {
    */
   public ProgramDefinition setBlockEligibilityMessage(
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
-      throws ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException {
-    Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
-    ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
+      ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setLocalizedEligibilityMessage(message)
-            .build();
+      BlockDefinition blockDefinition =
+          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+              .setLocalizedEligibilityMessage(message)
+              .build();
+      
+      ProgramDefinition pd = updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
 
-    transaction.commit();
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+      transaction.commit();
+
+      return pd;
+
+    } catch (IllegalPredicateOrderingException e) {
+      // This exception is never going to happen as setting an eligibility message is never going to
+      // affect predicate order.
+      // But We still need to cover it here since updateProgramDefinitionWithBlockDefinition()
+      // throws IllegalPredicateOrderingException.
+      String errMsg =
+          String.format(
+              "Setting this eligibility message invalidates another. [programId: %d,"
+                  + " blockDefinitionId: %d]",
+              programId, blockDefinitionId);
+      throw new RuntimeException(errMsg, e);
+    }
   }
 
   /**
