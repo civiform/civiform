@@ -108,7 +108,6 @@ public final class ProgramService {
     this.categoryRepository = checkNotNull(categoryRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
-    this.database = DB.getDefault();
   }
 
   /** Get the names for all programs. */
