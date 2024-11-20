@@ -3,17 +3,14 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 
-test.describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
-  const markdownText =
-    '\n[This is a link](https://www.example.com)\n' +
+const markdownText = '\n[This is a link](https://www.example.com)\n' +
     'This is a list:\n' +
     '* Item 1\n' +
     '* Item 2\n' +
@@ -25,7 +22,7 @@ test.describe('Static text question for applicant flow', () => {
     '__Last line of content should be bold__'
   const programName = 'Test program for static text'
 
-  test.describe('With north star flag disabled', () => {
+test.describe('Static text question for applicant flow', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await setUpForSingleQuestion(
         programName,
@@ -37,7 +34,6 @@ test.describe('Static text question for applicant flow', () => {
 
     test('displays static text', async ({applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
-
       await applicantQuestions.seeStaticQuestion(staticText)
     })
 
@@ -46,54 +42,13 @@ test.describe('Static text question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-
       await validateAccessibility(page)
     })
 
     test('parses markdown', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(programName)
       await validateScreenshot(page, 'markdown-text')
-
       await verifyMarkdownHtml(page)
-    })
-  })
-
-  test.describe('With north star flag enabled', {tag: ['@northstar']}, () => {
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
-
-    test('parses markdown', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
-      await validateScreenshot(
-        page.getByTestId('staticQuestionRoot'),
-        'markdown-text-north-star',
-        /* fullPage= */ false,
-        /* mobileScreenshot= */ false,
-      )
-
-      await verifyMarkdownHtml(page)
-    })
-
-    test('has no accessiblity violations', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
-
-      await validateAccessibility(page)
     })
   })
 
@@ -105,7 +60,6 @@ test.describe('Static text question for applicant flow', () => {
   ) {
     // As admin, create program with static text question.
     await loginAsAdmin(page)
-
     await adminQuestions.addStaticQuestion({
       questionName: 'static-text-q',
       questionText: staticText,
@@ -140,4 +94,3 @@ test.describe('Static text question for applicant flow', () => {
       '<strong>Last line of content should be bold</strong>',
     )
   }
-})
