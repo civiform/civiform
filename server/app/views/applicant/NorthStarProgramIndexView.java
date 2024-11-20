@@ -98,7 +98,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION),
+                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
                           applicationPrograms.inProgress().stream(),
@@ -124,7 +124,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   profile,
                   applicantId,
                   personalInfo,
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
 
     // Used with hx-select to reload the Programs and services section and clear filters
@@ -183,7 +183,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     return programCardsSectionParamsFactory.getSection(
         request,
         messages,
-        Optional.empty(),
+        Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         buttonText,
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),

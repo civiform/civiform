@@ -40,6 +40,7 @@ public final class ProgramCardsSectionParamsFactory {
   public enum SectionType {
     MY_APPLICATIONS,
     COMMON_INTAKE,
+    UNFILTERED_PROGRAMS,
     STANDARD;
   }
 
