@@ -352,6 +352,7 @@ public enum MessageKey {
   TITLE_CREATE_CLIENT("title.createClient"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
+  TITLE_AVAILABLE_PROGRAMS_SECTION("title.availableProgramsSection"), // North Star only
   TITLE_BENEFITS_FINDER_SECTION_V2("title.benefitsFinderSection.v2"),
   TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
@@ -364,6 +365,7 @@ public enum MessageKey {
   TITLE_INELIGIBLE("title.ineligible"),
   TITLE_LOGIN("title.login"),
   TITLE_MY_APPLICATIONS_SECTION("title.myApplicationsSection"),
+  TITLE_MY_APPLICATIONS_SECTION_V2("title.myApplicationsSection.v2"), // North Star only
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),
   TITLE_ORG_MEMBERS("title.orgMembers"),
   TITLE_OTHER_PROGRAMS_SECTION_V2("title.otherProgramsSection.v2"),
