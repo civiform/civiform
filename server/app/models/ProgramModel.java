@@ -121,6 +121,12 @@ public class ProgramModel extends BaseModel {
    */
   @Nullable private String summaryImageFileKey;
 
+  /**
+   * A list of steps to apply to the program. The list contains up to 5 steps and each step contains
+   * a localized title and a localized description.
+   */
+  @DbJsonB private ImmutableList<ApplicationStep> applicationSteps;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -186,6 +192,7 @@ public class ProgramModel extends BaseModel {
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
+    this.applicationSteps = definition.applicationSteps();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -213,7 +220,8 @@ public class ProgramModel extends BaseModel {
       ProgramType programType,
       boolean eligibilityIsGating,
       ProgramAcls programAcls,
-      ImmutableList<CategoryModel> categories) {
+      ImmutableList<CategoryModel> categories,
+      ImmutableList<ApplicationStep> applicationSteps) {
     this.name = adminName;
     this.description = adminDescription;
 
@@ -232,6 +240,7 @@ public class ProgramModel extends BaseModel {
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
     this.categories = categories;
+    this.applicationSteps = applicationSteps;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -255,6 +264,7 @@ public class ProgramModel extends BaseModel {
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
     categories = programDefinition.categories();
+    applicationSteps = programDefinition.applicationSteps();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -281,7 +291,8 @@ public class ProgramModel extends BaseModel {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls)
-            .setCategories(ImmutableList.copyOf(categories));
+            .setCategories(ImmutableList.copyOf(categories))
+            .setApplicationSteps(ImmutableList.copyOf(applicationSteps));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);
