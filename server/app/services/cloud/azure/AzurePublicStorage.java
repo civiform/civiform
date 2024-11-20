@@ -86,5 +86,4 @@ public class AzurePublicStorage extends PublicStorageClient {
   public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
     throw new UnsupportedOperationException("not implemented");
   }
-
 }
