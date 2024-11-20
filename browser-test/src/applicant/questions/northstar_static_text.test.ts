@@ -24,7 +24,7 @@ const markdownText =
   '__Last line of content should be bold__'
 const programName = 'Test program for static text'
 
-test.describe('Static text question for applicant flow', () => {
+test.describe('Static text question for applicant flow',  {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await setUpForSingleQuestion(
       programName,
