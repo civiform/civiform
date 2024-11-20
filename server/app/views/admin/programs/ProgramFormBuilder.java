@@ -343,7 +343,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildApplicationSteps(ImmutableList<Map<String, String>> applicationSteps) {
-
     DivTag div = div();
     // build 5 application steps
     for (int i = 0; i < 5; i++) {
@@ -355,13 +354,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       }
       div.with(buildApplicationStepDiv(i, title, description));
     }
-
     return div;
   }
 
   private DivTag buildApplicationStepDiv(int i, String titleValue, String descriptionValue) {
+
     String index = Integer.toString(i);
     String indexPlusOne = Integer.toString(i + 1);
+
     FieldWithLabel title =
         FieldWithLabel.input()
             .setId("apply-step-" + indexPlusOne + "-title")

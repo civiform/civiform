@@ -742,10 +742,11 @@ public final class ProgramService {
     if (applicationSteps.size() == 0) {
       return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
     }
+
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
-      String title = step.getTitleForLocale(LocalizedStrings.DEFAULT_LOCALE);
-      String description = step.getDescriptionForLocale(LocalizedStrings.DEFAULT_LOCALE);
+      String title = step.getTitle().getDefault();
+      String description = step.getDescription().getDefault();
       boolean haveTitle = !title.isBlank();
       boolean haveDescription = !description.isBlank();
       // steps must have title AND description
@@ -760,6 +761,7 @@ public final class ProgramService {
                 String.format("Application step %s is missing a title", Integer.toString(i + 1))));
       }
     }
+
     return errorsBuilder;
   }
 
