@@ -13,8 +13,6 @@ import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.Transaction;
-import io.ebean.annotation.TxIsolation;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1326,25 +1324,19 @@ public final class ProgramService {
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     try {
-      Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
       ProgramDefinition programDefinition = getFullProgramDefinition(programId);
 
       BlockDefinition blockDefinition =
           programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
               .setLocalizedEligibilityMessage(message)
               .build();
-      
-      ProgramDefinition pd = updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
 
-      transaction.commit();
-
-      return pd;
-
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
     } catch (IllegalPredicateOrderingException e) {
-      // This exception is never going to happen as setting an eligibility message is never going to
-      // affect predicate order.
-      // But We still need to cover it here since updateProgramDefinitionWithBlockDefinition()
-      // throws IllegalPredicateOrderingException.
+      // This method throws IllegalPredicateOrderingException, but in this context it should never
+      // happen
+      // because setting an eligibility message does not affect predicate order.
+      // This try-catch block is included to satisfy the compiler and maintain code correctness.
       String errMsg =
           String.format(
               "Setting this eligibility message invalidates another. [programId: %d,"
