@@ -3,17 +3,17 @@
 <section
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
-  th:attrappend="aria-labelledby=${section.id().isPresent()}?${section.id().get()}"
-  th:id="${section.title().isPresent() and section.title().get().startsWith('Programs and services')}?programs-and-services"
+  th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
+  th:aria-label="${section.title().isPresent()} ? ${section.title().get()}"
+  th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div class="grid-container">
-    <div class="grid-row">
-      <h2
-        th:if="${section.title().isPresent()}"
+    <div class="grid-row usa-prose">
+      <h3
+        th:if="${section.sectionType().name() != 'UNFILTERED_PROGRAMS' && section.sectionType().name() != 'MY_APPLICATIONS' && section.title().isPresent()}"
         th:id="${section.id().get()}"
         th:text="${section.title().get()}"
-        class="my-4 text-lg"
-      ></h2>
+      ></h3>
     </div>
   </div>
   <div class="grid-container">

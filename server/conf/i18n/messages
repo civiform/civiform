@@ -226,10 +226,14 @@ title.activeProgramsUpdated=Not started
 title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=My applications ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programs and services ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
