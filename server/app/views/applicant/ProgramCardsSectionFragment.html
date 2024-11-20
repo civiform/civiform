@@ -5,7 +5,7 @@
   class="cf-application-program-section"
   th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
   th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
-  th:aria-label="${!showHeading} ? ${section.title().get()}"
+  th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
   th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div class="grid-container">
