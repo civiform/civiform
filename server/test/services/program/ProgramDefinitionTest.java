@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import models.QuestionModel;
@@ -67,6 +68,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
