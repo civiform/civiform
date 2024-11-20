@@ -24,39 +24,46 @@ const markdownText =
   '__Last line of content should be bold__'
 const programName = 'Test program for static text'
 
-test.describe('Static text question for applicant flow',  {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-    await setUpForSingleQuestion(
-      programName,
+test.describe(
+  'Static text question for applicant flow',
+  {tag: ['@northstar']},
+  () => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      await setUpForSingleQuestion(
+        programName,
+        page,
+        adminQuestions,
+        adminPrograms,
+      )
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('parses markdown', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await validateScreenshot(
+        page.getByTestId('staticQuestionRoot'),
+        'markdown-text-north-star',
+        /* fullPage= */ false,
+        /* mobileScreenshot= */ false,
+      )
+      await verifyMarkdownHtml(page)
+    })
+
+    test('has no accessiblity violations', async ({
       page,
-      adminQuestions,
-      adminPrograms,
-    )
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-  })
-
-  test('parses markdown', async ({page, applicantQuestions}) => {
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await validateScreenshot(
-      page.getByTestId('staticQuestionRoot'),
-      'markdown-text-north-star',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ false,
-    )
-    await verifyMarkdownHtml(page)
-  })
-
-  test('has no accessiblity violations', async ({page, applicantQuestions}) => {
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
-    await validateAccessibility(page)
-  })
-})
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await validateAccessibility(page)
+    })
+  },
+)
 
 async function setUpForSingleQuestion(
   programName: string,
