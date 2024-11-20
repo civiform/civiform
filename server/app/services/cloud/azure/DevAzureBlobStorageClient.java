@@ -13,6 +13,9 @@ import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.sas.SasProtocol;
 import com.typesafe.config.Config;
+
+import services.openapi.v2.In;
+
 import java.net.URLConnection;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -55,8 +58,9 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
     this.blobContainerClient =
         blobServiceClient.getBlobContainerClient(checkNotNull(containerName));
 
-    // In 'local' dev runs, there is no opportunity to terraform the azure deployment. Create
-    // the blob container now, and if neccesary configure the access policy for public reads.
+    // In local runs, Terraform doesn't set up the Azure container and associated access policies.
+    // Create the blob container if it doesn't exist, and if necessary configure the access policy
+    // for public reads.
     if (blobContainerClient.createIfNotExists() && allowPublicRead) {
       BlobSignedIdentifier identifier =
           new BlobSignedIdentifier()
