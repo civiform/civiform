@@ -12,19 +12,16 @@
 import {assertNotNull} from './util'
 
 class AzureUploadController {
-  private static FILEUPLOAD_FORM_ID = 'cf-block-form'
   private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
 
-  constructor() {
+  constructor(form_id: string) {
     if (
       document.querySelector(AzureUploadController.AZURE_UPLOAD_SELECTOR) ==
       null
     ) {
       return
     }
-    const blockForm = assertNotNull(
-      document.getElementById(AzureUploadController.FILEUPLOAD_FORM_ID),
-    )
+    const blockForm = assertNotNull(document.getElementById(form_id))
     blockForm.addEventListener('submit', (event) => {
       this.attemptUpload(event, blockForm)
     })
@@ -120,6 +117,6 @@ class AzureUploadController {
 }
 /* eslint-enable  @typescript-eslint/no-explicit-any */
 
-export function init() {
-  new AzureUploadController()
+export function init(form_id: string) {
+  new AzureUploadController(form_id)
 }

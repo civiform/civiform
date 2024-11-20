@@ -39,7 +39,8 @@ public class AzurePublicStorage extends PublicStorageClient {
 
     if (environment.isDev()) {
       client =
-          new DevAzureBlobStorageClient(config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION);
+          new DevAzureBlobStorageClient(
+              config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION, /* allowPublicRead= */ true);
     } else {
       client = new TestAzureBlobStorageClient();
     }
@@ -85,4 +86,5 @@ public class AzurePublicStorage extends PublicStorageClient {
   public void prunePublicFileStorage(ImmutableSet<String> inUseFileKeys) {
     throw new UnsupportedOperationException("not implemented");
   }
+
 }
