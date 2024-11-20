@@ -76,6 +76,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "Short description"))
             .setLocalizedConfirmationMessage(
                 LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
@@ -100,6 +101,8 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().localizedShortDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "Short description"));
     assertThat(found.getProgramDefinition().notificationPreferences())
         .containsExactlyInAnyOrder(
             ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
@@ -173,6 +176,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -233,6 +237,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -354,6 +359,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)

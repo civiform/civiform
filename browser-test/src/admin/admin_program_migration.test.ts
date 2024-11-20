@@ -208,7 +208,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // replace the program admin name with an invalid admin name to trigger an error
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program',
@@ -231,7 +230,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from the questionDefinition.validate
       // there are other errors that might bubble up (such as a blank question text) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // set the program admin name back to a valid admin name
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program ##4L!',
@@ -272,6 +270,7 @@ test.describe('program migration', () => {
       await adminPrograms.addProgram(
         'New Program',
         'program description',
+        'short program description',
         'https://usa.gov',
         ProgramVisibility.SELECT_TI,
         'admin description',
@@ -391,9 +390,9 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should be updated with "-1" on the end)
+      // admin name (should be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
-        'Admin name: Sample Address Question-1',
+        'Admin name: Sample Address Question -_- a',
       )
       // admin description
       await expect(programDataDiv).toContainText(
@@ -580,7 +579,7 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should not be updated with "-1" on the end)
+      // admin name (should not be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
         'Admin name: Sample Address Question',
       )

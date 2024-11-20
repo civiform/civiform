@@ -26,6 +26,7 @@ test.describe(
         await adminPrograms.addProgram(
           programName,
           'Display description',
+          'Short description',
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',

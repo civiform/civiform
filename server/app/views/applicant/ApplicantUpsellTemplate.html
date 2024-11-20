@@ -20,7 +20,7 @@
 
             <section class="section-external">
               <div
-                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2')}"
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2', role='status')}"
               ></div>
             </section>
 
@@ -72,9 +72,11 @@
                 <p th:text="${customConfirmationMessage}"></p>
               </section>
 
-              <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
-              ></div>
+              <div th:if="${isGuest}">
+                <div
+                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
+                ></div>
+              </div>
 
               <div class="section-internal">
                 <a

@@ -20,7 +20,6 @@ https://designsystem.digital.gov/utilities/.
   // but we override the background color with Tailwind "bg-gray-900" when we
   // create the banner.
   $theme-banner-background-color: 'blue-90',
-  $border-settings: ('output': false),
   $color-settings: ('output': false),
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
   $theme-focus-offset: 0.5,

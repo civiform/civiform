@@ -205,8 +205,7 @@ public final class ApplicantService {
               return new ReadOnlyApplicantProgramServiceImpl(
                   jsonPathPredicateGeneratorFactory,
                   applicant.getApplicantData(),
-                  programDefinition,
-                  baseUrl);
+                  programDefinition);
             },
             classLoaderExecutionContext.current());
   }
@@ -219,8 +218,7 @@ public final class ApplicantService {
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
-              programService.getFullProgramDefinition(application.getProgram().id),
-              baseUrl));
+              programService.getFullProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -230,17 +228,14 @@ public final class ApplicantService {
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory,
-        application.getApplicantData(),
-        programDefinition,
-        baseUrl);
+        jsonPathPredicateGeneratorFactory, application.getApplicantData(), programDefinition);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, applicantData, programDefinition, baseUrl);
+        jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
   }
 
   /**
@@ -330,8 +325,7 @@ public final class ApplicantService {
                   new ReadOnlyApplicantProgramServiceImpl(
                       jsonPathPredicateGeneratorFactory,
                       applicant.getApplicantData(),
-                      programDefinition,
-                      baseUrl);
+                      programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -348,7 +342,6 @@ public final class ApplicantService {
                         (serviceAreaUpdate) -> {
                           return stageAndUpdateIfValid(
                               applicant,
-                              baseUrl,
                               blockBeforeUpdate,
                               programDefinition,
                               updates,
@@ -360,7 +353,6 @@ public final class ApplicantService {
 
               return stageAndUpdateIfValid(
                   applicant,
-                  baseUrl,
                   blockBeforeUpdate,
                   programDefinition,
                   updates,
@@ -377,7 +369,6 @@ public final class ApplicantService {
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       ApplicantModel applicant,
-      String baseUrl,
       Block blockBeforeUpdate,
       ProgramDefinition programDefinition,
       ImmutableSet<Update> updates,
@@ -402,7 +393,6 @@ public final class ApplicantService {
             jsonPathPredicateGeneratorFactory,
             applicant.getApplicantData(),
             programDefinition,
-            baseUrl,
             failedUpdates);
 
     Optional<Block> blockMaybe =

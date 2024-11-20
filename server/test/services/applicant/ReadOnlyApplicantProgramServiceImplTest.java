@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -37,8 +36,6 @@ import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
-  private static final String FAKE_BASE_URL = "http://fake-base-url";
-
   private QuestionDefinition nameQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition addressQuestion;
@@ -70,7 +67,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getProgramTitle_returnsProgramTitleInDefaultLocale() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.getProgramTitle()).isEqualTo("My Program setup");
   }
@@ -80,7 +77,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     applicantData.setPreferredLocale(Locale.GERMAN);
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
   }
@@ -104,7 +101,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(service.getStoredFileKeys(false)).containsExactly("file-key");
   }
@@ -128,7 +125,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
   }
@@ -157,7 +154,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
   }
@@ -176,7 +173,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(service.getStoredFileKeys(false)).isEmpty();
   }
@@ -237,7 +234,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     ImmutableList<ApplicantQuestion> applicantQuestions =
         subject.getAllQuestions().collect(ImmutableList.toImmutableList());
 
@@ -288,10 +285,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory,
-            applicantData,
-            programDefinitionWithStatic,
-            FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinitionWithStatic);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(3);
@@ -311,10 +305,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory,
-            applicantData,
-            programDefinitionWithStatic,
-            FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinitionWithStatic);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
@@ -360,7 +351,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
@@ -392,7 +383,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(2);
@@ -453,7 +444,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
     assertThat(blocks).as("The block count when the Predicate evluates to visible").hasSize(10);
@@ -462,7 +453,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     answerColorQuestion(program.id(), "red");
     ReadOnlyApplicantProgramService serviceWhenHidden =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     ImmutableList<Block> blocksWhenHidden = serviceWhenHidden.getAllActiveBlocks();
 
     assertThat(blocks).isNotEqualTo(blocksWhenHidden);
@@ -487,7 +478,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
     Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
@@ -544,7 +535,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
@@ -642,7 +633,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getInProgressBlocks_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(2);
@@ -657,7 +648,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(1);
@@ -673,7 +664,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).isEmpty();
@@ -686,7 +677,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
@@ -705,7 +696,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
@@ -742,14 +733,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(2);
 
     // Answer "green" to the question - the predicate is now false, so we should not show the block.
     answerColorQuestion(program.id(), "green");
     service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(1);
   }
 
@@ -778,14 +769,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(1);
 
     // Answer "green" to the question - the predicate is now false, so we should show the block.
     answerColorQuestion(program.id(), "green");
     service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(2);
   }
 
@@ -817,7 +808,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     answerNameQuestion(program.id());
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
     assertThat(service.getInProgressBlocks()).hasSize(3);
   }
 
@@ -838,7 +829,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -860,7 +851,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -875,7 +866,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -897,7 +888,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -919,7 +910,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -934,7 +925,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -945,7 +936,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -969,7 +960,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -995,7 +986,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -1021,7 +1012,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
 
     assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
   }
@@ -1043,7 +1034,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
 
     assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
   }
@@ -1065,7 +1056,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, program, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, program);
 
     assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
   }
@@ -1074,7 +1065,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getActiveBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getActiveBlock("1");
 
@@ -1086,7 +1077,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getActiveBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getActiveBlock("111");
 
@@ -1097,7 +1088,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
@@ -1109,7 +1100,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
@@ -1135,8 +1126,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setEligibilityIsGating(true)
                 .setAcls(new ProgramAcls())
                 .setCategories(ImmutableList.of())
-                .build(),
-            FAKE_BASE_URL);
+                .build());
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
@@ -1147,7 +1137,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getFirstIncompleteBlock_firstIncompleteBlockReturned() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteOrStaticBlock();
 
@@ -1162,7 +1152,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
@@ -1176,7 +1166,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void preferredLanguageSupported_returnsTrueForDefaults() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     assertThat(subject.preferredLanguageSupported()).isTrue();
   }
 
@@ -1186,7 +1176,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
@@ -1276,7 +1266,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(9);
@@ -1286,111 +1276,15 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
 
     // Check single and multi select answers
     assertThat(result.get(3).questionIndex()).isEqualTo(3);
-    assertThat(result.get(3).scalarAnswersInDefaultLocale())
-        .containsExactly(
-            new AbstractMap.SimpleEntry<>(
-                ApplicantData.APPLICANT_PATH
-                    .join(singleSelectQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.SELECTION),
-                "winter"));
     assertThat(result.get(4).questionIndex()).isEqualTo(4);
-    assertThat(result.get(4).scalarAnswersInDefaultLocale())
-        .containsExactly(
-            new AbstractMap.SimpleEntry<>(
-                ApplicantData.APPLICANT_PATH
-                    .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.SELECTIONS),
-                "[toaster, pepper_grinder]"));
 
     // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
-    if (multipleFilesEnabled) {
-      String file1Url =
-          String.format(
-              "%s/admin/programs/%d/files/%s", FAKE_BASE_URL, programDefinition.id(), "file-key-1");
-      String file2Url =
-          String.format(
-              "%s/admin/programs/%d/files/%s", FAKE_BASE_URL, programDefinition.id(), "file-key-2");
-
-      assertThat(result.get(5).scalarAnswersInDefaultLocale())
-          .containsExactly(
-              new AbstractMap.SimpleEntry<>(
-                  ApplicantData.APPLICANT_PATH
-                      .join(fileQuestionDefinition.getQuestionPathSegment())
-                      .join(Scalar.FILE_KEY_LIST),
-                  String.format("%s, %s", file1Url, file2Url)));
-
-    } else {
-      assertThat(result.get(5).scalarAnswersInDefaultLocale())
-          .containsExactly(
-              new AbstractMap.SimpleEntry<>(
-                  ApplicantData.APPLICANT_PATH
-                      .join(fileQuestionDefinition.getQuestionPathSegment())
-                      .join(Scalar.FILE_KEY),
-                  String.format(
-                      "%s/admin/programs/%d/files/%s",
-                      FAKE_BASE_URL, programDefinition.id(), "file-key")),
-              new AbstractMap.SimpleEntry<>(
-                  ApplicantData.APPLICANT_PATH
-                      .join(fileQuestionDefinition.getQuestionPathSegment())
-                      .join(Scalar.FILE_KEY_LIST),
-                  String.format(
-                      "%s/admin/programs/%d/files/%s",
-                      FAKE_BASE_URL, programDefinition.id(), "file-key")));
-    }
 
     // Check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
-    assertThat(result.get(6).scalarAnswersInDefaultLocale())
-        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
     assertThat(result.get(7).questionIndex()).isEqualTo(0);
-    assertThat(result.get(7).scalarAnswersInDefaultLocale())
-        .containsExactlyEntriesOf(
-            ImmutableMap.of(
-                enumeratorPath
-                    .atIndex(0)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.FIRST_NAME),
-                "first",
-                enumeratorPath
-                    .atIndex(0)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.MIDDLE_NAME),
-                "middle",
-                enumeratorPath
-                    .atIndex(0)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.LAST_NAME),
-                "last",
-                enumeratorPath
-                    .atIndex(0)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.NAME_SUFFIX),
-                "suffix"));
     assertThat(result.get(8).questionIndex()).isEqualTo(0);
-    assertThat(result.get(8).scalarAnswersInDefaultLocale())
-        .containsExactlyEntriesOf(
-            ImmutableMap.of(
-                enumeratorPath
-                    .atIndex(1)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.FIRST_NAME),
-                "foo",
-                enumeratorPath
-                    .atIndex(1)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.MIDDLE_NAME),
-                "bar",
-                enumeratorPath
-                    .atIndex(1)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.LAST_NAME),
-                "baz",
-                enumeratorPath
-                    .atIndex(1)
-                    .join(repeatedQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.NAME_SUFFIX),
-                "qux"));
 
     for (int i = 0; i < result.size(); ++i) {
       assertThat(result.get(i).isEligible())
@@ -1420,7 +1314,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(2);
@@ -1451,7 +1345,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(2);
@@ -1494,7 +1388,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(1);
@@ -1505,7 +1399,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
@@ -1519,7 +1413,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
 
     assertThat(subject.getBlockIndex("1")).isEqualTo(0);
     assertThat(subject.getBlockIndex("2")).isEqualTo(1);
@@ -1561,7 +1455,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     assertThat(subject.isApplicationEligible()).isEqualTo(expectedResult);
   }
 
@@ -1624,7 +1518,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
@@ -1684,7 +1578,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
-            jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
+            jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
     assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 

@@ -4,7 +4,11 @@ import {BASE_URL} from './src/support/config'
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
 export default defineConfig({
-  timeout: 90000,
+  // 45s was too small when run against the staging site. Trying to lower
+  // this a little bit again to find a middle ground. We could eventually
+  // make the timeout an environment variable so we can have a longer
+  // timeout for staging.
+  timeout: 90000, // 90s
   testDir: './src',
   // Exit with error immediately if test.only() or test.describe.only()
   // was committed
@@ -13,7 +17,11 @@ export default defineConfig({
   globalSetup: './src/setup/global-setup.ts',
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI === 'true' ? 1 : 0,
+  // For us, having retries enabled does not appear to have been particularly
+  // beneficial. Instead it makes failues end up taking 2 * timeout. As long
+  // as retain-on-failure used below works correctly we're probably fine not
+  // retrying.
+  retries: 0,
   outputDir: './tmp/test-output',
   expect: {
     toHaveScreenshot: {
@@ -25,8 +33,10 @@ export default defineConfig({
     },
   },
   use: {
-    trace: process.env.CI === 'true' ? 'on-first-retry' : 'on',
-    video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',
+    // retain-on-failure should remove trace and video files when a test succeeds allowing
+    // for minimizing cloud storage needs.
+    trace: process.env.CI === 'true' ? 'retain-on-failure' : 'on',
+    video: process.env.RECORD_VIDEO === 'true' ? 'retain-on-failure' : 'off',
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
   },

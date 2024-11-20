@@ -98,7 +98,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
               programCardsSectionParamsFactory.getSection(
                   request,
                   messages,
-                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION),
+                  Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
                           applicationPrograms.inProgress().stream(),
@@ -124,8 +124,16 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   profile,
                   applicantId,
                   personalInfo,
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
+
+    // Used with hx-select to reload the Programs and services section and clear filters
+    String refreshUrl =
+        applicantId.isPresent() && profile.isPresent()
+            ? applicantRoutes.index(profile.get(), applicantId.get()).url()
+            : controllers.applicant.routes.ApplicantProgramsController.indexWithoutApplicantId(
+                    ImmutableList.of())
+                .url();
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);
@@ -140,6 +148,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
+    context.setVariable("refreshUrl", refreshUrl);
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
@@ -174,7 +183,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     return programCardsSectionParamsFactory.getSection(
         request,
         messages,
-        Optional.empty(),
+        Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         buttonText,
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),

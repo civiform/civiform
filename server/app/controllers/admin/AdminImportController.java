@@ -13,9 +13,12 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
+import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.Form;
 import play.data.FormFactory;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationStatusesRepository;
@@ -101,8 +104,13 @@ public class AdminImportController extends CiviFormController {
     return ok(adminImportView.render(request));
   }
 
-  /** HTMX Partial that parses and renders the program data included in the request. */
+  /**
+   * HTMX Partial that parses and renders the program data included in the request. This uses {@link
+   * parsers.LargeFormUrlEncodedBodyParser} to increase the request limit to 1 MiB. Program json is
+   * often quite large so we need to increase the buffer limit above the Play default.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxImportProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
@@ -190,7 +198,7 @@ public class AdminImportController extends CiviFormController {
         programService.validateProgramDataForCreate(
             program.adminName(),
             program.localizedName().getDefault(),
-            program.localizedDescription().getDefault(),
+            program.localizedShortDescription().getDefault(),
             program.externalLink(),
             program.displayMode().getValue(),
             notificationPreferences,
@@ -212,9 +220,13 @@ public class AdminImportController extends CiviFormController {
 
     // When we are importing without duplicate questions, we expect all drafts to be published
     // before the import process begins.
+    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
     if (!withDuplicates
-        && versionRepository.getDraftVersion().isPresent()
-        && !versionRepository.getDraftVersion().get().getPrograms().isEmpty()) {
+        && draftVersion.isPresent()
+        // If there are either questions or programs in the draft, we should show this error
+        && (versionRepository.getProgramCountForVersion(draftVersion.get())
+                + versionRepository.getQuestionCountForVersion(draftVersion.get())
+            > 0)) {
       return ok(
           adminImportViewPartial
               .renderError(

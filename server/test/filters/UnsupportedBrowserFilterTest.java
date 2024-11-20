@@ -3,10 +3,10 @@ package filters;
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.apache.pekko.stream.testkit.NoMaterializer$;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.libs.streams.Accumulator;

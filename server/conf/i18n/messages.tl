@@ -67,6 +67,8 @@ link.opensNewTabSr=magbubukas sa bagong tab
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -121,7 +123,7 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Suriin at umalis
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +133,7 @@ content.blockProgressFull={0} sa {1} ang natapos
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Pag-usad ng aplikasyon
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Suriin at isumite
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -177,6 +179,8 @@ button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 button.startHere=Magsimula rito
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -193,9 +197,13 @@ content.findPrograms=Maghanap ng mga program
 content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga programa kung saan posibleng kwalipikado ka sa {0}. Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # Link text to read more about a program.
@@ -232,6 +240,12 @@ title.submittedPrograms=Isinumite
 toast.applicationSaved=Successfully saved application: Matagumpay na nai-save ang aplikasyon: ID ng aplikasyon {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Nakumpleto na ang aplikasyon.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -379,7 +393,7 @@ title.tiAccountSettings=Pinagkakatiwalaang Intermediary - Tingnan ang Mga Settin
 # Submit application button
 button.submit=Isumite
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Isumite ang application
 # Continue application button
 button.continue=Magsimula dito
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -414,7 +428,7 @@ title.programSummary=Buod ng application para sa programa
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Hindi kwalipikado para sa program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -536,7 +550,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraa
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=I-download ang iyong application
 button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa

@@ -3,11 +3,11 @@ package filters;
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.CollectorRegistry;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.pekko.stream.testkit.NoMaterializer$;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.streams.Accumulator;

@@ -1,6 +1,5 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -50,50 +49,6 @@ test.describe('Text question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage()
-    })
-
-    test.describe('with north star flag enabled', {tag: ['@northstar']}, () => {
-      test.beforeEach(async ({page}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'text-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
-          )
-        })
-
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'text-errors-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ false,
-          )
-        })
-      })
-
-      test('has no accessiblity violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await validateAccessibility(page)
-      })
     })
 
     test('with empty text does not submit', async ({

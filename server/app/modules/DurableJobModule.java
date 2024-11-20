@@ -1,6 +1,5 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
@@ -29,6 +28,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 import models.JobType;
+import org.apache.pekko.actor.ActorSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
@@ -64,7 +64,7 @@ public final class DurableJobModule extends AbstractModule {
    * <p>See <a href="https://github.com/civiform/civiform/pull/8253">PR 8253</a> for more extensive
    * details.
    *
-   * <p>Additionally this uses The Akka scheduling system to schedules the job runner to run on an
+   * <p>Additionally this uses The Pekko scheduling system to schedules the job runner to run on an
    * interval.
    */
   public static final class DurableJobRunnerScheduler {

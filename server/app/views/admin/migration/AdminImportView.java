@@ -32,14 +32,15 @@ import views.style.BaseStyles;
  */
 public class AdminImportView extends BaseHtmlView {
   /**
-   * Play Framework defaults to 100KB memory limit per request. We set this to 256KB in
-   * application.conf to allow large programs to be imported. More info:
+   * Play Framework defaults to 100KB memory limit per request which is too small for many programs.
+   * We use a custom body parser {@link parsers.LargeFormUrlEncodedBodyParser} to allow large
+   * programs to be imported. More info:
    * https://www.playframework.com/documentation/2.9.x/JavaBodyParsers#Content-length-limits
    *
    * <p>Pasting in a json string above this limit will automatically truncate the string which
    * results in a server error.
    */
-  private static final int MAX_TEXT_LENGTH = 256000;
+  private static final int MAX_TEXT_LENGTH = 512000;
 
   private final AdminLayout layout;
 
@@ -116,9 +117,6 @@ public class AdminImportView extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setFieldName(AdminProgramImportForm.PROGRAM_JSON_FIELD)
             .setPlaceholderText("Paste the JSON file contents into this box.")
-            // Note: The AdminExportView will pretty-prints the JSON, which adds a lot of
-            // whitespace. If we find that admins are regularly going over the length limit, we
-            // could stop pretty-printing the JSON.
             .setMaxLength(MAX_TEXT_LENGTH)
             .setAttribute("rows", "10")
             .setAttribute("spellcheck", "false")
@@ -131,7 +129,7 @@ public class AdminImportView extends BaseHtmlView {
                     + " import a larger program, please contact the engineering team.")
                 .withClasses(BaseStyles.FORM_LABEL_TEXT_COLOR, "text-sm", "pb-2"),
             form()
-                .attr("hx-encoding", "multipart/form-data")
+                .attr("hx-encoding", "application/x-www-form-urlencoded")
                 .attr("hx-post", routes.AdminImportController.hxImportProgram().url())
                 .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
                 .attr("hx-swap", "outerHTML")

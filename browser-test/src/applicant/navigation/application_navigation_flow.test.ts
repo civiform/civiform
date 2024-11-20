@@ -123,6 +123,7 @@ test.describe('Applicant navigation flow', () => {
       await adminPrograms.addProgram(
         programWithExternalLink,
         programDescriptionWithMarkdown,
+        'short program description',
         'https://external.com',
       )
       await adminPrograms.publishProgram(programWithExternalLink)

@@ -125,6 +125,7 @@ public enum MessageKey {
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
+  BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
@@ -157,6 +158,7 @@ public enum MessageKey {
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
+  CONTENT_HOMEPAGE_INTRO("content.homepageIntro"), // North Star only
   CONTENT_LAST_APPLICATION_DATE("content.lastApplicationDate"),
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
@@ -237,6 +239,7 @@ public enum MessageKey {
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
+  HEADING_HOMEPAGE("heading.homepage"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
@@ -260,6 +263,7 @@ public enum MessageKey {
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
   LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
+  LABEL_GUEST_SESSION_ALERT("label.guestSessionAlert"),
   LABEL_IN_PROGRESS("label.inProgress"), // North Star only
   LABEL_SUBMITTED("label.submitted"), // North Star only
   LABEL_SUBMITTED_ON("label.submittedOn"), // North Star only
@@ -348,6 +352,7 @@ public enum MessageKey {
   TITLE_CREATE_CLIENT("title.createClient"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
+  TITLE_AVAILABLE_PROGRAMS_SECTION("title.availableProgramsSection"), // North Star only
   TITLE_BENEFITS_FINDER_SECTION_V2("title.benefitsFinderSection.v2"),
   TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
@@ -360,6 +365,7 @@ public enum MessageKey {
   TITLE_INELIGIBLE("title.ineligible"),
   TITLE_LOGIN("title.login"),
   TITLE_MY_APPLICATIONS_SECTION("title.myApplicationsSection"),
+  TITLE_MY_APPLICATIONS_SECTION_V2("title.myApplicationsSection.v2"), // North Star only
   TITLE_NO_CHANGES_TO_SAVE("title.noChangesToSave"),
   TITLE_ORG_MEMBERS("title.orgMembers"),
   TITLE_OTHER_PROGRAMS_SECTION_V2("title.otherProgramsSection.v2"),
