@@ -55,8 +55,8 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
     this.blobContainerClient =
         blobServiceClient.getBlobContainerClient(checkNotNull(containerName));
 
-    // In 'local' dev runs, there is no chance to terraform the azure deployment. Create the
-    // container now, and if neccesary configure the access policy for public reads.
+    // In 'local' dev runs, there is no opportunity to terraform the azure deployment. Create
+    // the blob container now, and if neccesary configure the access policy for public reads.
     if (blobContainerClient.createIfNotExists() && allowPublicRead) {
       BlobSignedIdentifier identifier =
           new BlobSignedIdentifier()
