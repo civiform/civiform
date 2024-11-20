@@ -1316,6 +1316,7 @@ public final class ProgramService {
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    */
+  // TODO: wrap this method in a transaction, see issue ##9277.
   public ProgramDefinition setBlockEligibilityMessage(
       long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
