@@ -183,7 +183,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     return programCardsSectionParamsFactory.getSection(
         request,
         messages,
-        Optional.empty(),
+        Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         buttonText,
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),

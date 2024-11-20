@@ -3,14 +3,15 @@
 <section
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
+  th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
   th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
-  th:aria-label="${section.title().isPresent()} ? ${section.title().get()}"
+  th:aria-label="${!showHeading} ? ${section.title().get()}"
   th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div class="grid-container">
     <div class="grid-row usa-prose">
       <h3
-        th:if="${section.sectionType().name() != 'UNFILTERED_PROGRAMS' && section.sectionType().name() != 'MY_APPLICATIONS' && section.title().isPresent()}"
+        th:if="${showHeading}"
         th:id="${section.id().get()}"
         th:text="${section.title().get()}"
       ></h3>

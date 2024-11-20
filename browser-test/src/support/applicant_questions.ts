@@ -403,8 +403,17 @@ export class ApplicantQuestions {
     /* Toggle whether filters have been selected */ filtersOn = false,
     northStarEnabled = false,
   ) {
-    const gotMyApplicationsProgramNames =
-      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
+    let gotMyApplicationsProgramNames
+
+    if (northStarEnabled) {
+      gotMyApplicationsProgramNames =
+        await this.northStarProgramNamesForSection(
+          CardSectionName.MyApplications,
+        )
+    } else {
+      gotMyApplicationsProgramNames =
+        await this.programNamesForSection('My applications')
+    }
 
     let gotRecommendedProgramNames
     let gotOtherProgramNames
