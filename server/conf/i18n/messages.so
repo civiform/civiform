@@ -67,6 +67,8 @@ link.opensNewTabSr=waxay ku furaysaa bog cusub
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -121,7 +123,7 @@ button.previousScreen=Hore
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Noqo
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Dib u eeg oo ka bax
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Ka bood
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +133,7 @@ content.blockProgressFull={0} ee {1} la dhameeyay
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Geeddi socodka arjiga
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Dib u eeg oo gudbi
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -177,6 +179,8 @@ button.continueSr=U sii wad codsiga ila {0}
 button.startHere=Halkan ka bilow.
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -193,9 +197,13 @@ content.findPrograms=Hel barnaamijyo
 content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada laga yaabo inaad ugu qalmi karayso{0}. Ku bilow adigoo codsi ka dooranaya hoos.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # Link text to read more about a program.
@@ -232,6 +240,12 @@ title.submittedPrograms=La gudbiyay
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -379,7 +393,7 @@ title.tiAccountSettings=Dhexdhexaadiye la aamini karo - Eeg goobaha Koontada - C
 # Submit application button
 button.submit=Gudbi
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Gudbi codsiga
 # Continue application button
 button.continue=Sii wad
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -414,7 +428,7 @@ title.programSummary=Soo koobida barnaamijka codsiga
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Aan u qalmin barnaamijka
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -536,7 +550,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=Soo deji codsigaaga
 button.downloadPdf=Soo.deji.PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Codso barnaamijyada

@@ -67,6 +67,8 @@ link.opensNewTabSr=страница откроется в новой вклад�
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -177,6 +179,8 @@ button.continueSr=Продолжить заполнять заявку на уч
 button.startHere=Начать
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -193,9 +197,13 @@ content.findPrograms=Находите программы
 content.findProgramsDescription=CiviForm позволяет находить программы, которые могут быть доступны для вас в этом регионе ({0}). Чтобы приступить к заполнению данных, выберите форму или программу ниже.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # Link text to read more about a program.
@@ -232,6 +240,12 @@ title.submittedPrograms=Вы отправили заявку
 toast.applicationSaved=Заявка с идентификатором {0} сохранена.
 # Alert banner when an application was already completed
 toast.programCompleted=Заявка уже заполнена.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #

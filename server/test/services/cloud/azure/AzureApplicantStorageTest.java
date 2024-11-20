@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.cloud.StorageServiceName;
-import services.cloud.azure.AzureApplicantStorage.Client;
-import services.cloud.azure.AzureApplicantStorage.NullClient;
 
 public class AzureApplicantStorageTest extends ResetPostgres {
 
@@ -21,11 +19,11 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getClient_instanceOfNullClient() {
-    Client client = azureApplicantStorage.getClient();
+  public void getClient_instanceOfAzureBlobStorageClientForTest() {
+    AzureBlobStorageClientInterface client = azureApplicantStorage.getClient();
 
-    assertThat(client).isInstanceOf(NullClient.class);
-    assertThat(client).isInstanceOf(Client.class);
+    assertThat(client).isInstanceOf(TestAzureBlobStorageClient.class);
+    assertThat(client).isInstanceOf(AzureBlobStorageClientInterface.class);
   }
 
   @Test
