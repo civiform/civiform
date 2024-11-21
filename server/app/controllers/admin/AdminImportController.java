@@ -208,9 +208,8 @@ public class AdminImportController extends CiviFormController {
               );
       if (!programErrors.isEmpty()) {
         // We want to reference "admin name" instead of "URL" in errors, because there is no URL
-        // field
-        // in program migration. The existing error strings were created for the program create/edit
-        // UI which has a URL field that is generated from the admin name.
+        // field in program migration. The existing error strings were created for the program
+        // create/edit UI which has a URL field that is generated from the admin name.
         String errorString = joinErrors(programErrors).replace("URL", "admin name");
         return ok(
             adminImportViewPartial
