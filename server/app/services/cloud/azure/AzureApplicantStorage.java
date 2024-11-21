@@ -18,6 +18,7 @@ import services.cloud.StorageServiceName;
 /** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
 public class AzureApplicantStorage implements ApplicantStorageClient {
+  @VisibleForTesting static final String AZURE_FILE_LIMIT_MB_CONF_PATH = "azure.blob.file_limit_mb";
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_NAME_CONF_PATH = "azure.blob.container_name";
@@ -31,6 +32,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
   private final String containerName;
   private final AzureBlobStorageClientInterface client;
+  private final int fileLimitMb;
   private final String accountName;
 
   @Inject
@@ -39,6 +41,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
     this.containerName = checkNotNull(config).getString(AZURE_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
+    this.fileLimitMb = checkNotNull(config).getInt(AZURE_FILE_LIMIT_MB_CONF_PATH);
 
     String blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
@@ -67,9 +70,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public int getFileLimitMb() {
-    // We currently don't enforce a file limit for Azure, so use the max integer value.
-    // TODO(#7013): Enforce a file size limit for Azure.
-    return Integer.MAX_VALUE;
+    return fileLimitMb;
   }
 
   @Override
