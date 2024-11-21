@@ -34,7 +34,9 @@ public class AzurePublicStorageTest extends ResetPostgres {
   public void getFileLimitMb() {
     int sizeLimit = azurePublicStorage.getFileLimitMb();
     assertThat(sizeLimit)
-        .isEqualTo(instanceOf(Config.class).getString(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH));
+        .isEqualTo(
+            Integer.parseInt(
+                instanceOf(Config.class).getString(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH)));
   }
 
   @Test
