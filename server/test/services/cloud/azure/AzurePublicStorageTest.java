@@ -3,6 +3,7 @@ package services.cloud.azure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static services.cloud.azure.AzurePublicStorage.AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH;
+import static services.cloud.azure.AzurePublicStorage.AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -32,7 +33,8 @@ public class AzurePublicStorageTest extends ResetPostgres {
   @Test
   public void getFileLimitMb() {
     int sizeLimit = azurePublicStorage.getFileLimitMb();
-    assertThat(sizeLimit).isEqualTo(Integer.MAX_VALUE);
+    assertThat(sizeLimit)
+        .isEqualTo(instanceOf(Config.class).getString(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH));
   }
 
   @Test

@@ -24,11 +24,15 @@ public class AzurePublicStorage extends PublicStorageClient {
   @VisibleForTesting
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
 
+  @VisibleForTesting
+  static final String AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH = "azure.blob.public_file_limit_mb";
+
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
   private final String containerName;
   private final String accountName;
+  private final int fileLimitMb;
   private final AzureBlobStorageClientInterface client;
 
   @Inject
@@ -36,6 +40,7 @@ public class AzurePublicStorage extends PublicStorageClient {
 
     this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
+    this.fileLimitMb = checkNotNull(config).getInt(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH);
 
     if (environment.isDev()) {
       client =
@@ -53,9 +58,7 @@ public class AzurePublicStorage extends PublicStorageClient {
 
   @Override
   public int getFileLimitMb() {
-    // We currently don't enforce a file limit for Azure, so use the max integer value.
-    // TODO(#7013): Enforce a file size limit for Azure.
-    return Integer.MAX_VALUE;
+    return fileLimitMb;
   }
 
   @Override
