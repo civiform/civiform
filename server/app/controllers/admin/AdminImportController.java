@@ -310,6 +310,7 @@ public class AdminImportController extends CiviFormController {
    * neccessary question updates before saving the program
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");
