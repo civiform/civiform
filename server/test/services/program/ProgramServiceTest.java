@@ -2209,6 +2209,70 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void setBlockEligibilityMessage_throwsProgramNotFoundException() {
+    Optional<LocalizedStrings> eligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
+
+    assertThatThrownBy(() -> ps.setBlockEligibilityMessage(1L, 2L, eligibilityMsg))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessage("Program not found for ID: 1");
+  }
+
+  @Test
+  public void setBlockEligibilityMessage_throwsProgramBlockDefinitionNotFoundException() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+    Optional<LocalizedStrings> eligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
+
+    assertThatThrownBy(
+            () -> ps.setBlockEligibilityMessage(programDefinition.id(), 100L, eligibilityMsg))
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
+        .hasMessage(
+            String.format(
+                "Block not found in Program (ID %d) for block definition ID 100",
+                programDefinition.id()));
+  }
+
+  @Test
+  public void setBlockEligibilityMessage_addsEligibilityMessage() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id());
+    Optional<LocalizedStrings> eligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "custom eligibility message"));
+
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
+
+    ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage().equals(eligibilityMsg));
+  }
+
+  @Test
+  public void setBlockEligibilityMessage_updatesExistingEligibilityMessage() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
+        ps.addBlockToProgram(programDefinition.id());
+    Optional<LocalizedStrings> firstEligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
+    Optional<LocalizedStrings> secondEligibilityMsg =
+        Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
+
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
+
+    ps.setBlockEligibilityMessage(
+        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage().equals(firstEligibilityMsg));
+    ps.setBlockEligibilityMessage(
+        updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
+    assertThat(addedBlock.localizedEligibilityMessage().equals(secondEligibilityMsg));
+  }
+
+  @Test
   public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
     assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
         .isInstanceOf(ProgramNotFoundException.class)
