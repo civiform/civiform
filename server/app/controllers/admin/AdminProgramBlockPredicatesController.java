@@ -8,14 +8,18 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
+import forms.admin.BlockEligibilityMessageForm;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
+import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -385,10 +389,30 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateEligibilityMessage(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotActive(programId);
 
-    
-    
-    final String indexUrl = routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId).url();
+    Form<BlockEligibilityMessageForm> EligibilityMsgform =
+        formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request);
+    String newMessage = EligibilityMsgform.get().getEligibilityMessage();
+    String toastType;
+    String toastMessage;
+
+    try {
+      programService.setBlockEligibilityMessage(
+          programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
+      toastType = "success";
+
+      if (newMessage.isBlank()) {
+        toastMessage = "Eligibility message removed.";
+      } else {
+        toastMessage = "Eligibility message set to " + newMessage;
+      }
+    } catch (ProgramNotFoundException e) {
+      return notFound("Program not found ", e.toString());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound("Program block definition not found", e.toString());
+    }
+    final String indexUrl =
+        routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
+            .url();
     return redirect(indexUrl).flashing(null);
   }
-
 }

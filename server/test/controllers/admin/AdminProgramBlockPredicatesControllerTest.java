@@ -6,12 +6,18 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
 
+import java.util.Locale;
+
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
+import java.util.Optional;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
+import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -159,5 +165,13 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.destroyEligibility(programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void updateEligibilityMessage_activeProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(() -> controller.updateEligibilityMessage(fakeRequest(), programId, 2L))
+        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
+        .hasMessage("Program block definition not found");
   }
 }

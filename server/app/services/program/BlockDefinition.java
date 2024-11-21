@@ -264,11 +264,11 @@ public abstract class BlockDefinition {
 
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
-   
+
     @JsonProperty("localizedEligibilityMessage")
     public abstract Builder setLocalizedEligibilityMessage(
         Optional<LocalizedStrings> localizedEligibilityMessage);
-    
+
     @JsonProperty("repeaterId")
     public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
 
