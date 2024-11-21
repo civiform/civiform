@@ -642,15 +642,14 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of("invalid notification preference"),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of());
+            ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result)
         .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program URL is required"),
-            CiviFormError.of("One or more notification preferences are invalid"),
-            CiviFormError.of("The program must contain at least one application step"));
+            CiviFormError.of("One or more notification preferences are invalid"));
   }
 
   @Test
@@ -876,6 +875,37 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void checkApplicationStepErrors_returnsErrorWhenNoSteps() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+
+    assertThat(errors.size()).isEqualTo(1);
+    assertThat(
+            errors.contains(
+                CiviFormError.of("The program must contain at least one application step")))
+        .isTrue();
+  }
+
+  @Test
+  public void checkApplicationStepErrors_returnsErrorWhenMissingTitleOrDescription() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps =
+        ImmutableList.of(
+            new ApplicationStep("title one", "description one"),
+            new ApplicationStep("title two", ""),
+            new ApplicationStep("", "description three"));
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+
+    assertThat(errors.size()).isEqualTo(2);
+    assertThat(errors.contains(CiviFormError.of("Application step 2 is missing a description")))
+        .isTrue();
+    assertThat(errors.contains(CiviFormError.of("Application step 3 is missing a title"))).isTrue();
   }
 
   @Test

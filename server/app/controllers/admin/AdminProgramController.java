@@ -5,11 +5,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.ProgramForm;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicationStep;
@@ -116,7 +119,8 @@ public final class AdminProgramController extends CiviFormController {
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
 
-    ImmutableList<ApplicationStep> applicationSteps = buildApplicationSteps(programData);
+    ImmutableList<ApplicationStep> applicationSteps =
+        buildApplicationSteps(programData.getApplicationSteps());
 
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
@@ -256,7 +260,8 @@ public final class AdminProgramController extends CiviFormController {
 
     ProgramEditStatus programEditStatus = ProgramEditStatus.getStatusFromString(editStatus);
 
-    ImmutableList<ApplicationStep> applicationSteps = buildApplicationSteps(programData);
+    ImmutableList<ApplicationStep> applicationSteps =
+        buildApplicationSteps(programData.getApplicationSteps());
 
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
@@ -324,8 +329,10 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /** Turn application step form data into ApplicationStep objects */
-  private ImmutableList<ApplicationStep> buildApplicationSteps(ProgramForm programData) {
-    return programData.getApplicationSteps().stream()
+  @VisibleForTesting
+  public ImmutableList<ApplicationStep> buildApplicationSteps(
+      List<Map<String, String>> applicationSteps) {
+    return applicationSteps.stream()
         .filter(
             step -> {
               // include the step if either the title or description is filled out

@@ -9,8 +9,12 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
@@ -1008,5 +1012,53 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("active").build();
     assertThatThrownBy(() -> controller.publishProgram(fakeRequest(), program.id))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void buildApplicationSteps_transformsDataIntoApplicationStepObjects() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", "description one"),
+            Map.of("title", "title two", "description", "description two"));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(2);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("description one");
+    assertThat(applicationSteps.get(1).getTitle().getDefault()).isEqualTo("title two");
+    assertThat(applicationSteps.get(1).getDescription().getDefault()).isEqualTo("description two");
+  }
+
+  @Test
+  public void buildApplicationSteps_filtersStepsWithMissingKeysAndBlankSteps() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", "description one"),
+            Map.of("title", "title two"),
+            Map.of("description", "description two"),
+            Map.of("title", "", "description", ""));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(1);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("description one");
+  }
+
+  @Test
+  public void buildApplicationSteps_includesStepsWithTitleOrDescription() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", ""),
+            Map.of("title", "", "description", "description two"));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(2);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("");
+    assertThat(applicationSteps.get(1).getTitle().getDefault()).isEqualTo("");
+    assertThat(applicationSteps.get(1).getDescription().getDefault()).isEqualTo("description two");
   }
 }

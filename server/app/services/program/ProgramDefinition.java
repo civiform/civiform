@@ -152,8 +152,8 @@ public abstract class ProgramDefinition {
   public abstract Optional<String> summaryImageFileKey();
 
   /**
-   * A list of steps to apply to the program. The list contains up to 5 steps and each step contains
-   * a localized title and a localized description.
+   * A list of steps to apply to the program. The list contains between 1-5 steps and each step
+   * contains a localized title and a localized description.
    */
   @JsonProperty("applicationSteps")
   public abstract ImmutableList<ApplicationStep> applicationSteps();
