@@ -6,18 +6,13 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
 
-import java.util.Locale;
-
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
-import java.util.Optional;
 import repository.ResetPostgres;
-import services.LocalizedStrings;
 import services.program.ProgramBlockDefinitionNotFoundException;
-import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
