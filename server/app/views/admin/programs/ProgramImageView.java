@@ -290,6 +290,7 @@ public final class ProgramImageView extends BaseHtmlView {
     FormTag form =
         fileUploadViewStrategy
             .renderFileUploadFormElement(storageUploadRequest)
+            .with(makeCsrfTokenInputTag(request))
             .withId(IMAGE_FILE_UPLOAD_FORM_ID);
     ImmutableList<InputTag> additionalFileUploadFormInputs =
         fileUploadViewStrategy.additionalFileUploadFormInputs(Optional.of(storageUploadRequest));

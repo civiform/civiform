@@ -27,6 +27,8 @@ import * as adminQuestionEdit from './admin_question_edit'
 import * as adminExportView from './admin_export_view'
 import * as adminImportView from './admin_import_view'
 import * as trustedIntermediaryController from './admin_trusted_intermediary_list'
+import * as fileUpload from './file_upload'
+import * as azureUpload from './azure_upload'
 import htmx from './htmx'
 
 window.addEventListener('load', () => {
@@ -37,6 +39,8 @@ window.addEventListener('load', () => {
 })
 
 function initializeEverything(): void {
+  const AZURE_ADMIN_FILEUPLOAD_FORM_ID = 'image-file-upload-form'
+
   main.init()
   radio.init()
   toast.init()
@@ -61,6 +65,8 @@ function initializeEverything(): void {
   adminExportView.init()
   adminImportView.init()
   trustedIntermediaryController.init()
+  fileUpload.init()
+  azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
 }
 
 function afterSettle(): void {

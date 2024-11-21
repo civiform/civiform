@@ -547,6 +547,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME");
   }
 
+  /** The max size (in Mb) of **publicly accessible** files uploaded to Azure blob storage. */
+  public Optional<String> getAzureStorageAccountPublicFileLimitMb() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB");
+  }
+
   /**
    * Allows local [Azurite
    * emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be
@@ -1645,6 +1650,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME",
                               "Azure blob storage container name to store public files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " Azure blob storage.",
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
