@@ -463,6 +463,11 @@
             "description": "Azure blob storage container name to store public files in.",
             "type": "string"
           },
+          "AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to Azure blob storage.",
+            "type": "string"
+          },
           "AZURE_LOCAL_CONNECTION_STRING": {
             "mode": "HIDDEN",
             "description": "Allows local [Azurite emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be used for developer deployments.",
