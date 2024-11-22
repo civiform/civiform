@@ -5,7 +5,6 @@ import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,6 +18,7 @@ import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.aws.AwsRegion;
 import services.email.EmailSendClient;
+import services.monitoring.EmailSendMetrics;
 import software.amazon.awssdk.http.HttpStatusCode;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.Body;
@@ -36,34 +36,21 @@ public final class SimpleEmail implements EmailSendClient {
   public static final String AWS_SES_SENDER_CONF_PATH = "email.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
-  private static final Histogram EMAIL_EXECUTION_TIME =
-      Histogram.build()
-          .name("email_send_time_seconds")
-          .help("Execution time of email send")
-          .register();
-
-  private static final Counter EMAIL_SEND_COUNT =
-      Counter.build()
-          .name("email_send_total")
-          .help("Number of emails sent")
-          .labelNames("status")
-          .register();
-
-  private static final Counter EMAIL_FAIL_COUNT =
-      Counter.build()
-          .name("email_fail_total")
-          .help("Number of emails that failed to send")
-          .register();
-
+  private final EmailSendMetrics emailSendMetrics;
   private final String sender;
   private final Environment environment;
   private final Client client;
 
   @Inject
   public SimpleEmail(
-      AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
+      AwsRegion region,
+      Config config,
+      Environment environment,
+      ApplicationLifecycle appLifecycle,
+      EmailSendMetrics emailSendMetrics) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
     this.environment = checkNotNull(environment);
+    this.emailSendMetrics = emailSendMetrics;
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
@@ -90,7 +77,7 @@ public final class SimpleEmail implements EmailSendClient {
     if (toAddresses.isEmpty()) {
       return;
     }
-    Histogram.Timer timer = EMAIL_EXECUTION_TIME.startTimer();
+    Histogram.Timer timer = emailSendMetrics.getEmailExecutionTime().startTimer();
 
     // Add some messaging to non-prod emails to make it easier to
     // tell that it's not a prod notification.
@@ -120,11 +107,11 @@ public final class SimpleEmail implements EmailSendClient {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
-      EMAIL_FAIL_COUNT.inc();
-      EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
+      emailSendMetrics.getEmailFailCount().inc();
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(e.statusCode())).inc();
     } finally {
       // Increase the count of emails sent.
-      EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }
