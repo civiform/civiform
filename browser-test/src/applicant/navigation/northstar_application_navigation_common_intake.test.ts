@@ -116,7 +116,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
-      // await applicantQuestions.expectCommonIntakeReviewPage()
       await applicantQuestions.clickSubmitApplication()
 
       await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(

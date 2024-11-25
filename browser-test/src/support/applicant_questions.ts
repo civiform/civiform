@@ -709,7 +709,6 @@ export class ApplicantQuestions {
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
-    northStarEnabled = false,
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
@@ -746,7 +745,6 @@ export class ApplicantQuestions {
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
-    northStarEnabled = true,
   ) {
     if (wantTrustedIntermediary) {
       await expect(
