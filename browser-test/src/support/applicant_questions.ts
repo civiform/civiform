@@ -709,6 +709,7 @@ export class ApplicantQuestions {
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
+    northStarEnabled = false,
   ) {
     if (wantTrustedIntermediary) {
       expect(await this.page.innerText('h1')).toContain(
@@ -732,6 +733,48 @@ export class ApplicantQuestions {
     const programLocator = this.page.locator(
       '.cf-applicant-cif-eligible-program-name',
     )
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
+  async expectCommonIntakeConfirmationPageNorthStar(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+    northStarEnabled = true,
+  ) {
+    if (wantTrustedIntermediary) {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs your client may qualify for'}),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs you may qualify for'}),
+      ).toBeVisible()
+    }
+
+    if (wantUpsell) {
+      await expect(
+        this.page.getByRole('heading', {name: 'Create an account to save your application information'}),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Create an account to save your application information'}),
+      ).not.toBeVisible()
+    }
+
+    // Prior to North Star, the program name was rendered with
+    // class='.cf-applicant-cif-eligible-program-name'. In North Star,
+    // it's '.cf-prose-h4' instead. Working as intended?
+    const programLocator = this.page.locator(
+      '.cf-prose-h4',
+    )
+
     if (wantEligiblePrograms.length == 0) {
       expect(await programLocator.count()).toEqual(0)
     } else {
