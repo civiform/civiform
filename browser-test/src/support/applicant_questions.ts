@@ -758,18 +758,13 @@ export class ApplicantQuestions {
       ).toBeVisible()
     }
 
+    const accountSaveHeading = this.page.getByRole('heading', {
+      name: 'Create an account to save your application information',
+    })
     if (wantUpsell) {
-      await expect(
-        this.page.getByRole('heading', {
-          name: 'Create an account to save your application information',
-        }),
-      ).toBeVisible()
+      await expect(accountSaveHeading).toBeVisible()
     } else {
-      await expect(
-        this.page.getByRole('heading', {
-          name: 'Create an account to save your application information',
-        }),
-      ).toBeHidden()
+      await expect(accountSaveHeading).toBeHidden()
     }
 
     // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
