@@ -21,6 +21,7 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -104,11 +105,9 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
-    const applicationText = await adminPrograms
-      .applicationFrameLocator()
-      .locator('#application-view')
-      .innerText()
-    expect(applicationText).not.toContain('Screen 2')
+    expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('add a show predicate', async ({
@@ -119,6 +118,7 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -207,12 +207,11 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
 
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    expect(
-      await adminPrograms
-        .applicationFrameLocator()
-        .locator('#application-view')
-        .innerText(),
-    ).toContain('Screen 2')
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 2',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('add an eligibility predicate', async ({
@@ -224,6 +223,7 @@ test.describe('create and edit predicates', () => {
   }) => {
     await loginAsAdmin(page)
 
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
       questionName: 'eligibility-predicate-q',
@@ -351,12 +351,11 @@ test.describe('create and edit predicates', () => {
     await adminPrograms.viewApplications(programName)
 
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    expect(
-      await adminPrograms
-        .applicationFrameLocator()
-        .locator('#application-view')
-        .innerText(),
-    ).toContain('Screen 1')
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 1',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
   })
 
   test('suffix cannot be added as an eligibility predicate for name question', async ({
