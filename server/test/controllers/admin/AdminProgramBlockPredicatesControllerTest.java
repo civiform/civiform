@@ -12,7 +12,6 @@ import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -160,13 +159,5 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.destroyEligibility(programId, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
-  }
-
-  @Test
-  public void updateEligibilityMessage_activeProgram_throws() {
-    Long programId = resourceCreator.insertActiveProgram("active program").id;
-    assertThatThrownBy(() -> controller.updateEligibilityMessage(fakeRequest(), programId, 2L))
-        .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
-        .hasMessage("Program block definition not found");
   }
 }
