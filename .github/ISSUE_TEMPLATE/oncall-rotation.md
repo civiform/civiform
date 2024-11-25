@@ -22,6 +22,7 @@ Resources:
 ## Release
 
 - [ ] Choose a new version number in the format `vX.Y.Z`. If this is an unscheduled release in order to fix a bug, increment Z. Otherwise, increment Y and set Z to 0. Do not increment X without a discussion with the rest of the engineering team.
+- [ ] If the release is going to be late, email civiform-announce@googlegroups.com and civiform-technical@googlegroups.com to let admins know when to expect the next release.
 - [ ] Create a Draft Release by 12 PT on Tuesday
   - Ensure both the `civiform` and `cloud-deploy-infra` repos are tagged appropriately after running the `Create Release` action.
 - [ ] Contact Matthew Sprenke for QA on Slack
