@@ -263,7 +263,7 @@ test.describe('primary applicant info questions', () => {
 
     await adminPrograms.viewApplications('test')
     await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+      page.locator(adminPrograms.selectApplicationRowForApplicant('LaForge')),
     ).toBeVisible()
 
     await logout(page)
@@ -278,7 +278,7 @@ test.describe('primary applicant info questions', () => {
 
     await adminPrograms.viewApplications('test')
     await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+      page.locator(adminPrograms.selectApplicationRowForApplicant('LaForge')),
     ).toBeVisible()
   })
 })

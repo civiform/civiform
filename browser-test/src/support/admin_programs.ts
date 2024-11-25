@@ -109,7 +109,7 @@ export class AdminPrograms {
   ) {
     expect(
       await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
+        this.selectApplicationRowForApplicant(applicant),
       ),
     ).toContain(`Status: ${statusString}`)
   }
@@ -120,7 +120,7 @@ export class AdminPrograms {
   ) {
     expect(
       await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
+        this.selectApplicationRowForApplicant(applicant),
       ),
     ).not.toContain(statusString)
   }
@@ -1014,14 +1014,12 @@ export class AdminPrograms {
     )
   }
 
-  selectApplicationCardForApplicant(applicantName: string) {
+  selectApplicationRowForApplicant(applicantName: string) {
     return `.cf-admin-application-row:has-text("${applicantName}")`
   }
 
   selectWithinApplicationForApplicant(applicantName: string, selector: string) {
-    return (
-      this.selectApplicationCardForApplicant(applicantName) + ' ' + selector
-    )
+    return this.selectApplicationRowForApplicant(applicantName) + ' ' + selector
   }
 
   selectQuestionWithinBlock(question: string) {

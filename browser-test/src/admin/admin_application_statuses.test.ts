@@ -118,6 +118,8 @@ test.describe('view program statuses', () => {
           applicantQuestions,
           adminProgramStatuses,
         )
+        // enable bulk status feature flag
+        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
         await adminPrograms.viewApplicationForApplicant('Guest')
@@ -676,6 +678,7 @@ test.describe('view program statuses', () => {
         applicantQuestions,
         adminPrograms,
       }) => {
+        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
 
         // Create a program without eligibility
@@ -762,6 +765,7 @@ test.describe('view program statuses', () => {
           applicantQuestions,
           adminProgramStatuses,
         )
+        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
         await adminQuestions.addEmailQuestion({
           questionName: 'Email',
