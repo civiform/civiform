@@ -741,6 +741,49 @@ export class ApplicantQuestions {
     }
   }
 
+  async expectCommonIntakeConfirmationPageNorthStar(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Programs your client may qualify for',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs you may qualify for'}),
+      ).toBeVisible()
+    }
+
+    if (wantUpsell) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeHidden()
+    }
+
+    // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
+    const programLocator = this.page.locator('.cf-prose-h4')
+
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
   async expectIneligiblePage(northStar = false) {
     if (northStar) {
       await expect(this.page).toHaveTitle('Ineligible for program')
