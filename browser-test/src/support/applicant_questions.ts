@@ -772,9 +772,7 @@ export class ApplicantQuestions {
       ).toBeHidden()
     }
 
-    // Prior to North Star, the program name was rendered with
-    // class='.cf-applicant-cif-eligible-program-name'. In North Star,
-    // it's '.cf-prose-h4' instead. Working as intended?
+    // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
     const programLocator = this.page.locator('.cf-prose-h4')
 
     if (wantEligiblePrograms.length == 0) {
