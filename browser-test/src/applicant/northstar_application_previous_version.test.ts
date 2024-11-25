@@ -15,6 +15,7 @@ test.describe(
   () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
     })
 
     test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({
@@ -58,6 +59,8 @@ test.describe(
         questionName,
         'some text',
       )
+
+      await page.getByRole('link', {name: 'Back'}).click()
 
       await logout(page)
       await loginAsAdmin(page)

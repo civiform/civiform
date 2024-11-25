@@ -6,6 +6,7 @@ import {
   loginAsTestUser,
   logout,
   testUserDisplayName,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('view an application in an older version', () => {
@@ -14,6 +15,7 @@ test.describe('view an application in an older version', () => {
     adminQuestions,
     adminPrograms,
   }) => {
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     await loginAsAdmin(page)
 
     // Create a program with one question
@@ -47,6 +49,7 @@ test.describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
+    await page.getByRole('link', {name: 'Back'}).click()
 
     await logout(page)
     await loginAsAdmin(page)
