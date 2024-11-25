@@ -12,13 +12,10 @@ import {
 } from '../../support'
 import {ProgramVisibility} from '../../support/admin_programs'
 
-test.describe(
-  'Applicant navigation flow',
-  {tag: ['@northstar']},
-  () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-    })
+test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  })
 
   test.describe('navigation with common intake', () => {
     // Create two programs, one is common intake
@@ -211,7 +208,7 @@ test.describe(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
       )
-       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
@@ -316,6 +313,5 @@ test.describe(
         /* mobileScreenshot= */ true,
       )
     })
-
   })
 })

@@ -750,7 +750,9 @@ export class ApplicantQuestions {
   ) {
     if (wantTrustedIntermediary) {
       await expect(
-        this.page.getByRole('heading', {name: 'Programs your client may qualify for'}),
+        this.page.getByRole('heading', {
+          name: 'Programs your client may qualify for',
+        }),
       ).toBeVisible()
     } else {
       await expect(
@@ -760,20 +762,22 @@ export class ApplicantQuestions {
 
     if (wantUpsell) {
       await expect(
-        this.page.getByRole('heading', {name: 'Create an account to save your application information'}),
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
       ).toBeVisible()
     } else {
       await expect(
-        this.page.getByRole('heading', {name: 'Create an account to save your application information'}),
-      ).not.toBeVisible()
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeHidden()
     }
 
     // Prior to North Star, the program name was rendered with
     // class='.cf-applicant-cif-eligible-program-name'. In North Star,
     // it's '.cf-prose-h4' instead. Working as intended?
-    const programLocator = this.page.locator(
-      '.cf-prose-h4',
-    )
+    const programLocator = this.page.locator('.cf-prose-h4')
 
     if (wantEligiblePrograms.length == 0) {
       expect(await programLocator.count()).toEqual(0)
