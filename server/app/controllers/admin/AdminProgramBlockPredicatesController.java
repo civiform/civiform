@@ -392,13 +392,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     Form<BlockEligibilityMessageForm> EligibilityMsgform =
         formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request);
     String newMessage = EligibilityMsgform.get().getEligibilityMessage();
-    String toastType;
-    String toastMessage;
 
     try {
       programService.setBlockEligibilityMessage(
           programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
-      toastType = "success";
+      String toastType = "success";
+      String toastMessage;
 
       if (newMessage.isBlank()) {
         toastMessage = "Eligibility message removed.";
