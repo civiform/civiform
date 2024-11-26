@@ -13,6 +13,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -342,7 +343,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
-  private DivTag buildApplicationSteps(ImmutableList<Map<String, String>> applicationSteps) {
+  @VisibleForTesting
+  public static DivTag buildApplicationSteps(ImmutableList<Map<String, String>> applicationSteps) {
     DivTag div = div();
     // build 5 application steps
     for (int i = 0; i < 5; i++) {
@@ -357,7 +359,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return div;
   }
 
-  private DivTag buildApplicationStepDiv(int i, String titleValue, String descriptionValue) {
+  private static DivTag buildApplicationStepDiv(int i, String titleValue, String descriptionValue) {
 
     String index = Integer.toString(i);
     String indexPlusOne = Integer.toString(i + 1);
@@ -376,8 +378,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(descriptionValue);
 
     if (indexPlusOne.equals("1")) {
-      title.setLabelText("Step " + indexPlusOne + " title").setRequired(true);
-      description.setLabelText("Step " + indexPlusOne + " description").setRequired(true);
+      title.setLabelText("Step 1 title").setRequired(true);
+      description.setLabelText("Step 1 description").setRequired(true);
     } else {
       title.setLabelText("Step " + indexPlusOne + " title (optional)");
       description.setLabelText("Step " + indexPlusOne + " description (optional)");
