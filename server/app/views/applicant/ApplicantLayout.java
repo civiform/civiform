@@ -213,8 +213,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
     return nav()
+        .condWith(
+            !settingsManifest.getShowNotProductionBannerEnabled(request),
+            getGovBanner(Optional.of(messages)))
         .with(
-            getGovBanner(Optional.of(messages)),
             div()
                 .withClasses(
                     "bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
