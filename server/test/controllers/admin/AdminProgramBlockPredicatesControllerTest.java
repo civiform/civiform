@@ -12,6 +12,8 @@ import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -42,6 +44,27 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
                 controller.editVisibility(
                     fakeRequest(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  void updateEligibilityMessage_addsEligibilityMsg() {
+
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1)
+            .setName("Screen 1")
+            .setDescription("Screen 1 description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
+            .build();
+
+    ProgramModel program = ProgramBuilder.newActiveProgram().withBlock(block).build();
+
+    // Request
+
+    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, block.id());
+    String content = Helpers.contentAsString(result);
+    assertThat(content).contains("");
   }
 
   @Test
