@@ -67,6 +67,8 @@ link.opensNewTabSr=s''ouvre dans un nouvel onglet
 label.primaryNavigation=Primary navigation
 # Aria-label for agency identifier
 label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -121,7 +123,7 @@ button.previousScreen=Précédent
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Retour
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Examiner et quitter
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Passer
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -131,7 +133,7 @@ content.blockProgressFull=Vous avez répondu à {0} question(s) sur {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Progression de la demande
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Examiner et envoyer
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -177,6 +179,8 @@ button.continueSr=Continuer la demande d'inscription au {0}
 button.startHere=Commencer
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Remplir la demande
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -193,9 +197,13 @@ content.findPrograms=Trouver des programmes
 content.findProgramsDescription=CiviForm vous aide à trouver des programmes auxquels vous pourriez être éligible dans l''État suivant : {0}. Pour commencer, choisissez un formulaire d'inscription ci-dessous.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # Link text to read more about a program.
@@ -232,6 +240,12 @@ title.submittedPrograms=Demandes d''inscription envoyées
 toast.applicationSaved=Demande d''inscription enregistrée (ID de la demande : {0})
 # Alert banner when an application was already completed
 toast.programCompleted=La demande d''inscription a déjà été remplie.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -379,7 +393,7 @@ title.tiAccountSettings=Intermédiaire de confiance - Afficher les paramètres 
 # Submit application button
 button.submit=Envoyer
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Envoyer la demande d'inscription
 # Continue application button
 button.continue=Continuer
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -414,7 +428,7 @@ title.programSummary=Résumé de la demande d''inscription au programme
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Pas éligible au programme
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=D''après vos réponses aux questions ci-dessous, il se peut que vous ne soyez pas éligible au {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -536,7 +550,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Vous pouvez également retourner 
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Autres programmes susceptibles de vous intéresser
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=Télécharger votre demande d'inscription
 button.downloadPdf=Télécharger le PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=S''inscrire à des programmes

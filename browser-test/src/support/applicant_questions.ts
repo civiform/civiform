@@ -1,14 +1,20 @@
-import {expect} from '@playwright/test'
+import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
+import {
+  ApplicantProgramList,
+  CardSectionName,
+} from '../support/applicant_program_list'
 
 export class ApplicantQuestions {
   public page!: Page
+  private applicantProgramList: ApplicantProgramList
 
   constructor(page: Page) {
     this.page = page
+    this.applicantProgramList = new ApplicantProgramList(page)
   }
 
   async answerAddressQuestion(
@@ -395,9 +401,19 @@ export class ApplicantQuestions {
       expectedProgramsInOtherProgramsSection: string[]
     },
     /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
   ) {
-    const gotMyApplicationsProgramNames =
-      await this.programNamesForSection('My applications')
+    let gotMyApplicationsProgramNames
+
+    if (northStarEnabled) {
+      gotMyApplicationsProgramNames =
+        await this.northStarProgramNamesForSection(
+          CardSectionName.MyApplications,
+        )
+    } else {
+      gotMyApplicationsProgramNames =
+        await this.programNamesForSection('My applications')
+    }
 
     let gotRecommendedProgramNames
     let gotOtherProgramNames
@@ -413,9 +429,16 @@ export class ApplicantQuestions {
       )
       gotOtherProgramNames.sort()
     } else {
-      gotProgramsAndServicesNames = await this.programNamesForSection(
-        'Programs and services',
-      )
+      if (northStarEnabled) {
+        gotProgramsAndServicesNames =
+          await this.northStarProgramNamesForSection(
+            CardSectionName.ProgramsAndServices,
+          )
+      } else {
+        gotProgramsAndServicesNames = await this.programNamesForSection(
+          'Programs and services',
+        )
+      }
       gotProgramsAndServicesNames.sort()
     }
 
@@ -455,6 +478,18 @@ export class ApplicantQuestions {
       '.cf-application-program-section',
       {has: this.page.locator(`:text("${sectionName}")`)},
     )
+    return this.findProgramsWithSectionLocator(sectionLocator)
+  }
+
+  private northStarProgramNamesForSection(
+    sectionName: CardSectionName,
+  ): Promise<string[]> {
+    const sectionLocator =
+      this.applicantProgramList.getCardSectionLocator(sectionName)
+    return this.findProgramsWithSectionLocator(sectionLocator)
+  }
+
+  private findProgramsWithSectionLocator(sectionLocator: Locator) {
     const programTitlesLocator = sectionLocator.locator(
       '.cf-application-card .cf-application-card-title',
     )
@@ -697,6 +732,49 @@ export class ApplicantQuestions {
     const programLocator = this.page.locator(
       '.cf-applicant-cif-eligible-program-name',
     )
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
+  async expectCommonIntakeConfirmationPageNorthStar(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Programs your client may qualify for',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs you may qualify for'}),
+      ).toBeVisible()
+    }
+
+    if (wantUpsell) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeHidden()
+    }
+
+    // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
+    const programLocator = this.page.locator('.cf-prose-h4')
+
     if (wantEligiblePrograms.length == 0) {
       expect(await programLocator.count()).toEqual(0)
     } else {

@@ -1364,6 +1364,43 @@ public final class ProgramService {
   }
 
   /**
+   * Update the eligibility message for a block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param message the custom eligibility message to add to the block
+   * @return the updated block
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   */
+  // TODO: wrap this method in a transaction, see issue ##9277.
+  public ProgramDefinition setBlockEligibilityMessage(
+      long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+
+      BlockDefinition blockDefinition =
+          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+              .setLocalizedEligibilityMessage(message)
+              .build();
+
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // This method throws IllegalPredicateOrderingException, but in this context it should never
+      // happen because setting an eligibility message does not affect predicate order.
+      // This try-catch block is included to satisfy the compiler and maintain code correctness.
+      String errMsg =
+          String.format(
+              "Setting this eligibility message invalidates another. [programId: %d,"
+                  + " blockDefinitionId: %d]",
+              programId, blockDefinitionId);
+      throw new RuntimeException(errMsg, e);
+    }
+  }
+
+  /**
    * Remove the eligibility {@link PredicateDefinition} for a block.
    *
    * @param programId the ID of the program to update

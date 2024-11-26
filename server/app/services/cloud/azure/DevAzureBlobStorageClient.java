@@ -6,6 +6,9 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobAccessPolicy;
+import com.azure.storage.blob.models.BlobSignedIdentifier;
+import com.azure.storage.blob.models.PublicAccessType;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.sas.SasProtocol;
@@ -14,6 +17,7 @@ import java.net.URLConnection;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -26,6 +30,8 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
   // SAS yet See https://github.com/Azure/Azurite/issues/656
 
   private static final String AZURE_LOCAL_CONNECTION_STRING_CONF_PATH = "azure.local.connection";
+  private static final String AZURE_PERMISSIONS_PUBLIC_READ_ID = "public-read";
+  private static final String AZURE_PERMISSIONS_PUBLIC_READ_STRING = "r";
 
   private final String connectionString;
   private final BlobServiceClient blobServiceClient;
@@ -34,7 +40,11 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
   private final Duration sasTokenDuration;
 
   DevAzureBlobStorageClient(
-      Config config, ZoneId zoneId, String containerName, Duration sasTokenDuration) {
+      Config config,
+      ZoneId zoneId,
+      String containerName,
+      Duration sasTokenDuration,
+      boolean allowPublicRead) {
     this.zoneId = checkNotNull(zoneId);
     this.sasTokenDuration = checkNotNull(sasTokenDuration);
     this.connectionString = checkNotNull(config).getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
@@ -44,8 +54,18 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
     super.setCorsRules(blobServiceClient, baseUrl);
     this.blobContainerClient =
         blobServiceClient.getBlobContainerClient(checkNotNull(containerName));
-    if (!blobContainerClient.exists()) {
-      blobContainerClient.create();
+
+    // In local runs, Terraform doesn't set up the Azure container and associated access policies.
+    // Create the blob container if it doesn't exist, and if necessary configure the access policy
+    // for public reads.
+    if (blobContainerClient.createIfNotExists() && allowPublicRead) {
+      BlobSignedIdentifier identifier =
+          new BlobSignedIdentifier()
+              .setId(AZURE_PERMISSIONS_PUBLIC_READ_ID)
+              .setAccessPolicy(
+                  new BlobAccessPolicy().setPermissions(AZURE_PERMISSIONS_PUBLIC_READ_STRING));
+      blobContainerClient.setAccessPolicy(
+          PublicAccessType.CONTAINER, Collections.singletonList(identifier));
     }
   }
 

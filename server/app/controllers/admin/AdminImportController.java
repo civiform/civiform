@@ -126,163 +126,164 @@ public class AdminImportController extends CiviFormController {
       return redirect(routes.AdminImportController.index().url());
     }
 
-    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
-        programMigrationService.deserialize(jsonString);
+    try {
+      ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+          programMigrationService.deserialize(jsonString);
 
-    if (deserializeResult.isError()) {
-      return ok(
-          adminImportViewPartial
-              .renderError(
-                  "Error processing JSON",
-                  deserializeResult.getErrors().stream().findFirst().orElseThrow())
-              .render());
-    }
-
-    ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
-
-    if (programMigrationWrapper.getProgram() == null) {
-      return ok(
-          adminImportViewPartial
-              .renderError(
-                  "Error processing JSON", "JSON did not have a top-level \"program\" field")
-              .render());
-    }
-
-    ProgramDefinition program =
-        programMigrationService.prepForImport(programMigrationWrapper.getProgram());
-    ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
-
-    // Prevent admin from importing a program that already exists in the import environment
-    String adminName = program.adminName();
-    boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
-    if (programExists) {
-      return ok(
-          adminImportViewPartial
-              .renderError(
-                  "This program already exists in our system.",
-                  "Please check your file and and try again.")
-              .render());
-    }
-
-    // Prevent admin from importing a program with visiblity set to "Visible to selected trusted
-    // intermediaries only" since we don't migrate TI groups
-    if (program.displayMode() == DisplayMode.SELECT_TI) {
-      return ok(
-          adminImportViewPartial
-              .renderError(
-                  "Display mode 'SELECT_TI' is not allowed.",
-                  "Please select another program display mode and try again")
-              .render());
-    }
-
-    // Check that all block definition ids are positive numbers
-    for (BlockDefinition blockDefintion : program.blockDefinitions()) {
-      long blockId = blockDefintion.id();
-      if (blockId < 1) {
+      if (deserializeResult.isError()) {
         return ok(
             adminImportViewPartial
                 .renderError(
-                    "Block definition ids must be greater than 0.",
-                    "Please check your block definition ids and try again.")
+                    "Error processing JSON",
+                    deserializeResult.getErrors().stream().findFirst().orElseThrow())
                 .render());
       }
-    }
 
-    // Check for other validation errors like invalid program admin names
-    ImmutableList<String> notificationPreferences =
-        program.notificationPreferences().stream()
-            .map(preference -> preference.getValue())
-            .collect(ImmutableList.toImmutableList());
+      ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
 
-    ImmutableSet<CiviFormError> programErrors =
-        programService.validateProgramDataForCreate(
-            program.adminName(),
-            program.localizedName().getDefault(),
-            program.localizedShortDescription().getDefault(),
-            program.externalLink(),
-            program.displayMode().getValue(),
-            notificationPreferences,
-            ImmutableList.of(), // categories are not migrated
-            ImmutableList.of(), // associated TI groups are not migrated
-            program.applicationSteps());
-    if (!programErrors.isEmpty()) {
-      // We want to reference "admin name" instead of "URL" in errors, because there is no URL field
-      // in program migration. The existing error strings were created for the program create/edit
-      // UI which has a URL field that is generated from the admin name.
-      String errorString = joinErrors(programErrors).replace("URL", "admin name");
-      return ok(
-          adminImportViewPartial
-              .renderError("One or more program errors occured:", errorString)
-              .render());
-    }
+      if (programMigrationWrapper.getProgram() == null) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "Error processing JSON", "JSON did not have a top-level \"program\" field")
+                .render());
+      }
 
-    boolean withDuplicates = !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      ProgramDefinition program =
+          programMigrationService.prepForImport(programMigrationWrapper.getProgram());
+      ImmutableList<QuestionDefinition> questions = programMigrationWrapper.getQuestions();
 
-    // When we are importing without duplicate questions, we expect all drafts to be published
-    // before the import process begins.
-    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
-    if (!withDuplicates
-        && draftVersion.isPresent()
-        // If there are either questions or programs in the draft, we should show this error
-        && (versionRepository.getProgramCountForVersion(draftVersion.get())
-                + versionRepository.getQuestionCountForVersion(draftVersion.get())
-            > 0)) {
-      return ok(
-          adminImportViewPartial
-              .renderError(
-                  "There are draft programs and questions in our system.",
-                  "Please publish all drafts and try again.")
-              .render());
-    }
+      // Prevent admin from importing a program that already exists in the import environment
+      String adminName = program.adminName();
+      boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
+      if (programExists) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "This program already exists in our system.",
+                    "Please check your file and and try again.")
+                .render());
+      }
 
-    if (questions == null) {
-      return ok(
-          adminImportViewPartial
-              .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
-              .render());
-    }
+      // Prevent admin from importing a program with visiblity set to "Visible to selected trusted
+      // intermediaries only" since we don't migrate TI groups
+      if (program.displayMode() == DisplayMode.SELECT_TI) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "Display mode 'SELECT_TI' is not allowed.",
+                    "Please select another program display mode and try again")
+                .render());
+      }
 
-    // Overwrite the admin names for any questions that already exist in the import environment so
-    // we can create new versions of the questions.
-    // This creates a map of the old question name -> updated question data
-    // We want to do this even when we don't want to save the updated admin names
-    // so that we can use the count of existing questions in the alert
-    ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-        programMigrationService.maybeOverwriteQuestionName(questions);
+      // Check that all block definition ids are positive numbers
+      for (BlockDefinition blockDefintion : program.blockDefinitions()) {
+        long blockId = blockDefintion.id();
+        if (blockId < 1) {
+          return ok(
+              adminImportViewPartial
+                  .renderError(
+                      "Block definition ids must be greater than 0.",
+                      "Please check your block definition ids and try again.")
+                  .render());
+        }
+      }
 
-    if (withDuplicates) {
-      questions = ImmutableList.copyOf(updatedQuestionsMap.values());
-    }
+      // Check for other validation errors like invalid program admin names
+      ImmutableList<String> notificationPreferences =
+          program.notificationPreferences().stream()
+              .map(preference -> preference.getValue())
+              .collect(ImmutableList.toImmutableList());
 
-    ImmutableSet<CiviFormError> questionErrors =
-        questions.stream()
-            .map(
-                question -> {
-                  if (question.getQuestionType().isMultiOptionType()) {
-                    MultiOptionQuestionDefinition multiOptionQuestion =
-                        (MultiOptionQuestionDefinition) question;
-                    return multiOptionQuestion
-                        .setValidateQuestionOptionAdminNames(false)
-                        .validate();
-                  }
-                  return question.validate();
-                })
-            .flatMap(errors -> errors.stream())
-            .collect(ImmutableSet.toImmutableSet());
-    if (!questionErrors.isEmpty()) {
-      return ok(
-          adminImportViewPartial
-              .renderError("One or more question errors occured:", joinErrors(questionErrors))
-              .render());
-    }
+      ImmutableSet<CiviFormError> programErrors =
+          programService.validateProgramDataForCreate(
+              program.adminName(),
+              program.localizedName().getDefault(),
+              program.localizedShortDescription().getDefault(),
+              program.externalLink(),
+              program.displayMode().getValue(),
+              notificationPreferences,
+              ImmutableList.of(), // categories are not migrated
+              ImmutableList.of(), // associated TI groups are not migrated
+              program.applicationSteps());
+      if (!programErrors.isEmpty()) {
+        // We want to reference "admin name" instead of "URL" in errors, because there is no URL
+        // field in program migration. The existing error strings were created for the program
+        // create/edit UI which has a URL field that is generated from the admin name.
+        String errorString = joinErrors(programErrors).replace("URL", "admin name");
+        return ok(
+            adminImportViewPartial
+                .renderError("One or more program errors occured:", errorString)
+                .render());
+      }
 
-    ErrorAnd<String, String> serializeResult =
-        programMigrationService.serialize(program, questions);
-    if (serializeResult.isError()) {
-      return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
-    }
+      boolean withDuplicates =
+          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
 
-    try {
+      // When we are importing without duplicate questions, we expect all drafts to be published
+      // before the import process begins.
+      Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
+      if (!withDuplicates
+          && draftVersion.isPresent()
+          // If there are either questions or programs in the draft, we should show this error
+          && (versionRepository.getProgramCountForVersion(draftVersion.get())
+                  + versionRepository.getQuestionCountForVersion(draftVersion.get())
+              > 0)) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "There are draft programs and questions in our system.",
+                    "Please publish all drafts and try again.")
+                .render());
+      }
+
+      if (questions == null) {
+        return ok(
+            adminImportViewPartial
+                .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
+                .render());
+      }
+
+      // Overwrite the admin names for any questions that already exist in the import environment so
+      // we can create new versions of the questions.
+      // This creates a map of the old question name -> updated question data
+      // We want to do this even when we don't want to save the updated admin names
+      // so that we can use the count of existing questions in the alert
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+          programMigrationService.maybeOverwriteQuestionName(questions);
+
+      if (withDuplicates) {
+        questions = ImmutableList.copyOf(updatedQuestionsMap.values());
+      }
+
+      ImmutableSet<CiviFormError> questionErrors =
+          questions.stream()
+              .map(
+                  question -> {
+                    if (question.getQuestionType().isMultiOptionType()) {
+                      MultiOptionQuestionDefinition multiOptionQuestion =
+                          (MultiOptionQuestionDefinition) question;
+                      return multiOptionQuestion
+                          .setValidateQuestionOptionAdminNames(false)
+                          .validate();
+                    }
+                    return question.validate();
+                  })
+              .flatMap(errors -> errors.stream())
+              .collect(ImmutableSet.toImmutableSet());
+      if (!questionErrors.isEmpty()) {
+        return ok(
+            adminImportViewPartial
+                .renderError("One or more question errors occured:", joinErrors(questionErrors))
+                .render());
+      }
+
+      ErrorAnd<String, String> serializeResult =
+          programMigrationService.serialize(program, questions);
+      if (serializeResult.isError()) {
+        return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
+      }
+
       return ok(
           adminImportViewPartial
               .renderProgramData(
@@ -308,6 +309,7 @@ public class AdminImportController extends CiviFormController {
    * neccessary question updates before saving the program
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
     if (!settingsManifest.getProgramMigrationEnabled(request)) {
       return notFound("Program import is not enabled");

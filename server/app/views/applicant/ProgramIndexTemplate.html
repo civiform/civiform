@@ -42,18 +42,19 @@
         <h1 th:text="#{heading.homepage}"></h1>
         <div th:text="#{content.homepageIntro}"></div>
       </div>
-      <div id="programs-list" class="padding-section-large">
-        <div th:if="${myApplicationsSection.isPresent()}">
-          <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
-          ></div>
-        </div>
+      <div id="programs-list" class="padding-section-large usa-prose">
         <div th:if="${commonIntakeSection.isPresent()}">
-          <h2 th:text="#{title.getStartedSection}"></h2>
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
+        <div th:if="${myApplicationsSection.isPresent()}" class="usa-prose">
+          <h2 th:text="#{title.myApplicationsSection.v2}"></h2>
+          <div
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
+          ></div>
+        </div>
+        <h2 th:text="#{title.availableProgramsSection}"></h2>
         <div
           th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions})}"
         ></div>
