@@ -215,7 +215,11 @@ test.describe('Applicant download tests', {tag: ['@northstar']}, () => {
       // Applicant fills out first application block.
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
       await applicantQuestions.answerDropdownQuestion('op2')
-      await applicantQuestions.answerDateQuestion('2021-05-10')
+      await applicantQuestions.answerMemorableDateQuestion(
+        '2021',
+        '05 - May',
+        '10',
+      )
       await applicantQuestions.answerCurrencyQuestion('1000')
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickContinue()
@@ -271,7 +275,11 @@ test.describe('Applicant download tests', {tag: ['@northstar']}, () => {
       )
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
       await applicantQuestions.answerDropdownQuestion('op2')
-      await applicantQuestions.answerDateQuestion('1990-01-01')
+      await applicantQuestions.answerMemorableDateQuestion(
+        '1990',
+        '01 - January',
+        '01',
+      )
       await applicantQuestions.answerCurrencyQuestion('2000')
       await applicantQuestions.answerNumberQuestion('1600')
       await applicantQuestions.answerCheckboxQuestion(['red'])
