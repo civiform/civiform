@@ -498,8 +498,8 @@ export class ApplicantQuestions {
 
   async clickNext(northStarEnabled = false) {
     const nextButton = northStarEnabled
-    ? 'text="Continue"'
-    : 'text="Save and next"'
+      ? 'text="Continue"'
+      : 'text="Save and next"'
     await this.page.click(nextButton)
     await waitForPageJsLoad(this.page)
   }
