@@ -172,6 +172,37 @@ public class RecurringDurableJobRunnerTest extends ResetPostgres {
     assertThat(foundJob).isEmpty();
   }
 
+  @Test
+  public void runJobs_enumNotFound_deletesJobFromDb() {
+    PersistedDurableJobModel job =
+        new PersistedDurableJobModel(
+            "INVALID_NAME", JobType.RECURRING, Instant.now().minus(1, ChronoUnit.DAYS));
+
+    job.save();
+
+    // Assert the job was saved to the db
+    Optional<PersistedDurableJobModel> savedJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(savedJob.get().getJobName()).isEqualTo(job.getJobName());
+
+    // Assert the job does not exist in the registry
+    assertThat(durableJobRegistry.getRecurringJobs()).isEmpty();
+
+    // Since the job does not exist in the registry, it should be deleted when runJobs is run
+    recurringDurableJobRunner.runJobs();
+    Optional<PersistedDurableJobModel> foundJob =
+        DB.getDefault()
+            .find(PersistedDurableJobModel.class)
+            .where()
+            .eq("jobName", job.getJobName())
+            .findOneOrEmpty();
+    assertThat(foundJob).isEmpty();
+  }
+
   private PersistedDurableJobModel createPersistedJobScheduledInFuture() {
     var persistedJob =
         new PersistedDurableJobModel(
