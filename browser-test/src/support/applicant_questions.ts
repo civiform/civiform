@@ -496,8 +496,11 @@ export class ApplicantQuestions {
     return programTitlesLocator.allTextContents()
   }
 
-  async clickNext() {
-    await this.page.click('text="Save and next"')
+  async clickNext(northStarEnabled = false) {
+    const nextButton = northStarEnabled
+    ? 'text="Continue"'
+    : 'text="Save and next"'
+    await this.page.click(nextButton)
     await waitForPageJsLoad(this.page)
   }
 
@@ -900,9 +903,9 @@ export class ApplicantQuestions {
     }
   }
 
-  async downloadFromConfirmationPage() {
+  async downloadFromConfirmationPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    await this.expectConfirmationPage()
+    await this.expectConfirmationPage(northStarEnabled)
 
     // Click on download button.
     await this.clickDownload()
