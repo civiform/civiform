@@ -152,6 +152,7 @@ public final class ProgramCardsSectionParamsFactory {
         .setBody(program.localizedDescription().getOrDefault(preferredLocale))
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
+        .setIsCommonIntakeForm(program.isCommonIntakeForm())
         .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()))
         .setProgramId(program.id());
@@ -283,6 +284,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract boolean isGuest();
 
+    public abstract boolean isCommonIntakeForm();
+
     public abstract Optional<String> loginModalId();
 
     public abstract Optional<Boolean> eligible();
@@ -322,6 +325,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setActionUrl(String actionUrl);
 
       public abstract Builder setIsGuest(Boolean isGuest);
+
+      public abstract Builder setIsCommonIntakeForm(Boolean isCommonIntakeForm);
 
       public abstract Builder setLoginModalId(String loginModalId);
 
