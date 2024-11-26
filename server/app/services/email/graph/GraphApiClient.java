@@ -7,11 +7,11 @@ import services.cloud.azure.Credentials;
 
 /** Client to use for non-test graph API email sends. */
 class GraphApiClient implements GraphApiClientInterface {
+  private static final String[] SCOPES = new String[] {"https://graph.microsoft.com/.default"};
   private final GraphServiceClient graphClient;
 
   GraphApiClient(Credentials credentials) {
-    final String[] scopes = new String[] {"https://graph.microsoft.com/.default"};
-    graphClient = new GraphServiceClient(checkNotNull(credentials).getCredentials(), scopes);
+    graphClient = new GraphServiceClient(checkNotNull(credentials).getCredentials(), SCOPES);
   }
 
   @Override
