@@ -1038,8 +1038,10 @@ export class ApplicantQuestions {
     await expect(
       this.page
         .getByRole('heading', {name: 'may not be eligible'})
-        .locator('..'),
-    ).toContainText(questionText)
+        .locator('..')
+        .getByRole('listitem')
+        .filter({hasText: questionText}),
+    ).toBeAttached()
   }
 
   async expectMayNotBeEligibileAlertToBeVisible() {
