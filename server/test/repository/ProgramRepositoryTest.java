@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import junitparams.JUnitParamsRunner;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
@@ -22,7 +21,6 @@ import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
@@ -45,7 +43,6 @@ import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
-@RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
