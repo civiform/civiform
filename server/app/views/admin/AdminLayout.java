@@ -136,7 +136,12 @@ public final class AdminLayout extends BaseHtmlLayout {
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
             .with(span("Civi"), span("Form").withClasses("font-thin"));
 
-    NavTag navBar = nav().with(getGovBanner(Optional.empty())).withClasses(AdminStyles.NAV_STYLES);
+    NavTag navBar =
+        nav()
+            .condWith(
+                !settingsManifest.getShowNotProductionBannerEnabled(request),
+                getGovBanner(Optional.empty()))
+            .withClasses(AdminStyles.NAV_STYLES);
 
     DivTag adminHeader =
         div().with(headerIcon, headerTitle).withClasses(AdminStyles.INNER_NAV_STYLES);
