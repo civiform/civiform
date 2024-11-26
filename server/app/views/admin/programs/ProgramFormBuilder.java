@@ -325,7 +325,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
-        div().withId("apply-steps").with(buildApplicationSteps(applicationSteps)),
+        AlertComponent.renderSlimAlert(
+            AlertType.INFO,
+            "Application steps will be visible to applicants at a future date.",
+            false,
+            "my-2"),
+        div().with(buildApplicationSteps(applicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
