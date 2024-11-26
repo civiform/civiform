@@ -35,7 +35,7 @@ public final class PageNotProductionBanner {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public Optional<DivTag> render(Http.Request request, Messages messages) {
+  public Optional<DivTag> render(Http.RequestHeader request, Messages messages) {
     if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
       return Optional.empty();
     }
@@ -67,8 +67,6 @@ public final class PageNotProductionBanner {
                 "text-white",
                 "bg-red-600",
                 "p-6",
-                "shadow-xl",
-                "shadow-slate-900",
                 "flex",
                 "flex-col",
                 "justify-center",

@@ -4,7 +4,9 @@
       th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
     ></div>
   </div>
-  <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
+  <div th:unless="${showNotProductionBannerEnabled}">
+    <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
+  </div>
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
