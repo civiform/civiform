@@ -9,6 +9,7 @@ import play.Environment;
 import services.email.EmailSendClient;
 import services.email.EmailSendProvider;
 import services.email.aws.SimpleEmail;
+import services.email.graph.GraphApiEmailClient;
 
 /** Configures and initializes the classes for interacting with email sending. */
 public class EmailSendModule extends AbstractModule {
@@ -36,6 +37,7 @@ public class EmailSendModule extends AbstractModule {
         bind(EmailSendClient.class).to(SimpleEmail.class);
         break;
       case GRAPH_API:
+        bind(EmailSendClient.class).to(GraphApiEmailClient.class);
         break;
     }
   }
