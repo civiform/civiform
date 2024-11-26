@@ -8,6 +8,7 @@ import {
   validateScreenshot,
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
+import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.describe('navigation with eligibility conditions', () => {
@@ -57,7 +58,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       },
     )
 
-    test('does not show Not Eligible when there is no answer', async ({
+    test("does not show 'not eligible' when there is no answer", async ({
       applicantQuestions,
     }) => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
@@ -65,7 +66,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
     })
 
-    test('shows not eligible with ineligible answer', async ({
+    test("shows 'not eligible' alerts with ineligible answer and gating eligibility", async ({
       page,
       applicantQuestions,
     }) => {
@@ -74,19 +75,15 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await test.step('fill out application and submit', async () => {
+      await test.step('fill out application with ineligible answer', async () => {
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
       })
 
-      // Verify the question is marked ineligible.
-      await test.step('Verify application is marked ineligible', async () => {
+      await test.step('Verify no eligibility tags on in-progress application', async () => {
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ false,
-        )
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       })
 
       await test.step('verify not eligible alert is shown on review page', async () => {
@@ -105,9 +102,28 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
         await validateAccessibility(page)
       })
+
+      await test.step('answer the other question', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await applicantQuestions.answerEmailQuestion('email@email.com')
+      })
+
+      await test.step("submit and expect to be told it's ineligible", async () => {
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+        await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
+          AdminQuestions.NUMBER_QUESTION_TEXT,
+        )
+        await applicantQuestions.clickSubmitApplication()
+        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
+        await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
+          AdminQuestions.NUMBER_QUESTION_TEXT,
+        )
+      })
     })
 
-    test('shows may be eligible with an eligible answer', async ({
+    test("shows 'eligible' alerts with an eligible answer and gating eligibility", async ({
       page,
       applicantQuestions,
     }) => {
@@ -128,12 +144,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       })
 
-      await test.step('verify tag on home page', async () => {
+      await test.step('verify no eligibility tags on in-progress application', async () => {
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ true,
-        )
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       })
 
       await test.step('finish submitting application and verify eligibility message', async () => {
@@ -148,12 +161,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* northStarEnabled= */ true,
         )
       })
+
+      await test.step('verify no eligibility tags on submitted application', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      })
     })
 
-    test('shows not eligible with ineligible answer from another application', async ({
+    test("shows 'not eligible' alerts and tags on program with gating eligibility with ineligible answer from another application", async ({
       page,
       adminPrograms,
       applicantQuestions,
+      applicantProgramList,
     }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -181,20 +200,23 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
       })
 
-      await test.step('verify overlapping programs are ineligible', async () => {
+      await test.step('verify ineligible tag on main program', async () => {
         await applicantQuestions.gotoApplicantHomePage()
-        await validateScreenshot(
-          page,
-          'ineligible-home-page-program-tag',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
         await applicantQuestions.seeEligibilityTag(
           fullProgramName,
           /* isEligible= */ false,
         )
+        await validateScreenshot(
+          applicantProgramList.getCardLocator(
+            CardSectionName.ProgramsAndServices,
+            fullProgramName,
+          ),
+          'ineligible-home-page-program-card-with-tag',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
       })
-      await test.step('verify ineligibility message on review page', async () => {
+      await test.step('verify ineligibility message on review page of overlapping program', async () => {
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
@@ -205,56 +227,245 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
     })
 
-    test('shows not eligible upon submit with ineligible answer with gating eligibility', async ({
+    test("shows 'eligible' tags on program with gating eligibility with eligible answer from another application", async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      applicantProgramList,
+    }) => {
+      const overlappingOneQProgramName =
+        'Test program with one overlapping question for eligibility navigation flows'
+
+      await test.step('add program to partially complete', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(overlappingOneQProgramName)
+        await adminPrograms.editProgramBlock(
+          overlappingOneQProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(overlappingOneQProgramName)
+        await logout(page)
+      })
+
+      await test.step('Answer overlapping question', async () => {
+        await applicantQuestions.applyProgram(
+          overlappingOneQProgramName,
+          /* northStarEnabled= */ true,
+        )
+
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('verify eligible tag on main program', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeEligibilityTag(
+          fullProgramName,
+          /* isEligible= */ true,
+        )
+        await validateScreenshot(
+          applicantProgramList.getCardLocator(
+            CardSectionName.ProgramsAndServices,
+            fullProgramName,
+          ),
+          'eligible-home-page-program-card-with-tag',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ false,
+        )
+        await validateAccessibility(page)
+      })
+    })
+
+    test("shows 'eligible' alerts with non-gating eligibility", async ({
       page,
       adminPrograms,
       applicantQuestions,
     }) => {
-      await test.step('setup program with gating eligibility', async () => {
+      await test.step('set up program with non-gating eligibility', async () => {
         await loginAsAdmin(page)
         await adminPrograms.createNewVersion(fullProgramName)
         await adminPrograms.setProgramEligibility(
           fullProgramName,
-          Eligibility.IS_GATING,
+          Eligibility.IS_NOT_GATING,
         )
         await adminPrograms.publishProgram(fullProgramName)
         await logout(page)
       })
 
-      await test.step('fill out application with ineligible answer and submit', async () => {
+      await test.step('fill out application without submitting', async () => {
+        await applicantQuestions.applyProgram(
+          fullProgramName,
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('verify applicant home page card does not have tags for in-progress application', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      })
+
+      await test.step('verify eligibility banner shows on review page', async () => {
+        await applicantQuestions.applyProgram(
+          fullProgramName,
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+        await applicantQuestions.clickSubmitApplication()
+      })
+
+      await test.step('verify applicant home page card does not have tags for submitted application', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      })
+    })
+
+    test("does not show 'not eligible' alerts with non-gating eligibility", async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('set up program with nongating eligibility', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.createNewVersion(fullProgramName)
+        await adminPrograms.setProgramEligibility(
+          fullProgramName,
+          Eligibility.IS_NOT_GATING,
+        )
+        await adminPrograms.publishProgram(fullProgramName)
+        await logout(page)
+      })
+
+      await test.step('fill out application with ineligible answer without submitting', async () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
         )
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
+        await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
       })
 
-      await test.step('verify the question is marked ineligible', async () => {
+      await test.step('verify no eligibility tags on applicant home page card for in-progress application', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      })
+
+      await test.step('go back to in-progress application and validate no eligibility alert and submit', async () => {
+        await applicantQuestions.applyProgram(
+          fullProgramName,
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      })
+    })
+
+    test("does not show 'not eligible' tags on program with non-gating eligibility with ineligible answer from another application", async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const overlappingOneQProgramName =
+        'Test program with one overlapping question for eligibility navigation flows'
+
+      await test.step('set up program with nongating eligibility', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.createNewVersion(fullProgramName)
+        await adminPrograms.setProgramEligibility(
+          fullProgramName,
+          Eligibility.IS_NOT_GATING,
+        )
+        await adminPrograms.publishProgram(fullProgramName)
+      })
+
+      await test.step('add program to partially complete', async () => {
+        await adminPrograms.addProgram(overlappingOneQProgramName)
+        await adminPrograms.editProgramBlock(
+          overlappingOneQProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(overlappingOneQProgramName)
+        await logout(page)
+      })
+
+      await test.step('Answer overlapping question', async () => {
+        await applicantQuestions.applyProgram(
+          overlappingOneQProgramName,
+          /* northStarEnabled= */ true,
+        )
+
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('verify no ineligible tag on main program', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+        await validateAccessibility(page)
+      })
+    })
+
+    test("shows 'eligible' tags on program with non-gating eligibility with eligible answer from another application", async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const overlappingOneQProgramName =
+        'Test program with one overlapping question for eligibility navigation flows'
+
+      await test.step('set up program with nongating eligibility', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.createNewVersion(fullProgramName)
+        await adminPrograms.setProgramEligibility(
+          fullProgramName,
+          Eligibility.IS_NOT_GATING,
+        )
+        await adminPrograms.publishProgram(fullProgramName)
+      })
+
+      await test.step('add program to partially complete', async () => {
+        await adminPrograms.addProgram(overlappingOneQProgramName)
+        await adminPrograms.editProgramBlock(
+          overlappingOneQProgramName,
+          'first description',
+          [eligibilityQuestionId],
+        )
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(overlappingOneQProgramName)
+        await logout(page)
+      })
+
+      await test.step('Answer overlapping question', async () => {
+        await applicantQuestions.applyProgram(
+          overlappingOneQProgramName,
+          /* northStarEnabled= */ true,
+        )
+
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('verify eligible tag on main program', async () => {
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeEligibilityTag(
           fullProgramName,
-          /* isEligible= */ false,
+          /* isEligible= */ true,
         )
-      })
-
-      await test.step('answer the other question', async () => {
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
-        await applicantQuestions.answerEmailQuestion('email@email.com')
-      })
-
-      await test.step("submit and expect to be told it's ineligible", async () => {
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
-        await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
-        )
-        await applicantQuestions.clickSubmitApplication()
-        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
-        await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
-        )
+        await validateAccessibility(page)
       })
     })
 
@@ -312,173 +523,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
-      })
-    })
-
-    test('shows may be eligible with nongating eligibility', async ({
-      page,
-      adminPrograms,
-      applicantQuestions,
-    }) => {
-      await test.step('set up program with non-gating eligibility', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.createNewVersion(fullProgramName)
-        await adminPrograms.setProgramEligibility(
-          fullProgramName,
-          Eligibility.IS_NOT_GATING,
-        )
-        await adminPrograms.publishProgram(fullProgramName)
-        await logout(page)
-      })
-
-      await test.step('fill out application without submitting', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.answerNumberQuestion('5')
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step('verify home page card is marked not-eligible', async () => {
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ true,
-        )
-      })
-
-      await test.step('verify eligibility banner shows on pages', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.answerEmailQuestion('test@test.com')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
-        await applicantQuestions.clickSubmitApplication()
-      })
-    })
-
-    test('does not show not eligible with nongating eligibility', async ({
-      page,
-      adminPrograms,
-      applicantQuestions,
-    }) => {
-      await test.step('set up program with nongating eligibility', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.createNewVersion(fullProgramName)
-        await adminPrograms.setProgramEligibility(
-          fullProgramName,
-          Eligibility.IS_NOT_GATING,
-        )
-        await adminPrograms.publishProgram(fullProgramName)
-        await logout(page)
-      })
-
-      await test.step('fill out application with ineligible answer without submitting', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
-        await applicantQuestions.answerNumberQuestion('1')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
-      })
-
-      await test.step("verify that there's no indication of eligibility", async () => {
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
-      })
-
-      await test.step('go back to in progress applications and validate no eligibility alert and submit', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.answerEmailQuestion('test@test.com')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
-        await applicantQuestions.submitFromReviewPage(
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeNoEligibilityTags(fullProgramName)
-      })
-    })
-
-    test('Shows ineligible tag on home page program cards', async ({
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.applyProgram(
-        fullProgramName,
-        /* northStarEnabled= */ true,
-      )
-
-      await test.step('fill out application and submit', async () => {
-        await applicantQuestions.answerNumberQuestion('1')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
-      })
-
-      await test.step('verify question is marked ineligible', async () => {
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ false,
-        )
-      })
-    })
-
-    test('Shows eligible on home page', async ({applicantQuestions}) => {
-      await test.step('fill out application and submit', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantQuestions.answerNumberQuestion('5')
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step('verify program is marked eligible', async () => {
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ true,
-        )
-      })
-    })
-
-    test('shows not eligible alert on review page with ineligible answer', async ({
-      applicantQuestions,
-    }) => {
-      await test.step('fill out application and submit', async () => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantQuestions.answerNumberQuestion('1')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
-      })
-
-      await test.step('verify program is marked ineligible', async () => {
-        await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.seeEligibilityTag(
-          fullProgramName,
-          /* isEligible= */ false,
-        )
-
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
-
-        // Navigate to review page
-        await applicantQuestions.clickBack()
-        await applicantQuestions.clickBack()
-
-        await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
       })
     })
   })

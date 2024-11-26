@@ -206,11 +206,20 @@ public final class ProgramCardsSectionParamsFactory {
   }
 
   /**
-   * If eligibility is gating, the eligibility tag should always show when present. If eligibility
-   * is non-gating, the eligibility tag should only show if the user may be eligible.
+   * For unstarted applications: If eligibility is gating, the eligibility tag should always show
+   * when present. If eligibility is non-gating, the eligibility tag should only show if the user
+   * may be eligible.
+   *
+   * <p>Applications that have been started do not show eligibility tags.
    */
   private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
     if (!programData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+
+    if (programData.latestApplicationLifecycleStage().isPresent()
+        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
+            || programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
       return false;
     }
 

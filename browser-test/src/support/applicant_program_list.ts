@@ -31,9 +31,11 @@ export class ApplicantProgramList {
     cardSectionName: CardSectionName,
     programName: string,
   ): Locator {
-    return this.getCardSectionLocator(cardSectionName).getByRole('listitem', {
-      name: programName,
-    })
+    return this.getCardSectionLocator(cardSectionName)
+      .getByRole('listitem')
+      .filter({
+        hasText: programName,
+      })
   }
 
   /**
