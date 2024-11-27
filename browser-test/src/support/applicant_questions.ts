@@ -906,7 +906,7 @@ export class ApplicantQuestions {
     await this.expectConfirmationPage(northStarEnabled)
 
     // Click on download button.
-    await this.clickDownload()
+    await this.clickDownload(northStarEnabled)
   }
 
   async validateHeader(lang: string) {
