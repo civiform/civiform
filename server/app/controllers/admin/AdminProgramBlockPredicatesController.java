@@ -37,6 +37,8 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
+import views.components.ToastMessage;
+import views.components.ToastMessage.ToastType;
 
 /**
  * Controller for admins editing and viewing program predicates for eligibility and visibility
@@ -393,13 +395,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request);
     String newMessage = EligibilityMsgform.get().getEligibilityMessage();
     String toastMessage;
-    String toastType;
+    ToastType toastType;
 
     try {
       programService.setBlockEligibilityMessage(
           programId, blockDefinitionId, Optional.of(LocalizedStrings.of(Locale.US, newMessage)));
 
-      toastType = "success";
+      toastType = ToastMessage.ToastType.SUCCESS;
       if (newMessage.isBlank()) {
         toastMessage = "Eligibility message removed.";
       } else {
@@ -413,6 +415,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     final String indexUrl =
         routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
             .url();
-    return redirect(indexUrl).flashing(toastType, toastMessage);
+    return redirect(indexUrl).flashing(toastType.toString(), toastMessage);
   }
 }
