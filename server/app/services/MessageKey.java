@@ -370,6 +370,7 @@ public enum MessageKey {
   TITLE_ORG_MEMBERS("title.orgMembers"),
   TITLE_OTHER_PROGRAMS_SECTION_V2("title.otherProgramsSection.v2"),
   TITLE_PROGRAM_NOT_AVAILABLE("title.programNotAvailable"),
+  TITLE_PROGRAM_OVERVIEW("title.programOverview"),
   TITLE_PROGRAM_SECTION_COMPLETED("title.programSectionCompleted"),
   TITLE_PROGRAMS("title.programs"),
   TITLE_PROGRAMS_SECTION_V2("title.programsSection.v2"),

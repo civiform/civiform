@@ -1,0 +1,16 @@
+<!--/*
+  Shows the program details.
+*/-->
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()}">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <main class="grid-container padding-0">
+      <div>Welcome to the program overview page!</div>
+    </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+  </body>
+</html>
