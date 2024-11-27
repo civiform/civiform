@@ -11,7 +11,6 @@ import autovalue.shaded.com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -25,12 +24,9 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   private AdminProgramBlockPredicatesController controller;
 
-  private FormFactory formFactory;
-
   @Before
   public void setup() {
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
-    formFactory = instanceOf(FormFactory.class);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
@@ -140,9 +136,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
     ProgramModel program = ProgramBuilder.newActiveProgram().withBlock(block).build();
 
-    Http.Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of("keke", "haha")).build();
+    Http.Request request =
+        fakeRequestBuilder()
+            .method("POST")
+            .bodyForm(ImmutableMap.of("eligibilityMessage", "haha"))
+            .build();
+    System.out.println(request.queryString("eligibilityMessage"));
 
-    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, block.id());
+    Result result = controller.updateEligibilityMessage(request, program.id, block.id());
     String content = Helpers.contentAsString(result);
     System.out.println("lll");
     System.out.println(content);
