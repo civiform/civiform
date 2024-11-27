@@ -812,7 +812,7 @@
       },
       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
+        "description": "Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
       },
       "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {

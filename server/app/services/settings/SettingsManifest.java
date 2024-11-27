@@ -951,7 +951,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
@@ -2074,8 +2074,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
-                      "Add programs cards to the confirmation screen that an applicant sees after"
-                          + " finishing an application.",
+                      "Upsell: Add programs cards to the confirmation screen that an applicant sees"
+                          + " after finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
