@@ -1,7 +1,6 @@
 package durablejobs;
 
 import java.util.Optional;
-
 import models.PersistedDurableJobModel;
 
 /**
