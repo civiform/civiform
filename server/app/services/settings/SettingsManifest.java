@@ -944,7 +944,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
-   * Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
