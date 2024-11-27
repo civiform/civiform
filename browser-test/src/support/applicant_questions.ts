@@ -548,12 +548,12 @@ export class ApplicantQuestions {
   }
 
   async clickDownload(northStarEnabled = false) {
-    const downButton = northStarEnabled
-    ? 'text="Download your application"'
-    : 'text="Download PDF"'
+    const downloadButton = northStarEnabled
+      ? 'text="Download your application"'
+      : 'text="Download PDF"'
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click(downButton),
+      this.page.click(downloadButton),
     ])
     const path = await downloadEvent.path()
     if (path === null || readFileSync(path, 'utf8').length === 0) {
