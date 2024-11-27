@@ -44,7 +44,7 @@ public class EmailQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(emailQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(emailQuestionDefinition, applicant, applicantData, Optional.empty());
 
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
@@ -54,7 +54,7 @@ public class EmailQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(emailQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(emailQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEmailQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "test1@gmail.com");
 
@@ -85,7 +85,8 @@ public class EmailQuestionTest extends ResetPostgres {
     applicant.setEmailAddress("test@email.com");
 
     EmailQuestion emailQuestion =
-        new ApplicantQuestion(emailQuestionDefinitionWithPAI, applicantData, Optional.empty())
+        new ApplicantQuestion(
+                emailQuestionDefinitionWithPAI, applicant, applicantData, Optional.empty())
             .createEmailQuestion();
 
     assertThat(emailQuestion.getEmailValue().get()).isEqualTo(applicant.getEmailAddress().get());

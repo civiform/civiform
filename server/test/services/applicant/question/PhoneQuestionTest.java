@@ -53,6 +53,7 @@ public class PhoneQuestionTest extends ResetPostgres {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(phoneQuestionDefinition, Optional.empty())
                 .setOptional(true),
+            applicant,
             applicantData,
             Optional.empty());
 
@@ -64,7 +65,7 @@ public class PhoneQuestionTest extends ResetPostgres {
   @Test
   public void withValidData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(phoneQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", "(615) 717-1234");
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
@@ -77,7 +78,7 @@ public class PhoneQuestionTest extends ResetPostgres {
   @Test
   public void withInvalidApplicantData_missingRequiredFields() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(phoneQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "");
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
@@ -97,7 +98,7 @@ public class PhoneQuestionTest extends ResetPostgres {
             .join(phoneQuestionDefinition.getQuestionPathSegment())
             .join(Scalar.PHONE_NUMBER);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(phoneQuestionDefinition, applicant, applicantData, Optional.empty());
     applicantData.setFailedUpdates(ImmutableMap.of(phonePath, "invalid_input"));
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
@@ -118,7 +119,7 @@ public class PhoneQuestionTest extends ResetPostgres {
   @Parameters({"7782123334", "2505550199"})
   public void withInvalidApplicantData_numberNotInCountry(String number) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(phoneQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
 
@@ -137,7 +138,7 @@ public class PhoneQuestionTest extends ResetPostgres {
   @Parameters({"2505550199"})
   public void withInvalidApplicantData_validCANumber(String number) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(phoneQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "CA", number);
 
@@ -170,7 +171,8 @@ public class PhoneQuestionTest extends ResetPostgres {
     applicant.setPhoneNumber("9178675309");
 
     PhoneQuestion phoneQuestion =
-        new ApplicantQuestion(phoneQuestionDefinitionWithPAI, applicantData, Optional.empty())
+        new ApplicantQuestion(
+                phoneQuestionDefinitionWithPAI, applicant, applicantData, Optional.empty())
             .createPhoneQuestion();
 
     assertThat(phoneQuestion.getPhoneNumberValue().get())

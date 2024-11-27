@@ -53,7 +53,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
 
     SingleSelectQuestion singleSelectQuestion = new SingleSelectQuestion(applicantQuestion);
 
@@ -67,7 +68,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
   @Test
   public void withPresentApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 1L);
 
@@ -81,7 +83,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
   @Test
   public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 9L);
 
@@ -94,7 +97,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
   @Test
   public void getSelectedOptionAdminName_getsAdminName() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 2L);
 
@@ -109,7 +113,8 @@ public class SingleSelectQuestionTest extends ResetPostgres {
   public void getOptions_defaultsIfLangUnsupported() {
     applicantData.setPreferredLocale(Locale.CHINESE);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicant, applicantData, Optional.empty());
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 

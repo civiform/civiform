@@ -466,8 +466,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
 
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
-        && questionForm.getEnumeratorId().isEmpty()
+    if (questionForm.getEnumeratorId().isEmpty()
         && PrimaryApplicantInfoTag.getAllPaiEnabledQuestionTypes().contains(questionType)) {
       questionSettingsContentBuilder.add(buildPrimaryApplicantInfoSection(questionForm));
     }

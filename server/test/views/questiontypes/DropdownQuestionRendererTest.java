@@ -9,6 +9,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -56,7 +57,8 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
+    question =
+        new ApplicantQuestion(QUESTION, new ApplicantModel(), applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params =
         ApplicantQuestionRendererParams.builder()

@@ -2,24 +2,16 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.oidc.applicant.ApplicantProfileCreator;
-import auth.saml.SamlProfileCreator;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import models.ApplicantModel;
-import models.ApplicantModel.Suffix;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
-import services.WellKnownPaths;
 import services.applicant.question.Scalar;
 import services.geo.ServiceAreaInclusion;
 
@@ -43,30 +35,19 @@ public class ApplicantData extends CfJsonDocumentContext {
       String.format("{ \"%s\": {} }", APPLICANT);
   private Optional<Locale> preferredLocale;
   private Optional<ImmutableMap<Path, String>> failedUpdates;
-  private ApplicantModel applicant;
 
   public ApplicantData() {
-    this(EMPTY_APPLICANT_DATA_JSON, null);
+    this(EMPTY_APPLICANT_DATA_JSON);
   }
 
-  public ApplicantData(ApplicantModel applicant) {
-    this(EMPTY_APPLICANT_DATA_JSON, applicant);
+  public ApplicantData(String jsonData) {
+    this(Optional.empty(), jsonData);
   }
 
-  public ApplicantData(String jsonData, ApplicantModel applicant) {
-    this(Optional.empty(), jsonData, applicant);
-  }
-
-  public ApplicantData(
-      Optional<Locale> preferredLocale, String jsonData, ApplicantModel applicant) {
+  public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
     this.failedUpdates = Optional.empty();
-    this.applicant = applicant;
-  }
-
-  public ApplicantModel getApplicant() {
-    return applicant;
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -82,234 +63,6 @@ public class ApplicantData extends CfJsonDocumentContext {
   public void setPreferredLocale(Locale locale) {
     checkLocked();
     this.preferredLocale = Optional.of(locale);
-  }
-
-  /** Gets a formatted version of the applicant's name, or their email if no name is provided. */
-  public Optional<String> getApplicantDisplayName() {
-    return getApplicantName().isPresent() ? getApplicantName() : getApplicantEmail();
-  }
-
-  /**
-   * Gets a formatted version of the applicant's name. If only the first name is defined, returns
-   * the first name. If both first and last are defined, returns "last, first".
-   *
-   * @return Formatted name of the applicant
-   */
-  public Optional<String> getApplicantName() {
-    Optional<String> firstName =
-        Optional.ofNullable(applicant).flatMap(ApplicantModel::getFirstName);
-    Optional<String> lastName = Optional.ofNullable(applicant).flatMap(ApplicantModel::getLastName);
-    if (firstName.isEmpty()) {
-      // TODO (#5503): Return Optional.empty() when removing the feature flag
-      return getApplicantNameAtWellKnownPath();
-    }
-
-    return lastName.isEmpty()
-        ? Optional.of(firstName.get())
-        : Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
-  }
-
-  public Optional<String> getApplicantNameAtWellKnownPath() {
-    Optional<String> firstName =
-        hasPath(WellKnownPaths.APPLICANT_FIRST_NAME)
-            ? readString(WellKnownPaths.APPLICANT_FIRST_NAME)
-            : Optional.empty();
-    Optional<String> lastName =
-        hasPath(WellKnownPaths.APPLICANT_LAST_NAME)
-            ? readString(WellKnownPaths.APPLICANT_LAST_NAME)
-            : Optional.empty();
-    if (firstName.isPresent() && lastName.isPresent()) {
-      return Optional.of(String.format("%s, %s", lastName.get(), firstName.get()));
-    }
-    return firstName;
-  }
-
-  // TODO (#5503): Fix up all call sites using these functions to operate on the
-  // ApplicantModel fields directly instead. It is still encapsulated here so
-  // that we can modify both the Primary Applicant Info columns and
-  // Well Known Paths at the same time.
-  public Optional<String> getApplicantFirstName() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getFirstName)
-        .or(() -> readString(WellKnownPaths.APPLICANT_FIRST_NAME));
-  }
-
-  public Optional<String> getApplicantMiddleName() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getMiddleName)
-        .or(() -> readString(WellKnownPaths.APPLICANT_MIDDLE_NAME));
-  }
-
-  public Optional<String> getApplicantLastName() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getLastName)
-        .or(() -> readString(WellKnownPaths.APPLICANT_LAST_NAME));
-  }
-
-  public Optional<String> getApplicantNameSuffix() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getSuffix)
-        .or(() -> readString(WellKnownPaths.APPLICANT_NAME_SUFFIX));
-  }
-
-  public Optional<String> getApplicantEmail() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getEmailAddress)
-        .or(() -> getAccountEmail());
-  }
-
-  public Optional<String> getPhoneNumber() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getPhoneNumber)
-        .or(() -> readString(WellKnownPaths.APPLICANT_PHONE_NUMBER));
-  }
-
-  public void setPhoneNumber(String phoneNumber) {
-    applicant.setPhoneNumber(phoneNumber);
-    putPhoneNumber(WellKnownPaths.APPLICANT_PHONE_NUMBER, phoneNumber);
-  }
-
-  public Optional<LocalDate> getDateOfBirth() {
-    return Optional.ofNullable(applicant)
-        .flatMap(ApplicantModel::getDateOfBirth)
-        .or(
-            () -> {
-              Path dobPath = WellKnownPaths.APPLICANT_DOB;
-              Path deprecatedDobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
-              return hasPath(dobPath) ? readDate(dobPath) : readDate(deprecatedDobPath);
-            });
-  }
-
-  public void setDateOfBirth(String dateOfBirth) {
-    applicant.setDateOfBirth(dateOfBirth);
-
-    // The new path is underneath the old path, so we have to
-    // specifically check the old path exists but not the new one.
-    Path newPath = WellKnownPaths.APPLICANT_DOB;
-    Path oldPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
-    Path dobPath = hasPath(oldPath) && !hasPath(newPath) ? oldPath : newPath;
-    putDate(dobPath, dateOfBirth);
-  }
-
-  /**
-   * Checks if the given input string represents a valid suffix from Suffix enum.
-   *
-   * @param input The string to be checked for suffix validity.
-   * @return 'true' if the input string matches a suffix defined in Suffix enum, 'false' otherwise.
-   */
-  private static boolean isSuffix(String input) {
-    return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
-  }
-
-  // TODO: Get rid of this function, and change ApplicantProfileCreator and SamlProfileCreator
-  // to use the function that passes in each field separately.
-  /**
-   * Parses a name string to extract the first, middle, and last names, if they exists, and sets
-   * those fields. This function will NOT overwrite any existing name data if the first name already
-   * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
-   * SamlProfileCreator} and we do not want it to overwrite the name upon login.
-   *
-   * @param displayName A string that contains the applicant's name, with first, middle, last, and
-   *     suffix separated by spaces. May provide only first name or only first last.
-   */
-  public void setUserName(String displayName) {
-    String firstName;
-    Optional<String> lastName = Optional.empty();
-    Optional<String> middleName = Optional.empty();
-    Optional<String> nameSuffix = Optional.empty();
-    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
-    switch (listSplit.size()) {
-      case 2:
-        firstName = listSplit.get(0);
-        lastName = Optional.of(listSplit.get(1));
-        break;
-      case 4:
-        firstName = listSplit.get(0);
-        middleName = Optional.of(listSplit.get(1));
-        lastName = Optional.of(listSplit.get(2));
-        nameSuffix = Optional.of(listSplit.get(3));
-        break;
-      case 3:
-        firstName = listSplit.get(0);
-        if (isSuffix(listSplit.get(2))) {
-          lastName = Optional.of(listSplit.get(1));
-          nameSuffix = Optional.of(listSplit.get(2));
-        } else {
-          middleName = Optional.of(listSplit.get(1));
-          lastName = Optional.of(listSplit.get(2));
-        }
-        break;
-      case 1:
-        // fallthrough
-      default:
-        // Too many names - put them all in first name.
-        firstName = displayName;
-    }
-    setUserName(firstName, middleName, lastName, nameSuffix, false);
-  }
-
-  // By default, overwrite name fields if data exists in them
-  public void setUserName(
-      String firstName,
-      Optional<String> middleName,
-      Optional<String> lastName,
-      Optional<String> nameSuffix) {
-    setUserName(firstName, middleName, lastName, nameSuffix, true);
-  }
-
-  /**
-   * Sets the first, middle, and last name fields.
-   *
-   * @param firstName First name of applicant
-   * @param middleName Middle name of applicant
-   * @param lastName Last name of applicant
-   * @param overwrite When false, if first name already exists, do not update fields and return
-   *     unchanged.
-   */
-  public void setUserName(
-      String firstName,
-      Optional<String> middleName,
-      Optional<String> lastName,
-      Optional<String> nameSuffix,
-      boolean overwrite) {
-    Path firstPath = WellKnownPaths.APPLICANT_FIRST_NAME;
-    Path middlePath = WellKnownPaths.APPLICANT_MIDDLE_NAME;
-    Path lastPath = WellKnownPaths.APPLICANT_LAST_NAME;
-    Path suffixPath = WellKnownPaths.APPLICANT_NAME_SUFFIX;
-    boolean firstNamePresent =
-        applicant.getFirstName().isPresent()
-            || (hasPath(firstPath) && readString(firstPath).isPresent());
-    if (!overwrite && firstNamePresent) {
-      return;
-    }
-    applicant.setFirstName(firstName);
-    // Empty string will remove it from the model
-    applicant.setMiddleName(middleName.orElse(""));
-    applicant.setLastName(lastName.orElse(""));
-    applicant.setSuffix(nameSuffix.orElse(""));
-
-    putString(firstPath, firstName);
-    if (middleName.isPresent()) {
-      putString(middlePath, middleName.get());
-    } else {
-      if (hasPath(middlePath)) {
-        getDocumentContext().delete(middlePath.toString());
-      }
-    }
-    if (lastName.isPresent()) {
-      putString(lastPath, lastName.get());
-    } else {
-      if (hasPath(lastPath)) {
-        getDocumentContext().delete(lastPath.toString());
-      }
-    }
-    if (nameSuffix.isPresent()) {
-      putString(suffixPath, nameSuffix.get());
-    } else {
-      if (hasPath(suffixPath)) {
-        getDocumentContext().delete(suffixPath.toString());
-      }
-    }
   }
 
   @Override
@@ -349,11 +102,10 @@ public class ApplicantData extends CfJsonDocumentContext {
    */
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
-    ApplicantData thisApplicantData =
-        new ApplicantData(this.preferredLocale, this.asJsonString(), this.applicant);
+    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
     clearFieldsNotRequiredForComparison(thisApplicantData);
     ApplicantData otherApplicantData =
-        new ApplicantData(other.preferredLocale, other.asJsonString(), other.applicant);
+        new ApplicantData(other.preferredLocale, other.asJsonString());
     clearFieldsNotRequiredForComparison(otherApplicantData);
 
     return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
@@ -368,15 +120,6 @@ public class ApplicantData extends CfJsonDocumentContext {
     } catch (PathNotFoundException unused) {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
-  }
-
-  public Optional<LocalDate> getDeprecatedDateOfBirth() {
-    return readDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED);
-  }
-
-  private Optional<String> getAccountEmail() {
-    return Optional.ofNullable(applicant)
-        .flatMap(a -> Optional.ofNullable(a.getAccount().getEmailAddress()));
   }
 
   /**
