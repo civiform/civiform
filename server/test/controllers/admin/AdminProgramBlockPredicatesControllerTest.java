@@ -16,6 +16,7 @@ import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private ProgramModel programWithThreeBlocks;
+
   private AdminProgramBlockPredicatesController controller;
 
   @Before

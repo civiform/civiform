@@ -366,14 +366,6 @@ public class ProgramBuilder {
     return BlockBuilder.newBlock(this, blockId, name, description, Optional.empty());
   }
 
-  /**
-   * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with a {@link BlockDefinition}.
-   */
-  public BlockBuilder withBlock(BlockDefinition block) {
-    return BlockBuilder.newBlock(
-        this, block.id(), block.name(), block.description(), block.enumeratorId());
-  }
-
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
   public ProgramDefinition buildDefinition() {
     ProgramModel program = build();
