@@ -75,7 +75,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicationModel appTwoSubmitted =
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
+    assertThat(appTwoSubmitted.getApplicant().getApplicantName().get()).isEqualTo("Alice");
     assertThat(
             repo.getApplication(appOne.id)
                 .toCompletableFuture()
@@ -400,7 +400,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     account.save();
 
     ApplicantModel applicant = new ApplicantModel();
-    applicant.getApplicantData().setUserName(name);
+    applicant.setUserName(name);
     applicant.setAccount(account);
     applicant.save();
     return applicant;

@@ -758,18 +758,13 @@ export class ApplicantQuestions {
       ).toBeVisible()
     }
 
+    const createAccountHeading = this.page.getByRole('heading', {
+      name: 'Create an account to save your application information',
+    })
     if (wantUpsell) {
-      await expect(
-        this.page.getByRole('heading', {
-          name: 'Create an account to save your application information',
-        }),
-      ).toBeVisible()
+      await expect(createAccountHeading).toBeVisible()
     } else {
-      await expect(
-        this.page.getByRole('heading', {
-          name: 'Create an account to save your application information',
-        }),
-      ).toBeHidden()
+      await expect(createAccountHeading).toBeHidden()
     }
 
     // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
@@ -1037,6 +1032,16 @@ export class ApplicantQuestions {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
     ).not.toBeAttached()
+  }
+
+  async expectIneligibleQuestionInReviewPageAlert(questionText: string) {
+    await expect(
+      this.page
+        .getByRole('heading', {name: 'may not be eligible'})
+        .locator('..')
+        .getByRole('listitem')
+        .filter({hasText: questionText}),
+    ).toBeAttached()
   }
 
   async expectMayNotBeEligibileAlertToBeVisible() {

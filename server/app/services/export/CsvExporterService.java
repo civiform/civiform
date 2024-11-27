@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Inject;
+import models.ApplicantModel;
 import models.ApplicationModel;
 import models.QuestionTag;
 import repository.SubmittedApplicationFilter;
@@ -309,7 +310,10 @@ public final class CsvExporterService {
           // Use a program question definition that doesn't have a program associated with it,
           // which is okay because this should be program agnostic.
           .map(qd -> ProgramQuestionDefinition.create(qd, Optional.empty()))
-          .map(pqd -> new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()))
+          .map(
+              pqd ->
+                  new ApplicantQuestion(
+                      pqd, new ApplicantModel(), new ApplicantData(), Optional.empty()))
           .flatMap(
               aq ->
                   csvColumnFactory.buildColumns(

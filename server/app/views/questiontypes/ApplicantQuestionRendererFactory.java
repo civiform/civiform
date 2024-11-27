@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicantModel;
 import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
@@ -32,7 +33,7 @@ public final class ApplicantQuestionRendererFactory {
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
+        new ApplicantQuestion(pqd, new ApplicantModel(), new ApplicantData(), Optional.empty());
     return getRenderer(applicantQuestion, Optional.empty());
   }
 

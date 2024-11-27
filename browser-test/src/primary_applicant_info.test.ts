@@ -235,13 +235,13 @@ test.describe('primary applicant info questions', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-
     await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
-    // For now, we use the preseeded question since we still fall back
-    // to reading the well known path in getApplicantName when there is
-    // no PAI data, which there won't be until we implement it later.
-    await adminQuestions.addNameQuestion({questionName: 'name'})
+    await adminQuestions.addNameQuestion({
+      questionName: 'name',
+      universal: true,
+      primaryApplicantInfo: true,
+    })
     await adminPrograms.addProgram('test')
     await adminPrograms.editProgramBlock('test', 'desc', ['name'])
     await adminPrograms.gotoAdminProgramsPage()

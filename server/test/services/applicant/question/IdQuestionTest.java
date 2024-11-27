@@ -66,7 +66,7 @@ public class IdQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(idQuestionDefinition, applicant, applicantData, Optional.empty());
 
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
@@ -76,7 +76,7 @@ public class IdQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(idQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "12345");
 
@@ -90,7 +90,8 @@ public class IdQuestionTest extends ResetPostgres {
   @Parameters({"012", "0123"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            minAndMaxLengthIdQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -115,7 +116,8 @@ public class IdQuestionTest extends ResetPostgres {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, ValidationErrorMessage expectedError) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            minAndMaxLengthIdQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

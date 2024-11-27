@@ -262,12 +262,11 @@ public final class TrustedIntermediaryService {
     return allAccounts.stream()
         .filter(
             account ->
-                ((account.newestApplicant().get().getApplicantData().getDateOfBirth().isPresent()
+                ((account.newestApplicant().get().getDateOfBirth().isPresent()
                         && maybeDOB.isPresent()
                         && account
                             .newestApplicant()
                             .get()
-                            .getApplicantData()
                             .getDateOfBirth()
                             .get()
                             .equals(maybeDOB.get()))

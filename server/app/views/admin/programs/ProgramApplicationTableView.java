@@ -50,7 +50,6 @@ import services.applicant.ApplicantService;
 import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.AlertComponent;
 import views.ApplicantUtils;
@@ -81,7 +80,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
   private final ApplicantUtils applicantUtils;
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
   private final Messages enUsMessages;
 
@@ -91,13 +89,11 @@ public class ProgramApplicationTableView extends BaseHtmlView {
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter,
-      SettingsManifest settingsManifest,
       @BindingAnnotations.EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.enUsMessages = checkNotNull(enUsMessages);
   }
 
@@ -181,10 +177,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 /* showDownloadModal= */ Optional.empty(),
                 /* message= */ Optional.empty())
             .url();
-    String labelText =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
-            ? "Search by name, email, phone number, or application ID"
-            : "Search by name, email, or application ID";
+    String labelText = "Search by name, email, phone number, or application ID";
     return form()
         .withClasses("mt-6")
         .attr("data-override-disable-submit-on-enter")
@@ -475,7 +468,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         String.format(
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(
-                application.getApplicantData().getApplicantDisplayName()),
+                application.getApplicant().getApplicantDisplayName()),
             application.id);
     String applicationStatus =
         application

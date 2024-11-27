@@ -48,7 +48,8 @@ public class CurrencyQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            currencyQuestionDefinition, applicant, applicantData, Optional.empty());
 
     CurrencyQuestion currencyQuestion = new CurrencyQuestion(applicantQuestion);
 
@@ -72,7 +73,8 @@ public class CurrencyQuestionTest {
   })
   public void withValidApplicantData_passesValidation(String dollars, Long cents) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            currencyQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerCurrencyQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), dollars);
 
@@ -91,7 +93,8 @@ public class CurrencyQuestionTest {
             .join(Scalar.CURRENCY_CENTS);
     applicantData.setFailedUpdates(ImmutableMap.of(currencyPath, "invalid_input"));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            currencyQuestionDefinition, applicant, applicantData, Optional.empty());
 
     CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 

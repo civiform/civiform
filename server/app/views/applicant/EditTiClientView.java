@@ -27,7 +27,6 @@ import repository.AccountRepository;
 import services.AlertType;
 import services.DateConverter;
 import services.MessageKey;
-import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import services.ti.TrustedIntermediaryService;
@@ -197,12 +196,11 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
       Http.Request request,
       Optional<Form<TiClientInfoForm>> form,
       Messages messages) {
-    Optional<ApplicantData> optionalApplicantData = Optional.empty();
+    Optional<ApplicantModel> optionalApplicant = Optional.empty();
     FormTag formTag;
     Boolean isNameSuffixEnabled = settingsManifest.getNameSuffixDropdownEnabled(request);
     if (optionalAccount.isPresent()) {
-      optionalApplicantData =
-          Optional.of(optionalAccount.get().newestApplicant().get().getApplicantData());
+      optionalApplicant = optionalAccount.get().newestApplicant();
 
       formTag =
           form()
@@ -224,7 +222,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                 .setFieldName("firstName")
                 .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                 .setRequired(true)
-                .setValue(setDefaultFirstName(optionalApplicantData)),
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getFirstName)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_FIRST_NAME,
             messages);
@@ -238,7 +236,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setValue(setDefaultMiddleName(optionalApplicantData)),
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getMiddleName)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_MIDDLE_NAME,
             messages);
@@ -249,7 +247,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                 .setFieldName("lastName")
                 .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                 .setRequired(true)
-                .setValue(setDefaultLastName(optionalApplicantData)),
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getLastName)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_LAST_NAME,
             messages);
@@ -260,10 +258,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                 .setId("name-suffix-select")
                 .setLabelText(messages.at(MessageKey.NAME_LABEL_SUFFIX.getKeyName()))
                 .setFieldName("nameSuffix")
-                .setValue(
-                    setDefaultNameSuffix(optionalApplicantData).isEmpty()
-                        ? ""
-                        : setDefaultNameSuffix(optionalApplicantData).get())
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getSuffix).orElse(""))
                 .setOptions(
                     Stream.of(ApplicantModel.Suffix.values())
                         .map(
@@ -288,7 +283,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     messages.at(MessageKey.PHONE_NUMBER_LABEL.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setValue(setDefaultPhone(optionalApplicantData)),
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getPhoneNumber)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_PHONE,
             messages);
@@ -304,7 +299,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
                 .setToolTipIcon(Icons.INFO)
                 .setToolTipText(messages.at(MessageKey.CONTENT_EMAIL_TOOLTIP.getKeyName()))
-                .setValue(setDefaultEmail(optionalAccount)),
+                .setValue(optionalApplicant.flatMap(ApplicantModel::getEmailAddress)),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_EMAIL_ADDRESS,
             messages);
@@ -315,7 +310,11 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                 .setFieldName("dob")
                 .setLabelText(messages.at(MessageKey.DOB_LABEL.getKeyName()))
                 .setRequired(true)
-                .setValue(getDefaultDob(optionalApplicantData)),
+                .setValue(
+                    optionalApplicant
+                        .flatMap(ApplicantModel::getDateOfBirth)
+                        .map(this.dateConverter::formatIso8601Date)
+                        .orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_DOB,
             messages);
@@ -328,7 +327,7 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
                     messages.at(MessageKey.NOTES_LABEL.getKeyName())
                         + " "
                         + messages.at(MessageKey.CONTENT_OPTIONAL.getKeyName()))
-                .setValue(setDefaultTiNotes(optionalAccount)),
+                .setValue(optionalAccount.map(AccountModel::getTiNote).orElse("")),
             form,
             TrustedIntermediaryService.FORM_FIELD_NAME_TI_NOTES,
             messages);
@@ -370,54 +369,6 @@ public class EditTiClientView extends TrustedIntermediaryDashboardView {
     }
 
     return div().with(addOrEditClientForm.withClasses("w-1/2", "mt-6"));
-  }
-
-  private String getDefaultDob(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData
-            .get()
-            .getDateOfBirth()
-            .map(this.dateConverter::formatIso8601Date)
-            .orElse("")
-        : "";
-  }
-
-  private Optional<String> setDefaultPhone(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData.get().getPhoneNumber()
-        : Optional.empty();
-  }
-
-  private String setDefaultEmail(Optional<AccountModel> optionalAccount) {
-    return optionalAccount.isPresent() ? optionalAccount.get().getEmailAddress() : "";
-  }
-
-  private String setDefaultTiNotes(Optional<AccountModel> optionalAccount) {
-    return optionalAccount.isPresent() ? optionalAccount.get().getTiNote() : "";
-  }
-
-  private Optional<String> setDefaultNameSuffix(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData.get().getApplicantNameSuffix()
-        : Optional.empty();
-  }
-
-  private Optional<String> setDefaultMiddleName(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData.get().getApplicantMiddleName()
-        : Optional.empty();
-  }
-
-  private Optional<String> setDefaultLastName(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData.get().getApplicantLastName()
-        : Optional.empty();
-  }
-
-  private Optional<String> setDefaultFirstName(Optional<ApplicantData> optionalApplicantData) {
-    return optionalApplicantData.isPresent()
-        ? optionalApplicantData.get().getApplicantFirstName()
-        : Optional.empty();
   }
 
   private SelectWithLabel setStateIfPresent(
