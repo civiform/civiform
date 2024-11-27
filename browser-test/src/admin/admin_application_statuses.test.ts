@@ -14,6 +14,7 @@ import {
   validateScreenshot,
   AdminProgramStatuses,
   enableFeatureFlag,
+  waitForPageJsLoad,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -142,7 +143,7 @@ test.describe('view program statuses', () => {
       await validateScreenshot(page, 'application-view-with-statuses')
     })
 
-    test('shows "None" value in application list if no status is set', async ({
+    test('shows "None" value in application table if no status is set', async ({
       adminPrograms,
     }) => {
       await adminPrograms.viewApplications(programWithStatusesName)
@@ -176,6 +177,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.confirmStatusUpdateModal(modal)
         expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
         await adminPrograms.expectUpdateStatusToast()
+        await page.getByRole('link', {name: 'Back'}).click()
 
         // Confirm that the application is shown after reloading the page.
         const applicationText = await page
@@ -244,10 +246,11 @@ test.describe('view program statuses', () => {
           'Guest',
           noEmailStatusName,
         )
-        await adminPrograms.expectApplicationHasStatusString('Guest', 'None')
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
         await adminPrograms.confirmStatusUpdateModal(modal)
+          await page.getByRole('link', {name: 'Back'}).click()
         await adminPrograms.expectApplicationHasStatusString(
           'Guest',
           emailStatusName,
@@ -383,6 +386,7 @@ test.describe('view program statuses', () => {
       await adminPrograms.expectNoteUpdatedToast()
       const csvContent = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContent).toContain('Note is updated')
+      await adminPrograms.expectNoteUpdatedToast()
       await page.getByRole('link', {name: 'Back'}).click()
 
       await adminPrograms.viewApplicationForApplicant('Guest')
@@ -796,13 +800,15 @@ test.describe('view program statuses', () => {
           primaryApplicantInfo: true,
         })
         await adminQuestions.addNameQuestion({
-          questionName: 'Name',
+          questionName: 'Nameqq',
+          universal: true,
+          primaryApplicantInfo: true,
         })
         await adminPrograms.editProgram(programWithStatusesName)
         await adminPrograms.editProgramBlock(
           programWithStatusesName,
           'block description',
-          ['Email', 'Name'],
+          ['Email', 'Nameqq'],
         )
         await adminPrograms.publishAllDrafts()
         await logout(page)
@@ -882,6 +888,7 @@ test.describe('view program statuses', () => {
       await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
+        await adminPrograms.viewApplicationForApplicant(otherTestUserEmail)
       })
 
       const [acccountEmailsBefore, applicantEmailsBefore] =
