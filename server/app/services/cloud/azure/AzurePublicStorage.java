@@ -42,6 +42,7 @@ public class AzurePublicStorage extends PublicStorageClient {
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
     this.fileLimitMb = checkNotNull(config).getInt(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH);
 
+    // DO NOT MERGE -- NOOP CHANGE TO TRIGGER BROWSER TESTS
     if (environment.isDev()) {
       client =
           new DevAzureBlobStorageClient(
