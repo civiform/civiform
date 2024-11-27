@@ -1,0 +1,276 @@
+[1mdiff --git a/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-default.png b/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-default.png[m
+[1mindex 133a7d090..ae29bdb5b 100644[m
+Binary files a/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-default.png and b/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-default.png differ
+[1mdiff --git a/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-statuses.png b/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-statuses.png[m
+[1mindex 4e6cdf7f2..4d19be492 100644[m
+Binary files a/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-statuses.png and b/browser-test/image_snapshots/admin_application_statuses_test/application-view-with-statuses.png differ
+[1mdiff --git a/browser-test/image_snapshots/admin_application_statuses_test/change-status-modal.png b/browser-test/image_snapshots/admin_application_statuses_test/change-status-modal.png[m
+[1mindex 8afaf8671..32ef1b345 100644[m
+Binary files a/browser-test/image_snapshots/admin_application_statuses_test/change-status-modal.png and b/browser-test/image_snapshots/admin_application_statuses_test/change-status-modal.png differ
+[1mdiff --git a/browser-test/image_snapshots/admin_application_statuses_test/edit-note-modal.png b/browser-test/image_snapshots/admin_application_statuses_test/edit-note-modal.png[m
+[1mindex 2d01ec381..026e50e94 100644[m
+Binary files a/browser-test/image_snapshots/admin_application_statuses_test/edit-note-modal.png and b/browser-test/image_snapshots/admin_application_statuses_test/edit-note-modal.png differ
+[1mdiff --git a/browser-test/image_snapshots/application_review_test/applications-filtered-after-download.png b/browser-test/image_snapshots/application_review_test/applications-filtered-after-download.png[m
+[1mindex f68fef3bc..950b6ba62 100644[m
+Binary files a/browser-test/image_snapshots/application_review_test/applications-filtered-after-download.png and b/browser-test/image_snapshots/application_review_test/applications-filtered-after-download.png differ
+[1mdiff --git a/browser-test/image_snapshots/application_review_test/applications-filtered.png b/browser-test/image_snapshots/application_review_test/applications-filtered.png[m
+[1mindex f68fef3bc..950b6ba62 100644[m
+Binary files a/browser-test/image_snapshots/application_review_test/applications-filtered.png and b/browser-test/image_snapshots/application_review_test/applications-filtered.png differ
+[1mdiff --git a/browser-test/image_snapshots/application_review_test/applications-unfiltered-pai.png b/browser-test/image_snapshots/application_review_test/applications-unfiltered-pai.png[m
+[1mindex 7781cbcb2..3d3b8f7bb 100644[m
+Binary files a/browser-test/image_snapshots/application_review_test/applications-unfiltered-pai.png and b/browser-test/image_snapshots/application_review_test/applications-unfiltered-pai.png differ
+[1mdiff --git a/browser-test/image_snapshots/application_review_test/applications-unfiltered.png b/browser-test/image_snapshots/application_review_test/applications-unfiltered.png[m
+[1mindex 5901ea9f6..0011d99d2 100644[m
+Binary files a/browser-test/image_snapshots/application_review_test/applications-unfiltered.png and b/browser-test/image_snapshots/application_review_test/applications-unfiltered.png differ
+[1mdiff --git a/browser-test/image_snapshots/application_review_test/cf-admin-applications-page.png b/browser-test/image_snapshots/application_review_test/cf-admin-applications-page.png[m
+[1mindex c9e2c3615..ca4000bfe 100644[m
+Binary files a/browser-test/image_snapshots/application_review_test/cf-admin-applications-page.png and b/browser-test/image_snapshots/application_review_test/cf-admin-applications-page.png differ
+[1mdiff --git a/browser-test/src/admin/admin_application_statuses.test.ts b/browser-test/src/admin/admin_application_statuses.test.ts[m
+[1mindex 0dd82d64a..b0de5062a 100644[m
+[1m--- a/browser-test/src/admin/admin_application_statuses.test.ts[m
+[1m+++ b/browser-test/src/admin/admin_application_statuses.test.ts[m
+[36m@@ -53,51 +53,56 @@[m [mtest.describe('view program statuses', () => {[m
+     })[m
+ [m
+     test('does not show application status in list', async ({[m
+[32m+[m[32m      page,[m
+       adminPrograms,[m
+     }) => {[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+       await adminPrograms.expectApplicationStatusDoesntContain([m
+         'Guest',[m
+         'Status: ',[m
+       )[m
+     })[m
+ [m
+[31m-    test('does not show edit note', async ({adminPrograms}) => {[m
+[32m+[m[32m    test('does not show edit note', async ({page,[m
+[32m+[m[32m      adminPrograms,}) => {[m
+       expect(await adminPrograms.isEditNoteVisible()).toBe(false)[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+     })[m
+ [m
+     test('does not show pagination when there is only 1 page of applications', async ({[m
+       adminPrograms,[m
+     }) => {[m
+[31m-      expect(await adminPrograms.isPaginationVisibleForApplicationList()).toBe([m
+[32m+[m[32m      expect(await adminPrograms.isPaginationVisibleForApplicationTable()).toBe([m
+         false,[m
+       )[m
+     })[m
+ [m
+     /* See trusted_intermediary.test.ts for more comprehensive pagination testing */[m
+[31m-    test('shows pagination if there are more than 10 applications', async ({[m
+[32m+[m[32m    test('shows pagination if there are more than 50 applications', async ({[m
+       page,[m
+       adminPrograms,[m
+       applicantQuestions,[m
+     }) => {[m
+[31m-      // There is already 1 application from the beforeEach, so apply to 10 more programs.[m
+[31m-      for (let i = 0; i < 10; i++) {[m
+[31m-        await logout(page)[m
+[31m-[m
+[31m-        // Submit an application as a guest.[m
+[31m-        await applicantQuestions.clickApplyProgramButton([m
+[31m-          programWithoutStatusesName,[m
+[31m-        )[m
+[31m-        await applicantQuestions.submitFromReviewPage()[m
+[31m-[m
+[31m-        // Navigate to the submitted application as the program admin.[m
+[31m-        await loginAsProgramAdmin(page)[m
+[31m-      }[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+[32m+[m[32m        // There is already 1 application from the beforeEach, so apply to 50 more programs.[m
+[32m+[m[32m        for (let i = 0; i < 50; i++) {[m
+[32m+[m[32m          await logout(page)[m
+[32m+[m[41m  [m
+[32m+[m[32m          // Submit an application as a guest.[m
+[32m+[m[32m          await applicantQuestions.clickApplyProgramButton([m
+[32m+[m[32m            programWithoutStatusesName,[m
+[32m+[m[32m          )[m
+[32m+[m[32m          await applicantQuestions.submitFromReviewPage()[m
+[32m+[m[41m  [m
+[32m+[m[32m          // Navigate to the submitted application as the program admin.[m
+[32m+[m[32m          await loginAsProgramAdmin(page)[m
+[32m+[m[32m        }[m
+ [m
+       // Navigate to the applications list[m
+       await adminPrograms.viewApplications(programWithoutStatusesName)[m
+ [m
+[31m-      await validateScreenshot(page, 'application-list-pagination')[m
+[31m-      expect(await adminPrograms.isPaginationVisibleForApplicationList()).toBe([m
+[32m+[m[32m      await validateScreenshot(page, 'application-table-pagination')[m
+[32m+[m[32m      expect(await adminPrograms.isPaginationVisibleForApplicationTable()).toBe([m
+         true,[m
+       )[m
+       expect(page.locator('.usa-pagination__button:has-text("2")'))[m
+[36m@@ -175,7 +180,7 @@[m [mtest.describe('view program statuses', () => {[m
+ [m
+         // Confirm that the application is shown after reloading the page.[m
+         const applicationText = await page[m
+[31m-          .locator('#application-view')[m
+[32m+[m[32m          .locator('#application-table')[m
+           .innerText()[m
+         expect(applicationText).toContain('Guest')[m
+       })[m
+[36m@@ -223,7 +228,8 @@[m [mtest.describe('view program statuses', () => {[m
+         await dismissModal(page)[m
+       })[m
+ [m
+[31m-      test('when changing status, the updated application status is reflected in the application list', async ({[m
+[32m+[m[32m      test('when changing status, the updated application status is reflected in the application table', async ({[m
+[32m+[m[32m        page,[m
+         adminPrograms,[m
+       }) => {[m
+         await test.step('Set initial status', async () => {[m
+[36m@@ -233,10 +239,13 @@[m [mtest.describe('view program statuses', () => {[m
+           expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)[m
+         })[m
+ [m
+[32m+[m[32m        await page.getByRole('link', {name: 'Back'}).click()[m
+[32m+[m
+         await adminPrograms.expectApplicationHasStatusString([m
+           'Guest',[m
+           noEmailStatusName,[m
+         )[m
+[32m+[m[32m        await adminPrograms.expectApplicationHasStatusString('Guest', 'None')[m
+         const modal =[m
+           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)[m
+         await adminPrograms.confirmStatusUpdateModal(modal)[m
+[36m@@ -247,7 +256,8 @@[m [mtest.describe('view program statuses', () => {[m
+       })[m
+ [m
+       test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {[m
+[31m-        test.beforeEach(async ({adminPrograms}) => {[m
+[32m+[m[32m        test.beforeEach(async ({page,adminPrograms,}) => {[m
+[32m+[m[32m          await enableFeatureFlag(page, 'bulk_status_update_enabled')[m
+           await adminPrograms.viewApplications(programWithStatusesName)[m
+           await adminPrograms.viewApplicationForApplicant(testUserDisplayName())[m
+         })[m
+[36m@@ -354,16 +364,19 @@[m [mtest.describe('view program statuses', () => {[m
+ [m
+       expect(await adminPrograms.getNoteContent()).toBe(noteText)[m
+     })[m
+[31m-    test('allow notes to be exported', async ({adminPrograms}) => {[m
+[32m+[m[32m    test('allow notes to be exported', async ({page,[m
+[32m+[m[32m      adminPrograms,}) => {[m
+       await adminPrograms.editNote('Note is exported')[m
+       await adminPrograms.expectNoteUpdatedToast()[m
+       const noApplyFilters = false[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+ [m
+       const csvContent = await adminPrograms.getCsv(noApplyFilters)[m
+       expect(csvContent).toContain('Note is exported')[m
+     })[m
+ [m
+     test('export only the latest note', async ({adminPrograms}) => {[m
+[32m+[m
+       await adminPrograms.editNote('Note is exported')[m
+       await adminPrograms.expectNoteUpdatedToast()[m
+       const noApplyFilters = false[m
+[36m@@ -373,23 +386,23 @@[m [mtest.describe('view program statuses', () => {[m
+       await adminPrograms.expectNoteUpdatedToast()[m
+       const csvContent = await adminPrograms.getCsv(noApplyFilters)[m
+       expect(csvContent).toContain('Note is updated')[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+ [m
+       await adminPrograms.viewApplicationForApplicant('Guest')[m
+       await adminPrograms.editNote('Note is finalized')[m
+       await adminPrograms.expectNoteUpdatedToast()[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+       const csvContentFinal = await adminPrograms.getCsv(noApplyFilters)[m
+       expect(csvContentFinal).toContain('Note is finalized')[m
+     })[m
+ [m
+     test('preserves newlines in notes', async ({adminPrograms}) => {[m
+[32m+[m[32m      await adminPrograms.viewApplications(programWithStatusesName)[m
+[32m+[m[32m      await adminPrograms.viewApplicationForApplicant('Guest')[m
+       const noteText = 'Some note content\nwithseparatelines'[m
+       await adminPrograms.editNote(noteText)[m
+       await adminPrograms.expectNoteUpdatedToast()[m
+ [m
+[31m-      // Reload the note editor.[m
+[31m-      await adminPrograms.viewApplications(programWithStatusesName)[m
+[31m-      await adminPrograms.viewApplicationForApplicant('Guest')[m
+[31m-[m
+       expect(await adminPrograms.getNoteContent()).toBe(noteText)[m
+     })[m
+   })[m
+[36m@@ -407,6 +420,7 @@[m [mtest.describe('view program statuses', () => {[m
+         applicantQuestions,[m
+         adminProgramStatuses,[m
+       }) => {[m
+[32m+[m[32m        await enableFeatureFlag(page, 'bulk_status_update_enabled')[m
+         await loginAsAdmin(page)[m
+ [m
+         // Add a program, no questions are needed.[m
+[36m@@ -471,6 +485,8 @@[m [mtest.describe('view program statuses', () => {[m
+       expect(await adminPrograms.getStatusOption()).toBe(approvedStatus)[m
+       await adminPrograms.expectUpdateStatusToast()[m
+ [m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+[32m+[m
+       await adminPrograms.expectApplicationStatusDoesntContain([m
+         'Guest',[m
+         '(default)',[m
+[36m@@ -499,6 +515,7 @@[m [mtest.describe('view program statuses', () => {[m
+         applicantQuestions,[m
+         adminProgramStatuses,[m
+       }) => {[m
+[32m+[m[32m        await enableFeatureFlag(page, 'bulk_status_update_enabled')[m
+         await loginAsAdmin(page)[m
+ [m
+         // Add a program with a single question that is used for asserting downloaded content.[m
+[36m@@ -597,7 +614,7 @@[m [mtest.describe('view program statuses', () => {[m
+     })[m
+ [m
+     test('application with status shows in default filter and status-specific filter', async ({[m
+[31m-      adminPrograms,[m
+[32m+[m[32m      page,adminPrograms,[m
+     }) => {[m
+       await test.step('explicitly set a status for the application', async () => {[m
+         await adminPrograms.viewApplications(programForFilteringName)[m
+[36m@@ -605,6 +622,7 @@[m [mtest.describe('view program statuses', () => {[m
+         const modal =[m
+           await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)[m
+         await adminPrograms.confirmStatusUpdateModal(modal)[m
+[32m+[m[32m        await page.getByRole('link', {name: 'Back'}).click()[m
+       })[m
+ [m
+       // Excluded when filtering to applications without statuses.[m
+[36m@@ -644,6 +662,7 @@[m [mtest.describe('view program statuses', () => {[m
+         const modal =[m
+           await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)[m
+         await adminPrograms.confirmStatusUpdateModal(modal)[m
+[32m+[m[32m        await page.getByRole('link', {name: 'Back'}).click()[m
+       })[m
+ [m
+       await adminPrograms.filterProgramApplications({[m
+[36m@@ -653,13 +672,15 @@[m [mtest.describe('view program statuses', () => {[m
+       const modal =[m
+         await adminPrograms.setStatusOptionAndAwaitModal(rejectedStatusName)[m
+       await adminPrograms.confirmStatusUpdateModal(modal)[m
+[32m+[m[32m      await page.getByRole('link', {name: 'Back'}).click()[m
+ [m
+       // The application should no longer be in the list, since its status is no longer "approved".[m
+       // However, it should still be displayed in the viewer since admins may want to easily revert[m
+       // the status update.[m
+       await adminPrograms.expectApplicationCount(0)[m
+[32m+[m[32m      await adminPrograms.viewApplicationForApplicant('Guest')[m
+       const applicationText = await page[m
+[31m-        .locator('#application-view')[m
+[32m+[m[32m        .locator('#application-table')[m
+         .innerText()[m
+       expect(applicationText).toContain('Guest')[m
+       expect(applicationText).toContain(favoriteColorAnswer)[m
+[36m@@ -682,6 +703,9 @@[m [mtest.describe('view program statuses', () => {[m
+         await loginAsAdmin(page)[m
+ [m
+         // Create a program without eligibility[m
+[32m+[m[32m        await adminQuestions.addNameQuestion({[m
+[32m+[m[32m          questionName: 'NameQuestion'[m
+[32m+[m[32m        })[m
+         await adminQuestions.addNumberQuestion({[m
+           questionName: eligibilityQuestionId,[m
+         })[m
+[36m@@ -692,7 +716,7 @@[m [mtest.desc

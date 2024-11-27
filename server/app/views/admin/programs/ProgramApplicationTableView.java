@@ -445,7 +445,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                           alertTag,
                           applicationTable)));
     }
-    return div(applicationTable);
+    return div(applicationTable).withData("testid", "application-table");
   }
 
   private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {

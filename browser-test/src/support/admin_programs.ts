@@ -111,7 +111,7 @@ export class AdminPrograms {
       await this.page.innerText(
         this.selectApplicationRowForApplicant(applicant),
       ),
-    ).toContain(`Status: ${statusString}`)
+    ).toContain(`${statusString}`)
   }
 
   async expectApplicationStatusDoesntContain(
@@ -1350,8 +1350,8 @@ export class AdminPrograms {
     await this.page.click('input[name=isCommonIntakeForm]')
   }
 
-  async isPaginationVisibleForApplicationList(): Promise<boolean> {
-    const applicationListDiv = this.page.getByTestId('application-list')
+  async isPaginationVisibleForApplicationTable(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-table')
     return applicationListDiv.locator('.usa-pagination').isVisible()
   }
 
