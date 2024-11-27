@@ -406,9 +406,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         toastMessage = "Eligibility message set to " + newMessage;
       }
     } catch (ProgramNotFoundException e) {
-      return notFound("Program not found ", e.toString());
+      return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound("Program block definition not found", e.toString());
+      return notFound(e.toString());
     }
     final String indexUrl =
         routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)

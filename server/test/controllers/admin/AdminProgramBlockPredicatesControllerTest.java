@@ -5,10 +5,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import autovalue.shaded.com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.data.FormFactory;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
@@ -21,9 +25,12 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   private AdminProgramBlockPredicatesController controller;
 
+  private FormFactory formFactory;
+
   @Before
   public void setup() {
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
+    formFactory = instanceOf(FormFactory.class);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
@@ -47,33 +54,20 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  void updateEligibilityMessage_addsEligibilityMsg() {
-
-    BlockDefinition block =
-        BlockDefinition.builder()
-            .setId(1)
-            .setName("Screen 1")
-            .setDescription("Screen 1 description")
-            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
-            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
-            .build();
-
-    ProgramModel program = ProgramBuilder.newActiveProgram().withBlock(block).build();
-
-    // Request
-
-    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, block.id());
-    String content = Helpers.contentAsString(result);
-    assertThat(content).contains("");
-  }
-
-  @Test
   public void editEligibility_withNonExistantProgram_notFound() {
     assertThatThrownBy(
             () ->
                 controller.editEligibility(
                     fakeRequest(), /* programId= */ 1, /* blockDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void updateEligibilityMessage_withNonExistantProgram_notFound() {
+    assertThatThrownBy(
+            () -> controller.updateEligibilityMessage(fakeRequest(), 1, /* blockDefinitionId= */ 1))
+        .isInstanceOf(NotViewableException.class)
+        .hasMessage("Program 1 is not Active.");
   }
 
   @Test
@@ -90,6 +84,15 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.editEligibility(fakeRequest(), program.id, 543L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void updateEligibilityMessage_withInvalidBlock_notFound() {
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+
+    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -122,6 +125,28 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .contains(
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.");
+  }
+
+  @Test
+  public void updateEligibilityMessage_addsEligibilityMsg() {
+    BlockDefinition block =
+        BlockDefinition.builder()
+            .setId(1)
+            .setName("Screen 1")
+            .setDescription("Screen 1 description")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
+            .build();
+
+    ProgramModel program = ProgramBuilder.newActiveProgram().withBlock(block).build();
+
+    Http.Request request = fakeRequestBuilder().bodyForm(ImmutableMap.of("keke", "haha")).build();
+
+    Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, block.id());
+    String content = Helpers.contentAsString(result);
+    System.out.println("lll");
+    System.out.println(content);
+    assertThat(content).contains("haha");
   }
 
   @Test
