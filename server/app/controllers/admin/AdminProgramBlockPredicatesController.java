@@ -387,7 +387,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** POST endpoint for updating eligibility message. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateEligibilityMessage(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotActive(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Form<BlockEligibilityMessageForm> EligibilityMsgform =
         formFactory.form(BlockEligibilityMessageForm.class).bindFromRequest(request);

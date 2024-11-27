@@ -57,8 +57,8 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void updateEligibilityMessage_withNonExistantProgram_notFound() {
     assertThatThrownBy(
             () -> controller.updateEligibilityMessage(fakeRequest(), 1, /* blockDefinitionId= */ 1))
-        .isInstanceOf(NotViewableException.class)
-        .hasMessage("Program 1 is not Active.");
+        .isInstanceOf(controllers.admin.NotChangeableException.class)
+        .hasMessage("Program 1 is not a Draft.");
   }
 
   @Test
@@ -81,7 +81,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void updateEligibilityMessage_withInvalidBlock_notFound() {
-    ProgramModel program = ProgramBuilder.newActiveProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.updateEligibilityMessage(fakeRequest(), program.id, 543L);
 
