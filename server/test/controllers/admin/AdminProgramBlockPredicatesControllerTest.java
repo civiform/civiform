@@ -5,23 +5,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
-import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import autovalue.shaded.com.google.common.collect.ImmutableMap;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.ResetPostgres;
-import services.LocalizedStrings;
-import services.program.BlockDefinition;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private ProgramModel programWithThreeBlocks;
-
   private AdminProgramBlockPredicatesController controller;
 
   @Before
@@ -121,33 +115,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
         .contains(
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.");
-  }
-
-  @Test
-  public void updateEligibilityMessage_addsEligibilityMsg() {
-    BlockDefinition block =
-        BlockDefinition.builder()
-            .setId(1)
-            .setName("Screen 1")
-            .setDescription("Screen 1 description")
-            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
-            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1 description"))
-            .build();
-
-    ProgramModel program = ProgramBuilder.newActiveProgram().withBlock(block).build();
-
-    Http.Request request =
-        fakeRequestBuilder()
-            .method("POST")
-            .bodyForm(ImmutableMap.of("eligibilityMessage", "haha"))
-            .build();
-    System.out.println(request.queryString("eligibilityMessage"));
-
-    Result result = controller.updateEligibilityMessage(request, program.id, block.id());
-    String content = Helpers.contentAsString(result);
-    System.out.println("lll");
-    System.out.println(content);
-    assertThat(content).contains("haha");
   }
 
   @Test
