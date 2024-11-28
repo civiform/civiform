@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.DB;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -169,6 +170,28 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.KOREA, "I'm a KOREAN email!")))
+          .build();
+
+  private static final StatusDefinitions.Status FIRST_STEP_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("First Step")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "First Step"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.KOREA, "I'm a KOREAN email!")))
+          .build();
+
+  private static final StatusDefinitions.Status SECOND_STEP_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Second Stage Processing")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Second Stage Processing"))
           .setLocalizedEmailBodyText(
               Optional.of(
                   LocalizedStrings.of(
@@ -2877,7 +2900,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
-        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+        new StatusDefinitions(
+            ImmutableList.of(APPROVED_STATUS, FIRST_STEP_STATUS, SECOND_STEP_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
@@ -2886,7 +2910,17 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .toCompletableFuture()
             .join()
             .get();
-    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    // Excerise the application through a few statuses, some multiple times
+    Instant now = Instant.now();
+    addStatusEvent(
+        submittedApplication, FIRST_STEP_STATUS, adminAccount, now.minus(15, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, APPROVED_STATUS, adminAccount, now.minus(10, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, SECOND_STEP_STATUS, adminAccount, now.minus(5, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, APPROVED_STATUS, adminAccount, now.minus(1, ChronoUnit.MINUTES));
 
     ApplicantService.ApplicationPrograms result =
         subject
@@ -2896,10 +2930,21 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .join();
 
     assertThat(result.inProgress()).isEmpty();
+
     assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
+    // assert updated time is that of the most recent APPROVED status
+    assertThat(
+            result.submitted().stream()
+                .map(
+                    apd ->
+                        apd.latestSubmittedApplicationStatusTime()
+                            .get()
+                            .truncatedTo(ChronoUnit.MILLIS)))
+        .containsExactly(now.minus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MILLIS));
+
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -3375,6 +3420,22 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     application.refresh();
+  }
+
+  private void addStatusEvent(
+      ApplicationModel application,
+      StatusDefinitions.Status status,
+      AccountModel actorAccount,
+      Instant createTime) {
+    addStatusEvent(application, status, actorAccount);
+
+    ApplicationEventModel mostRecentEvent =
+        DB.getDefault()
+            .find(ApplicationEventModel.class)
+            .orderBy("create_time desc")
+            .setMaxRows(1)
+            .findOne();
+    mostRecentEvent.setCreateTimeForTest(createTime).save();
   }
 
   private void answerNameQuestion(
