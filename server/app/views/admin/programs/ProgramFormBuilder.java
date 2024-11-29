@@ -125,10 +125,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(
                 step ->
                     Map.of(
-                        "title",
-                        step.getTitle().getDefault(),
-                        "description",
-                        step.getDescription().getDefault()))
+               /* k1= */ "title",
+               /* v1= */ step.getTitle().getDefault(),
+               /* k2= */ "description",
+               /* v2= */ step.getDescription().getDefault()))
             .collect(ImmutableList.toImmutableList()));
   }
 
