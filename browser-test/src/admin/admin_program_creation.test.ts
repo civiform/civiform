@@ -153,23 +153,29 @@ test.describe('program creation', () => {
     await test.step('navigate back to program edit page and confirm application step values show up', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage(programName)
-      expect(await page.locator('#apply-step-1-title').inputValue()).toEqual(
-        titleOne,
-      )
       expect(
-        await page.locator('#apply-step-1-description').inputValue(),
+        await page.getByRole('textbox', {name: 'Step 1 title'}).inputValue(),
+      ).toEqual(titleOne)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 1 description'})
+          .inputValue(),
       ).toEqual(descriptionOne)
-      expect(await page.locator('#apply-step-2-title').inputValue()).toEqual(
-        titleTwo,
-      )
       expect(
-        await page.locator('#apply-step-2-description').inputValue(),
+        await page.getByRole('textbox', {name: 'Step 2 title'}).inputValue(),
+      ).toEqual(titleTwo)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 2 description'})
+          .inputValue(),
       ).toEqual(descriptionTwo)
-      expect(await page.locator('#apply-step-3-title').inputValue()).toEqual(
-        titleThree,
-      )
       expect(
-        await page.locator('#apply-step-3-description').inputValue(),
+        await page.getByRole('textbox', {name: 'Step 3 title'}).inputValue(),
+      ).toEqual(titleThree)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 3 description'})
+          .inputValue(),
       ).toEqual(descriptionThree)
     })
   })

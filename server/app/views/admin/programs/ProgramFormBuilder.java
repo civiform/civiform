@@ -13,7 +13,6 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -125,10 +124,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(
                 step ->
                     Map.of(
-               /* k1= */ "title",
-               /* v1= */ step.getTitle().getDefault(),
-               /* k2= */ "description",
-               /* v2= */ step.getDescription().getDefault()))
+                        /* k1= */ "title",
+                        /* v1= */ step.getTitle().getDefault(),
+                        /* k2= */ "description",
+                        /* v2= */ step.getDescription().getDefault()))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -330,7 +329,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Application steps will be visible to applicants at a future date.",
             false,
             "my-2"),
-        div().with(buildApplicationSteps(applicationSteps)),
+        div()
+            .with(
+                buildApplicationStepDiv(0, applicationSteps),
+                buildApplicationStepDiv(1, applicationSteps),
+                buildApplicationStepDiv(2, applicationSteps),
+                buildApplicationStepDiv(3, applicationSteps),
+                buildApplicationStepDiv(4, applicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -348,23 +353,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
-  @VisibleForTesting
-  public static DivTag buildApplicationSteps(ImmutableList<Map<String, String>> applicationSteps) {
-    DivTag div = div();
-    // build 5 application steps
-    for (int i = 0; i < 5; i++) {
-      String title = "";
-      String description = "";
-      if (i + 1 <= applicationSteps.size()) {
-        title = applicationSteps.get(i).get("title");
-        description = applicationSteps.get(i).get("description");
-      }
-      div.with(buildApplicationStepDiv(i, title, description));
-    }
-    return div;
-  }
+  static DivTag buildApplicationStepDiv(
+      int i, ImmutableList<Map<String, String>> applicationSteps) {
 
-  private static DivTag buildApplicationStepDiv(int i, String titleValue, String descriptionValue) {
+    // Fill in the existing application steps
+    String titleValue = "";
+    String descriptionValue = "";
+    if (i + 1 <= applicationSteps.size()) {
+      titleValue = applicationSteps.get(i).get("title");
+      descriptionValue = applicationSteps.get(i).get("description");
+    }
 
     String index = Integer.toString(i);
     String indexPlusOne = Integer.toString(i + 1);

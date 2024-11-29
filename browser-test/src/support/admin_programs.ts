@@ -191,14 +191,12 @@ export class AdminPrograms {
 
     for (let i = 0; i < applicationSteps.length; i++) {
       const indexPlusOne = i + 1
-      await this.page.fill(
-        '#apply-step-' + indexPlusOne + '-title',
-        applicationSteps[i].title,
-      )
-      await this.page.fill(
-        '#apply-step-' + indexPlusOne + '-description',
-        applicationSteps[i].description,
-      )
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
+        .fill(applicationSteps[i].title)
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
+        .fill(applicationSteps[i].description)
     }
 
     await this.page.check(`label:has-text("${visibility}")`)

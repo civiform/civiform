@@ -5,54 +5,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
 import java.util.Map;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JUnitParamsRunner.class)
 public class ProgramFormBuilderTest {
 
   @Test
-  @Parameters(method = "provideApplicationStepNumbers")
-  public void buildApplicationSteps_buildsFiveApplicationSteps(
-      String index, String indexPlusOne, String fieldType, boolean required) {
-    DivTag applicationStepsDiv = ProgramFormBuilder.buildApplicationSteps(ImmutableList.of());
+  public void buildApplicationStepDiv_buildsApplicationStepFormElement() {
+    DivTag applicationStepsDiv = ProgramFormBuilder.buildApplicationStepDiv(0, ImmutableList.of());
     String renderedDiv = applicationStepsDiv.render();
 
     // field id
-    assertThat(renderedDiv).contains("apply-step-" + indexPlusOne + "-" + fieldType);
+    assertThat(renderedDiv).contains("apply-step-1-title");
+    assertThat(renderedDiv).contains("apply-step-1-description");
     // field name
-    assertThat(renderedDiv).contains("applicationSteps[" + index + "][" + fieldType + "]");
-    if (required) {
-      // field label
-      assertThat(renderedDiv).contains("Step " + indexPlusOne + " " + fieldType);
-    } else {
-      assertThat(renderedDiv).contains("Step " + indexPlusOne + " " + fieldType + " (optional)");
-    }
-  }
+    assertThat(renderedDiv).contains("applicationSteps[0][title]");
+    assertThat(renderedDiv).contains("applicationSteps[0][description]");
+    // field label
+    assertThat(renderedDiv).contains("Step 1 title");
+    assertThat(renderedDiv).contains("Step 1 description");
 
-  private static ImmutableList<Object[]> provideApplicationStepNumbers() {
-    return ImmutableList.<Object[]>of(
-        new Object[] {"0", "1", "title", true},
-        new Object[] {"0", "1", "description", true},
-        new Object[] {"1", "2", "title", false},
-        new Object[] {"1", "2", "description", false},
-        new Object[] {"2", "3", "title", false},
-        new Object[] {"2", "3", "description", false},
-        new Object[] {"3", "4", "title", false},
-        new Object[] {"3", "4", "description", false},
-        new Object[] {"4", "5", "title", false},
-        new Object[] {"4", "5", "description", false});
+    DivTag optionalApplicationStepsDiv =
+        ProgramFormBuilder.buildApplicationStepDiv(1, ImmutableList.of());
+    String renderedOptionalDiv = optionalApplicationStepsDiv.render();
+
+    // field label for divs other than the first one are labeled "optional"
+    assertThat(renderedOptionalDiv).contains("Step 2 title (optional)");
+    assertThat(renderedOptionalDiv).contains("Step 2 description (optional)");
   }
 
   @Test
-  public void buildApplicationSteps_rendersExistingValues() {
-    DivTag applicationStepsDiv =
-        ProgramFormBuilder.buildApplicationSteps(
+  public void buildApplicationStepDiv_rendersExistingValues() {
+    DivTag applicationStepDiv =
+        ProgramFormBuilder.buildApplicationStepDiv(
+            0,
             ImmutableList.of(
                 Map.of("title", "Step one title", "description", "Step one description")));
-    String renderedDiv = applicationStepsDiv.render();
+    String renderedDiv = applicationStepDiv.render();
 
     assertThat(renderedDiv).contains("Step one title");
     assertThat(renderedDiv).contains("Step one description");

@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
@@ -329,9 +328,7 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   /** Turn application step form data into ApplicationStep objects */
-  @VisibleForTesting
-  public ImmutableList<ApplicationStep> buildApplicationSteps(
-      List<Map<String, String>> applicationSteps) {
+  ImmutableList<ApplicationStep> buildApplicationSteps(List<Map<String, String>> applicationSteps) {
     return applicationSteps.stream()
         .filter(
             step -> {

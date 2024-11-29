@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.ProgramAcls;
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -736,8 +735,7 @@ public final class ProgramService {
         .collect(Collectors.toList());
   }
 
-  @VisibleForTesting
-  public ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+  ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
 

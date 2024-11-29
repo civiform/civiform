@@ -29,12 +29,10 @@ public final class ApplicationStep {
         LocalizedStrings.create(ImmutableMap.of(LocalizedStrings.DEFAULT_LOCALE, description));
   }
 
-  @JsonProperty("title")
   public LocalizedStrings getTitle() {
     return this.title;
   }
 
-  @JsonProperty("description")
   public LocalizedStrings getDescription() {
     return this.description;
   }
