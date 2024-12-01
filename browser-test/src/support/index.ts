@@ -84,33 +84,27 @@ export const logout = async (page: Page, closeToast = true) => {
 
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#admin')
-    await waitForPageJsLoad(page)
+    await page.goto('/callback?client_name=FakeAdminClient&adminType=GLOBAL')
   })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#program-admin')
-    await waitForPageJsLoad(page)
+    await page.goto('/callback?client_name=FakeAdminClient&adminType=PROGRAM')
   })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
   await test.step('Login as Civiform and Program Admin', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#dual-admin')
-    await waitForPageJsLoad(page)
+    await page.goto('/callback?client_name=FakeAdminClient&adminType=DUAL')
   })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await test.step('Login as Trusted Intermediary', async () => {
-    await page.click('#debug-content-modal-button')
-    await page.click('#trusted-intermediary')
-    await waitForPageJsLoad(page)
+    await page.goto(
+      '/callback?client_name=FakeAdminClient&adminType=TRUSTED_INTERMEDIARY',
+    )
   })
 }
 
