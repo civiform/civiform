@@ -24,11 +24,11 @@ test.describe(
   {tag: ['@northstar']},
   () => {
     test.beforeEach(async ({page, request}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Clear database', async () => {
-        await request.post('/dev/seed/clear')
+        await request.post('/dev/seed/clearHeadless')
       })
+
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
     test('all major steps - fast forward flag disabled', async ({browser}) => {

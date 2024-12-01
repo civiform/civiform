@@ -21,6 +21,7 @@ test.describe('admin program view page', () => {
   })
 
   test('view program details shows program categories', async ({
+    request,
     page,
     adminPrograms,
   }) => {
@@ -28,7 +29,7 @@ test.describe('admin program view page', () => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
 
     await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
+      await seedProgramsAndCategories(request)
       await page.goto('/')
     })
 

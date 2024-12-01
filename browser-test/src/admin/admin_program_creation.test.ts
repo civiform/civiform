@@ -1101,11 +1101,11 @@ test.describe('program creation', () => {
   })
 
   test.describe('create and update programs with program filtering enabled', () => {
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async ({request, page}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seedProgramsAndCategories(request)
         await page.goto('/')
       })
     })

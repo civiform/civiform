@@ -10,8 +10,8 @@ import {
 import {BASE_URL} from '../../support/config'
 
 test.describe('file upload applicant flow', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({request, page}) => {
+    await seedQuestions(request)
     await page.goto(BASE_URL)
   })
 

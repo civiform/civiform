@@ -9,8 +9,8 @@ import {
 } from './support'
 
 test.describe('Viewing API docs', () => {
-  test.beforeEach(async ({page}) => {
-    await seedProgramsAndCategories(page)
+  test.beforeEach(async ({request, page}) => {
+    await seedProgramsAndCategories(request)
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 

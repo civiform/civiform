@@ -39,11 +39,12 @@ test.describe('Applicant auth', () => {
   })
 
   test('Guest user can end session after starting an application and toast is shown', async ({
+    request,
     page,
     adminPrograms,
     applicantQuestions,
   }) => {
-    await seedProgramsAndCategories(page)
+    await seedProgramsAndCategories(request)
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

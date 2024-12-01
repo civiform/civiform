@@ -100,7 +100,7 @@ export const test = base.extend<CiviformFixtures>({
 
     // BeforeEach
     await test.step('Clear database', async () => {
-      await request.post('/dev/seed/clear')
+      await request.post('/dev/seed/clearHeadless')
     })
 
     await test.step('Go to home page before test starts', async () => {

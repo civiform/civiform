@@ -18,7 +18,7 @@ import {Browser, Locator, Page} from '@playwright/test'
 test.describe('Application Version Fast-Forward Flow', () => {
   test.beforeEach(async ({request}) => {
     await test.step('Clear database', async () => {
-      await request.post('/dev/seed/clear')
+      await request.post('/dev/seed/clearHeadless')
     })
   })
 

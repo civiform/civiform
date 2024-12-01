@@ -379,11 +379,11 @@ test.describe('applicant program index page', () => {
   })
 
   test.describe('applicant program index page with program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({request, page, adminPrograms}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seedProgramsAndCategories(request)
         await page.goto('/')
       })
 
@@ -720,11 +720,11 @@ test.describe('applicant program index page', () => {
       })
 
       test.describe('program filtering', () => {
-        test.beforeEach(async ({page, adminPrograms}) => {
+        test.beforeEach(async ({request, page, adminPrograms}) => {
           await enableFeatureFlag(page, 'program_filtering_enabled')
 
           await test.step('seed categories', async () => {
-            await seedProgramsAndCategories(page)
+            await seedProgramsAndCategories(request)
             await page.goto('/')
           })
 

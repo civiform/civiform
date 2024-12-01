@@ -100,6 +100,15 @@ public class DevToolsController extends Controller {
         .flashing(FlashKey.SUCCESS, "Sample questions seeded");
   }
 
+  public Result seedQuestionsHeadless() {
+    try {
+      devDatabaseSeedTask.seedQuestions();
+      return ok();
+    } catch (RuntimeException ex) {
+      return internalServerError();
+    }
+  }
+
   public Result seedPrograms() {
     // TODO: Check whether test program already exists to prevent error.
     ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
@@ -109,6 +118,22 @@ public class DevToolsController extends Controller {
     devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been seeded");
+  }
+
+  public Result seedProgramsHeadless() {
+    try {
+      // TODO: Check whether test program already exists to prevent error.
+      ImmutableList<QuestionDefinition> createdSampleQuestions =
+          devDatabaseSeedTask.seedQuestions();
+
+      devDatabaseSeedTask.seedProgramCategories();
+      devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
+      devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+
+      return ok();
+    } catch (RuntimeException ex) {
+      return internalServerError();
+    }
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
@@ -136,6 +161,17 @@ public class DevToolsController extends Controller {
     resetTables();
     return redirect(routes.DevToolsController.index().url())
         .flashing(FlashKey.SUCCESS, "The database has been cleared");
+  }
+
+  /** Remove all content from the program and question tables. */
+  public Result clearHeadless() {
+    try {
+      clearCacheIfEnabled();
+      resetTables();
+      return ok();
+    } catch (RuntimeException ex) {
+      return internalServerError();
+    }
   }
 
   /** Remove all content from the cache. */

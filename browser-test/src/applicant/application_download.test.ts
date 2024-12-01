@@ -12,8 +12,8 @@ import {
 } from '../support'
 
 test.describe('csv export for multioption question', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({request, page}) => {
+    await seedQuestions(request)
     await page.goto('/')
   })
   test('multioption csv into its own column', async ({
@@ -134,8 +134,8 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('normal application flow', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({request, page}) => {
+    await seedQuestions(request)
     await page.goto('/')
   })
 

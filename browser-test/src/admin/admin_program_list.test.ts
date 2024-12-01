@@ -45,12 +45,16 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
-  test('view program with categories', async ({page, adminPrograms}) => {
+  test('view program with categories', async ({
+    request,
+    page,
+    adminPrograms,
+  }) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
 
     await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
+      await seedProgramsAndCategories(request)
       await page.goto('/')
     })
 

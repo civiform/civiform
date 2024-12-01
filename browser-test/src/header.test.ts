@@ -14,6 +14,7 @@ test.describe('Header', () => {
    * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
    */
   test('Check screenshots and validate accessibility', async ({
+    request,
     page,
     adminPrograms,
     applicantQuestions,
@@ -25,7 +26,7 @@ test.describe('Header', () => {
     await test.step('Take a screenshot as a guest', async () => {
       // Since a guest account is not created until you start applying for something,
       // we have to make a program.
-      await seedProgramsAndCategories(page)
+      await seedProgramsAndCategories(request)
       await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
