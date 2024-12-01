@@ -167,11 +167,18 @@ test.describe('publishing all programs with universal questions feature flag on'
 
     await test.step('Add questions to programs', async () => {
       await adminPrograms.gotoEditDraftProgramPage(programOne)
-      await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
-      await adminPrograms.addQuestionFromQuestionBank(textQuestion)
+
+      await adminPrograms.openQuestionBank()
+      await adminPrograms.addQuestionFromOpenQuestionBank(nameQuestion)
+      await adminPrograms.addQuestionFromOpenQuestionBank(textQuestion)
+      await adminPrograms.closeQuestionBank()
+
       await adminPrograms.gotoEditDraftProgramPage(programTwo)
-      await adminPrograms.addQuestionFromQuestionBank(nameQuestion)
-      await adminPrograms.addQuestionFromQuestionBank(addressQuestion)
+
+      await adminPrograms.openQuestionBank()
+      await adminPrograms.addQuestionFromOpenQuestionBank(nameQuestion)
+      await adminPrograms.addQuestionFromOpenQuestionBank(addressQuestion)
+      await adminPrograms.closeQuestionBank()
     })
 
     await test.step('Trigger the modal', async () => {

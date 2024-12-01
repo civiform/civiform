@@ -371,8 +371,10 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'ace program description')
 
-    await adminPrograms.addQuestionFromQuestionBank('ace-address')
-    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+    await adminPrograms.openQuestionBank()
+    await adminPrograms.addQuestionFromOpenQuestionBank('ace-address')
+    await adminPrograms.addQuestionFromOpenQuestionBank('ace-name')
+    await adminPrograms.closeQuestionBank()
 
     await validateScreenshot(
       page,
@@ -419,9 +421,11 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'ace program description')
 
-    await adminPrograms.addQuestionFromQuestionBank('ace-address-one')
-    await adminPrograms.addQuestionFromQuestionBank('ace-address-two')
-    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+    await adminPrograms.openQuestionBank()
+    await adminPrograms.addQuestionFromOpenQuestionBank('ace-address-one')
+    await adminPrograms.addQuestionFromOpenQuestionBank('ace-address-two')
+    await adminPrograms.addQuestionFromOpenQuestionBank('ace-name')
+    await adminPrograms.closeQuestionBank()
 
     await validateScreenshot(
       page,
@@ -550,9 +554,11 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'acd program description')
 
-    await adminPrograms.addQuestionFromQuestionBank('a')
-    await adminPrograms.addQuestionFromQuestionBank('b')
-    await adminPrograms.addQuestionFromQuestionBank('c')
+    await adminPrograms.openQuestionBank()
+    await adminPrograms.addQuestionFromOpenQuestionBank('a')
+    await adminPrograms.addQuestionFromOpenQuestionBank('b')
+    await adminPrograms.addQuestionFromOpenQuestionBank('c')
+    await adminPrograms.closeQuestionBank()
 
     await validateScreenshot(page, 'program-detail-markdown')
 
@@ -585,9 +591,12 @@ test.describe('program creation', () => {
 
     await validateScreenshot(page, 'program-creation-question-bank-initial')
 
+    await adminPrograms.openQuestionBank()
     for (const question of [movie, color, song]) {
-      await adminPrograms.addQuestionFromQuestionBank(question)
+      await adminPrograms.addQuestionFromOpenQuestionBank(question)
     }
+    await adminPrograms.closeQuestionBank()
+
     // verify original order
     await expectQuestionsOrderWithinBlock(page, [movie, color, song])
 
@@ -1067,9 +1076,11 @@ test.describe('program creation', () => {
       programName,
       'universal program description',
     )
-    await adminPrograms.addQuestionFromQuestionBank('universal-address')
-    await adminPrograms.addQuestionFromQuestionBank('nonuniversal-text')
-    await adminPrograms.addQuestionFromQuestionBank('universal-phone')
+    await adminPrograms.openQuestionBank()
+    await adminPrograms.addQuestionFromOpenQuestionBank('universal-address')
+    await adminPrograms.addQuestionFromOpenQuestionBank('nonuniversal-text')
+    await adminPrograms.addQuestionFromOpenQuestionBank('universal-phone')
+    await adminPrograms.closeQuestionBank()
 
     await validateScreenshot(
       page,

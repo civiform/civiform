@@ -1,4 +1,4 @@
-import {expect} from './civiform_fixtures'
+import {expect, test} from './civiform_fixtures'
 import {ElementHandle, Frame, Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {
@@ -764,27 +764,47 @@ export class AdminPrograms {
   }
 
   async openQuestionBank() {
-    await this.page.click('button:has-text("Add a question")')
-    await this.waitForQuestionBankAnimationToFinish()
+    await test.step('open question bank', async () => {
+      await this.page.click('button:has-text("Add a question")')
+      await this.waitForQuestionBankAnimationToFinish()
+    })
   }
 
   async closeQuestionBank() {
-    await this.page.click('button.cf-close-question-bank-button')
-    await this.waitForQuestionBankAnimationToFinish()
+    await test.step('close question bank', async () => {
+      await this.page.click('button.cf-close-question-bank-button')
+      await this.waitForQuestionBankAnimationToFinish()
+    })
   }
 
   async addQuestionFromQuestionBank(questionName: string) {
-    await this.openQuestionBank()
-    await this.page.click(
-      `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
-    )
-    await waitForPageJsLoad(this.page)
-    // After question was added question bank is still open. Close it first.
-    await this.closeQuestionBank()
-    // Make sure the question is successfully added to the screen.
-    await this.page.waitForSelector(
-      `div.cf-program-question p:text("Admin ID: ${questionName}")`,
-    )
+    await test.step(`add question from question bank: ${questionName}`, async () => {
+      await this.openQuestionBank()
+      await this.page.click(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      await waitForPageJsLoad(this.page)
+      // After question was added question bank is still open. Close it first.
+      await this.closeQuestionBank()
+      // Make sure the question is successfully added to the screen.
+      await this.page.waitForSelector(
+        `div.cf-program-question p:text("Admin ID: ${questionName}")`,
+      )
+    })
+  }
+
+  async addQuestionFromOpenQuestionBank(questionName: string) {
+    await test.step(`add question from question bank: ${questionName}`, async () => {
+      await this.page.click(
+        `.cf-question-bank-element[data-adminname="${questionName}"] button:has-text("Add")`,
+      )
+      await waitForPageJsLoad(this.page)
+
+      // Make sure the question is successfully added to the screen.
+      await this.page.waitForSelector(
+        `div.cf-program-question p:text("Admin ID: ${questionName}")`,
+      )
+    })
   }
 
   async questionBankNames(universal = false): Promise<string[]> {
