@@ -818,8 +818,6 @@ adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=發生錯誤
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=發生錯誤
 # The subtitle on the error page that is show to the user in medium font

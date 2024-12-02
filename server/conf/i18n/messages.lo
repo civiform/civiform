@@ -819,8 +819,6 @@ error.notFoundTitle=ພວກເຮົາບໍ່ສາມາດຊອກຫາ
 error.notFoundDescription=ກະລຸນາກັບຄືນ ຫຼື ກັບໄປຫາ {0}
 error.notFoundDescriptionLink=ໜ້າຫຼັກ
 # This occurs when an unhandled exception happens.
-error.internalServerTitle=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
-# The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ພວກເຮົາຂໍອະໄພ, ມີຂໍ້ຜິດພາດພາຍໃນເກີດຂຶ້ນໃນລະບົບຂອງພວກເຮົາ.
