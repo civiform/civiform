@@ -35,7 +35,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          file: server/code-coverage/report/jacoco.xml
+          files: server/code-coverage/report/jacoco.xml
           verbose: true
           # We're getting intermittent issues with codecov trying to upload lately
           # disabling it from failing the entire pipeline for now.
