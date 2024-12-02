@@ -100,8 +100,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-ineligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
     })
@@ -129,8 +127,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-eligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
     })
@@ -157,8 +153,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-ineligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
     })
@@ -182,12 +176,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-eligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
 
       await page.click('text="Apply to programs"')
@@ -195,8 +183,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-submission-guest-login-prompt-modal',
-        /* fullPage= */ false,
-        /* mobileScreenshot= */ true,
       )
     })
 
@@ -276,8 +262,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-ineligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
     })
 
@@ -318,8 +302,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateScreenshot(
         page,
         'cif-eligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
     })
   })
