@@ -220,6 +220,8 @@ public final class ProgramTranslationForm {
               Optional<String> optionalBlockName = getStringFormField(localizedScreenName(blockId));
               Optional<String> optionalBlockDescription =
                   getStringFormField(localizedScreenDescription(blockId));
+              Optional<String> optionalBlockEligibilityMessage =
+                  getStringFormField(localizedEligibilityMessage(blockId));
               if (optionalBlockName.isEmpty() || optionalBlockDescription.isEmpty()) {
                 return Optional.<LocalizationUpdate.ScreenUpdate>empty();
               }
@@ -228,6 +230,8 @@ public final class ProgramTranslationForm {
                   LocalizationUpdate.ScreenUpdate.builder().setBlockIdToUpdate(blockId);
               resultBuilder.setLocalizedName(optionalBlockName.orElse(""));
               resultBuilder.setLocalizedDescription(optionalBlockDescription.orElse(""));
+              resultBuilder.setLocalizedEligibilityMessage(
+                  optionalBlockEligibilityMessage.orElse(""));
               return Optional.of(resultBuilder.build());
             })
         .filter(Optional::isPresent)
@@ -253,5 +257,9 @@ public final class ProgramTranslationForm {
 
   public static String localizedScreenDescription(long blockId) {
     return String.format("screen-description-%d", blockId);
+  }
+
+  public static String localizedEligibilityMessage(long blockId) {
+    return String.format("custom-eligibility-message-%d", blockId);
   }
 }
