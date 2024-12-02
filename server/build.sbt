@@ -96,7 +96,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.35.1",
+      "com.google.errorprone" % "error_prone_core" % "2.36.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.48.2",
 
       // Apache libraries for export
@@ -147,6 +147,7 @@ lazy val root = (project in file("."))
             // Turn off the AutoValueSubclassLeaked error since the generated
             // code contains it - we can't control that.
             "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+            "--should-stop=ifError=FLOW",
             "-Werror"
           )
         )
