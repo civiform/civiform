@@ -124,10 +124,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-eligible-signed-in-confirmation-page',
-      )
+      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
       await validateAccessibility(page)
     })
 
@@ -150,10 +147,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-guest-confirmation-page',
-      )
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page')
       await validateAccessibility(page)
     })
 
@@ -180,10 +174,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await page.click('text="Apply to programs"')
 
-      await validateScreenshot(
-        page,
-        'cif-submission-guest-login-prompt-modal',
-      )
+      await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal')
     })
 
     test('shows intake form as submitted after completion', async ({
@@ -259,10 +250,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-ti-confirmation-page',
-      )
+      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page')
     })
 
     test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async ({
@@ -299,10 +287,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await validateScreenshot(
-        page,
-        'cif-eligible-ti-confirmation-page',
-      )
+      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
     })
   })
 })
