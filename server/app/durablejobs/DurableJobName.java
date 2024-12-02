@@ -7,6 +7,9 @@ import models.PersistedDurableJobModel;
  *
  * <p>Concrete implementations of {@link DurableJob} are linked to {@link PersistedDurableJobModel}
  * records in the database via their {@code DurableJobName}.
+ *
+ * <p>See <a href="https://github.com/civiform/civiform/wiki/Durable-Jobs#naming-new-jobs">wiki</a>
+ * for details on job naming conventions.
  */
 public enum DurableJobName {
   OLD_JOB_CLEANUP("OLD_JOB_CLEANUP"),
