@@ -180,9 +180,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await expect(page.getByText('Edit my responses')).toBeVisible()
 
       await page.click('#header-return-home')
-
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.seeEligibilityTag(programName, false)
     })
 
     await test.step('Go back and update answers to become eligible', async () => {
@@ -196,6 +194,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickContinue()
+      await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
       await applicantQuestions.submitFromReviewPage(
         /* northStarEnabled= */ true,
       )
@@ -205,12 +204,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectConfirmationPage(
         /* northStarEnabled= */ true,
       )
-    })
-
-    await test.step('Expect client is eligible in TI dashboard', async () => {
-      await tiDashboard.goToProgramsPageForCurrentClient()
-      await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.seeEligibilityTag(programName, true)
     })
   })
 })

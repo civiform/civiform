@@ -65,7 +65,7 @@ public class TextQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(textQuestionDefinition, applicant, applicantData, Optional.empty());
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -75,7 +75,7 @@ public class TextQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(textQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
@@ -90,7 +90,7 @@ public class TextQuestionTest extends ResetPostgres {
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
+            minAndMaxLengthTextQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -115,7 +115,7 @@ public class TextQuestionTest extends ResetPostgres {
       String value, ValidationErrorMessage expectedError) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
+            minAndMaxLengthTextQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

@@ -68,6 +68,7 @@ public class AddressQuestionTest {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(addressQuestionDefinition, Optional.empty())
                 .setOptional(true),
+            applicant,
             applicantData,
             Optional.empty());
 
@@ -79,7 +80,8 @@ public class AddressQuestionTest {
   @Test
   public void withValidApplicantDataAndNoGeoValues() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            addressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -102,7 +104,8 @@ public class AddressQuestionTest {
   @Test
   public void withValidApplicantDataWithGeoValues() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            addressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -139,7 +142,8 @@ public class AddressQuestionTest {
   @Test
   public void withInvalidApplicantData_missingRequiredFields() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "", "");
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
@@ -168,7 +172,8 @@ public class AddressQuestionTest {
   @Parameters({"not a zip code", "123456789", "123ab"})
   public void withInvalidApplicantData_invalidZipCode(String zipValue) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -192,7 +197,8 @@ public class AddressQuestionTest {
   @Parameters({"123 A St", "123 Boxpo Ave", "12345", "1 Box Blvd"})
   public void withNoPoBoxAllowed_withValidApplicantData_passesValidation(String streetValue) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -222,7 +228,8 @@ public class AddressQuestionTest {
   public void withNoPoBoxAllowed_withInvalidApplicantData_failsValidation(
       String streetValue, String line2Value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -252,7 +259,8 @@ public class AddressQuestionTest {
       String zipValue,
       String expected) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            noPoBoxAddressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -282,7 +290,8 @@ public class AddressQuestionTest {
   @Test
   public void hasChanges_returnsFalse() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            addressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -314,7 +323,8 @@ public class AddressQuestionTest {
   @Test
   public void hasChanges_returnsTrue() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            addressQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),

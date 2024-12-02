@@ -152,6 +152,7 @@ public final class ProgramCardsSectionParamsFactory {
         .setBody(program.localizedDescription().getOrDefault(preferredLocale))
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
+        .setIsCommonIntakeForm(program.isCommonIntakeForm())
         .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()))
         .setProgramId(program.id());
@@ -206,11 +207,20 @@ public final class ProgramCardsSectionParamsFactory {
   }
 
   /**
-   * If eligibility is gating, the eligibility tag should always show when present. If eligibility
-   * is non-gating, the eligibility tag should only show if the user may be eligible.
+   * For unstarted applications: If eligibility is gating, the eligibility tag should always show
+   * when present. If eligibility is non-gating, the eligibility tag should only show if the user
+   * may be eligible.
+   *
+   * <p>Applications that have been started do not show eligibility tags.
    */
   private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
     if (!programData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+
+    if (programData.latestApplicationLifecycleStage().isPresent()
+        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
+            || programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
       return false;
     }
 
@@ -274,6 +284,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract boolean isGuest();
 
+    public abstract boolean isCommonIntakeForm();
+
     public abstract Optional<String> loginModalId();
 
     public abstract Optional<Boolean> eligible();
@@ -313,6 +325,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setActionUrl(String actionUrl);
 
       public abstract Builder setIsGuest(Boolean isGuest);
+
+      public abstract Builder setIsCommonIntakeForm(Boolean isCommonIntakeForm);
 
       public abstract Builder setLoginModalId(String loginModalId);
 

@@ -54,7 +54,7 @@ public class PdfExporterTest extends AbstractExporterTest {
           pdfReader.getPageN(pageNum),
           0,
           "http://localhost:9000/applicants/"
-              + applicationOne.getApplicantData().getApplicant().id
+              + applicationOne.getApplicant().id
               + "/files/my-file-key");
     }
 
@@ -96,8 +96,8 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     // The applicant for this application has a value for the name, so ensure that
     // it is reflected in the generated filename, and later, in the PDF contents.
-    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
-    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
@@ -150,8 +150,8 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     // The applicant for this application has a value for the name, so ensure that
     // it is reflected in the generated filename, and later, in the PDF contents.
-    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
-    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
@@ -213,7 +213,7 @@ public class PdfExporterTest extends AbstractExporterTest {
         pdfReader.getPageN(1),
         0,
         "http://localhost:9000/applicants/"
-            + applicationFive.getApplicantData().getApplicant().id
+            + applicationFive.getApplicant().id
             + "/files/my-file-key");
 
     pdfReader.close();
@@ -262,13 +262,13 @@ public class PdfExporterTest extends AbstractExporterTest {
         pdfReader.getPageN(1),
         0,
         "http://localhost:9000/applicants/"
-            + applicationFive.getApplicantData().getApplicant().id
+            + applicationFive.getApplicant().id
             + "/files/my-file-key-1");
     assertFileUploadLink(
         pdfReader.getPageN(1),
         1,
         "http://localhost:9000/applicants/"
-            + applicationFive.getApplicantData().getApplicant().id
+            + applicationFive.getApplicant().id
             + "/files/my-file-key-2");
 
     pdfReader.close();
@@ -292,8 +292,8 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
-    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
-    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =

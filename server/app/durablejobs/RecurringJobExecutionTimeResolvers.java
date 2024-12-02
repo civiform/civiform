@@ -71,17 +71,4 @@ public final class RecurringJobExecutionTimeResolvers {
           .toInstant();
     }
   }
-
-  /** Nightly at 3am local time. Used for the MIGRATE_PRIMARY_APPLICANT_INFO job. */
-  public static final class Nightly3Am implements JobExecutionTimeResolver {
-
-    @Override
-    public Instant resolveExecutionTime(Clock clock) {
-      return LocalDate.now(clock)
-          .plusDays(1)
-          .atStartOfDay(clock.getZone())
-          .plus(3, ChronoUnit.HOURS)
-          .toInstant();
-    }
-  }
 }

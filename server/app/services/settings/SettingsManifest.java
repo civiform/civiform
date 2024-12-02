@@ -943,15 +943,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting a universal question as a question representing information about the
-   * applicant. The system can then take certain actions based on the answer to this question.
-   */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
-  }
-
-  /**
-   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
@@ -2065,17 +2057,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED",
-                      "Enables setting a universal question as a question representing information"
-                          + " about the applicant. The system can then take certain actions based"
-                          + " on the answer to this question.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
-                      "Add programs cards to the confirmation screen that an applicant sees after"
-                          + " finishing an application.",
+                      "Upsell: Add programs cards to the confirmation screen that an applicant sees"
+                          + " after finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),

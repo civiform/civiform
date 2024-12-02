@@ -1035,6 +1035,16 @@ export class ApplicantQuestions {
     ).not.toBeAttached()
   }
 
+  async expectIneligibleQuestionInReviewPageAlert(questionText: string) {
+    await expect(
+      this.page
+        .getByRole('heading', {name: 'may not be eligible'})
+        .locator('..')
+        .getByRole('listitem')
+        .filter({hasText: questionText}),
+    ).toBeAttached()
+  }
+
   async expectMayNotBeEligibileAlertToBeVisible() {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),

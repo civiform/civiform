@@ -1,4 +1,5 @@
 import {test} from '../../support/civiform_fixtures'
+import {expect} from '@playwright/test'
 import {
   ClientInformation,
   enableFeatureFlag,
@@ -11,6 +12,7 @@ import {
   waitForPageJsLoad,
 } from '../../support'
 import {ProgramVisibility} from '../../support/admin_programs'
+import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
@@ -201,6 +203,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     test('shows intake form as submitted after completion', async ({
       page,
       applicantQuestions,
+      applicantProgramList,
     }) => {
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(
@@ -220,12 +223,19 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await page.click('text="Apply to programs"')
       await page.click('text="Continue without an account"')
 
-      await validateScreenshot(
-        page,
-        'cif-shows-submitted',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+      await expect(
+        applicantProgramList
+          .getCardLocator(
+            CardSectionName.MyApplications,
+            commonIntakeProgramName,
+          )
+          .locator('div.bg-primary-lighter'),
+      ).toBeVisible()
+      await applicantProgramList.expectSubmittedTag(
+        CardSectionName.MyApplications,
+        commonIntakeProgramName,
       )
+      await validateAccessibility(page)
     })
 
     test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({

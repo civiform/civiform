@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -149,6 +150,13 @@ public abstract class ProgramDefinition {
   // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
+
+  /**
+   * A list of steps to apply to the program. The list contains between 1-5 steps and each step
+   * contains a localized title and a localized description.
+   */
+  @JsonProperty("applicationSteps")
+  public abstract ImmutableList<ApplicationStep> applicationSteps();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -847,6 +855,9 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("categories")
     public abstract Builder setCategories(ImmutableList<CategoryModel> categories);
+
+    @JsonProperty("applicationSteps")
+    public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 
