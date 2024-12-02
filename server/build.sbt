@@ -55,6 +55,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.4",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.21.0",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
