@@ -29,6 +29,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -3163,6 +3164,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3239,6 +3242,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3526,6 +3531,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))

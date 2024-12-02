@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import models.ApplicationStep;
 import models.DisplayMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,6 +142,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             .setBlockDefinitions(ImmutableList.of(blockBuilder.build()))
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     return programDef;
   }
@@ -375,6 +377,7 @@ public class EligibilityAlertSettingsCalculatorTest {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     MessagesApi messagesApiMock = getMessagesApiMock();

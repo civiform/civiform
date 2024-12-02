@@ -10,6 +10,7 @@ import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ApplicantModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
@@ -1130,12 +1131,14 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
+                .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "Short description"))
                 .setExternalLink("")
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
                 .setAcls(new ProgramAcls())
                 .setCategories(ImmutableList.of())
+                .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
                 .build());
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");

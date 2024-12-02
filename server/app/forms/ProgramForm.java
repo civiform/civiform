@@ -2,6 +2,7 @@ package forms;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Form for updating name and description of a program. */
 public final class ProgramForm {
@@ -22,6 +23,7 @@ public final class ProgramForm {
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
   private List<Long> categories;
+  private List<Map<String, String>> applicationSteps;
 
   public ProgramForm() {
     adminName = "";
@@ -38,6 +40,7 @@ public final class ProgramForm {
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
+    applicationSteps = new ArrayList<>();
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -146,5 +149,9 @@ public final class ProgramForm {
 
   public List<Long> getCategories() {
     return this.categories;
+  }
+
+  public List<Map<String, String>> getApplicationSteps() {
+    return this.applicationSteps;
   }
 }
