@@ -767,8 +767,13 @@ export class ApplicantQuestions {
       await expect(createAccountHeading).toBeHidden()
     }
 
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
     // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
-    const programLocator = this.page.locator('.cf-prose-h4')
+   // const programLocator = this.page.locator('.cf-prose-h4')
+   //   const programLocator = this.page.locator('.cf-applicant-cif-eligible-program-name')
+
 
     if (wantEligiblePrograms.length == 0) {
       expect(await programLocator.count()).toEqual(0)
