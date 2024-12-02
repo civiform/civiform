@@ -342,6 +342,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .setFieldName(BlockEligibilityMessageForm.ELIGIBILITY_MESSAGE)
                         .setLabelText("Eligibility Message")
                         .setRequired(false)
+                        .setMarkdownSupported(true)
                         .setValue(form.value().get().getEligibilityMessage())
                         .getInputTag()))
         .with(buttonDiv);
