@@ -130,9 +130,9 @@ public abstract class AbstractDurableJobRunner {
     try {
       persistedDurableJob.decrementRemainingAttempts().save();
 
-      Optional<DurableJobName> jobName =
+      Optional<DurableJobName> optionalJobName =
           DurableJobName.optionalValueOf(persistedDurableJob.getJobName());
-      if (jobName.isEmpty()) {
+      if (optionalJobName.isEmpty()) {
         throw new JobNotFoundException(
             String.format(
                 "Job name \"%s\" not found in DurableJobName", persistedDurableJob.getJobName()));
@@ -140,10 +140,7 @@ public abstract class AbstractDurableJobRunner {
 
       // Run the job in a separate thread and block until it completes, fails, or times out.
       runJobWithTimeout(
-          durableJobRegistry
-              .get(DurableJobName.valueOf(persistedDurableJob.getJobName()))
-              .getFactory()
-              .create(persistedDurableJob));
+          durableJobRegistry.get(optionalJobName.get()).getFactory().create(persistedDurableJob));
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
