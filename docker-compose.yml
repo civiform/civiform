@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.5
+    image: postgres:16.6
     restart: always
     expose:
       - '5432'
