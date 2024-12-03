@@ -1,11 +1,8 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
