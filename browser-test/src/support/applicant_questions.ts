@@ -496,11 +496,8 @@ export class ApplicantQuestions {
     return programTitlesLocator.allTextContents()
   }
 
-  async clickNext(northStarEnabled = false) {
-    const nextButton = northStarEnabled
-      ? 'text="Continue"'
-      : 'text="Save and next"'
-    await this.page.click(nextButton)
+  async clickNext() {
+    await this.page.click('text="Save and next"')
     await waitForPageJsLoad(this.page)
   }
 
