@@ -427,17 +427,4 @@ test.describe('Program list page.', () => {
       'program-list-with-same-active-and-draft-image',
     )
   })
-
-  test('program list with program migration flag on shows Import existing program link', async ({
-    page,
-    adminPrograms,
-  }) => {
-    await loginAsAdmin(page)
-
-    await enableFeatureFlag(page, 'program_migration_enabled')
-    const programName = 'Test program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoAdminProgramsPage()
-    await page.getByText('Import existing program').isVisible()
-  })
 })

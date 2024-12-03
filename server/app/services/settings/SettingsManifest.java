@@ -983,9 +983,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled(RequestHeader request) {
-    return getBool("PROGRAM_MIGRATION_ENABLED", request);
+  /** Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled() {
+    return getBool("PROGRAM_MIGRATION_ENABLED");
   }
 
   /**
@@ -2103,11 +2103,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "PROGRAM_MIGRATION_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
-                          + " environments",
+                      "Enables migrating programs between deployed environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
                       "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
