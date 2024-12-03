@@ -822,8 +822,6 @@ adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at 
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Nagkaroon ng error
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Nagkaroon ng error
 # The subtitle on the error page that is show to the user in medium font
