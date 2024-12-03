@@ -500,7 +500,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
-        .with(td(renderSubmitTime(application)));
+        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE));
   }
 
   private ATag renderApplicationLink(String text, ApplicationModel application) {

@@ -69,6 +69,10 @@ function slugify(value: string): string {
     .replace(/[^a-zA-Z0-9-]/g, '')
 }
 
+function findApplicantId(str: string): string {
+  return str.replace(/\D/g, '')
+}
+
 export class AdminPrograms {
   public page!: Page
 
@@ -136,6 +140,11 @@ export class AdminPrograms {
       'https://usa.gov',
       ProgramVisibility.DISABLED,
     )
+  }
+  async getApplicationId() {
+    const htmlElement = this.page.locator('.cf-application-id + div')
+    const content = await htmlElement.getAttribute('id')
+    return findApplicantId(content)
   }
 
   /**

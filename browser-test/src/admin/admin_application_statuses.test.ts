@@ -814,13 +814,11 @@ test.describe('view program statuses', () => {
         await applicantQuestions.answerEmailQuestion(guestEmail)
         await applicantQuestions.clickNext()
         await applicantQuestions.submitFromReviewPage()
+        const id = await adminPrograms.getApplicationId()
         await logout(page)
-      })
-
-      await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant('Guest')
+        await adminPrograms.viewApplicationForApplicant(`Guest +(${id}+)`)
       })
 
       const emailsBefore =
