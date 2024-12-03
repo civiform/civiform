@@ -130,12 +130,17 @@ public abstract class AbstractDurableJobRunner {
     try {
       persistedDurableJob.decrementRemainingAttempts().save();
 
+      Optional<DurableJobName> optionalJobName =
+          DurableJobName.optionalValueOf(persistedDurableJob.getJobName());
+      if (optionalJobName.isEmpty()) {
+        throw new JobNotFoundException(
+            String.format(
+                "Job name \"%s\" not found in DurableJobName", persistedDurableJob.getJobName()));
+      }
+
       // Run the job in a separate thread and block until it completes, fails, or times out.
       runJobWithTimeout(
-          durableJobRegistry
-              .get(DurableJobName.valueOf(persistedDurableJob.getJobName()))
-              .getFactory()
-              .create(persistedDurableJob));
+          durableJobRegistry.get(optionalJobName.get()).getFactory().create(persistedDurableJob));
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
@@ -146,7 +151,7 @@ public abstract class AbstractDurableJobRunner {
           getJobDurationInSeconds(startTime));
     } catch (JobNotFoundException e) {
       // If the job is not found in the registry, it was likely removed intentionally
-      // In this case, we want to delete the job from the database becuase it should not be run
+      // In this case, we want to delete the job from the database because it should not be run
       // anymore
       if (persistedDurableJob.delete()) {
         LOGGER.info(

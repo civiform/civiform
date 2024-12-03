@@ -45,7 +45,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
@@ -55,7 +56,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "file-key");
 
@@ -68,7 +70,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void getFilename_notAnswered_returnsEmpty() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
@@ -78,7 +81,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void getFilename_emptyAnswer_returnsEmpty() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
@@ -89,7 +93,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void getFilename() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -103,7 +108,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void getFilename_specialCharacters() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -131,7 +137,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
                 .setLastModifiedTime(Optional.empty())
                 .build());
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinitionWithMax, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinitionWithMax, applicant, applicantData, Optional.empty());
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.canUploadFile()).isTrue();
@@ -150,7 +157,8 @@ public class FileUploadQuestionTest extends ResetPostgres {
   @Test
   public void canUploadFile_noMaxSet() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
 
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 

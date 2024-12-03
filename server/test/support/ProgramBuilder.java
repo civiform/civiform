@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -109,7 +110,8 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -251,7 +253,8 @@ public class ProgramBuilder {
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
             /* ProgramAcls */ new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -281,7 +284,8 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

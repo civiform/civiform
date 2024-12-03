@@ -35,7 +35,7 @@ export class ToastController {
       'top-6',
       'transform',
       '-translate-x-1/2',
-      'z-20',
+      'z-100',
     )
     document.body.appendChild(toastContainer)
 

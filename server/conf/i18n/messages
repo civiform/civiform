@@ -829,8 +829,6 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=An error occurred
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=An error has occurred
 # The subtitle on the error page that is show to the user in medium font

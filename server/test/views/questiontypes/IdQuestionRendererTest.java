@@ -8,6 +8,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -50,6 +51,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(ID_QUESTION_DEFINITION, Optional.empty())
                 .setOptional(true),
+            new ApplicantModel(),
             applicantData,
             Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));

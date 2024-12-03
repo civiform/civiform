@@ -35,7 +35,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
             Optional.of(program.id));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
 
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
@@ -47,7 +48,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertOldAndNewDataEquals(latestProgramFileUpload, "applicantFile.jpg");
   }
 
@@ -69,7 +71,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertOldAndNewDataUnanswered(latestProgramFileUpload);
 
     assertThat(applicant.getApplicantData().asJsonString())
@@ -92,7 +95,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     // This shouldn't happen anywhere but a staging environment, but make sure that if we have
     // existing data in the new format, we don't overwrite it.
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
         applicantFileUploadQuestion.getContextualizedPath(),
@@ -108,7 +112,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
     ApplicantQuestion latestProgramFileUpload =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     assertThat(latestProgramFileUpload.createFileUploadQuestion().getFileKeyValue().get())
         .isEqualTo("oldData.jpg");
     assertThat(latestProgramFileUpload.createFileUploadQuestion().getFileKeyListValue().get())
@@ -143,10 +148,11 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
 
     ApplicantQuestion enumeratorQuestion =
-        new ApplicantQuestion(programEnumerator, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programEnumerator, applicant, applicant.getApplicantData(), Optional.empty());
     ApplicantQuestion nestedEnumeratorQuestion =
         new ApplicantQuestion(
-            programNestedEnumerator, applicant.getApplicantData(), Optional.empty());
+            programNestedEnumerator, applicant, applicant.getApplicantData(), Optional.empty());
 
     // Answer enumerator question
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -164,7 +170,10 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     ApplicantQuestion enumeratorEntityQuestion =
         new ApplicantQuestion(
-            programNestedEnumerator, applicant.getApplicantData(), Optional.of(enumeratorEntity));
+            programNestedEnumerator,
+            applicant,
+            applicant.getApplicantData(),
+            Optional.of(enumeratorEntity));
     QuestionAnswerer.answerEnumeratorQuestion(
         applicant.getApplicantData(),
         enumeratorEntityQuestion.getContextualizedPath(),
@@ -181,7 +190,7 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     ApplicantQuestion nestedFiledUploadEntityQuestion =
         new ApplicantQuestion(
-            programFileUpload, applicant.getApplicantData(), Optional.of(nestedEntity));
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.of(nestedEntity));
 
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
@@ -210,7 +219,10 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
             .get(0);
     ApplicantQuestion latestFileUpload =
         new ApplicantQuestion(
-            programFileUpload, applicant.getApplicantData(), Optional.of(latestNestedEntity));
+            programFileUpload,
+            applicant,
+            applicant.getApplicantData(),
+            Optional.of(latestNestedEntity));
 
     assertOldAndNewDataEquals(latestFileUpload, "entity1File.jpg");
   }
@@ -249,9 +261,11 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(program1FileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            program1FileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     ApplicantQuestion applicantEnumeratorQuestion =
-        new ApplicantQuestion(program2Enumerator, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            program2Enumerator, applicant, applicant.getApplicantData(), Optional.empty());
 
     // Answer first file upload question.
     QuestionAnswerer.answerFileQuestion(
@@ -274,11 +288,13 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     ApplicantQuestion applicantEntity1FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicant.getApplicantData(),
             Optional.of(applicantEntities.get(0)));
     ApplicantQuestion applicantEntity3FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicant.getApplicantData(),
             Optional.of(applicantEntities.get(2)));
     QuestionAnswerer.answerFileQuestion(
@@ -312,7 +328,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     // Assert applicant's data is correct, redefining applicant questions to get the latest data.
     ApplicantQuestion latestProgram1FileUpload =
-        new ApplicantQuestion(program1FileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            program1FileUpload, applicant, applicant.getApplicantData(), Optional.empty());
     ImmutableList<RepeatedEntity> latestEntities =
         RepeatedEntity.createRepeatedEntities(
             (EnumeratorQuestionDefinition) program2Enumerator.getQuestionDefinition(),
@@ -321,16 +338,19 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     ApplicantQuestion latestApplicantEntity1FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicant.getApplicantData(),
             Optional.of(latestEntities.get(0)));
     ApplicantQuestion latestApplicantEntity2FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicant.getApplicantData(),
             Optional.of(latestEntities.get(1)));
     ApplicantQuestion latestApplicantEntity3FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicant.getApplicantData(),
             Optional.of(latestEntities.get(2)));
 
@@ -342,7 +362,10 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     // Same asserts, but now for the submitted application.
     ApplicantQuestion applicationProgram1FileUpload =
         new ApplicantQuestion(
-            program1FileUpload, applicantApplicationProgram1.getApplicantData(), Optional.empty());
+            program1FileUpload,
+            applicant,
+            applicantApplicationProgram1.getApplicantData(),
+            Optional.empty());
     ImmutableList<RepeatedEntity> applicationEntities =
         RepeatedEntity.createRepeatedEntities(
             (EnumeratorQuestionDefinition) program2Enumerator.getQuestionDefinition(),
@@ -351,16 +374,19 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     ApplicantQuestion applicationEntity1FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram2.getApplicantData(),
             Optional.of(applicationEntities.get(0)));
     ApplicantQuestion applicationEntity2FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram2.getApplicantData(),
             Optional.of(applicationEntities.get(1)));
     ApplicantQuestion applicationEntity3FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram2.getApplicantData(),
             Optional.of(applicationEntities.get(2)));
 
@@ -379,16 +405,19 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     ApplicantQuestion program1ApplicationEntity1FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram1.getApplicantData(),
             Optional.of(program1ApplicationEntities.get(0)));
     ApplicantQuestion program1ApplicationEntity2FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram1.getApplicantData(),
             Optional.of(program1ApplicationEntities.get(1)));
     ApplicantQuestion program1ApplicationEntity3FileUpload =
         new ApplicantQuestion(
             program2FileUploadRepeated,
+            applicant,
             applicantApplicationProgram1.getApplicantData(),
             Optional.of(program1ApplicationEntities.get(2)));
 
@@ -411,7 +440,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
             Optional.of(program.id));
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicantFileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty());
 
     QuestionAnswerer.answerFileQuestion(
         applicant.getApplicantData(),
@@ -452,16 +482,19 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     application2.refresh();
     application3.refresh();
     assertOldAndNewDataEquals(
-        new ApplicantQuestion(programFileUpload, application1.getApplicantData(), Optional.empty()),
+        new ApplicantQuestion(
+            programFileUpload, applicant, application1.getApplicantData(), Optional.empty()),
         "application1.jpg");
     assertOldAndNewDataUnanswered(
         new ApplicantQuestion(
-            programFileUpload, application2.getApplicantData(), Optional.empty()));
+            programFileUpload, applicant, application2.getApplicantData(), Optional.empty()));
     assertOldAndNewDataEquals(
-        new ApplicantQuestion(programFileUpload, application3.getApplicantData(), Optional.empty()),
+        new ApplicantQuestion(
+            programFileUpload, applicant, application3.getApplicantData(), Optional.empty()),
         "application3.jpg");
     assertOldAndNewDataEquals(
-        new ApplicantQuestion(programFileUpload, applicant.getApplicantData(), Optional.empty()),
+        new ApplicantQuestion(
+            programFileUpload, applicant, applicant.getApplicantData(), Optional.empty()),
         "application3.jpg");
   }
 
@@ -479,7 +512,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
             Optional.of(program.id));
     ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicant1FileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant1.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant1, applicant1.getApplicantData(), Optional.empty());
 
     QuestionAnswerer.answerFileQuestion(
         applicant1.getApplicantData(),
@@ -495,7 +529,8 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount();
     ApplicantQuestion applicant2FileUploadQuestion =
-        new ApplicantQuestion(programFileUpload, applicant1.getApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            programFileUpload, applicant2, applicant2.getApplicantData(), Optional.empty());
 
     QuestionAnswerer.answerFileQuestion(
         applicant2.getApplicantData(),
@@ -516,19 +551,27 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
     applicant2Application.refresh();
     applicant2.refresh();
     assertOldAndNewDataEquals(
-        new ApplicantQuestion(programFileUpload, applicant1.getApplicantData(), Optional.empty()),
+        new ApplicantQuestion(
+            programFileUpload, applicant1, applicant1.getApplicantData(), Optional.empty()),
         "applicant1.jpg");
     assertOldAndNewDataEquals(
-        new ApplicantQuestion(programFileUpload, applicant2.getApplicantData(), Optional.empty()),
+        new ApplicantQuestion(
+            programFileUpload, applicant2, applicant2.getApplicantData(), Optional.empty()),
         "applicant2.jpg");
 
     assertOldAndNewDataEquals(
         new ApplicantQuestion(
-            programFileUpload, applicant1Application.getApplicantData(), Optional.empty()),
+            programFileUpload,
+            applicant1,
+            applicant1Application.getApplicantData(),
+            Optional.empty()),
         "applicant1.jpg");
     assertOldAndNewDataEquals(
         new ApplicantQuestion(
-            programFileUpload, applicant2Application.getApplicantData(), Optional.empty()),
+            programFileUpload,
+            applicant2,
+            applicant2Application.getApplicantData(),
+            Optional.empty()),
         "applicant2.jpg");
   }
 

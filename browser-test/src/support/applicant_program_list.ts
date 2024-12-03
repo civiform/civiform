@@ -1,4 +1,4 @@
-import {Page, Locator} from '@playwright/test'
+import {Page, Locator, expect} from '@playwright/test'
 
 /**
  * Class for interacting with the applicant program list page
@@ -31,9 +31,11 @@ export class ApplicantProgramList {
     cardSectionName: CardSectionName,
     programName: string,
   ): Locator {
-    return this.getCardSectionLocator(cardSectionName).getByRole('listitem', {
-      name: programName,
-    })
+    return this.getCardSectionLocator(cardSectionName)
+      .getByRole('listitem')
+      .filter({
+        hasText: programName,
+      })
   }
 
   /**
@@ -109,6 +111,36 @@ export class ApplicantProgramList {
     return this.getCardSectionLocator(cardSectionName).locator(
       '.cf-not-eligible-tag',
     )
+  }
+
+  /**
+   * Get the submitted tag for the desired application card
+   * @param {CardSectionName} cardSectionName to find
+   * @param {String} programName to find
+   * @returns {Locator} Locator to the eligible tag
+   */
+  getSubmittedTagLocator(
+    cardSectionName: CardSectionName,
+    programName: string,
+  ): Locator {
+    return this.getCardLocator(cardSectionName, programName).locator(
+      '.tag-submitted',
+    )
+  }
+
+  /**
+   * Asserts the pressence of the submitted tag for the specified application card
+   * @param {CardSectionName} cardSectionName to find
+   * @param {String} programName to find
+   * @returns {Locator} Locator to the eligible tag
+   */
+  async expectSubmittedTag(
+    cardSectionName: CardSectionName,
+    programName: string,
+  ) {
+    await expect(
+      this.getSubmittedTagLocator(cardSectionName, programName),
+    ).toContainText('Submitted on')
   }
 }
 

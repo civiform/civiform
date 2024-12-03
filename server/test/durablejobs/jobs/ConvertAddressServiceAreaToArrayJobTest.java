@@ -83,7 +83,7 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
         """;
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    applicant.setApplicantData(new ApplicantData(originalJson, applicant));
+    applicant.setApplicantData(new ApplicantData(originalJson));
     applicant.save();
 
     // act
@@ -159,7 +159,7 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
         """;
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    applicant.setApplicantData(new ApplicantData(originalJson, applicant));
+    applicant.setApplicantData(new ApplicantData(originalJson));
     applicant.save();
 
     // act
@@ -203,7 +203,7 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("program1").build();
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    applicant.setApplicantData(new ApplicantData(originalJson, applicant));
+    applicant.setApplicantData(new ApplicantData(originalJson));
     applicant.save();
 
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
@@ -284,7 +284,7 @@ public class ConvertAddressServiceAreaToArrayJobTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("program1").build();
 
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    applicant.setApplicantData(new ApplicantData(originalJson, applicant));
+    applicant.setApplicantData(new ApplicantData(originalJson));
     applicant.save();
 
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);

@@ -1,7 +1,9 @@
 package services.cloud.azure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.cloud.azure.AzureApplicantStorage.AZURE_FILE_LIMIT_MB_CONF_PATH;
 
+import com.typesafe.config.Config;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,14 @@ public class AzureApplicantStorageTest extends ResetPostgres {
 
     assertThat(client).isInstanceOf(TestAzureBlobStorageClient.class);
     assertThat(client).isInstanceOf(AzureBlobStorageClientInterface.class);
+  }
+
+  @Test
+  public void getFileLimitMb() {
+    int sizeLimit = azureApplicantStorage.getFileLimitMb();
+    assertThat(sizeLimit)
+        .isEqualTo(
+            Integer.parseInt(instanceOf(Config.class).getString(AZURE_FILE_LIMIT_MB_CONF_PATH)));
   }
 
   @Test

@@ -21,7 +21,6 @@ import play.i18n.MessagesApi;
 import play.mvc.Http;
 import repository.AccountRepository;
 import repository.SearchParameters;
-import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
@@ -291,7 +290,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             .filter(acct -> acct.getApplicantDisplayName().equals("Email, No"))
             .findFirst()
             .get();
-    assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
+    assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
         .isEqualTo("2011-11-11");
     assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
@@ -328,7 +327,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(returnedForm).isEqualTo(form);
     AccountModel account = repo.lookupAccountByEmail("add1@fake.com").get();
 
-    assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
+    assertThat(account.getApplicants().get(0).getDateOfBirth().get().toString())
         .isEqualTo("2022-07-07");
     assertThat(account.newestApplicant().get().id).isEqualTo(returnObject.getApplicantId());
     ApplicantModel applicant = account.getApplicants().get(0);
@@ -482,15 +481,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     ApplicantModel applicantFinal = repo.lookupApplicantSync(applicant.id).get();
 
     assertThat(accountFinal.getTiNote()).isEqualTo("unitTest");
-    assertThat(applicantFinal.getApplicantData().getDateOfBirth().get().toString())
-        .isEqualTo("2022-07-07");
-    assertThat(applicantFinal.getApplicantData().getPhoneNumber().get().toString())
-        .isEqualTo("4259879090");
+    assertThat(applicantFinal.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
+    assertThat(applicantFinal.getPhoneNumber().get().toString()).isEqualTo("4259879090");
 
     assertThat(applicantFinal.getDateOfBirth().get().toString()).isEqualTo("2022-07-07");
     assertThat(applicantFinal.getPhoneNumber().get().toString()).isEqualTo("4259879090");
-    assertThat(applicantFinal.getApplicantData().getApplicantName().get())
-        .isEqualTo("ClientLast, clientFirst");
+    assertThat(applicantFinal.getApplicantName().get()).isEqualTo("ClientLast, clientFirst");
     assertThat(accountFinal.getEmailAddress()).isEqualTo("emailAllPassEditClient");
     assertThat(applicantFinal.getEmailAddress().get()).isEqualTo("emailAllPassEditClient");
   }
@@ -696,7 +692,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("dob").get().message())
         .isEqualTo("Date of Birth should be in the past");
-    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
+    assertThat(applicant.getDateOfBirth()).isNotEmpty();
   }
 
   @Test
@@ -727,7 +723,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("firstName").get().message()).isEqualTo("First name required");
-    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
+    assertThat(applicant.getDateOfBirth()).isNotEmpty();
   }
 
   @Test
@@ -758,7 +754,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
         service.updateClientInfo(
             form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
     assertThat(returnForm.error("lastName").get().message()).isEqualTo("Last name required");
-    assertThat(applicant.getApplicantData().getDateOfBirth()).isNotEmpty();
+    assertThat(applicant.getDateOfBirth()).isNotEmpty();
   }
 
   @Test
@@ -799,9 +795,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     account.save();
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
-    applicantData.setDateOfBirth(dob);
+    applicant.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
+    applicant.setDateOfBirth(dob);
     applicant.save();
   }
 
@@ -816,9 +811,8 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   private ApplicantModel setTiClientApplicant(AccountModel account, String firstName, String dob) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setAccount(account);
-    ApplicantData applicantData = applicant.getApplicantData();
-    applicantData.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
-    applicantData.setDateOfBirth(dob);
+    applicant.setUserName(firstName, Optional.empty(), Optional.of("Last"), Optional.empty());
+    applicant.setDateOfBirth(dob);
     applicant.save();
     account.save();
     return applicant;

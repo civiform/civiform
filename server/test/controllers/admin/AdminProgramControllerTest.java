@@ -9,8 +9,12 @@ import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Before;
@@ -123,7 +127,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
-                    DisplayMode.PUBLIC.getValue()));
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     controller.create(requestBuilder.build());
 
@@ -151,7 +159,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
-                    DisplayMode.PUBLIC.getValue()));
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -190,7 +202,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.SELECT_TI.getValue(),
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -230,7 +246,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "eligibilityIsGating",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     controller.create(requestBuilder.build());
 
@@ -267,7 +287,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "eligibilityIsGating",
-                    "true"));
+                    "true",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     controller.create(requestBuilder.build());
 
@@ -303,7 +327,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
-                    DisplayMode.PUBLIC.getValue()));
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -343,14 +371,16 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External program description",
                     "localizedShortDescription",
                     "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -376,14 +406,16 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External program description",
                     "localizedShortDescription",
                     "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -407,14 +439,16 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "External program description",
                     "localizedShortDescription",
                     "External short program description",
-                    "externalLink",
-                    "https://external.program.link",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -442,8 +476,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     String adminName = "internal-program-name";
     String programName = "External program name";
-    String programDescription = "External program description";
-    String shortProgramDescription = "External short program description";
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -454,12 +486,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "Internal program description",
                     "localizedDisplayName",
                     programName,
-                    "localizedDisplayDescription",
-                    programDescription,
                     "localizedShortDescription",
-                    shortProgramDescription,
-                    "externalLink",
-                    "https://external.program.link",
+                    "External short program description",
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "isCommonIntakeForm",
@@ -467,7 +495,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "confirmedChangeCommonIntakeForm",
                     "true",
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     controller.create(requestBuilder.build());
 
@@ -479,7 +511,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(programName);
-    assertThat(contentAsString(programDashboard)).contains(programDescription);
   }
 
   @Test
@@ -625,7 +656,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "true",
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
     controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
     Result indexResult = controller.index(fakeRequest());
@@ -657,7 +692,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "false",
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
@@ -689,7 +728,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "false",
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.CREATION.name());
@@ -723,7 +766,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "false",
                     "tiGroups[]",
-                    "1"));
+                    "1",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(
@@ -762,7 +809,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
@@ -797,7 +848,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
@@ -830,7 +885,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
@@ -877,7 +936,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "isCommonIntakeForm",
                     "true",
                     "confirmedChangeCommonIntakeForm",
-                    "true"));
+                    "true",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
 
     Result result =
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
@@ -917,7 +980,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "eligibilityIsGating",
-                    "false"));
+                    "false",
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
     Result result = controller.update(request.build(), program.id, ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -945,5 +1012,53 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newActiveProgram("active").build();
     assertThatThrownBy(() -> controller.publishProgram(fakeRequest(), program.id))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void buildApplicationSteps_transformsDataIntoApplicationStepObjects() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", "description one"),
+            Map.of("title", "title two", "description", "description two"));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(2);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("description one");
+    assertThat(applicationSteps.get(1).getTitle().getDefault()).isEqualTo("title two");
+    assertThat(applicationSteps.get(1).getDescription().getDefault()).isEqualTo("description two");
+  }
+
+  @Test
+  public void buildApplicationSteps_filtersStepsWithMissingKeysAndBlankSteps() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", "description one"),
+            Map.of("title", "title two"),
+            Map.of("description", "description two"),
+            Map.of("title", "", "description", ""));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(1);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("description one");
+  }
+
+  @Test
+  public void buildApplicationSteps_includesStepsWithTitleOrDescription() {
+    List<Map<String, String>> applicationStepsData =
+        List.of(
+            Map.of("title", "title one", "description", ""),
+            Map.of("title", "", "description", "description two"));
+    ImmutableList<ApplicationStep> applicationSteps =
+        controller.buildApplicationSteps(applicationStepsData);
+
+    assertThat(applicationSteps.size()).isEqualTo(2);
+    assertThat(applicationSteps.get(0).getTitle().getDefault()).isEqualTo("title one");
+    assertThat(applicationSteps.get(0).getDescription().getDefault()).isEqualTo("");
+    assertThat(applicationSteps.get(1).getTitle().getDefault()).isEqualTo("");
+    assertThat(applicationSteps.get(1).getDescription().getDefault()).isEqualTo("description two");
   }
 }

@@ -192,7 +192,7 @@ public class AccountModel extends BaseModel {
   public String getApplicantDisplayName() {
     return this.getApplicants().stream()
         .max(Comparator.comparing(ApplicantModel::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantDisplayName().orElse("<Unnamed User>"))
+        .map(u -> u.getApplicantDisplayName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
 

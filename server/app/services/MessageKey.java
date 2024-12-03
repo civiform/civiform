@@ -182,7 +182,6 @@ public enum MessageKey {
   ERROR_EMAIL_IN_USE_CLIENT_EDIT("label.errorEmailInUseForClientEdit"),
   ERROR_FIRST_NAME("label.errorFirstName"),
   ERROR_LAST_NAME("label.errorLastName"),
-  ERROR_INTERNAL_SERVER_TITLE("error.internalServerTitle"),
   ERROR_INTERNAL_SERVER_TITLE_V2("error.internalServerTitle.v2"),
   ERROR_INTERNAL_SERVER_SUBTITLE("error.internalServerSubtitle"),
   ERROR_INTERNAL_SERVER_DESCRIPTION("error.internalServerDescription"),

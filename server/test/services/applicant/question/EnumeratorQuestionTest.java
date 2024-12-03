@@ -69,7 +69,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
@@ -80,7 +81,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -97,7 +99,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Parameters({"", " "})
   public void withBlankStrings_hasValidationErrors(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(value));
 
@@ -117,7 +120,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withDuplicateNames_hasValidationErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -140,7 +144,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   public void withTooManyEntities_hasValidationError() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+            enumeratorQuestionDefinitionWithLimits, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -163,7 +167,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   public void withTooFewEntities_hasValidationError() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+            enumeratorQuestionDefinitionWithLimits, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("one"));
 
@@ -184,7 +188,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   public void withOkayNumberOfEntities_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            enumeratorQuestionDefinitionWithLimits, applicantData, Optional.empty());
+            enumeratorQuestionDefinitionWithLimits, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -209,7 +213,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN), 5L);
 
     ApplicantQuestion question =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
 
     assertThat(question.getLastUpdatedTimeMetadata()).contains(123L);
     assertThat(question.getUpdatedInProgramMetadata()).contains(5L);

@@ -29,6 +29,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -1914,7 +1915,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName("Hello World");
+    applicant.setUserName("Hello World");
     applicant.save();
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
@@ -1942,7 +1943,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithThreeNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Middle Last");
+    applicant.setUserName("First Middle Last");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -1959,7 +1960,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithManyNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Second Third Fourth Fifth");
+    applicant.setUserName("First Second Third Fourth Fifth");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -3319,6 +3320,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3397,6 +3400,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3687,6 +3692,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
@@ -3730,7 +3737,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3842,7 +3849,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3936,7 +3943,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -4048,7 +4055,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -4080,7 +4091,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -4124,7 +4139,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -4141,12 +4160,13 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
-        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    ApplicantModel applicantAfter = accountRepository.lookupApplicantSync(applicant.id).get();
+    ApplicantData applicantDataAfter = applicantAfter.getApplicantData();
 
     return new Block(
         String.valueOf(blockDefinition.id()),
         blockDefinition,
+        applicantAfter,
         applicantDataAfter,
         Optional.empty());
   }
