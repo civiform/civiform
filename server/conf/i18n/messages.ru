@@ -818,8 +818,6 @@ adminValidation.multiOptionAdminError=В названиях, предназна�
 error.notFoundTitle=Нам не удалось найти страницу, которую вы пытались открыть
 error.notFoundDescription=Перейдите на {0} или вернитесь на предыдущую.
 error.notFoundDescriptionLink=главную страницу
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Произошла ошибка
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font

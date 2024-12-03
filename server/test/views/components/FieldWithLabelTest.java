@@ -207,7 +207,7 @@ public class FieldWithLabelTest {
         FieldWithLabel.number()
             .setId("field-id")
             .setFieldErrors(
-                messages, new ValidationError("error.internalServerTitle", "an error message"));
+                messages, new ValidationError("error.internalServerTitle.v2", "an error message"));
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
