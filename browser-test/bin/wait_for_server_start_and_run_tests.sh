@@ -51,6 +51,7 @@ echo "Detected server start"
 PLAYWRIGHT_TAG_FILTER=""
 if [[ -n "${IS_AZURE_SERVER}" ]]; then
   # For azure browser test runs, skip the @multi-file-upload tagged test(s).
+  # TODO(#9367): Remove tag once Azure supports multi-file-upload
   PLAYWRIGHT_TAG_FILTER="--grep-invert @multi-file-upload"
 fi
 

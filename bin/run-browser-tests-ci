@@ -7,7 +7,8 @@ export COMPOSE_INTERACTIVE_NO_CLI=1
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
-# Detect if Azurite is running
+# Detect if we are running tests with an Azure server, by looking for the Azurite
+# image in the docker container list.
 IS_AZURE_SERVER=
 if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
   IS_AZURE_SERVER=1

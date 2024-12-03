@@ -42,7 +42,8 @@ if [[ -z "$(docker ps --filter "name=${CONTAINER_NAME}" --format "{{.Names}}")" 
     civiform-browser-test:latest
 fi
 
-# Detect if Azurite is running
+# Detect if we are running tests with an Azure server, by looking for the Azurite
+# image in the docker container list.
 IS_AZURE_SERVER=
 if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
   IS_AZURE_SERVER=1
