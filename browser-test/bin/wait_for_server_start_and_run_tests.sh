@@ -48,6 +48,7 @@ done
 echo "Detected server start"
 
 # Detect if Azurite is running
+IS_AZURE_SERVER=
 if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
   IS_AZURE_SERVER=1
 fi
