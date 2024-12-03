@@ -59,7 +59,6 @@ public abstract class NorthStarBaseView {
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
-    context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
     context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
