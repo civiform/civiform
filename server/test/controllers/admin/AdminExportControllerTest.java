@@ -2,7 +2,9 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -47,7 +49,19 @@ public class AdminExportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_migrationNotEnabled_notFound() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(false);
+
+    Result result = controller.index(fakeRequest(), 1L);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(contentAsString(result)).contains("export is not enabled");
+  }
+
+  @Test
   public void index_migrationEnabled_ok_displaysJsonForTheSelectedProgram() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
+
     String draftProgramA = "a-program-draft";
 
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram(draftProgramA).build();
@@ -64,6 +78,8 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_invalidProgramId_badRequest() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
+
     Result result = controller.index(fakeRequest(), Long.MAX_VALUE);
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
@@ -72,6 +88,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_validProgram_rendersJsonPreview() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
     Result result = controller.index(fakeRequest(), activeProgram.id);
@@ -83,6 +100,8 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void index_removesProgramCategories() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
+
     ImmutableMap<Locale, String> translations =
         ImmutableMap.of(
             Lang.forCode("en-US").toLocale(), "Health", Lang.forCode("es-US").toLocale(), "Salud");
@@ -101,6 +120,7 @@ public class AdminExportControllerTest extends ResetPostgres {
 
   @Test
   public void downloadJson_downloadsJson() {
+    when(mockSettingsManifest.getProgramMigrationEnabled()).thenReturn(true);
     String adminName = "fake-admin-name";
 
     Result result =
