@@ -51,7 +51,6 @@ public class AzurePublicStorage extends PublicStorageClient {
 
     String blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
-    // DO NOT MERGE -- NOOP CHANGE TO TRIGGER BROWSER TESTS
     if (environment.isDev()) {
       client =
           new DevAzureBlobStorageClient(

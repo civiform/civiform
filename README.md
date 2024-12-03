@@ -19,7 +19,6 @@ Key features:
 - Bulk data export with admin-defined privacy settings to preserve applicant privacy
 - Trusted intermediary role to enable community based organizations to manage applications on behalf of clients
 - Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each address for each employer of each member of a household
-- No-OP -- DO NOT SUBMIT --
 
 ## Contributing
 
