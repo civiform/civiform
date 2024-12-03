@@ -170,7 +170,7 @@ public final class JsonExporterService {
       boolean multipleFileUploadEnabled) {
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
-        .getReadOnlyApplicantProgramService(application.getApplicantData(), programDefinition)
+        .getReadOnlyApplicantProgramService(application, programDefinition)
         .getAllQuestions()
         .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
         .forEach(

@@ -3,12 +3,16 @@ package services.applicant;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.stream.Stream;
+import models.ApplicantModel;
 import services.LocalizedStrings;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramType;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
+
+  /** Returns the applicant model for this application. */
+  ApplicantModel getApplicant();
 
   /** Returns the locked applicant data for this application. */
   ApplicantData getApplicantData();

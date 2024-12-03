@@ -7,7 +7,6 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
-import models.ApplicantModel;
 import services.MessageKey;
 import services.Path;
 import services.PhoneValidationUtils;
@@ -63,7 +62,7 @@ public final class PhoneQuestion extends Question {
     Optional<String> phoneNumberValue = applicantData.readString(getPhoneNumberPath());
 
     if (phoneNumberValue.isEmpty() && isPaiQuestion()) {
-      phoneNumberValue = applicantData.getPhoneNumber();
+      phoneNumberValue = getApplicantQuestion().getApplicant().getPhoneNumber();
     }
 
     return phoneNumberValue;
@@ -78,8 +77,7 @@ public final class PhoneQuestion extends Question {
     Optional<String> countryCodeValue = applicantData.readString(getCountryCodePath());
 
     if (countryCodeValue.isEmpty() && isPaiQuestion()) {
-      countryCodeValue =
-          Optional.ofNullable(applicantData.getApplicant()).flatMap(ApplicantModel::getCountryCode);
+      countryCodeValue = getApplicantQuestion().getApplicant().getCountryCode();
     }
 
     return countryCodeValue;

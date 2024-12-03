@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import models.ApplicantModel;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -41,6 +42,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    */
   private final ApplicantData applicantData;
 
+  private final ApplicantModel applicant;
+
   private final ProgramDefinition programDefinition;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allActiveBlockList;
@@ -49,10 +52,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   public ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicantModel applicant,
       ApplicantData applicantData,
       ProgramDefinition programDefinition) {
     this(
         jsonPathPredicateGeneratorFactory,
+        applicant,
         applicantData,
         programDefinition,
         /* failedUpdates= */ ImmutableMap.of());
@@ -60,16 +65,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   protected ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicantModel applicant,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
       ImmutableMap<Path, String> failedUpdates) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
-    this.applicantData =
-        new ApplicantData(checkNotNull(applicantData).asJsonString(), applicantData.getApplicant());
+    this.applicant = checkNotNull(applicant);
+    this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+  }
+
+  @Override
+  public ApplicantModel getApplicant() {
+    return applicant;
   }
 
   @Override
@@ -477,6 +488,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           new Block(
               blockDefinition.id() + blockIdSuffix,
               blockDefinition,
+              applicant,
               applicantData,
               maybeRepeatedEntity);
       if (includeBlockIfTrue.test(block)) {

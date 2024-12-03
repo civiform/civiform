@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -182,7 +183,9 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
-              /* categoryIds= */ ImmutableList.of());
+              /* categoryIds= */ ImmutableList.of(),
+              /* applicationSteps= */ ImmutableList.of(
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -227,7 +230,9 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
-              /* categoryIds= */ ImmutableList.of());
+              /* categoryIds= */ ImmutableList.of(),
+              /* applicationSteps= */ ImmutableList.of(
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }

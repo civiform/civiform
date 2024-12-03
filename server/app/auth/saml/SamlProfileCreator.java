@@ -156,13 +156,11 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
                   applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
                 }
                 if (hasFirstName && hasLastName) {
-                  applicant
-                      .getApplicantData()
-                      .setUserName(String.format("%s %s", firstName, lastName));
+                  applicant.setUserName(String.format("%s %s", firstName, lastName));
                 } else if (hasFirstName) {
-                  applicant.getApplicantData().setUserName(firstName);
+                  applicant.setUserName(firstName);
                 } else if (hasLastName) {
-                  applicant.getApplicantData().setUserName(lastName);
+                  applicant.setUserName(lastName);
                 }
                 applicant.save();
                 return null;

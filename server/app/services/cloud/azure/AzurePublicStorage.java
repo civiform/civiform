@@ -30,25 +30,44 @@ public class AzurePublicStorage extends PublicStorageClient {
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
+  // A User Delegation Key is used to sign SAS tokens without having to store the
+  // Account Key alongside the application.The key needs to be rotated and this
+  // duration is the interval at which it's rotated. More info here:
+  // https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
+  public static final Duration AZURE_USER_DELEGATION_KEY_DURATION = Duration.ofMinutes(60);
+
   private final String containerName;
   private final String accountName;
   private final int fileLimitMb;
   private final AzureBlobStorageClientInterface client;
 
   @Inject
-  public AzurePublicStorage(Config config, Environment environment, ZoneId zoneId) {
+  public AzurePublicStorage(
+      Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.containerName = checkNotNull(config).getString(AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
     this.fileLimitMb = checkNotNull(config).getInt(AZURE_PUBLIC_FILE_LIMIT_MB_CONF_PATH);
+
+    String blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
     // DO NOT MERGE -- NOOP CHANGE TO TRIGGER BROWSER TESTS
     if (environment.isDev()) {
       client =
           new DevAzureBlobStorageClient(
               config, zoneId, containerName, AZURE_SAS_TOKEN_DURATION, /* allowPublicRead= */ true);
-    } else {
+    } else if (environment.isTest()) {
       client = new TestAzureBlobStorageClient();
+    } else {
+      client =
+          new AzureBlobStorageClient(
+              config,
+              zoneId,
+              credentials,
+              this.containerName,
+              blobEndpoint,
+              AZURE_SAS_TOKEN_DURATION,
+              AZURE_USER_DELEGATION_KEY_DURATION);
     }
   }
 

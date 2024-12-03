@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -68,7 +69,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    block = new Block("id", blockDefinition, applicantData, Optional.empty());
+    block = new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
   }
 
   @Test
@@ -158,7 +159,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -206,7 +208,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+    Block block =
+        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(

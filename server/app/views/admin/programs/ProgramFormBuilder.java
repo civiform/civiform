@@ -24,6 +24,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.List;
+import java.util.Map;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -92,7 +93,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getIsCommonIntakeForm(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
-        ImmutableList.copyOf(program.getCategories()));
+        ImmutableList.copyOf(program.getCategories()),
+        ImmutableList.copyOf(program.getApplicationSteps()));
   }
 
   /** Builds the form using program definition data. */
@@ -117,6 +119,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.acls().getTiProgramViewAcls(),
         program.categories().stream()
             .map(CategoryModel::getId)
+            .collect(ImmutableList.toImmutableList()),
+        program.applicationSteps().stream()
+            .map(
+                step ->
+                    Map.of(
+                        /* k1= */ "title",
+                        /* v1= */ step.getTitle().getDefault(),
+                        /* k2= */ "description",
+                        /* v2= */ step.getDescription().getDefault()))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -135,7 +146,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       Boolean isCommonIntakeForm,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
-      ImmutableList<Long> categories) {
+      ImmutableList<Long> categories,
+      ImmutableList<Map<String, String>> applicationSteps) {
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
@@ -311,6 +323,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(externalLink)
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
+        AlertComponent.renderSlimAlert(
+            AlertType.INFO,
+            "Application steps will be visible to applicants at a future date.",
+            false,
+            "my-2"),
+        div()
+            .with(
+                buildApplicationStepDiv(0, applicationSteps),
+                buildApplicationStepDiv(1, applicationSteps),
+                buildApplicationStepDiv(2, applicationSteps),
+                buildApplicationStepDiv(3, applicationSteps),
+                buildApplicationStepDiv(4, applicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -326,6 +351,46 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
     formTag.with(createSubmitButton(programEditStatus));
     return formTag;
+  }
+
+  static DivTag buildApplicationStepDiv(
+      int i, ImmutableList<Map<String, String>> applicationSteps) {
+
+    // Fill in the existing application steps
+    String titleValue = "";
+    String descriptionValue = "";
+    if (i + 1 <= applicationSteps.size()) {
+      titleValue = applicationSteps.get(i).get("title");
+      descriptionValue = applicationSteps.get(i).get("description");
+    }
+
+    String index = Integer.toString(i);
+    String indexPlusOne = Integer.toString(i + 1);
+
+    FieldWithLabel title =
+        FieldWithLabel.input()
+            .setId("apply-step-" + indexPlusOne + "-title")
+            .setFieldName("applicationSteps[" + index + "][title]")
+            .setValue(titleValue);
+
+    FieldWithLabel description =
+        FieldWithLabel.textArea()
+            .setId("apply-step-" + indexPlusOne + "-description")
+            .setFieldName("applicationSteps[" + index + "][description]")
+            .setMarkdownSupported(true)
+            .setValue(descriptionValue);
+
+    if (indexPlusOne.equals("1")) {
+      title.setLabelText("Step 1 title").setRequired(true);
+      description.setLabelText("Step 1 description").setRequired(true);
+    } else {
+      title.setLabelText("Step " + indexPlusOne + " title (optional)");
+      description.setLabelText("Step " + indexPlusOne + " description (optional)");
+    }
+
+    return div()
+        .withId("apply-step-" + indexPlusOne + "-div")
+        .with(title.getInputTag(), description.getTextareaTag());
   }
 
   private DivTag showCategoryCheckboxes(

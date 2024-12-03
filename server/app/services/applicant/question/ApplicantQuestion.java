@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
@@ -27,6 +28,7 @@ import views.components.TextFormatter;
 public final class ApplicantQuestion {
 
   private final ProgramQuestionDefinition programQuestionDefinition;
+  private final ApplicantModel applicant;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
@@ -37,9 +39,11 @@ public final class ApplicantQuestion {
    */
   public ApplicantQuestion(
       ProgramQuestionDefinition programQuestionDefinition,
+      ApplicantModel applicant,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
     this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
+    this.applicant = checkNotNull(applicant);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
@@ -52,16 +56,22 @@ public final class ApplicantQuestion {
    */
   public ApplicantQuestion(
       QuestionDefinition questionDefinition,
+      ApplicantModel applicant,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
     this.programQuestionDefinition =
         ProgramQuestionDefinition.create(checkNotNull(questionDefinition), Optional.empty());
+    this.applicant = checkNotNull(applicant);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
   public ApplicantData getApplicantData() {
     return this.applicantData;
+  }
+
+  public ApplicantModel getApplicant() {
+    return this.applicant;
   }
 
   public QuestionDefinition getQuestionDefinition() {

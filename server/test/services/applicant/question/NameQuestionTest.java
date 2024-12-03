@@ -49,6 +49,7 @@ public class NameQuestionTest extends ResetPostgres {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(nameQuestionDefinition, Optional.empty())
                 .setOptional(true),
+            applicant,
             applicantData,
             Optional.empty());
 
@@ -66,7 +67,7 @@ public class NameQuestionTest extends ResetPostgres {
   public void withValidApplicantData_passesValidation(
       String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(nameQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -93,7 +94,7 @@ public class NameQuestionTest extends ResetPostgres {
   public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName, String suffix) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(nameQuestionDefinition, applicant, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -135,7 +136,8 @@ public class NameQuestionTest extends ResetPostgres {
     applicant.setSuffix("Suffix");
 
     NameQuestion nameQuestion =
-        new ApplicantQuestion(nameQuestionDefinitionWithPaiTag, applicantData, Optional.empty())
+        new ApplicantQuestion(
+                nameQuestionDefinitionWithPaiTag, applicant, applicantData, Optional.empty())
             .createNameQuestion();
 
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(applicant.getFirstName().get());

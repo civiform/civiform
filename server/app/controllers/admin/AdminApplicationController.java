@@ -325,7 +325,7 @@ public final class AdminApplicationController extends CiviFormController {
         String.format(
             "%s (%d)",
             ApplicantUtils.getApplicantName(
-                application.getApplicantData().getApplicantDisplayName(), messages),
+                application.getApplicant().getApplicantDisplayName(), messages),
             application.id);
 
     ReadOnlyApplicantProgramService roApplicantService =

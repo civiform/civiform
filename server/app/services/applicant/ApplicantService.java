@@ -204,6 +204,7 @@ public final class ApplicantService {
 
               return new ReadOnlyApplicantProgramServiceImpl(
                   jsonPathPredicateGeneratorFactory,
+                  applicant,
                   applicant.getApplicantData(),
                   programDefinition);
             },
@@ -217,6 +218,7 @@ public final class ApplicantService {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
               jsonPathPredicateGeneratorFactory,
+              application.getApplicant(),
               application.getApplicantData(),
               programService.getFullProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -228,14 +230,19 @@ public final class ApplicantService {
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, application.getApplicantData(), programDefinition);
+        jsonPathPredicateGeneratorFactory,
+        application.getApplicant(),
+        application.getApplicantData(),
+        programDefinition);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
+        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
   }
 
   /**
@@ -324,6 +331,7 @@ public final class ApplicantService {
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
                       jsonPathPredicateGeneratorFactory,
+                      applicant,
                       applicant.getApplicantData(),
                       programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
@@ -391,6 +399,7 @@ public final class ApplicantService {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory,
+            applicant,
             applicant.getApplicantData(),
             programDefinition,
             failedUpdates);
@@ -911,7 +920,7 @@ public final class ApplicantService {
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
               if (applicant.isPresent()) {
-                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                Optional<String> name = applicant.get().getApplicantName();
                 if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
                   builder.setName(name.get());
                 }
@@ -922,10 +931,8 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
-                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
-                }
+                Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
 
                 ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
                 if (!emailAddresses.isEmpty()) {

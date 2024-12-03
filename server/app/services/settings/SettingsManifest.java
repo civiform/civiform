@@ -943,14 +943,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting a universal question as a question representing information about the
-   * applicant. The system can then take certain actions based on the answer to this question.
-   */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
-  }
-
-  /**
    * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
@@ -2061,14 +2053,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                       "Enables populating more fields in OIDC logout requests to applicant identity"
                           + " provider.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED",
-                      "Enables setting a universal question as a question representing information"
-                          + " about the applicant. The system can then take certain actions based"
-                          + " on the answer to this question.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
