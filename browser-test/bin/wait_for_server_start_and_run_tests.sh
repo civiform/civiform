@@ -47,4 +47,16 @@ done
 
 echo "Detected server start"
 
-npm test -- "$@"
+# Detect if Azurite is running
+if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
+  IS_AZURE_SERVER=1
+fi
+
+# Setup a list of test tags to skip.  By default, no tests will be skipped.
+PLAYWRIGHT_TAG_FILTER=""
+if [[ -n "${IS_AZURE_SERVER}" ]]; then
+  # For azure browser test runs, skip the @multi-file-upload tagged test(s).
+  PLAYWRIGHT_TAG_FILTER="--grep-invert @multi-file-upload"
+fi
+
+npm test -- ${PLAYWRIGHT_TAG_FILTER} "$@"
