@@ -47,12 +47,6 @@ done
 
 echo "Detected server start"
 
-# Detect if Azurite is running
-IS_AZURE_SERVER=
-if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
-  IS_AZURE_SERVER=1
-fi
-
 # Setup a list of test tags to skip.  By default, no tests will be skipped.
 PLAYWRIGHT_TAG_FILTER=""
 if [[ -n "${IS_AZURE_SERVER}" ]]; then
