@@ -142,9 +142,10 @@ export class AdminPrograms {
     )
   }
   async getApplicationId() {
-    const htmlElement = this.page.locator('.cf-application-id + div')
-    const content = await htmlElement.getAttribute('id')
-    return findApplicantId(content)
+    const htmlElement = await this.page
+      .locator('.cf-application-id')
+      .innerText()
+    return findApplicantId(htmlElement)
   }
 
   /**

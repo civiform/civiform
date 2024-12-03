@@ -373,13 +373,12 @@ test.describe('view program statuses', () => {
       // Update note only gets exported
       await adminPrograms.editNote('Note is updated')
       await adminPrograms.expectNoteUpdatedToast()
+      await page.getByRole('link', {name: 'Back'}).click()
       const csvContent = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContent).toContain('Note is updated')
-      await adminPrograms.expectNoteUpdatedToast()
-      await page.getByRole('link', {name: 'Back'}).click()
+
       await adminPrograms.viewApplicationForApplicant('Guest')
       await adminPrograms.editNote('Note is finalized')
-      await adminPrograms.expectNoteUpdatedToast()
       await page.getByRole('link', {name: 'Back'}).click()
       const csvContentFinal = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContentFinal).toContain('Note is finalized')
@@ -673,6 +672,9 @@ test.describe('view program statuses', () => {
         applicationStatusOption: approvedStatusName,
       })
       await adminPrograms.expectApplicationCount(0)
+      await adminPrograms.filterProgramApplications({
+        applicationStatusOption: rejectedStatusName,
+      })
       await adminPrograms.viewApplicationForApplicant('Guest')
       const applicationText = await page
         .locator('#application-view')
@@ -818,7 +820,7 @@ test.describe('view program statuses', () => {
         await logout(page)
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(`Guest +(${id}+)`)
+        await adminPrograms.viewApplicationForApplicant(`${guestEmail} (${id})`)
       })
 
       const emailsBefore =
@@ -866,13 +868,13 @@ test.describe('view program statuses', () => {
         await applicantQuestions.answerEmailQuestion(otherTestUserEmail)
         await applicantQuestions.clickNext()
         await applicantQuestions.submitFromReviewPage()
+        const id = await adminPrograms.getApplicationId()
         await logout(page)
-      })
-
-      await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant(otherTestUserEmail)
+        await adminPrograms.viewApplicationForApplicant(
+          `${otherTestUserEmail} (${id})`,
+        )
       })
 
       const [acccountEmailsBefore, applicantEmailsBefore] =
@@ -925,16 +927,15 @@ test.describe('view program statuses', () => {
         await loginAsTestUser(page)
         await applicantQuestions.applyProgram(programWithStatusesName)
         await applicantQuestions.answerEmailQuestion(testUserDisplayName())
-        await applicantQuestions.answerNameQuestion('Albus', 'Dumbledore')
         await applicantQuestions.clickNext()
         await applicantQuestions.submitFromReviewPage()
+        const id = await adminPrograms.getApplicationId()
         await logout(page)
-      })
-
-      await test.step('view submitted programs as a program admin', async () => {
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicant('Albus', 'Dumbledore')
+        await adminPrograms.viewApplicationForApplicant(
+          `${testUserDisplayName()} (${id})`,
+        )
       })
 
       const emailsBefore =
