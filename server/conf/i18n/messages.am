@@ -822,8 +822,6 @@ adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ 
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
 error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=ስህተት ተከስቷል
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=ስህተት ተከስቷል
 # The subtitle on the error page that is show to the user in medium font
