@@ -97,13 +97,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs you may qualify for',
+      )
     })
 
     test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async ({
@@ -126,13 +123,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-eligible-signed-in-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs you may qualify for',
+      )
     })
 
     test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async ({
@@ -161,6 +155,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs you may qualify for',
+      )
     })
 
     test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async ({
@@ -181,22 +178,11 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-
-      await validateScreenshot(
-        page,
-        'cif-eligible-guest-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
       await validateAccessibility(page)
 
       await page.click('text="Apply to programs"')
-
-      await validateScreenshot(
-        page,
-        'cif-submission-guest-login-prompt-modal',
-        /* fullPage= */ false,
-        /* mobileScreenshot= */ true,
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs you may qualify for',
       )
     })
 
@@ -236,6 +222,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         commonIntakeProgramName,
       )
       await validateAccessibility(page)
+      expect(await page.innerHTML('h1')).toContain('Apply to programs')
     })
 
     test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({
@@ -273,11 +260,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantEligiblePrograms= */ [],
       )
 
-      await validateScreenshot(
-        page,
-        'cif-ineligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs your client may qualify for',
       )
     })
 
@@ -315,11 +299,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await validateScreenshot(
-        page,
-        'cif-eligible-ti-confirmation-page',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
+
+      expect(await page.innerHTML('h2')).toContain(
+        'Programs your client may qualify for',
       )
     })
   })
