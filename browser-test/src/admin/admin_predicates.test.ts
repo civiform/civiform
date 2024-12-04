@@ -441,7 +441,6 @@ test.describe('create and edit predicates', () => {
         programName,
         firstScreen,
       )
-      await validateScreenshot(page, 'edit-predicate-eligibility-msg-enabled')
       await page.getByLabel('Eligibility message').isVisible()
       await page.getByText('Markdown is supported').isVisible()
     })

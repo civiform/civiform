@@ -15,6 +15,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.admin.BlockEligibilityMessageForm;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -320,18 +321,16 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         new BlockEligibilityMessageForm(existingEligibilityMessage);
     Form<BlockEligibilityMessageForm> form =
         formFactory.form(BlockEligibilityMessageForm.class).fill(existingEligibilityMessageForm);
-    DivTag buttonDiv =
-        div()
-            .withClass("flex")
-            .with(
-                submitButton("Save eligibility message")
-                    .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
-                    .withClasses(ButtonStyles.SOLID_BLUE, "flex"));
 
     final String updateMessageUrl =
         routes.AdminProgramBlockPredicatesController.updateEligibilityMessage(
                 program.id(), block.id())
             .url();
+
+    ButtonTag buttonTag =
+        submitButton("Save eligibility message")
+            .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex");
 
     return div()
         .with(
@@ -348,7 +347,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .setMarkdownSupported(true)
                         .setValue(form.value().get().getEligibilityMessage())
                         .getInputTag()))
-        .with(buttonDiv);
+        .with(buttonTag);
   }
 
   @Override
