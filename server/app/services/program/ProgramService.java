@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -80,6 +81,8 @@ public final class ProgramService {
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
       "One or more TI Org must be selected for program visibility";
+  private static final String MISSING_APPLICATION_STEP_MSG =
+      "The program must contain at least one application step";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -348,7 +351,8 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
-      ImmutableList<Long> categoryIds) {
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -358,7 +362,8 @@ public final class ProgramService {
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups);
+            tiGroups,
+            applicationSteps);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -395,7 +400,8 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             programAcls,
-            categoryRepository.findCategoriesByIds(categoryIds));
+            categoryRepository.findCategoriesByIds(categoryIds),
+            applicationSteps);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ErrorAnd.of(
@@ -429,7 +435,8 @@ public final class ProgramService {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
-      ImmutableList<Long> tiGroups) {
+      ImmutableList<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
@@ -439,7 +446,8 @@ public final class ProgramService {
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups));
+            tiGroups,
+            applicationSteps));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -505,7 +513,8 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
-      ImmutableList<Long> categoryIds)
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
@@ -516,7 +525,8 @@ public final class ProgramService {
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups);
+            tiGroups,
+            applicationSteps);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -561,6 +571,7 @@ public final class ProgramService {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
+            .setApplicationSteps(applicationSteps)
             .build()
             .toProgram();
 
@@ -644,7 +655,8 @@ public final class ProgramService {
       String displayMode,
       List<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
-      ImmutableList<Long> tiGroups) {
+      ImmutableList<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     return validateProgramData(
         displayName,
         shortDescription,
@@ -652,7 +664,8 @@ public final class ProgramService {
         displayMode,
         notificationPreferences,
         categoryIds,
-        tiGroups);
+        tiGroups,
+        applicationSteps);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -671,7 +684,8 @@ public final class ProgramService {
       String displayMode,
       List<String> notificationPreferences,
       List<Long> categoryIds,
-      List<Long> tiGroups) {
+      List<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
@@ -700,6 +714,8 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
+    checkApplicationStepErrors(errorsBuilder, applicationSteps);
+
     return errorsBuilder.build();
   }
 
@@ -717,6 +733,36 @@ public final class ProgramService {
     return categoryRepository.listCategories().stream()
         .map(CategoryModel::getId)
         .collect(Collectors.toList());
+  }
+
+  ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      ImmutableList<ApplicationStep> applicationSteps) {
+
+    if (applicationSteps.size() == 0) {
+      return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
+    }
+
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      String title = step.getTitle().getDefault();
+      String description = step.getDescription().getDefault();
+      boolean haveTitle = !title.isBlank();
+      boolean haveDescription = !description.isBlank();
+      // steps must have title AND description
+      if (haveTitle && !haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Application step %s is missing a description", Integer.toString(i + 1))));
+      } else if (!haveTitle && haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format("Application step %s is missing a title", Integer.toString(i + 1))));
+      }
+    }
+
+    return errorsBuilder;
   }
 
   /**
@@ -1312,6 +1358,43 @@ public final class ProgramService {
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
+  }
+
+  /**
+   * Update the eligibility message for a block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param message the custom eligibility message to add to the block
+   * @return the updated block
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   */
+  // TODO: wrap this method in a transaction, see issue ##9277.
+  public ProgramDefinition setBlockEligibilityMessage(
+      long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+
+      BlockDefinition blockDefinition =
+          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+              .setLocalizedEligibilityMessage(message)
+              .build();
+
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // This method throws IllegalPredicateOrderingException, but in this context it should never
+      // happen because setting an eligibility message does not affect predicate order.
+      // This try-catch block is included to satisfy the compiler and maintain code correctness.
+      String errMsg =
+          String.format(
+              "Setting this eligibility message invalidates another. [programId: %d,"
+                  + " blockDefinitionId: %d]",
+              programId, blockDefinitionId);
+      throw new RuntimeException(errMsg, e);
     }
   }
 

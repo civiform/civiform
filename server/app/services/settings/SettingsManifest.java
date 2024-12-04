@@ -547,6 +547,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME");
   }
 
+  /** The max size (in Mb) of files uploaded to Azure blob storage. */
+  public Optional<String> getAzureStorageAccountFileLimitMb() {
+    return getString("AZURE_STORAGE_ACCOUNT_FILE_LIMIT_MB");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to Azure blob storage. */
+  public Optional<String> getAzureStorageAccountPublicFileLimitMb() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB");
+  }
+
   /**
    * Allows local [Azurite
    * emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be
@@ -933,15 +943,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting a universal question as a question representing information about the
-   * applicant. The system can then take certain actions based on the answer to this question.
-   */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
-  }
-
-  /**
-   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
@@ -1649,6 +1651,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_FILE_LIMIT_MB",
+                              "The max size (in Mb) of files uploaded to Azure blob storage.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " Azure blob storage.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
                               "AZURE_LOCAL_CONNECTION_STRING",
                               "Allows local [Azurite"
                                   + " emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)"
@@ -2042,17 +2057,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED",
-                      "Enables setting a universal question as a question representing information"
-                          + " about the applicant. The system can then take certain actions based"
-                          + " on the answer to this question.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
-                      "Add programs cards to the confirmation screen that an applicant sees after"
-                          + " finishing an application.",
+                      "Upsell: Add programs cards to the confirmation screen that an applicant sees"
+                          + " after finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),

@@ -93,7 +93,7 @@ test.describe(
         Block: Third
           Question: A
         Block: Fourth
-          Question: E 
+          Question: E
                     H ---> Eligibility
         Block: Fifth
           Question: F
@@ -235,19 +235,6 @@ test.describe(
           expect(
             await applicantActor.getProgramIdFromLocator(headingLocator),
           ).toBe(programIdV1)
-        })
-
-        await test.step('check program list shows eligible tag', async () => {
-          await expect(
-            applicantActor.getCardEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).toBeVisible()
-          await expect(
-            applicantActor.getCardNotEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).not.toBeAttached()
         })
       })
 
@@ -450,19 +437,6 @@ test.describe(
             await applicantActor.getProgramIdFromLocator(headingLocator),
           ).toBe(programIdV3)
         })
-
-        await test.step('check program list shows eligible tag', async () => {
-          await expect(
-            applicantActor.getCardEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).toBeVisible()
-          await expect(
-            applicantActor.getCardNotEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).not.toBeAttached()
-        })
       })
 
       // Program Admin can view applications submitted for program v1
@@ -577,7 +551,7 @@ test.describe(
       - Civiform Admin creates program v1
       - Applicant fills out application to program v1; does not submit
       - Civiform Admin creates program v2
-      - Applicant 
+      - Applicant
           * Goes to application review page; now on program v2
           * Message displayed to user
       - Applicant goes into the edit appliction page and stays in there
@@ -710,19 +684,6 @@ test.describe(
           expect(
             await applicantActor.getProgramIdFromLocator(headingLocator),
           ).toBe(programIdV1)
-        })
-
-        await test.step('check program list shows eligible tag', async () => {
-          await expect(
-            applicantActor.getCardEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).toBeVisible()
-          await expect(
-            applicantActor.getCardNotEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).not.toBeAttached()
         })
       })
 
@@ -947,20 +908,6 @@ test.describe(
           expect(
             await applicantActor.getProgramIdFromLocator(headingLocator),
           ).toBe(programIdV3)
-        })
-
-        await test.step('check program list shows eligible tag', async () => {
-          await expect(
-            applicantActor.getCardEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).toBeVisible()
-
-          await expect(
-            applicantActor.getCardNotEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).not.toBeAttached()
         })
       })
 
@@ -1191,19 +1138,6 @@ test.describe(
           expect(
             await applicantActor.getProgramIdFromLocator(headingLocator),
           ).toBe(programIdV1)
-        })
-
-        await test.step('check program list shows eligible tag', async () => {
-          await expect(
-            applicantActor.getCardEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).toBeVisible()
-          await expect(
-            applicantActor.getCardNotEligibleTagLocator(
-              CardSectionName.MyApplications,
-            ),
-          ).not.toBeAttached()
         })
       })
 

@@ -27,7 +27,6 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
-import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
 public class CiviformOidcProfileCreatorTest extends ResetPostgres {
@@ -157,11 +156,10 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // The session ID is a random value, so just ensure it's set and not an empty string.
     assertThat(profileData.getSessionId()).isNotEmpty();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
-        .isEqualTo("Fry, Philip");
-    Locale l = applicantData.preferredLocale();
+    assertThat(applicant.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
+    Locale l = applicant.getApplicantData().preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
   }
 
@@ -200,11 +198,10 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
-        .isEqualTo("Fry, Philip");
-    Locale l = applicantData.preferredLocale();
+    assertThat(applicant.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
+    Locale l = applicant.getApplicantData().preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
 
     // Additional validations for enhanced logout behavior.

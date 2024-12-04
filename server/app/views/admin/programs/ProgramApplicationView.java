@@ -466,11 +466,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
-    boolean emptyEmails = optionalAccountEmail.isEmpty();
-
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-      emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
-    }
+    boolean emptyEmails = optionalAccountEmail.isEmpty() && optionalApplicantEmail.isEmpty();
 
     if (status.localizedEmailBodyText().isEmpty()) {
       return div()
@@ -494,12 +490,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                               + " an email address.")));
     }
 
-    String emailString = "";
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-      emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
-    } else {
-      emailString = optionalAccountEmail.orElse("");
-    }
+    String emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
 
     return label()
         .with(

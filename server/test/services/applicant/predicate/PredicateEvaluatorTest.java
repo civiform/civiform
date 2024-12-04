@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -34,7 +35,9 @@ public class PredicateEvaluatorTest {
   @Before
   public void setupEvaluator() {
     applicantData = new ApplicantData();
-    applicantQuestion = new ApplicantQuestion(addressQuestion, applicantData, Optional.empty());
+    applicantQuestion =
+        new ApplicantQuestion(
+            addressQuestion, new ApplicantModel(), applicantData, Optional.empty());
     generator =
         new JsonPathPredicateGenerator(
             Mockito.mock(DateConverter.class), ImmutableList.of(addressQuestion), Optional.empty());

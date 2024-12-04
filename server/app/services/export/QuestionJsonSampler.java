@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.AddressQuestion;
@@ -47,9 +48,11 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     ProgramQuestionDefinition programQuestionDefinition =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
-    ApplicantData applicantData = new ApplicantData();
+    ApplicantModel applicant = new ApplicantModel();
+    ApplicantData applicantData = applicant.getApplicantData();
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(programQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            programQuestionDefinition, applicant, applicantData, Optional.empty());
     addSampleData(applicantData, applicantQuestion, multipleFileUploadEnabled);
 
     Q question = getQuestion(applicantQuestion);

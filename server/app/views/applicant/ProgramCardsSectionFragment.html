@@ -1,5 +1,3 @@
-<!doctype html>
-
 <section
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
@@ -34,7 +32,10 @@
   class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4 cf-application-card"
   th:classappend="${showImage} ? usa-card--header-first : '' "
 >
-  <div class="usa-card__container">
+  <div
+    class="usa-card__container"
+    th:classappend="${card.isCommonIntakeForm} ? bg-primary-lighter : '' "
+  >
     <!-- Title -->
     <div class="usa-card__header usa-prose">
       <h3

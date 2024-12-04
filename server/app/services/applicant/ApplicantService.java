@@ -202,8 +202,9 @@ public final class ApplicantService {
               ApplicantModel applicant = applicantCompletableFuture.join().get();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
-              return new ReadOnlyApplicantProgramServiceImpl(
+              return new ReadOnlyApplicantProgramService(
                   jsonPathPredicateGeneratorFactory,
+                  applicant,
                   applicant.getApplicantData(),
                   programDefinition);
             },
@@ -215,8 +216,9 @@ public final class ApplicantService {
       ApplicationModel application) {
     try {
       return CompletableFuture.completedFuture(
-          new ReadOnlyApplicantProgramServiceImpl(
+          new ReadOnlyApplicantProgramService(
               jsonPathPredicateGeneratorFactory,
+              application.getApplicant(),
               application.getApplicantData(),
               programService.getFullProgramDefinition(application.getProgram().id)));
     } catch (ProgramNotFoundException e) {
@@ -227,15 +229,20 @@ public final class ApplicantService {
   /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
-    return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, application.getApplicantData(), programDefinition);
+    return new ReadOnlyApplicantProgramService(
+        jsonPathPredicateGeneratorFactory,
+        application.getApplicant(),
+        application.getApplicantData(),
+        programDefinition);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
-    return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, applicantData, programDefinition);
+    ApplicantModel applicant = new ApplicantModel();
+    applicant.setApplicantData(applicantData);
+    return new ReadOnlyApplicantProgramService(
+        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
   }
 
   /**
@@ -322,8 +329,9 @@ public final class ApplicantService {
               // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
-                  new ReadOnlyApplicantProgramServiceImpl(
+                  new ReadOnlyApplicantProgramService(
                       jsonPathPredicateGeneratorFactory,
+                      applicant,
                       applicant.getApplicantData(),
                       programDefinition);
               Optional<Block> maybeBlockBeforeUpdate =
@@ -389,8 +397,9 @@ public final class ApplicantService {
     }
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
-        new ReadOnlyApplicantProgramServiceImpl(
+        new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory,
+            applicant,
             applicant.getApplicantData(),
             programDefinition,
             failedUpdates);
@@ -911,7 +920,7 @@ public final class ApplicantService {
                       && applicant.get().getAccount().getManagedByGroup().isPresent();
 
               if (applicant.isPresent()) {
-                Optional<String> name = applicant.get().getApplicantData().getApplicantName();
+                Optional<String> name = applicant.get().getApplicantName();
                 if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
                   builder.setName(name.get());
                 }
@@ -922,10 +931,8 @@ public final class ApplicantService {
                   emailAddressesBuilder.add(accountEmailAddress);
                 }
 
-                if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-                  Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
-                  applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
-                }
+                Optional<String> applicantInfoEmailAddress = applicant.get().getEmailAddress();
+                applicantInfoEmailAddress.ifPresent(e -> emailAddressesBuilder.add(e));
 
                 ImmutableSet<String> emailAddresses = emailAddressesBuilder.build();
                 if (!emailAddresses.isEmpty()) {

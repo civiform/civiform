@@ -1101,7 +1101,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "tiProgramViewAcls" : [ ]
               },
               "categories" : [ ],
-              "localizedSummaryImageDescription" : null
+              "localizedSummaryImageDescription" : null,
+              "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
             }
           }
       """;
@@ -1164,7 +1178,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "tiProgramViewAcls" : [ ]
               },
               "categories" : [ ],
-              "localizedSummaryImageDescription" : null
+              "localizedSummaryImageDescription" : null,
+              "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
             }
           }
       """;
@@ -1237,7 +1265,21 @@ public class AdminImportControllerTest extends ResetPostgres {
               "tiProgramViewAcls" : [ ]
               },
               "categories" : [ ],
-              "localizedSummaryImageDescription" : null
+              "localizedSummaryImageDescription" : null,
+              "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
           },
           "questions" : [ {
               "type" : "name",
@@ -1404,7 +1446,21 @@ public class AdminImportControllerTest extends ResetPostgres {
                 "tiProgramViewAcls" : [ ]
               },
               "localizedSummaryImageDescription" : null,
-              "categories" : [ ]
+              "categories" : [ ],
+              "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
             },
             "questions" : [ {
               "type" : "name",
@@ -1731,7 +1787,21 @@ public class AdminImportControllerTest extends ResetPostgres {
           + "      \"tiProgramViewAcls\" : [ ]\n"
           + "    },\n"
           + "    \"localizedSummaryImageDescription\" : null,\n"
-          + "    \"categories\" : [ ]\n"
+          + "    \"categories\" : [ ],\n"
+          + "    \"applicationSteps\" : [ {\n"
+          + "      \"title\" : {\n"
+          + "         \"translations\" : {\n"
+          + "           \"en_US\" : \"step one\"\n"
+          + "         },\n"
+          + "         \"isRequired\" : true\n"
+          + "     },\n"
+          + "     \"description\" : {\n"
+          + "        \"translations\" : {\n"
+          + "        \"en_US\" : \"step one\"\n"
+          + "     },\n"
+          + "       \"isRequired\" : true\n"
+          + "     }\n"
+          + "   }]\n"
           + "  },\n"
           + "  \"questions\" : [ {\n"
           + "    \"type\" : \"id\",\n"
@@ -1900,7 +1970,21 @@ public class AdminImportControllerTest extends ResetPostgres {
               "tiProgramViewAcls" : []
               },
               "categories" : [],
-              "localizedSummaryImageDescription" : null
+              "localizedSummaryImageDescription" : null,
+              "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
           },
           "questions" : [{
               "type" : "date",
@@ -2070,7 +2154,21 @@ public class AdminImportControllerTest extends ResetPostgres {
             "tiProgramViewAcls" : [ ]
           },
           "categories" : [ ],
-          "localizedSummaryImageDescription" : null
+          "localizedSummaryImageDescription" : null,
+          "applicationSteps" : [ {
+                 "title" : {
+                    "translations" : {
+                      "en_US" : "step one"
+                    },
+                    "isRequired" : true
+                },
+                "description" : {
+                   "translations" : {
+                   "en_US" : "step one"
+                },
+                  "isRequired" : true
+                }
+             }]
         },
         "questions" : [ {
           "type" : "name",

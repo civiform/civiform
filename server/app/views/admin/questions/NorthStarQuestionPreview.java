@@ -7,6 +7,7 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
+import models.ApplicantModel;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -65,7 +66,7 @@ public class NorthStarQuestionPreview extends NorthStarBaseView {
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty(), true, false);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
+        new ApplicantQuestion(pqd, new ApplicantModel(), new ApplicantData(), Optional.empty());
     context.setVariable("question", applicantQuestion);
 
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);

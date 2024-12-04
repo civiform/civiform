@@ -9,6 +9,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import models.ApplicantModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -47,7 +48,8 @@ public class NumberQuestionRendererTest {
             .setMessages(messages)
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .build();
-    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
+    question =
+        new ApplicantQuestion(QUESTION, new ApplicantModel(), applicantData, Optional.empty());
     renderer = new NumberQuestionRenderer(question);
   }
 

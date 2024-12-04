@@ -91,6 +91,7 @@ public class ProgramModelTest extends ResetPostgres {
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
             .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -120,6 +121,11 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
     assertThat(found.getCategories()).isInstanceOf(ImmutableList.class);
+    assertThat(found.getProgramDefinition().applicationSteps().size()).isEqualTo(1);
+    assertThat(found.getProgramDefinition().applicationSteps().get(0).getTitle())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "title"));
+    assertThat(found.getProgramDefinition().applicationSteps().get(0).getDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
 
     assertThat(
             found
@@ -184,6 +190,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -245,6 +252,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -365,6 +373,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

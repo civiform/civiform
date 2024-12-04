@@ -1,7 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -426,86 +425,6 @@ test.describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
-    })
-
-    test.describe('With north star flag enabled', {tag: ['@northstar']}, () => {
-      test.beforeEach(async ({page}) => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('Shows ineligible tag on home page program cards', async ({
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(
-          fullProgramName,
-          /* northStarEnabled= */ true,
-        )
-
-        await test.step('fill out application and submit', async () => {
-          await applicantQuestions.answerNumberQuestion('1')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
-        })
-
-        await test.step('verify question is marked ineligible', async () => {
-          await applicantQuestions.gotoApplicantHomePage()
-          await applicantQuestions.seeEligibilityTag(
-            fullProgramName,
-            /* isEligible= */ false,
-          )
-        })
-      })
-
-      test('Shows eligible on home page', async ({applicantQuestions}) => {
-        await test.step('fill out application and submit', async () => {
-          await applicantQuestions.applyProgram(
-            fullProgramName,
-            /* northStarEnabled= */ true,
-          )
-
-          await applicantQuestions.answerNumberQuestion('5')
-          await applicantQuestions.clickContinue()
-        })
-
-        await test.step('verify program is marked eligible', async () => {
-          await applicantQuestions.gotoApplicantHomePage()
-          await applicantQuestions.seeEligibilityTag(
-            fullProgramName,
-            /* isEligible= */ true,
-          )
-        })
-      })
-
-      test('shows not eligible alert on review page with ineligible answer', async ({
-        applicantQuestions,
-      }) => {
-        await test.step('fill out application and submit', async () => {
-          await applicantQuestions.applyProgram(
-            fullProgramName,
-            /* northStarEnabled= */ true,
-          )
-
-          await applicantQuestions.answerNumberQuestion('1')
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.expectIneligiblePage(/* northStar= */ true)
-        })
-
-        await test.step('verify program is marked ineligible', async () => {
-          await applicantQuestions.gotoApplicantHomePage()
-          await applicantQuestions.seeEligibilityTag(
-            fullProgramName,
-            /* isEligible= */ false,
-          )
-
-          await applicantQuestions.clickApplyProgramButton(fullProgramName)
-
-          // Navigate to review page
-          await applicantQuestions.clickBack()
-          await applicantQuestions.clickBack()
-
-          await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
-        })
-      })
     })
   })
 })
