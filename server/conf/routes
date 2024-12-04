@@ -73,7 +73,6 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicat
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage     controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
 
 # A controller for adding and removing questions from program blocks
-POST /admin/programs/:programId/blocks/:blockDefinitionId/eligibilityPredicates/updateMessage controllers.admin.AdminProgramBlockPredicatesController.updateEligibilityMessage(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                    controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                       controllers.admin.AdminProgramBlockQuestionsController.destroy(programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                  controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
