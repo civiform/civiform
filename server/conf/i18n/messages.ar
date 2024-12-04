@@ -818,8 +818,6 @@ adminValidation.multiOptionAdminError=يمكن أن تتضمن أسماء الم
 error.notFoundTitle=لم نتمكن من العثور على الصفحة التي حاولت زيارتها
 error.notFoundDescription=يُرجى الرجوع أو العودة إلى {0}
 error.notFoundDescriptionLink=الصفحة الرئيسية
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=حدث خطأ ما
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=حدث خطأ ما
 # The subtitle on the error page that is show to the user in medium font
