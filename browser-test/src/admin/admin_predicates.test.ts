@@ -399,6 +399,65 @@ test.describe('create and edit predicates', () => {
     })
   })
 
+  test('eligibility message field is available to use', async ({
+    page,
+    adminQuestions,
+    adminPrograms,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
+    const programName = 'Test eligibility message field availbale to use'
+    const firstScreen = 'Screen 1'
+    const secondScreen = 'Screen 2'
+
+    await test.step('Adds a program with two screens', async () => {
+      await adminQuestions.addTextQuestion({
+        questionName: 'show-predicate-q',
+        description: 'desc',
+        questionText: 'text question',
+      })
+      await adminQuestions.addTextQuestion({
+        questionName: 'show-other-q',
+        description: 'desc',
+        questionText: 'conditional question',
+      })
+
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: firstScreen,
+        description: 'first screen',
+        questions: [{name: 'show-predicate-q'}],
+      })
+      await adminPrograms.addProgramBlockUsingSpec(programName, {
+        name: secondScreen,
+        description: 'screen with predicate',
+        questions: [{name: 'show-other-q'}],
+      })
+    })
+
+    await test.step('Eligibility message field is visible', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        firstScreen,
+      )
+      await validateScreenshot(page, 'edit-predicate-eligibility-msg-enabled')
+      await page.getByLabel('Eligibility message').isVisible()
+      await page.getByText('Markdown is supported').isVisible()
+    })
+
+    await test.step('Eligibility message field gets updated', async () => {
+      await adminPredicates.updateEligibilityMessage(
+        'Customized eligibility message',
+      )
+      await validateToastMessage(
+        page,
+        'Eligibility message set to Customized eligibility message',
+      )
+      await validateScreenshot(page, 'edit-predicate-eligibility-msg-updated')
+    })
+  })
+
   // TODO(https://github.com/civiform/civiform/issues/4167): Enable integration testing of ESRI functionality
   if (isHermeticTestEnvironment()) {
     test('add a service area validation predicate', async ({

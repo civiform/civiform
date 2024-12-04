@@ -43,6 +43,11 @@ export class AdminPredicates {
     )
   }
 
+  async updateEligibilityMessage(eligibilityMsg: string) {
+    await this.page.fill('input[name=eligibilityMessage]', eligibilityMsg)
+    await this.page.click('text="Save eligibility message"')
+  }
+
   async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
