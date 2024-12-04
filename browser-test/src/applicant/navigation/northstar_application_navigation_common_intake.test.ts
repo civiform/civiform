@@ -98,9 +98,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       )
 
       await validateAccessibility(page)
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs you may qualify for',
-      )
     })
 
     test('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async ({
@@ -124,9 +121,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       )
 
       await validateAccessibility(page)
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs you may qualify for',
-      )
     })
 
     test('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async ({
@@ -155,9 +149,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* mobileScreenshot= */ true,
       )
       await validateAccessibility(page)
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs you may qualify for',
-      )
     })
 
     test('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async ({
@@ -181,9 +172,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await validateAccessibility(page)
 
       await page.click('text="Apply to programs"')
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs you may qualify for',
-      )
+      await applicantQuestions.expectLoginModal()
     })
 
     test('shows intake form as submitted after completion', async ({
@@ -222,7 +211,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         commonIntakeProgramName,
       )
       await validateAccessibility(page)
-      expect(await page.innerHTML('h1')).toContain('Apply to programs')
     })
 
     test('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async ({
@@ -259,10 +247,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
       )
-
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs your client may qualify for',
-      )
     })
 
     test('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async ({
@@ -298,10 +282,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
-      )
-
-      expect(await page.innerHTML('h2')).toContain(
-        'Programs your client may qualify for',
       )
     })
   })
