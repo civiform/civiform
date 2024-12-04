@@ -1077,7 +1077,10 @@ export class AdminPrograms {
     )
   }
 
-  selectWithinApplicationForApplicantForBulkStatus(applicantName: string, selector: string) {
+  selectWithinApplicationForApplicantForBulkStatus(
+    applicantName: string,
+    selector: string,
+  ) {
     return this.selectApplicationRowForApplicant(applicantName) + ' ' + selector
   }
 
@@ -1206,7 +1209,10 @@ export class AdminPrograms {
     expect(blockText).toContain(answer)
   }
 
-  async expectApplicationAnswerLinksForBulkStatus(blockName: string, questionName: string) {
+  async expectApplicationAnswerLinksForBulkStatus(
+    blockName: string,
+    questionName: string,
+  ) {
     expect(
       await this.page
         .locator(this.selectApplicationBlock(blockName))
@@ -1239,7 +1245,9 @@ export class AdminPrograms {
   }
 
   async isStatusSelectorVisibleForBulkStatus(): Promise<boolean> {
-    return this.page.locator(this.isStatusSelectorVisibleForBulkStatus()).isVisible()
+    return this.page
+      .locator(this.isStatusSelectorVisibleForBulkStatus())
+      .isVisible()
   }
 
   async getStatusOption(): Promise<string> {
@@ -1262,7 +1270,6 @@ export class AdminPrograms {
 
     return waitForAnyModal(this.page)
   }
-
 
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
@@ -1294,7 +1301,9 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async confirmStatusUpdateModalForBulkStatus(modal: ElementHandle<HTMLElement>) {
+  async confirmStatusUpdateModalForBulkStatus(
+    modal: ElementHandle<HTMLElement>,
+  ) {
     // Confirming shouldn't cause any redirects
     await (await modal.$('text=Confirm'))!.click()
 
@@ -1337,16 +1346,16 @@ export class AdminPrograms {
     return noteContentArea.inputValue()
   }
 
-    /**
+  /**
    * Returns the content of the note modal when viewing an application.
    */
-    async getNoteContentForBulkStatus() {
-      await this.page.locator(this.editNoteSelector()).click()
-  
-      const editModal = await waitForAnyModal(this.page)
-      const noteContentArea = (await editModal.$('textarea'))!
-      return noteContentArea.inputValue()
-    }
+  async getNoteContentForBulkStatus() {
+    await this.page.locator(this.editNoteSelector()).click()
+
+    const editModal = await waitForAnyModal(this.page)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
+  }
 
   /**
    * Clicks the edit note button, and returns the modal.
@@ -1363,14 +1372,14 @@ export class AdminPrograms {
     return await waitForAnyModal(frame)
   }
 
-    /**
+  /**
    * Clicks the edit note button, and returns the modal.
    */
-    async awaitEditNoteModalForBulkStatus(): Promise<ElementHandle<HTMLElement>> {
-      await this.page.locator(this.editNoteSelector()).click()
-  
-      return await waitForAnyModal(this.page)
-    }
+  async awaitEditNoteModalForBulkStatus(): Promise<ElementHandle<HTMLElement>> {
+    await this.page.locator(this.editNoteSelector()).click()
+
+    return await waitForAnyModal(this.page)
+  }
 
   /**
    * Clicks the edit note button, sets the note content to the provided text,
@@ -1562,7 +1571,7 @@ export class AdminPrograms {
     const applicationListDiv = this.page.getByTestId('application-list')
     return applicationListDiv.locator('.usa-pagination').isVisible()
   }
-  
+
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-table')
     return applicationListDiv.locator('.usa-pagination').isVisible()
