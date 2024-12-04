@@ -1245,9 +1245,7 @@ export class AdminPrograms {
   }
 
   async isStatusSelectorVisibleForBulkStatus(): Promise<boolean> {
-    return this.page
-      .locator(this.isStatusSelectorVisibleForBulkStatus())
-      .isVisible()
+    return this.page.locator(this.statusSelector()).isVisible()
   }
 
   async getStatusOption(): Promise<string> {
@@ -1379,6 +1377,22 @@ export class AdminPrograms {
     await this.page.locator(this.editNoteSelector()).click()
 
     return await waitForAnyModal(this.page)
+  }
+
+  /**
+   * Clicks the edit note button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async editNoteForBulkStatus(noteContent: string) {
+    const editModal = await this.awaitEditNoteModalForBulkStatus()
+    const noteContentArea = (await editModal.$('textarea'))!
+    await noteContentArea.fill(noteContent)
+
+    // Confirming should cause the page to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const saveButton = (await editModal.$('text=Save'))!
+    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   /**

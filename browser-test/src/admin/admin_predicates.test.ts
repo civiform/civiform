@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   isHermeticTestEnvironment,
   loginAsAdmin,
@@ -109,6 +110,24 @@ test.describe('create and edit predicates', () => {
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
+
+    // test with bulk status flag
+    await logout(page)
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
+    await logout(page)
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+
+    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+      testUserDisplayName(),
+    )
+    expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
+
+    await page.getByRole('link', {name: 'Back'}).click()
+    await logout(page)
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'bulk_status_update_enabled')
   })
 
   test('add a show predicate', async ({
@@ -213,6 +232,24 @@ test.describe('create and edit predicates', () => {
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 2')
+
+    // test with bulk status flag turned on
+    await logout(page)
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
+    await logout(page)
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+
+    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+      testUserDisplayName(),
+    )
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 2',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
+    await logout(page)
   })
 
   test('add an eligibility predicate', async ({
@@ -357,6 +394,27 @@ test.describe('create and edit predicates', () => {
         .locator('#application-view')
         .innerText(),
     ).toContain('Screen 1')
+
+    // test with bulk status flag turned on
+    await logout(page)
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
+    await logout(page)
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+
+    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+      testUserDisplayName(),
+    )
+    expect(await page.locator('#application-view').innerText()).toContain(
+      'Screen 1',
+    )
+
+    await page.getByRole('link', {name: 'Back'}).click()
+    await logout(page)
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'bulk_status_update_enabled')
+    await logout(page)
   })
 
   test('suffix cannot be added as an eligibility predicate for name question', async ({
