@@ -366,6 +366,7 @@ test.describe('Admin can manage program translations', () => {
     adminPrograms,
     adminQuestions,
     adminTranslations,
+    adminPredicates,
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
@@ -374,9 +375,10 @@ test.describe('Admin can manage program translations', () => {
     await adminQuestions.addTextQuestion({questionName: 'text-question'})
 
     const programName = 'Program with blocks'
+    const screenName = 'Screen 1'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlockUsingSpec(programName, {
-      name: 'Screen 1',
+      name: screenName,
       description: 'first screen',
       questions: [{name: 'text-question'}],
     })
@@ -391,6 +393,10 @@ test.describe('Admin can manage program translations', () => {
         blockDescription: 'Spanish block description',
         statuses: [],
       })
+
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(programName, screenName)
+      await adminPredicates.updateEligibilityMessage('Cutomized eligibility mesage')
+      await validateScreenshot(page, 'eligibility-msg-line399')
     })
 
 
