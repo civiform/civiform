@@ -226,10 +226,14 @@ title.activeProgramsUpdated=Вы не заполняли заявку
 title.benefitsFinderSection.v2=Находите услуги
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Мои заявки ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Другие программы и услуги ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Программы и услуги ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=В названиях, предназна�
 error.notFoundTitle=Нам не удалось найти страницу, которую вы пытались открыть
 error.notFoundDescription=Перейдите на {0} или вернитесь на предыдущую.
 error.notFoundDescriptionLink=главную страницу
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Произошла ошибка
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Произошла ошибка
 # The subtitle on the error page that is show to the user in medium font

@@ -178,6 +178,7 @@ export class AdminPrograms {
       'This link should be autodetected: https://www.example.com\n',
     eligibility = Eligibility.IS_GATING,
     submitNewProgram = true,
+    applicationSteps = [{title: 'title', description: 'description'}],
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -197,6 +198,16 @@ export class AdminPrograms {
       '#program-confirmation-message-textarea',
       confirmationMessage,
     )
+
+    for (let i = 0; i < applicationSteps.length; i++) {
+      const indexPlusOne = i + 1
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
+        .fill(applicationSteps[i].title)
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
+        .fill(applicationSteps[i].description)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {

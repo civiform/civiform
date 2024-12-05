@@ -226,10 +226,14 @@ title.activeProgramsUpdated=未開始
 title.benefitsFinderSection.v2=尋找服務
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=我的申請書 ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=其他計畫和服務 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=發生錯誤
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=發生錯誤
 # The subtitle on the error page that is show to the user in medium font

@@ -13,6 +13,7 @@ import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -431,7 +432,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     ;
     program.save();
     return program;

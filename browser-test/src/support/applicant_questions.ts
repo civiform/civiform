@@ -767,8 +767,9 @@ export class ApplicantQuestions {
       await expect(createAccountHeading).toBeHidden()
     }
 
-    // TODO(#9304): Rename class, presumably to .cf-applicant-cif-eligible-program-name.
-    const programLocator = this.page.locator('.cf-prose-h4')
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
 
     if (wantEligiblePrograms.length == 0) {
       expect(await programLocator.count()).toEqual(0)
@@ -1081,5 +1082,10 @@ export class ApplicantQuestions {
           '") >> .summary-edit-button:has-text("Edit")',
       )
       .click()
+  }
+
+  async expectLoginModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Log in`)
   }
 }

@@ -226,10 +226,14 @@ title.activeProgramsUpdated=未着手
 title.benefitsFinderSection.v2=サービスを探す
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=申請一覧（{0}）
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=その他のプログラムとサービス（{0}）
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=プログラムとサービス（{0}）
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=管理者名に使用できるのは、小
 error.notFoundTitle=アクセスしようとしているページが見つかりませんでした
 error.notFoundDescription=戻る、または{0}に戻ってください
 error.notFoundDescriptionLink=ホームページ
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=エラーが発生しました
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=エラーが発生しました
 # The subtitle on the error page that is show to the user in medium font

@@ -226,10 +226,14 @@ title.activeProgramsUpdated=Lama bilaabin
 title.benefitsFinderSection.v2=Hel adeegyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Codsiyadayda ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Barnaamijyo ku salaysan xulushooyinkaaga({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaa
 error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
 error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
 error.notFoundDescriptionLink=bogga internatka
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Khalad ayaa dhacay
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Cillad ayaa dhacday
 # The subtitle on the error page that is show to the user in medium font

@@ -226,10 +226,14 @@ title.activeProgramsUpdated=Sin comenzar
 title.benefitsFinderSection.v2=Encuentra servicios
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mis solicitudes ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Otros programas y servicios ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programas y servicios ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programas basados en tus elecciones ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden i
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
 error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Se produjo un error.
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Se produjo un error
 # The subtitle on the error page that is show to the user in medium font

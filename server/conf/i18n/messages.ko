@@ -226,10 +226,14 @@ title.activeProgramsUpdated=시작 안 함
 title.benefitsFinderSection.v2=서비스 찾기
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=내 신청 프로그램({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -818,8 +822,6 @@ adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
 error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=오류가 발생했습니다.
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=오류가 발생했습니다
 # The subtitle on the error page that is show to the user in medium font

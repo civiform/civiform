@@ -202,7 +202,7 @@ public final class ApplicantService {
               ApplicantModel applicant = applicantCompletableFuture.join().get();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
-              return new ReadOnlyApplicantProgramServiceImpl(
+              return new ReadOnlyApplicantProgramService(
                   jsonPathPredicateGeneratorFactory,
                   applicant,
                   applicant.getApplicantData(),
@@ -216,7 +216,7 @@ public final class ApplicantService {
       ApplicationModel application) {
     try {
       return CompletableFuture.completedFuture(
-          new ReadOnlyApplicantProgramServiceImpl(
+          new ReadOnlyApplicantProgramService(
               jsonPathPredicateGeneratorFactory,
               application.getApplicant(),
               application.getApplicantData(),
@@ -229,7 +229,7 @@ public final class ApplicantService {
   /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
-    return new ReadOnlyApplicantProgramServiceImpl(
+    return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
@@ -241,7 +241,7 @@ public final class ApplicantService {
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
-    return new ReadOnlyApplicantProgramServiceImpl(
+    return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
   }
 
@@ -329,7 +329,7 @@ public final class ApplicantService {
               // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
-                  new ReadOnlyApplicantProgramServiceImpl(
+                  new ReadOnlyApplicantProgramService(
                       jsonPathPredicateGeneratorFactory,
                       applicant,
                       applicant.getApplicantData(),
@@ -397,7 +397,7 @@ public final class ApplicantService {
     }
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
-        new ReadOnlyApplicantProgramServiceImpl(
+        new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory,
             applicant,
             applicant.getApplicantData(),

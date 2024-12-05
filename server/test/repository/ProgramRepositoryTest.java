@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -235,7 +236,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     draftOne.save();
 
     var draftTwo =
@@ -254,7 +256,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
 
     var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
     throwableAssert.hasMessageContaining("Program test-program already has a draft!");
@@ -279,7 +282,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     ProgramModel withId = repo.insertProgramSync(program);
 
     ProgramModel found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();
