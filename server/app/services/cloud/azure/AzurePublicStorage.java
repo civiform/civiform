@@ -21,7 +21,6 @@ import services.cloud.StorageUploadRequest;
  * implementation of the AzurePublicStorage class.
  */
 public class AzurePublicStorage extends PublicStorageClient {
-  /** NOOP -- REMOVE BEFORE MERGE -- */
   @VisibleForTesting
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
 
