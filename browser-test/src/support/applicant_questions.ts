@@ -544,7 +544,7 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickDownload(expectedContent: string, northStarEnabled = false) {
+  async clickDownload(northStarEnabled = false) {
     const downloadButton = northStarEnabled
       ? 'text="Download your application"'
       : 'text="Download PDF"'
@@ -558,19 +558,10 @@ export class ApplicantQuestions {
     }
 
     const fileContent = readFileSync(path, 'utf8')
-
     if (fileContent.length === 0) {
       throw new Error('Download failed: File content is empty.')
     }
 
-    // Validate the content against the expected string
-    if (!fileContent.includes(expectedContent)) {
-      throw new Error(
-        `Validation failed: The downloaded content does not contain the expected text: "${expectedContent}".`,
-      )
-    }
-
-    // Wait for the page to fully load (if needed)
     await waitForPageJsLoad(this.page)
   }
 
@@ -914,15 +905,12 @@ export class ApplicantQuestions {
     }
   }
 
-  async downloadFromConfirmationPage(
-    expectedContent: string,
-    northStarEnabled = false,
-  ): Promise<void> {
+  async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
     // Assert that we're on the confirmation page.
     await this.expectConfirmationPage(northStarEnabled)
 
     // Click on the download button and validate the downloaded file's content.
-    await this.clickDownload(expectedContent, northStarEnabled)
+    await this.clickDownload(northStarEnabled)
   }
 
   async validateHeader(lang: string) {

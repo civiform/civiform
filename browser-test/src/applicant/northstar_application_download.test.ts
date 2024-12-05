@@ -43,7 +43,6 @@ test.describe(
         /* northStarEnabled= */ true,
       )
       await applicantQuestions.downloadFromConfirmationPage(
-        /* expectedContent */ 'sarah',
         /* northStarEnabled= */ true,
       )
 

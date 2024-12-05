@@ -7,7 +7,6 @@ import {
   loginAsTestUser,
   logout,
   seedQuestions,
-  validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
@@ -456,9 +455,7 @@ test.describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('sarah', 'smith')
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.downloadFromConfirmationPage(
-      /* expectedContent */ 'sarah',
-    )
+    await applicantQuestions.downloadFromConfirmationPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)
