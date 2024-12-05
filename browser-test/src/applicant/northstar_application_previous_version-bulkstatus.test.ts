@@ -15,6 +15,7 @@ test.describe(
   () => {
     test.beforeEach(async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
     })
 
     test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({
@@ -52,8 +53,10 @@ test.describe(
 
       // See the application in admin page
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        testUserDisplayName(),
+      )
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         questionName,
         'some text',
@@ -71,8 +74,10 @@ test.describe(
 
       // See the application in admin page in the old version
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        testUserDisplayName(),
+      )
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         questionName,
         'some text',

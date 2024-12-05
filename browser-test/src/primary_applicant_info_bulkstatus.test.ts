@@ -235,6 +235,7 @@ test.describe('primary applicant info questions', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     await adminQuestions.addNameQuestion({
       questionName: 'name',
@@ -262,7 +263,7 @@ test.describe('primary applicant info questions', () => {
 
     await adminPrograms.viewApplications('test')
     await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
+      page.locator(adminPrograms.selectApplicationRowForApplicant('LaForge')),
     ).toBeVisible()
 
     await logout(page)
@@ -276,18 +277,6 @@ test.describe('primary applicant info questions', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications('test')
-    await expect(
-      page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
-    ).toBeVisible()
-
-    // test with bulk status flag
-    await logout(page)
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
-    await logout(page)
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications('test')
-
     await expect(
       page.locator(adminPrograms.selectApplicationRowForApplicant('LaForge')),
     ).toBeVisible()

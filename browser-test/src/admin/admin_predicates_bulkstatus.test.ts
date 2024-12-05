@@ -208,7 +208,9 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(testUserDisplayName())
+    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+      testUserDisplayName(),
+    )
     expect(await page.locator('#application-view').innerText()).toContain(
       'Screen 2',
     )

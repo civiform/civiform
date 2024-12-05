@@ -16,6 +16,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -34,10 +35,14 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       // Navigate to the submitted application as the program admin and set a status.
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        testUserDisplayName(),
+      )
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
-      await adminPrograms.confirmStatusUpdateModal(modal)
+        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          approvedStatusName,
+        )
+      await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
       await logout(page)
 
       await enableFeatureFlag(page, 'north_star_applicant_ui')

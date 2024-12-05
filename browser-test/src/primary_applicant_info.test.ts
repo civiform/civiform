@@ -6,7 +6,6 @@ import {
   logout,
   validateScreenshot,
   waitForPageJsLoad,
-  enableFeatureFlag,
 } from './support'
 import {
   PrimaryApplicantInfoAlertType,
@@ -278,18 +277,6 @@ test.describe('primary applicant info questions', () => {
     await adminPrograms.viewApplications('test')
     await expect(
       page.locator(adminPrograms.selectApplicationCardForApplicant('LaForge')),
-    ).toBeVisible()
-
-    // test with bulk status flag
-    await logout(page)
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
-    await logout(page)
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications('test')
-
-    await expect(
-      page.locator(adminPrograms.selectApplicationRowForApplicant('LaForge')),
     ).toBeVisible()
   })
 })
