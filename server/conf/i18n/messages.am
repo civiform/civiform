@@ -250,6 +250,8 @@ label.inProgress=Not yet submitted
 label.submitted=Submitted
 # Informational tag on a submitted application card. The parameter is the date of the submission.
 label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
