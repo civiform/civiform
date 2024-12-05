@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import jakarta.persistence.Entity;
@@ -87,5 +88,11 @@ public final class ApplicationEventModel extends BaseModel {
 
   public Instant getCreateTime() {
     return createTime;
+  }
+
+  @VisibleForTesting
+  public ApplicationEventModel setCreateTimeForTest(Instant v) {
+    this.createTime = v;
+    return this;
   }
 }

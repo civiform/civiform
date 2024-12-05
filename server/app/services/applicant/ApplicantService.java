@@ -202,7 +202,7 @@ public final class ApplicantService {
               ApplicantModel applicant = applicantCompletableFuture.join().get();
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
-              return new ReadOnlyApplicantProgramServiceImpl(
+              return new ReadOnlyApplicantProgramService(
                   jsonPathPredicateGeneratorFactory,
                   applicant,
                   applicant.getApplicantData(),
@@ -216,7 +216,7 @@ public final class ApplicantService {
       ApplicationModel application) {
     try {
       return CompletableFuture.completedFuture(
-          new ReadOnlyApplicantProgramServiceImpl(
+          new ReadOnlyApplicantProgramService(
               jsonPathPredicateGeneratorFactory,
               application.getApplicant(),
               application.getApplicantData(),
@@ -229,7 +229,7 @@ public final class ApplicantService {
   /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicationModel application, ProgramDefinition programDefinition) {
-    return new ReadOnlyApplicantProgramServiceImpl(
+    return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
@@ -241,7 +241,7 @@ public final class ApplicantService {
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
-    return new ReadOnlyApplicantProgramServiceImpl(
+    return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
   }
 
@@ -329,7 +329,7 @@ public final class ApplicantService {
               // Create a ReadOnlyApplicantProgramService and get the current block.
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
-                  new ReadOnlyApplicantProgramServiceImpl(
+                  new ReadOnlyApplicantProgramService(
                       jsonPathPredicateGeneratorFactory,
                       applicant,
                       applicant.getApplicantData(),
@@ -397,7 +397,7 @@ public final class ApplicantService {
     }
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
-        new ReadOnlyApplicantProgramServiceImpl(
+        new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory,
             applicant,
             applicant.getApplicantData(),
@@ -1226,6 +1226,24 @@ public final class ApplicantService {
                         .findFirst()
                     : Optional.empty();
 
+            Optional<Instant> mostRecentStatusAppliedTime =
+                maybeCurrentStatus.flatMap(
+                    currentStatus ->
+                        maybeSubmittedApp.get().getApplicationEvents().stream()
+                            .filter(
+                                e ->
+                                    e.getEventType()
+                                        .equals(ApplicationEventDetails.Type.STATUS_CHANGE))
+                            .filter(
+                                e ->
+                                    e.getDetails()
+                                        .statusEvent()
+                                        .get()
+                                        .statusText()
+                                        .equals(currentStatus.statusText()))
+                            .map(e -> e.getCreateTime())
+                            .max(Comparator.naturalOrder()));
+
             // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
@@ -1235,6 +1253,7 @@ public final class ApplicantService {
                 ApplicantProgramData.builder(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
+                    .setLatestSubmittedApplicationStatusTime(mostRecentStatusAppliedTime)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
@@ -1402,6 +1421,8 @@ public final class ApplicantService {
 
     public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
 
+    public abstract Optional<Instant> latestSubmittedApplicationStatusTime();
+
     /**
      * LifecycleStage of the latest application to this program by this applicant, if an application
      * exists. ACTIVE if submitted, DRAFT if in progress.
@@ -1425,6 +1446,8 @@ public final class ApplicantService {
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
       abstract Builder setLatestSubmittedApplicationStatus(Optional<StatusDefinitions.Status> v);
+
+      abstract Builder setLatestSubmittedApplicationStatusTime(Optional<Instant> v);
 
       abstract Builder setLatestApplicationLifecycleStage(Optional<LifecycleStage> v);
 

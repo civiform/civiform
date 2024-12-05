@@ -226,10 +226,14 @@ title.activeProgramsUpdated=لم تبدأ المعالجة
 title.benefitsFinderSection.v2=البحث عن خدمات
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=طلباتي ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=البرامج والخدمات ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -246,6 +250,8 @@ label.inProgress=Not yet submitted
 label.submitted=Submitted
 # Informational tag on a submitted application card. The parameter is the date of the submission.
 label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #

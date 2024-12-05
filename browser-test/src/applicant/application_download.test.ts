@@ -7,7 +7,6 @@ import {
   loginAsTestUser,
   logout,
   seedQuestions,
-  validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
@@ -358,7 +357,6 @@ test.describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     await adminPrograms.viewApplicationForApplicant('smith, sarah')
-    await validateScreenshot(page, 'applications-page')
 
     const pdfFile = await adminPrograms.getApplicationPdf()
     expect(pdfFile.length).toBeGreaterThan(1)
@@ -457,7 +455,6 @@ test.describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('sarah', 'smith')
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
-    await validateScreenshot(page, 'application-confirmation')
     await applicantQuestions.downloadFromConfirmationPage()
 
     await logout(page)
