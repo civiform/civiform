@@ -8,6 +8,7 @@ public final class ReferenceClasses {
 
   public static final String ADMIN_APPLICATION_BLOCK_CARD = "cf-admin-application-block-card";
   public static final String ADMIN_APPLICATION_CARD = "cf-admin-application-card";
+  public static final String ADMIN_APPLICATION_ROW = "cf-admin-application-row";
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
