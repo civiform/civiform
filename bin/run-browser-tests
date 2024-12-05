@@ -42,20 +42,12 @@ if [[ -z "$(docker ps --filter "name=${CONTAINER_NAME}" --format "{{.Names}}")" 
     civiform-browser-test:latest
 fi
 
-# Detect if we are running tests with an Azure server, by looking for the Azurite
-# image in the docker container list.
-IS_AZURE_SERVER=
-if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
-  IS_AZURE_SERVER=1
-fi
-
 # Run browser tests from within the civiform-browser-test container.
 docker exec \
   --interactive \
   --tty \
   --env RECORD_VIDEO="${RECORD_VIDEO}" \
   --env TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME}" \
-  --env IS_AZURE_SERVER="${IS_AZURE_SERVER}" \
   "${CONTAINER_NAME}" \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   "$@"

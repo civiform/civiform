@@ -7,18 +7,10 @@ export COMPOSE_INTERACTIVE_NO_CLI=1
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
-# Detect if we are running tests with an Azure server, by looking for the Azurite
-# image in the docker container list.
-IS_AZURE_SERVER=
-if docker ps --filter "ancestor=mcr.microsoft.com/azure-storage/azurite" -q; then
-  IS_AZURE_SERVER=1
-fi
-
 # The display name returned by test_oidc_provider.js is <username>@example.com.
 docker run \
   -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e TEST_CIVIC_ENTITY_SHORT_NAME="${TEST_CIVIC_ENTITY_SHORT_NAME:-TestCity}" \
-  -e IS_AZURE_SERVER="${IS_AZURE_SERVER}" \
   -e CI="${CI}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
