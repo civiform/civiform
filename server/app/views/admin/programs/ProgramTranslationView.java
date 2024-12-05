@@ -212,6 +212,17 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setValue(screenUpdateData.localizedDescription())
                           .getInputTag(),
                       block.localizedDescription()));
+      if (block.localizedEligibilityMessage().isPresent()) {
+        fieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedEligibilityMessage(block.id()))
+                    .setLabelText("Screen eligibility message")
+                    .setScreenReaderText("Screen eligibility message")
+                    .setValue(screenUpdateData.localizedEligibilityMessage())
+                    .getInputTag(),
+                block.localizedEligibilityMessage().get()));
+      }
       String blockDetailsLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
               .url();
