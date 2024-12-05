@@ -395,7 +395,7 @@ const softAssertScreenshot = async (
  * Supports date and time elements with class .cf-bt-date, and applicant IDs
  * with class .cf-application-id
  */
-const normalizeElements = async (page: Frame | Page) => {
+export const normalizeElements = async (page: Frame | Page) => {
   await page.evaluate(() => {
     const replacements: {[selector: string]: (text: string) => string} = {
       '.cf-bt-date': (text) =>
