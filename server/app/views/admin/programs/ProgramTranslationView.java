@@ -221,7 +221,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setValue(screenUpdateData.localizedDescription())
                           .getInputTag(),
                       block.localizedDescription()));
-      if (isEligibilityMsgEnabled &&  block.localizedEligibilityMessage().isPresent()) {
+      if (isEligibilityMsgEnabled && block.localizedEligibilityMessage().isPresent()) {
         fieldsBuilder.add(
             fieldWithDefaultLocaleTextHint(
                 FieldWithLabel.input()

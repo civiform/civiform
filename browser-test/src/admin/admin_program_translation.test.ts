@@ -5,6 +5,7 @@ import {
   logout,
   selectApplicantLanguage,
   validateScreenshot,
+  validateToastMessage,
 } from '../support'
 
 test.describe('Admin can manage program translations', () => {
@@ -376,6 +377,7 @@ test.describe('Admin can manage program translations', () => {
 
     const programName = 'Program with blocks'
     const screenName = 'Screen 1'
+    const eligibilityMsg = 'Cutomized eligibility mesage'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: screenName,
@@ -384,31 +386,39 @@ test.describe('Admin can manage program translations', () => {
     })
 
     await test.step('Update translations', async () => {
+      //add eligibility message
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+      await validateToastMessage(page, eligibilityMsg)
+
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
+      await validateScreenshot(page, 'eligibility-msg-line391')
+
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
         description: 'Spanish description',
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
         statuses: [],
+        blockEligibilityMsg: 'Spanish block eligibility message',
       })
-
-      await adminPrograms.goToEditBlockEligibilityPredicatePage(programName, screenName)
-      await adminPredicates.updateEligibilityMessage('Cutomized eligibility mesage')
-      await validateScreenshot(page, 'eligibility-msg-line399')
+      await validateScreenshot(page, 'eligibility-msg-line410')
     })
-
 
     await test.step('Verify translations in translations page', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
+      await validateScreenshot(page, 'eligibility-msg-line416')
       await adminTranslations.expectBlockTranslations(
         'Spanish block name - bloque uno',
         'Spanish block description',
+        'Spanish block eligibility message',
       )
       await validateScreenshot(page, 'eligibility-msg-line404')
     })
-  }
-)
+  })
 })

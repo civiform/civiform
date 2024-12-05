@@ -217,6 +217,8 @@ public final class ProgramTranslationForm {
     return blockIds.stream()
         .map(
             blockId -> {
+              //System.out.println("Short rib");
+              //System.out.println(getStringFormField(localizedEligibilityMessage(blockId)));
               Optional<String> optionalBlockName = getStringFormField(localizedScreenName(blockId));
               Optional<String> optionalBlockDescription =
                   getStringFormField(localizedScreenDescription(blockId));
