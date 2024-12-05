@@ -908,7 +908,7 @@ export class ApplicantQuestions {
   async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
     // Assert that we're on the confirmation page.
     await this.expectConfirmationPage(northStarEnabled)
-   // Click on the download button 
+    // Click on the download button
     await this.clickDownload(northStarEnabled)
   }
 
