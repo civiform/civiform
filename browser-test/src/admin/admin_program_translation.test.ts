@@ -360,4 +360,49 @@ test.describe('Admin can manage program translations', () => {
       })
     },
   )
+
+  test('Add translation for block name, description and eligibility message', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    applicantQuestions,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
+
+    await adminQuestions.addTextQuestion({questionName: 'text-question'})
+
+    const programName = 'Program with blocks'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: 'Screen 1',
+      description: 'first screen',
+      questions: [{name: 'text-question'}],
+    })
+
+    await test.step('Update translations', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        description: 'Spanish description',
+        blockName: 'Spanish block name - bloque uno',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+      })
+    })
+
+
+    await test.step('Verify translations in translations page', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+      )
+      await validateScreenshot(page, 'eligibility-msg-line404')
+    })
+  }
+)
 })
