@@ -1083,4 +1083,9 @@ export class ApplicantQuestions {
       )
       .click()
   }
+
+  async expectLoginModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Log in`)
+  }
 }
