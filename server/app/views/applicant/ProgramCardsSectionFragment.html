@@ -106,7 +106,13 @@
         class="text-medium-margin-top"
       >
         <span
-          th:text="${card.applicationStatus().get()}"
+          th:if="${card.dateStatusApplied.isPresent()}"
+          th:text="#{label.statusOn(${card.applicationStatus().get()}, ${card.dateStatusApplied.get()})}"
+          class="cf-program-card-tag tag-submitted cf-bt-date"
+        ></span>
+        <span
+          th:if="${card.dateSubmitted.isEmpty()}"
+          th:text="${card.applicationStatus().get()"
           class="cf-program-card-tag tag-submitted"
         ></span>
       </div>
