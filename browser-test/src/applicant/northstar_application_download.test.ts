@@ -5,6 +5,7 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  seedQuestions,
 } from '../support'
 
 test.describe(
@@ -12,6 +13,7 @@ test.describe(
   {tag: ['@northstar']},
   () => {
     test.beforeEach(async ({page}) => {
+      await seedQuestions(page)
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 
