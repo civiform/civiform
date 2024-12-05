@@ -21,6 +21,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     await expect(
       page.getByText('Welcome to the program overview page!'),
     ).toBeVisible()
-    expect(page.title()).toBe('test - Program Overview')
+
+    expect(await page.title()).toBe('test - Program Overview')
   })
 })

@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicantModel;
+import models.DisplayMode;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -107,7 +108,11 @@ public final class ProgramSlugHandler {
                               .getActiveFullProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
+                                      // If the program is disabled, redirect to the review page
+                                      // because that will trigger the ProgramDisabledAction.
                                       settingsManifest.getNorthStarApplicantUi(request)
+                                              && activeProgramDefinition.displayMode()
+                                                  != DisplayMode.DISABLED
                                           ? Results.ok(
                                                   northStarProgramOverviewView.render(
                                                       messagesApi.preferred(request),
