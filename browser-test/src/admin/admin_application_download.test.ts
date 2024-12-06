@@ -96,8 +96,7 @@ test.describe('csv export for multioption question', () => {
       await page.click('text="Submit"')
       await logout(page)
     })
-
-    // ///
+    
     await test.step('Admin views applications and download CSV', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
@@ -142,8 +141,6 @@ test.describe('csv export for multioption question', () => {
     })
   })
 })
-
-// ///
 
 test.describe('csv json pdf download test- two applications', () => {
   test.beforeEach(async ({page}) => {
