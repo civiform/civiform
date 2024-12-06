@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Frame, Page} from 'playwright'
+import {ElementHandle, Frame, Page, Locator} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -132,22 +132,14 @@ export class AdminPrograms {
     applicant: string,
     statusString: string,
   ) {
-    expect(
-      await this.page.innerText(
-        this.selectApplicationRowForApplicant(applicant),
-      ),
-    ).toContain(`${statusString}`)
+    await expect(this.getRowLocator(applicant)).toContainText(`${statusString}`)
   }
 
   async expectApplicationStatusDoesntContainForBulkStatus(
     applicant: string,
     statusString: string,
   ) {
-    expect(
-      await this.page.innerText(
-        this.selectApplicationRowForApplicant(applicant),
-      ),
-    ).not.toContain(statusString)
+    await expect(this.getRowLocator(applicant)).not.toContainText(statusString)
   }
 
   /**
@@ -1067,21 +1059,16 @@ export class AdminPrograms {
     return `.cf-admin-application-card:has-text("${applicantName}")`
   }
 
-  selectApplicationRowForApplicant(applicantName: string) {
-    return `.cf-admin-application-row:has-text("${applicantName}")`
+  getRowLocator(applicantName: string): Locator {
+    return this.page.locator(
+      `.cf-admin-application-row:has-text("${applicantName}")`,
+    )
   }
 
   selectWithinApplicationForApplicant(applicantName: string, selector: string) {
     return (
       this.selectApplicationCardForApplicant(applicantName) + ' ' + selector
     )
-  }
-
-  selectWithinApplicationForApplicantForBulkStatus(
-    applicantName: string,
-    selector: string,
-  ) {
-    return this.selectApplicationRowForApplicant(applicantName) + ' ' + selector
   }
 
   selectQuestionWithinBlock(question: string) {
@@ -1213,26 +1200,25 @@ export class AdminPrograms {
     blockName: string,
     questionName: string,
   ) {
+    await expect(
+      this.page.locator(this.selectApplicationBlock(blockName)),
+    ).toContainText(questionName)
+
     expect(
-      await this.page
-        .locator(this.selectApplicationBlock(blockName))
-        .innerText(),
-    ).toContain(questionName)
-    expect(
-      await this.page
+      this.page
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
   }
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
+    await expect(
+      this.applicationFrameLocator().locator(
+        this.selectApplicationBlock(blockName),
+      ),
+    ).toContainText(questionName)
     expect(
-      await this.applicationFrameLocator()
-        .locator(this.selectApplicationBlock(blockName))
-        .innerText(),
-    ).toContain(questionName)
-    expect(
-      await this.applicationFrameLocator()
+      this.applicationFrameLocator()
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
