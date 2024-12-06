@@ -96,7 +96,7 @@ test.describe('csv export for multioption question', () => {
       await page.click('text="Submit"')
       await logout(page)
     })
-    
+
     await test.step('Admin views applications and download CSV', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
@@ -263,7 +263,6 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
-    // ///
     await test.step('application submissions as guest user', async () => {
       // Apply to the program again, this time a different user
       await applicantQuestions.applyProgram(programName)
