@@ -96,6 +96,7 @@ public final class LinkElement {
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
         .withCondTarget(doesOpenInNewTab, "_blank")
+        .withCondAttr(doesOpenInNewTab, "rel", "noopener noreferrer")
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
