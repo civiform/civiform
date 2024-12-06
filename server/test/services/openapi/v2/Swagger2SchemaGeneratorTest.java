@@ -5,9 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.dev.seeding.SampleQuestionDefinitions;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
+import models.ApplicationStep;
+import models.CategoryModel;
 import models.DisplayMode;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -17,7 +21,6 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
-import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
@@ -28,15 +31,6 @@ public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
   @Test
   public void canSerialize() {
 
-    StatusDefinitions possibleProgramStatuses =
-        new StatusDefinitions(
-            ImmutableList.of(
-                StatusDefinitions.Status.builder()
-                    .setStatusText("Pending Review")
-                    .setDefaultStatus(Optional.of(true))
-                    .setLocalizedStatusText(LocalizedStrings.empty())
-                    .setLocalizedEmailBodyText(Optional.empty())
-                    .build()));
 
     ImmutableList<BlockDefinition> blockDefinitions =
         ImmutableList.of(
@@ -51,6 +45,8 @@ public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
                                 ProgramQuestionDefinition.create(
                                     questionDefinition, Optional.empty()))
                         .collect(toImmutableList()))
+                .setLocalizedName(LocalizedStrings.builder().build())
+                .setLocalizedDescription(LocalizedStrings.builder().build())
                 .build());
 
     ProgramDefinition programDefinition =
@@ -64,7 +60,14 @@ public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setBlockDefinitions(blockDefinitions)
-            .setStatusDefinitions(possibleProgramStatuses)
+            .setApplicationSteps(
+                ImmutableList.<ApplicationStep>builder()
+                    .add(new ApplicationStep("step-1-title", "step-1-description"))
+                    .build())
+            .setCategories(
+                ImmutableList.<CategoryModel>builder()
+                    .add(new CategoryModel(ImmutableMap.<Locale, String>builder().build()))
+                    .build())
             .build();
 
     OpenApiSchemaSettings settings =
@@ -76,287 +79,282 @@ public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
 
     Swagger2SchemaGenerator generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
+
     String expected =
-        new YamlFormatter()
-            .appendLine("swagger: \"2.0\"")
-            .appendLine("basePath: /api/v1/admin/programs/test-program-admin-name")
-            .appendLine("host: baseUrl")
-            .appendLine("info:")
-            .appendLine("  title: test-program-admin-name")
-            .appendLine("  version: \"789\"")
-            .appendLine("  description: Test Admin Description")
-            .appendLine("  contact:")
-            .appendLine("    name: CiviForm Technical Support")
-            .appendLine("    email: email123@example.com")
-            .appendLine("schemes:")
-            .appendLine("  - http")
-            .appendLine("  - https")
-            .appendLine("security:")
-            .appendLine("  - basicAuth: []")
-            .appendLine("securityDefinitions:")
-            .appendLine("  basicAuth:")
-            .appendLine("    type: basic")
-            .appendLine("paths:")
-            .appendLine("  /applications:")
-            .appendLine("    get:")
-            .appendLine("      summary: Export applications")
-            .appendLine("      operationId: get_applications")
-            .appendLine("      description: Get Applications")
-            .appendLine("      parameters:")
-            .appendLine("        - in: query")
-            .appendLine("          name: fromDate")
-            .appendLine("          type: string")
-            .appendLine("          required: false")
-            .appendLine(
-                "          description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
-                    + " results to applications submitted on or after the provided date.")
-            .appendLine("        - in: query")
-            .appendLine("          name: toDate")
-            .appendLine("          type: string")
-            .appendLine("          required: false")
-            .appendLine(
-                "          description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
-                    + " results to applications submitted before the provided date.")
-            .appendLine("        - in: query")
-            .appendLine("          name: pageSize")
-            .appendLine("          type: integer")
-            .appendLine("          required: false")
-            .appendLine(
-                "          description: \"A positive integer. Limits the number of results per"
-                    + " page. If pageSize is larger than CiviForm's maximum page size then the"
-                    + " maximum will be used. The default maximum is 1,000 and is configurable.\"")
-            .appendLine("        - in: query")
-            .appendLine("          name: nextPageToken")
-            .appendLine("          type: string")
-            .appendLine("          required: false")
-            .appendLine(
-                "          description: \"An opaque, alphanumeric identifier for a specific page"
-                    + " of results. When included CiviForm will return a page of results"
-                    + " corresponding to the token.\"")
-            .appendLine("      produces:")
-            .appendLine("        - application/json")
-            .appendLine("      responses:")
-            .appendLine("        \"200\":")
-            .appendLine("          description: For valid requests.")
-            .appendLine("          headers:")
-            .appendLine("            x-next:")
-            .appendLine("              type: string")
-            .appendLine("              description: A link to the next page of responses")
-            .appendLine("          schema:")
-            .appendLine("            $ref: \"#/definitions/result\"")
-            .appendLine("        \"400\":")
-            .appendLine(
-                "          description: Returned if any request parameters fail validation.")
-            .appendLine("        \"401\":")
-            .appendLine(
-                "          description: Returned if the API key is invalid or does not have access"
-                    + " to the program.")
-            .appendLine("      tags:")
-            .appendLine("        - programs")
-            .appendLine("definitions:")
-            .appendLine("  result:")
-            .appendLine("    type: object")
-            .appendLine("    properties:")
-            .appendLine("      payload:")
-            .appendLine("        type: array")
-            .appendLine("        items:")
-            .appendLine("          type: object")
-            .appendLine("          properties:")
-            .appendLine("            applicant_id:")
-            .appendLine("              type: integer")
-            .appendLine("              format: int32")
-            .appendLine("            application:")
-            .appendLine("              type: object")
-            .appendLine("              properties:")
-            .appendLine("                name:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    first_name:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    last_name:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    middle_name:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_address_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    city:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    corrected:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    latitude:")
-            .appendLine("                      type: number")
-            .appendLine("                      format: double")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    line2:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    longitude:")
-            .appendLine("                      type: number")
-            .appendLine("                      format: double")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    service_area:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    state:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    street:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    well_known_id:")
-            .appendLine("                      type: integer")
-            .appendLine("                      format: int64")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    zip:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_checkbox_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    selections:")
-            .appendLine("                      type: array")
-            .appendLine("                      items:")
-            .appendLine("                        type: object")
-            .appendLine("                sample_currency_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    currency_cents:")
-            .appendLine("                      type: string")
-            .appendLine("                      format: double")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_date_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    date:")
-            .appendLine("                      type: string")
-            .appendLine("                      format: date")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_dropdown_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    selection:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_email_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    email:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_enumerator_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    entities:")
-            .appendLine("                      type: array")
-            .appendLine("                      items:")
-            .appendLine("                        type: object")
-            .appendLine("                sample_file_upload_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    file_key:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    original_file_name:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_id_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    id:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_number_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    number:")
-            .appendLine("                      type: integer")
-            .appendLine("                      format: int64")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_phone_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    country_code:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                    phone_number:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_predicate_date_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    date:")
-            .appendLine("                      type: string")
-            .appendLine("                      format: date")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_radio_button_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    selection:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("                sample_text_question:")
-            .appendLine("                  type: object")
-            .appendLine("                  properties:")
-            .appendLine("                    question_type:")
-            .appendLine("                      type: string")
-            .appendLine("                    text:")
-            .appendLine("                      type: string")
-            .appendLine("                      x-nullable: true")
-            .appendLine("            application_id:")
-            .appendLine("              type: integer")
-            .appendLine("              format: int32")
-            .appendLine("            create_time:")
-            .appendLine("              type: string")
-            .appendLine("            language:")
-            .appendLine("              type: string")
-            .appendLine("            program_name:")
-            .appendLine("              type: string")
-            .appendLine("            program_version_id:")
-            .appendLine("              type: integer")
-            .appendLine("              format: int32")
-            .appendLine("            status:")
-            .appendLine("              type: string")
-            .appendLine("            submit_time:")
-            .appendLine("              type: string")
-            .appendLine("            submitter_email:")
-            .appendLine("              type: string")
-            .appendLine("      nextPageToken:")
-            .appendLine("        type: string")
-            .toString();
+        """
+swagger: "2.0"
+basePath: /api/v1/admin/programs/test-program-admin-name
+host: baseUrl
+info:
+  title: test-program-admin-name
+  version: "789"
+  description: Test Admin Description
+  contact:
+    name: CiviForm Technical Support
+    email: email123@example.com
+schemes:
+  - http
+  - https
+security:
+  - basicAuth: []
+securityDefinitions:
+  basicAuth:
+    type: basic
+paths:
+  /applications:
+    get:
+      summary: Export applications
+      operationId: get_applications
+      description: Get Applications
+      parameters:
+        - in: query
+          name: fromDate
+          type: string
+          required: false
+          description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results to applications submitted on or after the provided date.
+        - in: query
+          name: toDate
+          type: string
+          required: false
+          description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results to applications submitted before the provided date.
+        - in: query
+          name: pageSize
+          type: integer
+          required: false
+          description: "A positive integer. Limits the number of results per page. If pageSize is larger than CiviForm's maximum page size then the maximum will be used. The default maximum is 1,000 and is configurable."
+        - in: query
+          name: nextPageToken
+          type: string
+          required: false
+          description: "An opaque, alphanumeric identifier for a specific page of results. When included CiviForm will return a page of results corresponding to the token."
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: For valid requests.
+          headers:
+            x-next:
+              type: string
+              description: A link to the next page of responses
+          schema:
+            $ref: "#/definitions/result"
+        "400":
+          description: Returned if any request parameters fail validation.
+        "401":
+          description: Returned if the API key is invalid or does not have access to the program.
+      tags:
+        - programs
+definitions:
+  result:
+    type: object
+    properties:
+      payload:
+        type: array
+        items:
+          type: object
+          properties:
+            applicant_id:
+              type: integer
+              format: int32
+            application:
+              type: object
+              properties:
+                sample_address_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    city:
+                      type: string
+                      x-nullable: true
+                    corrected:
+                      type: string
+                      x-nullable: true
+                    latitude:
+                      type: number
+                      format: double
+                      x-nullable: true
+                    line2:
+                      type: string
+                      x-nullable: true
+                    longitude:
+                      type: number
+                      format: double
+                      x-nullable: true
+                    service_area:
+                      type: string
+                      x-nullable: true
+                    state:
+                      type: string
+                      x-nullable: true
+                    street:
+                      type: string
+                      x-nullable: true
+                    well_known_id:
+                      type: integer
+                      format: int64
+                      x-nullable: true
+                    zip:
+                      type: string
+                      x-nullable: true
+                sample_checkbox_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    selections:
+                      type: array
+                      items:
+                        type: object
+                sample_currency_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    currency_cents:
+                      type: string
+                      format: double
+                      x-nullable: true
+                sample_date_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    date:
+                      type: string
+                      format: date
+                      x-nullable: true
+                sample_dropdown_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    selection:
+                      type: string
+                      x-nullable: true
+                sample_email_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    email:
+                      type: string
+                      x-nullable: true
+                sample_enumerator_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    entities:
+                      type: array
+                      items:
+                        type: object
+                sample_file_upload_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    file_key:
+                      type: string
+                      x-nullable: true
+                    file_key_list:
+                      type: array
+                      items:
+                        type: object
+                    original_file_name:
+                      type: string
+                      x-nullable: true
+                sample_id_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    id:
+                      type: string
+                      x-nullable: true
+                sample_name_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    first_name:
+                      type: string
+                      x-nullable: true
+                    last_name:
+                      type: string
+                      x-nullable: true
+                    middle_name:
+                      type: string
+                      x-nullable: true
+                    name_suffix:
+                      type: string
+                      x-nullable: true
+                sample_number_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    number:
+                      type: integer
+                      format: int64
+                      x-nullable: true
+                sample_phone_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    country_code:
+                      type: string
+                      x-nullable: true
+                    phone_number:
+                      type: string
+                      x-nullable: true
+                sample_predicate_date_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    date:
+                      type: string
+                      format: date
+                      x-nullable: true
+                sample_radio_button_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    selection:
+                      type: string
+                      x-nullable: true
+                sample_text_question:
+                  type: object
+                  properties:
+                    question_type:
+                      type: string
+                    text:
+                      type: string
+                      x-nullable: true
+            application_id:
+              type: integer
+              format: int32
+            create_time:
+              type: string
+            language:
+              type: string
+            program_name:
+              type: string
+            program_version_id:
+              type: integer
+              format: int32
+            status:
+              type: string
+            submit_time:
+              type: string
+            submitter_email:
+              type: string
+      nextPageToken:
+        type: string
+""";
 
     assertThat(actual).isEqualTo(expected);
   }

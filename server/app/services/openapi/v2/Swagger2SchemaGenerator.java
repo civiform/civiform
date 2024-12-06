@@ -226,6 +226,12 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
       // Enumerators require special handling
       if (questionDefinition.getQuestionType() != QuestionType.ENUMERATOR) {
         for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
+          // Special handling of service area as a string until we migrate the API to returning a
+          // complex array
+          if (scalar == Scalar.SERVICE_AREAS) {
+            scalar = Scalar.SERVICE_AREA;
+          }
+
           String fieldName = scalar.name().toLowerCase(Locale.ROOT);
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
           Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
