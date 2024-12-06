@@ -157,14 +157,16 @@ export class AdminTranslations {
   async expectBlockTranslations(
     blockName: string,
     blockDescription: string,
-    blockEligibilityMsg?: string
+    blockEligibilityMsg?: string,
   ) {
     const blockNameValue = this.page.getByLabel('Screen name')
     await expect(blockNameValue).toHaveValue(blockName)
     const blockDescriptionValue = this.page.getByLabel('Screen description')
     await expect(blockDescriptionValue).toHaveValue(blockDescription)
-    if(blockEligibilityMsg != undefined) {
-      const blockEligibilityMsgValue = this.page.getByLabel('Screen eligibility message')
+    if (blockEligibilityMsg != undefined) {
+      const blockEligibilityMsgValue = this.page.getByLabel(
+        'Screen eligibility message',
+      )
       await expect(blockEligibilityMsgValue).toHaveValue(blockEligibilityMsg)
     }
   }

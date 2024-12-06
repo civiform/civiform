@@ -194,7 +194,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {
       LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
-
       BlockDefinition block =
           blockDefinitions.stream()
               .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
