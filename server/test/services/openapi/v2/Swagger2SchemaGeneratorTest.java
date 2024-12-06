@@ -104,8 +104,8 @@ paths:
   /applications:
     get:
       summary: Export applications
-      operationId: get_applications
-      description: Get Applications
+      operationId: list_applications
+      description: List Applications
       parameters:
         - in: query
           name: fromDate

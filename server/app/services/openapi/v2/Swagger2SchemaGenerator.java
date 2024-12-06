@@ -56,8 +56,8 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                           PathItem.builder("/applications")
                               .addOperation(
                                   Operation.builder(OperationType.GET)
-                                      .setOperationId("get_applications")
-                                      .setDescription("Get Applications")
+                                      .setOperationId("list_applications")
+                                      .setDescription("List Applications")
                                       .setSummary("Export applications")
                                       .addProduces(MimeType.Json)
                                       .addTag("programs")
