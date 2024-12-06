@@ -95,6 +95,15 @@ public final class ProgramTranslationForm {
       formValuesBuilder.put(
           localizedScreenDescription(blockDefinition.id()),
           new String[] {blockDefinition.localizedDescription().maybeGet(locale).orElse("")});
+
+      formValuesBuilder.put(
+          localizedEligibilityMessage(blockDefinition.id()),
+          new String[] {
+            blockDefinition
+                .localizedEligibilityMessage()
+                .map(localizedStrings -> localizedStrings.maybeGet(locale).orElse(""))
+                .orElse("")
+          });
     }
 
     ImmutableList<Long> blockIds =

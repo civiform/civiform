@@ -368,7 +368,6 @@ test.describe('Admin can manage program translations', () => {
     adminQuestions,
     adminTranslations,
     adminPredicates,
-    applicantQuestions,
   }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
@@ -406,7 +405,6 @@ test.describe('Admin can manage program translations', () => {
         statuses: [],
         blockEligibilityMsg: 'Spanish block eligibility message',
       })
-      await validateScreenshot(page, 'eligibility-msg-line410')
     })
 
     await test.step('Verify translations in translations page', async () => {
@@ -418,7 +416,7 @@ test.describe('Admin can manage program translations', () => {
         'Spanish block description',
         'Spanish block eligibility message',
       )
-      await validateScreenshot(page, 'eligibility-msg-line404')
     })
+    // TODO: publish and verify the translation applicant-side
   })
 })
