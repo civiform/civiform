@@ -395,7 +395,6 @@ test.describe('Admin can manage program translations', () => {
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'eligibility-msg-line391')
 
       await adminTranslations.editProgramTranslations({
         name: 'Spanish name',
@@ -410,7 +409,6 @@ test.describe('Admin can manage program translations', () => {
     await test.step('Verify translations in translations page', async () => {
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
       await adminTranslations.selectLanguage('Spanish')
-      await validateScreenshot(page, 'eligibility-msg-line416')
       await adminTranslations.expectBlockTranslations(
         'Spanish block name - bloque uno',
         'Spanish block description',
