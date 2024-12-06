@@ -142,6 +142,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                               .setFormat(Format.INT32)
                                               .build(),
                                           Definition.builder("create_time", DefinitionType.STRING)
+                                              .setFormat(Format.DATETIME)
                                               .build(),
                                           Definition.builder("language", DefinitionType.STRING)
                                               .build(),
@@ -151,12 +152,21 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                                   "program_version_id", DefinitionType.INTEGER)
                                               .setFormat(Format.INT32)
                                               .build(),
+                                          Definition.builder(
+                                                  "revision_state", DefinitionType.STRING)
+                                              .build(),
                                           Definition.builder("status", DefinitionType.STRING)
                                               .build(),
                                           Definition.builder("submit_time", DefinitionType.STRING)
+                                              .setFormat(Format.DATETIME)
                                               .build(),
                                           Definition.builder(
-                                                  "submitter_email", DefinitionType.STRING)
+                                                  "submitter_type", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder("ti_email", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder(
+                                                  "ti_organization", DefinitionType.STRING)
                                               .build()))
                                   .build(),
                               Definition.builder("nextPageToken", DefinitionType.STRING).build()))

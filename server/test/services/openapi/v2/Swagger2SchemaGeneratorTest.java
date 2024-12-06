@@ -31,7 +31,6 @@ public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
   @Test
   public void canSerialize() {
 
-
     ImmutableList<BlockDefinition> blockDefinitions =
         ImmutableList.of(
             BlockDefinition.builder()
@@ -339,6 +338,7 @@ definitions:
               format: int32
             create_time:
               type: string
+              format: date-time
             language:
               type: string
             program_name:
@@ -346,11 +346,18 @@ definitions:
             program_version_id:
               type: integer
               format: int32
+            revision_state:
+              type: string
             status:
               type: string
             submit_time:
               type: string
-            submitter_email:
+              format: date-time
+            submitter_type:
+              type: string
+            ti_email:
+              type: string
+            ti_organization:
               type: string
       nextPageToken:
         type: string
