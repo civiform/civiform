@@ -48,7 +48,7 @@ test.describe('csv export for multioption question', () => {
       await logout(page)
     })
 
-    await test.step('Test user Submit initial application', async () => {
+    await test.step('Test user - Submit initial application', async () => {
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Jane', 'Doe')
@@ -60,7 +60,7 @@ test.describe('csv export for multioption question', () => {
       await logout(page)
     })
 
-    await test.step('Admin Update program questions', async () => {
+    await test.step('Admin - Update program questions', async () => {
       await loginAsAdmin(page)
       await adminQuestions.gotoQuestionEditPage('csv-color')
       // deleting red and orange
@@ -85,7 +85,7 @@ test.describe('csv export for multioption question', () => {
       await logout(page)
     })
 
-    await test.step('test user Submit updated application', async () => {
+    await test.step('Test user - Submit updated application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await page.click('text="Continue"')
       await waitForPageJsLoad(page)
@@ -97,7 +97,7 @@ test.describe('csv export for multioption question', () => {
       await logout(page)
     })
 
-    await test.step('Admin views applications and download CSV', async () => {
+    await test.step('Admin - view applications and download CSV', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
 
@@ -161,7 +161,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
     const programName = 'Test program for export'
 
-    await test.step('Admin setup questions and publish program', async () => {
+    await test.step('Admin - setup questions and publish program', async () => {
       await loginAsAdmin(page)
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-csv-download',
@@ -205,7 +205,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
-    await test.step('Test user: application submission', async () => {
+    await test.step('Test user - application submission', async () => {
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
 
@@ -222,7 +222,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
-    await test.step('Verify initial CSV export', async () => {
+    await test.step('Admin - Verify initial CSV export', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
       const csvContent = await adminPrograms.getCsv(noApplyFilters)
@@ -239,7 +239,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
-    await test.step('Admin updates program', async () => {
+    await test.step('Admin - update program', async () => {
       await loginAsAdmin(page)
 
       // Change export visibility of a question
@@ -263,7 +263,7 @@ test.describe('csv json pdf download test- two applications', () => {
       await logout(page)
     })
 
-    await test.step('application submissions as guest user', async () => {
+    await test.step('Applicant - Submit application as guest user', async () => {
       // Apply to the program again, this time a different user
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
@@ -290,7 +290,7 @@ test.describe('csv json pdf download test- two applications', () => {
     // Test program applications export
     // #######################################
 
-    await test.step('Verify updated CSV and JSON exports', async () => {
+    await test.step('Admin - Verify updated CSV and JSON exports', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
       const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
@@ -334,7 +334,7 @@ test.describe('csv json pdf download test- two applications', () => {
       ).toEqual(1500)
     })
 
-    await test.step('Test filtering and exports', async () => {
+    await test.step('Admin - Test filtering and exports', async () => {
       // Finds a partial text match on applicant name, case insensitive.
       await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
       const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
@@ -377,7 +377,7 @@ test.describe('csv json pdf download test- two applications', () => {
     // #######################################
     // Test pdf applications export
     // #######################################
-    await test.step('Test application PDF export', async () => {
+    await test.step('Admin - Test application PDF export', async () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
       await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
@@ -411,7 +411,7 @@ test.describe('csv json pdf download test- two applications', () => {
     // #######################################
     // Test demography export
     // #######################################
-    await test.step('Test demography export', async () => {
+    await test.step('Admin - Test demography export', async () => {
       await loginAsAdmin(page)
       await adminPrograms.gotoAdminProgramsPage()
       const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
