@@ -39,7 +39,9 @@ test.describe('with program statuses', () => {
         testUserDisplayName(),
       )
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
+        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          approvedStatusName,
+        )
       await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
