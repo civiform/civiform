@@ -43,6 +43,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
           approvedStatusName,
         )
       await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+      await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
 
       await enableFeatureFlag(page, 'north_star_applicant_ui')

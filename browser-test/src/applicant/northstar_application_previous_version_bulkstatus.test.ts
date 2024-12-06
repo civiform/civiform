@@ -61,7 +61,7 @@ test.describe(
         questionName,
         'some text',
       )
-
+      await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
       await loginAsAdmin(page)
 

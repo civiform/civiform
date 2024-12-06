@@ -38,7 +38,10 @@ test.describe('Application Version Fast-Forward Flow', () => {
       programName,
       browser,
     )
-
+    await enableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'BULK_STATUS_UPDATE_ENABLED',
+    )
     await disableFeatureFlag(
       civiformAdminActor.getPage(),
       'FASTFORWARD_ENABLED',
@@ -504,7 +507,10 @@ test.describe('Application Version Fast-Forward Flow', () => {
       programName,
       browser,
     )
-
+    await enableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'BULK_STATUS_UPDATE_ENABLED',
+    )
     await enableFeatureFlag(civiformAdminActor.getPage(), 'FASTFORWARD_ENABLED')
     await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
     await enableFeatureFlag(programAdminActor.getPage(), 'FASTFORWARD_ENABLED')
@@ -999,7 +1005,10 @@ test.describe('Application Version Fast-Forward Flow', () => {
       programName,
       browser,
     )
-
+    await enableFeatureFlag(
+      civiformAdminActor.getPage(),
+      'BULK_STATUS_UPDATE_ENABLED',
+    )
     await enableFeatureFlag(civiformAdminActor.getPage(), 'FASTFORWARD_ENABLED')
     await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
 
