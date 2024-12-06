@@ -427,4 +427,16 @@ test.describe('Program list page.', () => {
       'program-list-with-same-active-and-draft-image',
     )
   })
+
+  test('program list shows Import existing program link', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.gotoAdminProgramsPage()
+    await page.getByText('Import existing program').isVisible()
+  })
 })
