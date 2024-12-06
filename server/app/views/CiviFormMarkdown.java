@@ -50,6 +50,7 @@ public final class CiviFormMarkdown {
       if (node instanceof Link) {
         attributes.put("class", StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"));
         attributes.put("target", "_blank");
+        attributes.put("rel", "noopener noreferrer"); 
         attributes.put("aria-label", ariaLabel);
       } else if (node instanceof BulletList) {
         attributes.put("class", "list-disc mx-8");
