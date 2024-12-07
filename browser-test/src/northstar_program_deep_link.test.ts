@@ -9,7 +9,8 @@ import {
 } from './support'
 
 test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
-  const questionText = 'What is your address?'
+  const questionText = 'This is a text question'
+  const programName = 'Test deep link'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -17,15 +18,14 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
     // Arrange
     await loginAsAdmin(page)
 
-    await adminQuestions.addAddressQuestion({
-      questionName: 'Test address question',
-      questionText,
+    await adminQuestions.addTextQuestion({
+      questionName: 'text question',
+      questionText: questionText,
     })
 
-    const programName = 'Test deep link'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'first description', [
-      'Test address question',
+      'text question',
     ])
 
     await adminPrograms.gotoAdminProgramsPage()
@@ -36,83 +36,93 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
     await logout(page)
   })
 
-  test('shows a login prompt for guest users', async ({page}) => {
-    await page.goto('/programs/test-deep-link')
-    await expect(
-      page
-        .getByRole('dialog', {name: 'Create an account or sign in'})
-        .getByRole('heading'),
-    ).toBeVisible()
-    await validateAccessibility(page)
-  })
-
-  test('does not show login prompt for logged in users', async ({page}) => {
-    await loginAsTestUser(page)
-    await page.goto('/programs/test-deep-link')
-    await expect(
-      page.getByRole('dialog', {name: 'Create an account or sign in'}),
-    ).toHaveCount(0)
-  })
-
-  test('takes guests and logged in users through the flow correctly', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    // Exercise guest path
-    // Act
-    await page.goto('/programs/test-deep-link')
-    await page.getByRole('link', {name: 'Continue to application'}).click()
-
-    // Assert
-    await page.getByRole('link', {name: 'Continue'}).click()
-    await applicantQuestions.validateQuestionIsOnPage(questionText)
-
-    await logout(page)
-
-    // Exercise test user path
-    // Act
-    await page.goto('/programs/test-deep-link')
-    await loginAsTestUser(page, '[role=dialog] a:has-text("Log in")')
-
-    // Assert
-    await page.getByRole('link', {name: 'Continue'}).click()
-    await applicantQuestions.validateQuestionIsOnPage(questionText)
-  })
-
-  test('Non-logged in user should get redirected to the program page and not an error', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await page.goto('/programs/test-deep-link')
-    await page.getByRole('link', {name: 'Continue to application'}).click()
-
-    await selectApplicantLanguage(page, 'English')
-
-    // Assert
-    await page.getByRole('link', {name: 'Continue'}).click()
-    await applicantQuestions.validateQuestionIsOnPage(questionText)
-  })
-
-  test('Logging in to an existing account after opening a deep link in a new browser session', async ({
-    page,
-    applicantQuestions,
-    context,
-  }) => {
-    await test.step('Log in and log out to establish the test user in the database', async () => {
-      await loginAsTestUser(page)
-      await logout(page)
-      await context.clearCookies()
+  test.describe('after starting an application', () => {
+    test.beforeEach(async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+    })
+    test('shows a login prompt for guest users', async ({page}) => {
+      await page.goto('/programs/test-deep-link')
+      await expect(
+        page
+          .getByRole('dialog', {name: 'Create an account or sign in'})
+          .getByRole('heading'),
+      ).toBeVisible()
+      await validateAccessibility(page)
     })
 
-    // Go to deep link as a guest
-    await page.goto('/programs/test-deep-link')
-    // Log in as the same test user
-    await loginAsTestUser(page, '[role=dialog] a:has-text("Log in")')
+    test('does not show login prompt for logged in users', async ({page}) => {
+      await loginAsTestUser(page)
+      await page.goto('/programs/test-deep-link')
+      await expect(
+        page.getByRole('dialog', {name: 'Create an account or sign in'}),
+      ).toHaveCount(0)
+    })
 
-    await page.getByRole('link', {name: 'Continue'}).click()
-    await applicantQuestions.validateQuestionIsOnPage(questionText)
+    test('takes guests and logged in users through the flow correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Exercise guest path
+      await page.goto('/programs/test-deep-link')
+      // Sees the login prompt
+      await page.getByRole('link', {name: 'Continue to application'}).click()
+      // Is taken to the review page
+      await expect(
+        page.getByRole('button', {name: 'Submit application'}),
+      ).toBeVisible()
 
-    await logout(page)
+      await logout(page)
+
+      // Exercise test user path
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+
+      await page.goto('/programs/test-deep-link')
+      // Does not see login prompt, goes straight to the review page
+      await expect(
+        page.getByRole('button', {name: 'Submit application'}),
+      ).toBeVisible()
+    })
+
+    test('Non-logged in user should get redirected to the program page and not an error', async ({
+      page,
+    }) => {
+      await page.goto('/programs/test-deep-link')
+      await page.getByRole('link', {name: 'Continue to application'}).click()
+
+      await selectApplicantLanguage(page, 'English')
+
+      // Assert
+      await expect(
+        page.getByRole('button', {name: 'Submit application'}),
+      ).toBeVisible()
+    })
+
+    test('Logging in to an existing account after opening a deep link in a new browser session', async ({
+      page,
+      context,
+    }) => {
+      await test.step('Log in and log out to establish the test user in the database', async () => {
+        await loginAsTestUser(page)
+        await logout(page)
+        await context.clearCookies()
+      })
+
+      // Go to deep link as a guest
+      await page.goto('/programs/test-deep-link')
+      // Log in as the same test user
+      await loginAsTestUser(page)
+      // Expect the review page
+      await expect(
+        page.getByRole('button', {name: 'Submit application'}),
+      ).toBeVisible()
+
+      await logout(page)
+    })
   })
 
   test('Going to a deep link does not retain redirect in session', async ({
@@ -120,7 +130,6 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
   }) => {
     // Go to a deep link
     await page.goto('/programs/test-deep-link')
-    await page.getByRole('link', {name: 'Continue to application'}).click()
 
     // Logging out should not take us back to /programs/test-deep-link, but rather
     // to the program index page.
