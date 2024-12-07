@@ -22,18 +22,17 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await test.step('Take a screenshot with no profile/account', async () => {
-      await validateScreenshot(page.getByRole('main'), 'not-logged-in') // ?!
+      await validateScreenshot(page.getByRole('main'), 'not-logged-in')
     })
     await test.step('Take a screenshot as a guest', async () => {
       // Since a guest account is not created until you start applying for something,
       // we have to make a program.
-      await enableFeatureFlag(page, 'north_star_applicant_ui') // HERE
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
       await logout(page)
-      // This seems to lead to line 288 of support/application_questions.ts, which implies that the North Star flag is NOT enabled?
       await applicantQuestions.applyProgram(
         'Minimal Sample Program',
         /* northStarEnabled= */ true,
