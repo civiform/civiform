@@ -2,6 +2,7 @@ package auth;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ public final class ProfileFactory {
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   public static final String APPLICANT_ID_ATTRIBUTE_NAME = "applicant_id";
   private final DatabaseExecutionContext dbContext;
+  private final Clock clock;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ProgramRepository> programRepositoryProvider;
@@ -38,6 +40,7 @@ public final class ProfileFactory {
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
+      Clock clock,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ProgramRepository> programRepositoryProvider,
@@ -45,6 +48,7 @@ public final class ProfileFactory {
       Provider<AccountRepository> accountRepositoryProvider,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
+    this.clock = Preconditions.checkNotNull(clock);
     this.classLoaderExecutionContext = Preconditions.checkNotNull(classLoaderExecutionContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
@@ -61,7 +65,17 @@ public final class ProfileFactory {
     // The profile ID corresponds to the *account* id, but controllers need the applicant id. We
     // store it in the profile for easy retrieval without a db lookup.
     CiviFormProfile profile = wrapProfileData(profileData);
-    profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
+    profile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              profile.storeApplicantIdInProfile(account);
+              if (settingsManifest.getSessionReplayProtectionEnabled()) {
+                account.addActiveSession(profileData.getSessionId(), clock);
+                account.save();
+              }
+            })
+        .join();
 
     return profileData;
   }
@@ -83,6 +97,9 @@ public final class ProfileFactory {
             account -> {
               account.setGlobalAdmin(true);
               maybeAuthorityId.ifPresent(account::setAuthorityId);
+              if (settingsManifest.getSessionReplayProtectionEnabled()) {
+                account.addActiveSession(profileData.getSessionId(), clock);
+              }
               account.save();
             })
         .join();
