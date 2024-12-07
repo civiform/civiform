@@ -325,8 +325,8 @@ public class FieldWithLabelTest {
     assertThat(renderedWithDefaultUrl)
         .contains(
             "<a href=\"https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown\""
-                + " target=\"_blank\" class=\"text-blue-600 hover:text-blue-500 inline-flex"
-                + " items-center\">see how it works</a>");
+                + " target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-blue-600"
+                + " hover:text-blue-500 inline-flex items-center\">see how it works</a>");
 
     // Set custom url for link text
     fieldWithLabel.setMarkdownLinkText("click here for details", "https://www.example.com");
@@ -334,7 +334,8 @@ public class FieldWithLabelTest {
     // Assert default url was overridden with new url
     assertThat(renderedWithCustomUrl)
         .contains(
-            "<a href=\"https://www.example.com\" target=\"_blank\" class=\"text-blue-600"
-                + " hover:text-blue-500 inline-flex items-center\">click here for details</a>");
+            "<a href=\"https://www.example.com\" target=\"_blank\" rel=\"noopener noreferrer\""
+                + " class=\"text-blue-600 hover:text-blue-500 inline-flex items-center\">click here"
+                + " for details</a>");
   }
 }
