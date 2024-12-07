@@ -98,7 +98,7 @@ public class AdminImportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    if (!settingsManifest.getProgramMigrationEnabled(request)) {
+    if (!settingsManifest.getProgramMigrationEnabled()) {
       return notFound("Program import is not enabled");
     }
     return ok(adminImportView.render(request));
@@ -112,7 +112,7 @@ public class AdminImportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxImportProgram(Http.Request request) {
-    if (!settingsManifest.getProgramMigrationEnabled(request)) {
+    if (!settingsManifest.getProgramMigrationEnabled()) {
       return notFound("Program import is not enabled");
     }
 
@@ -311,7 +311,7 @@ public class AdminImportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
-    if (!settingsManifest.getProgramMigrationEnabled(request)) {
+    if (!settingsManifest.getProgramMigrationEnabled()) {
       return notFound("Program import is not enabled");
     }
 
