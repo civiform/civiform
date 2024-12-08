@@ -51,6 +51,23 @@ public class ProgramTranslationFormTest extends ResetPostgres {
           .put(ProgramTranslationForm.localizedScreenDescription(1), "second block description")
           .build();
 
+  private static final ImmutableMap<String, String>
+      REQUEST_DATA_WITH_TWO_BLOCKS_AND_ELIGIBILITY_MSG_TRANSLATED =
+          ImmutableMap.<String, String>builder()
+              .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
+              .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+              .put(ProgramTranslationForm.localizedScreenName(0), "first block name")
+              .put(ProgramTranslationForm.localizedScreenDescription(0), "first block description")
+              .put(
+                  ProgramTranslationForm.localizedEligibilityMessage(0),
+                  "first eligibility message")
+              .put(ProgramTranslationForm.localizedScreenName(1), "second block name")
+              .put(ProgramTranslationForm.localizedScreenDescription(1), "second block description")
+              .put(
+                  ProgramTranslationForm.localizedEligibilityMessage(1),
+                  "second eligibility message")
+              .build();
+
   @Test
   public void bindFromRequest() throws Exception {
     Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
@@ -181,11 +198,53 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setBlockIdToUpdate(0l)
                             .setLocalizedName("first block name")
                             .setLocalizedDescription("first block description")
+                            .setLocalizedEligibilityMessage("")
                             .build(),
                         LocalizationUpdate.ScreenUpdate.builder()
                             .setBlockIdToUpdate(1l)
                             .setLocalizedName("second block name")
                             .setLocalizedDescription("second block description")
+                            .setLocalizedEligibilityMessage("")
+                            .build()))
+                .build());
+  }
+
+  @Test
+  public void bindFromRequest_includesScreenNameAndDescriptionAndEligibilityMsg() throws Exception {
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(REQUEST_DATA_WITH_TWO_BLOCKS_AND_ELIGIBILITY_MSG_TRANSLATED)
+            .build();
+
+    ImmutableList<Long> blockIds = ImmutableList.of(0l, 1l);
+
+    ProgramTranslationForm form =
+        ProgramTranslationForm.bindFromRequest(
+            request,
+            instanceOf(FormFactory.class),
+            /* maxStatusTranslations= */ 3,
+            /* hasSummaryImageDescription= */ false,
+            blockIds);
+    assertThat(form.getUpdateData(blockIds))
+        .isEqualTo(
+            LocalizationUpdate.builder()
+                .setLocalizedDisplayName("display name")
+                .setLocalizedDisplayDescription("display description")
+                .setLocalizedConfirmationMessage("")
+                .setStatuses(ImmutableList.of())
+                .setScreens(
+                    ImmutableList.of(
+                        LocalizationUpdate.ScreenUpdate.builder()
+                            .setBlockIdToUpdate(0l)
+                            .setLocalizedName("first block name")
+                            .setLocalizedDescription("first block description")
+                            .setLocalizedEligibilityMessage("first eligibility message")
+                            .build(),
+                        LocalizationUpdate.ScreenUpdate.builder()
+                            .setBlockIdToUpdate(1l)
+                            .setLocalizedName("second block name")
+                            .setLocalizedDescription("second block description")
+                            .setLocalizedEligibilityMessage("second eligibility message")
                             .build()))
                 .build());
   }

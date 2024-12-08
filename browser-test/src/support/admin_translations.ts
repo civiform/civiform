@@ -27,12 +27,14 @@ export class AdminTranslations {
     blockName,
     blockDescription,
     statuses = [],
+    blockEligibilityMsg = '',
   }: {
     name: string
     description: string
     blockName: string
     blockDescription: string
     statuses: ProgramStatusTranslationParams[]
+    blockEligibilityMsg?: string
   }) {
     await this.page.fill('text=Program name', name)
     await this.page.fill('text=Program description', description)
@@ -58,6 +60,12 @@ export class AdminTranslations {
 
     await this.page.fill('text=Screen name', blockName)
     await this.page.fill('text=Screen description', blockDescription)
+    if (blockEligibilityMsg != '') {
+      await this.page.fill(
+        'text=Screen eligibility message',
+        blockEligibilityMsg,
+      )
+    }
 
     await this.page.click('#update-localizations-button')
     await waitForPageJsLoad(this.page)
@@ -146,11 +154,21 @@ export class AdminTranslations {
     await expect(imageDescriptionValue).toHaveValue(expectImageDescription)
   }
 
-  async expectBlockTranslations(blockName: string, blockDescription: string) {
+  async expectBlockTranslations(
+    blockName: string,
+    blockDescription: string,
+    blockEligibilityMsg?: string,
+  ) {
     const blockNameValue = this.page.getByLabel('Screen name')
     await expect(blockNameValue).toHaveValue(blockName)
     const blockDescriptionValue = this.page.getByLabel('Screen description')
     await expect(blockDescriptionValue).toHaveValue(blockDescription)
+    if (blockEligibilityMsg != undefined) {
+      const blockEligibilityMsgValue = this.page.getByLabel(
+        'Screen eligibility message',
+      )
+      await expect(blockEligibilityMsgValue).toHaveValue(blockEligibilityMsg)
+    }
   }
 
   async editQuestionTranslations(
