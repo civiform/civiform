@@ -40,7 +40,7 @@
   "dependencies": {
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
-    "dompurify": "3.2.2",
+    "dompurify": "3.2.3",
     "markdown-it": "14.1.0"
   },
   "browserslist": [
