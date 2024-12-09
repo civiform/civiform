@@ -248,6 +248,9 @@ definitions:
                       type: array
                       items:
                         type: object
+                        properties:
+                          entity_name:
+                            type: string
                 sample_file_upload_question:
                   type: object
                   properties:

@@ -259,6 +259,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
       } else {
         Definition enumeratorEntitiesDefinition =
             Definition.builder("entities", DefinitionType.ARRAY)
+                .addDefinition(Definition.builder("entity_name", DefinitionType.STRING).build())
                 .addDefinitions(buildApplicationDefinitions(childQuestionDefinitionNode))
                 .build();
 
