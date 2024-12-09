@@ -6,7 +6,7 @@ import {
   logout,
   enableFeatureFlag,
   waitForPageJsLoad,
-  testUserDisplayName
+  testUserDisplayName,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -17,7 +17,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-        
       await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
@@ -37,32 +36,33 @@ test.describe('with program statuses', () => {
       await logout(page)
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
-    }
+    },
   )
 
-//   test('bulks status checkbox is visible', async ({page}) => {
-//     await page.getByRole('checkbox', { name: 'selectall' }).isVisible()
-//   })
+  //   test('bulks status checkbox is visible', async ({page}) => {
+  //     await page.getByRole('checkbox', { name: 'selectall' }).isVisible()
+  //   })
 
-test('application without status appears in default filter and without statuses filter', async ({
-    page,adminPrograms,
+  test('application without status appears in default filter and without statuses filter', async ({
+    page,
+    adminPrograms,
   }) => {
     await adminPrograms.viewApplications(programName)
     // Default page shows all applications.
     await adminPrograms.expectApplicationCountForBulkStatus(1)
     await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
-        testUserDisplayName(),
-        'None',
-      )
-    await page.getByRole('checkbox', { name: 'statusText' }).check()
+      testUserDisplayName(),
+      'None',
+    )
+    await page.getByRole('checkbox', {name: 'statusText'}).check()
     await page.selectOption(`.cf-program-admin-status-selector`, {
-        label: approvedStatusName,
-      })
+      label: approvedStatusName,
+    })
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
     await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
-        testUserDisplayName(),
-        approvedStatusName,
-      )
+      testUserDisplayName(),
+      approvedStatusName,
+    )
   })
 })
