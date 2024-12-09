@@ -156,6 +156,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                                   "revision_state", DefinitionType.STRING)
                                               .build(),
                                           Definition.builder("status", DefinitionType.STRING)
+                                              .setNullable(true)
                                               .build(),
                                           Definition.builder("submit_time", DefinitionType.STRING)
                                               .setFormat(Format.DATETIME)
@@ -164,9 +165,11 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                                   "submitter_type", DefinitionType.STRING)
                                               .build(),
                                           Definition.builder("ti_email", DefinitionType.STRING)
+                                              .setNullable(true)
                                               .build(),
                                           Definition.builder(
                                                   "ti_organization", DefinitionType.STRING)
+                                              .setNullable(true)
                                               .build()))
                                   .build(),
                               Definition.builder("nextPageToken", DefinitionType.STRING).build()))

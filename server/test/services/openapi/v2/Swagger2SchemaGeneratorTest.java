@@ -350,6 +350,7 @@ definitions:
               type: string
             status:
               type: string
+              x-nullable: true
             submit_time:
               type: string
               format: date-time
@@ -357,8 +358,10 @@ definitions:
               type: string
             ti_email:
               type: string
+              x-nullable: true
             ti_organization:
               type: string
+              x-nullable: true
       nextPageToken:
         type: string
 """;
