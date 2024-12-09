@@ -17,6 +17,7 @@ import services.openapi.QuestionDefinitionNode;
 import services.openapi.v2.serializers.Swagger2YamlMapper;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -275,20 +276,15 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
   /** Build an n-ary tree from the flat of QuestionDefinition list */
   private QuestionDefinitionNode getQuestionDefinitionRootNode(
       ProgramDefinition programDefinition) {
-    ArrayList<QuestionDefinition> list = new ArrayList<>();
-
-    for (BlockDefinition blockDefinition : programDefinition.blockDefinitions()) {
-      for (int i = 0; i < blockDefinition.getQuestionCount(); i++) {
-        list.add(blockDefinition.getQuestionDefinition(i));
-      }
-    }
-
     // Getting a sorted list to allow placing the enumerator questions
     // into the tree before the questions that are children to the enumerator.
     // An enumerator already has to be created before a question can be added to it
     // and questions can only be assigned a parent enumerator when first created.
-    var sortedList =
-        list.stream()
+    ImmutableList<QuestionDefinition> sortedList =
+        programDefinition.blockDefinitions().stream()
+            .map(BlockDefinition::programQuestionDefinitions)
+            .flatMap(ImmutableList::stream)
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
             .sorted(Comparator.comparing(QuestionDefinition::getId))
             .collect(ImmutableList.toImmutableList());
 
