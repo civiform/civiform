@@ -39,6 +39,7 @@ import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.DuplicateApplicationException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -425,14 +426,19 @@ public class ApplicantProgramReviewController extends CiviFormController {
               .build();
       return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
     } else {
-      return ok(
-          ineligibleBlockView.render(
-              request,
-              profile,
-              roApplicantProgramService,
-              messagesApi.preferred(request),
-              applicantId,
-              programDefinition));
+      try {
+        return ok(
+            ineligibleBlockView.render(
+                request,
+                profile,
+                roApplicantProgramService,
+                messagesApi.preferred(request),
+                applicantId,
+                programDefinition,
+                Optional.empty()));
+      } catch (ProgramBlockDefinitionNotFoundException e) {
+        return notFound(e.toString());
+      }
     }
   }
 
