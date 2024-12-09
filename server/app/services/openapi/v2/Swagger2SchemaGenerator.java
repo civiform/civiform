@@ -319,11 +319,11 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     switch (scalarType) {
       case LONG:
         return DefinitionType.INTEGER;
+      case CURRENCY_CENTS:
       case DOUBLE:
         return DefinitionType.NUMBER;
       case LIST_OF_STRINGS:
         return DefinitionType.ARRAY;
-      case CURRENCY_CENTS:
       case DATE:
       case STRING:
       case PHONE_NUMBER:

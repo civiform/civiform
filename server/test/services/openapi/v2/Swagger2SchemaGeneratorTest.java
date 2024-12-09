@@ -211,7 +211,7 @@ definitions:
                     question_type:
                       type: string
                     currency_cents:
-                      type: string
+                      type: number
                       format: double
                       x-nullable: true
                 sample_date_question:
