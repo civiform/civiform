@@ -379,6 +379,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                 "rounded-lg",
                 "bg-white",
                 "text-lg",
+                ReferenceClasses.PROGRAM_ADMIN_STATUS_SELECTOR,
                 StyleUtils.focus(BaseStyles.BORDER_CIVIFORM_BLUE));
     dropdownTag.with(option(enUsMessages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName())));
     String latestStatusText = "";
