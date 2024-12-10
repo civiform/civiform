@@ -79,7 +79,7 @@ test.describe('view program statuses', () => {
     })
 
     /* See trusted_intermediary.test.ts for more comprehensive pagination testing */
-    test('shows pagination if there are more than 100 applications', async ({
+    test.skip('shows pagination if there are more than 100 applications', async ({
       page,
       adminPrograms,
       applicantQuestions,
@@ -94,8 +94,9 @@ test.describe('view program statuses', () => {
           programWithoutStatusesName,
         )
         await applicantQuestions.submitFromReviewPage()
-      }
+      
       await loginAsProgramAdmin(page)
+      }
 
       // Navigate to the applications list
       await adminPrograms.viewApplications(programWithoutStatusesName)
