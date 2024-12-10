@@ -53,10 +53,8 @@ test.describe('with program statuses', () => {
       testUserDisplayName(),
       'None',
     )
-    await page.getByRole('checkbox', {name: 'statusText'}).check()
-    await page.selectOption(`.cf-program-admin-status-selector`, {
-      label: approvedStatusName,
-    })
+    await page.locator('#selectAll').check()
+    await page.locator('#bulk-status-selector').selectOption('Approved')
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
     await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
