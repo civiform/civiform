@@ -782,7 +782,7 @@ public final class ProgramService {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
-        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+        errorsBuilder, "short display description", localizationUpdate.localizedShortDescription());
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
     ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
@@ -833,6 +833,10 @@ public final class ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setLocalizedShortDescription(
+                programDefinition
+                    .localizedShortDescription()
+                    .updateTranslation(locale, localizationUpdate.localizedShortDescription()))
             .setLocalizedConfirmationMessage(
                 programDefinition
                     .localizedConfirmationMessage()
