@@ -188,8 +188,7 @@ definitions:
                       type: string
                       x-nullable: true
                     well_known_id:
-                      type: integer
-                      format: int64
+                      type: string
                       x-nullable: true
                     zip:
                       type: string

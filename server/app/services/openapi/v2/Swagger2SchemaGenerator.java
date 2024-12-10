@@ -330,8 +330,10 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
 
   /** Map Scalar to DefinitionType */
   private DefinitionType getDefinitionTypeFromSwaggerType(Scalar scalar) {
-    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE) {
-      return DefinitionType.STRING;
+    switch (scalar) {
+      case LATITUDE, LONGITUDE, WELL_KNOWN_ID -> {
+        return DefinitionType.STRING;
+      }
     }
 
     switch (scalar.toScalarType()) {
@@ -353,8 +355,10 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
 
   /** Map ScalarType to Format */
   private Format getSwaggerFormat(Scalar scalar) {
-    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE) {
-      return Format.STRING;
+    switch (scalar) {
+      case LATITUDE, LONGITUDE, WELL_KNOWN_ID -> {
+        return Format.STRING;
+      }
     }
 
     switch (scalar.toScalarType()) {
