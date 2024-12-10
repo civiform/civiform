@@ -5,6 +5,7 @@ import {
   logout,
   selectApplicantLanguage,
   validateScreenshot,
+  validateToastMessage,
 } from '../support'
 
 test.describe('Admin can manage program translations', () => {
@@ -360,4 +361,60 @@ test.describe('Admin can manage program translations', () => {
       })
     },
   )
+
+  test('Add translation for block name, description and eligibility message', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+    adminPredicates,
+  }) => {
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
+
+    await adminQuestions.addTextQuestion({questionName: 'text-question'})
+
+    const programName = 'Program with blocks'
+    const screenName = 'Screen 1'
+    const eligibilityMsg = 'Cutomized eligibility mesage'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlockUsingSpec(programName, {
+      name: screenName,
+      description: 'first screen',
+      questions: [{name: 'text-question'}],
+    })
+
+    await test.step('Update translations', async () => {
+      // add eligibility message
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+      await validateToastMessage(page, eligibilityMsg)
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        description: 'Spanish description',
+        blockName: 'Spanish block name - bloque uno',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+        blockEligibilityMsg: 'Spanish block eligibility message',
+      })
+    })
+
+    await test.step('Verify translations in translations page', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+        'Spanish block eligibility message',
+      )
+    })
+    // TODO: publish and verify the translation applicant-side
+  })
 })
