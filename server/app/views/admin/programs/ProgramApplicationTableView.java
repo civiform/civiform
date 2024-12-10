@@ -369,6 +369,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
     SelectTag dropdownTag =
         select()
             .withName("statusText")
+            .withId("bulk-status-selector")
             .withClasses(
                 "outline-none",
                 "px-3",
