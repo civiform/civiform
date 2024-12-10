@@ -70,8 +70,8 @@ test.describe('with program statuses', () => {
       // Submit an application as a guest.
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.submitFromReviewPage()
+      await loginAsProgramAdmin(page)
     }
-    await loginAsProgramAdmin(page)
 
     // Navigate to the applications list
     await adminPrograms.viewApplications(programName)
