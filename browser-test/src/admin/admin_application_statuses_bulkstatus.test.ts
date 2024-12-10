@@ -94,8 +94,8 @@ test.describe('view program statuses', () => {
           programWithoutStatusesName,
         )
         await applicantQuestions.submitFromReviewPage()
-      
-      await loginAsProgramAdmin(page)
+
+        await loginAsProgramAdmin(page)
       }
 
       // Navigate to the applications list
