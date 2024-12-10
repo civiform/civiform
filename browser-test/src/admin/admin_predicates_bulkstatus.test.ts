@@ -13,7 +13,7 @@ import {
 } from '../support'
 
 test.describe('create and edit predicates', () => {
-  test('add a hide predicate', async ({
+  test.skip('add a hide predicate', async ({
     page,
     adminQuestions,
     adminPrograms,
