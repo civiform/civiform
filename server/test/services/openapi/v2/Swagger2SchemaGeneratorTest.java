@@ -210,7 +210,7 @@ definitions:
                   properties:
                     question_type:
                       type: string
-                    currency_cents:
+                    currency_dollars:
                       type: number
                       format: double
                       x-nullable: true
@@ -259,7 +259,7 @@ definitions:
                     file_key:
                       type: string
                       x-nullable: true
-                    file_key_list:
+                    file_urls:
                       type: array
                       items:
                         type: object
@@ -288,7 +288,7 @@ definitions:
                     middle_name:
                       type: string
                       x-nullable: true
-                    name_suffix:
+                    suffix:
                       type: string
                       x-nullable: true
                 sample_number_question:

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
 import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
 import services.openapi.OpenApiGenerationException;
 import services.openapi.OpenApiSchemaGenerator;
 import services.openapi.OpenApiSchemaSettings;
@@ -235,7 +236,10 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
               DefinitionType.OBJECT);
 
       containerDefinition.addDefinition(
-          Definition.builder("question_type", DefinitionType.STRING).build());
+          Definition.builder(
+                  ApiPathSegment.QUESTION_TYPE.name().toLowerCase(Locale.ROOT),
+                  DefinitionType.STRING)
+              .build());
 
       // Enumerators require special handling
       if (questionDefinition.getQuestionType() != QuestionType.ENUMERATOR) {
@@ -246,7 +250,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
             scalar = Scalar.SERVICE_AREA;
           }
 
-          String fieldName = scalar.name().toLowerCase(Locale.ROOT);
+          String fieldName = getFieldNameFromScalar(scalar);
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
           Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
           Boolean nullable = isNullable(definitionType);
@@ -259,8 +263,11 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
         }
       } else {
         Definition enumeratorEntitiesDefinition =
-            Definition.builder("entities", DefinitionType.ARRAY)
-                .addDefinition(Definition.builder("entity_name", DefinitionType.STRING).build())
+            Definition.builder(
+                    ApiPathSegment.ENTITIES.name().toLowerCase(Locale.ROOT), DefinitionType.ARRAY)
+                .addDefinition(
+                    Definition.builder(Scalar.ENTITY_NAME.toDisplayString(), DefinitionType.STRING)
+                        .build())
                 .addDefinitions(buildApplicationDefinitions(childQuestionDefinitionNode))
                 .build();
 
@@ -303,6 +310,16 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return Scalar.getScalars(questionDefinition.getQuestionType()).stream()
         .sorted(Comparator.comparing(Enum::name))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /** Get the field name from the scalar */
+  private String getFieldNameFromScalar(Scalar scalar) {
+    return switch (scalar) {
+      case CURRENCY_CENTS -> ApiPathSegment.CURRENCY_DOLLARS.toString().toLowerCase(Locale.ROOT);
+      case FILE_KEY_LIST -> ApiPathSegment.FILE_URLS.toString().toLowerCase(Locale.ROOT);
+      case NAME_SUFFIX -> ApiPathSegment.SUFFIX.toString().toLowerCase(Locale.ROOT);
+      default -> scalar.name().toLowerCase(Locale.ROOT);
+    };
   }
 
   /** Gets the baseurl without scheme */
