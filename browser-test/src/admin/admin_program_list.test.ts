@@ -428,13 +428,12 @@ test.describe('Program list page.', () => {
     )
   })
 
-  test('program list with program migration flag on shows Import existing program link', async ({
+  test('program list shows Import existing program link', async ({
     page,
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
 
-    await enableFeatureFlag(page, 'program_migration_enabled')
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
