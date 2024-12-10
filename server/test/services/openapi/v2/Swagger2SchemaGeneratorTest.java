@@ -170,15 +170,13 @@ definitions:
                       type: string
                       x-nullable: true
                     latitude:
-                      type: number
-                      format: double
+                      type: string
                       x-nullable: true
                     line2:
                       type: string
                       x-nullable: true
                     longitude:
-                      type: number
-                      format: double
+                      type: string
                       x-nullable: true
                     service_area:
                       type: string

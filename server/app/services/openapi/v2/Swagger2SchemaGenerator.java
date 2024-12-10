@@ -23,7 +23,6 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.ScalarType;
 
 /** Configuration used to generate a program specific swagger 2 schema */
 public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
@@ -251,8 +250,8 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
           }
 
           String fieldName = getFieldNameFromScalar(scalar);
-          DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
-          Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
+          DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar);
+          Format swaggerFormat = getSwaggerFormat(scalar);
           Boolean nullable = isNullable(definitionType);
 
           containerDefinition.addDefinition(
@@ -266,7 +265,9 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
             Definition.builder(
                     ApiPathSegment.ENTITIES.name().toLowerCase(Locale.ROOT), DefinitionType.ARRAY)
                 .addDefinition(
-                    Definition.builder(Scalar.ENTITY_NAME.toDisplayString(), DefinitionType.STRING)
+                    Definition.builder(
+                            Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT),
+                            DefinitionType.STRING)
                         .build())
                 .addDefinitions(buildApplicationDefinitions(childQuestionDefinitionNode))
                 .build();
@@ -327,9 +328,13 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return openApiSchemaSettings.getBaseUrl().replace("https://", "").replace("http://", "");
   }
 
-  /** Map ScalarType to DefinitionType */
-  private DefinitionType getDefinitionTypeFromSwaggerType(ScalarType scalarType) {
-    switch (scalarType) {
+  /** Map Scalar to DefinitionType */
+  private DefinitionType getDefinitionTypeFromSwaggerType(Scalar scalar) {
+    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE) {
+      return DefinitionType.STRING;
+    }
+
+    switch (scalar.toScalarType()) {
       case LONG:
         return DefinitionType.INTEGER;
       case CURRENCY_CENTS:
@@ -347,8 +352,12 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
   }
 
   /** Map ScalarType to Format */
-  private Format getSwaggerFormat(ScalarType scalarType) {
-    switch (scalarType) {
+  private Format getSwaggerFormat(Scalar scalar) {
+    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE) {
+      return Format.STRING;
+    }
+
+    switch (scalar.toScalarType()) {
       case DATE:
         return Format.DATE;
       case LONG:
