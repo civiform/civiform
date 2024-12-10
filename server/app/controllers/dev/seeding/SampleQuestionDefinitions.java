@@ -16,10 +16,12 @@ import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -278,4 +280,25 @@ public final class SampleQuestionDefinitions {
           RADIO_BUTTON_QUESTION_DEFINITION,
           STATIC_CONTENT_QUESTION_DEFINITION,
           TEXT_QUESTION_DEFINITION);
+
+  public static QuestionDefinition getQuestionDefinitionWithTestId(QuestionType questionType) {
+    return switch (questionType) {
+      case ADDRESS -> ADDRESS_QUESTION_DEFINITION.withPopulatedTestId();
+      case CHECKBOX -> CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId();
+      case CURRENCY -> CURRENCY_QUESTION_DEFINITION.withPopulatedTestId();
+      case DATE -> DATE_QUESTION_DEFINITION.withPopulatedTestId();
+      case DROPDOWN -> DROPDOWN_QUESTION_DEFINITION.withPopulatedTestId();
+      case EMAIL -> EMAIL_QUESTION_DEFINITION.withPopulatedTestId();
+      case ENUMERATOR -> ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId();
+      case FILEUPLOAD -> FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId();
+      case ID -> ID_QUESTION_DEFINITION.withPopulatedTestId();
+      case NAME -> NAME_QUESTION_DEFINITION.withPopulatedTestId();
+      case NUMBER -> NUMBER_QUESTION_DEFINITION.withPopulatedTestId();
+      case RADIO_BUTTON -> RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId();
+      case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
+      case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
+      case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
+      case NULL_QUESTION -> new NullQuestionDefinition(1);
+    };
+  }
 }

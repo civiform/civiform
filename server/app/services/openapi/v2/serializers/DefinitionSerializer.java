@@ -37,7 +37,7 @@ public final class DefinitionSerializer extends OpenApiSchemaSerializer<Definiti
     // process child schemas
     if (value.getDefinitionType() == DefinitionType.ARRAY) {
       gen.writeObjectFieldStart("items");
-      gen.writeStringField("type", DefinitionType.OBJECT.toString());
+      gen.writeStringField("type", value.getArrayItemDefinitionType().toString());
       processChildDefinitions(value.getDefinitions(), gen);
       gen.writeEndObject();
     } else {

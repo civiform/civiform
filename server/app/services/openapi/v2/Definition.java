@@ -30,6 +30,9 @@ public abstract class Definition {
    */
   public abstract boolean getNullable();
 
+  /** Set the item type of an array */
+  public abstract DefinitionType getArrayItemDefinitionType();
+
   /** Get the child definitions */
   public abstract ImmutableList<Definition> getDefinitions();
 
@@ -37,7 +40,8 @@ public abstract class Definition {
     return new AutoValue_Definition.Builder()
         .setName(name)
         .setDefinitionType(definitionType)
-        .setNullable(false);
+        .setNullable(false)
+        .setArrayItemDefinitionType(DefinitionType.OBJECT);
   }
 
   public static Definition.Builder builder(
@@ -60,6 +64,9 @@ public abstract class Definition {
     public abstract Definition.Builder setFormat(Format format);
 
     public abstract Definition.Builder setNullable(Boolean nullable);
+
+    public abstract Definition.Builder setArrayItemDefinitionType(
+        DefinitionType arrayItemDefinitionType);
 
     protected abstract ImmutableList.Builder<Definition> definitionsBuilder();
 
