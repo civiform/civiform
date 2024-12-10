@@ -249,6 +249,10 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
             scalar = Scalar.SERVICE_AREA;
           }
 
+          if (scalar == Scalar.ORIGINAL_FILE_NAME) {
+            continue;
+          }
+
           String fieldName = getFieldNameFromScalar(scalar);
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar);
           DefinitionType arrayItemDefinitionType = DefinitionType.OBJECT;

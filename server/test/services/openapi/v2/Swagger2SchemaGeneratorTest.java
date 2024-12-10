@@ -260,9 +260,6 @@ definitions:
                       type: array
                       items:
                         type: object
-                    original_file_name:
-                      type: string
-                      x-nullable: true
                 sample_id_question:
                   type: object
                   properties:
