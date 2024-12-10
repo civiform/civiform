@@ -201,7 +201,7 @@ definitions:
                     selections:
                       type: array
                       items:
-                        type: object
+                        type: string
                 sample_currency_question:
                   type: object
                   properties:

@@ -251,6 +251,12 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
 
           String fieldName = getFieldNameFromScalar(scalar);
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar);
+          DefinitionType arrayItemDefinitionType = DefinitionType.OBJECT;
+
+          if (scalar == Scalar.SELECTIONS) {
+            arrayItemDefinitionType = DefinitionType.STRING;
+          }
+
           Format swaggerFormat = getSwaggerFormat(scalar);
           Boolean nullable = isNullable(definitionType);
 
@@ -258,6 +264,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
               Definition.builder(fieldName, definitionType)
                   .setFormat(swaggerFormat)
                   .setNullable(nullable)
+                  .setArrayItemDefinitionType(arrayItemDefinitionType)
                   .build());
         }
       } else {
