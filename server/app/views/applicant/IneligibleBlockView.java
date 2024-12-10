@@ -7,7 +7,6 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
-import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
@@ -26,6 +25,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
@@ -41,13 +41,18 @@ public final class IneligibleBlockView extends ApplicationBaseView {
   private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
   private final ApplicantService applicantService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   IneligibleBlockView(
-      ApplicantLayout layout, ApplicantRoutes applicantRoutes, ApplicantService applicantService) {
+      ApplicantLayout layout,
+      ApplicantRoutes applicantRoutes,
+      ApplicantService applicantService,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.applicantService = checkNotNull(applicantService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -64,16 +69,15 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String programDetailsLink = programDefinition.externalLink();
     ATag infoLink = null;
     String eligibilityMsg = "";
-    System.out.println("LOCALE LINE 67");
-    System.out.println(Locale.ROOT.toString());
-    System.out.println(DEFAULT_LOCALE);
-    System.out.println("LOCALE");
+    boolean isEligibilityMsgEnabled =
+        settingsManifest.getCustomizedEligibilityMessageEnabled(request);
     if (blockId.isPresent()) {
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId.get());
+      Locale preferredLocale = messages.lang().toLocale();
       eligibilityMsg =
           blockDefinition
               .localizedEligibilityMessage()
-              .map(localizedStrings -> localizedStrings.maybeGet(DEFAULT_LOCALE).orElse(""))
+              .map(localizedStrings -> localizedStrings.maybeGet(preferredLocale).orElse(""))
               .orElse("");
     }
     if (!programDetailsLink.isEmpty()) {
@@ -128,7 +132,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
-            .with(div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
+            .condWith(isEligibilityMsgEnabled, div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))
