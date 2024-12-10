@@ -39,11 +39,7 @@ test.describe('with program statuses', () => {
     },
   )
 
-  //   test('bulks status checkbox is visible', async ({page}) => {
-  //     await page.getByRole('checkbox', { name: 'selectall' }).isVisible()
-  //   })
-
-  test('application without status appears in default filter and without statuses filter', async ({
+  test('single application updated with bulk status select', async ({
     page,
     adminPrograms,
   }) => {
@@ -62,4 +58,40 @@ test.describe('with program statuses', () => {
       approvedStatusName,
     )
   })
+  test('if more than 100 applications, only the first page is updated', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+  }) => {
+    // There is already 1 application from the beforeEach, so apply 105 more times.
+    for (let i = 0; i < 105; i++) {
+      await logout(page)
+
+      // Submit an application as a guest.
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage()
+    }
+    await loginAsProgramAdmin(page)
+
+    // Navigate to the applications list
+    await adminPrograms.viewApplications(programName)
+    await page.locator('#selectAll').check()
+    await page.locator('#bulk-status-selector').selectOption('Approved')
+    await page.getByRole('button', {name: 'Status change'}).click()
+    await waitForPageJsLoad(page)
+    for (let i=2; i<100;i++)
+    {
+      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+        `Guest (${i})`,
+        approvedStatusName,
+      )
+    }
+    await page.locator('.usa-pagination__button:has-text("2")').click()
+    //last applicant
+    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      'Guest (101)',
+      'None',
+    )
+  })
 })
+
