@@ -7,6 +7,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.CiviFormProfile;
 import controllers.applicant.ApplicantRoutes;
@@ -22,6 +23,8 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.BlockDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
@@ -53,11 +56,26 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Messages messages,
       long applicantId,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      Optional<String> blockId)
+      throws ProgramBlockDefinitionNotFoundException {
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     String programDetailsLink = programDefinition.externalLink();
     ATag infoLink = null;
+    String eligibilityMsg = "";
+    System.out.println("LOCALE LINE 67");
+    System.out.println(Locale.ROOT.toString());
+    System.out.println(DEFAULT_LOCALE);
+    System.out.println("LOCALE");
+    if (blockId.isPresent()) {
+      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId.get());
+      eligibilityMsg =
+          blockDefinition
+              .localizedEligibilityMessage()
+              .map(localizedStrings -> localizedStrings.maybeGet(DEFAULT_LOCALE).orElse(""))
+              .orElse("");
+    }
     if (!programDetailsLink.isEmpty()) {
       infoLink =
           new LinkElement()
@@ -110,6 +128,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
+            .with(div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))
