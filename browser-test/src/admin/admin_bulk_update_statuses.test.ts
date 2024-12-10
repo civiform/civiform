@@ -47,7 +47,6 @@ test.describe('with program statuses', () => {
     page,
     adminPrograms,
   }) => {
-    await adminPrograms.viewApplications(programName)
     // Default page shows all applications.
     await adminPrograms.expectApplicationCountForBulkStatus(1)
     await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
