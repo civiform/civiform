@@ -29,6 +29,7 @@ public final class ProgramTranslationForm {
   private static final Lang DEFAULT_LANG = new Lang(LocalizedStrings.DEFAULT_LOCALE);
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
+  public static final String SHORT_DESCRIPTION_FORM_NAME = "shortDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
   public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
 
@@ -56,6 +57,9 @@ public final class ProgramTranslationForm {
             .put(
                 DISPLAY_DESCRIPTION_FORM_NAME,
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
+            .put(
+                SHORT_DESCRIPTION_FORM_NAME,
+                new String[] {program.localizedShortDescription().maybeGet(locale).orElse("")})
             .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
                 new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
@@ -150,6 +154,7 @@ public final class ProgramTranslationForm {
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
+                SHORT_DESCRIPTION_FORM_NAME,
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
     if (hasSummaryImageDescription) {
       builder.add(IMAGE_DESCRIPTION_FORM_NAME);
@@ -175,6 +180,8 @@ public final class ProgramTranslationForm {
             .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
             .setLocalizedDisplayDescription(
                 getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
+            .setLocalizedShortDescription(
+                getStringFormField(SHORT_DESCRIPTION_FORM_NAME).orElse(""))
             .setLocalizedConfirmationMessage(
                 getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""));
     if (hasSummaryImageDescription) {

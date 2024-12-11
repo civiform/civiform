@@ -303,6 +303,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("German Short Desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(
@@ -360,6 +361,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing French short desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
@@ -381,6 +383,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new French short desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
@@ -442,6 +445,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing French short desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .build();
     applicationStatusesRepo.createOrUpdateStatusDefinitions(
@@ -451,6 +455,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new French short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -493,6 +498,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing short French desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .build();
     applicationStatusesRepo.createOrUpdateStatusDefinitions(
@@ -503,6 +509,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -560,6 +567,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -603,6 +611,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
