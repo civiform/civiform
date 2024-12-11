@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {test, expect} from '../support/civiform_fixtures'
 import {Page} from 'playwright'
 import {
   loginAsAdmin,
@@ -136,7 +136,35 @@ test.describe('when email is configured for the status and applicant, a checkbox
       await adminPrograms.viewApplications(programWithStatusesName)
     },
   )
-  test('checkbox is checked for bulk status notification', async ({
+  test('choosing not to notify applicants changes status and does not send email', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const emailsBefore = supportsEmailInspection()
+      ? await extractEmailsForRecipient(page, testUserDisplayName())
+      : []
+    await page.locator('#selectAll').check()
+    await page.locator('#bulk-status-selector').selectOption(emailStatusName)
+    // the notification checkbox is unchecked
+    await page.locator('#bulk-status-notification').uncheck()
+    await page.getByRole('button', {name: 'Status change'}).click()
+    await waitForPageJsLoad(page)
+
+    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      testUserDisplayName(),
+      emailStatusName,
+    )
+
+    if (supportsEmailInspection()) {
+      const emailsAfter = await extractEmailsForRecipient(
+        page,
+        testUserDisplayName(),
+      )
+      expect(emailsAfter.length).toEqual(emailsBefore.length)
+    }
+  })
+
+  test('choosing to notify applicant changes status and does send email', async ({
     page,
     adminPrograms,
   }) => {
