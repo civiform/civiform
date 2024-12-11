@@ -2477,6 +2477,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
@@ -2529,6 +2530,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
@@ -2568,6 +2570,7 @@ public class ProgramServiceTest extends ResetPostgres {
   //        LocalizationUpdate.builder()
   //            .setLocalizedDisplayName("new French name")
   //            .setLocalizedDisplayDescription("new French description")
+  //            .setLocalizedShortDescription("new short French desc")
   //            .setLocalizedSummaryImageDescription("new French image description")
   //            .setLocalizedConfirmationMessage("")
   //            .setStatuses(ImmutableList.of())
@@ -2597,6 +2600,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("")
             .setLocalizedDisplayDescription("")
+            .setLocalizedShortDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .setScreens(ImmutableList.of())
@@ -2608,7 +2612,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsExactly(
             CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
+            CiviFormError.of("program short display description cannot be blank"));
   }
 
   @Test
@@ -2617,6 +2621,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("a name")
             .setLocalizedDisplayDescription("a description")
+            .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .setScreens(ImmutableList.of())
@@ -2636,6 +2641,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
@@ -2664,6 +2670,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(ImmutableList.of())
@@ -2677,6 +2684,8 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
     assertThat(definition.localizedDescription().get(Locale.GERMAN))
         .isEqualTo("German Description");
+    assertThat(definition.localizedShortDescription().get(Locale.GERMAN))
+        .isEqualTo("Short German Desc");
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
@@ -2688,6 +2697,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing short French desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
@@ -2701,6 +2711,7 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
@@ -2714,6 +2725,8 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
     assertThat(definition.localizedDescription().get(Locale.FRENCH))
         .isEqualTo("new French description");
+    assertThat(definition.localizedShortDescription().get(Locale.FRENCH))
+        .isEqualTo("new short French desc");
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
