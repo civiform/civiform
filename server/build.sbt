@@ -119,7 +119,15 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.12"
+      "ch.qos.logback" % "logback-classic" % "1.5.12",
+
+      // Swagger 2.0 Dependencies
+      "io.swagger" % "swagger-core" % "1.6.14",
+      "io.swagger" % "swagger-parser" % "1.0.72",
+
+      // OpenAPI 3.x Dependencies
+      "io.swagger.core.v3" % "swagger-core" % "2.2.26",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.24"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
