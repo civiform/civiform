@@ -1,12 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  loginAsTestUser,
-  logout,
-  selectApplicantLanguage,
-  validateAccessibility,
-} from './support'
+import {enableFeatureFlag} from './support'
 
 test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
