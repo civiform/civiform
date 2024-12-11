@@ -97,10 +97,8 @@ public abstract class AbstractOpenApiSchemaGenerator {
   /** Map Scalar to DefinitionType */
   protected static DefinitionType getDefinitionTypeFromSwaggerType(Scalar scalar) {
     // Override type because we messed up
-    switch (scalar) {
-      case LATITUDE, LONGITUDE, WELL_KNOWN_ID -> {
-        return DefinitionType.STRING;
-      }
+    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE || scalar == Scalar.WELL_KNOWN_ID) {
+      return DefinitionType.STRING;
     }
 
     switch (scalar.toScalarType()) {
@@ -123,10 +121,8 @@ public abstract class AbstractOpenApiSchemaGenerator {
   /** Map ScalarType to Format */
   protected static Optional<Format> getSwaggerFormat(Scalar scalar) {
     // Override type because we messed up
-    switch (scalar) {
-      case LATITUDE, LONGITUDE, WELL_KNOWN_ID -> {
-        return Optional.empty();
-      }
+    if (scalar == Scalar.LATITUDE || scalar == Scalar.LONGITUDE || scalar == Scalar.WELL_KNOWN_ID) {
+      return Optional.empty();
     }
 
     switch (scalar.toScalarType()) {
