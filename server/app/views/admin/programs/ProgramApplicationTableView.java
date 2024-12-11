@@ -434,6 +434,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                           input()
                               .withType("checkbox")
                               .withName("shouldSendEmail")
+                              .withId("bulk-status-notification")
                               .withClasses(BaseStyles.CHECKBOX),
                           submitButton("Status change").withClasses("usa-button"),
                           alertTag,

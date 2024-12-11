@@ -1,4 +1,5 @@
 import {test} from '../support/civiform_fixtures'
+import {Page} from 'playwright'
 import {
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -7,6 +8,11 @@ import {
   enableFeatureFlag,
   waitForPageJsLoad,
   testUserDisplayName,
+  supportsEmailInspection,
+  extractEmailsForRecipient,
+  AdminPrograms,
+  ApplicantQuestions,
+  AdminProgramStatuses,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -110,4 +116,86 @@ test.describe('with program statuses', () => {
       'None',
     )
   })
+})
+test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
+  const programWithStatusesName = 'Test program with email statuses'
+  const emailStatusName = 'Email status'
+  const emailBody = 'Some email content'
+  const noEmailStatusName = 'No email status'
+  test.beforeEach(
+    async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
+      await setupProgramsWithStatuses(
+        page,
+        adminPrograms,
+        applicantQuestions,
+        adminProgramStatuses,
+      )
+      // enable bulk status feature flag
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programWithStatusesName)
+    },
+  )
+  test('checkbox is checked for bulk status notification', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const emailsBefore = supportsEmailInspection()
+      ? await extractEmailsForRecipient(page, testUserDisplayName())
+      : []
+
+    await page.locator('#selectAll').check()
+    await page.locator('#bulk-status-selector').selectOption(emailStatusName)
+    await page.locator('#bulk-status-notification').check()
+    await page.getByRole('button', {name: 'Status change'}).click()
+    await waitForPageJsLoad(page)
+
+    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      testUserDisplayName(),
+      emailStatusName,
+    )
+
+    if (supportsEmailInspection()) {
+      await adminPrograms.expectEmailSent(
+        emailsBefore.length,
+        testUserDisplayName(),
+        emailBody,
+        programWithStatusesName,
+      )
+    }
+  })
+  const setupProgramsWithStatuses = async (
+    page: Page,
+    adminPrograms: AdminPrograms,
+    applicantQuestions: ApplicantQuestions,
+    adminProgramStatuses: AdminProgramStatuses,
+  ) => {
+    await test.step('login as admin and create program with statuses', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programWithStatusesName)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programWithStatusesName,
+      )
+      await adminProgramStatuses.createStatus(noEmailStatusName)
+      await adminProgramStatuses.createStatus(emailStatusName, {
+        emailBody: emailBody,
+      })
+      await adminPrograms.publishProgram(programWithStatusesName)
+      await adminPrograms.expectActiveProgram(programWithStatusesName)
+      await logout(page)
+    })
+
+    await test.step('submit an application as a guest', async () => {
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    await test.step('submit an application as a logged in user', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+  }
 })
