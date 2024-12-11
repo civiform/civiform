@@ -218,6 +218,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 GET     /api/docs/v1                                        controllers.api.ApiDocsController.index(request: Request)
 GET     /api/docs/v1/:programSlug/active                    controllers.api.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
 GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
+GET     /api/docs/v1/schema/:programSlug                    controllers.api.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 
 # Methods for user support incidents
 GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)
