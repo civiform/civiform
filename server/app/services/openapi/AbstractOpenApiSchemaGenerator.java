@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import io.swagger.models.Scheme;
 
-public class AbstractOpenApiSchemaGenerator {
+public abstract class AbstractOpenApiSchemaGenerator {
   protected final OpenApiSchemaSettings openApiSchemaSettings;
 
   protected AbstractOpenApiSchemaGenerator(OpenApiSchemaSettings openApiSchemaSettings) {
