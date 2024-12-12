@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.openapi.OpenApiSchemaSettings;
-import services.openapi.v2.serializers.OpenApiSerializationAsserter;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -29,7 +28,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
-public class Swagger2SchemaGeneratorTest extends OpenApiSerializationAsserter {
+public class Swagger2SchemaGeneratorTest {
   private static final Stream<QuestionDefinition> ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM =
       SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS.stream()
           .map(QuestionDefinition::withPopulatedTestId);

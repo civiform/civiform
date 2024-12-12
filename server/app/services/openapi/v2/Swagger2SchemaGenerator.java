@@ -70,7 +70,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                               .operationId("list_applications")
                               .description("List Applications")
                               .summary("Export applications")
-                              .produces(MimeType.Json.getCode())
+                              .produces("application/json")
                               .tag("programs")
                               .response(
                                   200,
