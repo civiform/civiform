@@ -32,7 +32,7 @@ export default defineConfig({
     // retain-on-failure may not be removing files in a timely manner
     // causing disk usage on github actions to fill the disk
     trace: process.env.CI === 'true' ? 'on-first-retry' : 'on',
-    video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',    
+    video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
   },
