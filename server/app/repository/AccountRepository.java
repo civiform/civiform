@@ -469,6 +469,10 @@ public final class AccountRepository {
     }
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
+
+    account.removeExpiredActiveSessions(clock, null);
+    account.storeIdTokenInActiveSession(sessionId, idToken);
+
     account.save();
   }
 }
