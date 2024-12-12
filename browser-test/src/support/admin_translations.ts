@@ -27,15 +27,18 @@ export class AdminTranslations {
     blockName,
     blockDescription,
     statuses = [],
+    shortDescription = 'short desc',
   }: {
     name: string
     description: string
     blockName: string
     blockDescription: string
     statuses: ProgramStatusTranslationParams[]
+    shortDescription: string
   }) {
     await this.page.fill('text=Program name', name)
     await this.page.fill('text=Program description', description)
+    await this.page.fill('text=Short program description', shortDescription)
 
     for (const status of statuses) {
       await this.page.fill(
@@ -66,15 +69,27 @@ export class AdminTranslations {
   async expectProgramTranslation({
     expectProgramName,
     expectProgramDescription,
+    expectProgramShortDescription,
   }: {
     expectProgramName: string
     expectProgramDescription: string
+    expectProgramShortDescription: string
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
 
-    const programDescriptionValue = this.page.getByLabel('Program description')
+    const programDescriptionValue = this.page.getByLabel(
+      'Program description',
+      {exact: true},
+    )
     await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+
+    const programShortDescriptionValue = this.page.getByLabel(
+      'Short program description',
+    )
+    await expect(programShortDescriptionValue).toHaveValue(
+      expectProgramShortDescription,
+    )
   }
 
   async expectNoProgramStatusTranslations() {

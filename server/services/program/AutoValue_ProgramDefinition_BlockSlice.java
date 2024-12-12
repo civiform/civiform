@@ -9,9 +9,7 @@ final class AutoValue_ProgramDefinition_BlockSlice extends ProgramDefinition.Blo
 
   private final int endIndex;
 
-  AutoValue_ProgramDefinition_BlockSlice(
-      int startIndex,
-      int endIndex) {
+  AutoValue_ProgramDefinition_BlockSlice(int startIndex, int endIndex) {
     this.startIndex = startIndex;
     this.endIndex = endIndex;
   }
@@ -28,10 +26,7 @@ final class AutoValue_ProgramDefinition_BlockSlice extends ProgramDefinition.Blo
 
   @Override
   public String toString() {
-    return "BlockSlice{"
-        + "startIndex=" + startIndex + ", "
-        + "endIndex=" + endIndex
-        + "}";
+    return "BlockSlice{" + "startIndex=" + startIndex + ", " + "endIndex=" + endIndex + "}";
   }
 
   @Override
@@ -41,8 +36,7 @@ final class AutoValue_ProgramDefinition_BlockSlice extends ProgramDefinition.Blo
     }
     if (o instanceof ProgramDefinition.BlockSlice) {
       ProgramDefinition.BlockSlice that = (ProgramDefinition.BlockSlice) o;
-      return this.startIndex == that.startIndex()
-          && this.endIndex == that.endIndex();
+      return this.startIndex == that.startIndex() && this.endIndex == that.endIndex();
     }
     return false;
   }
@@ -56,5 +50,4 @@ final class AutoValue_ProgramDefinition_BlockSlice extends ProgramDefinition.Blo
     h$ ^= endIndex;
     return h$;
   }
-
 }
