@@ -19,6 +19,7 @@
     "@typescript-eslint/eslint-plugin": "8.18.0",
     "@typescript-eslint/parser": "8.18.0",
     "autoprefixer": "^10.4.16",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.0.0",
     "eslint": "8.57.1",
     "eslint-plugin-no-unsanitized": "^4.0.2",
@@ -41,7 +42,8 @@
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
     "dompurify": "3.2.3",
-    "markdown-it": "14.1.0"
+    "markdown-it": "14.1.0",
+    "swagger-ui-dist": "^5.18.2"
   },
   "browserslist": [
     "> 2%",

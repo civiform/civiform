@@ -1,3 +1,5 @@
+const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const {ProvidePlugin} = require('webpack')
 
@@ -67,6 +69,14 @@ module.exports = {
     }),
     new ProvidePlugin({
       htmx: 'htmx.org'
-    })
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'node_modules/swagger-ui-dist'),
+          to: path.resolve(__dirname, 'public/swagger-ui'),
+        },
+      ],
+    }),
   ],
 }
