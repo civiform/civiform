@@ -17,11 +17,7 @@ export default defineConfig({
   globalSetup: './src/setup/global-setup.ts',
   fullyParallel: false,
   workers: 1,
-  // For us, having retries enabled does not appear to have been particularly
-  // beneficial. Instead it makes failues end up taking 2 * timeout. As long
-  // as retain-on-failure used below works correctly we're probably fine not
-  // retrying.
-  retries: 0,
+  retries: process.env.CI === 'true' ? 1 : 0,
   outputDir: './tmp/test-output',
   expect: {
     toHaveScreenshot: {
@@ -33,10 +29,10 @@ export default defineConfig({
     },
   },
   use: {
-    // retain-on-failure should remove trace and video files when a test succeeds allowing
-    // for minimizing cloud storage needs.
-    trace: process.env.CI === 'true' ? 'retain-on-failure' : 'on',
-    video: process.env.RECORD_VIDEO === 'true' ? 'retain-on-failure' : 'off',
+    // retain-on-failure may not be removing files in a timely manner
+    // causing disk usage on github actions to fill the disk
+    trace: process.env.CI === 'true' ? 'on-first-retry' : 'on',
+    video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',    
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
   },
