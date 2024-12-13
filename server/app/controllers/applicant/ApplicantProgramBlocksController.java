@@ -1236,9 +1236,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       programDefinition,
                       Optional.of(blockId)));
             } catch (ProgramBlockDefinitionNotFoundException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-              return notFound();
+              throw new RuntimeException(e);
             }
           });
     }

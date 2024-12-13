@@ -437,7 +437,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 programDefinition,
                 Optional.empty()));
       } catch (ProgramBlockDefinitionNotFoundException e) {
-        return notFound(e.toString());
+        throw new RuntimeException(e);
       }
     }
   }
