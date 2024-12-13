@@ -24,7 +24,7 @@ class AzureUploadController {
     )
 
     if (uploadForm == null && multiFileUploadForm == null) {
-      // No file Azure file upload forms were found.
+      // No Azure file upload forms were found.
       return
     }
 
