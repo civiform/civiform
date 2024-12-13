@@ -313,7 +313,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       Preconditions.checkState(
           fileUploadQuestion.isPresent(),
           "File upload blocks must contain a file upload question.");
-      uploadForm.withClass(fileUploadViewStrategy.getMultiFileUploadFormClass());
+      uploadForm.withClasses("max-w-xl", fileUploadViewStrategy.getMultiFileUploadFormClass());
       uploadForm.with(
           applicantQuestionRendererFactory
               .getRenderer(fileUploadQuestion.get(), Optional.of(params.messages()))
