@@ -57,6 +57,11 @@ public class FileUploadViewStrategyTest {
     }
 
     @Override
+    public String getMultiFileUploadFormClass() {
+      throw new UnsupportedOperationException("Unimplemented method 'getMultiFileUploadFormClass'");
+    }
+
+    @Override
     protected ImmutableList<ScriptTag> extraScriptTags() {
       throw new UnsupportedOperationException("Unimplemented method 'extraScriptTags'");
     }
