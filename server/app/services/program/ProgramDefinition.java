@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -99,6 +100,10 @@ public abstract class ProgramDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
+  /** A short description of a Program (<100 characters), localized for each supported locale. */
+  @JsonProperty("localizedShortDescription")
+  public abstract LocalizedStrings localizedShortDescription();
+
   /**
    * A custom message to be inserted into the confirmation screen for the Program, localized for
    * each supported locale.
@@ -145,6 +150,13 @@ public abstract class ProgramDefinition {
   // to a different instance.
   @JsonIgnore
   public abstract Optional<String> summaryImageFileKey();
+
+  /**
+   * A list of steps to apply to the program. The list contains between 1-5 steps and each step
+   * contains a localized title and a localized description.
+   */
+  @JsonProperty("applicationSteps")
+  public abstract ImmutableList<ApplicationStep> applicationSteps();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -803,6 +815,10 @@ public abstract class ProgramDefinition {
     @JsonProperty("localizedDescription")
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    @JsonProperty("localizedShortDescription")
+    public abstract Builder setLocalizedShortDescription(
+        LocalizedStrings localizedShortDescription);
+
     @JsonProperty("localizedConfirmationMessage")
     public abstract Builder setLocalizedConfirmationMessage(
         LocalizedStrings localizedConfirmationMessage);
@@ -815,6 +831,8 @@ public abstract class ProgramDefinition {
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
+    public abstract LocalizedStrings.Builder localizedShortDescriptionBuilder();
 
     public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
 
@@ -837,6 +855,9 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("categories")
     public abstract Builder setCategories(ImmutableList<CategoryModel> categories);
+
+    @JsonProperty("applicationSteps")
+    public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

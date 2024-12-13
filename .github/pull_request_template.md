@@ -19,6 +19,7 @@ Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wik
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
 - [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
 - [ ] Extended the README / documentation, if necessary. For user-facing features, consider updating [the user docs](https://github.com/civiform/docs). For "under-the-hood" changes or things more relevant to developers, consider updating [the dev wiki](https://github.com/civiform/civiform/wiki).
+- [ ] Ensured PII wasn't added to any new logs, unless it was guarded by `isDevOrStaging`
 
 #### Database evolutions
 
@@ -27,7 +28,10 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Assigned two reviewers
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
+- [ ] Every comment in script should begin with -- and not # --- unless it denotes Ups or Downs. See [here](https://www.playframework.com/documentation/2.9.x/Evolutions) for details.
+- [ ] Tested both the Downs and the Ups scripts manually (When testing, include all comments from the evolution in your test script to ensure any syntax errors in the comments are caught.)
 - [ ] Data migrations aren't being done (please use a [Durable Job](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) if doing a data migration)
+- [ ] Update the model documentation in our [wiki](https://github.com/civiform/civiform/wiki/Database) if necessary
 
 #### Durable jobs
 

@@ -23,6 +23,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       programName,
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -52,6 +53,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'program name',
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.DISABLED,
       'admin description',
@@ -87,6 +89,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'program name',
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -111,6 +114,130 @@ test.describe('program creation', () => {
     await adminProgramImage.expectProgramImagePage()
   })
 
+  test('renders saved values for application steps', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
+    const programName = 'program name'
+    const titleOne = 'Title one'
+    const descriptionOne = 'Description one'
+    const titleTwo = 'Title two'
+    const descriptionTwo = 'Description two'
+    const titleThree = 'Title three'
+    const descriptionThree = 'Description three'
+
+    await test.step('add program with multiple application steps', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ false,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ true,
+        [
+          {title: titleOne, description: descriptionOne},
+          {title: titleTwo, description: descriptionTwo},
+          {title: titleThree, description: descriptionThree},
+        ],
+      )
+      await adminProgramImage.expectProgramImagePage()
+    })
+
+    await test.step('navigate back to program edit page and confirm application step values show up', async () => {
+      await adminProgramImage.clickBackButton()
+      await adminPrograms.expectProgramEditPage(programName)
+      expect(
+        await page.getByRole('textbox', {name: 'Step 1 title'}).inputValue(),
+      ).toEqual(titleOne)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 1 description'})
+          .inputValue(),
+      ).toEqual(descriptionOne)
+      expect(
+        await page.getByRole('textbox', {name: 'Step 2 title'}).inputValue(),
+      ).toEqual(titleTwo)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 2 description'})
+          .inputValue(),
+      ).toEqual(descriptionTwo)
+      expect(
+        await page.getByRole('textbox', {name: 'Step 3 title'}).inputValue(),
+      ).toEqual(titleThree)
+      expect(
+        await page
+          .getByRole('textbox', {name: 'Step 3 description'})
+          .inputValue(),
+      ).toEqual(descriptionThree)
+    })
+  })
+
+  test('blank application steps are ignored', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
+    const programName = 'program name'
+    const titleOne = 'Title one'
+    const descriptionOne = 'Description one'
+    const titleThree = 'Title three'
+    const descriptionThree = 'Description three'
+
+    await test.step('add program with blank application step', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ false,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ true,
+        [
+          {title: titleOne, description: descriptionOne},
+          {title: '', description: ''}, // step 2 is blank
+          {title: titleThree, description: descriptionThree},
+        ],
+      )
+      await adminProgramImage.expectProgramImagePage()
+    })
+
+    await test.step('navigate back to program edit page and confirm previously blank step is ignored', async () => {
+      await adminProgramImage.clickBackButton()
+      await adminPrograms.expectProgramEditPage(programName)
+      expect(await page.locator('#apply-step-1-title').inputValue()).toEqual(
+        titleOne,
+      )
+      expect(
+        await page.locator('#apply-step-1-description').inputValue(),
+      ).toEqual(descriptionOne)
+      // values that were entered for step three now show up under step 2
+      expect(await page.locator('#apply-step-2-title').inputValue()).toEqual(
+        titleThree,
+      )
+      expect(
+        await page.locator('#apply-step-2-description').inputValue(),
+      ).toEqual(descriptionThree)
+      // step three is blank
+      expect(await page.locator('#apply-step-3-title').inputValue()).toEqual('')
+      expect(
+        await page.locator('#apply-step-3-description').inputValue(),
+      ).toEqual('')
+    })
+  })
+
   test('create program then go back prevents URL edits', async ({
     page,
     adminPrograms,
@@ -122,6 +249,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       programName,
       'description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -922,10 +1050,7 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('create common intake form with intake form feature enabled', async ({
-    page,
-    adminPrograms,
-  }) => {
+  test('create common intake form', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
     const programName = 'Apc program'
@@ -959,6 +1084,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       commonIntakeFormProgramName,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1008,6 +1134,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'cif',
       'desc',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1027,6 +1154,7 @@ test.describe('program creation', () => {
     await adminPrograms.addProgram(
       'cif',
       'desc',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
@@ -1085,72 +1213,126 @@ test.describe('program creation', () => {
     )
   })
 
-  test('create and update program with categories', async ({
-    page,
-    adminPrograms,
-  }) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
-    const programName = 'program with categories'
+  test.describe('create and update programs with program filtering enabled', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'program_filtering_enabled')
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
+      await test.step('seed categories', async () => {
+        await seedProgramsAndCategories(page)
+        await page.goto('/')
+      })
     })
 
-    await test.step('create new program', async () => {
+    test('create and update program with categories', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const programName = 'program with categories'
+
+      await test.step('create new program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          programName,
+          'description',
+          'short program description',
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          'admin description',
+          /* isCommonIntake= */ false,
+          'selectedTI',
+          'confirmationMessage',
+          Eligibility.IS_GATING,
+          /* submitNewProgram= */ false,
+        )
+      })
+
+      await test.step('add categories to program', async () => {
+        await page.getByText('Education').check()
+        await page.getByText('Healthcare').check()
+      })
+
+      await test.step('validate screenshot', async () => {
+        await validateScreenshot(
+          page.locator('#program-details-form'),
+          'program-creation-with-categories',
+        )
+      })
+
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+
+      await test.step('submit and publish program', async () => {
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.publishProgram(programName)
+      })
+
+      await test.step('go to program edit form and check that categories are still pre-selected', async () => {
+        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+          programName,
+        )
+        await page.getByRole('button', {name: 'Edit program details'}).click()
+        await waitForPageJsLoad(page)
+        await expect(page.getByText('Education')).toBeChecked()
+        await expect(page.getByText('Healthcare')).toBeChecked()
+      })
+
+      await test.step('add another category', async () => {
+        await page.getByText('Internet').check()
+      })
+
+      await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.goToProgramDescriptionPage(programName)
+        await expect(page.getByText('Education')).toBeChecked()
+        await expect(page.getByText('Healthcare')).toBeChecked()
+        await expect(page.getByText('Internet')).toBeChecked()
+      })
+    })
+
+    // This test will replace the similar test when the feature flag is removed
+    test('create common intake form with program filtering enabled', async ({
+      page,
+      adminPrograms,
+    }) => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        programName,
-        'description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ false,
-        'selectedTI',
-        'confirmationMessage',
-        Eligibility.IS_GATING,
-        /* submitNewProgram= */ false,
-      )
-    })
+      const programName = 'Apc program'
 
-    await test.step('add categories to program', async () => {
-      await page.getByText('Education').check()
-      await page.getByText('Healthcare').check()
-    })
+      await test.step('create new program that is not an intake form', async () => {
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.goToProgramDescriptionPage(programName)
 
-    await test.step('validate screenshot', async () => {
-      await validateScreenshot(
-        page.locator('#program-details-form'),
-        'program-creation-with-categories',
-      )
-    })
+        await validateScreenshot(
+          page.locator('#program-details-form'),
+          'program-edit-page-with-intake-form-false-filtering-enabled',
+        )
+      })
 
-    await expect(page.getByText('Education')).toBeChecked()
-    await expect(page.getByText('Healthcare')).toBeChecked()
+      const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
 
-    await test.step('submit and publish program', async () => {
+      await test.step('expect common intake toggle not to be checked', async () => {
+        await expect(commonIntakeFormInput).not.toBeChecked()
+      })
+
+      await test.step('add category to program', async () => {
+        await page.getByText('Education').check()
+      })
+
+      await test.step('click common intake toggle and expect it to be checked', async () => {
+        await adminPrograms.clickCommonIntakeFormToggle()
+        await validateScreenshot(
+          page.locator('#program-details-form'),
+          'program-edit-page-with-intake-form-true-filtering-enabled',
+        )
+        await expect(commonIntakeFormInput).toBeChecked()
+      })
+
+      await test.step('expect categories to be unchecked and disabled', async () => {
+        await expect(page.getByText('Education')).toBeDisabled()
+        await expect(page.getByText('Education')).not.toBeChecked()
+      })
+
       await adminPrograms.submitProgramDetailsEdits()
-      await adminPrograms.publishProgram(programName)
-    })
-
-    await test.step('go to program edit form and check that categories are still pre-selected', async () => {
-      await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-      await waitForPageJsLoad(page)
-      await expect(page.getByText('Education')).toBeChecked()
-      await expect(page.getByText('Healthcare')).toBeChecked()
-    })
-
-    await test.step('add another category', async () => {
-      await page.getByText('Internet').check()
-    })
-
-    await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
-      await adminPrograms.submitProgramDetailsEdits()
-      await adminPrograms.goToProgramDescriptionPage(programName)
-      await expect(page.getByText('Education')).toBeChecked()
-      await expect(page.getByText('Healthcare')).toBeChecked()
-      await expect(page.getByText('Internet')).toBeChecked()
+      await adminPrograms.expectProgramBlockEditPage(programName)
     })
   })
 })

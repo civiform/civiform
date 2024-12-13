@@ -2,23 +2,11 @@ package services.cloud.azure;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.models.BlobCorsRule;
-import com.azure.storage.blob.models.BlobServiceProperties;
-import com.azure.storage.blob.models.UserDelegationKey;
-import com.azure.storage.blob.sas.BlobSasPermission;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
-import com.azure.storage.common.sas.SasProtocol;
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import java.net.URL;
-import java.net.URLConnection;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -30,9 +18,10 @@ import services.cloud.StorageServiceName;
 /** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
 public class AzureApplicantStorage implements ApplicantStorageClient {
+  @VisibleForTesting static final String AZURE_FILE_LIMIT_MB_CONF_PATH = "azure.blob.file_limit_mb";
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
-  public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
+  public static final String AZURE_CONTAINER_NAME_CONF_PATH = "azure.blob.container_name";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
   // A User Delegation Key is used to sign SAS tokens without having to store the
@@ -41,37 +30,47 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   // https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
   public static final Duration AZURE_USER_DELEGATION_KEY_DURATION = Duration.ofMinutes(60);
 
-  private final Credentials credentials;
-  private final String container;
-  private final Client client;
+  private final String containerName;
+  private final AzureBlobStorageClientInterface client;
+  private final int fileLimitMb;
   private final String accountName;
-  private final String blobEndpoint;
-  private final ZoneId zoneId;
 
   @Inject
   public AzureApplicantStorage(
       Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
-    this.credentials = checkNotNull(credentials);
-    this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
+    this.containerName = checkNotNull(config).getString(AZURE_CONTAINER_NAME_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
-    this.zoneId = checkNotNull(zoneId);
-    this.blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
+    this.fileLimitMb = checkNotNull(config).getInt(AZURE_FILE_LIMIT_MB_CONF_PATH);
+
+    String blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
     if (environment.isDev()) {
-      client = new AzuriteClient(config);
+      client =
+          new DevAzureBlobStorageClient(
+              config,
+              zoneId,
+              containerName,
+              AZURE_SAS_TOKEN_DURATION,
+              /* allowPublicRead= */ false);
     } else if (environment.isTest()) {
-      client = new NullClient();
+      client = new TestAzureBlobStorageClient();
     } else {
-      client = new AzureBlobClient(config, this.zoneId);
+      client =
+          new AzureBlobStorageClient(
+              config,
+              zoneId,
+              credentials,
+              this.containerName,
+              blobEndpoint,
+              AZURE_SAS_TOKEN_DURATION,
+              AZURE_USER_DELEGATION_KEY_DURATION);
     }
   }
 
   @Override
   public int getFileLimitMb() {
-    // We currently don't enforce a file limit for Azure, so use the max integer value.
-    // TODO(#7013): Enforce a file size limit for Azure.
-    return Integer.MAX_VALUE;
+    return fileLimitMb;
   }
 
   @Override
@@ -92,7 +91,8 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
     }
   }
 
-  Client getClient() {
+  @VisibleForTesting
+  AzureBlobStorageClientInterface getClient() {
     return client;
   }
 
@@ -108,7 +108,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
         BlobStorageUploadRequest.builder()
             .setFileName(fileName)
             .setAccountName(accountName)
-            .setContainerName(container)
+            .setContainerName(containerName)
             .setBlobUrl(client.getBlobUrl(fileName))
             .setSasToken(client.getSasToken(fileName, Optional.empty()))
             .setSuccessActionRedirect(successActionRedirectUrl);
@@ -118,167 +118,5 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   @Override
   public StorageServiceName getStorageServiceName() {
     return StorageServiceName.AZURE_BLOB;
-  }
-
-  interface Client {
-
-    String getSasToken(String fileName, Optional<String> originalFileName);
-
-    String getBlobUrl(String fileName);
-  }
-
-  private abstract static class BaseAzureBlobClient implements Client {
-    private void setCorsRules(BlobServiceClient blobServiceClient, String baseUrl) {
-      BlobServiceProperties properties =
-          new BlobServiceProperties()
-              .setCors(
-                  List.of(
-                      new BlobCorsRule()
-                          .setAllowedOrigins(baseUrl)
-                          // These headers are generated by the azure sdk
-                          // and passed along, more info on the headers:
-                          // https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob
-                          .setAllowedHeaders(
-                              "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type,x-ms-blob-content-disposition")
-                          .setAllowedMethods("GET,PUT,OPTIONS")
-                          .setMaxAgeInSeconds(500)));
-      blobServiceClient.setProperties(properties);
-    }
-  }
-
-  /** Class to use for BlobStorage unit tests. */
-  static class NullClient implements Client {
-
-    NullClient() {}
-
-    @Override
-    public String getSasToken(String fileName, Optional<String> originalFileName) {
-      if (originalFileName.isPresent()) {
-        return "sasTokenWithContentHeaders";
-      }
-      return "sasToken";
-    }
-
-    @Override
-    public String getBlobUrl(String fileName) {
-      return "http://www.blobUrl.com";
-    }
-  }
-
-  /** Class to use for prod file uploads to Azure blob storage. */
-  class AzureBlobClient extends BaseAzureBlobClient {
-
-    private final BlobServiceClient blobServiceClient;
-    private UserDelegationKey userDelegationKey;
-    private final ZoneId zoneId;
-
-    AzureBlobClient(Config config, ZoneId zoneId) {
-      this.zoneId = checkNotNull(zoneId);
-      String baseUrl = checkNotNull(config).getString("base_url");
-
-      blobServiceClient =
-          new BlobServiceClientBuilder()
-              .endpoint(blobEndpoint)
-              .credential(credentials.getCredentials())
-              .buildClient();
-      super.setCorsRules(blobServiceClient, baseUrl);
-      userDelegationKey = getUserDelegationKey();
-    }
-
-    private UserDelegationKey getUserDelegationKey() {
-      OffsetDateTime tokenExpiration = OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION);
-      boolean isUserDelegationKeyExpired = false;
-      if (userDelegationKey != null) {
-        OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
-        isUserDelegationKeyExpired = keyExpiration.isBefore(tokenExpiration);
-      }
-      if (userDelegationKey == null || isUserDelegationKeyExpired) {
-        userDelegationKey =
-            blobServiceClient.getUserDelegationKey(
-                OffsetDateTime.now(zoneId).minus(Duration.ofMinutes(5)),
-                OffsetDateTime.now(zoneId).plus(AZURE_USER_DELEGATION_KEY_DURATION));
-      }
-      return userDelegationKey;
-    }
-
-    @Override
-    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
-      BlobClient blobClient =
-          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
-
-      BlobSasPermission blobSasPermission =
-          new BlobSasPermission().setReadPermission(true).setWritePermission(true);
-
-      BlobServiceSasSignatureValues signatureValues =
-          new BlobServiceSasSignatureValues(
-                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
-              .setProtocol(SasProtocol.HTTPS_ONLY);
-
-      if (prefixedOriginalFileName.isPresent()) {
-        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
-        signatureValues.setContentType(
-            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
-      }
-
-      return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
-    }
-
-    @Override
-    public String getBlobUrl(String fileName) {
-      BlobClient blobClient =
-          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
-      return blobClient.getBlobUrl();
-    }
-  }
-
-  /** Class to use for BlobStorage dev environment. */
-  class AzuriteClient extends BaseAzureBlobClient {
-    // Using Account SAS because Azurite emulator does not support User Delegation
-    // SAS yet See https://github.com/Azure/Azurite/issues/656
-
-    private static final String AZURE_LOCAL_CONNECTION_STRING_CONF_PATH = "azure.local.connection";
-
-    private final String connectionString;
-    private final BlobServiceClient blobServiceClient;
-    private final BlobContainerClient blobContainerClient;
-
-    AzuriteClient(Config config) {
-      this.connectionString =
-          checkNotNull(config).getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
-      this.blobServiceClient =
-          new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
-      String baseUrl = checkNotNull(config).getString("base_url");
-      super.setCorsRules(blobServiceClient, baseUrl);
-      this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
-      if (!blobContainerClient.exists()) {
-        blobContainerClient.create();
-      }
-    }
-
-    @Override
-    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
-      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-
-      BlobSasPermission blobSasPermission =
-          new BlobSasPermission().setReadPermission(true).setWritePermission(true);
-
-      BlobServiceSasSignatureValues signatureValues =
-          new BlobServiceSasSignatureValues(
-                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
-              .setProtocol(SasProtocol.HTTPS_HTTP);
-
-      if (prefixedOriginalFileName.isPresent()) {
-        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
-        signatureValues.setContentType(
-            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
-      }
-
-      return blobClient.generateSas(signatureValues);
-    }
-
-    @Override
-    public String getBlobUrl(String fileName) {
-      return blobContainerClient.getBlobClient(fileName).getBlobUrl();
-    }
   }
 }

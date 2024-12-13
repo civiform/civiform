@@ -20,7 +20,7 @@ import models.PersistedDurableJobModel;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 
 /**
  * Executes {@link DurableJob}s when their time has come.
@@ -39,7 +39,7 @@ public abstract class AbstractDurableJobRunner {
   private final String itEmailAddress;
   private final int jobTimeoutMinutes;
   private final Provider<LocalDateTime> nowProvider;
-  private final SimpleEmail simpleEmail;
+  private final EmailSendClient emailSendClient;
   private final ZoneOffset zoneOffset;
 
   public AbstractDurableJobRunner(
@@ -47,7 +47,7 @@ public abstract class AbstractDurableJobRunner {
       DurableJobExecutionContext durableJobExecutionContext,
       DurableJobRegistry durableJobRegistry,
       Provider<LocalDateTime> nowProvider,
-      SimpleEmail simpleEmail,
+      EmailSendClient emailSendClient,
       ZoneId zoneId) {
     this.hostName =
         config.getString("base_url").replace("https", "").replace("http", "").replace("://", "");
@@ -59,7 +59,7 @@ public abstract class AbstractDurableJobRunner {
             : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
 
-    this.simpleEmail = Preconditions.checkNotNull(simpleEmail);
+    this.emailSendClient = Preconditions.checkNotNull(emailSendClient);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.zoneOffset = zoneId.getRules().getOffset(nowProvider.get());
   }
@@ -116,7 +116,7 @@ public abstract class AbstractDurableJobRunner {
         String.format("Error report for: job_name=\"%s\", job_ID=%d\n", job.getJobName(), job.id));
     contents.append(job.getErrorMessage().orElse("Job is missing error messages."));
 
-    simpleEmail.send(itEmailAddress, subject, contents.toString());
+    emailSendClient.send(itEmailAddress, subject, contents.toString());
   }
 
   private void runJob(PersistedDurableJobModel persistedDurableJob) {
@@ -130,12 +130,17 @@ public abstract class AbstractDurableJobRunner {
     try {
       persistedDurableJob.decrementRemainingAttempts().save();
 
+      Optional<DurableJobName> optionalJobName =
+          DurableJobName.optionalValueOf(persistedDurableJob.getJobName());
+      if (optionalJobName.isEmpty()) {
+        throw new JobNotFoundException(
+            String.format(
+                "Job name \"%s\" not found in DurableJobName", persistedDurableJob.getJobName()));
+      }
+
       // Run the job in a separate thread and block until it completes, fails, or times out.
       runJobWithTimeout(
-          durableJobRegistry
-              .get(DurableJobName.valueOf(persistedDurableJob.getJobName()))
-              .getFactory()
-              .create(persistedDurableJob));
+          durableJobRegistry.get(optionalJobName.get()).getFactory().create(persistedDurableJob));
 
       persistedDurableJob.setSuccessTime(nowProvider.get().toInstant(zoneOffset)).save();
 
@@ -146,7 +151,7 @@ public abstract class AbstractDurableJobRunner {
           getJobDurationInSeconds(startTime));
     } catch (JobNotFoundException e) {
       // If the job is not found in the registry, it was likely removed intentionally
-      // In this case, we want to delete the job from the database becuase it should not be run
+      // In this case, we want to delete the job from the database because it should not be run
       // anymore
       if (persistedDurableJob.delete()) {
         LOGGER.info(

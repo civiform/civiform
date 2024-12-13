@@ -2,14 +2,15 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.application.ApplicationEventDetails;
 
@@ -87,5 +88,11 @@ public final class ApplicationEventModel extends BaseModel {
 
   public Instant getCreateTime() {
     return createTime;
+  }
+
+  @VisibleForTesting
+  public ApplicationEventModel setCreateTimeForTest(Instant v) {
+    this.createTime = v;
+    return this;
   }
 }

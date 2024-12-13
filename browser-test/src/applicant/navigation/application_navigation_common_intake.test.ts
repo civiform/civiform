@@ -32,6 +32,7 @@ test.describe('Applicant navigation flow', () => {
         await adminPrograms.addProgram(
           commonIntakeProgramName,
           'program description',
+          'short program description',
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',

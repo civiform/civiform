@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.4
+    image: postgres:16.6
     stdin_open: true
     tty: true
     volumes:
@@ -58,7 +58,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4:8.12
+    image: dpage/pgadmin4:8.14
     restart: always
     depends_on:
       - db
@@ -72,6 +72,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: password
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
 
   prometheus:
     profiles: ['monitoring']

@@ -29,7 +29,7 @@ footer.technicalSupport=如需技術支援服務，請傳送電子郵件至 {0}
 # This should be consistent with button.guestLogin.
 guest=訪客
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=選取語言
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=選擇語言
 # A label on the button that opens the header menu shown on mobile
@@ -63,6 +63,12 @@ button.close=關閉
 button.review=檢查
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -100,12 +106,12 @@ link.adminLogin=管理員登入
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=已上傳檔案：{0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=選取檔案
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=選取一或多個檔案 (最多可選取 {0} 個)
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=選取一或多個檔案
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=刪除
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -117,7 +123,7 @@ button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=返回
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=儲存申請書，之後再填寫
+button.reviewAndExit=查看並退出
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=略過
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +132,8 @@ content.blockProgress={0}/{1}
 content.blockProgressFull=已回答 {0} 題 (共 {1} 題)
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請進度
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull=已上傳 {0} 個檔案 (共 {1} 個)
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=查看並提交
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -171,6 +177,10 @@ button.editSr=編輯已提交的「{0}」申請資料
 button.continueSr=繼續申請「{0}」
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -179,8 +189,6 @@ button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
 button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=繼續填寫「{0}」
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=查看詳細資料
 # Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
 # Text for applicants to understand the section is for finding programs
@@ -189,9 +197,13 @@ content.findPrograms=尋找可加入的計畫
 content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格參加的{0}計畫。請先在下方選擇申請項目。
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # Link text to read more about a program.
@@ -211,21 +223,19 @@ title.inProgressProgramsUpdated=進行中
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=未開始
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=尋找可協助您的服務
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=尋找服務
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=我的申請書 ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=其他計畫 ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=其他計畫和服務 ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=計畫 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=建議 ({0})
+title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=此部分已填寫完畢
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -234,6 +244,14 @@ title.submittedPrograms=已提交
 toast.applicationSaved=申請資料儲存成功：申請編號 {0}
 # Alert banner when an application was already completed
 toast.programCompleted=已完成申請。
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -380,6 +398,8 @@ title.tiAccountSettings=信任的中介服務 - 查看帳戶設定 - CiviForm
 
 # Submit application button
 button.submit=提交
+# Submit application button
+button.submitApplication=提交申請書
 # Continue application button
 button.continue=繼續
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -413,6 +433,8 @@ title.programSummary=計畫申請摘要
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=不符合計畫資格
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -517,10 +539,14 @@ button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.commonIntakeConfirmation=您可能有資格參加的計畫
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=您的客戶可能有資格參加的計畫
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=根據您的回覆，您可能符合下列計畫的資格：
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=根據您的回覆，您的客戶可能符合下列計畫的資格：
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -529,6 +555,8 @@ content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=下載申請書
 button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
@@ -544,8 +572,6 @@ heading.dateSubmitted=提交日期
 heading.forYourRecords=記錄確認頁面
 # Text above a button to print this page
 content.youCanPrint=您可以列印本記錄確認頁面。
-# Button to print this webpage
-button.print=列印此頁面
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -558,7 +584,7 @@ alert.createAccountDescription=使用帳戶重新登入後，即可查看申請�
 content.loginToExistingAccount=登入現有帳戶
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=沒有可儲存的「{0}」修改內容
@@ -705,6 +731,10 @@ validation.fileRequired=請選取檔案。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
 button.chooseFile=選擇檔案
+# Text shown on a tag while a file is uploading.
+label.uploading=上傳中
+# Label applied to a list of uploaded files
+label.uploadedFiles=上傳的檔案
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -794,8 +824,6 @@ adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=發生錯誤
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=發生錯誤
 # The subtitle on the error page that is show to the user in medium font
@@ -859,3 +887,45 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 banner.guestBannerText=您目前是以訪客身分申請。申請完成後，請{0}來保護您的資料。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=兒童保育
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=經濟
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=教育
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=就業
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=食物
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=一般
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=醫療照護
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=住宅
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=網際網路
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=訓練
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=交通運輸
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=公用事業

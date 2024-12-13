@@ -7,6 +7,7 @@ import auth.CiviFormProfileData;
 import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,7 +20,6 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.play.PlayWebContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
-import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
 public class GenericApplicantProfileCreatorTest extends ResetPostgres {
@@ -51,10 +51,15 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            EMAIL_ATTRIBUTE_NAME,
-            LOCALE_ATTRIBUTE_NAME,
-            ImmutableList.of(
-                FIRST_NAME_ATTRIBUTE_NAME, MIDDLE_NAME_ATTRIBUTE_NAME, LAST_NAME_ATTRIBUTE_NAME));
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(
+                    ImmutableList.of(
+                        FIRST_NAME_ATTRIBUTE_NAME,
+                        MIDDLE_NAME_ATTRIBUTE_NAME,
+                        LAST_NAME_ATTRIBUTE_NAME))
+                .build());
   }
 
   // Test for https://github.com/civiform/civiform/issues/8344
@@ -68,9 +73,11 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client,
             OidcClientProviderParams.create(
                 profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
-            EMAIL_ATTRIBUTE_NAME,
-            LOCALE_ATTRIBUTE_NAME,
-            ImmutableList.of(NAME_ATTRIBUTE));
+            StandardClaimsAttributeNames.builder()
+                .setEmail(EMAIL_ATTRIBUTE_NAME)
+                .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
+                .setNames(ImmutableList.of(NAME_ATTRIBUTE))
+                .build());
 
     OidcProfile profile = new OidcProfile();
     profile.addAttribute(EMAIL_ATTRIBUTE_NAME, "foo@bar.com");
@@ -87,9 +94,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName()).isEmpty();
+    assertThat(applicant.getApplicantName()).isEmpty();
   }
 
   @Test
@@ -109,10 +116,10 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName()).isEmpty();
-    assertThat(applicantData.preferredLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(applicant.getApplicantName()).isEmpty();
+    assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test
@@ -136,11 +143,10 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isPresent();
 
-    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+    ApplicantModel applicant = maybeApplicant.get();
 
-    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
-        .isEqualTo("Fry, Philip");
-    Locale l = applicantData.preferredLocale();
+    assertThat(applicant.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
+    Locale l = applicant.getApplicantData().preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
   }
 

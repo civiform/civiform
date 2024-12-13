@@ -42,7 +42,7 @@ public class StaticContentQuestionTest extends ResetPostgres {
   @Test
   public void defaultState() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
 
     StaticContentQuestion question = new StaticContentQuestion(applicantQuestion);
 

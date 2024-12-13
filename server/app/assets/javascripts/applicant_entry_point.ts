@@ -16,8 +16,19 @@ import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
+import * as htmx from './htmx'
+
+declare global {
+  interface Window {
+    htmx: typeof htmx
+  }
+}
+
+window.htmx = htmx
 
 window.addEventListener('load', () => {
+  const AZURE_APPLICANT_FILEUPLOAD_FORM_ID = 'cf-block-form'
+
   main.init()
   languageSelector.init()
   enumerator.init()
@@ -27,7 +38,7 @@ window.addEventListener('load', () => {
   northStarModal.init()
   fileUpload.init()
   azureDelete.init()
-  azureUpload.init()
+  azureUpload.init(AZURE_APPLICANT_FILEUPLOAD_FORM_ID)
   phoneNumber.init()
   // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()

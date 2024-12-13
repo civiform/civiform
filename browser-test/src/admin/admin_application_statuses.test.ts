@@ -364,6 +364,7 @@ test.describe('view program statuses', () => {
       const csvContent = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContent).toContain('Note is updated')
 
+      await adminPrograms.viewApplicationForApplicant('Guest')
       await adminPrograms.editNote('Note is finalized')
       await adminPrograms.expectNoteUpdatedToast()
       const csvContentFinal = await adminPrograms.getCsv(noApplyFilters)

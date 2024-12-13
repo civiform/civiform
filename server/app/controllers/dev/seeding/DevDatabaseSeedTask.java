@@ -29,14 +29,15 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.RollbackException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.RollbackException;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -86,6 +87,7 @@ public final class DevDatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
+
   private final QuestionService questionService;
   private final ProgramService programService;
   private final StatusService statusService;
@@ -172,6 +174,7 @@ public final class DevDatabaseSeedTask {
               "desc",
               "Minimal Sample Program",
               "display description",
+              "short description",
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
@@ -180,7 +183,9 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
-              /* categoryIds= */ ImmutableList.of());
+              /* categoryIds= */ ImmutableList.of(),
+              /* applicationSteps= */ ImmutableList.of(
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -216,6 +221,7 @@ public final class DevDatabaseSeedTask {
               "desc",
               "Comprehensive Sample Program",
               "display description",
+              "short description",
               /* defaultConfirmationMessage= */ "",
               "https://github.com/civiform/civiform",
               DisplayMode.PUBLIC.getValue(),
@@ -224,7 +230,9 @@ public final class DevDatabaseSeedTask {
               /* eligibilityIsGating= */ true,
               /* programType= */ ProgramType.DEFAULT,
               ImmutableList.of(),
-              /* categoryIds= */ ImmutableList.of());
+              /* categoryIds= */ ImmutableList.of(),
+              /* applicationSteps= */ ImmutableList.of(
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }

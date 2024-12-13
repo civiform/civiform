@@ -30,12 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
-import play.libs.F;
-import services.IdentifierBasedPaginationSpec;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
-import services.Path;
-import services.WellKnownPaths;
+import services.pagination.BasePaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
@@ -368,15 +364,10 @@ public final class ProgramRepository {
    * it where the application matches the specified filters. Does not include drafts or deleted
    * applications. Results returned in reverse order that the applications were created.
    *
-   * <p>Both offset-based and page number-based pagination are supported. For paginationSpecEither
-   * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
-   * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
+   * <p>Pagination is supported via the passed {@link BasePaginationSpec} object.
    */
   public PaginationResult<ApplicationModel> getApplicationsForAllProgramVersions(
-      long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     ExpressionList<ApplicationModel> query =
         database
             .find(ApplicationModel.class)
@@ -385,7 +376,6 @@ public final class ProgramRepository {
                 queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
-            .orderBy("id desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
             .in(
@@ -402,11 +392,7 @@ public final class ProgramRepository {
 
     if (filters.searchNameFragment().isPresent() && !filters.searchNameFragment().get().isBlank()) {
       String search = filters.searchNameFragment().get().trim();
-      if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-        query = searchUsingPrimaryApplicantInfo(search, query);
-      } else {
-        query = searchUsingWellKnownPaths(search, query);
-      }
+      query = searchUsingPrimaryApplicantInfo(search, query);
     }
 
     String toMatchStatus = filters.applicationStatus().orElse("");
@@ -418,25 +404,8 @@ public final class ProgramRepository {
       }
     }
 
-    PagedList<ApplicationModel> pagedQuery;
-
-    if (paginationSpecEither.left.isPresent()) {
-      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
-      pagedQuery =
-          query
-              .where()
-              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    } else {
-      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
-      pagedQuery =
-          query
-              .setFirstRow(paginationSpec.getCurrentPageOffset())
-              .setMaxRows(paginationSpec.getPageSize())
-              .findPagedList();
-    }
-
+    // Sort order is dictated by the pagination spec that was specified.
+    PagedList<ApplicationModel> pagedQuery = paginationSpec.apply(query.query()).findPagedList();
     pagedQuery.loadCount();
 
     return new PaginationResult<ApplicationModel>(
@@ -489,53 +458,6 @@ public final class ProgramRepository {
           .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
           .endOr();
     }
-  }
-
-  // TODO (#5503): Remove this when we remove the PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED feature
-  // flag
-  private ExpressionList<ApplicationModel> searchUsingWellKnownPaths(
-      String search, ExpressionList<ApplicationModel> query) {
-
-    if (search.matches("^\\d+$")) {
-      return query.eq("id", Integer.parseInt(search));
-    } else {
-      String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
-      String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
-      return query
-          .or()
-          .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
-          .raw("submitter_email ILIKE ?", "%" + search + "%")
-          .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
-          .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-          .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
-          .endOr();
-    }
-  }
-
-  private String getApplicationObjectPath(Path path) {
-    StringBuilder result = new StringBuilder();
-
-    result.append("(");
-
-    // While the column type is JSONB, CiviForm writes the JSON object into the database as a
-    // string.
-    // This requires queries that interact with the JSON column to instruct postgres to parse the
-    // contents
-    // into JSON, which we do here with (object #>> '{}')::jsonb
-    result.append("(object #>> '{}')::jsonb");
-
-    int lastIndex = path.segments().size() - 1;
-    for (int i = 0; i < lastIndex; i++) {
-      result.append(" -> '");
-      result.append(path.segments().get(i));
-      result.append("'");
-    }
-
-    result.append(" ->> '");
-    result.append(path.segments().get(lastIndex));
-    result.append("')");
-
-    return result.toString();
   }
 
   /**

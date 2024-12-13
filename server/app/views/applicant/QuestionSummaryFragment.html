@@ -1,0 +1,37 @@
+<th:block th:fragment="questionSummaryFragment(answerData)">
+  <div class="cf-applicant-summary-row">
+    <!-- Horizontal separator line -->
+    <div class="border-t border-base-lighter content"></div>
+
+    <div class="usa-prose container">
+      <!-- TODO(#5510): Add indicator for optional questions -->
+      <span
+        class="grid-col-6 left-align zero-margin mobile-truncate-3"
+        th:utext="${answerData.questionHtml()}"
+      ></span>
+      <div th:replace="~{this :: multilineAnswer(${answerData})}"></div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="multilineAnswer(answerData)">
+  <ol id="summary-multiline-list" class="grid-col-6 right-align">
+    <li
+      th:each="answerLine, status : ${answerData.multilineAnswerText()}"
+      class="usa-prose"
+      th:with="useLink=${status.index < answerData.urls().size()}"
+    >
+      <a
+        th:if="${useLink}"
+        th:text="${answerLine}"
+        th:href="${answerData.urls().get(status.index)}"
+        class="zero-margin summary-answer mobile-truncate-3 summary-download-file-link"
+      ></a>
+      <span
+        th:if="${!useLink}"
+        th:text="${answerLine}"
+        class="zero-margin summary-answer mobile-truncate-3"
+      ></span>
+    </li>
+  </ol>
+</th:block>

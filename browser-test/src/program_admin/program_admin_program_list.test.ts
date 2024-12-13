@@ -42,6 +42,7 @@ test.describe('Program admin program list', () => {
       await adminPrograms.addProgram(
         'Disabled Program Name',
         'Program Description',
+        'Short Program Description',
         'https://usa.gov',
         ProgramVisibility.DISABLED,
       )

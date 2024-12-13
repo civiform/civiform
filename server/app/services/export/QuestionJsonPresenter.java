@@ -8,14 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import services.Path;
 import services.applicant.question.AddressQuestion;
@@ -35,7 +29,6 @@ import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
 import services.export.enums.ApiPathSegment;
 import services.export.enums.QuestionTypeExternal;
-import services.geo.ServiceAreaInclusion;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
@@ -196,10 +189,6 @@ public interface QuestionJsonPresenter<Q extends Question> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
         AddressQuestion question, boolean multipleFileUploadEnabled) {
-      // lat/long past 8 decimal places isn't likely or useful, so we round at 8 and always use a
-      // period as the decimal seperator.
-      DecimalFormat latLongFormat =
-          new DecimalFormat("#.########", new DecimalFormatSymbols(Locale.US));
 
       // We could be clever and loop through question.getAllPaths(), but we want
       // to explicitly set which scalars are exposed to the API.
@@ -218,33 +207,16 @@ public interface QuestionJsonPresenter<Q extends Question> {
           /* k6= */ question.getCorrectedPath().asNestedEntitiesPath(),
           /* v6= */ question.getCorrectedValue(),
           /* k7= */ question.getLatitudePath().asNestedEntitiesPath(),
-          /* v7= */ question.getLatitudeValue().map(l -> latLongFormat.format(l)),
+          /* v7= */ question.getLatitudeValue().map(ExportFormatUtils::formatLatOrLongAsString),
           /* k8= */ question.getLongitudePath().asNestedEntitiesPath(),
-          /* v8= */ question.getLongitudeValue().map(l -> latLongFormat.format(l)),
+          /* v8= */ question.getLongitudeValue().map(ExportFormatUtils::formatLatOrLongAsString),
           /* k9= */ question.getWellKnownIdPath().asNestedEntitiesPath(),
           /* v9= */ question.getWellKnownIdValue().map(w -> Long.toString(w)),
 
           // TODO: #7134 Only here for api backwards compatibility. Long term this should move
           //       to call {@link question.getServiceAreasPath}
           /* k10= */ question.getServiceAreaPath().asNestedEntitiesPath(),
-          /* v10= */ question
-              .getServiceAreaValue()
-              .map(AddressJsonPresenter::serializeServiceArea));
-    }
-
-    /** Takes a list of {@link ServiceAreaInclusion}s and transforms them into a delimited string */
-    // TODO: #7134 Only here for api backwards compatibility. Long term remove.
-    private static String serializeServiceArea(
-        ImmutableList<ServiceAreaInclusion> serviceAreaInclusionGroup) {
-      return serviceAreaInclusionGroup.stream()
-          .map(
-              (area) ->
-                  area.getServiceAreaId()
-                      + "_"
-                      + area.getState().getSerializationFormat()
-                      + "_"
-                      + area.getTimeStamp())
-          .collect(Collectors.joining(","));
+          /* v10= */ question.getServiceAreaValue().map(ExportFormatUtils::serializeServiceArea));
     }
   }
 
@@ -346,12 +318,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
         ImmutableList<String> fileUrls =
             fileKeys.stream()
-                .map(
-                    fileKey ->
-                        baseUrl
-                            + controllers.routes.FileController.acledAdminShow(
-                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                                .url())
+                .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey))
                 .collect(toImmutableList());
 
         return ImmutableMap.of(fileUrlsPath, Optional.of(fileUrls));
@@ -361,12 +328,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
                 .getApplicantQuestion()
                 .createFileUploadQuestion()
                 .getFileKeyValue()
-                .map(
-                    fileKey ->
-                        baseUrl
-                            + controllers.routes.FileController.acledAdminShow(
-                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                                .url());
+                .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey));
 
         Optional<ImmutableList<String>> fileUrls =
             singleFileUploadLink.isPresent()

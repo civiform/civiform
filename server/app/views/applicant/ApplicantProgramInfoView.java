@@ -16,6 +16,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import java.util.Locale;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -60,7 +61,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             .addMainContent(topContent(programTitle, programInfo, messages))
             .addMainContent(createButtons(applicantId, program.id(), messages, profile));
 
-    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
+    return layout.renderWithNav(request, personalInfo, messages, bundle, Optional.of(applicantId));
   }
 
   private DivTag topContent(String programTitle, String programInfo, Messages messages) {

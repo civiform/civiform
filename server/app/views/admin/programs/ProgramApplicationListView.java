@@ -22,7 +22,6 @@ import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
@@ -34,12 +33,11 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
 import services.DateConverter;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
+import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -64,12 +62,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String SEARCH_PARAM = "search";
   private static final String APPLICATION_STATUS_PARAM = "applicationStatus";
   private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
+  private static final String SHOW_DOWNLOAD_MODAL = "showDownloadModal";
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
@@ -77,13 +75,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       AdminLayoutFactory layoutFactory,
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -92,11 +88,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> defaultStatus,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      PageNumberBasedPaginationSpec paginationSpec,
+      PageNumberPaginationSpec paginationSpec,
       PaginationResult<ApplicationModel> paginatedApplications,
       RenderFilterParams filterParams,
-      Optional<String> selectedApplicationUri) {
-    Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
+      Optional<String> selectedApplicationUri,
+      Optional<Boolean> showDownloadModal) {
+    Modal downloadModal =
+        renderDownloadApplicationsModal(program, filterParams, showDownloadModal.orElse(false));
+
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
 
     DivTag applicationListDiv =
@@ -105,11 +104,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 h1(program.adminName()).withClasses("mt-4"),
                 br(),
-                renderSearchForm(
-                    program,
-                    allPossibleProgramApplicationStatuses,
-                    downloadModal.getButton(),
-                    filterParams),
+                renderSearchForm(program, allPossibleProgramApplicationStatuses, filterParams),
                 each(
                     paginatedApplications.getPageContents(),
                     application ->
@@ -134,7 +129,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             filterParams.fromDate(),
                             filterParams.untilDate(),
                             filterParams.selectedApplicationStatus(),
-                            /* selectedApplicationUri= */ Optional.empty()),
+                            /* selectedApplicationUri= */ Optional.empty(),
+                            /* showDownloadModal= */ Optional.empty(),
+                            /* message= */ Optional.empty()),
                     /* optionalMessages */ Optional.empty()))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
@@ -171,7 +168,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private FormTag renderSearchForm(
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
-      ButtonTag downloadButton,
       RenderFilterParams filterParams) {
     String redirectUrl =
         routes.AdminApplicationController.index(
@@ -181,12 +177,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 /* fromDate= */ Optional.empty(),
                 /* untilDate= */ Optional.empty(),
                 /* applicationStatus= */ Optional.empty(),
-                /* selectedApplicationUri= */ Optional.empty())
+                /* selectedApplicationUri= */ Optional.empty(),
+                /* showDownloadModal= */ Optional.empty(),
+                /* message= */ Optional.empty())
             .url();
-    String labelText =
-        settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()
-            ? "Search by name, email, phone number, or application ID"
-            : "Search by name, email, or application ID";
+    String labelText = "Search by name, email, phone number, or application ID";
     return form()
         .withClasses("mt-6")
         .attr("data-override-disable-submit-on-enter")
@@ -199,7 +194,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     /* fromDate= */ Optional.empty(),
                     /* untilDate= */ Optional.empty(),
                     /* applicationStatus= */ Optional.empty(),
-                    /* selectedApplicationUri= */ Optional.empty())
+                    /* selectedApplicationUri= */ Optional.empty(),
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -271,7 +268,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .withClasses("mt-6", "mb-8", "flex", "space-x-2")
                 .with(
                     div().withClass("flex-grow"),
-                    downloadButton,
+                    makeSvgTextButton("Download", Icons.DOWNLOAD)
+                        .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
+                        .withName(SHOW_DOWNLOAD_MODAL)
+                        .withValue("true")
+                        .withType("submit"),
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
@@ -279,7 +280,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private Modal renderDownloadApplicationsModal(
-      ProgramDefinition program, RenderFilterParams filterParams) {
+      ProgramDefinition program, RenderFilterParams filterParams, boolean showDownloadModal) {
     String modalId = "download-program-applications-modal";
     DivTag modalContent =
         div()
@@ -355,10 +356,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(modalContent)
         .setModalTitle("Download application data")
-        .setTriggerButtonContent(
-            makeSvgTextButton("Download", Icons.DOWNLOAD)
-                .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
-                .withType("button"))
+        .setDisplayOnLoad(showDownloadModal)
         .build();
   }
 
@@ -371,7 +369,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         String.format(
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(
-                application.getApplicantData().getApplicantDisplayName()),
+                application.getApplicant().getApplicantDisplayName()),
             application.id);
     String viewLinkText = "View →";
 

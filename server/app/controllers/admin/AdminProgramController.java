@@ -10,8 +10,11 @@ import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.ProgramForm;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ApplicationStep;
 import models.ProgramModel;
 import models.ProgramTab;
 import org.pac4j.play.java.Secure;
@@ -114,17 +117,22 @@ public final class AdminProgramController extends CiviFormController {
     // a null element gets added as we always have a hidden
     // option as part of the checkbox display
     while (programData.getTiGroups().remove(null)) {}
+
+    ImmutableList<ApplicationStep> applicationSteps =
+        buildApplicationSteps(programData.getApplicationSteps());
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
             programData.getAdminName(),
             programData.getLocalizedDisplayName(),
-            programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             ImmutableList.copyOf(programData.getCategories()),
-            ImmutableList.copyOf(programData.getTiGroups()));
+            ImmutableList.copyOf(programData.getTiGroups()),
+            applicationSteps);
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
@@ -147,6 +155,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
@@ -156,7 +165,8 @@ public final class AdminProgramController extends CiviFormController {
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
             ImmutableList.copyOf(programData.getTiGroups()),
-            ImmutableList.copyOf(programData.getCategories()));
+            ImmutableList.copyOf(programData.getCategories()),
+            applicationSteps);
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -249,16 +259,20 @@ public final class AdminProgramController extends CiviFormController {
 
     ProgramEditStatus programEditStatus = ProgramEditStatus.getStatusFromString(editStatus);
 
+    ImmutableList<ApplicationStep> applicationSteps =
+        buildApplicationSteps(programData.getApplicationSteps());
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
             programData.getLocalizedDisplayName(),
-            programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedShortDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
             programData.getNotificationPreferences(),
             ImmutableList.copyOf(programData.getCategories()),
-            ImmutableList.copyOf(programData.getTiGroups()));
+            ImmutableList.copyOf(programData.getTiGroups()),
+            applicationSteps);
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
@@ -287,6 +301,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getAdminDescription(),
         programData.getLocalizedDisplayName(),
         programData.getLocalizedDisplayDescription(),
+        programData.getLocalizedShortDescription(),
         programData.getLocalizedConfirmationMessage(),
         programData.getExternalLink(),
         programData.getDisplayMode(),
@@ -294,7 +309,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getEligibilityIsGating(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         ImmutableList.copyOf(programData.getTiGroups()),
-        ImmutableList.copyOf(programData.getCategories()));
+        ImmutableList.copyOf(programData.getCategories()),
+        ImmutableList.copyOf(applicationSteps));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 
@@ -309,5 +325,22 @@ public final class AdminProgramController extends CiviFormController {
     } else {
       return redirect(routes.AdminProgramBlocksController.index(programId).url());
     }
+  }
+
+  /** Turn application step form data into ApplicationStep objects */
+  ImmutableList<ApplicationStep> buildApplicationSteps(List<Map<String, String>> applicationSteps) {
+    return applicationSteps.stream()
+        .filter(
+            step -> {
+              // include the step if either the title or description is filled out
+              boolean haveKeys = step.containsKey("title") && step.containsKey("description");
+              return haveKeys
+                  && (!step.get("title").isBlank() || !step.get("description").isBlank());
+            })
+        .map(
+            step -> {
+              return new ApplicationStep(step.get("title"), step.get("description"));
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 }

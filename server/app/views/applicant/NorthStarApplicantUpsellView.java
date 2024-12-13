@@ -48,10 +48,13 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programDescription", params.programDescription().orElse(""));
@@ -96,12 +99,13 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.request(),
             params.messages(),
             Optional.empty(),
-            MessageKey.BUTTON_APPLY,
+            MessageKey.BUTTON_VIEW_AND_APPLY,
             params.eligiblePrograms().get(),
             /* preferredLocale= */ params.messages().lang().toLocale(),
-            params.profile(),
-            params.applicantId(),
-            params.applicantPersonalInfo());
+            Optional.of(params.profile()),
+            Optional.of(params.applicantId()),
+            params.applicantPersonalInfo(),
+            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
     context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);

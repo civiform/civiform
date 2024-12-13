@@ -4,7 +4,11 @@ import {BASE_URL} from './src/support/config'
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
 export default defineConfig({
-  timeout: 90000,
+  // 45s was too small when run against the staging site. Trying to lower
+  // this a little bit again to find a middle ground. We could eventually
+  // make the timeout an environment variable so we can have a longer
+  // timeout for staging.
+  timeout: 90000, // 90s
   testDir: './src',
   // Exit with error immediately if test.only() or test.describe.only()
   // was committed
@@ -25,6 +29,8 @@ export default defineConfig({
     },
   },
   use: {
+    // retain-on-failure may not be removing files in a timely manner
+    // causing disk usage on github actions to fill the disk
     trace: process.env.CI === 'true' ? 'on-first-retry' : 'on',
     video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',
     // Fall back support config file until it is removed

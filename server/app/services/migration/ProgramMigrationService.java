@@ -13,21 +13,35 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.ProgramNotificationPreference;
 import repository.QuestionRepository;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * A service responsible for helping admins migrate program definitions between different
  * environments.
  */
 public final class ProgramMigrationService {
+  // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
+  // name like `name - parent`.
+  // It will transform to a key formatted like `%s__%s`
+  private static final String CONFLICTING_QUESTION_FORMAT = "%s -_- %s";
+  private static final Pattern SUFFIX_PATTERN = Pattern.compile(" -_- [a-z]+$");
+  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+
   private final ObjectMapper objectMapper;
   private final QuestionRepository questionRepository;
 
@@ -83,18 +97,21 @@ public final class ProgramMigrationService {
 
   /**
    * Checks if there are existing questions that match the admin id of any of the incoming
-   * questions. If a match is found, generate a new admin name of the format "orginal admin name-n".
+   * questions. If a match is found, generate a new admin name of the <br>
+   * format `orginal admin name -_- a`.
    *
    * <p>Return a map of old_question_name -> updated_question_data
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
+    List<String> newNamesSoFar = new ArrayList<>();
     return questions.stream()
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
                 question -> {
-                  String newAdminName = maybeGenerateNewAdminName(question.getName());
+                  String newAdminName = findUniqueAdminName(question.getName(), newNamesSoFar);
+                  newNamesSoFar.add(newAdminName);
                   try {
                     return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
                   } catch (UnsupportedQuestionTypeException error) {
@@ -104,32 +121,82 @@ public final class ProgramMigrationService {
   }
 
   /**
-   * Generate a new admin name for questions of the format "orginal admin name-n" where "n" is the
-   * next consecutive number such that we don't already have a question with that admin name saved.
-   * For example if the admin name is "sample question" and we already have "sample question-1" and
-   * "sample question-2" saved in the db, the generated name will be "sample question-3"
+   * Generate a new admin name for questions of the format "orginal admin name -_- a" where "a" is
+   * the next consecutive letter such that we don't already have a question with that admin name
+   * saved. For example if the admin name is "sample question" and we already have <br>
+   * "sample question -_- a" and "sample question -_- b" saved in the db, the generated name will be
+   * "sample question -_- c".
    */
-  public String maybeGenerateNewAdminName(String adminName) {
-    // If the question name contains a suffix of the form "-n" (for example "admin-name-1"), we want
-    // to strip off the "-n" before searching for the admin name to ensure all similar names are
-    // returned. This also allows us to correctly increment the suffix of the base admin name so we
-    // don't end up with admin names like "admin-name-1-1".
-    Pattern HYPHEN_DIGIT_PATTERN = Pattern.compile("-[0-9]+");
-    Matcher matcher = HYPHEN_DIGIT_PATTERN.matcher(adminName);
-    if (matcher.find()) {
-      int lastHyphenIndex = adminName.lastIndexOf("-");
-      adminName = adminName.substring(0, lastHyphenIndex);
+  String findUniqueAdminName(String adminName, List<String> newNamesSoFar) {
+    if (!nameHasConflict(adminName, newNamesSoFar)) {
+      return adminName;
     }
-    ImmutableList<String> similarAdminNames = questionRepository.getSimilarAdminNames(adminName);
 
-    String newAdminName = adminName;
-    int n = 1;
-    while (similarAdminNames.contains(newAdminName)) {
-      newAdminName = adminName + "-" + n;
-      n++;
-      continue;
+    // If the question name contains a suffix of the form " -_- a" (for example "admin name -_- a"),
+    // we want to strip off the " -_- n" to find the base name. This also allows us to correctly
+    // increment the suffix of the base admin name so we don't end up with admin names like "admin
+    // name -_- a -_- a".
+    Matcher matcher = SUFFIX_PATTERN.matcher(adminName);
+    String adminNameBase = adminName;
+    if (matcher.find()) {
+      adminNameBase = adminName.substring(0, matcher.start());
     }
-    return newAdminName;
+
+    int extension = 0;
+    String newName = "";
+    do {
+      extension++;
+      newName =
+          CONFLICTING_QUESTION_FORMAT.formatted(adminNameBase, convertNumberToSuffix(extension));
+    } while (nameHasConflict(newName, newNamesSoFar));
+
+    return newName;
+  }
+
+  private boolean nameHasConflict(String name, List<String> newNamesSoFar) {
+    // Check if any of the names we've already generated might conflict with this one.
+    // We can compare raw names, rather than keys, because everything we generate
+    // follows the same pattern and will reduce to keys in the same way.
+    if (newNamesSoFar.contains(name)) {
+      return true;
+    }
+
+    QuestionDefinition testQuestion =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .build());
+
+    return questionRepository.findConflictingQuestion(testQuestion).isPresent();
+  }
+
+  /**
+   * Convert a number to the equivalent "excel column name".
+   *
+   * <p>For example, 5 maps to "e", and 28 maps to "ab".
+   *
+   * @param num to convert
+   * @return The "excel column name" form of the number
+   */
+  String convertNumberToSuffix(int num) {
+    String result = "";
+
+    // Division algorithm to convert from base 10 to "base 26"
+    int dividend = num; // 28
+    while (dividend > 0) {
+      // Subtract one so we're doing math with a zero-based index.
+      // We need "a" to be 0, and "z" to be 25, so that 26 wraps around
+      // to be "aa". "a" is "ten" in base 26.
+      dividend = dividend - 1;
+      int remainder = dividend % 26;
+      result = ALPHABET.charAt(remainder) + result;
+      dividend = dividend / 26;
+      ;
+    }
+
+    return result;
   }
 
   /**
@@ -146,6 +213,9 @@ public final class ProgramMigrationService {
         .setAcls(new ProgramAcls())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
+        // Explicitly set program type to DEFAULT so we don't import program as a
+        // pre-screener/common intake
+        .setProgramType(ProgramType.DEFAULT)
         .build();
   }
 

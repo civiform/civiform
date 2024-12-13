@@ -502,6 +502,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("SENDER_EMAIL_ADDRESS");
   }
 
+  /** The provider to use for sending emails. */
+  public Optional<String> getEmailProvider() {
+    return getString("EMAIL_PROVIDER");
+  }
+
   /** What static file storage provider to use. */
   public Optional<String> getStorageServiceName() {
     return getString("STORAGE_SERVICE_NAME");
@@ -533,8 +538,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Azure blob storage container name to store files in. */
-  public Optional<String> getAzureStorageAccountContainer() {
-    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER");
+  public Optional<String> getAzureStorageAccountContainerName() {
+    return getString("AZURE_STORAGE_ACCOUNT_CONTAINER_NAME");
+  }
+
+  /** Azure blob storage container name to store public files in. */
+  public Optional<String> getAzureStorageAccountPublicContainerName() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME");
+  }
+
+  /** The max size (in Mb) of files uploaded to Azure blob storage. */
+  public Optional<String> getAzureStorageAccountFileLimitMb() {
+    return getString("AZURE_STORAGE_ACCOUNT_FILE_LIMIT_MB");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to Azure blob storage. */
+  public Optional<String> getAzureStorageAccountPublicFileLimitMb() {
+    return getString("AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB");
   }
 
   /**
@@ -766,12 +786,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Overrides the default configuration for the content security policy. If set to true, the
-   * browser reports content security policy violations but does not enforce the policy. If set to
-   * false, the browser enforces the policy.
+   * Specifies the allowed file types that can be uploaded. Uses any valid [file type
+   * specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers).
+   * Multiple are separated by commas. Default: "image/*,.pdf"
    */
-  public boolean getCspReportOnly() {
-    return getBool("CSP_REPORT_ONLY");
+  public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
+    return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
   }
 
   /**
@@ -923,15 +943,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enables setting a universal question as a question representing information about the
-   * applicant. The system can then take certain actions based on the answer to this question.
-   */
-  public boolean getPrimaryApplicantInfoQuestionsEnabled() {
-    return getBool("PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED");
-  }
-
-  /**
-   * Add programs cards to the confirmation screen that an applicant sees after finishing an
+   * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
   public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
@@ -955,17 +967,25 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
+  /** Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled() {
+    return getBool("PROGRAM_MIGRATION_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
    * status updates
    */
   public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled(RequestHeader request) {
-    return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
   /**
@@ -1619,8 +1639,27 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
-                              "AZURE_STORAGE_ACCOUNT_CONTAINER",
+                              "AZURE_STORAGE_ACCOUNT_CONTAINER_NAME",
                               "Azure blob storage container name to store files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME",
+                              "Azure blob storage container name to store public files in.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_FILE_LIMIT_MB",
+                              "The max size (in Mb) of files uploaded to Azure blob storage.",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB",
+                              "The max size (in Mb) of **publicly accessible** files uploaded to"
+                                  + " Azure blob storage.",
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
@@ -1761,7 +1800,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " CiviForm.",
                       /* isRequired= */ true,
                       SettingType.STRING,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "EMAIL_PROVIDER",
+                      "The provider to use for sending emails.",
+                      /* isRequired= */ false,
+                      SettingType.ENUM,
+                      SettingMode.HIDDEN,
+                      ImmutableList.of("aws-ses", "graph-api")))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",
@@ -2011,17 +2057,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED",
-                      "Enables setting a universal question as a question representing information"
-                          + " about the applicant. The system can then take certain actions based"
-                          + " on the answer to this question.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
                       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE",
-                      "Add programs cards to the confirmation screen that an applicant sees after"
-                          + " finishing an application.",
+                      "Upsell: Add programs cards to the confirmation screen that an applicant sees"
+                          + " after finishing an application.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -2041,7 +2079,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "Enables migrating programs between deployed environments",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Experimental",
           SettingsSection.create(
               "Experimental",
@@ -2050,16 +2094,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
-                      "BULK_STATUS_UPDATE_ENABLED",
-                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
-                          + " applications for status updates",
+                      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                          + " eligibility message per screen.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "PROGRAM_MIGRATION_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
-                          + " environments",
+                      "BULK_STATUS_UPDATE_ENABLED",
+                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
+                          + " applications for status updates",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -2204,12 +2248,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "CSP_REPORT_ONLY",
-                      "Overrides the default configuration for the content security policy. If set"
-                          + " to true, the browser reports content security policy violations but"
-                          + " does not enforce the policy. If set to false, the browser enforces"
-                          + " the policy.",
+                      "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS",
+                      "Specifies the allowed file types that can be uploaded. Uses any valid [file"
+                          + " type"
+                          + " specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers)."
+                          + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                       /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))));
+                      SettingType.STRING,
+                      SettingMode.ADMIN_READABLE))));
 }

@@ -91,55 +91,6 @@ test.describe('Applicant navigation flow', () => {
       await logout(page)
     })
 
-    test.describe(
-      'review page with North Star enabled',
-      {tag: ['@northstar']},
-      () => {
-        test.beforeEach(async ({page}) => {
-          await enableFeatureFlag(page, 'north_star_applicant_ui')
-        })
-
-        test('validate screenshot', async ({page, applicantQuestions}) => {
-          await applicantQuestions.clickApplyProgramButton(programName)
-
-          await validateScreenshot(
-            page,
-            'north-star-program-preview',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        test('shows error toast with incomplete submission', async ({
-          page,
-          applicantQuestions,
-        }) => {
-          test.slow()
-
-          await applicantQuestions.clickApplyProgramButton(programName)
-
-          // The UI correctly won't let us submit because the application isn't complete.
-          // To fake submitting an incomplete application add a submit button and click it.
-          // Note the form already triggers for the submit action.
-          // A clearer way to set this up would be to have two browser contexts but that isn't doable in our setup.
-          await page.evaluate(() => {
-            const buttonEl = document.createElement('button')
-            buttonEl.id = 'test-form-submit'
-            buttonEl.type = 'submit'
-            const formEl = document.querySelector('.cf-debounced-form')!
-            formEl.appendChild(buttonEl)
-          })
-          const submitButton = page.locator('#test-form-submit')
-          await submitButton.click()
-
-          await validateToastMessage(
-            page,
-            "Error: There's been an update to the application",
-          )
-        })
-      },
-    )
-
     test('verify program details page', async ({page}) => {
       test.slow()
 
@@ -172,6 +123,7 @@ test.describe('Applicant navigation flow', () => {
       await adminPrograms.addProgram(
         programWithExternalLink,
         programDescriptionWithMarkdown,
+        'short program description',
         'https://external.com',
       )
       await adminPrograms.publishProgram(programWithExternalLink)

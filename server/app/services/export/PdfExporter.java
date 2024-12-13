@@ -109,7 +109,7 @@ public final class PdfExporter {
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.
     String applicantName =
-        application.getApplicantData().getApplicantDisplayName().orElse("name-unavailable");
+        application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
@@ -117,7 +117,7 @@ public final class PdfExporter {
             answersOnlyActive,
             answersOnlyHidden,
             applicantNameWithApplicationId,
-            application.getApplicantData().getApplicant().id,
+            application.getApplicant().id,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),

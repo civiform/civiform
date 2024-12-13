@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -99,6 +100,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
+            "short description",
             "",
             "https://usa.gov",
             displayMode.getValue(),
@@ -108,7 +110,8 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -157,12 +160,38 @@ public class ProgramBuilder {
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
    * blank description and disabled.
    */
-  public static ProgramBuilder newDisabledActiveProgram(String name) {
+  public static ProgramBuilder newActiveDisabledProgram(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
         DisplayMode.DISABLED,
+        ProgramType.DEFAULT);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
+   * blank description and hidden in index.
+   */
+  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        DisplayMode.HIDDEN_IN_INDEX,
+        ProgramType.DEFAULT);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
+   * blank description and visible only to Trusted Intermediaries.
+   */
+  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        DisplayMode.TI_ONLY,
         ProgramType.DEFAULT);
   }
 
@@ -214,6 +243,7 @@ public class ProgramBuilder {
             /* adminDescription */ description,
             /* defaultDisplayName */ displayName,
             /* defaultDisplayDescription */ description,
+            /* defaultShortDescription */ "short description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
@@ -223,7 +253,8 @@ public class ProgramBuilder {
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
             /* ProgramAcls */ new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -243,6 +274,7 @@ public class ProgramBuilder {
             adminName,
             adminName,
             adminName,
+            adminName,
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
@@ -252,7 +284,8 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

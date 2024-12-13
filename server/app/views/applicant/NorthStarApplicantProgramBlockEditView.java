@@ -7,6 +7,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
@@ -26,6 +27,14 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseView {
+  /**
+   * This fallback should not ever be reached, but it is here in the event that the {@link
+   * SettingsManifest} can't find it in the config to allow for basic functionality to continue.
+   * This should be kept in sync with the config value `file_upload_allowed_file_type_specifiers` in
+   * the application.conf file.
+   */
+  private static final String ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK = "image/*,.pdf";
+
   private final FileUploadViewStrategy fileUploadViewStrategy;
 
   @Inject
@@ -53,12 +62,28 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
-            applicationParams.applicantId(),
-            applicationParams.profile(),
+            Optional.of(applicationParams.applicantId()),
+            Optional.of(applicationParams.profile()),
             applicationParams.applicantPersonalInfo(),
             applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+
+    String pageTitle =
+        pageTitleWithBlockProgress(
+            applicationParams.programTitle(),
+            applicationParams.blockIndex(),
+            applicationParams.blockList().size(),
+            applicationParams.messages());
+    context.setVariable("pageTitle", pageTitle);
+
+    // Progress bar
+    ProgressBar progressBar =
+        new ProgressBar(
+            applicationParams.blockList(),
+            applicationParams.blockIndex(),
+            applicationParams.messages());
+    context.setVariable("progressBar", progressBar);
 
     Map<Long, ApplicantQuestionRendererParams> questionParams =
         getApplicantQuestionRendererParams(applicationParams);
@@ -66,7 +91,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable(
         "submitFormAction", getFormAction(applicationParams, ApplicantRequestedAction.NEXT_BLOCK));
 
-    /* Expected flow:
+    /*
+     * Expected flow:
      * 1. On block edit page, user has invalid form
      * 2. User clicks "Back"
      * 3. Block edit page reloads via routes (see getFormAction(...))
@@ -112,17 +138,15 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .url();
   }
 
-  private String redirectWithFile(
-      ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
+  private String redirectWithFile(ApplicationBaseViewParams params) {
     return params.baseUrl()
         + applicantRoutes
-            .updateFile(
+            .addFile(
                 params.profile(),
                 params.applicantId(),
                 params.programId(),
                 params.block().getId(),
-                params.inReview(),
-                nextAction)
+                params.inReview())
             .url();
   }
 
@@ -170,18 +194,18 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                         params
                             .applicantStorageClient()
                             .getSignedUploadRequest(
-                                getFileUploadSignedRequestKey(params),
-                                redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
+                                getFileUploadSignedRequestKey(params), redirectWithFile(params));
                     paramsBuilder.setSignedFileUploadRequest(signedRequest);
                   }
                   return paramsBuilder.build();
                 }));
   }
 
-  // One field at most should be autofocused on the page. If there are errors, it should be the
-  // first field with an error of the first question with errors. Prior to the North Star work, if
-  // there were no errors, we would focus on the first field of the question selected in the review
-  // page. However, the North Star review page has the user choose a block to answer instead of an
+  // One field at most should be autofocused on the page. If there are errors, it
+  // should be the first field with an error of the first question with errors.
+  // Prior to the North Star work, if there were no errors, we would focus on the
+  // first field of the question selected in the review page. However, the North
+  // Star review page has the user choose a block to answer instead of an
   // individual question, so we leave no focus target to avoid skipping content.
   @VisibleForTesting
   static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
@@ -201,11 +225,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
     context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
-        "nextBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.NEXT_BLOCK));
-    context.setVariable(
-        "previousBlockWithFile", redirectWithFile(params, ApplicantRequestedAction.PREVIOUS_BLOCK));
-    context.setVariable(
-        "reviewPageWithFile", redirectWithFile(params, ApplicantRequestedAction.REVIEW_PAGE));
+        "fileUploadAllowedFileTypeSpecifiers",
+        settingsManifest
+            .getFileUploadAllowedFileTypeSpecifiers()
+            .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
     context.setVariable(
         "previousBlockWithoutFile",
         params.baseUrl()

@@ -123,7 +123,7 @@
     background-color: #f0f0f0;
   }
 
-  #filter-chip {
+  .filter-chip {
     @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm
      has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
       has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
@@ -133,6 +133,24 @@
      This can be removed once we switch to North Star. */
   .cf-question-fileupload .usa-hint { 
     color: #1b1b1b;
+  }
+
+  .cf-file-uploading-tag {
+    background-color: #fff7bf;
+    color: #594d00;
+    visibility: hidden;
+  }
+
+  /* If a file is being uploaded, show the file uploading tag... */
+  .cf-file-uploading .cf-file-uploading-tag {
+    visibility: visible;
+  }
+
+  /* ... and apply disabled styling to any interactive elements. */
+  .cf-file-uploading .cf-disable-when-uploading {
+    @apply bg-white text-gray-400 border border-gray-400;
+    pointer-events: none;
+    cursor: default;
   }
 
 }

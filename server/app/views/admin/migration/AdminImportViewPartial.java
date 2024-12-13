@@ -115,7 +115,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
 
     FormTag hiddenForm =
         form()
-            .attr("hx-encoding", "multipart/form-data")
+            .attr("hx-encoding", "application/x-www-form-urlencoded")
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
             .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
             .attr("hx-swap", "outerHTML")
@@ -161,7 +161,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                 .with(
                     asRedirectElement(
                             button("View program"),
-                            routes.AdminProgramBlocksController.edit(programId, 1).url())
+                            routes.AdminProgramBlocksController.index(programId).url())
                         .withClasses("usa-button", "mr-2"))
                 .condWith(
                     !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request),

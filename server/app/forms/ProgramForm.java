@@ -2,6 +2,7 @@ package forms;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Form for updating name and description of a program. */
 public final class ProgramForm {
@@ -9,6 +10,7 @@ public final class ProgramForm {
   private String adminDescription;
   private String localizedDisplayName;
   private String localizedDisplayDescription;
+  private String localizedShortDescription;
   private String localizedConfirmationMessage;
   private String externalLink;
   private String displayMode;
@@ -21,12 +23,14 @@ public final class ProgramForm {
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
   private List<Long> categories;
+  private List<Map<String, String>> applicationSteps;
 
   public ProgramForm() {
     adminName = "";
     adminDescription = "";
     localizedDisplayName = "";
     localizedDisplayDescription = "";
+    localizedShortDescription = "";
     localizedConfirmationMessage = "";
     externalLink = "";
     displayMode = "";
@@ -36,6 +40,7 @@ public final class ProgramForm {
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
+    applicationSteps = new ArrayList<>();
   }
 
   public void setTiGroups(List<Long> tiGroups) {
@@ -90,6 +95,10 @@ public final class ProgramForm {
     return localizedDisplayDescription;
   }
 
+  public String getLocalizedShortDescription() {
+    return localizedShortDescription;
+  }
+
   public String getLocalizedConfirmationMessage() {
     return localizedConfirmationMessage;
   }
@@ -100,6 +109,10 @@ public final class ProgramForm {
 
   public void setLocalizedDisplayDescription(String localizedDisplayDescription) {
     this.localizedDisplayDescription = localizedDisplayDescription;
+  }
+
+  public void setLocalizedShortDescription(String localizedShortDescription) {
+    this.localizedShortDescription = localizedShortDescription;
   }
 
   public Boolean getIsCommonIntakeForm() {
@@ -136,5 +149,9 @@ public final class ProgramForm {
 
   public List<Long> getCategories() {
     return this.categories;
+  }
+
+  public List<Map<String, String>> getApplicationSteps() {
+    return this.applicationSteps;
   }
 }

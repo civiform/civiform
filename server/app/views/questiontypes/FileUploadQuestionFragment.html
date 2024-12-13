@@ -1,10 +1,10 @@
 <div
-  th:fragment="file-upload(question, questionRendererParams, fileUploadViewStrategy)"
+  th:fragment="file-upload(question, questionRendererParams)"
   th:with="fileUploadQuestion=${question.createFileUploadQuestion()},
     questionId=${'id-' + #strings.randomAlphanumeric(8)},
     inputId=${'id-' + #strings.randomAlphanumeric(8)}"
   th:id="${questionId}"
-  class="cf-question-fileupload"
+  class="cf-question-fileupload cf-applicant-question-field"
   data-testid="questionRoot"
 >
   <!--/* Title and Help Text */-->
@@ -15,21 +15,6 @@
   <!--/* Display errors */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
-  ></div>
-
-  <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->
-  <input
-    type="hidden"
-    th:each="inputValues: ${fileUploadViewStrategy.additionalFileUploadFormInputFields(questionRendererParams.signedFileUploadRequest())}"
-    th:name="${inputValues.key}"
-    th:value="${inputValues.value}"
-  />
-
-  <div
-    th:with="alreadyUploadedText=#{input.fileAlreadyUploaded(${fileUploadQuestion.getFilename().orElse('')})}"
-    th:text="${fileUploadQuestion.getFilename().isEmpty() ? '' : alreadyUploadedText}"
-    th:attr="data-upload-text=#{input.fileAlreadyUploaded}"
-    aria-live="polite"
   ></div>
 
   <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
@@ -64,7 +49,7 @@
     type="file"
     name="file"
     th:aria-describedby="${questionId} + '-description'"
-    accept="image/*,.pdf"
+    th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
   />
 </div>

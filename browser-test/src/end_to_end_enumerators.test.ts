@@ -2,7 +2,6 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -66,7 +65,7 @@ test.describe('End to end enumerator test', () => {
     })
   })
 
-  test.describe('Applicant flow with North star flag disabled', () => {
+  test.describe('Applicant flow', () => {
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
       await setupEnumeratorQuestion(
         page,
@@ -470,59 +469,6 @@ test.describe('End to end enumerator test', () => {
       await logout(page)
     })
   })
-
-  test.describe(
-    'Applicant flow with North star flag enabled',
-    {tag: ['@northstar']},
-    () => {
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-        await setupEnumeratorQuestion(
-          page,
-          adminQuestions,
-          adminPrograms,
-          /* shouldValidateScreenshot= */ false,
-        )
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-      })
-
-      test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-        await applicantQuestions.clickContinue()
-
-        await applicantQuestions.addEnumeratorAnswer('Bugs')
-
-        await test.step('Screenshot without errors', async () => {
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'enumerator-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
-        await test.step('Screenshot with errors', async () => {
-          await applicantQuestions.clickContinue()
-          await validateScreenshot(
-            page.getByTestId('questionRoot'),
-            'enumerator-errors-north-star',
-            /* fullPage= */ false,
-            /* mobileScreenshot= */ true,
-          )
-        })
-      })
-
-      test('has no accessiblity violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await validateAccessibility(page)
-      })
-    },
-  )
 
   async function setupEnumeratorQuestion(
     page: Page,

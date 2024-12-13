@@ -68,8 +68,13 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .setStatusEvent(
                 StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
             .build();
-    ApplicationEventModel event = new ApplicationEventModel(application, Optional.empty(), details);
-    ApplicationEventModel insertedEvent = repo.insertAsync(event).toCompletableFuture().join();
+    ApplicationEventModel insertedEvent =
+        repo.insertStatusEvent(
+                application,
+                Optional.empty(),
+                StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
+            .toCompletableFuture()
+            .join();
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -78,6 +83,138 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     assertThat(insertedEvent.getCreator()).isEqualTo(Optional.empty());
     assertThat(insertedEvent.getDetails()).isEqualTo(details);
     assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+  }
+
+  @Test
+  public void insertStatusEvents_succeeds() {
+    Instant startInstant = Instant.now();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
+    ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
+
+    ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application2 = resourceCreator.insertActiveApplication(applicant2, program);
+
+    ApplicationEventDetails initialStatus =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
+            .build();
+
+    repo.insertStatusEvents(
+        ImmutableList.of(application1, application2),
+        Optional.of(actor),
+        initialStatus.statusEvent().get());
+
+    ImmutableList<ApplicationEventModel> insertedEventFor1 =
+        repo.getEventsOrderByCreateTimeDesc(application1.id);
+    ImmutableList<ApplicationEventModel> insertedEventFor2 =
+        repo.getEventsOrderByCreateTimeDesc(application2.id);
+
+    assertThat(insertedEventFor1).isNotEmpty();
+    assertThat(insertedEventFor2).isNotEmpty();
+
+    assertThat(insertedEventFor1.size()).isEqualTo(1);
+    assertThat(insertedEventFor2.size()).isEqualTo(1);
+
+    var insertedEvent1 = insertedEventFor1.get(0);
+    var insertedEvent2 = insertedEventFor2.get(0);
+
+    // Evaluate.
+    assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
+    // Generated values.
+    assertThat(insertedEvent2.id).isNotNull();
+    assertThat(insertedEvent2.getCreateTime()).isAfter(startInstant);
+    // Pass through values.
+    assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
+    assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
+    assertThat(insertedEvent1.getDetails()).isEqualTo(initialStatus);
+    assertThat(insertedEvent1.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(insertedEvent2.getApplication()).isEqualTo(application2);
+    assertThat(insertedEvent2.getCreator()).isEqualTo(Optional.of(actor));
+    assertThat(insertedEvent2.getDetails()).isEqualTo(initialStatus);
+    assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+
+    application2.refresh();
+    application1.refresh();
+    assertThat(application1.getLatestStatus().get()).isEqualTo("Status");
+    assertThat(application2.getLatestStatus().get()).isEqualTo("Status");
+  }
+
+  @Test
+  public void insertStatusEvents_changeApplicationStatus_succeeds() {
+    // For  application1, we will change the status from "Status" to "Denied".
+    // For application2, we will change the status from "Status" to no status.
+    Instant startInstant = Instant.now();
+    ProgramModel program = resourceCreator.insertActiveProgram("Program");
+    AccountModel actor = resourceCreator.insertAccount();
+    ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application1 = resourceCreator.insertActiveApplication(applicant1, program);
+
+    ApplicantModel applicant2 = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application2 = resourceCreator.insertActiveApplication(applicant2, program);
+
+    ApplicationEventDetails initialStatus =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(true).build())
+            .build();
+    ApplicationEventDetails statusChange =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Denied").setEmailSent(true).build())
+            .build();
+    ApplicationEventDetails statusRemoved =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(StatusEvent.builder().setStatusText("").setEmailSent(true).build())
+            .build();
+
+    // insert initial status
+    repo.insertStatusEvents(
+        ImmutableList.of(application1, application2),
+        Optional.of(actor),
+        initialStatus.statusEvent().get());
+
+    repo.insertStatusEvents(
+        ImmutableList.of(application1), Optional.of(actor), statusChange.statusEvent().get());
+    repo.insertStatusEvents(
+        ImmutableList.of(application2), Optional.of(actor), statusRemoved.statusEvent().get());
+
+    ImmutableList<ApplicationEventModel> insertedEventFor1 =
+        repo.getEventsOrderByCreateTimeDesc(application1.id);
+    ImmutableList<ApplicationEventModel> insertedEventFor2 =
+        repo.getEventsOrderByCreateTimeDesc(application2.id);
+
+    assertThat(insertedEventFor1).isNotEmpty();
+    assertThat(insertedEventFor2).isNotEmpty();
+
+    assertThat(insertedEventFor1.size()).isEqualTo(2);
+    assertThat(insertedEventFor2.size()).isEqualTo(2);
+
+    var insertedEvent1 = insertedEventFor1.get(1);
+    var insertedEvent2 = insertedEventFor2.get(1);
+
+    // Evaluate.
+    assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
+
+    assertThat(insertedEvent1.getApplication()).isEqualTo(application1);
+    assertThat(insertedEvent1.getCreator()).isEqualTo(Optional.of(actor));
+    assertThat(insertedEvent1.getDetails()).isEqualTo(initialStatus);
+    assertThat(insertedEvent1.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+    assertThat(insertedEvent2.getApplication()).isEqualTo(application2);
+    assertThat(insertedEvent2.getCreator()).isEqualTo(Optional.of(actor));
+    assertThat(insertedEvent2.getDetails()).isEqualTo(initialStatus);
+    assertThat(insertedEvent2.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+
+    application2.refresh();
+    application1.refresh();
+    assertThat(application1.getLatestStatus().get()).isEqualTo("Denied");
+    assertThat(application2.getLatestStatus()).isEmpty();
   }
 
   @Test

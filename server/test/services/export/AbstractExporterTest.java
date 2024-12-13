@@ -130,8 +130,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         break;
       case NAME:
         QuestionAnswerer.answerNameQuestion(
-            applicantDataOne, answerPath, "Alice", "", "Appleton", "");
-        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker", "");
+            applicantDataOne, answerPath, "Alice", "M", "Appleton", "Jr");
+        QuestionAnswerer.answerNameQuestion(
+            applicantDataTwo, answerPath, "Bob", "M", "Baker", "Sr");
         break;
       case NUMBER:
         QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
@@ -221,7 +222,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
     if (status != null && admin != null) {
       programAdminApplicationService.setStatus(
-          application,
+          application.id,
+          program.getProgramDefinition(),
+          Optional.empty(),
           StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
           admin);
     }
@@ -284,7 +287,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
-    applicantFive.getApplicantData().setUserName("Example Five");
+    applicantFive.setUserName("Example Five");
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -352,10 +355,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   /**
-   * Creates a program that has an eligibility predicate, three applicants, and three applications.
-   * The applications have submission times one month apart starting on 2022-01-01.
+   * Creates a program that has an eligibility predicate. An applicant is eligible if they answer
+   * that their favorite color is blue.
    */
-  protected void createFakeProgramWithEligibilityPredicate() {
+  protected ProgramModel createFakeProgramWithEligibilityPredicate(String name) {
     QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
     QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
@@ -368,20 +371,28 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     EligibilityDefinition colorEligibilityDefinition =
         EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
+    return ProgramBuilder.newActiveProgram()
+        .withName(name)
+        .withBlock("Screen 1")
+        .withRequiredQuestions(nameQuestion, colorQuestion)
+        .withEligibilityDefinition(colorEligibilityDefinition)
+        .build();
+  }
+
+  /**
+   * Creates a program that has an eligibility predicate, three applicants, and three applications.
+   * The applications have submission times one month apart starting on 2022-01-01.
+   */
+  protected void createFakeProgramWithEligibilityPredicateAndThreeApplications() {
     fakeProgramWithEligibility =
-        ProgramBuilder.newActiveProgram()
-            .withName("Fake Program With Enumerator")
-            .withBlock("Screen 1")
-            .withRequiredQuestions(nameQuestion, colorQuestion)
-            .withEligibilityDefinition(colorEligibilityDefinition)
-            .build();
+        createFakeProgramWithEligibilityPredicate("Fake Program With Eligibility");
 
     // First applicant is not eligible.
     applicantOne = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank.nameApplicantName().getQuestionDefinition().getQuestionPathSegment()),
         "Jane",
         "",
         "Doe",
@@ -389,7 +400,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerTextQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank
+                .textApplicantFavoriteColor()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         "coquelicot");
     applicantOne.save();
     applicationOne =
@@ -405,7 +419,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank.nameApplicantName().getQuestionDefinition().getQuestionPathSegment()),
         "John",
         "",
         "Doe",
@@ -413,7 +427,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionAnswerer.answerTextQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
-            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            testQuestionBank
+                .textApplicantFavoriteColor()
+                .getQuestionDefinition()
+                .getQuestionPathSegment()),
         "blue");
     applicantTwo.save();
     applicationTwo =

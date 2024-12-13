@@ -29,6 +29,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -45,6 +46,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
@@ -63,9 +65,8 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -118,11 +119,12 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicantModel tiApplicant;
   private ProgramService programService;
   private String baseUrl;
-  private SimpleEmail amazonSESClient;
+  private EmailSendClient emailSendClient;
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
   private ApplicationStatusesRepository repo;
+  private ApplicationEventRepository applicationEventRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -135,6 +137,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     repo = instanceOf(ApplicationStatusesRepository.class);
+    applicationEventRepository = instanceOf(ApplicationEventRepository.class);
     createQuestions();
     createProgram();
 
@@ -156,8 +159,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     programService = instanceOf(ProgramService.class);
 
-    amazonSESClient = Mockito.mock(SimpleEmail.class);
-    FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);
+    emailSendClient = Mockito.mock(EmailSendClient.class);
+    FieldUtils.writeField(subject, "emailSendClient", emailSendClient, true);
 
     messagesApi = instanceOf(MessagesApi.class);
   }
@@ -996,7 +999,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Messages messages = getMessages(Locale.US);
     String programName = progDef.adminName();
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "picard@starfleet.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1007,11 +1010,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesPrimaryApplicantInfoAnswers() {
-    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
-    applicant.save();
+  public void submitApplication_savesCompletedOrBlankPrimaryApplicantInfoAnswers() {
 
+    // Add PAI questions
     NameQuestionDefinition nameQuestion =
         (NameQuestionDefinition)
             questionService
@@ -1072,13 +1073,21 @@ public class ApplicantServiceTest extends ResetPostgres {
                             .build()))
                 .getResult();
 
+    // Build program with optional PAI questions
     ProgramDefinition progDef =
         ProgramBuilder.newDraftProgram("PAI program", "desc")
             .withBlock()
-            .withRequiredQuestionDefinitions(
-                ImmutableList.of(nameQuestion, dateQuestion, emailQuestion, phoneQuestion))
+            .withOptionalQuestion(nameQuestion)
+            .withOptionalQuestion(dateQuestion)
+            .withOptionalQuestion(emailQuestion)
+            .withOptionalQuestion(phoneQuestion)
             .buildDefinition();
     versionRepository.publishNewSynchronizedVersion();
+
+    // Create an applicant who will fill in all the questions
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
@@ -1109,6 +1118,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
 
     applicant.refresh();
+    // All values from questions should be saved to the PAI columns in the db
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(progDef.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -1120,6 +1130,42 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(applicant.getEmailAddress().get()).isEqualTo("picard@starfleet.com");
     assertThat(applicant.getPhoneNumber().get()).isEqualTo("5032161111");
     assertThat(applicant.getCountryCode().get()).isEqualTo("US");
+
+    // Create a new applicant who will leave all the questions blank
+    ApplicantModel blankApplicant = subject.createApplicant().toCompletableFuture().join();
+    blankApplicant.setAccount(resourceCreator.insertAccount());
+    blankApplicant.save();
+
+    ImmutableMap<String, String> blankUpdates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.nameplz").join(Scalar.FIRST_NAME).toString(), "")
+            .put(Path.create("applicant.nameplz").join(Scalar.LAST_NAME).toString(), "")
+            .put(Path.create("applicant.dateplz").join(Scalar.DATE).toString(), "")
+            .put(Path.create("applicant.emailplz").join(Scalar.EMAIL).toString(), "")
+            .put(Path.create("applicant.phoneplz").join(Scalar.PHONE_NUMBER).toString(), "")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(blankApplicant.id, progDef.id(), "1", blankUpdates, false, false)
+        .toCompletableFuture()
+        .join();
+
+    subject
+        .submitApplication(
+            blankApplicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+        .toCompletableFuture()
+        .join();
+
+    blankApplicant.refresh();
+    // All saved PAI values should be null/empty
+    assertThat(blankApplicant.getFirstName().isEmpty());
+    assertThat(blankApplicant.getMiddleName().isEmpty());
+    assertThat(blankApplicant.getLastName().isEmpty());
+    assertThat(blankApplicant.getSuffix().isEmpty());
+    assertThat(blankApplicant.getDateOfBirth().isEmpty());
+    assertThat(blankApplicant.getEmailAddress().isEmpty());
+    assertThat(blankApplicant.getPhoneNumber().isEmpty());
+    assertThat(blankApplicant.getCountryCode().isEmpty());
   }
 
   @Test
@@ -1313,7 +1359,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1328,7 +1374,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1347,7 +1393,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1402,7 +1448,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1417,7 +1463,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1432,7 +1478,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1479,7 +1525,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@example.com",
             koMessages.at(
@@ -1494,7 +1540,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user2@example.com",
             enMessages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1537,7 +1583,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user3@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1578,7 +1624,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     application.refresh();
 
     // Program admin email not sent
-    Mockito.verify(amazonSESClient, Mockito.times(0))
+    Mockito.verify(emailSendClient, Mockito.times(0))
         .send(eq(ImmutableList.of("admin@example.com")), anyString(), anyString());
   }
 
@@ -1869,7 +1915,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName("Hello World");
+    applicant.setUserName("Hello World");
     applicant.save();
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
@@ -1897,7 +1943,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithThreeNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Middle Last");
+    applicant.setUserName("First Middle Last");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -1914,7 +1960,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithManyNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Second Third Fourth Fifth");
+    applicant.setUserName("First Second Third Fourth Fifth");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -2095,6 +2141,47 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().get(0),
             result.unapplied().get(0),
             result.unapplied().get(1));
+  }
+
+  @Test
+  public void relevantProgramsWithoutApplicant() {
+    // Note that setup() creates a test-program program in addition to these.
+    ProgramModel commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+    ProgramModel program1 =
+        ProgramBuilder.newActiveProgram("program_one")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+    ProgramModel program2 =
+        ProgramBuilder.newActiveProgram("program_two")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+    ProgramModel program3 = ProgramBuilder.newActiveProgram("program_three").withBlock().build();
+
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsWithoutApplicant(fakeRequestBuilder().build())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.inProgress().size()).isEqualTo(0);
+    assertThat(result.submitted().size()).isEqualTo(0);
+    assertThat(result.unapplied().size()).isEqualTo(4);
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(program1.id, program2.id, program3.id, programDefinition.id());
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.allPrograms().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(
+            commonIntakeForm.id, program1.id, program2.id, program3.id, programDefinition.id());
   }
 
   @Test
@@ -3233,6 +3320,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3311,6 +3400,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3434,20 +3525,15 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(matchingProgramIds).contains(testProgramWithNoEligibilityConditions.id);
   }
 
-  private static void addStatusEvent(
+  private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(
-                StatusEvent.builder()
-                    .setStatusText(status.statusText())
-                    .setEmailSent(false)
-                    .build())
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(actorAccount), details);
-    event.save();
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(actorAccount),
+            StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
   }
 
@@ -3606,6 +3692,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
@@ -3649,7 +3737,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3761,7 +3849,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3855,7 +3943,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3967,7 +4055,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -3999,7 +4091,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -4043,7 +4139,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -4060,12 +4160,13 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
-        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    ApplicantModel applicantAfter = accountRepository.lookupApplicantSync(applicant.id).get();
+    ApplicantData applicantDataAfter = applicantAfter.getApplicantData();
 
     return new Block(
         String.valueOf(blockDefinition.id()),
         blockDefinition,
+        applicantAfter,
         applicantDataAfter,
         Optional.empty());
   }

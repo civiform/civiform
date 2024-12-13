@@ -1,17 +1,17 @@
-<!doctype html>
-
-<div
+<section
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
-  th:attrappend="aria-labelledby=${section.id().isPresent()}?${section.id().get()}"
+  th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
+  th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
+  th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
+  th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div class="grid-container">
-    <div class="grid-row">
+    <div class="grid-row usa-prose">
       <h3
-        th:if="${section.title().isPresent()}"
+        th:if="${showHeading}"
         th:id="${section.id().get()}"
         th:text="${section.title().get()}"
-        class="my-4 text-lg"
       ></h3>
     </div>
   </div>
@@ -19,44 +19,109 @@
     <ul class="usa-card-group cf-program-card-group">
       <th:block th:each="card : ${section.cards()}">
         <li
-          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card})}"
+          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
         ></li>
       </th:block>
     </ul>
   </div>
-</div>
+</section>
 
 <li
-  th:fragment="card (card)"
+  th:fragment="card (card, sectionType)"
+  th:with="showImage=(${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())})"
   class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4 cf-application-card"
+  th:classappend="${showImage} ? usa-card--header-first : '' "
 >
-  <div class="usa-card__container">
-    <div class="usa-card__header">
-      <img
-        th:if="${card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())}"
-        th:src="${card.imageSourceUrl().get()}"
-        th:alt="${card.altText().orElse('')}"
-        class="cf-program-card-image"
-      />
-      <h2
-        class="usa-card__heading cf-application-card-title"
+  <div
+    class="usa-card__container"
+    th:classappend="${card.isCommonIntakeForm} ? bg-primary-lighter : '' "
+  >
+    <!-- Title -->
+    <div class="usa-card__header usa-prose">
+      <h3
+        class="usa-card__heading cf-application-card-title cf-prose-h4"
         th:text="${card.title()}"
-      ></h2>
+        th:data-program-id="${card.programId()}"
+      ></h3>
     </div>
 
+    <!-- Optional image -->
+    <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
+      <div class="usa-card__img">
+        <img
+          th:src="${card.imageSourceUrl().get()}"
+          th:alt="${card.altText().orElse('')}"
+          class="cf-program-card-image"
+        />
+      </div>
+    </div>
+
+    <!-- Program categories -->
     <div class="usa-card__body">
-      <p
-        th:if="${card.applicationStatus().isPresent()}"
-        class="border rounded-full px-2 py-1 mb-4 gap-x-2 inline-block w-auto bg-blue-100"
+      <div
+        th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
+        class="flex flex-wrap gap-2 section-bottom"
       >
-        <span th:text="#{title.status}"></span>:
-        <span th:text="${card.applicationStatus().get()}"></span>
-      </p>
+        <th:block th:each="category : ${card.categories()}">
+          <div th:text="${category}" class="usa-tag"></div>
+        </th:block>
+      </div>
 
-      <p th:text="${card.body()}"></p>
+      <!-- Program description -->
+      <div class="usa-prose">
+        <p th:text="${card.body()}"></p>
+      </div>
 
-      <div th:if="${card.eligible().isPresent()}">
-        <div class="content-spacing"></div>
+      <!-- In progress tag -->
+      <div
+        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT'}"
+        class="text-medium-margin-top"
+      >
+        <span
+          th:text="#{label.inProgress}"
+          class="cf-program-card-tag tag-in-progress"
+        ></span>
+      </div>
+
+      <!-- Submitted tag -->
+      <div
+        th:if="${!card.applicationStatus().isPresent() and card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'ACTIVE'}"
+        class="text-medium-margin-top"
+      >
+        <span
+          th:if="${card.dateSubmitted.isPresent()}"
+          th:text="#{label.submittedOn(${card.dateSubmitted.get()})}"
+          class="cf-program-card-tag tag-submitted cf-bt-date"
+        ></span>
+        <span
+          th:if="${card.dateSubmitted.isEmpty()}"
+          th:text="#{label.submitted}"
+          class="cf-program-card-tag tag-submitted"
+        ></span>
+      </div>
+
+      <!-- Application status (set by admin) -->
+      <div
+        th:if="${card.applicationStatus().isPresent()}"
+        class="text-medium-margin-top"
+      >
+        <span
+          th:if="${card.dateStatusApplied.isPresent()}"
+          th:text="#{label.statusOn(${card.applicationStatus().get()}, ${card.dateStatusApplied.get()})}"
+          class="cf-program-card-tag tag-submitted cf-bt-date"
+        ></span>
+        <span
+          th:if="${card.dateSubmitted.isEmpty()}"
+          th:text="${card.applicationStatus().get()"
+          class="cf-program-card-tag tag-submitted"
+        ></span>
+      </div>
+
+      <!-- Eligibility tag -->
+      <div
+        th:if="${card.eligible().isPresent()}"
+        class="text-medium-margin-top"
+      >
         <div class="flex-parent">
           <div class="flex-parent success-state">
             <cf:icon type="icon-check-circle" />
@@ -69,18 +134,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Action button (usually "View and apply") -->
     <div class="usa-card__footer cf-card-footer">
       <a
-        th:href="${card.detailsUrl()}"
-        target="_blank"
-        class="usa-button usa-button--outline"
-        th:text="#{button.viewDetails}"
-      ></a>
-
-      <a
         th:href="${card.actionUrl()}"
-        class="usa-button cf-apply-button"
+        class="usa-button usa-button--outline cf-apply-button"
         th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
       ></a>
     </div>
   </div>

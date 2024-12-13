@@ -1,24 +1,28 @@
 package models;
 
+import auth.oidc.applicant.ApplicantProfileCreator;
+import auth.saml.SamlProfileCreator;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import io.ebean.annotation.DbEnumType;
 import io.ebean.annotation.DbEnumValue;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.CfJsonDocumentContext;
 import services.applicant.ApplicantData;
@@ -109,13 +113,13 @@ public class ApplicantModel extends BaseModel {
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
       if (preferredLocale == null || preferredLocale.isEmpty()) {
         // Default to English until the applicant specifies their preferred language.
-        this.applicantData = new ApplicantData(object, this);
+        this.applicantData = new ApplicantData(object);
       } else {
         this.applicantData =
-            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object, this);
+            new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), object);
       }
     } else if (this.applicantData == null) {
-      this.applicantData = new ApplicantData(this);
+      this.applicantData = new ApplicantData();
     }
     return applicantData;
   }
@@ -155,6 +159,110 @@ public class ApplicantModel extends BaseModel {
 
   public Optional<String> getLastName() {
     return Optional.ofNullable(lastName);
+  }
+
+  public Optional<String> getApplicantName() {
+    if (this.firstName == null) {
+      return Optional.empty();
+    }
+    return this.lastName == null
+        ? Optional.of(this.firstName)
+        : Optional.of(String.format("%s, %s", this.lastName, this.firstName));
+  }
+
+  public Optional<String> getApplicantDisplayName() {
+    return getApplicantName()
+        .or(() -> getEmailAddress())
+        .or(() -> Optional.ofNullable(getAccount().getEmailAddress()));
+  }
+
+  /**
+   * Checks if the given input string represents a valid suffix from Suffix enum.
+   *
+   * @param input The string to be checked for suffix validity.
+   * @return 'true' if the input string matches a suffix defined in Suffix enum, 'false' otherwise.
+   */
+  private static boolean isSuffix(String input) {
+    return Arrays.stream(Suffix.values()).anyMatch(suffix -> suffix.getValue().equals(input));
+  }
+
+  /**
+   * Parses a name string to extract the first, middle, and last names, if they exists, and sets
+   * those fields. This function will NOT overwrite any existing name data if the first name already
+   * exists. This is because this function is used by {@link ApplicantProfileCreator} and {@link
+   * SamlProfileCreator} and we do not want it to overwrite the name upon login.
+   *
+   * @param displayName A string that contains the applicant's name, with first, middle, last, and
+   *     suffix separated by spaces. May provide only first name or only first last.
+   */
+  public void setUserName(String displayName) {
+    String firstName;
+    Optional<String> lastName = Optional.empty();
+    Optional<String> middleName = Optional.empty();
+    Optional<String> nameSuffix = Optional.empty();
+    List<String> listSplit = Splitter.on(' ').splitToList(displayName);
+    switch (listSplit.size()) {
+      case 2:
+        firstName = listSplit.get(0);
+        lastName = Optional.of(listSplit.get(1));
+        break;
+      case 3:
+        firstName = listSplit.get(0);
+        if (isSuffix(listSplit.get(2))) {
+          lastName = Optional.of(listSplit.get(1));
+          nameSuffix = Optional.of(listSplit.get(2));
+        } else {
+          middleName = Optional.of(listSplit.get(1));
+          lastName = Optional.of(listSplit.get(2));
+        }
+        break;
+      case 4:
+        firstName = listSplit.get(0);
+        middleName = Optional.of(listSplit.get(1));
+        lastName = Optional.of(listSplit.get(2));
+        nameSuffix = Optional.of(listSplit.get(3));
+        break;
+      case 1:
+        // fallthrough
+      default:
+        // Too many names - put them all in first name.
+        firstName = displayName;
+    }
+    setUserName(firstName, middleName, lastName, nameSuffix, false);
+  }
+
+  // By default, overwrite name fields if data exists in them
+  public void setUserName(
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix) {
+    setUserName(firstName, middleName, lastName, nameSuffix, true);
+  }
+
+  /**
+   * Sets the first, middle, and last name fields.
+   *
+   * @param firstName First name of applicant
+   * @param middleName Middle name of applicant
+   * @param lastName Last name of applicant
+   * @param overwrite When false, if first name already exists, do not update fields and return
+   *     unchanged.
+   */
+  public void setUserName(
+      String firstName,
+      Optional<String> middleName,
+      Optional<String> lastName,
+      Optional<String> nameSuffix,
+      boolean overwrite) {
+    if (!overwrite && getFirstName().isPresent()) {
+      return;
+    }
+    setFirstName(firstName);
+    // Empty string will remove it from the model
+    setMiddleName(middleName.orElse(""));
+    setLastName(lastName.orElse(""));
+    setSuffix(nameSuffix.orElse(""));
   }
 
   public ApplicantModel setSuffix(String suffix) {

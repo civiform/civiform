@@ -91,7 +91,7 @@ public final class DurableJobRegistry {
 
     // Resolver to provide an immediate time for non-recurring jobs. This is here to keep it
     // contained and not accidentally used by recurring jobs as it will cause problems because of
-    // job the akka scheduler repeats.
+    // job the pekko scheduler repeats.
     class ImmediateJobExecutionTimeResolver implements JobExecutionTimeResolver {
       @Override
       public Instant resolveExecutionTime(Clock clock) {

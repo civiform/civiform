@@ -1,14 +1,20 @@
-import {expect} from '@playwright/test'
+import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 import {waitForAnyModal, waitForPageJsLoad} from './wait'
 import {BASE_URL} from './config'
+import {
+  ApplicantProgramList,
+  CardSectionName,
+} from '../support/applicant_program_list'
 
 export class ApplicantQuestions {
   public page!: Page
+  private applicantProgramList: ApplicantProgramList
 
   constructor(page: Page) {
     this.page = page
+    this.applicantProgramList = new ApplicantProgramList(page)
   }
 
   async answerAddressQuestion(
@@ -23,8 +29,9 @@ export class ApplicantQuestions {
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
     await this.page.fill(`.cf-address-city input >> nth=${index}`, city)
     await this.page.selectOption(`.cf-address-state select >> nth=${index}`, {
-      label: state,
+      value: state,
     })
+
     await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip)
   }
 
@@ -156,10 +163,42 @@ export class ApplicantQuestions {
     index = 0,
   ) {
     await this.page.fill(`.cf-date-year input >> nth=${index}`, year)
+
+    // Empty string means "delete this answer". The dropdown default is "Select"
+    if (month == '') {
+      month = 'Select'
+    }
+
     await this.page.selectOption(`.cf-date-month select >> nth=${index}`, {
       label: month,
     })
     await this.page.fill(`.cf-date-day input >> nth=${index}`, day)
+  }
+
+  async checkMemorableDateQuestionValue(
+    year: string,
+    month: string,
+    day: string,
+    index = 0,
+  ) {
+    const yearValue = await this.page
+      .locator(`.cf-date-year input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(yearValue)).toBe(year)
+
+    const monthValue = await this.page
+      .locator(`.cf-date-month select >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(monthValue)).toBe(month)
+
+    const dayValue = await this.page
+      .locator(`.cf-date-day input >> nth=${index}`)
+      .inputValue()
+    expect(this.trimLeadingZeros(dayValue)).toBe(day)
+  }
+
+  trimLeadingZeros(str: string): string {
+    return str.replace(/^0+/, '')
   }
 
   async answerTextQuestion(text: string, index = 0) {
@@ -178,30 +217,30 @@ export class ApplicantQuestions {
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:has-text("Add entity")')
     // TODO(leonwong): may need to specify row index to wait for newly added row.
-    await this.page.fill(
-      '#enumerator-fields .cf-enumerator-field:last-of-type input[data-entity-input]',
-      entityName,
-    )
+    await this.page
+      .locator(
+        '#enumerator-fields .cf-enumerator-field input[data-entity-input]:visible',
+      )
+      .last()
+      .fill(entityName)
   }
 
   async editEnumeratorAnswer(
     existingEntityName: string,
     newEntityName: string,
   ) {
-    await this.page.fill(
-      `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
-      newEntityName,
-    )
+    await this.page
+      .locator(
+        `#enumerator-fields .cf-enumerator-field input[value="${existingEntityName}"]`,
+      )
+      .fill(newEntityName)
   }
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
-    await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
-    await this.validateInputValue(
-      entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
-    )
+    await this.page
+      .locator(`#enumerator-fields .cf-enumerator-field >> nth=${index}`)
+      .getByText(entityName)
+      .isVisible()
   }
 
   /** On the review page, click "Answer" on a previously unanswered question. */
@@ -213,10 +252,16 @@ export class ApplicantQuestions {
   }
 
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
-  async editQuestionFromReviewPage(questionText: string) {
-    await this.page.click(
-      `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
+  async editQuestionFromReviewPage(
+    questionText: string,
+    northStarEnabled = false,
+  ) {
+    const locator = this.page.locator(
+      northStarEnabled
+        ? `.block-summary:has(div:has-text("${questionText}")) a:has-text("Edit")`
+        : `.cf-applicant-summary-row:has(div:has-text("${questionText}")) a:has-text("Edit")`,
     )
+    await locator.click()
     await waitForPageJsLoad(this.page)
   }
 
@@ -232,12 +277,17 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async applyProgram(programName: string) {
+  async applyProgram(programName: string, northStarEnabled = false) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
 
-    // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
-    await this.page.click(`#continue-application-button`)
+    // In North Star, clicking on "Apply" navigates to the first unanswered question.
+    if (!northStarEnabled) {
+      // In the legacy UI, the user navigates to the application review page. They must click another
+      // button to reach the first unanswered question.
+      await this.page.click(`#continue-application-button`)
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -351,26 +401,44 @@ export class ApplicantQuestions {
       expectedProgramsInOtherProgramsSection: string[]
     },
     /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
   ) {
-    const gotMyApplicationsProgramNames =
-      await this.programNamesForSection('My applications')
+    let gotMyApplicationsProgramNames
+
+    if (northStarEnabled) {
+      gotMyApplicationsProgramNames =
+        await this.northStarProgramNamesForSection(
+          CardSectionName.MyApplications,
+        )
+    } else {
+      gotMyApplicationsProgramNames =
+        await this.programNamesForSection('My applications')
+    }
 
     let gotRecommendedProgramNames
     let gotOtherProgramNames
     let gotProgramsAndServicesNames
 
     if (filtersOn) {
-      gotRecommendedProgramNames =
-        await this.programNamesForSection('Recommended')
+      gotRecommendedProgramNames = await this.programNamesForSection(
+        'Programs based on your selections',
+      )
       gotRecommendedProgramNames.sort()
       gotOtherProgramNames = await this.programNamesForSection(
         'Other programs and services',
       )
       gotOtherProgramNames.sort()
     } else {
-      gotProgramsAndServicesNames = await this.programNamesForSection(
-        'Programs and services',
-      )
+      if (northStarEnabled) {
+        gotProgramsAndServicesNames =
+          await this.northStarProgramNamesForSection(
+            CardSectionName.ProgramsAndServices,
+          )
+      } else {
+        gotProgramsAndServicesNames = await this.programNamesForSection(
+          'Programs and services',
+        )
+      }
       gotProgramsAndServicesNames.sort()
     }
 
@@ -410,6 +478,18 @@ export class ApplicantQuestions {
       '.cf-application-program-section',
       {has: this.page.locator(`:text("${sectionName}")`)},
     )
+    return this.findProgramsWithSectionLocator(sectionLocator)
+  }
+
+  private northStarProgramNamesForSection(
+    sectionName: CardSectionName,
+  ): Promise<string[]> {
+    const sectionLocator =
+      this.applicantProgramList.getCardSectionLocator(sectionName)
+    return this.findProgramsWithSectionLocator(sectionLocator)
+  }
+
+  private findProgramsWithSectionLocator(sectionLocator: Locator) {
     const programTitlesLocator = sectionLocator.locator(
       '.cf-application-card .cf-application-card-title',
     )
@@ -446,8 +526,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickReview() {
-    await this.page.click('text="Review"')
+  async clickReview(northStarEnabled = false) {
+    const reviewButton = northStarEnabled
+      ? 'text="Review and exit"'
+      : 'text="Review"'
+    await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
   }
 
@@ -456,15 +539,29 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickDownload() {
+  async clickSubmitApplication() {
+    await this.page.click('text="Submit application"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickDownload(northStarEnabled = false) {
+    const downloadButton = northStarEnabled
+      ? 'text="Download your application"'
+      : 'text="Download PDF"'
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download PDF"'),
+      this.page.click(downloadButton),
     ])
     const path = await downloadEvent.path()
-    if (path === null || readFileSync(path, 'utf8').length === 0) {
-      throw new Error('download failed')
+    if (!path) {
+      throw new Error('Download failed: File path is null.')
     }
+
+    const fileContent = readFileSync(path, 'utf8')
+    if (fileContent.length === 0) {
+      throw new Error('Download failed: File content is empty.')
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -494,27 +591,45 @@ export class ApplicantQuestions {
    * value has been filled after the page loaded. Explanation: https://stackoverflow.com/q/10645552
    */
   async deleteEnumeratorEntity(entityName: string) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(
-      `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
-    )
+    await this.page
+      .locator(`.cf-enumerator-field:has(input[value="${entityName}"])`)
+      .getByRole('button')
+      .click()
   }
 
   /** Remove the enumerator entity at entityIndex (1-based) */
-  async deleteEnumeratorEntityByIndex(entityIndex: number) {
-    this.page.once('dialog', (dialog) => {
-      void dialog.accept()
+  async deleteEnumeratorEntityByIndex(
+    entityIndex: number,
+    northStarEnabled = false,
+  ) {
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept()
     })
-    await this.page.click(`:nth-match(:text("Remove entity"), ${entityIndex})`)
+    if (northStarEnabled) {
+      await this.page
+        .locator(
+          `#enumerator-fields .cf-enumerator-field .cf-enumerator-delete-button >> nth=${entityIndex}`,
+        )
+        .click()
+    } else {
+      await this.page.click(
+        `:nth-match(:text("Remove entity"), ${entityIndex})`,
+      )
+    }
   }
 
-  async downloadSingleQuestionFromReviewPage() {
+  async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h2')).toContain(
-      'Program application summary',
-    )
+    if (northStarEnabled) {
+      await expect(this.page.getByText('Review and submit')).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByText('Program application summary'),
+      ).toBeVisible()
+    }
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -635,8 +750,49 @@ export class ApplicantQuestions {
     }
   }
 
+  async expectCommonIntakeConfirmationPageNorthStar(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Programs your client may qualify for',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs you may qualify for'}),
+      ).toBeVisible()
+    }
+
+    const createAccountHeading = this.page.getByRole('heading', {
+      name: 'Create an account to save your application information',
+    })
+    if (wantUpsell) {
+      await expect(createAccountHeading).toBeVisible()
+    } else {
+      await expect(createAccountHeading).toBeHidden()
+    }
+
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
+
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
   async expectIneligiblePage(northStar = false) {
     if (northStar) {
+      await expect(this.page).toHaveTitle('Ineligible for program')
+
       await expect(
         this.page
           .getByText('You may not be eligible for this program')
@@ -692,7 +848,11 @@ export class ApplicantQuestions {
   }
 
   async expectVerifyAddressPage(hasAddressSuggestions: boolean) {
-    expect(await this.page.innerText('h2')).toContain('Confirm your address')
+    await expect(
+      this.page.getByRole('heading', {name: 'Confirm your address'}),
+    ).toBeVisible()
+
+    //    expect(await this.page.innerText('h2')).toContain('Confirm your address')
     // Note: If there's only one suggestion, the heading will be "Suggested address"
     // not "Suggested addresses". But, our browser setup always returns multiple
     // suggestions so we can safely assert the heading is always "Suggested addresses".
@@ -721,20 +881,35 @@ export class ApplicantQuestions {
     expect(summaryRowText.includes(answerText)).toBeTruthy()
   }
 
+  async expectQuestionAnsweredOnReviewPageNorthstar(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
   async submitFromReviewPage(northStarEnabled = false) {
     // Assert that we're on the review page.
     await this.expectReviewPage(northStarEnabled)
 
     // Click on submit button.
-    await this.clickSubmit()
+    if (northStarEnabled) {
+      await this.clickSubmitApplication()
+    } else {
+      await this.clickSubmit()
+    }
   }
 
-  async downloadFromConfirmationPage() {
-    // Assert that we're on the review page.
-    await this.expectConfirmationPage()
-
-    // Click on download button.
-    await this.clickDownload()
+  async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
+    // Assert that we're on the confirmation page.
+    await this.expectConfirmationPage(northStarEnabled)
+    // Click on the download button
+    await this.clickDownload(northStarEnabled)
   }
 
   async validateHeader(lang: string) {
@@ -790,6 +965,7 @@ export class ApplicantQuestions {
     )
     expect(await modal.innerText()).toContain(`Stay and fix your answers`)
   }
+
   async clickReviewWithoutSaving() {
     await this.page.click(
       'button:has-text("Continue to review page without saving")',
@@ -867,6 +1043,16 @@ export class ApplicantQuestions {
     ).not.toBeAttached()
   }
 
+  async expectIneligibleQuestionInReviewPageAlert(questionText: string) {
+    await expect(
+      this.page
+        .getByRole('heading', {name: 'may not be eligible'})
+        .locator('..')
+        .getByRole('listitem')
+        .filter({hasText: questionText}),
+    ).toBeAttached()
+  }
+
   async expectMayNotBeEligibileAlertToBeVisible() {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
@@ -880,5 +1066,34 @@ export class ApplicantQuestions {
     await expect(
       this.page.getByRole('heading', {name: 'may not be eligible'}),
     ).not.toBeAttached()
+  }
+
+  async expectTitle(page: Page, title: string) {
+    await expect(page).toHaveTitle(title)
+  }
+
+  async filterProgramsByCategory(category: string) {
+    await this.page
+      .locator('#ns-category-filter-form')
+      .getByText(category)
+      .check()
+    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+  }
+
+  // On the North Star application summary page, find the block with the given name
+  // and click "Edit"
+  async editBlock(blockName: string) {
+    await this.page
+      .locator(
+        '.block-summary:has-text("' +
+          blockName +
+          '") >> .summary-edit-button:has-text("Edit")',
+      )
+      .click()
+  }
+
+  async expectLoginModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Log in`)
   }
 }

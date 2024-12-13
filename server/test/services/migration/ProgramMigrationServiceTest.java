@@ -15,7 +15,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.admin.ProgramMigrationWrapper;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import models.CategoryModel;
 import models.DisplayMode;
@@ -166,31 +168,52 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         service.maybeOverwriteQuestionName(questionsTwo);
 
     // "id-test" should have been updated by the method
-    assertThat(updatedQuestions.get("id-test").getName()).isEqualTo("id-test-1");
+    assertThat(updatedQuestions.get("id-test").getName()).isEqualTo("id-test -_- a");
     // "new text test" should have not have been changed
     assertThat(updatedQuestions.get("new text test").getName()).isEqualTo("new text test");
   }
 
   @Test
-  public void maybeGenerateNewAdminName_generatesCorrectAdminNames() {
+  public void findUniqueAdminName_generatesCorrectAdminNames() {
     resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question-1");
-    resourceCreator.insertQuestion("name-question-2");
+    resourceCreator.insertQuestion("name-question -_- a");
+    resourceCreator.insertQuestion("name-question -_- b");
 
-    String newAdminName = service.maybeGenerateNewAdminName("name-question");
-    assertThat(newAdminName).isEqualTo("name-question-3");
-    String unmatchedAdminName = service.maybeGenerateNewAdminName("admin-name-unmatched");
+    String newAdminName = service.findUniqueAdminName("name-question", new ArrayList<>());
+    assertThat(newAdminName).isEqualTo("name-question -_- c");
+    String unmatchedAdminName =
+        service.findUniqueAdminName("admin-name-unmatched", new ArrayList<>());
     assertThat(unmatchedAdminName).isEqualTo("admin-name-unmatched");
   }
 
   @Test
-  public void maybeGenerateNewAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
+  public void findUniqueAdminName_generatesCorrectAdminNamesForAdminNamesWithSuffixes() {
     resourceCreator.insertQuestion("name-question");
-    resourceCreator.insertQuestion("name-question-1");
-    resourceCreator.insertQuestion("name-question-2");
+    resourceCreator.insertQuestion("name-question -_- a");
+    resourceCreator.insertQuestion("name-question -_- b");
 
-    String newAdminName = service.maybeGenerateNewAdminName("name-question-1");
-    assertThat(newAdminName).isEqualTo("name-question-3");
+    String newAdminName = service.findUniqueAdminName("name-question -_- a", new ArrayList<>());
+    assertThat(newAdminName).isEqualTo("name-question -_- c");
+  }
+
+  @Test
+  public void
+      findUniqueAdminName_generatesCorrectAdminNamesWhenAlreadyGeneratedNameMightConflict() {
+    List<String> namesSoFar = List.of("name-question -_- a", "name-question -_- b");
+
+    String newAdminName = service.findUniqueAdminName("name-question -_- a", namesSoFar);
+    assertThat(newAdminName).isEqualTo("name-question -_- c");
+  }
+
+  @Test
+  public void convertNumberToSuffix_generatesCorrectSuffix() {
+    assertThat(service.convertNumberToSuffix(10)).isEqualTo("j");
+    assertThat(service.convertNumberToSuffix(26)).isEqualTo("z");
+    assertThat(service.convertNumberToSuffix(26 + 2)).isEqualTo("ab");
+    assertThat(service.convertNumberToSuffix(26 + 26)).isEqualTo("az");
+    assertThat(service.convertNumberToSuffix(26 + 26 + 26)).isEqualTo("bz");
+    assertThat(service.convertNumberToSuffix(26 * 26 + 11)).isEqualTo("zk");
+    assertThat(service.convertNumberToSuffix(27 * 26 + 11)).isEqualTo("aak");
   }
 
   @Test
@@ -236,6 +259,19 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ProgramDefinition output = service.prepForExport(program);
 
     assertThat(output.categories()).isEmpty();
+  }
+
+  @Test
+  public void prepForExport_clearsPreScreenerSetting() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition output = service.prepForExport(program);
+
+    assertThat(output.programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test

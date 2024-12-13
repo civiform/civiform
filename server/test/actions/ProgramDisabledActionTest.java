@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.FlashKey;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.junit.Test;
@@ -47,6 +48,7 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* adminDescription */ "admin-description",
             /* defaultDisplayName */ "admin-name",
             /* defaultDisplayDescription */ "description",
+            /* defaultShortDescription */ "short description",
             /* defaultConfirmationMessage */ "",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
@@ -56,7 +58,8 @@ public class ProgramDisabledActionTest extends WithApplication {
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* ProgramAcls */ new ProgramAcls(),
-            /* categories */ ImmutableList.of());
+            /* categories */ ImmutableList.of(),
+            /* applicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
     program.save();
 
     return program;

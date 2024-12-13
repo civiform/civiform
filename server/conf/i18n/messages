@@ -63,6 +63,12 @@ button.close=Close
 button.review=Review
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -117,7 +123,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Save and finish application later
+button.reviewAndExit=Review and exit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +132,8 @@ content.blockProgress={0} of {1}
 content.blockProgressFull={0} of {1} completed
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Application progress
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} of {1} uploaded
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Review and submit
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -171,6 +177,10 @@ button.editSr=Edit submitted application to {0}
 button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continue to application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -179,8 +189,6 @@ button.startHereCommonIntakeSr=Start here by filling out {0}
 button.editCommonIntakeSr=Edit submitted information for {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continue filling out {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=View details
 # Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
 # Text for applicants to understand the section is for finding programs
@@ -189,9 +197,13 @@ content.findPrograms=Find programs
 content.findProgramsDescription=CiviForm helps you find programs you may be eligible for in {0}. Get started by choosing an application below.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Save time applying for programs and services
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Program filters
 # Link text to read more about a program.
@@ -211,21 +223,19 @@ title.inProgressProgramsUpdated=In progress
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Not started
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Find services that can help you
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=My applications ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Other programs ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Other programs and services ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programs ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programs and services ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recommended ({0})
+title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Section completed
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -234,6 +244,14 @@ title.submittedPrograms=Submitted
 toast.applicationSaved=Successfully saved application: application ID {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Application was already completed.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -380,6 +398,8 @@ title.tiAccountSettings=Trusted Intermediary - View Account Settings - CiviForm
 
 # Submit application button
 button.submit=Submit
+# Submit application button
+button.submitApplication=Submit application
 # Continue application button
 button.continue=Continue
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -413,6 +433,8 @@ title.programSummary=Program application summary
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Ineligible for program
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Based on your responses to the following questions, you may not qualify for the {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -533,6 +555,8 @@ content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find program
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Other programs you might be interested in
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Download your application
 button.downloadPdf=Download PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs
@@ -548,8 +572,6 @@ heading.dateSubmitted=Date submitted
 heading.forYourRecords=Confirmation for your records
 # Text above a button to print this page
 content.youCanPrint=You can print this confirmation for your records.
-# Button to print this webpage
-button.print=Print this page
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -709,6 +731,10 @@ validation.fileRequired=Please select a file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Your file is too large. Please choose a file less than {0} MB.
 button.chooseFile=Choose File
+# Text shown on a tag while a file is uploading.
+label.uploading=Uploading
+# Label applied to a list of uploaded files
+label.uploadedFiles=Uploaded Files
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -798,8 +824,6 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=An error occurred
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=An error has occurred
 # The subtitle on the error page that is show to the user in medium font
@@ -863,3 +887,45 @@ banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
 banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=end your session
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Childcare
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Economic
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Education
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Employment
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Food
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=General
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Healthcare
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Housing
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Training
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transportation
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Utilities

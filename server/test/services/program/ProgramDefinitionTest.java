@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import models.QuestionModel;
@@ -56,6 +57,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
@@ -65,6 +68,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(def.id()).isEqualTo(123L);
@@ -87,6 +91,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -94,6 +100,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).hasValue(blockA);
@@ -108,12 +115,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -239,6 +249,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -247,6 +259,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(program.hasQuestion(questionA)).isTrue();
@@ -265,12 +278,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -278,7 +294,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "Applicant friendly name"));
     assertThat(program.localizedDescription())
         .isEqualTo(LocalizedStrings.of(Locale.US, "English description"));
-
+    assertThat(program.localizedShortDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "English short description"));
     assertThatThrownBy(() -> program.localizedName().get(Locale.FRANCE))
         .isInstanceOf(TranslationNotFoundException.class);
     assertThatThrownBy(() -> program.localizedDescription().get(Locale.FRANCE))
@@ -300,12 +317,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "existing short description"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(tiGroups))
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     program =
@@ -321,6 +341,16 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 program.localizedDescription().updateTranslation(Locale.US, "new description"))
             .build();
     assertThat(program.localizedDescription().get(Locale.US)).isEqualTo("new description");
+
+    program =
+        program.toBuilder()
+            .setLocalizedShortDescription(
+                program
+                    .localizedShortDescription()
+                    .updateTranslation(Locale.US, "new short description"))
+            .build();
+    assertThat(program.localizedShortDescription().get(Locale.US))
+        .isEqualTo("new short description");
     assertThat(program.acls().getTiProgramViewAcls()).containsOnly(1L);
   }
 
@@ -335,12 +365,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
                 LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description", Locale.ITALIAN, "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -387,6 +420,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "English short description", Locale.ITALIAN, "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -395,6 +430,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -459,6 +495,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .addBlockDefinition(block1QAQB)
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
@@ -468,6 +512,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     // block1
@@ -551,6 +596,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .addBlockDefinition(block1QAQB)
             .addBlockDefinition(block2QC)
             .addBlockDefinition(block3QD)
@@ -560,6 +613,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     // block1
@@ -663,6 +717,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -674,6 +736,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     // blockA (applicantName)
@@ -1098,6 +1161,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setCreateTime(now)
@@ -1105,6 +1170,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     assertThat(def.createTime().get()).isEqualTo(now);
   }
@@ -1118,12 +1184,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     assertThat(def.createTime().isPresent()).isFalse();
   }
@@ -1138,6 +1207,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
@@ -1145,6 +1216,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
@@ -1158,12 +1230,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
@@ -1178,12 +1253,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setLocalizedSummaryImageDescription(Optional.of(description))
             .build();
 
@@ -1200,12 +1278,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(def.localizedSummaryImageDescription().isPresent()).isFalse();
@@ -1221,12 +1302,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setLocalizedSummaryImageDescription(
                 Optional.of(LocalizedStrings.of(Locale.US, "first image description")))
             .build();
@@ -1253,12 +1337,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1276,12 +1363,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(def.summaryImageFileKey().isPresent()).isFalse();
@@ -1296,12 +1386,15 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .setSummaryImageFileKey(Optional.of("program-summary-image/program-123/fileKey.png"))
             .build();
 
@@ -1376,6 +1469,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "US description", Locale.GERMAN, "German description"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US, "US short description", Locale.GERMAN, "German short description"))
             .setLocalizedConfirmationMessage(
                 LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"))
             .setLocalizedSummaryImageDescription(
@@ -1393,6 +1489,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             // The following fields should *not* be included in the serialization
@@ -1426,6 +1523,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.localizedDescription())
         .isEqualTo(
             LocalizedStrings.of(Locale.US, "US description", Locale.GERMAN, "German description"));
+    assertThat(result.localizedShortDescription())
+        .isEqualTo(
+            LocalizedStrings.of(
+                Locale.US, "US short description", Locale.GERMAN, "German short description"));
     assertThat(result.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.of(Locale.US, "US message", Locale.GERMAN, "German message"));
     assertThat(result.localizedSummaryImageDescription())
@@ -1553,6 +1654,14 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English short description",
+                    Locale.ITALIAN,
+                    "test",
+                    Locale.FRANCE,
+                    "test"))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -1563,6 +1672,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     ObjectMapper objectMapper =

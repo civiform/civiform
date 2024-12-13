@@ -29,7 +29,7 @@ footer.technicalSupport=ለቴክኒካዊ ድጋፍ፦ {0}
 # This should be consistent with button.guestLogin.
 guest=እንግዳ
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=ቋንቋ ይምረጡ
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=ቋንቋ ይምረጡ
 # A label on the button that opens the header menu shown on mobile
@@ -63,6 +63,12 @@ button.close=ዝጋ
 button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -100,12 +106,12 @@ link.adminLogin=የአስተዳዳሪ መግቢያ
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=ፋይል ይምረጡ
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=አንድ ወይም ተጨማሪ ፋይሎችን ይምረጡ (ቢበዛ {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=አንድ ወይም ተጨማሪ ፋይሎችን ይምረጡ
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=ሰርዝ
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -117,7 +123,7 @@ button.previousScreen=ቀዳሚ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=ተመለስ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=ማመልከቻውን አስቀምጥ እና በኋላ ላይ ጨርስ
+button.reviewAndExit=ይገምግሙ እና ይውጡ
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ዝለል
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +132,8 @@ content.blockProgress={0} ከ {1}
 content.blockProgressFull={0} ከ{1} ተጠናቅቋል
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=የመተግበሪያ የሂደት ደረጃ
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} ከ{1} ተሰቅሏል
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=ይገምግሙ እና ያስገቡ
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -171,6 +177,10 @@ button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
 button.continueSr=ወደ {0} ማመልከትን ቀጥል
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=እዚህ ይጀምሩ
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -179,8 +189,6 @@ button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
 button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=ዝርዝሮችን አሳይ
 # Text describing the date the application was last submitted.
 content.submittedDate={0} ገብቷል
 # Text for applicants to understand the section is for finding programs
@@ -189,9 +197,13 @@ content.findPrograms=ፕሮግራሞችን ያግኙ
 content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=የፕሮግራም ማጣሪያዎች
 # Link text to read more about a program.
@@ -211,21 +223,19 @@ title.inProgressProgramsUpdated=በሂደት ላይ
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=ያልተጀመሩ
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=ሊረዱዎት የሚችሉ አገልግሎቶችን ያግኙ
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=አገልግሎቶችን ያግኙ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=ሌሎች ፕሮግራሞች ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግሎቶች ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=ፕሮግራሞች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=የሚመከር ({0})
+title.recommendedSection.v2=በእርስዎ ምርጫዎች ላይ የተመሠረቱ ፕሮግራሞች ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=ክፍል ተጠናቅቋል
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -234,6 +244,14 @@ title.submittedPrograms=የገቡ
 toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
 # Alert banner when an application was already completed
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -380,6 +398,8 @@ title.tiAccountSettings=የታመነ አገናኝ - የመለያ ቅንብሮች
 
 # Submit application button
 button.submit=አስገባ
+# Submit application button
+button.submitApplication=ማመልከቻ ያስገቡ
 # Continue application button
 button.continue=ቀጥል
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -413,6 +433,8 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=ለፕሮግራም ብቁ ያልሆነ
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -517,10 +539,14 @@ button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=በምላሾችዎ ላይ በመመስረት ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=በምላሾችዎ ላይ በመመስረት ደንበኛዎ ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -529,6 +555,8 @@ content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛ�
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=ማመልከቻዎን ያውርዱ
 button.downloadPdf=PDF አውርድ
 # A button prompting users to apply to programs.
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
@@ -544,8 +572,6 @@ heading.dateSubmitted=የገባበት ቀን
 heading.forYourRecords=የመዝገቦችዎ ማረጋገጫ
 # Text above a button to print this page
 content.youCanPrint=ይህን የመዝገቦችዎ ማረጋገጫ ማተም ይችላሉ።
-# Button to print this webpage
-button.print=ይህን ገጽ ያትሙ
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=ቀጣይ እርምጃዎቼ ምንድናቸው?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -558,7 +584,7 @@ alert.createAccountDescription=የማመልከቻዎን ሁኔታ ማየት እ�
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=ለ{0} ምንም የሚቀመጡ ለውጦች የሉም
@@ -705,6 +731,10 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 button.chooseFile=ፋይል ይምረጡ
+# Text shown on a tag while a file is uploading.
+label.uploading=በመስቀል ላይ
+# Label applied to a list of uploaded files
+label.uploadedFiles=የተሰቀሉ ፋይሎች
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -794,8 +824,6 @@ adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ 
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
 error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=ስህተት ተከስቷል
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=ስህተት ተከስቷል
 # The subtitle on the error page that is show to the user in medium font
@@ -859,3 +887,45 @@ banner.notForProductionBannerLine2=ለአንድ ፕሮግራም ወይም አገ
 banner.guestBannerText=እንደ እንግዳ እያመለከቱ ነው። ማመልከቻውን ከጨረሱ በኋላ ውሂብዎን ለመጠበቅ {0}።
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ክፍለ-ጊዜዎን ይጨርሱ
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=የልጅ እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=ኢኮኖሚያዊ
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=ትምህርት
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=ሥራ
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=ምግብ
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=ጠቅላላ
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=የጤና እንክብካቤ
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=ቤት
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=በይነመረብ
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=ሥልጠና
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=መጓጓዣ
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=መገልገያዎች

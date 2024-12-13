@@ -5,6 +5,7 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.FakeAdminClient;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -16,6 +17,8 @@ import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -51,11 +54,13 @@ public abstract class NorthStarBaseView {
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
       Request request,
-      Long applicantId,
-      CiviFormProfile profile,
+      Optional<Long> applicantId,
+      Optional<CiviFormProfile> profile,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
+    context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
     context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
     context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
@@ -85,11 +90,14 @@ public abstract class NorthStarBaseView {
     context.setVariable("requestUri", request.uri());
 
     // Add auth parameters.
-    boolean isTi = profile.isTrustedIntermediary();
+    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
     boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
 
     context.setVariable("isTrustedIntermediary", isTi);
     context.setVariable("isGuest", isGuest);
+    context.setVariable("hasProfile", profile.isPresent());
+    context.setVariable("applicantDisplayName", applicantPersonalInfo.getDisplayString(messages));
+    context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
@@ -108,7 +116,12 @@ public abstract class NorthStarBaseView {
           "loggedInAs", getAccountIdentifier(isTi, profile, applicantPersonalInfo, messages));
     }
 
+    // Default page title
+    context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
+
     context.setVariable("isDevOrStaging", isDevOrStaging);
+
+    maybeSetUpNotProductionBanner(context, request, messages);
 
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
@@ -137,12 +150,17 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
+
+    // Other options
+    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
+    context.setVariable("isApplicationExportable", isApplicationExportable);
+
     return context;
   }
 
   private String getAccountIdentifier(
       boolean isTi,
-      CiviFormProfile profile,
+      Optional<CiviFormProfile> profile,
       ApplicantPersonalInfo applicantPersonalInfo,
       Messages messages) {
     // For TIs we use the account email rather than first and last name because
@@ -151,8 +169,10 @@ public abstract class NorthStarBaseView {
     if (isTi) {
       // CommonProfile.getEmail() can return null, so we guard that with a generic
       // display string.
+      // If it's a TI, there will definitely be a profile.
       String email =
-          Optional.ofNullable(profile.getProfileData().getEmail()).orElse("Trusted Intermediary");
+          Optional.ofNullable(profile.get().getProfileData().getEmail())
+              .orElse("Trusted Intermediary");
 
       // To ensure a consistent string with browser snapshots, we override the
       // display email.
@@ -172,9 +192,69 @@ public abstract class NorthStarBaseView {
                 lang -> lang, lang -> languageUtils.getDisplayString(lang.locale())));
   }
 
-  private String getUpdateLanguageAction(Long applicantId) {
-    return controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
-            applicantId)
+  private String getUpdateLanguageAction(Optional<Long> applicantId) {
+    return applicantId.isPresent()
+        ? controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
+                applicantId.get())
+            .url()
+        : controllers.applicant.routes.ApplicantInformationController
+            .setLangFromSwitcherWithoutApplicant()
+            .url();
+  }
+
+  private void maybeSetUpNotProductionBanner(
+      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+      return;
+    }
+    context.setVariable(
+        "showNotProductionBannerEnabled",
+        settingsManifest.getShowNotProductionBannerEnabled(request));
+
+    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+    // difficult to add HTML within a message. So we have to manually build the html for a link
+    // that will be embedded in the banner.
+    Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
+    Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
+    Optional<String> unescapedDescription = Optional.empty();
+    if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
+      String linkHtml =
+          "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
+      String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
+      unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
+    }
+
+    AlertSettings notProductionAlertSettings =
+        new AlertSettings(
+            true,
+            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            unescapedDescription.orElse(""),
+            unescapedDescription.isPresent(),
+            AlertType.EMERGENCY,
+            ImmutableList.of());
+    context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
+  }
+
+  /** Create a page title for a step in the application process. */
+  protected String pageTitleWithBlockProgress(
+      String programTitle, int blockIndex, int totalBlockCount, Messages messages) {
+    // While applicant is filling out the application, include the block they are on as part of
+    // their progress.
+    blockIndex++;
+    // The summary page counts as a step
+    totalBlockCount++;
+    String blockNumberText =
+        messages.at(MessageKey.CONTENT_BLOCK_PROGRESS.getKeyName(), blockIndex, totalBlockCount);
+    return String.format("%s — %s", programTitle, blockNumberText);
+  }
+
+  private String getTiDashboardHref() {
+    return controllers.ti.routes.TrustedIntermediaryController.dashboard(
+            /* nameQuery= */ Optional.empty(),
+            /* dayQuery= */ Optional.empty(),
+            /* monthQuery= */ Optional.empty(),
+            /* yearQuery= */ Optional.empty(),
+            /* page= */ Optional.of(1))
         .url();
   }
 }

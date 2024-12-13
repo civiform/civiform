@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -25,6 +24,9 @@ import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
+import services.geo.esri.models.Attributes;
+import services.geo.esri.models.Candidate;
+import services.geo.esri.models.FindAddressCandidatesResponse;
 
 /** An abstract class for working with external Esri services. */
 public abstract class EsriClient {
@@ -70,7 +72,8 @@ public abstract class EsriClient {
    * to the configured ESRI_EXTERNAL_CALL_TRIES. If ESRI_EXTERNAL_CALL_TRIES is not configured, the
    * tries default to 3.
    */
-  abstract CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson);
+  abstract CompletionStage<Optional<FindAddressCandidatesResponse>> fetchAddressSuggestions(
+      ObjectNode addressJson);
 
   /**
    * Calls an external Esri service to get address suggestions given the provided {@link Address}.
@@ -90,131 +93,105 @@ public abstract class EsriClient {
     Histogram.Timer timer = ESRI_LOOKUP_TIME.startTimer();
     return fetchAddressSuggestions(addressJson)
         .thenApply(
-            (maybeJson) -> {
-              if (maybeJson.isEmpty()) {
+            (optionalFindAddressCandidatesResponse) -> {
+              if (optionalFindAddressCandidatesResponse.isEmpty()) {
                 logger.error(
-                    "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
-                        + " EsriClient.getAddressSuggestions. Address = {}",
+                    "Received an empty JSON response when searching for address candidates for"
+                        + " address: [{}]",
                     address);
                 ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
-                return AddressSuggestionGroup.builder()
-                    .setWellKnownId(0)
-                    .setOriginalAddress(address)
-                    .setAddressSuggestions(ImmutableList.of())
-                    .build();
+                return AddressSuggestionGroup.empty(address);
               }
-              JsonNode json = maybeJson.get();
-              int wkid = json.get("spatialReference").get("wkid").asInt();
-              ImmutableList.Builder<AddressSuggestion> suggestionBuilder = ImmutableList.builder();
-              for (JsonNode candidateJson : json.get("candidates")) {
-                JsonNode location = candidateJson.get("location");
-                AddressLocation addressLocation =
-                    AddressLocation.builder()
-                        .setLongitude(location.get("x").asDouble())
-                        .setLatitude(location.get("y").asDouble())
-                        .setWellKnownId(wkid)
-                        .build();
 
-                Address candidateAddress = mapAddressAttributesJson(candidateJson, address);
+              try {
+                FindAddressCandidatesResponse response =
+                    optionalFindAddressCandidatesResponse.get();
 
-                if (candidateAddress.getStreet().isEmpty()
-                    || candidateAddress.getCity().isEmpty()
-                    || candidateAddress.getState().isEmpty()
-                    || candidateAddress.getZip().isEmpty()) {
-                  ESRI_LOOKUP_COUNT.labels("Partially formed address").inc();
-                  continue;
+                if (response.spatialReference().isEmpty()) {
+                  return AddressSuggestionGroup.empty(address);
                 }
-                AddressSuggestion addressCandidate =
-                    AddressSuggestion.builder()
-                        .setSingleLineAddress(candidateJson.get("address").asText())
-                        .setLocation(addressLocation)
-                        .setScore(candidateJson.get("score").asInt())
-                        .setAddress(candidateAddress)
+
+                ImmutableList.Builder<AddressSuggestion> suggestionBuilder =
+                    ImmutableList.builder();
+
+                int wkid = response.spatialReference().get().wkid();
+
+                for (Candidate candidate : response.candidates()) {
+                  AddressLocation addressLocation =
+                      AddressLocation.builder()
+                          .setLongitude(candidate.location().x())
+                          .setLatitude(candidate.location().y())
+                          .setWellKnownId(wkid)
+                          .build();
+
+                  Address candidateAddress =
+                      mapAddressAttributesJson(candidate.attributes(), address);
+
+                  if (candidateAddress.getStreet().isEmpty()
+                      || candidateAddress.getCity().isEmpty()
+                      || candidateAddress.getState().isEmpty()
+                      || candidateAddress.getZip().isEmpty()) {
+                    ESRI_LOOKUP_COUNT.labels("Partially formed address").inc();
+                    continue;
+                  }
+
+                  AddressSuggestion addressCandidate =
+                      AddressSuggestion.builder()
+                          .setSingleLineAddress(candidate.address())
+                          .setLocation(addressLocation)
+                          .setScore(candidate.score())
+                          .setAddress(candidateAddress)
+                          .build();
+
+                  ESRI_LOOKUP_COUNT.labels("Full address").inc();
+                  suggestionBuilder.add(addressCandidate);
+                }
+
+                AddressSuggestionGroup addressCandidates =
+                    AddressSuggestionGroup.builder()
+                        .setWellKnownId(wkid)
+                        .setAddressSuggestions(suggestionBuilder.build())
+                        .setOriginalAddress(address)
                         .build();
-                ESRI_LOOKUP_COUNT.labels("Full address").inc();
-                suggestionBuilder.add(addressCandidate);
+
+                // Record the execution time of the esri lookup process.
+                timer.observeDuration();
+                return addressCandidates;
+              } catch (RuntimeException e) {
+                String errmsg =
+                    String.format("Could not parse JSON response for address: [%s]", address);
+                logger.error(errmsg, e);
+                ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
+                return AddressSuggestionGroup.empty(address);
               }
-
-              AddressSuggestionGroup addressCandidates =
-                  AddressSuggestionGroup.builder()
-                      .setWellKnownId(wkid)
-                      .setAddressSuggestions(suggestionBuilder.build())
-                      .setOriginalAddress(address)
-                      .build();
-
-              // Record the execution time of the esri lookup process.
-              timer.observeDuration();
-              return addressCandidates;
             });
   }
 
-  /** Maps the JSON values within the node to an address */
-  @VisibleForTesting
-  static Address mapAddressAttributesJson(JsonNode candidateJson, Address address) {
-    JsonNode attributes = candidateJson.get("attributes");
-
+  static Address mapAddressAttributesJson(Attributes attributes, Address address) {
     return Address.builder()
-        .setStreet(getNodeTextValueOrEmpty(attributes, "Address"))
+        .setStreet(attributes.address())
         // If there is no value in SubAddr return the value the user entered. It may not be
         // returned by the ESRI instance and we don't want to lose the value.
-        .setLine2(getNodeTextValueOrDefault(attributes, "SubAddr", address::getLine2))
-        .setCity(getNodeTextValueOrEmpty(attributes, "City"))
+        .setLine2(
+            attributes.subAddr().orElse("").isBlank()
+                ? address.getLine2()
+                : attributes.subAddr().get())
+        .setCity(attributes.city())
         .setState(getStateAbbreviationFromAttributes(attributes, address))
-        .setZip(getNodeTextValueOrEmpty(attributes, "Postal"))
+        .setZip(attributes.postal())
         .build();
   }
 
   /**
-   * Get the state abbreviation from the attributes JSON node. On Public ESRI this is under the
-   * RegionAbbr field, but some custom implementations may have it under the Region field.
+   * Get the state abbreviation. If the value from ESRI is not the two character state abbreviation,
+   * fallback to using the state that was originally set by the user.
    */
-  private static String getStateAbbreviationFromAttributes(JsonNode attributes, Address address) {
-    // Start with getting the value from the RegionAbbr, this is the
-    // default used by ESRI for state abbreviations
-    String result = getNodeTextValueOrEmpty(attributes, "RegionAbbr");
-
-    // Assume if it's not two characters it is either empty or the
-    // full state name and pull from the Region value
-    if (result.length() != 2) {
-      result = getNodeTextValueOrEmpty(attributes, "Region");
+  private static String getStateAbbreviationFromAttributes(Attributes attributes, Address address) {
+    if (attributes.stateAbbreviation().isPresent()) {
+      return attributes.stateAbbreviation().get();
     }
 
-    // If still not two characters default to originally selected state
-    if (result.length() != 2) {
-      result = address.getState();
-    }
-
-    return result;
-  }
-
-  /**
-   * Helper method to safely get the text value in a child JSON node or use the user specified
-   * default value
-   *
-   * @param parentJsonNode Parent node in which we search for children
-   * @param keyName The name of the specific JSON node to find
-   * @param getDefaultValue Takes a lambda what can be used to get a default value as a fallback if
-   *     the node is missing
-   * @return The text value of the node or default
-   */
-  private static String getNodeTextValueOrDefault(
-      JsonNode parentJsonNode, String keyName, Supplier<String> getDefaultValue) {
-    JsonNode childJsonNode = parentJsonNode.get(keyName);
-
-    return (childJsonNode == null || childJsonNode.isNull() || childJsonNode.asText().isEmpty())
-        ? getDefaultValue.get()
-        : childJsonNode.asText();
-  }
-
-  /**
-   * Helper method to safely get the text value in a child JSON node
-   *
-   * @param parentJsonNode Parent node in which we search for children
-   * @param keyName The name of the specific JSON node to find
-   * @return The text value of the node or an empty string
-   */
-  private static String getNodeTextValueOrEmpty(JsonNode parentJsonNode, String keyName) {
-    return getNodeTextValueOrDefault(parentJsonNode, keyName, () -> "");
+    return address.getState();
   }
 
   /**

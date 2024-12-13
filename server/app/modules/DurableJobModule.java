@@ -1,6 +1,5 @@
 package modules;
 
-import akka.actor.ActorSystem;
 import annotations.BindingAnnotations;
 import annotations.BindingAnnotations.RecurringJobsProviderName;
 import annotations.BindingAnnotations.StartupJobsProviderName;
@@ -17,9 +16,9 @@ import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
+import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
 import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
-import durablejobs.jobs.MigratePrimaryApplicantInfoJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
@@ -28,16 +27,18 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 import models.JobType;
+import org.apache.pekko.actor.ActorSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.Environment;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
-import services.settings.SettingsService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -61,7 +62,7 @@ public final class DurableJobModule extends AbstractModule {
    * <p>See <a href="https://github.com/civiform/civiform/pull/8253">PR 8253</a> for more extensive
    * details.
    *
-   * <p>Additionally this uses The Akka scheduling system to schedules the job runner to run on an
+   * <p>Additionally this uses The Pekko scheduling system to schedules the job runner to run on an
    * interval.
    */
   public static final class DurableJobRunnerScheduler {
@@ -116,9 +117,7 @@ public final class DurableJobModule extends AbstractModule {
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
       ReportingRepository reportingRepository,
-      VersionRepository versionRepository,
-      SettingsService settingsService,
-      Config config) {
+      VersionRepository versionRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -150,20 +149,13 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
-    durableJobRegistry.register(
-        DurableJobName.MIGRATE_PRIMARY_APPLICANT_INFO,
-        JobType.RECURRING,
-        persistedDurableJob ->
-            new MigratePrimaryApplicantInfoJob(
-                persistedDurableJob, accountRepository, settingsService, config),
-        new RecurringJobExecutionTimeResolvers.Nightly3Am());
-
     return durableJobRegistry;
   }
 
   @Provides
   @StartupJobsProviderName
-  public DurableJobRegistry provideStartupDurableJobRegistry() {
+  public DurableJobRegistry provideStartupDurableJobRegistry(
+      CategoryRepository categoryRepository, Environment environment) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.registerStartupJob(
@@ -175,6 +167,14 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.CONVERT_ADDRESS_SERVICE_AREA_TO_ARRAY,
         JobType.RUN_ONCE,
         persistedDurableJob -> new ConvertAddressServiceAreaToArrayJob(persistedDurableJob));
+
+    // TODO(#8833): Remove job from registry once all category translations are in.
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.ADD_CATEGORY_AND_TRANSLATION,
+        JobType.RUN_ON_EACH_STARTUP,
+        persistedDurableJob ->
+            new AddCategoryAndTranslationsJob(
+                categoryRepository, environment, persistedDurableJob));
 
     return durableJobRegistry;
   }

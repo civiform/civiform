@@ -3,15 +3,15 @@ package models;
 import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
@@ -98,11 +98,10 @@ public class ApplicationModel extends BaseModel {
   public ApplicantData getApplicantData() {
     if (this.preferredLocale == null || this.preferredLocale.isEmpty()) {
       // Default to English.
-      return new ApplicantData(this.object, this.applicant);
+      return new ApplicantData(this.object);
     }
 
-    return new ApplicantData(
-        Optional.of(Locale.forLanguageTag(preferredLocale)), this.object, this.applicant);
+    return new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), this.object);
   }
 
   public ApplicationModel setApplicantData(ApplicantData data) {
@@ -157,13 +156,11 @@ public class ApplicationModel extends BaseModel {
   /**
    * Returns the latest application status text value associated with the application.
    *
-   * <p>This value is updated by DB triggers defined in conf/evolutions/default/44.sql which set the
-   * status to the latest ApplicationEventDetails event for the application with a type of
-   * "status_change". Attempts to update the status manually will be overridden by the trigger (and
-   * has associated tests confirming this).
+   * <p>This value is updated by ApplicationEventRepository which set the status to the latest
+   * ApplicationEventDetails event for the application with a type of "status_change". Attempts
+   * should not be made to update the status manually outside the repository class.
    *
-   * <p>If information about the actual event that set this status is desired, make use of
-   * getApplicationEvents instead.
+   * <p>For more information, please check the @insertStatusEvent() instead.
    */
   public Optional<String> getLatestStatus() {
     return Optional.ofNullable(latestStatus);
@@ -180,7 +177,7 @@ public class ApplicationModel extends BaseModel {
 
   /**
    * This is visible only for tests to manipulate the latest status directly in order to ensure that
-   * updates to it are overridden by the configured database trigger.
+   * updates to it are overridden by the application code.
    */
   @VisibleForTesting
   void setLatestStatusForTest(String latestStatus) {

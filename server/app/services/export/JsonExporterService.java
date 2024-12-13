@@ -16,21 +16,21 @@ import models.ApplicationModel;
 import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.apache.commons.lang3.NotImplementedException;
-import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
 import services.DateConverter;
-import services.IdentifierBasedPaginationSpec;
-import services.PaginationResult;
 import services.Path;
-import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
+import services.applicant.question.ApplicantQuestion;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
+import services.pagination.PaginationResult;
+import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.question.types.QuestionType;
 
 /** Exports all applications for a given program as JSON. */
 public final class JsonExporterService {
@@ -64,12 +64,12 @@ public final class JsonExporterService {
    */
   public String export(
       ProgramDefinition programDefinition,
-      IdentifierBasedPaginationSpec<Long> paginationSpec,
+      SubmitTimeSequentialAccessPaginationSpec paginationSpec,
       SubmittedApplicationFilter filters,
       boolean multipleFileUploadEnabled) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programDefinition.id(), F.Either.Left(paginationSpec), filters);
+            programDefinition.id(), paginationSpec, filters);
 
     return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
   }
@@ -95,25 +95,27 @@ public final class JsonExporterService {
     // Build a template JSON document of all possible questions that have ever been in the program.
     // TODO(#8147): Reduce code duplication once we find a long term solution. Here we've moved the
     // template creation outside of the loop, so we don't rebuild it for each application, but as a
-    // result we've duplicated the AnswerData -> questionEntries map -> add to JSON document flow.
-    Map<Path, AnswerData> answersToExport = new HashMap<>();
+    // result we've duplicated the ApplicantQuestion -> questionEntries map -> add to JSON document
+    // flow.
+    Map<Path, ApplicantQuestion> answersToExport = new HashMap<>();
     for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
       // We use an empty ApplicantData because these should all be exported as unanswered questions.
       applicantService
           .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
-          .getSummaryDataAllQuestions()
-          .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
+          .getAllQuestions()
+          .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
+          .forEach(aq -> answersToExport.putIfAbsent(aq.getContextualizedPath(), aq));
     }
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
-    for (AnswerData answerData : answersToExport.values()) {
+    for (ApplicantQuestion applicantQuestion : answersToExport.values()) {
       // We suppress the unchecked warning because create() returns a genericized
       // QuestionJsonPresenter, but we ignore the generic's type so that we can get
       // the json entries for any Question in one line.
       @SuppressWarnings("unchecked")
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
-              .create(answerData.applicantQuestion().getType())
-              .getAllJsonEntries(answerData.createQuestion(), multipleFileUploadEnabled);
+              .create(applicantQuestion.getType())
+              .getAllJsonEntries(applicantQuestion.getQuestion(), multipleFileUploadEnabled);
       entriesBuilder.putAll(questionEntries);
     }
     CfJsonDocumentContext template = new CfJsonDocumentContext();
@@ -166,24 +168,23 @@ public final class JsonExporterService {
       ApplicationModel application,
       ProgramDefinition programDefinition,
       boolean multipleFileUploadEnabled) {
-    Map<Path, AnswerData> answersToExport = new HashMap<>();
-    applicantService
-        .getReadOnlyApplicantProgramService(application.getApplicantData(), programDefinition)
-        .getSummaryDataAllQuestions()
-        .forEach(ad -> answersToExport.putIfAbsent(ad.contextualizedPath(), ad));
-
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
-    for (AnswerData answerData : answersToExport.values()) {
-      // We suppress the unchecked warning because create() returns a genericized
-      // QuestionJsonPresenter, but we ignore the generic's type so that we can get
-      // the json entries for any Question in one line.
-      @SuppressWarnings("unchecked")
-      ImmutableMap<Path, Optional<?>> questionEntries =
-          presenterFactory
-              .create(answerData.applicantQuestion().getType())
-              .getAllJsonEntries(answerData.createQuestion(), multipleFileUploadEnabled);
-      entriesBuilder.putAll(questionEntries);
-    }
+    applicantService
+        .getReadOnlyApplicantProgramService(application, programDefinition)
+        .getAllQuestions()
+        .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
+        .forEach(
+            aq -> {
+              // We suppress the unchecked warning because create() returns a genericized
+              // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+              // the json entries for any Question in one line.
+              @SuppressWarnings("unchecked")
+              ImmutableMap<Path, Optional<?>> questionEntries =
+                  presenterFactory
+                      .create(aq.getType())
+                      .getAllJsonEntries(aq.getQuestion(), multipleFileUploadEnabled);
+              entriesBuilder.putAll(questionEntries);
+            });
 
     return ApplicationExportData.builder()
         .setAdminName(programDefinition.adminName())
@@ -211,7 +212,10 @@ public final class JsonExporterService {
         .setSubmitTime(application.getSubmitTime())
         .setStatus(application.getLatestStatus())
         .setRevisionState(toRevisionState(application.getLifecycleStage()))
-        .addApplicationEntries(entriesBuilder.build())
+        // TODO(#9212): There should never be duplicate entries because question paths should be
+        // unique, but due to #9212 there sometimes are. They point at the same location in the
+        // applicant data so it doesn't matter which one we keep.
+        .addApplicationEntries(entriesBuilder.buildKeepingLast())
         .build();
   }
 

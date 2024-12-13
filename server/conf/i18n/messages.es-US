@@ -29,7 +29,7 @@ footer.technicalSupport=Para obtener asistencia técnica: {0}
 # This should be consistent with button.guestLogin.
 guest=Invitado
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Seleccionar idioma
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Elegir un idioma
 # A label on the button that opens the header menu shown on mobile
@@ -63,6 +63,12 @@ button.close=Cerrar
 button.review=Revisar
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=se abre en una pestaña nueva
+# Aria-label for the primary navigation
+label.primaryNavigation=Primary navigation
+# Aria-label for agency identifier
+label.agencyIdentifier=Agency identifier,
+# Aria-label for guest session alert
+label.guestSessionAlert=Guest session informational alert
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -100,12 +106,12 @@ link.adminLogin=Acceso de administrador
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Archivo subido: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Selecciona un archivo
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Selecciona uno o más archivos (hasta {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Selecciona uno o más archivos
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Borrar
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -117,7 +123,7 @@ button.previousScreen=Anterior
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Volver
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.saveAndExit=Guardar y terminar la solicitud más adelante
+button.reviewAndExit=Revisar y salir
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Omitir
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -126,8 +132,8 @@ content.blockProgress={0} de {1}
 content.blockProgressFull={0} de {1} completadas
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Progreso de la inscripción
-# A message on a section indicating how many files have been uploaded in a section consisting of a file upload question
-content.fileUploadBlockProgressFull={0} de {1} cargados
+# Heading on the application review page. The page shows all the answers the user inputted.
+heading.reviewAndSubmit=Revisa y envia
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -171,6 +177,10 @@ button.editSr=Editar la solicitud enviada a {0}
 button.continueSr=Continuar la solicitud para {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Comenzar aquí
+# The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
+button.viewAndApply=View and apply
+# The screen reader text on a button to view and apply to a program. The variable represents the program name.
+button.viewAndApplySr=View and apply to {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continuar a la solicitud
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -179,8 +189,6 @@ button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
 button.editCommonIntakeSr=Editar la información enviada para {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continuar completando la solicitud {0}
-# Button on each program card that allows the user to view the details of the program, possibly through an external link.
-button.viewDetails=Ver detalles
 # Text describing the date the application was last submitted.
 content.submittedDate=Enviada el {0}
 # Text for applicants to understand the section is for finding programs
@@ -189,9 +197,13 @@ content.findPrograms=Buscar programas
 content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los que puedes participar en {0}. Comienza eligiendo una solicitud a continuación.
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
+# Main home page heading
+heading.homepage=Apply to programs in one place
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
+# Main home page intro text
+content.homepageIntro=Get help with child care, food, transportation, utilities and more.
 # The label for the program filter buttons
 label.programFilters=Filtros del programa
 # Link text to read more about a program.
@@ -211,21 +223,19 @@ title.inProgressProgramsUpdated=En curso
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=Sin comenzar
 # Title of the section on the home page with the benefits finder form.
-title.benefitsFinderSection=Encuentra servicios que te sean útiles
-# Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Encuentra servicios
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Mis solicitudes ({0})
-# Title of the section on the home page that shows any programs that don't match the selected filters.
-title.otherProgramsSection=Otros programas ({0})
+# Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
+title.myApplicationsSection.v2=My applications
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Otros programas y servicios ({0})
-# Title of the section on the home page that shows all programs when no filter is selected.
-title.programsSection=Programas ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programas y servicios ({0})
+# Title of the section on the home page that shows any available programs that have not yet been applied to.
+title.availableProgramsSection=Available programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection=Recomendado ({0})
+title.recommendedSection.v2=Programas basados en tus elecciones ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Sección completada
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -234,6 +244,14 @@ title.submittedPrograms=Enviados
 toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Ya se completó la solicitud.
+# Informational tag on an in-progress application card
+label.inProgress=Not yet submitted
+# Informational tag on a submitted application card. Used when the date of submission is unknown.
+label.submitted=Submitted
+# Informational tag on a submitted application card. The parameter is the date of the submission.
+label.submittedOn=Submitted on {0}
+# Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
+label.statusOn={0} on {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -380,6 +398,8 @@ title.tiAccountSettings=Intermediario de confianza - Ver la configuración de la
 
 # Submit application button
 button.submit=Enviar
+# Submit application button
+button.submitApplication=Enviar solicitud
 # Continue application button
 button.continue=Continuar
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -413,6 +433,8 @@ title.programSummary=Resumen de la inscripción al programa
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
+# Tab title for ineligible page
+title.ineligible=Inelegible para el programa
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -517,10 +539,14 @@ button.continueWithoutAnAccount=Continuar sin una cuenta
 title.commonIntakeConfirmation=Programas para los que cumples los requisitos
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los requisitos
-# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
-# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+# A message explaining that the applicant may be eligible for the following list of programs.
+content.commonIntakeConfirmation.v2=Según tus respuestas, es posible que califiques para los siguientes programas:
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+# A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
+content.commonIntakeConfirmationTi.v2=Según tus respuestas, es posible que tu cliente califique para los siguientes programas:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -529,6 +555,8 @@ content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encon
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Otros programas que te pueden interesar
+# Button on the "Application Submitted" page. Clicking it downloads the user's application.
+button.downloadApplication=Descargar tu solicitud
 button.downloadPdf=Descargar PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Postularse a programas
@@ -544,8 +572,6 @@ heading.dateSubmitted=Fecha de envío
 heading.forYourRecords=Confirmación de tus registros
 # Text above a button to print this page
 content.youCanPrint=Puedes imprimir esta confirmación de tus registros.
-# Button to print this webpage
-button.print=Imprimir esta página
 # Heading above a paragraph explaining the next steps in the application process
 heading.nextSteps=¿Qué debo hacer a continuación?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
@@ -558,7 +584,7 @@ alert.createAccountDescription=Usa una cuenta para volver a acceder, de modo que
 content.loginToExistingAccount=Accede a una cuenta existente
 
 #-------------------------------------------------------------------------------------------------------------------------#
-# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+# APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=No hay cambios para guardar en el programa {0}
@@ -705,6 +731,10 @@ validation.fileRequired=Elige un archivo.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Tu archivo es demasiado grande. Elige un archivo de un tamaño menor a {0} MB.
 button.chooseFile=Elegir archivo
+# Text shown on a tag while a file is uploading.
+label.uploading=Subiendo archivo
+# Label applied to a list of uploaded files
+label.uploadedFiles=Archivos subidos
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -794,8 +824,6 @@ adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden i
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
 error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
-# This occurs when an unhandled exception happens.
-error.internalServerTitle=Se produjo un error.
 # The title on the error page that is show to the user in large font
 error.internalServerTitle.v2=Se produjo un error
 # The subtitle on the error page that is show to the user in medium font
@@ -859,3 +887,45 @@ banner.notForProductionBannerLine2=Para inscribirte en un programa o servicio, v
 banner.guestBannerText=Te estás inscribiendo como invitado. Cuando termines de inscribirte, {0} para proteger tus datos.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=finaliza la sesión
+
+#------------------------------------------------------------------------------#
+# CATEGORIES - tags that admins can choose to specify the type of program #
+# Note for developers: these messages aren't used in static text, but instead they #
+#  are seeded into the database, since these will be admin defined in the future #
+#------------------------------------------------------------------------------#
+
+# A tag used to filter the list of programs down to those that are related to childcare.
+category.tag.childcare=Cuidado infantil
+
+# A tag used to filter the list of programs down to those that are related to economy.
+category.tag.economic=Economía
+
+# A tag used to filter the list of programs down to those that are related to education.
+category.tag.education=Educación
+
+# A tag used to filter the list of programs down to those that are related to employment.
+category.tag.employment=Empleo
+
+# A tag used to filter the list of programs down to those that are related to food.
+category.tag.food=Alimentos
+
+# A tag used to filter the list of programs down to those that have a general purpose.
+category.tag.general=General
+
+# A tag used to filter the list of programs down to those that are related to healthcare.
+category.tag.healthcare=Salud
+
+# A tag used to filter the list of programs down to those that are related to housing.
+category.tag.housing=Vivienda
+
+# A tag used to filter the list of programs down to those that are related to the Internet.
+category.tag.internet=Internet
+
+# A tag used to filter the list of programs down to those that are related to training.
+category.tag.training=Capacitación
+
+# A tag used to filter the list of programs down to those that are related to transportation.
+category.tag.transportation=Transporte
+
+# A tag used to filter the list of programs down to those that are related to utilities.
+category.tag.utilities=Servicios públicos

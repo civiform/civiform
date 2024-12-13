@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -32,7 +33,6 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import play.libs.F;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
@@ -42,12 +42,11 @@ import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.pagination.BasePaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -82,6 +81,8 @@ public final class ProgramService {
       "A program link must begin with 'http://' or 'https://'";
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
       "One or more TI Org must be selected for program visibility";
+  private static final String MISSING_APPLICATION_STEP_MSG =
+      "The program must contain at least one application step";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -317,6 +318,8 @@ public final class ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param defaultShortDescription a short description (<100 characters) for this program to
+   *     display to applicants
    * @param defaultConfirmationMessage a custom message to display on the confirmation screen when
    *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details
@@ -340,6 +343,7 @@ public final class ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultShortDescription,
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
@@ -347,17 +351,19 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
-      ImmutableList<Long> categoryIds) {
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
             defaultDisplayName,
-            defaultDisplayDescription,
+            defaultShortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups);
+            tiGroups,
+            applicationSteps);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -384,6 +390,7 @@ public final class ProgramService {
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
+            defaultShortDescription,
             defaultConfirmationMessage,
             externalLink,
             displayMode,
@@ -393,7 +400,8 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             programAcls,
-            categoryRepository.findCategoriesByIds(categoryIds));
+            categoryRepository.findCategoriesByIds(categoryIds),
+            applicationSteps);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ErrorAnd.of(
@@ -413,7 +421,7 @@ public final class ProgramService {
    * @param adminName a name for this program for internal use by admins - this is immutable once
    *     set
    * @param displayName a name for this program
-   * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
@@ -422,22 +430,24 @@ public final class ProgramService {
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
       String adminName,
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       ImmutableList<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
-      ImmutableList<Long> tiGroups) {
+      ImmutableList<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
             displayName,
-            displayDescription,
+            shortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups));
+            tiGroups,
+            applicationSteps));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -470,6 +480,7 @@ public final class ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param confirmationMessage a custom message to display on the confirmation screen when the
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
@@ -494,6 +505,7 @@ public final class ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String shortDescription,
       String confirmationMessage,
       String externalLink,
       String displayMode,
@@ -501,18 +513,20 @@ public final class ProgramService {
       boolean eligibilityIsGating,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
-      ImmutableList<Long> categoryIds)
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
             displayName,
-            displayDescription,
+            shortDescription,
             externalLink,
             displayMode,
             notificationPreferences,
             categoryIds,
-            tiGroups);
+            tiGroups,
+            applicationSteps);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -545,6 +559,10 @@ public final class ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setLocalizedShortDescription(
+                programDefinition
+                    .localizedShortDescription()
+                    .updateTranslation(locale, shortDescription))
             .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
@@ -553,6 +571,7 @@ public final class ProgramService {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
+            .setApplicationSteps(applicationSteps)
             .build()
             .toProgram();
 
@@ -624,27 +643,29 @@ public final class ProgramService {
    * actually update any programs.
    *
    * @param displayName a name for this program
-   * @param displayDescription the description of what the program provides
+   * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
-      ImmutableList<Long> tiGroups) {
+      ImmutableList<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     return validateProgramData(
         displayName,
-        displayDescription,
+        shortDescription,
         externalLink,
         displayMode,
         notificationPreferences,
         categoryIds,
-        tiGroups);
+        tiGroups,
+        applicationSteps);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -658,17 +679,18 @@ public final class ProgramService {
 
   private ImmutableSet<CiviFormError> validateProgramData(
       String displayName,
-      String displayDescription,
+      String shortDescription,
       String externalLink,
       String displayMode,
       List<String> notificationPreferences,
       List<Long> categoryIds,
-      List<Long> tiGroups) {
+      List<Long> tiGroups,
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
-    if (displayDescription.isBlank()) {
+    if (shortDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
       errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
@@ -692,6 +714,8 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
+    checkApplicationStepErrors(errorsBuilder, applicationSteps);
+
     return errorsBuilder.build();
   }
 
@@ -709,6 +733,36 @@ public final class ProgramService {
     return categoryRepository.listCategories().stream()
         .map(CategoryModel::getId)
         .collect(Collectors.toList());
+  }
+
+  ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      ImmutableList<ApplicationStep> applicationSteps) {
+
+    if (applicationSteps.size() == 0) {
+      return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
+    }
+
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      String title = step.getTitle().getDefault();
+      String description = step.getDescription().getDefault();
+      boolean haveTitle = !title.isBlank();
+      boolean haveDescription = !description.isBlank();
+      // steps must have title AND description
+      if (haveTitle && !haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format(
+                    "Application step %s is missing a description", Integer.toString(i + 1))));
+      } else if (!haveTitle && haveDescription) {
+        errorsBuilder.add(
+            CiviFormError.of(
+                String.format("Application step %s is missing a title", Integer.toString(i + 1))));
+      }
+    }
+
+    return errorsBuilder;
   }
 
   /**
@@ -753,6 +807,14 @@ public final class ProgramService {
                   block
                       .localizedDescription()
                       .updateTranslation(locale, screenUpdate.get().localizedDescription()));
+      if (screenUpdate.get().localizedEligibilityMessage().isPresent()) {
+        blockBuilder.setLocalizedEligibilityMessage(
+            Optional.of(
+                block
+                    .localizedEligibilityMessage()
+                    .orElse(LocalizedStrings.empty())
+                    .updateTranslation(locale, screenUpdate.get().localizedEligibilityMessage())));
+      }
       toUpdateBlockBuilder.add(blockBuilder.build());
     }
 
@@ -1308,6 +1370,43 @@ public final class ProgramService {
   }
 
   /**
+   * Update the eligibility message for a block.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param message the custom eligibility message to add to the block
+   * @return the updated block
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block.
+   */
+  // TODO: wrap this method in a transaction, see issue ##9277.
+  public ProgramDefinition setBlockEligibilityMessage(
+      long programId, long blockDefinitionId, Optional<LocalizedStrings> message)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      ProgramDefinition programDefinition = getFullProgramDefinition(programId);
+
+      BlockDefinition blockDefinition =
+          programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
+              .setLocalizedEligibilityMessage(message)
+              .build();
+
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // This method throws IllegalPredicateOrderingException, but in this context it should never
+      // happen because setting an eligibility message does not affect predicate order.
+      // This try-catch block is included to satisfy the compiler and maintain code correctness.
+      String errMsg =
+          String.format(
+              "Setting this eligibility message invalidates another. [programId: %d,"
+                  + " blockDefinitionId: %d]",
+              programId, blockDefinitionId);
+      throw new RuntimeException(errMsg, e);
+    }
+  }
+
+  /**
    * Remove the eligibility {@link PredicateDefinition} for a block.
    *
    * @param programId the ID of the program to update
@@ -1603,17 +1702,13 @@ public final class ProgramService {
    * Get all submitted applications for this program and all other previous and future versions of
    * it matches the specified filters.
    *
-   * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
-   *     pagination spec to use for a given call.
+   * @param paginationSpec the pagination spec to apply to the query.
    * @param filters a set of filters to apply to the examined applications.
    */
   public PaginationResult<ApplicationModel> getSubmittedProgramApplicationsAllVersions(
-      long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
-      SubmittedApplicationFilter filters) {
+      long programId, BasePaginationSpec paginationSpec, SubmittedApplicationFilter filters) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, filters);
+        programId, paginationSpec, filters);
   }
 
   private static ImmutableSet<CiviFormError> validateBlockDefinition(

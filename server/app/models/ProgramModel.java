@@ -11,23 +11,23 @@ import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -78,6 +78,9 @@ public class ProgramModel extends BaseModel {
 
   @DbJsonB private LocalizedStrings localizedDescription;
 
+  /** A short description of the program (< 100 characters) */
+  @DbJsonB private LocalizedStrings localizedShortDescription;
+
   @DbJsonB private LocalizedStrings localizedConfirmationMessage;
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
@@ -117,6 +120,12 @@ public class ProgramModel extends BaseModel {
    * localizedSummaryImageDescription} for null vs Optional.
    */
   @Nullable private String summaryImageFileKey;
+
+  /**
+   * A list of steps to apply to the program. The list contains between 1-5 steps and each step
+   * contains a localized title and a localized description.
+   */
+  @DbJsonB private ImmutableList<ApplicationStep> applicationSteps;
 
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
@@ -171,6 +180,7 @@ public class ProgramModel extends BaseModel {
     this.externalLink = definition.externalLink();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
+    this.localizedShortDescription = definition.localizedShortDescription();
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.displayMode = definition.displayMode().getValue();
@@ -182,6 +192,7 @@ public class ProgramModel extends BaseModel {
     this.localizedSummaryImageDescription =
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
+    this.applicationSteps = definition.applicationSteps();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -199,6 +210,7 @@ public class ProgramModel extends BaseModel {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultShortDescription,
       String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
@@ -208,12 +220,15 @@ public class ProgramModel extends BaseModel {
       ProgramType programType,
       boolean eligibilityIsGating,
       ProgramAcls programAcls,
-      ImmutableList<CategoryModel> categories) {
+      ImmutableList<CategoryModel> categories,
+      ImmutableList<ApplicationStep> applicationSteps) {
     this.name = adminName;
     this.description = adminDescription;
+
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
+    this.localizedShortDescription = LocalizedStrings.withDefaultValue(defaultShortDescription);
     this.localizedConfirmationMessage =
         LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
     this.externalLink = externalLink;
@@ -225,6 +240,7 @@ public class ProgramModel extends BaseModel {
     this.eligibilityIsGating = eligibilityIsGating;
     this.acls = programAcls;
     this.categories = categories;
+    this.applicationSteps = applicationSteps;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -248,6 +264,7 @@ public class ProgramModel extends BaseModel {
         programDefinition.localizedSummaryImageDescription().orElse(null);
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
     categories = programDefinition.categories();
+    applicationSteps = programDefinition.applicationSteps();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -265,6 +282,7 @@ public class ProgramModel extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setLocalizedName(localizedName)
             .setLocalizedDescription(localizedDescription)
+            .setLocalizedShortDescription(localizedShortDescription)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setNotificationPreferences(ImmutableList.copyOf(notificationPreferences))
@@ -273,7 +291,8 @@ public class ProgramModel extends BaseModel {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls)
-            .setCategories(ImmutableList.copyOf(categories));
+            .setCategories(ImmutableList.copyOf(categories))
+            .setApplicationSteps(ImmutableList.copyOf(applicationSteps));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

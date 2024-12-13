@@ -1,3 +1,4 @@
+<!doctype html>
 <html th:attr="lang=${preferredLanguage.code()}">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
@@ -20,7 +21,7 @@
 
             <section class="section-external">
               <div
-                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2')}"
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${successAlertSettings}, headingLevel='H2', role='status')}"
               ></div>
             </section>
 
@@ -55,15 +56,14 @@
                 <p th:text="#{content.youCanPrint}"></p>
               </div>
 
-              <div>
+              <div class="section-internal">
                 <a
+                  th:if="${isApplicationExportable}"
                   th:href="${downloadHref}"
                   class="usa-button"
-                  th:text="#{button.print}"
+                  th:text="#{button.downloadApplication}"
                 ></a>
               </div>
-
-              <!-- TODO(#8299): Add "Download PDF" button -->
 
               <section
                 th:if="${not #strings.isEmpty(customConfirmationMessage)}"
@@ -73,9 +73,11 @@
                 <p th:text="${customConfirmationMessage}"></p>
               </section>
 
-              <div
-                th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
-              ></div>
+              <div th:if="${isGuest}">
+                <div
+                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink})}"
+                ></div>
+              </div>
 
               <div class="section-internal">
                 <a

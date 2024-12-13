@@ -9,11 +9,14 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -31,15 +34,26 @@ public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
+  private final DateConverter dateConverter;
+
+  /** Enumerates the homepage section types, which may have different card components or styles. */
+  public enum SectionType {
+    MY_APPLICATIONS,
+    COMMON_INTAKE,
+    UNFILTERED_PROGRAMS,
+    STANDARD;
+  }
 
   @Inject
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
-      PublicStorageClient publicStorageClient) {
+      PublicStorageClient publicStorageClient,
+      DateConverter dateConverter) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -52,27 +66,30 @@ public final class ProgramCardsSectionParamsFactory {
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
-      CiviFormProfile profile,
-      Long applicantId,
-      ApplicantPersonalInfo personalInfo) {
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
+      ApplicantPersonalInfo personalInfo,
+      SectionType sectionType) {
 
-    ProgramSectionParams.Builder sectionBuilder =
-        ProgramSectionParams.builder()
-            .setCards(
-                getCards(
-                    request,
-                    messages,
-                    buttonText,
-                    programData,
-                    preferredLocale,
-                    profile,
-                    applicantId,
-                    personalInfo));
+    List<ProgramCardParams> cards =
+        getCards(
+            request,
+            messages,
+            buttonText,
+            programData,
+            preferredLocale,
+            profile,
+            applicantId,
+            personalInfo);
+
+    ProgramSectionParams.Builder sectionBuilder = ProgramSectionParams.builder().setCards(cards);
 
     if (title.isPresent()) {
-      sectionBuilder.setTitle(messages.at(title.get().getKeyName()));
+      sectionBuilder.setTitle(messages.at(title.get().getKeyName(), cards.size()));
       sectionBuilder.setId(Modal.randomModalId());
     }
+
+    sectionBuilder.setSectionType(sectionType);
 
     return sectionBuilder.build();
   }
@@ -84,82 +101,132 @@ public final class ProgramCardsSectionParamsFactory {
       MessageKey buttonText,
       ImmutableList<ApplicantProgramData> programData,
       Locale preferredLocale,
-      CiviFormProfile profile,
-      Long applicantId,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
     ImmutableList.Builder<ProgramCardParams> cardsListBuilder = ImmutableList.builder();
 
     for (ApplicantProgramData programDatum : programData) {
-      ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
-      ProgramDefinition program = programDatum.program();
-
-      boolean isGuest = personalInfo.getType() == GUEST;
-      String actionUrl = applicantRoutes.review(profile, applicantId, program.id()).url();
-
-      // Note this doesn't yet manage markdown, links and appropriate aria labels for links, and
-      // whatever else our current cards do.
-      cardBuilder
-          .setTitle(program.localizedName().getOrDefault(preferredLocale))
-          .setBody(program.localizedDescription().getOrDefault(preferredLocale))
-          .setDetailsUrl(
-              program.externalLink().isEmpty()
-                  ? applicantRoutes.show(profile, applicantId, program.id()).url()
-                  : program.externalLink())
-          .setActionUrl(actionUrl)
-          .setIsGuest(isGuest)
-          .setActionText(messages.at(buttonText.getKeyName()));
-
-      if (isGuest) {
-        cardBuilder.setLoginModalId("login-dialog-" + program.id());
-      }
-
-      if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
-        cardBuilder.setApplicationStatus(
-            programDatum
-                .latestSubmittedApplicationStatus()
-                .get()
-                .localizedStatusText()
-                .getOrDefault(preferredLocale));
-      }
-
-      if (shouldShowEligibilityTag(programDatum)) {
-        boolean isEligible = programDatum.isProgramMaybeEligible().get();
-        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
-        boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
-        MessageKey mayQualifyMessage =
-            isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
-        MessageKey mayNotQualifyMessage =
-            isTrustedIntermediary
-                ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
-                : MessageKey.TAG_MAY_NOT_QUALIFY;
-
-        cardBuilder.setEligible(isEligible);
-        cardBuilder.setEligibilityMessage(
-            messages.at(
-                isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
-      }
-
-      Optional<String> fileKey = program.summaryImageFileKey();
-      if (fileKey.isPresent()) {
-        String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
-        cardBuilder.setImageSourceUrl(imageSourceUrl);
-
-        String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
-        cardBuilder.setAltText(altText);
-      }
-
-      cardsListBuilder.add(cardBuilder.build());
+      cardsListBuilder.add(
+          getCard(
+              request,
+              messages,
+              buttonText,
+              programDatum,
+              preferredLocale,
+              profile,
+              applicantId,
+              personalInfo));
     }
 
     return cardsListBuilder.build();
   }
 
+  public ProgramCardParams getCard(
+      Request request,
+      Messages messages,
+      MessageKey buttonText,
+      ApplicantProgramData programDatum,
+      Locale preferredLocale,
+      Optional<CiviFormProfile> profile,
+      Optional<Long> applicantId,
+      ApplicantPersonalInfo personalInfo) {
+    ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
+    ProgramDefinition program = programDatum.program();
+
+    // This works for logged-in and logged-out applicants
+    String actionUrl = applicantRoutes.edit(program.id()).url();
+    if (profile.isPresent() && applicantId.isPresent()) {
+      // TIs need to specify applicant ID
+      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
+    }
+
+    boolean isGuest = personalInfo.getType() == GUEST;
+
+    ImmutableList.Builder<String> categoriesBuilder = ImmutableList.builder();
+    categoriesBuilder.addAll(
+        program.categories().stream()
+            .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
+            .collect(ImmutableList.toImmutableList()));
+
+    cardBuilder
+        .setTitle(program.localizedName().getOrDefault(preferredLocale))
+        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setActionUrl(actionUrl)
+        .setIsGuest(isGuest)
+        .setIsCommonIntakeForm(program.isCommonIntakeForm())
+        .setCategories(categoriesBuilder.build())
+        .setActionText(messages.at(buttonText.getKeyName()))
+        .setProgramId(program.id());
+
+    if (isGuest) {
+      cardBuilder.setLoginModalId("login-dialog-" + program.id());
+    }
+
+    if (programDatum.latestSubmittedApplicationStatus().isPresent()) {
+      cardBuilder.setApplicationStatus(
+          programDatum
+              .latestSubmittedApplicationStatus()
+              .get()
+              .localizedStatusText()
+              .getOrDefault(preferredLocale));
+      cardBuilder.setDateStatusApplied(
+          formattedDateString(
+              programDatum.latestSubmittedApplicationStatusTime(), preferredLocale));
+    }
+
+    Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
+    cardBuilder.setLifecycleStage(lifecycleStage);
+    if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
+      // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
+      cardBuilder.setDateSubmitted(
+          formattedDateString(programDatum.latestSubmittedApplicationTime(), preferredLocale));
+    }
+
+    if (shouldShowEligibilityTag(programDatum)) {
+      boolean isEligible = programDatum.isProgramMaybeEligible().get();
+      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
+      boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+      MessageKey mayQualifyMessage =
+          isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+      MessageKey mayNotQualifyMessage =
+          isTrustedIntermediary
+              ? MessageKey.TAG_MAY_NOT_QUALIFY_TI
+              : MessageKey.TAG_MAY_NOT_QUALIFY;
+
+      cardBuilder.setEligible(isEligible);
+      cardBuilder.setEligibilityMessage(
+          messages.at(
+              isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName()));
+    }
+
+    Optional<String> fileKey = program.summaryImageFileKey();
+    if (fileKey.isPresent()) {
+      String imageSourceUrl = publicStorageClient.getPublicDisplayUrl(fileKey.get());
+      cardBuilder.setImageSourceUrl(imageSourceUrl);
+
+      String altText = ProgramImageUtils.getProgramImageAltText(program, preferredLocale);
+      cardBuilder.setAltText(altText);
+    }
+
+    return cardBuilder.build();
+  }
+
   /**
-   * If eligibility is gating, the eligibility tag should always show when present. If eligibility
-   * is non-gating, the eligibility tag should only show if the user may be eligible.
+   * For unstarted applications: If eligibility is gating, the eligibility tag should always show
+   * when present. If eligibility is non-gating, the eligibility tag should only show if the user
+   * may be eligible.
+   *
+   * <p>Applications that have been started do not show eligibility tags.
    */
   private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
     if (!programData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+
+    if (programData.latestApplicationLifecycleStage().isPresent()
+        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
+            || programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
       return false;
     }
 
@@ -167,11 +234,19 @@ public final class ProgramCardsSectionParamsFactory {
         || programData.isProgramMaybeEligible().get();
   }
 
+  private Optional<String> formattedDateString(
+      Optional<Instant> optionalInstant, Locale preferredLocale) {
+    return optionalInstant.map(
+        instant -> dateConverter.renderShortDateInLocalTime(instant, preferredLocale));
+  }
+
   @AutoValue
   public abstract static class ProgramSectionParams {
     public abstract ImmutableList<ProgramCardParams> cards();
 
     public abstract Optional<String> title();
+
+    public abstract SectionType sectionType();
 
     /** The id of the section. Only needs to be specified if a title is also specified. */
     public abstract Optional<String> id();
@@ -188,6 +263,8 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setTitle(String title);
 
+      public abstract Builder setSectionType(SectionType sectionType);
+
       public abstract Builder setId(String id);
 
       public abstract ProgramSectionParams build();
@@ -202,11 +279,11 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract String body();
 
-    public abstract String detailsUrl();
-
     public abstract String actionUrl();
 
     public abstract boolean isGuest();
+
+    public abstract boolean isCommonIntakeForm();
 
     public abstract Optional<String> loginModalId();
 
@@ -216,9 +293,22 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract Optional<String> applicationStatus();
 
+    public abstract Optional<LifecycleStage> lifecycleStage();
+
+    // Localized date String for the date on which the application was submitted.
+    // If not submitted, this is empty.
+    public abstract Optional<String> dateSubmitted();
+
+    // Localized date String for the date on which the most recent ApplicationStatus was applied
+    public abstract Optional<String> dateStatusApplied();
+
     public abstract Optional<String> imageSourceUrl();
 
     public abstract Optional<String> altText();
+
+    public abstract ImmutableList<String> categories();
+
+    public abstract long programId();
 
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
@@ -234,11 +324,11 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setBody(String body);
 
-      public abstract Builder setDetailsUrl(String detailsUrl);
-
       public abstract Builder setActionUrl(String actionUrl);
 
       public abstract Builder setIsGuest(Boolean isGuest);
+
+      public abstract Builder setIsCommonIntakeForm(Boolean isCommonIntakeForm);
 
       public abstract Builder setLoginModalId(String loginModalId);
 
@@ -248,9 +338,19 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setApplicationStatus(String applicationStatus);
 
+      public abstract Builder setLifecycleStage(Optional<LifecycleStage> lifecycleStage);
+
+      public abstract Builder setDateSubmitted(Optional<String> dateSubmitted);
+
+      public abstract Builder setDateStatusApplied(Optional<String> dateStatusApplied);
+
       public abstract Builder setImageSourceUrl(String imageSourceUrl);
 
       public abstract Builder setAltText(String altText);
+
+      public abstract Builder setCategories(ImmutableList<String> categories);
+
+      public abstract Builder setProgramId(long id);
 
       public abstract ProgramCardParams build();
     }

@@ -26,6 +26,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.HIDDEN,
     )
@@ -39,8 +40,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     // Verify the program cannot be seen
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(page, 'program-visibility-hidden')
-
-    await logout(page)
   })
 
   test('create a public program, verify applicants can see it on the home page', async ({
@@ -54,6 +53,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
     )
@@ -83,6 +83,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.TI_ONLY,
     )
@@ -98,7 +99,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     )
 
     // Login as TI, verify program is visible
-    await logout(page)
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -143,6 +143,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
@@ -161,7 +162,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     )
 
     // Login as any TI, verify program is invisible
-    await logout(page)
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -223,6 +223,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     await adminPrograms.addProgram(
       programName,
       programDescription,
+      'Short description',
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
@@ -241,7 +242,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     )
 
     // Login as any TI, verify program is invisible
-    await logout(page)
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -300,6 +300,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       await adminPrograms.addProgram(
         programName,
         programDescription,
+        'Short description',
         'https://usa.gov',
         ProgramVisibility.DISABLED,
       )
@@ -316,7 +317,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     })
 
     await test.step('log in as a TI and verify the program is hidden from me', async () => {
-      await logout(page)
       await loginAsTrustedIntermediary(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await waitForPageJsLoad(page)

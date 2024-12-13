@@ -15,6 +15,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.Path;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -62,11 +63,10 @@ public class QuestionServiceTest extends ResetPostgres {
         .containsOnly(
             CiviFormError.of(
                 String.format(
-                    "Administrative identifier '%s' with Enumerator ID %d generates JSON path '%s'"
+                    "Administrative identifier '%s' generates JSON path '%s'"
                         + " which would conflict with the existing question with admin ID '%s'",
                     questionDefinition.getName(),
-                    householdMemberName.getEnumeratorId().get(),
-                    questionDefinition.getQuestionPathSegment(),
+                    Path.create(questionDefinition.getQuestionPathSegment()),
                     householdMemberName.getName())));
   }
 

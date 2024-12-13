@@ -16,12 +16,11 @@ import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
 import org.apache.commons.lang3.NotImplementedException;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
+import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
@@ -127,17 +126,16 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
    */
   @Override
   public Optional<RedirectionAction> getLogoutAction(
-      WebContext context, SessionStore sessionStore, UserProfile currentProfile, String targetUrl) {
+      CallContext callContext, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
-    if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
+    if (StringUtils.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
 
         // Optional state param for logout is only needed by certain OIDC providers, but we
         // always include it since it can help with cross-site forgery attacks.
         // OidcConfiguration comes with a default state generator.
-        State state =
-            new State(configuration.getStateGenerator().generateValue(context, sessionStore));
+        State state = new State(configuration.getStateGenerator().generateValue(callContext));
 
         long accountId = Long.parseLong(currentProfile.getId());
         Optional<JWT> idToken =
@@ -153,7 +151,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 idToken.orElse(null));
 
         return Optional.of(
-            HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
+            HttpActionHelper.buildRedirectUrlAction(
+                callContext.webContext(), logoutRequest.toURI().toString()));
       } catch (URISyntaxException e) {
         throw new TechnicalException(e);
       }

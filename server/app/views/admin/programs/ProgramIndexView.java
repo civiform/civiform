@@ -131,7 +131,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 renderNewProgramButton(),
                 maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null);
 
-    if (settingsManifest.getProgramMigrationEnabled(request)) {
+    if (settingsManifest.getProgramMigrationEnabled()) {
       headerContent =
           div()
               .withClasses("flex", "items-center", "space-x-4", "mt-12")
@@ -543,7 +543,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      if (settingsManifest.getProgramMigrationEnabled(request)) {
+      if (settingsManifest.getProgramMigrationEnabled()) {
         draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
       }
 
@@ -572,7 +572,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
-      if (settingsManifest.getProgramMigrationEnabled(request)) {
+      if (settingsManifest.getProgramMigrationEnabled()) {
         activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
       }
 
@@ -690,7 +690,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* fromDate= */ Optional.empty(),
                   /* untilDate= */ Optional.empty(),
                   /* applicationStatus= */ Optional.empty(),
-                  /* selectedApplicationUri= */ Optional.empty())
+                  /* selectedApplicationUri= */ Optional.empty(),
+                  /* showDownloadModal= */ Optional.empty(),
+                  /* message= */ Optional.empty())
               .url();
 
       String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";

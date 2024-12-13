@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Frame, Page} from 'playwright'
+import {ElementHandle, Frame, Page, Locator} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -68,6 +68,9 @@ function slugify(value: string): string {
     .replace(/ /g, '-')
     .replace(/[^a-zA-Z0-9-]/g, '')
 }
+function findApplicantId(str: string): string {
+  return str.replace(/\D/g, '')
+}
 
 export class AdminPrograms {
   public page!: Page
@@ -125,6 +128,20 @@ export class AdminPrograms {
     ).not.toContain(statusString)
   }
 
+  async expectApplicationHasStatusStringForBulkStatus(
+    applicant: string,
+    statusString: string,
+  ) {
+    await expect(this.getRowLocator(applicant)).toContainText(`${statusString}`)
+  }
+
+  async expectApplicationStatusDoesntContainForBulkStatus(
+    applicant: string,
+    statusString: string,
+  ) {
+    await expect(this.getRowLocator(applicant)).not.toContainText(statusString)
+  }
+
   /**
    * Creates a disabled program with given name.
    */
@@ -132,9 +149,17 @@ export class AdminPrograms {
     await this.addProgram(
       programName,
       'program description',
+      'short program description',
       'https://usa.gov',
       ProgramVisibility.DISABLED,
     )
+  }
+
+  async getApplicationId() {
+    const htmlElement = await this.page
+      .locator('.cf-application-id')
+      .innerText()
+    return findApplicantId(htmlElement)
   }
 
   /**
@@ -149,6 +174,7 @@ export class AdminPrograms {
   async addProgram(
     programName: string,
     description = 'program description',
+    shortDescription = 'short program description',
     externalLink = 'https://usa.gov',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
@@ -166,6 +192,7 @@ export class AdminPrograms {
       'This link should be autodetected: https://www.example.com\n',
     eligibility = Eligibility.IS_GATING,
     submitNewProgram = true,
+    applicationSteps = [{title: 'title', description: 'description'}],
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -176,11 +203,25 @@ export class AdminPrograms {
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
+    await this.page.fill(
+      '#program-display-short-description-textarea',
+      shortDescription,
+    )
     await this.page.fill('#program-external-link-input', externalLink)
     await this.page.fill(
       '#program-confirmation-message-textarea',
       confirmationMessage,
     )
+
+    for (let i = 0; i < applicationSteps.length; i++) {
+      const indexPlusOne = i + 1
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
+        .fill(applicationSteps[i].title)
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
+        .fill(applicationSteps[i].description)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
@@ -846,6 +887,12 @@ export class AdminPrograms {
 
     if (editBlockScreenDetails) {
       await clickAndWaitForModal(this.page, 'block-description-modal')
+
+      // Only update the block name if a name was provided. Otherwise, keep the default (which should be something like "Block 1")
+      if (block.name !== undefined) {
+        await this.page.fill('#block-name-input', block.name)
+      }
+
       await this.page.fill(
         'textarea',
         block.description || 'screen description',
@@ -996,6 +1043,12 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async expectApplicationCountForBulkStatus(expectedCount: number) {
+    await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
+      expectedCount,
+    )
+  }
+
   async expectApplicationCount(expectedCount: number) {
     await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
       expectedCount,
@@ -1004,6 +1057,12 @@ export class AdminPrograms {
 
   selectApplicationCardForApplicant(applicantName: string) {
     return `.cf-admin-application-card:has-text("${applicantName}")`
+  }
+
+  getRowLocator(applicantName: string): Locator {
+    return this.page.locator(
+      `.cf-admin-application-row:has-text("${applicantName}")`,
+    )
   }
 
   selectWithinApplicationForApplicant(applicantName: string, selector: string) {
@@ -1030,11 +1089,13 @@ export class AdminPrograms {
     untilDate = '',
     searchFragment = '',
     applicationStatusOption = '',
+    clickFilterButton = true,
   }: {
     fromDate?: string
     untilDate?: string
     searchFragment?: string
     applicationStatusOption?: string
+    clickFilterButton?: boolean
   }) {
     await this.page.getByRole('textbox', {name: 'from'}).fill(fromDate)
     await this.page.getByRole('textbox', {name: 'until'}).fill(untilDate)
@@ -1044,10 +1105,14 @@ export class AdminPrograms {
         label: applicationStatusOption,
       })
     }
-    await Promise.all([
-      this.page.waitForNavigation(),
-      await this.page.click('button:has-text("Filter")'),
-    ])
+
+    if (clickFilterButton) {
+      await Promise.all([
+        this.page.waitForNavigation(),
+        await this.page.click('button:has-text("Filter")'),
+      ])
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -1100,6 +1165,11 @@ export class AdminPrograms {
     await waitForPageJsLoad(frame)
   }
 
+  async viewApplicationForApplicantForBulkStatus(applicantName: string) {
+    await this.page.getByRole('link', {name: applicantName}).click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectApplicationAnswers(
     blockName: string,
     questionName: string,
@@ -1113,14 +1183,42 @@ export class AdminPrograms {
     expect(blockText).toContain(answer)
   }
 
+  async expectApplicationAnswersForBulkStatus(
+    blockName: string,
+    questionName: string,
+    answer: string,
+  ) {
+    const blockText = await this.page
+      .locator(this.selectApplicationBlock(blockName))
+      .innerText()
+
+    expect(blockText).toContain(questionName)
+    expect(blockText).toContain(answer)
+  }
+
+  async expectApplicationAnswerLinksForBulkStatus(
+    blockName: string,
+    questionName: string,
+  ) {
+    await expect(
+      this.page.locator(this.selectApplicationBlock(blockName)),
+    ).toContainText(questionName)
+
+    expect(
+      this.page
+        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
+        .getAttribute('href'),
+    ).not.toBeNull()
+  }
+
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
+    await expect(
+      this.applicationFrameLocator().locator(
+        this.selectApplicationBlock(blockName),
+      ),
+    ).toContainText(questionName)
     expect(
-      await this.applicationFrameLocator()
-        .locator(this.selectApplicationBlock(blockName))
-        .innerText(),
-    ).toContain(questionName)
-    expect(
-      await this.applicationFrameLocator()
+      this.applicationFrameLocator()
         .locator(this.selectWithinApplicationBlock(blockName, 'a'))
         .getAttribute('href'),
     ).not.toBeNull()
@@ -1132,10 +1230,29 @@ export class AdminPrograms {
       .isVisible()
   }
 
+  async isStatusSelectorVisibleForBulkStatus(): Promise<boolean> {
+    return this.page.locator(this.statusSelector()).isVisible()
+  }
+
   async getStatusOption(): Promise<string> {
     return this.applicationFrameLocator()
       .locator(this.statusSelector())
       .inputValue()
+  }
+
+  async getStatusOptionForBulkStatus(): Promise<string> {
+    return this.page.locator(this.statusSelector()).inputValue()
+  }
+
+  /**
+   * Selects the provided status option and then awaits the confirmation dialog.
+   */
+  async setStatusOptionAndAwaitModalForBulkStatus(
+    status: string,
+  ): Promise<ElementHandle<HTMLElement>> {
+    await this.page.locator(this.statusSelector()).selectOption(status)
+
+    return waitForAnyModal(this.page)
   }
 
   /**
@@ -1168,6 +1285,15 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async confirmStatusUpdateModalForBulkStatus(
+    modal: ElementHandle<HTMLElement>,
+  ) {
+    // Confirming shouldn't cause any redirects
+    await (await modal.$('text=Confirm'))!.click()
+
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectUpdateStatusToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application status updated')
@@ -1181,6 +1307,10 @@ export class AdminPrograms {
     return this.applicationFrameLocator()
       .locator(this.editNoteSelector())
       .isVisible()
+  }
+
+  async isEditNoteVisibleForBulkStatus(): Promise<boolean> {
+    return this.page.locator(this.editNoteSelector()).isVisible()
   }
 
   /**
@@ -1201,6 +1331,17 @@ export class AdminPrograms {
   }
 
   /**
+   * Returns the content of the note modal when viewing an application.
+   */
+  async getNoteContentForBulkStatus() {
+    await this.page.locator(this.editNoteSelector()).click()
+
+    const editModal = await waitForAnyModal(this.page)
+    const noteContentArea = (await editModal.$('textarea'))!
+    return noteContentArea.inputValue()
+  }
+
+  /**
    * Clicks the edit note button, and returns the modal.
    */
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
@@ -1213,6 +1354,31 @@ export class AdminPrograms {
       throw new Error('Expected an application frame')
     }
     return await waitForAnyModal(frame)
+  }
+
+  /**
+   * Clicks the edit note button, and returns the modal.
+   */
+  async awaitEditNoteModalForBulkStatus(): Promise<ElementHandle<HTMLElement>> {
+    await this.page.locator(this.editNoteSelector()).click()
+
+    return await waitForAnyModal(this.page)
+  }
+
+  /**
+   * Clicks the edit note button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async editNoteForBulkStatus(noteContent: string) {
+    const editModal = await this.awaitEditNoteModalForBulkStatus()
+    const noteContentArea = (await editModal.$('textarea'))!
+    await noteContentArea.fill(noteContent)
+
+    // Confirming should cause the page to redirect and waitForNavigation must be called prior
+    // to taking the action that would trigger navigation.
+    const saveButton = (await editModal.$('text=Save'))!
+    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
+    await waitForPageJsLoad(this.page)
   }
 
   /**
@@ -1241,7 +1407,9 @@ export class AdminPrograms {
   }
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
-    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    await this.page.getByRole('button', {name: 'Download'}).click()
+    await waitForAnyModal(this.page)
+
     if (applyFilters) {
       await this.page.check('text="Current results"')
     } else {
@@ -1272,6 +1440,18 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8')
   }
 
+  async getApplicationPdfForBulkStatus() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.locator('button:has-text("Export to PDF")').click(),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async getProgramPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -1285,7 +1465,9 @@ export class AdminPrograms {
   }
 
   async getCsv(applyFilters: boolean) {
-    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    await this.page.getByRole('button', {name: 'Download'}).click()
+    await waitForAnyModal(this.page)
+
     if (applyFilters) {
       await this.page.check('text="Current results"')
     } else {
@@ -1387,6 +1569,11 @@ export class AdminPrograms {
 
   async isPaginationVisibleForApplicationList(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-list')
+    return applicationListDiv.locator('.usa-pagination').isVisible()
+  }
+
+  async isPaginationVisibleForApplicationTable(): Promise<boolean> {
+    const applicationListDiv = this.page.getByTestId('application-table')
     return applicationListDiv.locator('.usa-pagination').isVisible()
   }
 

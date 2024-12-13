@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.ebean.DB;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -45,6 +47,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
+import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
@@ -63,9 +66,8 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
-import services.cloud.aws.SimpleEmail;
+import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -118,11 +120,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   private ApplicantModel tiApplicant;
   private ProgramService programService;
   private String baseUrl;
-  private SimpleEmail amazonSESClient;
+  private EmailSendClient emailSendClient;
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
   private ProfileFactory profileFactory;
   private ApplicationStatusesRepository applicationStatusesRepository;
+  private ApplicationEventRepository applicationEventRepository;
 
   @Before
   public void setUp() throws Exception {
@@ -135,6 +138,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
+    applicationEventRepository = instanceOf(ApplicationEventRepository.class);
     createQuestions();
     createProgram();
 
@@ -156,8 +160,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     programService = instanceOf(ProgramService.class);
 
-    amazonSESClient = Mockito.mock(SimpleEmail.class);
-    FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);
+    emailSendClient = Mockito.mock(EmailSendClient.class);
+    FieldUtils.writeField(subject, "emailSendClient", emailSendClient, true);
 
     messagesApi = instanceOf(MessagesApi.class);
   }
@@ -166,6 +170,28 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
       StatusDefinitions.Status.builder()
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.KOREA, "I'm a KOREAN email!")))
+          .build();
+
+  private static final StatusDefinitions.Status FIRST_STEP_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("First Step")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "First Step"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.KOREA, "I'm a KOREAN email!")))
+          .build();
+
+  private static final StatusDefinitions.Status SECOND_STEP_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Second Stage Processing")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Second Stage Processing"))
           .setLocalizedEmailBodyText(
               Optional.of(
                   LocalizedStrings.of(
@@ -1249,7 +1275,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1264,7 +1290,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1283,7 +1309,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1338,7 +1364,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Program admin email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             ImmutableList.of("admin@example.com"),
             String.format("New application %d submitted", application.id),
@@ -1353,7 +1379,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                         "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@tis.com",
             messages.at(
@@ -1368,7 +1394,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user1@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1415,7 +1441,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // TI email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "ti@example.com",
             koMessages.at(
@@ -1430,7 +1456,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     baseUrl + "/admin/tiDash?page=1")));
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user2@example.com",
             enMessages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1473,7 +1499,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     String programName = programDefinition.adminName();
 
     // Applicant email
-    Mockito.verify(amazonSESClient)
+    Mockito.verify(emailSendClient)
         .send(
             "user3@example.com",
             messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
@@ -1514,7 +1540,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     application.refresh();
 
     // Program admin email not sent
-    Mockito.verify(amazonSESClient, Mockito.times(0))
+    Mockito.verify(emailSendClient, Mockito.times(0))
         .send(eq(ImmutableList.of("admin@example.com")), anyString(), anyString());
   }
 
@@ -1801,7 +1827,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     ApplicantModel applicant = resourceCreator.insertApplicant();
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
-    applicant.getApplicantData().setUserName("Hello World");
+    applicant.setUserName("Hello World");
     applicant.save();
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
@@ -1829,7 +1855,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithThreeNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Middle Last");
+    applicant.setUserName("First Middle Last");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -1846,7 +1872,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithManyNames() {
     ApplicantModel applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("First Second Third Fourth Fifth");
+    applicant.setUserName("First Second Third Fourth Fifth");
     AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
@@ -2874,7 +2900,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         program.getProgramDefinition().adminName(),
-        new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)));
+        new StatusDefinitions(
+            ImmutableList.of(APPROVED_STATUS, FIRST_STEP_STATUS, SECOND_STEP_STATUS)));
 
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
@@ -2883,7 +2910,17 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .toCompletableFuture()
             .join()
             .get();
-    addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
+
+    // Excerise the application through a few statuses, some multiple times
+    Instant now = Instant.now();
+    addStatusEvent(
+        submittedApplication, FIRST_STEP_STATUS, adminAccount, now.minus(15, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, APPROVED_STATUS, adminAccount, now.minus(10, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, SECOND_STEP_STATUS, adminAccount, now.minus(5, ChronoUnit.MINUTES));
+    addStatusEvent(
+        submittedApplication, APPROVED_STATUS, adminAccount, now.minus(1, ChronoUnit.MINUTES));
 
     ApplicantService.ApplicationPrograms result =
         subject
@@ -2893,10 +2930,21 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .join();
 
     assertThat(result.inProgress()).isEmpty();
+
     assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
+    // assert updated time is that of the most recent APPROVED status
+    assertThat(
+            result.submitted().stream()
+                .map(
+                    apd ->
+                        apd.latestSubmittedApplicationStatusTime()
+                            .get()
+                            .truncatedTo(ChronoUnit.MILLIS)))
+        .containsExactly(now.minus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MILLIS));
+
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -3161,6 +3209,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -3237,6 +3287,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -3358,21 +3410,32 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     assertThat(matchingProgramIds).contains(testProgramWithNoEligibilityConditions.id);
   }
 
-  private static void addStatusEvent(
+  private void addStatusEvent(
       ApplicationModel application, StatusDefinitions.Status status, AccountModel actorAccount) {
-    ApplicationEventDetails details =
-        ApplicationEventDetails.builder()
-            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
-            .setStatusEvent(
-                StatusEvent.builder()
-                    .setStatusText(status.statusText())
-                    .setEmailSent(false)
-                    .build())
-            .build();
-    ApplicationEventModel event =
-        new ApplicationEventModel(application, Optional.of(actorAccount), details);
-    event.save();
+    applicationEventRepository
+        .insertStatusEvent(
+            application,
+            Optional.of(actorAccount),
+            StatusEvent.builder().setStatusText(status.statusText()).setEmailSent(false).build())
+        .toCompletableFuture()
+        .join();
     application.refresh();
+  }
+
+  private void addStatusEvent(
+      ApplicationModel application,
+      StatusDefinitions.Status status,
+      AccountModel actorAccount,
+      Instant createTime) {
+    addStatusEvent(application, status, actorAccount);
+
+    ApplicationEventModel mostRecentEvent =
+        DB.getDefault()
+            .find(ApplicationEventModel.class)
+            .orderBy("create_time desc")
+            .setMaxRows(1)
+            .findOne();
+    mostRecentEvent.setCreateTimeForTest(createTime).save();
   }
 
   private void answerNameQuestion(
@@ -3529,6 +3592,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
                     .setEligibilityIsGating(false)
                     .setAcls(new ProgramAcls())
                     .setCategories(ImmutableList.of())
+                    .setApplicationSteps(
+                        ImmutableList.of(new ApplicationStep("title", "description")))
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
@@ -3572,7 +3637,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3684,7 +3749,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3778,7 +3843,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(questionDefinition, applicant, applicantData, Optional.empty());
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3890,7 +3955,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -3922,7 +3991,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -3966,7 +4039,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicant,
+            applicantData,
+            Optional.empty());
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -3983,13 +4060,13 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicantData applicantDataAfter =
-        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    ApplicantModel applicantAfter = accountRepository.lookupApplicantSync(applicant.id).get();
 
     return new Block(
         String.valueOf(blockDefinition.id()),
         blockDefinition,
-        applicantDataAfter,
+        applicantAfter,
+        applicantAfter.getApplicantData(),
         Optional.empty());
   }
 

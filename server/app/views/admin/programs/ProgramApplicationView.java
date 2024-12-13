@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import controllers.FlashKey;
+import controllers.admin.routes;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -32,12 +34,12 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.ApplicationModel;
-import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.MessageKey;
+import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
 import services.settings.SettingsManifest;
@@ -50,6 +52,7 @@ import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
@@ -114,9 +117,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status))
+                        status,
+                        request))
             .collect(ImmutableList.toImmutableList());
-    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
+    Modal updateNoteModal =
+        renderUpdateNoteConfirmationModal(programId, application, noteMaybe, request);
 
     DivTag contentDiv =
         div()
@@ -124,6 +129,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
+                settingsManifest.getBulkStatusUpdateEnabled(request)
+                    ? renderBackLink(programId)
+                    : div(),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -171,6 +179,28 @@ public final class ProgramApplicationView extends BaseHtmlView {
       htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
     }
     return layout.render(htmlBundle);
+  }
+
+  private ATag renderBackLink(Long programId) {
+    String backUrl =
+        routes.AdminApplicationController.index(
+                programId,
+                /* search= */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty(),
+                /* showDownloadModal= */ Optional.empty(),
+                /* message= */ Optional.empty())
+            .url();
+
+    return new LinkElement()
+        .setId("application-table-view-")
+        .setHref(backUrl)
+        .setText("Back")
+        .setStyles("usa-button")
+        .asAnchorText();
   }
 
   private ButtonTag renderDownloadButton(long programId, long applicationId) {
@@ -315,7 +345,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, ApplicationModel application, Optional<String> noteMaybe) {
+      long programId, ApplicationModel application, Optional<String> noteMaybe, Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
     String formId = Modal.randomModalId();
@@ -338,7 +368,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 div().withClass("flex-grow"),
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
-                submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON)));
+                submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON),
+                makeCsrfTokenInputTag(request)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.ADMIN_FACING)
@@ -346,6 +377,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
+        .setTop(Modal.Top.QUARTER)
         .build();
   }
 
@@ -354,7 +386,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -410,7 +443,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         button("Cancel")
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
-                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON)));
+                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON),
+                        makeCsrfTokenInputTag(request)));
     ButtonTag triggerButton =
         button("")
             .withClasses("hidden")
@@ -436,11 +470,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     Optional<String> optionalAccountEmail =
         Optional.ofNullable(application.getApplicant().getAccount().getEmailAddress());
     Optional<String> optionalApplicantEmail = application.getApplicant().getEmailAddress();
-    boolean emptyEmails = optionalAccountEmail.isEmpty();
-
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-      emptyEmails = emptyEmails && optionalApplicantEmail.isEmpty();
-    }
+    boolean emptyEmails = optionalAccountEmail.isEmpty() && optionalApplicantEmail.isEmpty();
 
     if (status.localizedEmailBodyText().isEmpty()) {
       return div()
@@ -464,12 +494,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                               + " an email address.")));
     }
 
-    String emailString = "";
-    if (settingsManifest.getPrimaryApplicantInfoQuestionsEnabled()) {
-      emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
-    } else {
-      emailString = optionalAccountEmail.orElse("");
-    }
+    String emailString = generateEmailString(optionalAccountEmail, optionalApplicantEmail);
 
     return label()
         .with(

@@ -413,6 +413,12 @@
         "type": "string",
         "required": true
       },
+      "EMAIL_PROVIDER": {
+        "mode": "HIDDEN",
+        "description": "The provider to use for sending emails.",
+        "type": "string",
+        "values": ["aws-ses", "graph-api"]
+      },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
         "members": {
@@ -447,9 +453,24 @@
             "description": "The azure account name where the blob storage service exists.",
             "type": "string"
           },
-          "AZURE_STORAGE_ACCOUNT_CONTAINER": {
+          "AZURE_STORAGE_ACCOUNT_CONTAINER_NAME": {
             "mode": "HIDDEN",
             "description": "Azure blob storage container name to store files in.",
+            "type": "string"
+          },
+          "AZURE_STORAGE_ACCOUNT_PUBLIC_CONTAINER_NAME": {
+            "mode": "HIDDEN",
+            "description": "Azure blob storage container name to store public files in.",
+            "type": "string"
+          },
+          "AZURE_STORAGE_ACCOUNT_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of files uploaded to Azure blob storage.",
+            "type": "string"
+          },
+          "AZURE_STORAGE_ACCOUNT_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to Azure blob storage.",
             "type": "string"
           },
           "AZURE_LOCAL_CONNECTION_STRING": {
@@ -656,10 +677,10 @@
     "description": "The count of reverse proxies between the internet and the server. In typical deployments, this value is 1.",
     "type": "int"
   },
-  "CSP_REPORT_ONLY": {
-    "mode": "HIDDEN",
-    "description": "Overrides the default configuration for the content security policy. If set to true, the browser reports content security policy violations but does not enforce the policy. If set to false, the browser enforces the policy.",
-    "type": "bool"
+  "FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS": {
+    "mode": "ADMIN_READABLE",
+    "description": "Specifies the allowed file types that can be uploaded. Uses any valid [file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers). Multiple are separated by commas. Default: \"image/*,.pdf\"",
+    "type": "string"
   },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
@@ -784,14 +805,9 @@
         "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
         "type": "bool"
       },
-      "PRIMARY_APPLICANT_INFO_QUESTIONS_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables setting a universal question as a question representing information about the applicant. The system can then take certain actions based on the answer to this question.",
-        "type": "bool"
-      },
       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
+        "description": "Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an application.",
         "type": "bool"
       },
       "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
@@ -803,20 +819,25 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
+      },
+      "PROGRAM_MIGRATION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables migrating programs between deployed environments",
+        "type": "bool"
       }
     }
   },
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
+      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per screen.",
+        "type": "bool"
+      },
       "BULK_STATUS_UPDATE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
-        "type": "bool"
-      },
-      "PROGRAM_MIGRATION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments",
         "type": "bool"
       },
       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {

@@ -17,6 +17,8 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.RollbackException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,8 +29,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import javax.inject.Inject;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.RollbackException;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -393,6 +393,14 @@ public final class VersionRepository {
         .findOne();
   }
 
+  public CompletionStage<VersionModel> getActiveVersionAsync() {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          return getActiveVersion();
+        },
+        databaseExecutionContext);
+  }
+
   /**
    * Returns the previous version to the one passed in. If there is only one version there isn't a
    * previous version so the Optional result will be empty.
@@ -465,6 +473,36 @@ public final class VersionRepository {
     return getQuestionsForVersion(version).stream()
         .filter(q -> questionRepository.getQuestionDefinition(q).getName().equals(name))
         .findAny();
+  }
+
+  /** Return the number of programs that exist in a given version. */
+  public Long getProgramCountForVersion(VersionModel version) {
+    String sql =
+        """
+        SELECT count(1) FROM versions_programs WHERE versions_programs.versions_id = :versionId
+        """;
+    return database
+        .sqlQuery(sql)
+        .setLabel("VersionModel.getProgramCount")
+        .setParameter("versionId", version.id)
+        .mapToScalar(Long.class)
+        .findOneOrEmpty()
+        .orElse(0L);
+  }
+
+  /** Return the number of questions that exist in a given version. */
+  public Long getQuestionCountForVersion(VersionModel version) {
+    String sql =
+        """
+        SELECT count(1) FROM versions_questions WHERE versions_questions.versions_id = :versionId
+        """;
+    return database
+        .sqlQuery(sql)
+        .setLabel("VersionModel.getQuestionCount")
+        .setParameter("versionId", version.id)
+        .mapToScalar(Long.class)
+        .findOneOrEmpty()
+        .orElse(0L);
   }
 
   /**

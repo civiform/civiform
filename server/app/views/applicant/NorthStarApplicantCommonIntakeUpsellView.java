@@ -10,6 +10,7 @@ import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import services.DeploymentType;
+import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
@@ -38,10 +39,13 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programDescription", params.programDescription().orElse(""));

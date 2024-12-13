@@ -121,7 +121,7 @@ jsonb_path_exists((object#>>'{}')::jsonb, '$.applicant.**.service_area ? (@.type
       }
     }
 
-    return new ApplicantData(rootJsonNode.toString(), applicantData.getApplicant());
+    return new ApplicantData(rootJsonNode.toString());
   }
 
   @VisibleForTesting

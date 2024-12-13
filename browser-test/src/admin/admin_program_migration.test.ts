@@ -65,7 +65,6 @@ test.describe('program migration', () => {
     })
 
     await test.step('load export page', async () => {
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await adminPrograms.goToExportProgramPage(programName, 'DRAFT')
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
@@ -109,9 +108,10 @@ test.describe('program migration', () => {
     adminProgramMigration,
     adminTiGroups,
   }) => {
+    test.slow()
+
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await adminProgramMigration.goToImportPage()
     })
 
@@ -206,7 +206,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from programService.validateProgramDataForCreate
       // there are other errors that might bubble up (such as a blank program name) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // replace the program admin name with an invalid admin name to trigger an error
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program',
@@ -229,7 +228,6 @@ test.describe('program migration', () => {
       // this tests that we will catch errors that bubble up from the questionDefinition.validate
       // there are other errors that might bubble up (such as a blank question text) but we don't need to test them all
       await adminProgramMigration.clickButton('Try again')
-
       // set the program admin name back to a valid admin name
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program ##4L!',
@@ -240,16 +238,25 @@ test.describe('program migration', () => {
         'Sample Address Question',
         '',
       )
+      // replace one of the multi-option question admin names with an invalid admin name
+      // we should not be validating multi-option question admin names as a part of program migration
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'chocolate',
+        'Chocolate ice cream',
+      )
+
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'One or more question errors occured:',
         ALERT_ERROR,
       )
-      await adminProgramMigration.expectAlert(
+      await expect(alert).toContainText(
         'Administrative identifier cannot be blank.',
-        ALERT_ERROR,
+      )
+      await expect(alert).not.toContainText(
+        'Multi-option admin names can only contain lowercase letters, numbers, underscores, and dashes',
       )
     })
 
@@ -261,6 +268,7 @@ test.describe('program migration', () => {
       await adminPrograms.addProgram(
         'New Program',
         'program description',
+        'short program description',
         'https://usa.gov',
         ProgramVisibility.SELECT_TI,
         'admin description',
@@ -293,7 +301,6 @@ test.describe('program migration', () => {
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
     })
 
     let downloadedComprehensiveProgram: string
@@ -380,9 +387,9 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should be updated with "-1" on the end)
+      // admin name (should be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
-        'Admin name: Sample Address Question-1',
+        'Admin name: Sample Address Question -_- a',
       )
       // admin description
       await expect(programDataDiv).toContainText(
@@ -475,7 +482,6 @@ test.describe('program migration', () => {
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await enableFeatureFlag(
         page,
         'no_duplicate_questions_for_migration_enabled',
@@ -569,7 +575,7 @@ test.describe('program migration', () => {
       await expect(programDataDiv).toContainText('What is your address?')
       // question help text
       await expect(programDataDiv).toContainText('help text')
-      // admin name (should not be updated with "-1" on the end)
+      // admin name (should not be updated with " -_- a" on the end)
       await expect(programDataDiv).toContainText(
         'Admin name: Sample Address Question',
       )

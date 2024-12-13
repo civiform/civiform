@@ -13,6 +13,7 @@ import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -75,7 +76,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicationModel appTwoSubmitted =
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-    assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
+    assertThat(appTwoSubmitted.getApplicant().getApplicantName().get()).isEqualTo("Alice");
     assertThat(
             repo.getApplication(appOne.id)
                 .toCompletableFuture()
@@ -400,7 +401,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     account.save();
 
     ApplicantModel applicant = new ApplicantModel();
-    applicant.getApplicantData().setUserName(name);
+    applicant.setUserName(name);
     applicant.setAccount(account);
     applicant.save();
     return applicant;
@@ -421,6 +422,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             "desc",
             name,
             "desc",
+            "short desc",
             "",
             "",
             DisplayMode.PUBLIC.getValue(),
@@ -430,7 +432,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             new ProgramAcls(),
-            /* categories= */ ImmutableList.of());
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
     ;
     program.save();
     return program;

@@ -28,8 +28,8 @@ import play.data.DynamicForm;
 import repository.ApiKeyRepository;
 import services.CryptographicUtils;
 import services.DateConverter;
-import services.PageNumberBasedPaginationSpec;
-import services.PaginationResult;
+import services.pagination.PageNumberPaginationSpec;
+import services.pagination.PaginationResult;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -107,21 +107,21 @@ public final class ApiKeyService {
    */
   public ImmutableList<ApiKeyModel> listActiveApiKeys() {
     PaginationResult<ApiKeyModel> apiKeys =
-        repository.listActiveApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+        repository.listActiveApiKeys(PageNumberPaginationSpec.MAX_PAGE_SIZE_BY_ID_SPEC);
     return apiKeys.getPageContents();
   }
 
   /** Lists all retired {@link ApiKeyModel}s in order of creation time descending. */
   public ImmutableList<ApiKeyModel> listRetiredApiKeys() {
     PaginationResult<ApiKeyModel> apiKeys =
-        repository.listRetiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+        repository.listRetiredApiKeys(PageNumberPaginationSpec.MAX_PAGE_SIZE_BY_ID_SPEC);
     return apiKeys.getPageContents();
   }
 
   /** Lists all expired {@link ApiKeyModel}s in order of creation time descending. */
   public ImmutableList<ApiKeyModel> listExpiredApiKeys() {
     PaginationResult<ApiKeyModel> apiKeys =
-        repository.listExpiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+        repository.listExpiredApiKeys(PageNumberPaginationSpec.MAX_PAGE_SIZE_BY_ID_SPEC);
     return apiKeys.getPageContents();
   }
 
@@ -160,7 +160,7 @@ public final class ApiKeyService {
     ApiKeyModel apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
+      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey.id));
     }
 
     apiKey.retire(getAuthorityId(profile));

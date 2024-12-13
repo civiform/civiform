@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static play.mvc.Results.redirect;
 
-import akka.stream.Materializer;
 import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
@@ -12,6 +11,7 @@ import controllers.routes;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import org.apache.pekko.stream.Materializer;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -34,13 +34,15 @@ public final class CiviFormProfileFilter extends Filter {
    *
    * <ul>
    *   <li>The request is for a user-facing route
+   *   <li>The request is not for the homepage (/ or /programs)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
    *   <li>The session associated with the request does not contain a pac4j user profile
    * </ul>
    */
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
-    return NonUserRoutePrefixes.noneMatch(requestHeader)
+    return NonUserRoutes.noneMatch(requestHeader)
+        && OptionalProfileRoutes.noneMatch(requestHeader)
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))

@@ -120,7 +120,7 @@ public class DevToolsController extends Controller {
             .minus(1, ChronoUnit.DAYS)
             .toInstant(clock.getZone().getRules().getOffset(Instant.now()));
 
-    // Job types run on demand should be set to recurring in order to be picked up by akka
+    // Job types run on demand should be set to recurring in order to be picked up by pekko
     // and run dynamically.
     PersistedDurableJobModel job =
         new PersistedDurableJobModel(jobName, JobType.RECURRING, runTime);

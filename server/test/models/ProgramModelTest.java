@@ -76,6 +76,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "Short description"))
             .setLocalizedConfirmationMessage(
                 LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
@@ -90,6 +91,7 @@ public class ProgramModelTest extends ResetPostgres {
                 Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
             .setSummaryImageFileKey(Optional.of("program-card-images/program-1/testFile.png"))
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -100,6 +102,8 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().localizedShortDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "Short description"));
     assertThat(found.getProgramDefinition().notificationPreferences())
         .containsExactlyInAnyOrder(
             ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
@@ -117,6 +121,11 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
     assertThat(found.getCategories()).isInstanceOf(ImmutableList.class);
+    assertThat(found.getProgramDefinition().applicationSteps().size()).isEqualTo(1);
+    assertThat(found.getProgramDefinition().applicationSteps().get(0).getTitle())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "title"));
+    assertThat(found.getProgramDefinition().applicationSteps().get(0).getDescription())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
 
     assertThat(
             found
@@ -173,6 +182,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -180,6 +190,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -233,6 +244,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
@@ -240,6 +252,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
     program.save();
@@ -354,11 +367,13 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
+            .setLocalizedShortDescription(LocalizedStrings.of(Locale.US, "short desc"))
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

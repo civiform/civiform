@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.controllers.MissingOptionalException;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import controllers.FlashKey;
@@ -18,6 +17,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
@@ -27,13 +28,12 @@ import play.mvc.Results;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.Block;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantDisabledProgramView;
-import views.applicant.ApplicantProgramInfoView;
+import views.applicant.NorthStarFilteredProgramsViewPartial;
 import views.applicant.NorthStarProgramIndexView;
 import views.applicant.ProgramIndexView;
 import views.components.ToastMessage;
@@ -45,16 +45,17 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProgramsController.class);
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantDisabledProgramView disabledProgramInfoView;
-  private final ApplicantProgramInfoView programInfoView;
   private final ProgramSlugHandler programSlugHandler;
   private final ApplicantRoutes applicantRoutes;
   private final SettingsManifest settingsManifest;
   private final NorthStarProgramIndexView northStarProgramIndexView;
+  private final NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial;
 
   @Inject
   public ApplicantProgramsController(
@@ -63,31 +64,31 @@ public final class ApplicantProgramsController extends CiviFormController {
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
       ApplicantDisabledProgramView disabledProgramInfoView,
-      ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramSlugHandler programSlugHandler,
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
-      NorthStarProgramIndexView northStarProgramIndexView) {
+      NorthStarProgramIndexView northStarProgramIndexView,
+      NorthStarFilteredProgramsViewPartial northStarFilteredProgramsViewPartial) {
     super(profileUtils, versionRepository);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.disabledProgramInfoView = checkNotNull(disabledProgramInfoView);
     this.programIndexView = checkNotNull(programIndexView);
-    this.programInfoView = checkNotNull(programInfoView);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.northStarProgramIndexView = checkNotNull(northStarProgramIndexView);
+    this.northStarFilteredProgramsViewPartial = checkNotNull(northStarFilteredProgramsViewPartial);
   }
 
   @Secure
   public CompletionStage<Result> indexWithApplicantId(
       Request request,
-      long applicantId, /* The selected program categories */
-      List<String> categories) {
+      long applicantId,
+      List<String> categories /* The selected program categories */) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
     Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
@@ -110,11 +111,11 @@ public final class ApplicantProgramsController extends CiviFormController {
                     ok(northStarProgramIndexView.render(
                             messagesApi.preferred(request),
                             request,
-                            applicantId,
+                            Optional.of(applicantId),
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
                             bannerMessage,
-                            requesterProfile))
+                            Optional.of(requesterProfile)))
                         .as(Http.MimeTypes.HTML);
               } else {
                 result =
@@ -122,12 +123,12 @@ public final class ApplicantProgramsController extends CiviFormController {
                         programIndexView.render(
                             messagesApi.preferred(request),
                             request,
-                            applicantId,
+                            Optional.of(applicantId),
                             applicantStage.toCompletableFuture().join(),
                             applicationPrograms,
                             ImmutableList.copyOf(categories),
                             banner,
-                            requesterProfile));
+                            Optional.of(requesterProfile)));
               }
               // If the user has been to the index page, any existing redirects should be
               // cleared to avoid an experience where they're unexpectedly redirected after
@@ -148,64 +149,47 @@ public final class ApplicantProgramsController extends CiviFormController {
             });
   }
 
-  @Secure
-  public CompletionStage<Result> index(Request request) {
+  /**
+   * When the user is not logged in or tied to a guest account, show them the list of publicly
+   * viewable programs.
+   */
+  public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
+    CompletableFuture<ApplicationPrograms> programsFuture =
+        applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
+
+    return programsFuture.thenApplyAsync(
+        programs -> {
+          return settingsManifest.getNorthStarApplicantUi(request)
+              ? ok(northStarProgramIndexView.render(
+                      messagesApi.preferred(request),
+                      request,
+                      Optional.empty(),
+                      ApplicantPersonalInfo.ofGuestUser(),
+                      programsFuture.join(),
+                      request.flash().get(FlashKey.BANNER),
+                      Optional.empty()))
+                  .as(Http.MimeTypes.HTML)
+              : ok(
+                  programIndexView.renderWithoutApplicant(
+                      messagesApi.preferred(request),
+                      request,
+                      programs,
+                      ImmutableList.copyOf(categories)));
+        });
+  }
+
+  public CompletionStage<Result> index(Request request, List<String> categories) {
+    if (profileUtils.optionalCurrentUserProfile(request).isEmpty()) {
+      return indexWithoutApplicantId(request, categories);
+    }
+
     Optional<Long> applicantId = getApplicantId(request);
     if (applicantId.isEmpty()) {
       // This route should not have been computed for the user in this case, but they may have
       // gotten the URL from another source.
-      return CompletableFuture.completedFuture(redirectToHome());
+      return indexWithoutApplicantId(request, categories);
     }
-    return indexWithApplicantId(
-        request,
-        applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-        ImmutableList.of());
-  }
-
-  @Secure
-  public CompletionStage<Result> showWithApplicantId(
-      Request request, long applicantId, long programId) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
-    CompletionStage<ApplicantPersonalInfo> applicantStage =
-        this.applicantService.getPersonalInfo(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
-        .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, profile, request),
-            classLoaderExecutionContext.current())
-        .thenApplyAsync(
-            relevantPrograms -> {
-              Optional<ProgramDefinition> programDefinition =
-                  relevantPrograms.allPrograms().stream()
-                      .map(ApplicantProgramData::program)
-                      .filter(program -> program.id() == programId)
-                      .findFirst();
-              if (programDefinition.isPresent()) {
-                return ok(
-                    programInfoView.render(
-                        messagesApi.preferred(request),
-                        programDefinition.get(),
-                        request,
-                        applicantId,
-                        applicantStage.toCompletableFuture().join(),
-                        profile));
-              }
-              return badRequest(String.format("Program %d not found", programId));
-            },
-            classLoaderExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                if (ex.getCause() instanceof SecurityException) {
-                  // If the applicant id in the URL does not correspond to the current user, start
-                  // from scratch. This could happen if a user bookmarks a URL.
-                  return redirectToHome();
-                }
-              }
-              throw new RuntimeException(ex);
-            });
+    return indexWithApplicantId(request, applicantId.get(), categories);
   }
 
   // This controller method disambiguates between two routes:
@@ -213,21 +197,12 @@ public final class ApplicantProgramsController extends CiviFormController {
   // - /programs/<program-id>
   // - /programs/<program-slug>
   //
-  // Because the second use is public, this controller is not annotated as @Secure. For the first
-  // use, the delegated-to method *is* annotated as such.
+  // The program id route is deprecated, so it always redirects to home.
   public CompletionStage<Result> show(Request request, String programParam) {
     if (StringUtils.isNumeric(programParam)) {
-      // The path parameter specifies a program by (numeric) id.
-      Optional<Long> applicantId = getApplicantId(request);
-      if (applicantId.isEmpty()) {
-        // This route should not have been computed for the user in this case, but they may have
-        // gotten the URL from another source.
-        return CompletableFuture.completedFuture(redirectToHome());
-      }
-      return showWithApplicantId(
-          request,
-          applicantId.orElseThrow(() -> new MissingOptionalException(Long.class)),
-          Long.parseLong(programParam));
+      // We no longer support (or provide) links to numeric program ID (See issue #8599), redirect
+      // to home.
+      return CompletableFuture.completedFuture(redirectToHome());
     } else {
       return programSlugHandler.showProgram(this, request, programParam);
     }
@@ -308,5 +283,48 @@ public final class ApplicantProgramsController extends CiviFormController {
                 request,
                 applicantId.orElseThrow(),
                 applicantStage.toCompletableFuture().join())));
+  }
+
+  /**
+   * Serves an HTMX partial view when the user selects program category filters. The partial view
+   * displays recommended and other programs based on the selected categories.
+   */
+  @Secure
+  public CompletionStage<Result> hxFilter(Request request, List<String> categories) {
+    Optional<Long> applicantId = getApplicantId(request);
+    CompletableFuture<ApplicationPrograms> programsFuture;
+
+    if (applicantId.isEmpty()) {
+      programsFuture =
+          applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
+    } else {
+      CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
+      programsFuture =
+          applicantService
+              .relevantProgramsForApplicant(applicantId.get(), requesterProfile, request)
+              .toCompletableFuture();
+    }
+
+    return CompletableFuture.supplyAsync(
+            () ->
+                Results.ok(
+                        northStarFilteredProgramsViewPartial.render(
+                            messagesApi.preferred(request),
+                            request,
+                            Optional.empty(),
+                            ApplicantPersonalInfo.ofGuestUser(),
+                            programsFuture.join(),
+                            Optional.empty(),
+                            ImmutableList.copyOf(categories)))
+                    .as("text/html"))
+        .exceptionally(
+            ex -> {
+              LOGGER.error(
+                  "There was an error in rendering the filtered programs"
+                      + " partial view with these categories: "
+                      + String.join(",", categories),
+                  ex);
+              return Results.internalServerError("There was an error in filtering the programs.");
+            });
   }
 }

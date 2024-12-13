@@ -58,6 +58,8 @@ public class EsriTestHelper {
     STANDARD,
     STANDARD_WITH_LINE_2,
     NO_CANDIDATES,
+    EMPTY_RESPONSE,
+    ESRI_ERROR_RESPONSE,
     ERROR,
     SERVICE_AREA_VALIDATION,
     SERVICE_AREA_VALIDATION_ERROR,
@@ -111,6 +113,15 @@ public class EsriTestHelper {
         serverSettings =
             createServerSettingsThatReturnOk(
                 "/findAddressCandidates", "esri/findAddressCandidatesNoCandidates.json");
+        break;
+      case EMPTY_RESPONSE:
+        serverSettings =
+            createServerSettingsThatReturnOk(
+                "/findAddressCandidates", "esri/findAddressCandidatesEmptyResponse.json");
+      case ESRI_ERROR_RESPONSE:
+        serverSettings =
+            createServerSettingsThatReturnOk(
+                "/findAddressCandidates", "esri/esriErrorResponse.json");
         break;
       case ERROR:
         serverSettings = createServerSettingsThatReturnError("/findAddressCandidates");

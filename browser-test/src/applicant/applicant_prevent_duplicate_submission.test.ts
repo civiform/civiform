@@ -92,7 +92,6 @@ test.describe('Prevent Duplicate Submission', () => {
 
         await loginAsTestUser(page)
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantQuestions.clickContinue()
         await applicantQuestions.answerNumberQuestion('0')
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(

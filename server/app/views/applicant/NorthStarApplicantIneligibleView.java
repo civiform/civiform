@@ -10,6 +10,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.EligibilityAlertSettingsCalculator;
 import java.util.Locale;
+import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -51,10 +52,14 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             params.request(),
-            params.applicantId(),
-            params.profile(),
+            Optional.of(params.applicantId()),
+            Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
+
+    context.setVariable(
+        "pageTitle", params.messages().at(MessageKey.TITLE_INELIGIBLE.getKeyName()));
+
     ProgramDefinition program = params.programDefinition();
 
     Locale userLocale = params.messages().lang().toLocale();
@@ -77,9 +82,10 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     // Manually construct a hyperlink with a runtime href and localized string. The hyperlink will
     // be inserted into another localized string in the Thymeleaf template.
+    // TODO: Update this to point to the new northstar details page.
     String linkHref =
         program.externalLink().isEmpty()
-            ? applicantRoutes.show(params.profile(), params.applicantId(), program.id()).url()
+            ? applicantRoutes.review(params.profile(), params.applicantId(), program.id()).url()
             : program.externalLink();
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
