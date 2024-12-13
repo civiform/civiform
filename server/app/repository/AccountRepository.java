@@ -15,6 +15,7 @@ import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -470,7 +471,8 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
 
-    account.removeExpiredActiveSessions(clock, null);
+    // For now, we set the duration to Auth0s default of 10 hours. 
+    account.removeExpiredActiveSessions(clock, Duration.ofSeconds(36000));
     account.storeIdTokenInActiveSession(sessionId, idToken);
 
     account.save();

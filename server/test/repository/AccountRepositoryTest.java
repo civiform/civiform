@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -9,6 +10,7 @@ import com.nimbusds.jwt.PlainJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -353,7 +355,11 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    account.addActiveSession("session1", testClock);
+    Clock clock = Clock.fixed(Instant.now().minusSeconds(10000), ZoneId.systemDefault()); 
+    account.addActiveSession("sessionId1", clock);
+    account.storeIdTokenInActiveSession("sessionId1", "idToken1");
+    account.addActiveSession("sessionId2", clock);
+    account.storeIdTokenInActiveSession("sessionId2", "idToken2");
     account.save();
     long accountId = account.id;
 
@@ -363,12 +369,12 @@ public class AccountRepositoryTest extends ResetPostgres {
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
 
     repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
-
+  
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
-    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
+    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize()); 
 
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();
@@ -377,6 +383,26 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Valid token
     assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
         .hasValue(validJwt.serialize());
+  }
+
+  @Test
+  public void addIdTokenAndPrune_throwsWithoutActiveSession() {
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    // Clock is above the default session duration
+    Clock clock = Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault()); 
+    account.addActiveSession("sessionId", clock);
+    account.storeIdTokenInActiveSession("sessionId", "idToken");
+    account.save();
+
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+
+    assertThrows(RuntimeException.class, () -> repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize()));
   }
 
   @Test
