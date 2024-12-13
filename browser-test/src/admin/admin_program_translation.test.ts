@@ -439,9 +439,10 @@ test.describe('Admin can manage program translations', () => {
 
     await test.step('Publish and verify the translation on applicant side', async () => {
       await adminPrograms.publishProgram(programName)
-
       await logout(page)
+
       await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'Español')
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('ineligble')
       await applicantQuestions.clickNext()
