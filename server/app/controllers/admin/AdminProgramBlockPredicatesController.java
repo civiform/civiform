@@ -415,6 +415,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     final String indexUrl =
         routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
             .url();
-    return redirect(indexUrl).flashing(toastType.toString(), toastMessage);
+    return redirect(indexUrl)
+        .flashing(toastType.toString().toLowerCase(Locale.getDefault()), toastMessage);
   }
 }

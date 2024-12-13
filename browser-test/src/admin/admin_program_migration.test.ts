@@ -65,7 +65,6 @@ test.describe('program migration', () => {
     })
 
     await test.step('load export page', async () => {
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await adminPrograms.goToExportProgramPage(programName, 'DRAFT')
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
@@ -113,7 +112,6 @@ test.describe('program migration', () => {
 
     await test.step('load import page', async () => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await adminProgramMigration.goToImportPage()
     })
 
@@ -303,7 +301,6 @@ test.describe('program migration', () => {
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
     })
 
     let downloadedComprehensiveProgram: string
@@ -485,7 +482,6 @@ test.describe('program migration', () => {
       await seedProgramsAndCategories(page)
       await page.goto('/')
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_migration_enabled')
       await enableFeatureFlag(
         page,
         'no_duplicate_questions_for_migration_enabled',

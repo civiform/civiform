@@ -37,21 +37,21 @@ lazy val root = (project in file("."))
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
-      "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
+      "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.24.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.24.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.23",
-      "software.amazon.awssdk" % "ses" % "2.29.23",
+      "software.amazon.awssdk" % "s3" % "2.29.33",
+      "software.amazon.awssdk" % "ses" % "2.29.33",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.14.2",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.22.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.23.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.4",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.36.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.2",
+      "org.checkerframework" % "dataflow-errorprone" % "3.48.3",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.12.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.51",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.52",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",

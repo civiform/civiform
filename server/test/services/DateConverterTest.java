@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import org.junit.Test;
 
 public class DateConverterTest {
@@ -78,6 +79,31 @@ public class DateConverterTest {
     LocalDate date = LocalDate.of(2020, 1, 1);
     String result = dateConverterUTC.formatIso8601Date(date);
     assertThat(expectedResult).isEqualTo(result);
+  }
+
+  @Test
+  public void renderShortDateInLocalTime_handlesTimezoneAndLocale() {
+    Instant instant = Instant.parse("2022-10-15T03:07:05.00Z");
+    Locale localeUS = Locale.US;
+    Locale localeUK = Locale.UK;
+
+    assertThat(dateConverterUTC.renderShortDateInLocalTime(instant, localeUS))
+        .isEqualTo("10/15/22");
+    assertThat(dateConverterPT.renderShortDateInLocalTime(instant, localeUS)).isEqualTo("10/14/22");
+
+    assertThat(dateConverterUTC.renderShortDateInLocalTime(instant, localeUK))
+        .isEqualTo("15/10/2022");
+    assertThat(dateConverterPT.renderShortDateInLocalTime(instant, localeUK))
+        .isEqualTo("14/10/2022");
+  }
+
+  @Test
+  public void renderShortDateInLocalTime_dropsZeroDigitsInMonthAndDay() {
+    Instant instant = Instant.parse("2009-04-06T03:07:05.00Z");
+    Locale localeUS = Locale.US;
+
+    assertThat(dateConverterUTC.renderShortDateInLocalTime(instant, localeUS)).isEqualTo("4/6/09");
+    assertThat(dateConverterPT.renderShortDateInLocalTime(instant, localeUS)).isEqualTo("4/5/09");
   }
 
   @Test
