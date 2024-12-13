@@ -3,19 +3,12 @@ package services.openapi;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import io.swagger.models.Format;
 import io.swagger.models.Scheme;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.ObjectProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.StringProperty;
-import io.swagger.models.properties.UntypedProperty;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
-import services.openapi.v2.DefinitionType;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -46,30 +39,6 @@ public abstract class AbstractOpenApiSchemaGenerator {
   /** Gets the baseurl without scheme */
   protected String getHostName() {
     return openApiSchemaSettings.baseUrl().replace("https://", "").replace("http://", "");
-  }
-
-  protected static Property getPropertyFromType(
-      DefinitionType definitionType,
-      Optional<Format> swaggerFormat,
-      DefinitionType arrayItemDefinitionType) {
-
-    if (definitionType == DefinitionType.ARRAY) {
-      return new ArrayProperty()
-          .items(
-              arrayItemDefinitionType == DefinitionType.STRING
-                  ? new StringProperty()
-                  : new ObjectProperty());
-    }
-
-    var property = new UntypedProperty();
-
-    property.setType(definitionType.toString());
-
-    if (swaggerFormat.isPresent()) {
-      property.setFormat(swaggerFormat.get().toString());
-    }
-
-    return property;
   }
 
   /** Get the list of scalars for a question sorted alphabetically */
