@@ -471,7 +471,7 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
 
-    // For now, we set the duration to Auth0s default of 10 hours. 
+    // For now, we set the duration to Auth0s default of 10 hours.
     account.removeExpiredActiveSessions(clock, Duration.ofSeconds(36000));
     account.storeIdTokenInActiveSession(sessionId, idToken);
 

@@ -355,7 +355,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    Clock clock = Clock.fixed(Instant.now().minusSeconds(10000), ZoneId.systemDefault()); 
+    // Clock that is within the default session duration
+    Clock clock = Clock.fixed(Instant.now().minusSeconds(10000), ZoneId.systemDefault());
     account.addActiveSession("sessionId1", clock);
     account.storeIdTokenInActiveSession("sessionId1", "idToken1");
     account.addActiveSession("sessionId2", clock);
@@ -369,12 +370,11 @@ public class AccountRepositoryTest extends ResetPostgres {
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
 
     repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
-  
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
-    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize()); 
+    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
 
     Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
     assertThat(retrievedAccount).isNotEmpty();
@@ -391,18 +391,20 @@ public class AccountRepositoryTest extends ResetPostgres {
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
     // Clock is above the default session duration
-    Clock clock = Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault()); 
+    Clock clock = Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault());
     account.addActiveSession("sessionId", clock);
     account.storeIdTokenInActiveSession("sessionId", "idToken");
     account.save();
 
     LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
-    
+
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
-    assertThrows(RuntimeException.class, () -> repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize()));
+    assertThrows(
+        RuntimeException.class,
+        () -> repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize()));
   }
 
   @Test
