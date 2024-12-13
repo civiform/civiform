@@ -370,6 +370,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
 
     repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
+
     // Create a JWT that won't expire for an hour.
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
