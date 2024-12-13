@@ -108,27 +108,13 @@ public final class ProgramSlugHandler {
                               .getActiveFullProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
-                                      // If the program is disabled, redirect to the review page
-                                      // because that will trigger the ProgramDisabledAction.
-                                      settingsManifest.getNorthStarApplicantUi(request)
-                                              && activeProgramDefinition.displayMode()
-                                                  != DisplayMode.DISABLED
-                                          ? Results.ok(
-                                                  northStarProgramOverviewView.render(
-                                                      messagesApi.preferred(request),
-                                                      request,
-                                                      applicantId,
-                                                      ApplicantPersonalInfo.ofGuestUser(),
-                                                      profile,
-                                                      activeProgramDefinition))
-                                              .as("text/html")
-                                          : redirectToReviewPage(
-                                              controller,
-                                              activeProgramDefinition.id(),
-                                              applicantId,
-                                              programSlug,
-                                              request,
-                                              profile))
+                                      redirectToOverviewOrReviewPage(
+                                          controller,
+                                          request,
+                                          programSlug,
+                                          profile,
+                                          applicantId,
+                                          activeProgramDefinition))
                               .exceptionally(
                                   ex ->
                                       controller
@@ -139,6 +125,30 @@ public final class ProgramSlugHandler {
                       classLoaderExecutionContext.current());
             },
             classLoaderExecutionContext.current());
+  }
+
+  private Result redirectToOverviewOrReviewPage(
+      CiviFormController controller,
+      Http.Request request,
+      String programSlug,
+      CiviFormProfile profile,
+      long applicantId,
+      ProgramDefinition activeProgramDefinition) {
+    return settingsManifest.getNorthStarApplicantUi(request)
+            && activeProgramDefinition.displayMode()
+                != DisplayMode.DISABLED // If the program is disabled,
+        // redirect to review page because that will trigger the ProgramDisabledAction.
+        ? Results.ok(
+                northStarProgramOverviewView.render(
+                    messagesApi.preferred(request),
+                    request,
+                    applicantId,
+                    ApplicantPersonalInfo.ofGuestUser(),
+                    profile,
+                    activeProgramDefinition))
+            .as("text/html")
+        : redirectToReviewPage(
+            controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
   }
 
   private Result redirectToReviewPage(

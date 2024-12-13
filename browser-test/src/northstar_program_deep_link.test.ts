@@ -67,7 +67,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
       // Exercise guest path
       await page.goto('/programs/test-deep-link')
       // Sees the login prompt
-      await page.getByRole('link', {name: 'Continue to application'}).click()
+      await applicantQuestions.continueToApplicationFromLoginPromptModal()
       // Is taken to the review page
       await expect(
         page.getByRole('button', {name: 'Submit application'}),
@@ -90,9 +90,10 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
 
     test('Non-logged in user should get redirected to the program page and not an error', async ({
       page,
+      applicantQuestions,
     }) => {
       await page.goto('/programs/test-deep-link')
-      await page.getByRole('link', {name: 'Continue to application'}).click()
+      await applicantQuestions.continueToApplicationFromLoginPromptModal()
 
       await selectApplicantLanguage(page, 'English')
 

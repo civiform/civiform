@@ -1083,4 +1083,8 @@ export class ApplicantQuestions {
       )
       .click()
   }
+
+  async continueToApplicationFromLoginPromptModal() {
+    await this.page.getByRole('link', {name: 'Continue to application'}).click()
+  }
 }

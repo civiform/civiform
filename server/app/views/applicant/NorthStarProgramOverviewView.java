@@ -18,6 +18,10 @@ import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
+/**
+ * Renders the program overview page for applicants, which describes the program to the applicant
+ * before they start an application.
+ */
 public class NorthStarProgramOverviewView extends NorthStarBaseView {
 
   @Inject
