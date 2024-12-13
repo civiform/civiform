@@ -438,7 +438,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                           alertTag,
                           applicationTable)));
     }
-    return div(applicationTable);
+    return div(applicationTable).withData("testid", "application-table");
   }
 
   private TheadTag renderGroupTableHeader(boolean displayStatus, boolean hasEligibilityEnabled) {
@@ -487,7 +487,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
             ? "Meets eligibility"
             : "Doesn't meet eligibility";
 
-    return tr().withClasses("has:checked:text-red-500")
+    return tr().withClasses("has:checked:text-red-500", ReferenceClasses.ADMIN_APPLICATION_ROW)
         .condWith(
             displayStatus,
             td(
@@ -500,7 +500,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .with(td(renderApplicationLink(applicantNameWithApplicationId, application)))
         .condWith(hasEligibilityEnabled, td(eligibilityStatus))
         .condWith(displayStatus, td(applicationStatus))
-        .with(td(renderSubmitTime(application)));
+        .with(td(renderSubmitTime(application)).withClass(ReferenceClasses.BT_DATE));
   }
 
   private ATag renderApplicationLink(String text, ApplicationModel application) {
@@ -513,7 +513,6 @@ public class ProgramApplicationTableView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
-        .opensInNewTab()
         .setStyles(
             "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
         .asAnchorText();

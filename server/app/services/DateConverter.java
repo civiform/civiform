@@ -13,6 +13,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 
 /** Utility class for converting dates between different formats. */
 public final class DateConverter {
@@ -115,6 +117,17 @@ public final class DateConverter {
   public String renderDate(Instant time) {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DATE_TIME_FORMATTER_WITH_SLASH);
+  }
+
+  /**
+   * Formats an {@link Instant} to a short date in the local time zone and preferred locale. E.g.
+   * 4/19/22 in the US or 19/4/2022 in the UK.
+   */
+  public String renderShortDateInLocalTime(Instant time, Locale locale) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+    return dateTime.format(formatter);
   }
 
   /** Formats an {@link LocalDate} to a String. */

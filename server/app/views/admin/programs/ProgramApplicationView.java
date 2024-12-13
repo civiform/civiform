@@ -117,9 +117,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         programName,
                         application,
                         applicantNameWithApplicationId,
-                        status))
+                        status,
+                        request))
             .collect(ImmutableList.toImmutableList());
-    Modal updateNoteModal = renderUpdateNoteConfirmationModal(programId, application, noteMaybe);
+    Modal updateNoteModal =
+        renderUpdateNoteConfirmationModal(programId, application, noteMaybe, request);
 
     DivTag contentDiv =
         div()
@@ -197,8 +199,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("application-table-view-")
         .setHref(backUrl)
         .setText("Back")
-        .setStyles(
-            "mr-2", ReferenceClasses.VIEW_BUTTON, "underline", ReferenceClasses.BT_APPLICATION_ID)
+        .setStyles("usa-button")
         .asAnchorText();
   }
 
@@ -344,7 +345,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private Modal renderUpdateNoteConfirmationModal(
-      long programId, ApplicationModel application, Optional<String> noteMaybe) {
+      long programId, ApplicationModel application, Optional<String> noteMaybe, Request request) {
     ButtonTag triggerButton =
         makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
     String formId = Modal.randomModalId();
@@ -367,7 +368,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 div().withClass("flex-grow"),
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
-                submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON)));
+                submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON),
+                makeCsrfTokenInputTag(request)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setLocation(Modal.Location.ADMIN_FACING)
@@ -384,7 +386,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
       String programName,
       ApplicationModel application,
       String applicantNameWithApplicationId,
-      StatusDefinitions.Status status) {
+      StatusDefinitions.Status status,
+      Request request) {
     // The previous status as it should be displayed and passed as data in the
     // update.
     String previousStatusDisplay = application.getLatestStatus().orElse("Unset");
@@ -440,7 +443,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         button("Cancel")
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
-                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON)));
+                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON),
+                        makeCsrfTokenInputTag(request)));
     ButtonTag triggerButton =
         button("")
             .withClasses("hidden")

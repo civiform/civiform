@@ -9,15 +9,14 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.ApplicantRoutes;
-import java.text.DateFormat;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.DateConverter;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -35,6 +34,7 @@ public final class ProgramCardsSectionParamsFactory {
   private final ApplicantRoutes applicantRoutes;
   private final ProfileUtils profileUtils;
   private final PublicStorageClient publicStorageClient;
+  private final DateConverter dateConverter;
 
   /** Enumerates the homepage section types, which may have different card components or styles. */
   public enum SectionType {
@@ -48,10 +48,12 @@ public final class ProgramCardsSectionParamsFactory {
   public ProgramCardsSectionParamsFactory(
       ApplicantRoutes applicantRoutes,
       ProfileUtils profileUtils,
-      PublicStorageClient publicStorageClient) {
+      PublicStorageClient publicStorageClient,
+      DateConverter dateConverter) {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.profileUtils = checkNotNull(profileUtils);
     this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -168,13 +170,17 @@ public final class ProgramCardsSectionParamsFactory {
               .get()
               .localizedStatusText()
               .getOrDefault(preferredLocale));
+      cardBuilder.setDateStatusApplied(
+          formattedDateString(
+              programDatum.latestSubmittedApplicationStatusTime(), preferredLocale));
     }
 
     Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
     cardBuilder.setLifecycleStage(lifecycleStage);
     if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
       // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
-      cardBuilder.setDateSubmitted(formattedDateString(programDatum, preferredLocale));
+      cardBuilder.setDateSubmitted(
+          formattedDateString(programDatum.latestSubmittedApplicationTime(), preferredLocale));
     }
 
     if (shouldShowEligibilityTag(programDatum)) {
@@ -228,17 +234,10 @@ public final class ProgramCardsSectionParamsFactory {
         || programData.isProgramMaybeEligible().get();
   }
 
-  private static Optional<String> formattedDateString(
-      ApplicantProgramData datum, Locale preferredLocale) {
-    Optional<Instant> optionalInstant = datum.latestSubmittedApplicationTime();
-    if (optionalInstant.isEmpty()) {
-      return Optional.empty();
-    }
-
-    Date submitDate = Date.from(optionalInstant.get());
-    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, preferredLocale);
-    String formattedDate = dateFormat.format(submitDate);
-    return Optional.of(formattedDate);
+  private Optional<String> formattedDateString(
+      Optional<Instant> optionalInstant, Locale preferredLocale) {
+    return optionalInstant.map(
+        instant -> dateConverter.renderShortDateInLocalTime(instant, preferredLocale));
   }
 
   @AutoValue
@@ -300,6 +299,9 @@ public final class ProgramCardsSectionParamsFactory {
     // If not submitted, this is empty.
     public abstract Optional<String> dateSubmitted();
 
+    // Localized date String for the date on which the most recent ApplicationStatus was applied
+    public abstract Optional<String> dateStatusApplied();
+
     public abstract Optional<String> imageSourceUrl();
 
     public abstract Optional<String> altText();
@@ -339,6 +341,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setLifecycleStage(Optional<LifecycleStage> lifecycleStage);
 
       public abstract Builder setDateSubmitted(Optional<String> dateSubmitted);
+
+      public abstract Builder setDateStatusApplied(Optional<String> dateStatusApplied);
 
       public abstract Builder setImageSourceUrl(String imageSourceUrl);
 

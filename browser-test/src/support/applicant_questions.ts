@@ -544,15 +544,24 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickDownload() {
+  async clickDownload(northStarEnabled = false) {
+    const downloadButton = northStarEnabled
+      ? 'text="Download your application"'
+      : 'text="Download PDF"'
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download PDF"'),
+      this.page.click(downloadButton),
     ])
     const path = await downloadEvent.path()
-    if (path === null || readFileSync(path, 'utf8').length === 0) {
-      throw new Error('download failed')
+    if (!path) {
+      throw new Error('Download failed: File path is null.')
     }
+
+    const fileContent = readFileSync(path, 'utf8')
+    if (fileContent.length === 0) {
+      throw new Error('Download failed: File content is empty.')
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -896,12 +905,11 @@ export class ApplicantQuestions {
     }
   }
 
-  async downloadFromConfirmationPage() {
-    // Assert that we're on the review page.
-    await this.expectConfirmationPage()
-
-    // Click on download button.
-    await this.clickDownload()
+  async downloadFromConfirmationPage(northStarEnabled = false): Promise<void> {
+    // Assert that we're on the confirmation page.
+    await this.expectConfirmationPage(northStarEnabled)
+    // Click on the download button
+    await this.clickDownload(northStarEnabled)
   }
 
   async validateHeader(lang: string) {
@@ -1086,5 +1094,10 @@ export class ApplicantQuestions {
 
   async continueToApplicationFromLoginPromptModal() {
     await this.page.getByRole('link', {name: 'Continue to application'}).click()
+  }
+
+  async expectLoginModal() {
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain(`Log in`)
   }
 }

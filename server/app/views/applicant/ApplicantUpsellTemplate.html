@@ -56,10 +56,10 @@
                 <p th:text="#{content.youCanPrint}"></p>
               </div>
 
-              <div>
+              <div class="section-internal">
                 <a
                   th:if="${isApplicationExportable}"
-                  href="${downloadHref}"
+                  th:href="${downloadHref}"
                   class="usa-button"
                   th:text="#{button.downloadApplication}"
                 ></a>

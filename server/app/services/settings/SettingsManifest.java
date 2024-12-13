@@ -967,6 +967,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
+  /** Enables migrating programs between deployed environments */
+  public boolean getProgramMigrationEnabled() {
+    return getBool("PROGRAM_MIGRATION_ENABLED");
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
    * screen.
@@ -981,11 +986,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled(RequestHeader request) {
-    return getBool("PROGRAM_MIGRATION_ENABLED", request);
   }
 
   /**
@@ -2079,7 +2079,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " published.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_MIGRATION_ENABLED",
+                      "Enables migrating programs between deployed environments",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Experimental",
           SettingsSection.create(
               "Experimental",
@@ -2098,13 +2104,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "BULK_STATUS_UPDATE_ENABLED",
                       "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
                           + " applications for status updates",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "PROGRAM_MIGRATION_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables migrating programs between deployed"
-                          + " environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),

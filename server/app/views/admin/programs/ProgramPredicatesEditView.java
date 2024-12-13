@@ -14,6 +14,8 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import forms.admin.BlockEligibilityMessageForm;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -21,8 +23,11 @@ import j2html.tags.specialized.LabelTag;
 import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
+import play.data.Form;
+import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -34,6 +39,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
+import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
@@ -45,6 +51,8 @@ import views.style.ReferenceClasses;
 public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   private final AdminLayout layout;
+  private static final String ELIGIBILITY_MESSAGE_FORM_ID = "eligibility-message-form";
+  private final FormFactory formFactory;
 
   // The functionality type of the predicate editor.
   public enum ViewType {
@@ -54,9 +62,12 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
 
   @Inject
   public ProgramPredicatesEditView(
-      AdminLayoutFactory layoutFactory, SettingsManifest settingsManifest) {
+      AdminLayoutFactory layoutFactory,
+      SettingsManifest settingsManifest,
+      FormFactory formFactory) {
     super(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   /**
@@ -219,6 +230,10 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
+            // Show the eligibility message field, if the eligibility msg feature flag is on.
+            .condWith(
+                settingsManifest.getCustomizedEligibilityMessageEnabled(request),
+                createEligibilityMessageForm(request, blockDefinition, programDefinition))
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
@@ -296,6 +311,43 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));
+  }
+
+  private DivTag createEligibilityMessageForm(
+      Http.Request request, BlockDefinition block, ProgramDefinition program) {
+    String existingEligibilityMessage =
+        block.localizedEligibilityMessage().map(LocalizedStrings::getDefault).orElse("");
+    BlockEligibilityMessageForm existingEligibilityMessageForm =
+        new BlockEligibilityMessageForm(existingEligibilityMessage);
+    Form<BlockEligibilityMessageForm> form =
+        formFactory.form(BlockEligibilityMessageForm.class).fill(existingEligibilityMessageForm);
+
+    final String updateMessageUrl =
+        routes.AdminProgramBlockPredicatesController.updateEligibilityMessage(
+                program.id(), block.id())
+            .url();
+
+    ButtonTag buttonTag =
+        submitButton("Save eligibility message")
+            .withForm(ELIGIBILITY_MESSAGE_FORM_ID)
+            .withClasses(ButtonStyles.SOLID_BLUE, "flex");
+
+    return div()
+        .with(
+            form()
+                .withId(ELIGIBILITY_MESSAGE_FORM_ID)
+                .withMethod("POST")
+                .withAction(updateMessageUrl)
+                .with(
+                    makeCsrfTokenInputTag(request),
+                    FieldWithLabel.input()
+                        .setFieldName(BlockEligibilityMessageForm.ELIGIBILITY_MESSAGE)
+                        .setLabelText("Eligibility Message")
+                        .setRequired(false)
+                        .setMarkdownSupported(true)
+                        .setValue(form.value().get().getEligibilityMessage())
+                        .getInputTag()))
+        .with(buttonTag);
   }
 
   @Override

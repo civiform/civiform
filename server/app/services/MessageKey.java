@@ -266,6 +266,7 @@ public enum MessageKey {
   LABEL_IN_PROGRESS("label.inProgress"), // North Star only
   LABEL_SUBMITTED("label.submitted"), // North Star only
   LABEL_SUBMITTED_ON("label.submittedOn"), // North Star only
+  LABEL_STATUS_ON("label.statusOn"), // North Star only
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),

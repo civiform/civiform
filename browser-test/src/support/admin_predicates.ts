@@ -43,6 +43,13 @@ export class AdminPredicates {
     )
   }
 
+  async updateEligibilityMessage(eligibilityMsg: string) {
+    await this.page.getByLabel('Eligibility Message').fill(eligibilityMsg)
+    await this.page
+      .getByRole('button', {name: 'Save eligibility message'})
+      .click()
+  }
+
   async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
