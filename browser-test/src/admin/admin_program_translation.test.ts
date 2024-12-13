@@ -3,6 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  loginAsTestUser,
   selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
@@ -368,6 +369,7 @@ test.describe('Admin can manage program translations', () => {
     adminQuestions,
     adminTranslations,
     adminPredicates,
+    applicantQuestions,
   }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
@@ -376,12 +378,30 @@ test.describe('Admin can manage program translations', () => {
 
     const programName = 'Program with blocks'
     const screenName = 'Screen 1'
+    const questionName = 'eligibility-question-q'
     const eligibilityMsg = 'Cutomized eligibility mesage'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlockUsingSpec(programName, {
       name: screenName,
       description: 'first screen',
-      questions: [{name: 'text-question'}],
+      questions: [{name: questionName}],
+    })
+
+    await test.step('Add predecate for the screen', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.configurePredicate({
+        questionName: questionName,
+        scalar: 'text',
+        operator: 'is equal to',
+        value: 'eligible',
+      })
+      await adminPredicates.clickSaveConditionButton()
+      await adminPredicates.expectPredicateDisplayTextContains(
+        'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
+      )
     })
 
     await test.step('Update translations', async () => {
@@ -416,5 +436,17 @@ test.describe('Admin can manage program translations', () => {
       )
     })
     // TODO: publish and verify the translation applicant-side
+
+    await test.step('Publish and verify the translation on applicant side', async () => {
+      await adminPrograms.publishProgram(programName)
+
+      await logout(page)
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerTextQuestion('ineligble')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await validateScreenshot(page, 'ineligible')
+    })
   })
 })
