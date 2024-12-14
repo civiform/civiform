@@ -28,6 +28,7 @@ import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
@@ -44,12 +45,15 @@ public final class AccountRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public AccountRepository(DatabaseExecutionContext executionContext, Clock clock) {
+  public AccountRepository(
+      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -471,9 +475,11 @@ public final class AccountRepository {
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
 
-    // For now, we set the duration to Auth0s default of 10 hours.
-    account.removeExpiredActiveSessions(clock, Duration.ofSeconds(36000));
-    account.storeIdTokenInActiveSession(sessionId, idToken);
+    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+      // For now, we set the duration to Auth0s default of 10 hours.
+      account.removeExpiredActiveSessions(clock, Duration.ofSeconds(36000));
+      account.storeIdTokenInActiveSession(sessionId, idToken);
+    }
 
     account.save();
   }
