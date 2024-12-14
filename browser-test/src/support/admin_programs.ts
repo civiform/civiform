@@ -1125,8 +1125,8 @@ export class AdminPrograms {
     if (!frame) {
       throw new Error('Expected an application frame')
     }
-    await waitForPageJsLoad(frame)
     await frame.waitForNavigation()
+    await waitForPageJsLoad(frame)
   }
 
   async expectApplicationAnswers(
