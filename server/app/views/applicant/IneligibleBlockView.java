@@ -77,7 +77,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       eligibilityMsg =
           blockDefinition
               .localizedEligibilityMessage()
-              .map(localizedStrings -> localizedStrings.maybeGet(preferredLocale).orElse(""))
+              .map(localizedStrings -> localizedStrings.getOrDefault(preferredLocale))
               .orElse("");
     }
     if (!programDetailsLink.isEmpty()) {
@@ -132,7 +132,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
-            .condWith(isEligibilityMsgEnabled, div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
+            .condWith(
+                isEligibilityMsgEnabled && !eligibilityMsg.isEmpty(),
+                div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))

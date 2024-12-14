@@ -394,7 +394,7 @@ test.describe('Admin can manage program translations', () => {
       })
     })
 
-    await test.step('Add predecate for the screen', async () => {
+    await test.step('Add predicate for the screen', async () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
