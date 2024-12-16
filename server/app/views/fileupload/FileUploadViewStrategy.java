@@ -168,7 +168,7 @@ public abstract class FileUploadViewStrategy {
 
   /**
    * Returns strategy-specific class to add to the <form> element when the form implements
-   * multi-file-upload. It helps to dinstinguish client-side different strategies (AWS or Azure)
+   * multi-file-upload. It helps to dinstinguish different client-side strategies (AWS or Azure)
    */
   public abstract String getMultiFileUploadFormClass();
 
