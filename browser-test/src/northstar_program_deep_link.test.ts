@@ -69,9 +69,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
       // Sees the login prompt
       await applicantQuestions.continueToApplicationFromLoginPromptModal()
       // Is taken to the review page
-      await expect(
-        page.getByRole('button', {name: 'Submit application'}),
-      ).toBeVisible()
+      await applicantQuestions.expectSubmitApplicationButton()
 
       await logout(page)
 
@@ -83,9 +81,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
 
       await page.goto('/programs/test-deep-link')
       // Does not see login prompt, goes straight to the review page
-      await expect(
-        page.getByRole('button', {name: 'Submit application'}),
-      ).toBeVisible()
+      await applicantQuestions.expectSubmitApplicationButton()
     })
 
     test('Non-logged in user should get redirected to the program page and not an error', async ({
@@ -98,14 +94,13 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
       await selectApplicantLanguage(page, 'English')
 
       // Assert
-      await expect(
-        page.getByRole('button', {name: 'Submit application'}),
-      ).toBeVisible()
+      await applicantQuestions.expectSubmitApplicationButton()
     })
 
     test('Logging in to an existing account after opening a deep link in a new browser session', async ({
       page,
       context,
+      applicantQuestions,
     }) => {
       await test.step('Log in and log out to establish the test user in the database', async () => {
         await loginAsTestUser(page)
@@ -118,9 +113,7 @@ test.describe('navigating to a deep link', {tag: ['@northstar']}, () => {
       // Log in as the same test user
       await loginAsTestUser(page)
       // Expect the review page
-      await expect(
-        page.getByRole('button', {name: 'Submit application'}),
-      ).toBeVisible()
+      await applicantQuestions.expectSubmitApplicationButton()
 
       await logout(page)
     })
