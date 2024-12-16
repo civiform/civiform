@@ -477,7 +477,7 @@ public final class AccountRepository {
 
     if (settingsManifest.getSessionReplayProtectionEnabled()) {
       // For now, we set the duration to Auth0s default of 10 hours.
-      account.removeExpiredActiveSessions(clock, Duration.ofSeconds(36000));
+      account.removeExpiredActiveSessions(clock, Duration.ofHours(10));
       account.storeIdTokenInActiveSession(sessionId, idToken);
     }
 
