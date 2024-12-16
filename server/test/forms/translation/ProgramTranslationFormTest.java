@@ -236,6 +236,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short desc")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(ImmutableList.of())
                 .setScreens(
