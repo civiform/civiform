@@ -144,7 +144,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
-                    .put("shortDescription", "updated spanish program description")
+                    .put("displayDescription", "updated spanish program description")
+                    .put("shortDescription", "updated spanish short description")
                     .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
                     .put("localized-status-0", "updated spanish first status text")
                     .put("localized-email-0", "updated spanish first status email")
@@ -167,8 +168,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .getProgramDefinition();
     assertThat(updatedProgram.localizedName().get(ES_LOCALE))
         .isEqualTo("updated spanish program display name");
-    assertThat(updatedProgram.localizedShortDescription().get(ES_LOCALE))
+    assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish program description");
+    assertThat(updatedProgram.localizedShortDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish short description");
     assertThat(
             applicationStatusesRepository
                 .lookupActiveStatusDefinitions(updatedProgram.adminName())
@@ -226,6 +229,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "")
+                    .put("displayDescription", "")
                     .put("shortDescription", "")
                     // Initialize fields for the two existing status values to new values and
                     // assert that they're preserved when rendering the error.
@@ -264,7 +268,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
-                    .put("shortDescription", "updated spanish program description")
+                    .put("shortDescription", "updated spanish short description")
                     // We intentionally mix up the order of the list to simulate a situation
                     // where the tab is out of sync with the configured program definition.
                     .put("status-key-to-update-0", ENGLISH_SECOND_STATUS_TEXT)
