@@ -47,6 +47,7 @@ import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
+import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -823,6 +824,25 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
+    // make this into its own method
+    ImmutableList<ApplicationStep> applicationSteps = programDefinition.applicationSteps();
+    ImmutableList<ApplicationStepUpdate> translationUpdates = localizationUpdate.applicationSteps();
+
+    // loop through the translation updates
+    // get the index and use that to fetch the
+    // correct application step from all the steps
+    ImmutableList<ApplicationStep> updatedApplicationSteps =
+        translationUpdates.stream()
+            .map(
+                update -> {
+                  int index = update.index();
+                  ApplicationStep step = applicationSteps.get(index);
+                  step.setNewTitleTranslation(locale, update.localizedTitle());
+                  step.setNewDescriptionTranslation(locale, update.localizedDescription());
+                  return step;
+                })
+            .collect(ImmutableList.toImmutableList());
+
     ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
             .setLocalizedName(
@@ -841,7 +861,8 @@ public final class ProgramService {
                 programDefinition
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
-            .setBlockDefinitions(toUpdateBlockBuilder.build());
+            .setBlockDefinitions(toUpdateBlockBuilder.build())
+            .setApplicationSteps(updatedApplicationSteps);
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,

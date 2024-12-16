@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import java.util.Locale;
 import services.LocalizedStrings;
 
 /**
@@ -35,5 +36,15 @@ public final class ApplicationStep {
 
   public LocalizedStrings getDescription() {
     return this.description;
+  }
+
+  public ApplicationStep setNewTitleTranslation(Locale locale, String title) {
+    this.title = this.title.updateTranslation(locale, title);
+    return this;
+  }
+
+  public ApplicationStep setNewDescriptionTranslation(Locale locale, String description) {
+    this.description = this.description.updateTranslation(locale, description);
+    return this;
   }
 }
