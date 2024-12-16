@@ -29,9 +29,6 @@ test.describe('with program statuses', () => {
       applicantQuestions,
       request,
     }) => {
-      await test.step('Clear database', async () => {
-        await request.post('/dev/seed/clear')
-      })
       await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
