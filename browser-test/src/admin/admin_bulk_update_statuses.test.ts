@@ -22,13 +22,7 @@ test.describe('with program statuses', () => {
   const reapplyStatusName = 'Reapply'
 
   test.beforeEach(
-    async ({
-      page,
-      adminPrograms,
-      adminProgramStatuses,
-      applicantQuestions,
-      request,
-    }) => {
+    async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
       await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
