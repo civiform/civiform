@@ -207,8 +207,6 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar);
           DefinitionType arrayItemDefinitionType = getArrayItemDefinitionType(scalar);
 
-          // Boolean nullable = isNullable(definitionType);
-
           containerDefinition.property(
               fieldName,
               getPropertyFromType(
