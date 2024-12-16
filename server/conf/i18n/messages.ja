@@ -429,6 +429,13 @@ title.commonIntakeSummary=資格要件に関する事前チェックの概要
 title.getStarted=さっそく始めましょう。
 title.programSummary=プログラム申請の概要
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
