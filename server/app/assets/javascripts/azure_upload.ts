@@ -13,18 +13,35 @@ import {assertNotNull} from './util'
 
 class AzureUploadController {
   private static AZURE_UPLOAD_SELECTOR = '.azure-upload'
+  private static AZURE_MULTI_FILE_UPLOAD_SELECTOR = '.azure-multi-file-upload'
 
   constructor(formId: string) {
-    if (
-      document.querySelector(AzureUploadController.AZURE_UPLOAD_SELECTOR) ==
-      null
-    ) {
+    const uploadForm = document.querySelector(
+      AzureUploadController.AZURE_UPLOAD_SELECTOR,
+    )
+    const multiFileUploadForm = document.querySelector(
+      AzureUploadController.AZURE_MULTI_FILE_UPLOAD_SELECTOR,
+    )
+
+    if (uploadForm == null && multiFileUploadForm == null) {
+      // No Azure file upload forms were found.
       return
     }
+
     const blockForm = assertNotNull(document.getElementById(formId))
-    blockForm.addEventListener('submit', (event) => {
-      this.attemptUpload(event, blockForm)
-    })
+    if (uploadForm != null) {
+      // On single file uploads, we upload the file when the user hits the submit button.
+      blockForm.addEventListener('submit', (event) => {
+        this.attemptUpload(event, blockForm)
+      })
+    }
+
+    if (multiFileUploadForm != null) {
+      // On multi-file uploads, we upload the file when the user chooses a file.
+      blockForm.addEventListener('change', (event) => {
+        this.attemptUpload(event, blockForm)
+      })
+    }
   }
 
   getValueFromInputLabel(label: string): string {
