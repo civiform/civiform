@@ -23,7 +23,6 @@ import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
@@ -62,8 +61,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Messages messages,
       long applicantId,
       ProgramDefinition programDefinition,
-      Optional<String> blockId)
-      throws ProgramBlockDefinitionNotFoundException {
+      Optional<BlockDefinition> blockDefinition) {
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     String programDetailsLink = programDefinition.externalLink();
@@ -71,11 +69,11 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String eligibilityMsg = "";
     boolean isEligibilityMsgEnabled =
         settingsManifest.getCustomizedEligibilityMessageEnabled(request);
-    if (blockId.isPresent()) {
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockId.get());
+    if (blockDefinition.isPresent()) {
       Locale preferredLocale = messages.lang().toLocale();
       eligibilityMsg =
           blockDefinition
+              .get()
               .localizedEligibilityMessage()
               .map(localizedStrings -> localizedStrings.getOrDefault(preferredLocale))
               .orElse("");
