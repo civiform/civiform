@@ -99,13 +99,15 @@ paths:
       - name: "fromDate"
         in: "query"
         description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date."
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         required: false
         type: "string"
       - name: "toDate"
         in: "query"
         description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
-          \\ to applications submitted on or after the provided date."
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         required: false
         type: "string"
       - name: "pageSize"

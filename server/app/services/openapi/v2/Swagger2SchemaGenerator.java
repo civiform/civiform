@@ -92,7 +92,8 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                       .description(
                                           "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
                                               + " results to applications submitted on or after the"
-                                              + " provided date."))
+                                              + " provided date, in the CiviForm instance's local"
+                                              + " time."))
                               .parameter(
                                   new QueryParameter()
                                       .name("toDate")
@@ -100,7 +101,8 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                       .description(
                                           "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
                                               + " results to applications submitted on or after the"
-                                              + " provided date."))
+                                              + " provided date, in the CiviForm instance's local"
+                                              + " time."))
                               .parameter(
                                   new QueryParameter()
                                       .name("pageSize")
