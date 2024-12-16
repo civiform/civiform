@@ -58,6 +58,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
           ImmutableMap.<String, String>builder()
               .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
               .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+              .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
               .put(ProgramTranslationForm.localizedScreenName(0), "first block name")
               .put(ProgramTranslationForm.localizedScreenDescription(0), "first block description")
               .put(
@@ -236,7 +237,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
-                .setLocalizedShortDescription("short desc")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(ImmutableList.of())
                 .setScreens(
