@@ -2,6 +2,10 @@
 <head th:fragment="pageHeaderScriptsAndLinks">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="civiform-build-tag" th:content="${civiformImageTag}" />
+  <meta th:if="${addNoIndexMetaTag}" name="robots" content="noindex" />
+  <!--/* Best practice: add ❤️ every time you touch this file :) */-->
+  <meta name="thanks" content="Thank you Bion ❤️❤️❤️" />
 
   <title th:text="${pageTitle}"></title>
 

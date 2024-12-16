@@ -23,6 +23,7 @@ import services.TranslationLocales;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -36,12 +37,16 @@ import views.components.ToastMessage;
 /** Renders a list of languages to select from, and a form for updating program information. */
 public final class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramTranslationView(
-      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      SettingsManifest settingsManifest) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.settingsManifest = settingsManifest;
   }
 
   public Content render(
@@ -60,7 +65,7 @@ public final class ProgramTranslationView extends TranslationFormView {
             request,
             locale,
             formAction,
-            formFields(program, translationForm, activeStatusDefinitions));
+            formFields(request, program, translationForm, activeStatusDefinitions));
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());
@@ -88,6 +93,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> formFields(
+      Http.Request request,
       ProgramDefinition program,
       ProgramTranslationForm translationForm,
       StatusDefinitions currentStatusDefinitions) {
@@ -116,6 +122,9 @@ public final class ProgramTranslationView extends TranslationFormView {
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
+    // Boolean indicates if eligibility message feature flag is on.
+    Boolean isEligibilityMsgEnabled =
+        settingsManifest.getCustomizedEligibilityMessageEnabled(request);
 
     Preconditions.checkState(
         updateData.statuses().size() == currentStatusDefinitions.getStatuses().size());
@@ -208,7 +217,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {
       LocalizationUpdate.ScreenUpdate screenUpdateData = screens.get(i);
-
       BlockDefinition block =
           blockDefinitions.stream()
               .filter(blockDefinition -> blockDefinition.id() == screenUpdateData.blockIdToUpdate())
@@ -235,6 +243,17 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setValue(screenUpdateData.localizedDescription())
                           .getInputTag(),
                       block.localizedDescription()));
+      if (isEligibilityMsgEnabled && block.localizedEligibilityMessage().isPresent()) {
+        fieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedEligibilityMessage(block.id()))
+                    .setLabelText("Screen eligibility message")
+                    .setScreenReaderText("Screen eligibility message")
+                    .setValue(screenUpdateData.localizedEligibilityMessage())
+                    .getInputTag(),
+                block.localizedEligibilityMessage().get()));
+      }
       String blockDetailsLink =
           controllers.admin.routes.AdminProgramBlocksController.edit(program.id(), block.id())
               .url();
