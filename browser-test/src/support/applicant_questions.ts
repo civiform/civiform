@@ -544,6 +544,12 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async expectSubmitApplicationButton() {
+    await expect(
+      this.page.getByRole('button', {name: 'Submit application'}),
+    ).toBeVisible()
+  }
+
   async clickDownload(northStarEnabled = false) {
     const downloadButton = northStarEnabled
       ? 'text="Download your application"'
@@ -1090,6 +1096,10 @@ export class ApplicantQuestions {
           '") >> .summary-edit-button:has-text("Edit")',
       )
       .click()
+  }
+
+  async continueToApplicationFromLoginPromptModal() {
+    await this.page.getByRole('link', {name: 'Continue to application'}).click()
   }
 
   async expectLoginModal() {
