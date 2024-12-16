@@ -429,6 +429,13 @@ title.commonIntakeSummary=福利預先篩選表單摘要
 title.getStarted=開始填寫
 title.programSummary=計畫申請摘要
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
