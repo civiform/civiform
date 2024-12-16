@@ -35,6 +35,8 @@ public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
+  // Clock that is within the default session duration (less than 10 hours)
+  public static final Clock VALID_SESSION_CLOCK = Clock.fixed(Instant.now().minusSeconds(10), ZoneId.systemDefault());
 
   private AccountRepository repo;
   private SettingsManifest mockSettingsManifest;
@@ -365,11 +367,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    // Clock that is within the default session duration
-    Clock clock = Clock.fixed(Instant.now().minusSeconds(10000), ZoneId.systemDefault());
-    account.addActiveSession("sessionId1", clock);
+    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId1", "idToken1");
-    account.addActiveSession("sessionId2", clock);
+    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId2", "idToken2");
     account.save();
     long accountId = account.id;
@@ -402,11 +402,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    // Clock that is within the default session duration
-    Clock clock = Clock.fixed(Instant.now().minusSeconds(10000), ZoneId.systemDefault());
-    account.addActiveSession("sessionId1", clock);
+    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId1", "idToken1");
-    account.addActiveSession("sessionId2", clock);
+    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId2", "idToken2");
     account.save();
     long accountId = account.id;
@@ -439,9 +437,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    // Clock is above the default session duration
-    Clock clock = Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault());
-    account.addActiveSession("sessionId", clock);
+    account.addActiveSession("sessionId", VALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId", "idToken");
     account.save();
 
