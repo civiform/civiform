@@ -222,8 +222,9 @@ GET     /docs/api/programs/:programSlug/active        controllers.docs.ApiDocsCo
 GET     /docs/api/programs/:programSlug/draft         controllers.docs.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
 GET     /docs/api/schemas/:programSlug/yaml           controllers.docs.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 GET     /docs/api/schemas/:programSlug                controllers.docs.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
+
 # Serves swagger-ui files for the docs schema ui viewer
-GET     /public/swagger-ui/*file  controllers.Assets.at(path="/public/swagger-ui", file)
+GET     /public/swagger-ui/*file                      controllers.Assets.at(path="/public/swagger-ui", file)
 
 # Methods for user support incidents
 GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)
