@@ -64,12 +64,13 @@ test.describe('with program statuses', () => {
       approvedStatusName,
     )
   })
-  test.skip('if more than 100 applications, only the first page of applications undergo status update', async ({
+  test('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
     applicantQuestions,
     adminProgramMigration,
   }) => {
+    test.slow()
     // There is already 1 application from the beforeEach, so apply 105 more times.
     for (let i = 0; i < 105; i++) {
       await logout(page)
