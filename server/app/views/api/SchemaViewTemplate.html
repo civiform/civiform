@@ -1,0 +1,45 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Documentation</title>
+    <link
+      rel="stylesheet"
+      href="/public/swagger-ui/swagger-ui.css"
+      th:nonce="${cspNonce}"
+    />
+    <script
+      src="/public/swagger-ui/swagger-ui-bundle.js"
+      type="text/javascript"
+      th:nonce="${cspNonce}"
+    ></script>
+    <script
+      src="/public/swagger-ui/swagger-ui-standalone-preset.js"
+      type="text/javascript"
+      th:nonce="${cspNonce}"
+    ></script>
+  </head>
+  <body>
+    <style type="text/css" th:nonce="${cspNonce}">
+      <!--/* Hiding this bar */-->
+  .swagger-ui > .topbar {
+        display: none;
+      }
+    </style>
+    <div id="swagger-ui"></div>
+    <script th:nonce="${cspNonce}" th:inline="javascript">
+      window.onload = () => {
+        const ui = SwaggerUIBundle({
+          url: [[${apiUrl}]],
+          dom_id: '#swagger-ui',
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+          ],
+          layout: "StandaloneLayout"
+        });
+      };
+    </script>
+  </body>
+</html>
