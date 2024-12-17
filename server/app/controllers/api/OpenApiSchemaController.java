@@ -98,9 +98,9 @@ public final class OpenApiSchemaController {
 
   /** Get program definition for the specific slug and version */
   private Optional<ProgramDefinition> getProgramDefinition(
-      String programSlug, LifecycleStage useActiveVersion) {
+      String programSlug, LifecycleStage lifecycleStage) {
     try {
-      switch (useActiveVersion) {
+      switch (lifecycleStage) {
         case ACTIVE -> {
           ProgramDefinition activeProgramDefinition =
               programService
