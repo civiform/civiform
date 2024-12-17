@@ -7,7 +7,7 @@ class ApiDocs {
     addEventListenerToElements('#select-slug', 'change', (event: Event) => {
       const programDropdown = event.currentTarget as HTMLSelectElement
       const programValue = programDropdown.value
-      window.location.href = `/api/docs/v1/${programValue}/active`
+      window.location.href = `/docs/api/programs/${programValue}/active`
     })
   }
 
@@ -23,7 +23,7 @@ class ApiDocs {
       const versionDropdown = event.currentTarget as HTMLSelectElement
       const versionValue: string = versionDropdown.value
 
-      window.location.href = `/api/docs/v1/${slugValue}/${versionValue}`
+      window.location.href = `/docs/api/programs/${slugValue}/${versionValue}`
     })
   }
 }

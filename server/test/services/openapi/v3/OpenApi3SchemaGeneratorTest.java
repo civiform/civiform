@@ -74,7 +74,7 @@ public class OpenApi3SchemaGeneratorTest {
 
     String expected =
         """
-openapi: 3.0.4
+openapi: 3.0.1
 info:
   title: test-program-admin-name
   description: Test Admin Description
@@ -257,7 +257,7 @@ components:
 
     String expected =
         """
-openapi: 3.0.4
+openapi: 3.0.1
 info:
   title: test-program-admin-name
   description: Test Admin Description
@@ -793,7 +793,7 @@ components:
 
     String expected =
         """
-openapi: 3.0.4
+openapi: 3.0.1
 info:
   title: test-program-admin-name
   description: Test Admin Description

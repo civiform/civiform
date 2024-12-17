@@ -1,4 +1,4 @@
-package controllers.api;
+package controllers.docs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.OK;
@@ -34,7 +34,7 @@ public class ApiDocsControllerTest extends ResetPostgres {
     // SEE_OTHER is the redirect code
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .isEqualTo(Optional.of("/api/docs/v1/test-program-1/active"));
+        .isEqualTo(Optional.of("/docs/api/programs/test-program-1/active"));
   }
 
   @Test

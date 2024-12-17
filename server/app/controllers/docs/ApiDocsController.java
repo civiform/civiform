@@ -1,4 +1,4 @@
-package controllers.api;
+package controllers.docs;
 
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
@@ -13,7 +13,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.api.ApiDocsView;
+import views.docs.ApiDocsView;
 
 public final class ApiDocsController {
 

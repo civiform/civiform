@@ -1,4 +1,4 @@
-package views.api;
+package views.docs;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.aside;
@@ -316,7 +316,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag getNotes(Http.Request request) {
-    String apiDocsLink = controllers.api.routes.ApiDocsController.index().absoluteURL(request);
+    String apiDocsLink = controllers.docs.routes.ApiDocsController.index().absoluteURL(request);
 
     DivTag notesTag = div().withClasses("mt-2");
 
