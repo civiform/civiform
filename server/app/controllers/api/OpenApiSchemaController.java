@@ -40,6 +40,7 @@ public final class OpenApiSchemaController {
     this.deploymentType = checkNotNull(deploymentType);
   }
 
+  /** Endpoint to return the generated openapi schema */
   public Result getSchemaByProgramSlug(
       Http.Request request,
       String programSlug,
@@ -70,10 +71,7 @@ public final class OpenApiSchemaController {
 
     try {
       String response = openApiSchemaGenerator.createSchema(optionalProgramDefinition.get());
-      return ok(response)
-          .as("text/yaml"); // setting result mime type to text/yaml or application/x-yaml forces
-      // file
-      // download
+      return ok(response).as("text/yaml");
     } catch (RuntimeException ex) {
       String errorMsg =
           String.format(
@@ -111,7 +109,7 @@ public final class OpenApiSchemaController {
     }
   }
 
-  /** Get either IT email address the support email address */
+  /** Get either the IT email address or the support email address */
   private String getEmailAddress(Http.Request request) {
     Optional<String> contactEmailAddress =
         settingsManifest.getItEmailAddress(request).isPresent()
