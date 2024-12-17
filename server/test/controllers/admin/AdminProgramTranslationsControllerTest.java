@@ -152,6 +152,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
                     .put("localized-status-1", "updated spanish second status text")
                     .put("localized-email-1", "updated spanish second status email")
+                    .put("application-step-title-0", "updated spanish step title")
+                    .put("application-step-description-0", "updated spanish step description")
                     .build());
 
     Result result =
@@ -172,6 +174,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program description");
     assertThat(updatedProgram.localizedShortDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish short description");
+    assertThat(updatedProgram.applicationSteps().get(0).getTitle().get(ES_LOCALE))
+        .isEqualTo("updated spanish step title");
+    assertThat(updatedProgram.applicationSteps().get(0).getDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish step description");
     assertThat(
             applicationStatusesRepository
                 .lookupActiveStatusDefinitions(updatedProgram.adminName())
@@ -239,6 +245,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
                     .put("localized-status-1", "new second status text")
                     .put("localized-email-1", "new second status email")
+                    .put("application-step-title-0", "step one title")
+                    .put("application-step-description-0", "step one description")
                     .build());
 
     Result result =
@@ -254,7 +262,9 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             "new first status text",
             "new first status email",
             "new second status text",
-            "new second status email");
+            "new second status email",
+            "step one title",
+            "step one description");
 
     assertProgramNotChanged(program);
   }

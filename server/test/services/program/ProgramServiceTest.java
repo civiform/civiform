@@ -2481,6 +2481,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2534,6 +2535,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2574,6 +2576,7 @@ public class ProgramServiceTest extends ResetPostgres {
   //            .setLocalizedSummaryImageDescription("new French image description")
   //            .setLocalizedConfirmationMessage("")
   //            .setStatuses(ImmutableList.of())
+  //            .setApplicationSteps(ImmutableList.of())
   //            .setScreens(
   //                ImmutableList.of(
   //                    LocalizationUpdate.ScreenUpdate.builder()
@@ -2603,6 +2606,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedShortDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2624,6 +2628,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -2645,6 +2650,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -2674,6 +2680,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2715,6 +2722,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
