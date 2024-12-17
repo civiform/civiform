@@ -1,6 +1,7 @@
 package services.openapi.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableMap;
 import io.swagger.models.AuthorizationType;
 import io.swagger.models.Contact;
 import io.swagger.models.Info;
@@ -20,12 +21,18 @@ import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 import io.swagger.util.Yaml;
+import java.util.Locale;
+import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
 import services.openapi.AbstractOpenApiSchemaGenerator;
 import services.openapi.OpenApiSchemaGenerator;
 import services.openapi.OpenApiSchemaSettings;
+import services.openapi.QuestionDefinitionNode;
 import services.program.ProgramDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 /** Configuration used to generate a program specific swagger 2 schema */
 public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
@@ -131,7 +138,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                   new ArrayProperty(
                       new ObjectProperty()
                           .property("applicant_id", new IntegerProperty())
-                          .property("application", buildApplicationDefinitions())
+                          .property("application", buildApplicationDefinitions(programDefinition))
                           .property("application_id", new IntegerProperty())
                           .property("create_time", new DateTimeProperty())
                           .property("language", new StringProperty())
@@ -161,9 +168,70 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
   /***
    * Entry point to start building the program specific definitions for questions
    */
-  private Property buildApplicationDefinitions()
+  private Property buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
+    var results = buildApplicationDefinitions(rootNode);
     var objectProperty = new ObjectProperty();
+
+    results.entrySet().stream()
+        .forEach(entry -> objectProperty.property(entry.getKey(), entry.getValue()));
+
     return objectProperty;
+  }
+
+  /**
+   * Recursive method used to build out the full object graph from the tree of QuestionDefinitions
+   */
+  protected ImmutableMap<String, Property> buildApplicationDefinitions(
+      QuestionDefinitionNode parentQuestionDefinitionNode)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    ImmutableMap.Builder<String, Property> definitionList = ImmutableMap.builder();
+
+    for (QuestionDefinitionNode childQuestionDefinitionNode :
+        parentQuestionDefinitionNode.getChildren()) {
+      QuestionDefinition questionDefinition = childQuestionDefinitionNode.getQuestionDefinition();
+
+      if (excludeQuestionFromSchemaOutput(questionDefinition)) {
+        continue;
+      }
+
+      var containerDefinition = new ObjectProperty();
+      containerDefinition.property(
+          ApiPathSegment.QUESTION_TYPE.name().toLowerCase(Locale.ROOT), new StringProperty());
+
+      // Enumerators require special handling
+      if (questionDefinition.getQuestionType() != QuestionType.ENUMERATOR) {
+        for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
+          String fieldName = getFieldNameFromScalar(scalar);
+          DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar);
+          DefinitionType arrayItemDefinitionType = getArrayItemDefinitionType(scalar);
+
+          containerDefinition.property(
+              fieldName,
+              getPropertyFromType(
+                  definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
+        }
+      } else {
+        ArrayProperty enumeratorEntitiesDefinition =
+            new ArrayProperty(
+                new ObjectProperty()
+                    .properties(
+                        ImmutableMap.<String, Property>builder()
+                            .putAll(buildApplicationDefinitions(childQuestionDefinitionNode))
+                            .put(
+                                Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT),
+                                new StringProperty())
+                            .build()));
+
+        containerDefinition.property(
+            ApiPathSegment.ENTITIES.name().toLowerCase(Locale.ROOT), enumeratorEntitiesDefinition);
+      }
+
+      definitionList.put(
+          questionDefinition.getQuestionNameKey().toLowerCase(Locale.ROOT), containerDefinition);
+    }
+
+    return definitionList.build();
   }
 }
