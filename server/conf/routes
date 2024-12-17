@@ -219,7 +219,7 @@ GET     /api/docs/v1                                        controllers.api.ApiD
 GET     /api/docs/v1/:programSlug/active                    controllers.api.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
 GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
 GET     /api/docs/schema/v1/:programSlug                    controllers.api.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
-GET     /api/docs/v1/schema/ui/:programSlug                 controllers.api.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
+GET     /api/docs/schema-viewer/:programSlug                 controllers.api.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 # Serves swagger-ui files for the schema ui viewer
 GET     /public/swagger-ui/*file  controllers.Assets.at(path="/public/swagger-ui", file)
 
