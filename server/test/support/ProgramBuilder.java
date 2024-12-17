@@ -312,6 +312,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withLocalizedShortDescription(Locale locale, String description) {
+    builder.addLocalizedShortDescription(locale, description);
+    return this;
+  }
+
   public ProgramBuilder withLocalizedConfirmationMessage(Locale locale, String customText) {
     builder.addLocalizedConfirmationMessage(locale, customText);
     return this;

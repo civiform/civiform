@@ -190,6 +190,29 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 "Translations entered below will be visible at a future launch"
                                     + " date."))));
 
+    ImmutableList.Builder<DomContent> newProgramFieldsBuilder =
+        ImmutableList.<DomContent>builder()
+            .add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
+                        .setLabelText("Short program description")
+                        .setValue(updateData.localizedShortDescription())
+                        .getInputTag(),
+                    program.localizedShortDescription()));
+
+    result.add(
+        fieldSetForFields(
+            legend()
+                .with(
+                    span("New program details fields"),
+                    new LinkElement()
+                        .setText("(edit default)")
+                        .setHref(programDetailsLink)
+                        .setStyles("ml-2")
+                        .asAnchorText()),
+            newProgramFieldsBuilder.build()));
+
     // Add fields for Screen names and descriptions
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {

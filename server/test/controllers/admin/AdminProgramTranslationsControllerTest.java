@@ -145,6 +145,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
                     .put("displayDescription", "updated spanish program description")
+                    .put("shortDescription", "updated spanish short description")
                     .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
                     .put("localized-status-0", "updated spanish first status text")
                     .put("localized-email-0", "updated spanish first status email")
@@ -169,6 +170,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program display name");
     assertThat(updatedProgram.localizedDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish program description");
+    assertThat(updatedProgram.localizedShortDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish short description");
     assertThat(
             applicationStatusesRepository
                 .lookupActiveStatusDefinitions(updatedProgram.adminName())
@@ -227,6 +230,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "")
                     .put("displayDescription", "")
+                    .put("shortDescription", "")
                     // Initialize fields for the two existing status values to new values and
                     // assert that they're preserved when rendering the error.
                     .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
@@ -246,7 +250,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .contains(
             String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
             "program display name cannot be blank",
-            "program display description cannot be blank",
+            "program short display description cannot be blank",
             "new first status text",
             "new first status email",
             "new second status text",
@@ -264,7 +268,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             .bodyForm(
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "updated spanish program display name")
-                    .put("displayDescription", "updated spanish program description")
+                    .put("shortDescription", "updated spanish short description")
                     // We intentionally mix up the order of the list to simulate a situation
                     // where the tab is out of sync with the configured program definition.
                     .put("status-key-to-update-0", ENGLISH_SECOND_STATUS_TEXT)

@@ -15,6 +15,8 @@ public abstract class LocalizationUpdate {
 
   public abstract String localizedDisplayDescription();
 
+  public abstract String localizedShortDescription();
+
   public abstract String localizedConfirmationMessage();
 
   public abstract Optional<String> localizedSummaryImageDescription();
@@ -32,6 +34,8 @@ public abstract class LocalizationUpdate {
     public abstract Builder setLocalizedDisplayName(String v);
 
     public abstract Builder setLocalizedDisplayDescription(String v);
+
+    public abstract Builder setLocalizedShortDescription(String v);
 
     public abstract Builder setLocalizedConfirmationMessage(String v);
 
