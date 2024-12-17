@@ -98,14 +98,16 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: toDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: pageSize
@@ -279,14 +281,16 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: toDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: pageSize
@@ -813,14 +817,16 @@ paths:
       parameters:
       - name: fromDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: toDate
         in: query
-        description: An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results
-          to applications submitted on or after the provided date.
+        description: "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits results\\
+          \\ to applications submitted on or after the provided date, in the CiviForm\\
+          \\ instance's local time."
         schema:
           type: string
       - name: pageSize

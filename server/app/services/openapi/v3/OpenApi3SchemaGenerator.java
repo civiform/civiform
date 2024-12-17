@@ -159,7 +159,8 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                               .description(
                                                   "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
                                                       + " Limits results to applications submitted"
-                                                      + " on or after the provided date.")
+                                                      + " on or after the provided date, in the"
+                                                      + " CiviForm instance's local time.")
                                               .schema(new StringSchema()))
                                       .addParametersItem(
                                           new QueryParameter()
@@ -167,7 +168,8 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                               .description(
                                                   "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
                                                       + " Limits results to applications submitted"
-                                                      + " on or after the provided date.")
+                                                      + " on or after the provided date, in the"
+                                                      + " CiviForm instance's local time.")
                                               .schema(new StringSchema()))
                                       .addParametersItem(
                                           new QueryParameter()
