@@ -23,6 +23,7 @@ import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 
+/** This handles endpoints related to serving openapi schema data */
 public final class OpenApiSchemaController {
 
   private final ProgramService programService;
