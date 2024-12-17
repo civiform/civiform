@@ -59,25 +59,25 @@ public final class OpenApiSchemaController {
       return notFound("No program found");
     }
 
-    OpenApiVersion openApiVersionType = OpenApiVersion.fromString(openApiVersion);
-
-    OpenApiSchemaSettings openApiSchemaSettings =
-        new OpenApiSchemaSettings(
-            settingsManifest.getBaseUrl().orElse(""),
-            getEmailAddress(request),
-            deploymentType.isDev());
-
-    OpenApiSchemaGenerator openApiSchemaGenerator =
-        OpenApiSchemaGeneratorFactory.createGenerator(openApiVersionType, openApiSchemaSettings);
-
     try {
+      OpenApiVersion openApiVersionType = OpenApiVersion.fromString(openApiVersion);
+
+      OpenApiSchemaSettings openApiSchemaSettings =
+          new OpenApiSchemaSettings(
+              settingsManifest.getBaseUrl().orElse(""),
+              getEmailAddress(request),
+              deploymentType.isDev());
+
+      OpenApiSchemaGenerator openApiSchemaGenerator =
+          OpenApiSchemaGeneratorFactory.createGenerator(openApiVersionType, openApiSchemaSettings);
+
       String response = openApiSchemaGenerator.createSchema(optionalProgramDefinition.get());
       return ok(response).as("text/yaml");
     } catch (RuntimeException ex) {
       String errorMsg =
           String.format(
               "Unable to generate OpenApi version '%s' for program '%s' at stage '%s'.",
-              openApiVersionType, programSlug, lifecycleStage.getValue());
+              openApiVersion.orElse(""), programSlug, lifecycleStage.getValue());
       logger.error(errorMsg, ex);
       return badRequest(errorMsg);
     }
