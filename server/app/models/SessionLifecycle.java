@@ -3,6 +3,7 @@ package models;
 import java.time.Clock;
 import java.time.Duration;
 
+/** Defines a lifecycle of a session, with a clock and maximum session duration. */
 public final class SessionLifecycle {
   private final Clock clock;
   private final Duration maxSessionDuration;
