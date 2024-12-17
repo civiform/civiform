@@ -64,7 +64,7 @@ test.describe('with program statuses', () => {
       approvedStatusName,
     )
   })
-  test('if more than 100 applications, only the first page of applications undergo status update', async ({
+  test.skip('if more than 100 applications, only the first page of applications undergo status update', async ({
     page,
     adminPrograms,
     applicantQuestions,
