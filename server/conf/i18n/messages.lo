@@ -429,6 +429,13 @@ title.commonIntakeSummary=ສະຫຼຸບສິດທິປະໂຫຍດກ
 title.getStarted=ມາເລີ່ມກັນເລີຍ.
 title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#

@@ -429,6 +429,13 @@ title.commonIntakeSummary=Сводные данные об этой форме
 title.getStarted=Давайте начнем
 title.programSummary=Сводные данные о заявке на участие в программе
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
