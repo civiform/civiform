@@ -36,7 +36,11 @@ public class AccountRepositoryTest extends ResetPostgres {
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
   // Clock that is within the default session duration (less than 10 hours)
-  public static final Clock VALID_SESSION_CLOCK = Clock.fixed(Instant.now().minusSeconds(10), ZoneId.systemDefault());
+  public static final Clock VALID_SESSION_CLOCK =
+      Clock.fixed(Instant.now().minusSeconds(10), ZoneId.systemDefault());
+  // Clock is outside of the default session duration (greater than 10 hours / 36000 seconds)
+  public static final Clock INVALID_SESSION_CLOCK =
+      Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault());
 
   private AccountRepository repo;
   private SettingsManifest mockSettingsManifest;
@@ -437,7 +441,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
-    account.addActiveSession("sessionId", VALID_SESSION_CLOCK);
+    account.addActiveSession("sessionId", INVALID_SESSION_CLOCK);
     account.storeIdTokenInActiveSession("sessionId", "idToken");
     account.save();
 
