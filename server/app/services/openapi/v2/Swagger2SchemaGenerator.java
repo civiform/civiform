@@ -20,11 +20,15 @@ import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
+import io.swagger.models.properties.UntypedProperty;
 import io.swagger.util.Yaml;
 import java.util.Locale;
+import java.util.Optional;
 import services.applicant.question.Scalar;
 import services.export.enums.ApiPathSegment;
 import services.openapi.AbstractOpenApiSchemaGenerator;
+import services.openapi.DefinitionType;
+import services.openapi.Format;
 import services.openapi.OpenApiSchemaGenerator;
 import services.openapi.OpenApiSchemaSettings;
 import services.openapi.QuestionDefinitionNode;
@@ -213,16 +217,14 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                   definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
         }
       } else {
+        var enumeratorProperties =
+            ImmutableMap.<String, Property>builder()
+                .putAll(buildApplicationDefinitions(childQuestionDefinitionNode))
+                .put(Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT), new StringProperty())
+                .build();
+
         ArrayProperty enumeratorEntitiesDefinition =
-            new ArrayProperty(
-                new ObjectProperty()
-                    .properties(
-                        ImmutableMap.<String, Property>builder()
-                            .putAll(buildApplicationDefinitions(childQuestionDefinitionNode))
-                            .put(
-                                Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT),
-                                new StringProperty())
-                            .build()));
+            new ArrayProperty(new ObjectProperty().properties(enumeratorProperties));
 
         containerDefinition.property(
             ApiPathSegment.ENTITIES.name().toLowerCase(Locale.ROOT), enumeratorEntitiesDefinition);
@@ -233,5 +235,29 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
     }
 
     return definitionList.build();
+  }
+
+  private static Property getPropertyFromType(
+      DefinitionType definitionType,
+      Optional<Format> swaggerFormat,
+      DefinitionType arrayItemDefinitionType) {
+
+    if (definitionType == DefinitionType.ARRAY) {
+      return new ArrayProperty()
+          .items(
+              arrayItemDefinitionType == DefinitionType.STRING
+                  ? new StringProperty()
+                  : new ObjectProperty());
+    }
+
+    var property = new UntypedProperty();
+
+    property.setType(definitionType.toString());
+
+    if (swaggerFormat.isPresent()) {
+      property.setFormat(swaggerFormat.get().toString());
+    }
+
+    return property;
   }
 }

@@ -1,4 +1,4 @@
-package services.openapi.v2;
+package services.openapi;
 
 /**
  * See link for mapping between type and format.
