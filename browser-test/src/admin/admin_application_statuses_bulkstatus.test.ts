@@ -84,6 +84,7 @@ test.describe('view program statuses', () => {
       adminPrograms,
       applicantQuestions,
     }) => {
+      test.slow()
       await page.getByRole('link', {name: 'Back'}).click()
       // There is already 1 application from the beforeEach, so apply to 100 more programs.
       for (let i = 0; i < 100; i++) {
