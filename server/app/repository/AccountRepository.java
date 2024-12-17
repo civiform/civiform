@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
@@ -46,6 +47,7 @@ public final class AccountRepository {
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
+  private final SessionLifecycle sessionLifecycle;
 
   @Inject
   public AccountRepository(
@@ -54,6 +56,9 @@ public final class AccountRepository {
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
+    // TODO(#9460): make the session duration configurable.
+    // For now, we set the duration to Auth0s default of 10 hours.
+    this.sessionLifecycle = new SessionLifecycle(clock, Duration.ofHours(10));
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -477,7 +482,7 @@ public final class AccountRepository {
 
     if (settingsManifest.getSessionReplayProtectionEnabled()) {
       // For now, we set the duration to Auth0s default of 10 hours.
-      account.removeExpiredActiveSessions(clock, Duration.ofHours(10));
+      account.removeExpiredActiveSessions(sessionLifecycle);
       account.storeIdTokenInActiveSession(sessionId, idToken);
     }
 

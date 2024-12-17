@@ -153,7 +153,9 @@ public class AccountModelTest extends ResetPostgres {
     accountModel.addActiveSession("session2", clock100);
     accountModel.addActiveSession("session3", clock110);
 
-    accountModel.removeExpiredActiveSessions(clock110, Duration.ofSeconds(10));
+    SessionLifecycle sessionLifecycle = new SessionLifecycle(clock110, Duration.ofSeconds(10));
+
+    accountModel.removeExpiredActiveSessions(sessionLifecycle);
 
     assertThat(accountModel.getActiveSession("session1")).isEmpty();
     assertThat(accountModel.getActiveSession("session2")).isPresent();
