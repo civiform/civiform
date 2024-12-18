@@ -17,24 +17,24 @@ class CiviFormLogoutLogic extends DefaultLogoutLogic {
 
   @Override
   public Object perform(
-      Config config,
-      String inputLogoutUrlPattern,
-      String otehrstring,
-      Boolean inputLocalLogout,
-      Boolean inputDestroySession,
-      Boolean inputCentralLogout,
-      FrameworkParameters frameworkParameters) {
+      final Config config,
+      final String defaultUrl,
+      final String inputLogoutUrlPattern,
+      final Boolean inputLocalLogout,
+      final Boolean inputDestroySession,
+      final Boolean inputCentralLogout,
+      final FrameworkParameters parameters) {
 
     try {
       Object result =
           super.perform(
               config,
+              defaultUrl,
               inputLogoutUrlPattern,
-              otehrstring,
               inputLocalLogout,
               inputDestroySession,
               inputCentralLogout,
-              frameworkParameters);
+              parameters);
 
       // TODO(#6975): Remove the session ID from the database at logout
 
