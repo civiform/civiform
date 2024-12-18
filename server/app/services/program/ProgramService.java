@@ -47,7 +47,6 @@ import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.pagination.BasePaginationSpec;
 import services.pagination.PaginationResult;
-import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -782,9 +781,33 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
-    validateProgramText(
-        errorsBuilder, "short display description", localizationUpdate.localizedShortDescription());
+
+    // only validate the short description if the program has one
+    // short description is now a required field, but older programs might not have one yet
+    Optional<String> shortDescription =
+        programDefinition.localizedShortDescription().maybeGet(LocalizedStrings.DEFAULT_LOCALE);
+    if (shortDescription.isPresent() && !shortDescription.get().isBlank()) {
+      validateProgramText(
+          errorsBuilder,
+          "short display description",
+          localizationUpdate.localizedShortDescription());
+    }
+
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
+
+    // only validate application steps if the program has them and is not a common intake program
+    // one application step is now required, but older programs might not have one yet
+    if (!programDefinition.isCommonIntakeForm()
+        && !programDefinition.applicationSteps().isEmpty()) {
+      validateProgramText(
+          errorsBuilder,
+          "application step one title",
+          localizationUpdate.applicationSteps().get(0).localizedTitle());
+      validateProgramText(
+          errorsBuilder,
+          "application step one description",
+          localizationUpdate.applicationSteps().get(0).localizedDescription());
+    }
 
     ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
     for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
@@ -824,19 +847,14 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    // make this into its own method
-    ImmutableList<ApplicationStep> applicationSteps = programDefinition.applicationSteps();
-    ImmutableList<ApplicationStepUpdate> translationUpdates = localizationUpdate.applicationSteps();
-
-    // loop through the translation updates
-    // get the index and use that to fetch the
-    // correct application step from all the steps
+    // loop through the translation updates and use the index to fetch and update the correct
+    // application step
     ImmutableList<ApplicationStep> updatedApplicationSteps =
-        translationUpdates.stream()
+        localizationUpdate.applicationSteps().stream()
             .map(
                 update -> {
                   int index = update.index();
-                  ApplicationStep step = applicationSteps.get(index);
+                  ApplicationStep step = programDefinition.applicationSteps().get(index);
                   step.setNewTitleTranslation(locale, update.localizedTitle());
                   step.setNewDescriptionTranslation(locale, update.localizedDescription());
                   return step;

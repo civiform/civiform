@@ -498,7 +498,16 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(Locale.US, "us-image-desc", Locale.FRENCH, "french-image-desc"))
-            .withApplicationSteps(ImmutableList.of())
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US, "step one title", Locale.FRENCH, "step one french title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "step one description",
+                            Locale.FRENCH,
+                            "step one french description"))))
             .build();
     StatusDefinitions statusDefinitions =
         new StatusDefinitions(
@@ -536,7 +545,13 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setLocalizedShortDescription("french-short-desc")
                 .setLocalizedConfirmationMessage("")
                 .setLocalizedSummaryImageDescription("french-image-desc")
-                .setApplicationSteps(ImmutableList.of())
+                .setApplicationSteps(
+                    ImmutableList.of(
+                        LocalizationUpdate.ApplicationStepUpdate.builder()
+                            .setIndex(0)
+                            .setLocalizedTitle("step one french title")
+                            .setLocalizedDescription("step one french description")
+                            .build()))
                 .setScreens(ImmutableList.of())
                 .setStatuses(
                     ImmutableList.of(

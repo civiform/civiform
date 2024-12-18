@@ -2481,7 +2481,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2535,7 +2541,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2576,7 +2588,13 @@ public class ProgramServiceTest extends ResetPostgres {
   //            .setLocalizedSummaryImageDescription("new French image description")
   //            .setLocalizedConfirmationMessage("")
   //            .setStatuses(ImmutableList.of())
-  //            .setApplicationSteps(ImmutableList.of())
+  //            .setApplicationSteps(
+  //                ImmutableList.of(
+  //                    LocalizationUpdate.ApplicationStepUpdate.builder()
+  //                        .setIndex(0)
+  //                        .setLocalizedTitle("title")
+  //                        .setLocalizedDescription("description")
+  //                        .build()))
   //            .setScreens(
   //                ImmutableList.of(
   //                    LocalizationUpdate.ScreenUpdate.builder()
@@ -2606,7 +2624,48 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedShortDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .setScreens(ImmutableList.of())
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("program display name cannot be blank"),
+            CiviFormError.of("program short display description cannot be blank"),
+            CiviFormError.of("program application step one title cannot be blank"),
+            CiviFormError.of("program application step one description cannot be blank"));
+  }
+
+  @Test
+  public void updateLocalizations_applicationStepValidationIsSkippedForCommonIntakeProgram()
+      throws Exception {
+    ProgramModel program = ProgramBuilder.newActiveCommonIntakeForm("prescreener").build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("")
+            .setLocalizedDisplayDescription("")
+            .setLocalizedShortDescription("")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        // blank values for title and description would usually trigger a validation
+                        // error
+                        .setLocalizedTitle("")
+                        .setLocalizedDescription("")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2628,7 +2687,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -2650,7 +2715,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
 
@@ -2680,7 +2751,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("Step one German title")
+                        .setLocalizedDescription("Step one German description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2696,6 +2773,10 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
+    assertThat(definition.applicationSteps().get(0).getTitle().get(Locale.GERMAN))
+        .isEqualTo("Step one German title");
+    assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.GERMAN))
+        .isEqualTo("Step one German description");
   }
 
   @Test
@@ -2706,6 +2787,19 @@ public class ProgramServiceTest extends ResetPostgres {
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
             .withLocalizedShortDescription(Locale.FRENCH, "existing short French desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 1 title",
+                            Locale.FRENCH,
+                            "existing French step 1 title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 1 description",
+                            Locale.FRENCH,
+                            "existing French step 1 description"))))
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
                     Locale.US,
@@ -2722,7 +2816,13 @@ public class ProgramServiceTest extends ResetPostgres {
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(0)
+                        .setLocalizedTitle("new step one French title")
+                        .setLocalizedDescription("new step one French description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2738,6 +2838,10 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
+    assertThat(definition.applicationSteps().get(0).getTitle().get(Locale.FRENCH))
+        .isEqualTo("new step one French title");
+    assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.FRENCH))
+        .isEqualTo("new step one French description");
   }
 
   @Test
