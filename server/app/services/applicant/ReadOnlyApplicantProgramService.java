@@ -215,6 +215,10 @@ public final class ReadOnlyApplicantProgramService {
     return allHiddenBlockList;
   }
 
+  public ImmutableList<Block> getAllBlocks() {
+    return getBlocks(b -> true);
+  }
+
   /**
    * Get the count of blocks in this program that the applicant should see which have all their
    * questions answered or optional questions skipped.

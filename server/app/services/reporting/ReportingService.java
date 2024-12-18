@@ -8,6 +8,13 @@ import static views.admin.reporting.AdminReportingShowView.APPLICATION_COUNTS_FO
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
+
+import io.ebean.DB;
+import io.ebean.Database;
+import models.ApplicationModel;
+import models.LifecycleStage;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,18 +22,32 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
 import services.DateConverter;
+import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
+import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import views.admin.reporting.ReportingTableRenderer;
 
 /** A service responsible for logic related to collating and presenting reporting data. */
@@ -41,15 +62,26 @@ public final class ReportingService {
   private final ReportingRepository reportingRepository;
   private final SyncCacheApi reportingDataCache;
   private final DateConverter dateConverter;
+  private final ZoneId zoneId;
+  private final Database database;
+  private final ApplicantService applicantService;
+  private final ProgramService programService;
 
   @Inject
   public ReportingService(
       DateConverter dateConverter,
       ReportingRepository reportingRepository,
-      @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache) {
+      @NamedCache("monthly-reporting-data") SyncCacheApi reportingDataCache,
+      Clock clock,
+      ApplicantService applicantService,
+      ProgramService programService) {
+    this.database = DB.getDefault();
     this.dateConverter = checkNotNull(dateConverter);
     this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
     this.reportingDataCache = Preconditions.checkNotNull(reportingDataCache);
+    this.applicantService = Preconditions.checkNotNull(applicantService);
+    this.programService = Preconditions.checkNotNull(programService);
+    this.zoneId = Preconditions.checkNotNull(clock.getZone());
   }
 
   /**
@@ -139,6 +171,58 @@ public final class ReportingService {
             throw new RuntimeException(e);
           }
         });
+  }
+
+  public ImmutableSortedMap<String, Long> completedBlocksByProgram(String programName) throws ProgramNotFoundException {
+    // get draft applications for program in last 30 days
+    // figure out which blocks are fully answered populated
+    // todo deal with multiple program versions
+
+    Instant thirtyDaysAgoStartOfDay = Instant.now().atZone(zoneId).minusDays(30).truncatedTo(ChronoUnit.DAYS).toInstant();
+
+    var draftApplications = database.find(ApplicationModel.class)
+      // alias to trick ebeans into doing the right thing
+      .alias("app")
+      .fetch("applicant")
+      .fetch("program")
+      .where()
+      .eq("program.name", programName)
+      .eq("lifecycle_stage", LifecycleStage.DRAFT)
+      .ge("app.create_time", thirtyDaysAgoStartOfDay)
+      .orderBy("app.create_time")
+      .findList(); //todo don't load all the applications into memory at once
+
+    List<ApplicantData> draftApplicantData = draftApplications.stream()
+      .map(app -> app.getApplicant().getApplicantData())
+      .toList();
+
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(draftApplications.get(0).getProgram().id);
+    var blockOrder = programDefinition.blockDefinitions().stream().map(bd -> bd.name()).toList();
+
+    var blockCounts = draftApplicantData.stream()
+      .map(ad -> applicantService.getReadOnlyApplicantProgramService(ad, programDefinition))
+      .flatMap(roaps -> roaps.getAllBlocks().stream())
+      .collect(Collectors.groupingBy(
+          b -> b.getName(),
+          Collectors.filtering(b -> b.isCompletedInProgramWithoutErrors(), Collectors.counting())
+      ));
+      // .map(b -> b.isCompletedInProgramWithoutErrors())
+      // todo change the list of lists into the right shape for the chart
+
+      ImmutableSortedMap<String, Long> sortedBlockCounts = blockCounts.entrySet().stream()
+      .sorted(Comparator.comparingInt(entry -> blockOrder.indexOf(entry.getKey())))
+      .collect(ImmutableSortedMap.toImmutableSortedMap(
+              Comparator.comparingInt(blockOrder::indexOf),
+              Map.Entry::getKey,
+              Map.Entry::getValue
+      ));
+
+      return sortedBlockCounts;
+
+
+    // System.out.println(draftApplicantData.size());
+    // System.out.println(thirtyDaysAgoStartOfDay);
+
   }
 
   private String buildCsv(

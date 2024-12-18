@@ -14,6 +14,7 @@ import * as adminPredicates from './admin_predicate_configuration'
 import * as adminProgramImage from './admin_program_image'
 import * as adminPrograms from './admin_programs'
 import * as adminProgramStatusesView from './admin_program_statuses_view'
+import * as AdminReportingView from './admin_reporting_view'
 import * as adminSettingsView from './admin_settings_view'
 import * as adminValidation from './admin_validation'
 import * as apiDocs from './api_docs'
@@ -52,6 +53,7 @@ function initializeEverything(): void {
   adminProgramImage.init()
   adminPrograms.init()
   adminProgramStatusesView.init()
+  AdminReportingView.init()
   adminSettingsView.init()
   adminValidation.init()
   apiDocs.init()

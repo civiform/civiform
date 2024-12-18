@@ -13,6 +13,7 @@ import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.reporting.ReportingService;
 import views.admin.reporting.AdminReportingIndexView;
@@ -53,7 +54,10 @@ public final class AdminReportingController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public CompletionStage<Result> show(Http.Request request, String programSlug) {
+  public CompletionStage<Result> show(Http.Request request, String programSlug) throws ProgramNotFoundException {
+    // todo make this async
+    var sortedBlockCompletedCount = reportingService.completedBlocksByProgram(programSlug);
+
     return programService
         .getActiveFullProgramDefinitionAsync(programSlug)
         .thenApply(
@@ -67,7 +71,8 @@ public final class AdminReportingController extends CiviFormController {
                             programSlug,
                             programDefinition.adminName(),
                             programDefinition.localizedName().getDefault(),
-                            reportingService.getMonthlyStats())));
+                            reportingService.getMonthlyStats(),
+                            sortedBlockCompletedCount)));
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)

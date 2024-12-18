@@ -131,7 +131,7 @@
 
   /* Re-style USWDS file input hint since it has contrast issues with the non-northstar background.
      This can be removed once we switch to North Star. */
-  .cf-question-fileupload .usa-hint { 
+  .cf-question-fileupload .usa-hint {
     color: #1b1b1b;
   }
 
@@ -153,4 +153,10 @@
     cursor: default;
   }
 
+  .eligibility-line {
+    width: 5px;
+    height: 100px;
+    background-color: red;
+    display: block;
+  }
 }

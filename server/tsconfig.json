@@ -12,6 +12,7 @@
     "sourceRoot": "/assets/javascripts",
     "baseUrl": "./",
     "strict": true
+    // "types": ["google.visualization"]
   },
   "include": ["app/assets/javascripts/*"]
 }

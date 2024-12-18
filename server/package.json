@@ -18,6 +18,7 @@
     "@types/markdown-it": "14.1.2",
     "@typescript-eslint/eslint-plugin": "8.20.0",
     "@typescript-eslint/parser": "8.20.0",
+    "@types/google.visualization": "0.0.74",
     "autoprefixer": "^10.4.16",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.0.0",
