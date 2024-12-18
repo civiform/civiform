@@ -16,8 +16,14 @@ class CiviFormLogoutLogic extends DefaultLogoutLogic {
   public CiviFormLogoutLogic() {}
 
   @Override
-  public Object perform(final Config config, final String defaultUrl, final String inputLogoutUrlPattern, final Boolean inputLocalLogout,
-  final Boolean inputDestroySession, final Boolean inputCentralLogout, final FrameworkParameters parameters) {
+  public Object perform(
+      final Config config,
+      final String defaultUrl,
+      final String inputLogoutUrlPattern,
+      final Boolean inputLocalLogout,
+      final Boolean inputDestroySession,
+      final Boolean inputCentralLogout,
+      final FrameworkParameters parameters) {
 
     try {
       Object result =
