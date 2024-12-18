@@ -1,4 +1,4 @@
-package controllers.api;
+package controllers.docs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -81,5 +81,33 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
                 Optional.of("unknown-version"));
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void getSchemaUI_loadsActiveProgram() {
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaUI(
+                request,
+                "test-program-1",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of("unknown-version"));
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void getSchemaUI_cannotFindProgram() {
+    Request request = fakeRequest();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaByProgramSlug(
+                request,
+                "test-program-2",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 }

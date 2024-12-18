@@ -1,4 +1,4 @@
-package controllers.api;
+package controllers.docs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.badRequest;
@@ -152,7 +152,7 @@ public final class OpenApiSchemaController {
       context.setVariable("apiUrl", url);
       context.setVariable("cspNonce", CspUtil.getNonce(request));
 
-      return ok(templateEngine.process("api/SchemaViewTemplate", context)).as("text/html");
+      return ok(templateEngine.process("docs/SchemaViewTemplate", context)).as("text/html");
     } catch (RuntimeException ex) {
       return internalServerError();
     }

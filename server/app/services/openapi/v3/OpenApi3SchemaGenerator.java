@@ -53,7 +53,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
     try {
       OpenAPI openAPI =
           new OpenAPI()
-              .openapi("3.0.4") // 3.0.x has most compatibility with tools right now
+              .openapi("3.0.1") // 3.0.x has most compatibility with tools right now
               .info(
                   new Info()
                       .title(programDefinition.adminName())
