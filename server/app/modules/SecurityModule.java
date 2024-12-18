@@ -302,6 +302,7 @@ public class SecurityModule extends AbstractModule {
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
     config.setSessionStoreFactory(civiFormSessionStoreFactory);
+    config.setLogoutLogic(new CiviFormLogoutLogic());
     return config;
   }
 }
