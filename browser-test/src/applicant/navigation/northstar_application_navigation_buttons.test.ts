@@ -879,11 +879,15 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerEmailQuestion('')
 
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+        // FIX it !! this should expect error on review
+
         await applicantQuestions.expectErrorOnPreviousModal(
           /* northStarEnabled= */ true,
         )
 
         // Proceed to the Review page, acknowledging that answers won't be saved
+        // FIX it !! this should clickReview
+
         await applicantQuestions.clickPreviousWithoutSaving()
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
