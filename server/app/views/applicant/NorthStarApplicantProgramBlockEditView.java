@@ -1,21 +1,18 @@
 package views.applicant;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import org.thymeleaf.TemplateEngine;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import models.ApplicantModel.Suffix;
 import modules.ThymeleafModule;
+import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.DeploymentType;
 import services.MessageKey;
@@ -116,44 +113,38 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
-      context.setVariable("errorModalDataRedirectTo", previousWithoutSaving(applicationParams));
-
       context.setVariable(
           "reviewFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
-      context.setVariable("reviewWithoutSaving", reviewWithoutSaving(applicationParams));
       context.setVariable(
-        "errorModalTitle",
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName());
-        context.setVariable(
-            "errorModalContent",
-            MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName());
-        context.setVariable(
-                "errorModalButtonText",
-                MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName());
-       /// context.setVariable("errorModal-data-redirect-to", previousWithoutSaving(applicationParams));
-        context.setVariable("errorModalDataRedirectTo", previousWithoutSaving(applicationParams));
-
-/// debugging
-   if (applicationParams.errorDisplayMode() == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-
+          "errorModalFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
       context.setVariable(
-        "errorModalTitle",
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName());
-        context.setVariable(
-            "errorModalContent",
-            MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName());
-        context.setVariable(
-                "errorModalButtonText",
-                MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName());
+          "errorModalTitle", MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName());
       context.setVariable(
-        "errorModalFormAction",
-        getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
-    context.setVariable("errorModalDataRedirectTo", reviewWithoutSaving(applicationParams));
-    } 
+          "errorModalContent", MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName());
+      context.setVariable(
+          "errorModalButtonText",
+          MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName());
+      context.setVariable("errorModalDataRedirectTo", previousWithoutSaving(applicationParams));
 
-/// debugging
+      /// debugging
+      if (applicationParams.errorDisplayMode()
+          == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+        context.setVariable(
+            "errorModalTitle", MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName());
+        context.setVariable(
+            "errorModalContent", MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName());
+        context.setVariable(
+            "errorModalButtonText",
+            MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName());
+        context.setVariable(
+            "errorModalFormAction",
+            getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+        context.setVariable("errorModalDataRedirectTo", reviewWithoutSaving(applicationParams));
+      }
+
+      /// debugging
 
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);

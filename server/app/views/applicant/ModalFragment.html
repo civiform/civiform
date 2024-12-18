@@ -183,48 +183,11 @@
 
         <p th:text="#{${errorModalContent}}"></p>
 
-
-        <!-- Debug Statement -->
-
-        <button
-        type="button"
-        th:data-redirect-to="${errorModalDataRedirectTo}"
-        data-close-modal
-        th:text="#{${errorModalButtonText}}"
-        class="usa-button usa-button--outline margin-y-2"
-      ></button>
-
-        <!-- MODAL_ERROR_SAVING_REVIEW_TITLE("modal.errorSaving.review.title"), -->
-        <p th:text="#{modal.errorSaving.previous.content}"></p>
-        <p th:text="#{modal.errorSaving.review.content}"></p>
-
-        <p class="text-small text-secondary"
-        th:utext="
-           'DEBUG:' + '&#10;' + 
-           'errorDisplayMode = ' + ${errorDisplayMode} + '&#10;' + 
-           'errorModalTitle = ' + ${errorModalTitle} + '&#10;' + 
-           'errorModalContent = ' + ${errorModalContent} + '&#10;' + 
-           'errorModal-data-redirect-to = ' + ${errorModal-data-redirect-to} + '&#10;' +
-           'previousWithoutSaving = ' + ${previousWithoutSaving} + '&#10;' +
-           'reviewWithoutSaving = ' + ${reviewWithoutSaving} + '&#10;' 
-           ">
-     </p>
-     
-     
-      
         <button
           type="button"
-          th:data-redirect-to="${reviewWithoutSaving}"
+          th:data-redirect-to="${errorModalDataRedirectTo}"
           data-close-modal
-          th:text="#{modal.errorSaving.review.noSaveButton}"
-          class="usa-button usa-button--outline margin-y-2"
-        ></button>
-
-        <button
-          type="button"
-          th:data-redirect-to="${previousWithoutSaving}"
-          data-close-modal
-          th:text="#{modal.errorSaving.previous.noSaveButton}"
+          th:text="#{${errorModalButtonText}}"
           class="usa-button usa-button--outline margin-y-2"
         ></button>
 
@@ -234,8 +197,6 @@
           data-close-modal
           class="usa-button margin-y-2"
         ></button>
-
-
       </div>
 
       <button
