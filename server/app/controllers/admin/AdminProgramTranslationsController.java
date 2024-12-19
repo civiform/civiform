@@ -151,6 +151,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
             formFactory,
             currentStatusDefinitions.getStatuses().size(),
             program.localizedSummaryImageDescription().isPresent(),
+            program.applicationSteps(),
             blockIds);
     // There are two updateLocalization() now, one in ProgramService (which doesn't throw
     // OutOfDateStatusException) and

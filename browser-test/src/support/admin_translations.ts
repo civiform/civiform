@@ -28,6 +28,8 @@ export class AdminTranslations {
     blockDescription,
     statuses = [],
     shortDescription = 'short desc',
+    applicationStepTitle = 'step one title',
+    applicationStepDescription = 'step one description',
     blockEligibilityMsg = '',
   }: {
     name: string
@@ -36,6 +38,8 @@ export class AdminTranslations {
     blockDescription: string
     statuses: ProgramStatusTranslationParams[]
     shortDescription: string
+    applicationStepTitle: string
+    applicationStepDescription: string
     blockEligibilityMsg?: string
   }) {
     await this.page.fill('text=Program name', name)
@@ -61,6 +65,12 @@ export class AdminTranslations {
       }
     }
 
+    await this.page.fill('text=Application step 1 title', applicationStepTitle)
+    await this.page.fill(
+      'text=Application step 1 description',
+      applicationStepDescription,
+    )
+
     await this.page.fill('text=Screen name', blockName)
     await this.page.fill('text=Screen description', blockDescription)
     if (blockEligibilityMsg != '') {
@@ -77,11 +87,15 @@ export class AdminTranslations {
   async expectProgramTranslation({
     expectProgramName,
     expectProgramDescription,
-    expectProgramShortDescription,
+    expectProgramShortDescription = 'short description',
+    expectApplicationStepTitle = 'step one title',
+    expectApplicationStepDescription = 'step one description',
   }: {
     expectProgramName: string
     expectProgramDescription: string
     expectProgramShortDescription: string
+    expectApplicationStepTitle: string
+    expectApplicationStepDescription: string
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
@@ -97,6 +111,19 @@ export class AdminTranslations {
     )
     await expect(programShortDescriptionValue).toHaveValue(
       expectProgramShortDescription,
+    )
+
+    const applicationStepTitleValue = this.page.getByLabel(
+      'Application step 1 title',
+    )
+    await expect(applicationStepTitleValue).toHaveValue(
+      expectApplicationStepTitle,
+    )
+    const applicationStepDescriptionValue = this.page.getByLabel(
+      'Application step 1 description',
+    )
+    await expect(applicationStepDescriptionValue).toHaveValue(
+      expectApplicationStepDescription,
     )
   }
 
