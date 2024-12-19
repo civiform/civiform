@@ -2741,6 +2741,10 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.withDefaultValue("default image description"))
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep("step one title", "step one description"),
+                    new ApplicationStep("step two title", "step two description")))
             .build();
 
     LocalizationUpdate updateData =
@@ -2757,6 +2761,11 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setIndex(0)
                         .setLocalizedTitle("Step one German title")
                         .setLocalizedDescription("Step one German description")
+                        .build(),
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(1)
+                        .setLocalizedTitle("Step two German title")
+                        .setLocalizedDescription("Step two German description")
                         .build()))
             .setScreens(ImmutableList.of())
             .build();
@@ -2777,6 +2786,10 @@ public class ProgramServiceTest extends ResetPostgres {
         .isEqualTo("Step one German title");
     assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.GERMAN))
         .isEqualTo("Step one German description");
+    assertThat(definition.applicationSteps().get(1).getTitle().get(Locale.GERMAN))
+        .isEqualTo("Step two German title");
+    assertThat(definition.applicationSteps().get(1).getDescription().get(Locale.GERMAN))
+        .isEqualTo("Step two German description");
   }
 
   @Test
@@ -2799,7 +2812,18 @@ public class ProgramServiceTest extends ResetPostgres {
                             Locale.US,
                             "English step 1 description",
                             Locale.FRENCH,
-                            "existing French step 1 description"))))
+                            "existing French step 1 description")),
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 2 title",
+                            Locale.FRENCH,
+                            "existing French step 2 title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 2 description",
+                            Locale.FRENCH,
+                            "existing French step 2 description"))))
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
                     Locale.US,
@@ -2822,6 +2846,11 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setIndex(0)
                         .setLocalizedTitle("new step one French title")
                         .setLocalizedDescription("new step one French description")
+                        .build(),
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setIndex(1)
+                        .setLocalizedTitle("new step two French title")
+                        .setLocalizedDescription("new step two French description")
                         .build()))
             .setScreens(ImmutableList.of())
             .build();
@@ -2842,6 +2871,10 @@ public class ProgramServiceTest extends ResetPostgres {
         .isEqualTo("new step one French title");
     assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.FRENCH))
         .isEqualTo("new step one French description");
+    assertThat(definition.applicationSteps().get(1).getTitle().get(Locale.FRENCH))
+        .isEqualTo("new step two French title");
+    assertThat(definition.applicationSteps().get(1).getDescription().get(Locale.FRENCH))
+        .isEqualTo("new step two French description");
   }
 
   @Test
