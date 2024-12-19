@@ -15,6 +15,7 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.mvc.Http.Request;
 import services.DeploymentType;
+import services.MessageKey;
 import services.applicant.question.AddressQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -112,10 +113,36 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       context.setVariable(
           "previousFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
       context.setVariable(
           "reviewFormAction",
           getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+      context.setVariable(
+          "errorModalFormAction",
+          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+      context.setVariable(
+          "errorModalTitle", MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName());
+      context.setVariable(
+          "errorModalContent", MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName());
+      context.setVariable(
+          "errorModalButtonText",
+          MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName());
+      context.setVariable("errorModalDataRedirectTo", previousWithoutSaving(applicationParams));
+
+      if (applicationParams.errorDisplayMode()
+          == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+        context.setVariable(
+            "errorModalTitle", MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName());
+        context.setVariable(
+            "errorModalContent", MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName());
+        context.setVariable(
+            "errorModalButtonText",
+            MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName());
+        context.setVariable(
+            "errorModalFormAction",
+            getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+        context.setVariable("errorModalDataRedirectTo", reviewWithoutSaving(applicationParams));
+      }
+
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
@@ -159,6 +186,13 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             params.programId(),
             params.blockIndex(),
             params.inReview())
+        .url();
+  }
+
+  private String reviewWithoutSaving(ApplicationBaseViewParams params) {
+    return params
+        .applicantRoutes()
+        .review(params.profile(), params.applicantId(), params.programId())
         .url();
   }
 

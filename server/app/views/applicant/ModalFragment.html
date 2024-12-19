@@ -178,15 +178,16 @@
         <h2
           class="usa-modal__heading"
           id="validation-modal-heading"
-          th:text="#{modal.errorSaving.previous.title}"
+          th:text="#{${errorModalTitle}}"
         ></h2>
-        <p th:text="#{modal.errorSaving.previous.content}"></p>
+
+        <p th:text="#{${errorModalContent}}"></p>
 
         <button
           type="button"
-          th:data-redirect-to="${previousWithoutSaving}"
+          th:data-redirect-to="${errorModalDataRedirectTo}"
           data-close-modal
-          th:text="#{modal.errorSaving.previous.noSaveButton}"
+          th:text="#{${errorModalButtonText}}"
           class="usa-button usa-button--outline margin-y-2"
         ></button>
 
