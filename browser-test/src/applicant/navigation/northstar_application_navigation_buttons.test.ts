@@ -802,7 +802,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
 
         // The date question is required, so expect the error modal.
-        await applicantQuestions.expectErrorOnPreviousModal(
+        await applicantQuestions.expectErrorOnReviewModal(
           /* northStarEnabled= */ true,
         )
       })
@@ -834,7 +834,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-        await applicantQuestions.expectErrorOnPreviousModal(
+        await applicantQuestions.expectErrorOnReviewModal(
           /* northStarEnabled= */ true,
         )
 
@@ -879,16 +879,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerEmailQuestion('')
 
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-        // FIX it !! this should expect error on review
-
-        await applicantQuestions.expectErrorOnPreviousModal(
+        await applicantQuestions.expectErrorOnReviewModal(
           /* northStarEnabled= */ true,
         )
 
         // Proceed to the Review page, acknowledging that answers won't be saved
-        // FIX it !! this should clickReview
-
-        await applicantQuestions.clickPreviousWithoutSaving()
+        await applicantQuestions.clickReviewWithoutSaving()
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -926,7 +922,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           // Because the questions were previously answered and the date and email questions are required,
           // we don't let the user save the deletion of answers.
           await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-          await applicantQuestions.expectErrorOnPreviousModal(
+          await applicantQuestions.expectErrorOnReviewModal(
             /* northStarEnabled= */ true,
           )
         })

@@ -960,16 +960,38 @@ export class ApplicantQuestions {
       'This question is required',
     )
   }
+  async expectErrorOnReviewModal(northStarEnabled = false) {
+    if (northStarEnabled) {
+      const modal = this.page.getByRole('dialog', {state: 'visible'})
 
-  async expectErrorOnReviewModal() {
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(
-      `Questions on this page are not complete`,
-    )
-    expect(await modal.innerText()).toContain(
-      `Continue to review page without saving`,
-    )
-    expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+      await expect(
+        modal.getByText(
+          'Questions on this page are not complete. Would you still like to leave and begin reviewing?',
+        ),
+      ).toBeVisible()
+      await expect(
+        modal.getByText(
+          "There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?",
+        ),
+      ).toBeVisible()
+      await expect(
+        modal
+          .getByRole('button')
+          .getByText('Continue to review page without saving'),
+      ).toBeVisible()
+      await expect(
+        modal.getByRole('button').getByText('Stay and fix your answers'),
+      ).toBeVisible()
+    } else {
+      const modal = await waitForAnyModal(this.page)
+      expect(await modal.innerText()).toContain(
+        `Questions on this page are not complete`,
+      )
+      expect(await modal.innerText()).toContain(
+        `Continue to review page without saving`,
+      )
+      expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+    }
   }
 
   async clickReviewWithoutSaving() {
