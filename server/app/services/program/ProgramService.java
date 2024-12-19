@@ -6,6 +6,7 @@ import static services.LocalizedStrings.DEFAULT_LOCALE;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
@@ -542,6 +543,9 @@ public final class ProgramService {
     LocalizedStrings newConfirmationMessageTranslations =
         maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
 
+    applicationSteps =
+        preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
+
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
         && !programDefinition.isCommonIntakeForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
@@ -581,6 +585,38 @@ public final class ProgramService {
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
+  }
+
+  /** Preserve translations on existing titles and descriptions in application steps */
+  private ImmutableList<ApplicationStep> preserveApplicationStepTranslations(
+      ImmutableList<ApplicationStep> newSteps, ImmutableList<ApplicationStep> existingSteps) {
+    ImmutableMap<String, LocalizedStrings> existingApplicationStepsTitlesMap =
+        existingSteps.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    step -> step.getTitle().getDefault(), step -> step.getTitle()));
+    ImmutableMap<String, LocalizedStrings> existingApplicationStepsDescriptionsMap =
+        existingSteps.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    step -> step.getDescription().getDefault(), step -> step.getDescription()));
+
+    return newSteps.stream()
+        .map(
+            step -> {
+              String defaultTitle = step.getTitle().getDefault();
+              String defaultDescription = step.getDescription().getDefault();
+              if (existingApplicationStepsTitlesMap.containsKey(defaultTitle)) {
+                step = step.setTitle(existingApplicationStepsTitlesMap.get(defaultTitle));
+              }
+              if (existingApplicationStepsDescriptionsMap.containsKey(defaultDescription)) {
+                step =
+                    step.setDescription(
+                        existingApplicationStepsDescriptionsMap.get(defaultDescription));
+              }
+              return step;
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Removes eligibility predicates from all blocks in this program. */
@@ -855,8 +891,8 @@ public final class ProgramService {
                 update -> {
                   int index = update.index();
                   ApplicationStep step = programDefinition.applicationSteps().get(index);
-                  step.setNewTitleTranslation(locale, update.localizedTitle());
-                  step.setNewDescriptionTranslation(locale, update.localizedDescription());
+                  step.addTitleTranslation(locale, update.localizedTitle());
+                  step.addDescriptionTranslation(locale, update.localizedDescription());
                   return step;
                 })
             .collect(ImmutableList.toImmutableList());

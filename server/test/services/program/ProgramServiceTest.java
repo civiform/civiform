@@ -1108,14 +1108,6 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getProgramDefinition() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
-
-    assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
-  }
-
-  @Test
   public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
     ps.createProgramDefinition(
         "name-one",
@@ -1347,6 +1339,107 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
     assertThat(result.getResult().getBlockCount()).isEqualTo(1);
     assertThat(result.getResult().getLastBlockDefinition().eligibilityDefinition()).isPresent();
+  }
+
+  @Test
+  public void updateProgram_preservesExistingTranslationsOnApplicationSteps() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("original", "original description")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step one title")
+                            .updateTranslation(Locale.FRENCH, "step one french title"),
+                        LocalizedStrings.withDefaultValue("step one description")
+                            .updateTranslation(Locale.FRENCH, "step one french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step two title")
+                            .updateTranslation(Locale.FRENCH, "step two french title"),
+                        LocalizedStrings.withDefaultValue("step two description")
+                            .updateTranslation(Locale.FRENCH, "step two french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step three title")
+                            .updateTranslation(Locale.FRENCH, "step three french title"),
+                        LocalizedStrings.withDefaultValue("step three description")
+                            .updateTranslation(Locale.FRENCH, "step three french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step four title")
+                            .updateTranslation(Locale.FRENCH, "step four french title"),
+                        LocalizedStrings.withDefaultValue("step four description")
+                            .updateTranslation(Locale.FRENCH, "step four french description"))))
+            .buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(
+                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
+            /* eligibilityIsGating= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(
+                new ApplicationStep("new step one title", "step one description"),
+                new ApplicationStep("step two title", "new step two description"),
+                new ApplicationStep("new step three title", "new step three description"),
+                new ApplicationStep("step four title", "step four description")));
+
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgram = result.getResult();
+
+    ProgramDefinition found = ps.getFullProgramDefinition(updatedProgram.id());
+
+    ApplicationStep stepOne = found.applicationSteps().get(0);
+    ApplicationStep stepTwo = found.applicationSteps().get(1);
+    ApplicationStep stepThree = found.applicationSteps().get(2);
+    ApplicationStep stepFour = found.applicationSteps().get(3);
+
+    // Title changed for step one, so title translations should be cleared but description
+    // translations should persist
+    assertThat(stepOne.getTitle().getDefault()).isEqualTo("new step one title");
+    assertThat(stepOne.getTitle().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+    assertThat(stepOne.getDescription().getDefault()).isEqualTo("step one description");
+    assertThat(stepOne.getDescription().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step one french description"));
+
+    // Description changed for step two, so description translations should be cleared but title
+    // translations should persist
+    assertThat(stepTwo.getTitle().getDefault()).isEqualTo("step two title");
+    assertThat(stepTwo.getTitle().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step two french title"));
+    assertThat(stepTwo.getDescription().getDefault()).isEqualTo("new step two description");
+    assertThat(stepTwo.getDescription().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+
+    // Both title and description changed for step three, so translations for both should have been
+    // cleared
+    assertThat(stepThree.getTitle().getDefault()).isEqualTo("new step three title");
+    assertThat(stepThree.getTitle().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+    assertThat(stepThree.getDescription().getDefault()).isEqualTo("new step three description");
+    assertThat(stepThree.getDescription().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+
+    // Neither title nor description changed for step four, so translations for both should persist
+    assertThat(stepFour.getTitle().getDefault()).isEqualTo("step four title");
+    assertThat(stepFour.getTitle().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step four french title"));
+    assertThat(stepFour.getDescription().getDefault()).isEqualTo("step four description");
+    assertThat(stepFour.getDescription().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step four french description"));
+  }
+
+  @Test
+  public void getProgramDefinition() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
+
+    assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
   }
 
   @Test

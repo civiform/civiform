@@ -38,12 +38,22 @@ public final class ApplicationStep {
     return this.description;
   }
 
-  public ApplicationStep setNewTitleTranslation(Locale locale, String title) {
+  public ApplicationStep setTitle(LocalizedStrings title) {
+    this.title = title;
+    return this;
+  }
+
+  public ApplicationStep setDescription(LocalizedStrings description) {
+    this.description = description;
+    return this;
+  }
+
+  public ApplicationStep addTitleTranslation(Locale locale, String title) {
     this.title = this.title.updateTranslation(locale, title);
     return this;
   }
 
-  public ApplicationStep setNewDescriptionTranslation(Locale locale, String description) {
+  public ApplicationStep addDescriptionTranslation(Locale locale, String description) {
     this.description = this.description.updateTranslation(locale, description);
     return this;
   }

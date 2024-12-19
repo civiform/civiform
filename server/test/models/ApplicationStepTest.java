@@ -27,8 +27,8 @@ public class ApplicationStepTest {
     ApplicationStep applicationStep = new ApplicationStep(title, description);
     ApplicationStep updatedApplicationStep =
         applicationStep
-            .setNewTitleTranslation(Locale.FRENCH, frenchTitle)
-            .setNewDescriptionTranslation(Locale.FRENCH, frenchDescription);
+            .addTitleTranslation(Locale.FRENCH, frenchTitle)
+            .addDescriptionTranslation(Locale.FRENCH, frenchDescription);
 
     assertThat(updatedApplicationStep.getTitle().getOrDefault(Locale.FRENCH))
         .isEqualTo(frenchTitle);
