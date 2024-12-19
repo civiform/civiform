@@ -971,7 +971,7 @@ export class ApplicantQuestions {
       ).toBeVisible()
       await expect(
         modal.getByText(
-          "There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?",
+          "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?",
         ),
       ).toBeVisible()
       await expect(
