@@ -10,9 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
 import javax.naming.Context;
-
 import models.ApplicantModel.Suffix;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -113,11 +111,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       return templateEngine.process(
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
     } else {
-        if (applicationParams.errorDisplayMode() == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-            setContextForReview(context, applicationParams);
-        } else {
-            setContextForPrevious(context, applicationParams);
-        }
+      if (applicationParams.errorDisplayMode()
+          == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+        setContextForReview(context, applicationParams);
+      } else {
+        setContextForPrevious(context, applicationParams);
       }
 
       // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
@@ -130,40 +128,47 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   }
 
   // Helper function to set the modal context
-private void setContextForFormModal(Context context, String formAction, String title, String content, String buttonText, String redirectTo) {
+  private void setContextForFormModal(
+      Context context,
+      String formAction,
+      String title,
+      String content,
+      String buttonText,
+      String redirectTo) {
     context.setVariable("errorModalFormAction", formAction);
     context.setVariable("errorModalTitle", title);
     context.setVariable("errorModalContent", content);
     context.setVariable("errorModalButtonText", buttonText);
     context.setVariable("errorModalDataRedirectTo", redirectTo);
-}
+  }
 
-// Function to set context for the previous action
-private void setContextForPrevious(Context context, ApplicationParams applicationParams) {
-    context.setVariable("previousFormAction", getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+  // Function to set context for the previous action
+  private void setContextForPrevious(Context context, ApplicationParams applicationParams) {
+    context.setVariable(
+        "previousFormAction",
+        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
     setContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
         MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName(),
-        previousWithoutSaving(applicationParams)
-    );
-}
+        previousWithoutSaving(applicationParams));
+  }
 
-// Function to set context for the review action
-private void setContextForReview(Context context, ApplicationParams applicationParams) {
-    context.setVariable("reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+  // Function to set context for the review action
+  private void setContextForReview(Context context, ApplicationParams applicationParams) {
+    context.setVariable(
+        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
     setContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
         MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName(),
-        reviewWithoutSaving(applicationParams)
-    );
-}
-  
+        reviewWithoutSaving(applicationParams));
+  }
+
   private String getFormAction(
       ApplicationBaseViewParams params, ApplicantRequestedAction nextAction) {
     return applicantRoutes
