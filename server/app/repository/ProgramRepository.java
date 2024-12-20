@@ -16,10 +16,10 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -60,7 +60,6 @@ public final class ProgramRepository {
   private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
   private final Lock cacheLock = new ReentrantLock();
-
 
   @Inject
   public ProgramRepository(
