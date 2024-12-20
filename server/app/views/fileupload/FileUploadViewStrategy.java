@@ -172,5 +172,9 @@ public abstract class FileUploadViewStrategy {
    */
   public abstract String getMultiFileUploadFormClass();
 
+  /**
+   * Internal method returns extra script tags needed to support file upload from the client.
+   * Invoked by the method footerTags() in this file.
+   */
   protected abstract ImmutableList<ScriptTag> extraScriptTags();
 }

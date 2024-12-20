@@ -104,7 +104,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
 
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()) {
-      this.addFileUploadParameters(applicationParams, context);
+      this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
@@ -221,8 +221,11 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   }
 
   private void addFileUploadParameters(
-      ApplicationBaseViewParams params, ThymeleafModule.PlayThymeleafContext context) {
+      Request request,
+      ApplicationBaseViewParams params,
+      ThymeleafModule.PlayThymeleafContext context) {
     context.setVariable("fileUploadViewStrategy", fileUploadViewStrategy);
+    context.setVariable("fileUploadFooterTags", fileUploadViewStrategy.footerTags(request));
     context.setVariable("maxFileSizeMb", params.applicantStorageClient().getFileLimitMb());
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",
