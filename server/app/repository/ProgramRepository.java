@@ -16,6 +16,8 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -57,6 +59,8 @@ public final class ProgramRepository {
   private final SyncCacheApi programCache;
   private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
+  private final Lock cacheLock = new ReentrantLock();
+
 
   @Inject
   public ProgramRepository(
@@ -167,36 +171,42 @@ public final class ProgramRepository {
    * <p>Draft program definition data must not be set in the cache.
    */
   public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
-    if (settingsManifest.getQuestionCacheEnabled()
-        // We only set the cache if it hasn't yet been set for the ID.
-        && getFullProgramDefinitionFromCache(programId).isEmpty()) {
-      // We should never set the cache for draft programs.
-      if (!versionRepository.get().isDraftProgram(programId)) {
-        ImmutableList<BlockDefinition> blocksWithNullQuestion =
-            programDefinition.blockDefinitions().stream()
-                .filter(BlockDefinition::hasNullQuestion)
-                .collect(ImmutableList.toImmutableList());
-        if (blocksWithNullQuestion.size() > 0) {
-          String nullQuestionIds =
-              blocksWithNullQuestion.stream()
-                  .flatMap(block -> block.programQuestionDefinitions().stream())
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
-                  .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
-                  .map(QuestionDefinition::getId)
-                  .map(String::valueOf)
-                  .collect(Collectors.joining(", "));
-          logger.warn(
-              "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
-                  + " into the cache. This is an issue in {} / {} blocks.",
-              programDefinition.slug(),
-              programDefinition.id(),
-              nullQuestionIds,
-              blocksWithNullQuestion.size(),
-              programDefinition.blockDefinitions().size());
-        } else {
-          programDefCache.set(String.valueOf(programId), programDefinition);
+    // Lock the cache to avoid any race conditions
+    cacheLock.lock();
+    try {
+      if (settingsManifest.getQuestionCacheEnabled()
+          // We only set the cache if it hasn't yet been set for the ID.
+          && getFullProgramDefinitionFromCache(programId).isEmpty()) {
+        // We should never set the cache for draft programs.
+        if (!versionRepository.get().isDraftProgram(programId)) {
+          ImmutableList<BlockDefinition> blocksWithNullQuestion =
+              programDefinition.blockDefinitions().stream()
+                  .filter(BlockDefinition::hasNullQuestion)
+                  .collect(ImmutableList.toImmutableList());
+          if (blocksWithNullQuestion.size() > 0) {
+            String nullQuestionIds =
+                blocksWithNullQuestion.stream()
+                    .flatMap(block -> block.programQuestionDefinitions().stream())
+                    .map(ProgramQuestionDefinition::getQuestionDefinition)
+                    .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+                    .map(QuestionDefinition::getId)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(", "));
+            logger.warn(
+                "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
+                    + " into the cache. This is an issue in {} / {} blocks.",
+                programDefinition.slug(),
+                programDefinition.id(),
+                nullQuestionIds,
+                blocksWithNullQuestion.size(),
+                programDefinition.blockDefinitions().size());
+          } else {
+            programDefCache.set(String.valueOf(programId), programDefinition);
+          }
         }
       }
+    } finally {
+      cacheLock.lock();
     }
   }
 
