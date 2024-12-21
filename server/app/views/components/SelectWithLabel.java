@@ -146,7 +146,7 @@ public final class SelectWithLabel extends FieldWithLabel {
     if (!placeholderVisible) {
       placeholder.isHidden();
     }
-    if (this.fieldValue.isEmpty()) {
+    if (this.fieldValue == null || this.fieldValue.isEmpty()) {
       placeholder.isSelected();
     }
     fieldTag.with(placeholder);
