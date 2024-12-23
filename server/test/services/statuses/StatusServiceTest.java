@@ -317,6 +317,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -400,6 +401,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<StatusDefinitions, CiviFormError> result =
@@ -472,6 +474,7 @@ public class StatusServiceTest extends ResetPostgres {
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -519,6 +522,7 @@ public class StatusServiceTest extends ResetPostgres {
                     LocalizationUpdate.StatusUpdate.builder()
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -585,6 +589,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -620,6 +625,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 

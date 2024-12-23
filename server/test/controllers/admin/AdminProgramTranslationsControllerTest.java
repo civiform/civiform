@@ -14,6 +14,7 @@ import controllers.BadRequestException;
 import controllers.FlashKey;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,6 +153,10 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
                     .put("localized-status-1", "updated spanish second status text")
                     .put("localized-email-1", "updated spanish second status email")
+                    .put("application-step-title-0", "updated spanish step one title")
+                    .put("application-step-description-0", "updated spanish step one description")
+                    .put("application-step-title-1", "updated spanish step two title")
+                    .put("application-step-description-1", "updated spanish step two description")
                     .build());
 
     Result result =
@@ -172,6 +177,14 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
         .isEqualTo("updated spanish program description");
     assertThat(updatedProgram.localizedShortDescription().get(ES_LOCALE))
         .isEqualTo("updated spanish short description");
+    assertThat(updatedProgram.applicationSteps().get(0).getTitle().get(ES_LOCALE))
+        .isEqualTo("updated spanish step one title");
+    assertThat(updatedProgram.applicationSteps().get(0).getDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish step one description");
+    assertThat(updatedProgram.applicationSteps().get(1).getTitle().get(ES_LOCALE))
+        .isEqualTo("updated spanish step two title");
+    assertThat(updatedProgram.applicationSteps().get(1).getDescription().get(ES_LOCALE))
+        .isEqualTo("updated spanish step two description");
     assertThat(
             applicationStatusesRepository
                 .lookupActiveStatusDefinitions(updatedProgram.adminName())
@@ -239,6 +252,11 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
                     .put("localized-status-1", "new second status text")
                     .put("localized-email-1", "new second status email")
+                    // Blank application step should trigger validation error
+                    .put("application-step-title-0", "")
+                    .put("application-step-description-0", "")
+                    .put("application-step-title-1", "")
+                    .put("application-step-description-1", "")
                     .build());
 
     Result result =
@@ -254,7 +272,9 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             "new first status text",
             "new first status email",
             "new second status text",
-            "new second status email");
+            "new second status email",
+            "program application step one title cannot be blank",
+            "program application step one description cannot be blank");
 
     assertProgramNotChanged(program);
   }
@@ -277,6 +297,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("status-key-to-update-1", ENGLISH_FIRST_STATUS_TEXT)
                     .put("localized-status-1", "updated spanish second status text")
                     .put("localized-email-1", "updated spanish second status email")
+                    .put("application-step-title-0", "step one title")
+                    .put("application-step-description-0", "step one description")
                     .build());
 
     Result result =
@@ -371,7 +393,21 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   private ProgramModel createDraftProgramEnglishAndSpanish(
       ImmutableList<StatusDefinitions.Status> statuses) {
-    ProgramModel initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
+    ProgramModel initialProgram =
+        ProgramBuilder.newDraftProgram("Internal program name")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step one title")
+                            .updateTranslation(ES_LOCALE, "step one spanish title"),
+                        LocalizedStrings.withDefaultValue("step one description")
+                            .updateTranslation(ES_LOCALE, "step one spanish description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step two title")
+                            .updateTranslation(ES_LOCALE, "step two spanish title"),
+                        LocalizedStrings.withDefaultValue("step two description")
+                            .updateTranslation(ES_LOCALE, "step two spanish description"))))
+            .build();
     // ProgamBuilder initializes the localized name and doesn't currently support providing
     // overrides. Here we manually update the localized string in a separate update.
     ProgramModel program =
