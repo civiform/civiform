@@ -556,12 +556,10 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                 .setApplicationSteps(
                     ImmutableList.of(
                         LocalizationUpdate.ApplicationStepUpdate.builder()
-                            .setIndex(0)
                             .setLocalizedTitle("step one french title")
                             .setLocalizedDescription("step one french description")
                             .build(),
                         LocalizationUpdate.ApplicationStepUpdate.builder()
-                            .setIndex(1)
                             .setLocalizedTitle("step two french title")
                             .setLocalizedDescription("step two french description")
                             .build()))

@@ -2577,7 +2577,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("title")
                         .setLocalizedDescription("description")
                         .build()))
@@ -2637,7 +2636,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("title")
                         .setLocalizedDescription("description")
                         .build()))
@@ -2684,7 +2682,6 @@ public class ProgramServiceTest extends ResetPostgres {
   //            .setApplicationSteps(
   //                ImmutableList.of(
   //                    LocalizationUpdate.ApplicationStepUpdate.builder()
-  //                        .setIndex(0)
   //                        .setLocalizedTitle("title")
   //                        .setLocalizedDescription("description")
   //                        .build()))
@@ -2720,7 +2717,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("")
                         .setLocalizedDescription("")
                         .build()))
@@ -2753,7 +2749,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         // blank values for title and description would usually trigger a validation
                         // error
                         .setLocalizedTitle("")
@@ -2783,7 +2778,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("title")
                         .setLocalizedDescription("description")
                         .build()))
@@ -2811,7 +2805,6 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("title")
                         .setLocalizedDescription("description")
                         .build()))
@@ -2851,12 +2844,10 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("Step one German title")
                         .setLocalizedDescription("Step one German description")
                         .build(),
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(1)
                         .setLocalizedTitle("Step two German title")
                         .setLocalizedDescription("Step two German description")
                         .build()))
@@ -2936,12 +2927,10 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(
                 ImmutableList.of(
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(0)
                         .setLocalizedTitle("new step one French title")
                         .setLocalizedDescription("new step one French description")
                         .build(),
                     LocalizationUpdate.ApplicationStepUpdate.builder()
-                        .setIndex(1)
                         .setLocalizedTitle("new step two French title")
                         .setLocalizedDescription("new step two French description")
                         .build()))
