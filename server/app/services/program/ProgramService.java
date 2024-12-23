@@ -6,12 +6,12 @@ import static services.LocalizedStrings.DEFAULT_LOCALE;
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -590,31 +590,25 @@ public final class ProgramService {
   /** Preserve translations on existing titles and descriptions in application steps */
   private ImmutableList<ApplicationStep> preserveApplicationStepTranslations(
       ImmutableList<ApplicationStep> newSteps, ImmutableList<ApplicationStep> existingSteps) {
-    ImmutableMap<String, LocalizedStrings> existingApplicationStepsTitlesMap =
-        existingSteps.stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    step -> step.getTitle().getDefault(), step -> step.getTitle()));
-    ImmutableMap<String, LocalizedStrings> existingApplicationStepsDescriptionsMap =
-        existingSteps.stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    step -> step.getDescription().getDefault(), step -> step.getDescription()));
-
     return newSteps.stream()
         .map(
             step -> {
               String defaultTitle = step.getTitle().getDefault();
               String defaultDescription = step.getDescription().getDefault();
-              if (existingApplicationStepsTitlesMap.containsKey(defaultTitle)) {
-                step = step.setTitle(existingApplicationStepsTitlesMap.get(defaultTitle));
-              }
-              if (existingApplicationStepsDescriptionsMap.containsKey(defaultDescription)) {
-                step =
-                    step.setDescription(
-                        existingApplicationStepsDescriptionsMap.get(defaultDescription));
-              }
-              return step;
+              LocalizedStrings preservedTitle =
+                  existingSteps.stream()
+                      .filter(s -> s.getTitle().getDefault().equals(defaultTitle))
+                      .map(ApplicationStep::getTitle)
+                      .findFirst()
+                      .orElse(step.getTitle());
+              LocalizedStrings preservedDescription =
+                  existingSteps.stream()
+                      .filter(s -> s.getDescription().getDefault().equals(defaultDescription))
+                      .map(ApplicationStep::getDescription)
+                      .findFirst()
+                      .orElse(step.getDescription());
+
+              return step.setTitle(preservedTitle).setDescription(preservedDescription);
             })
         .collect(ImmutableList.toImmutableList());
   }
@@ -831,8 +825,8 @@ public final class ProgramService {
 
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
-    // only validate application steps if the program has them and is not a common intake program
-    // one application step is now required, but older programs might not have one yet
+    // Only validate application steps if the program has them and is not a common intake program
+    // We only need to validate the first application step because only one is required
     if (!programDefinition.isCommonIntakeForm()
         && !programDefinition.applicationSteps().isEmpty()) {
       validateProgramText(
@@ -885,17 +879,15 @@ public final class ProgramService {
 
     // loop through the translation updates and use the index to fetch and update the correct
     // application step
-    ImmutableList<ApplicationStep> updatedApplicationSteps =
-        localizationUpdate.applicationSteps().stream()
-            .map(
-                update -> {
-                  int index = update.index();
-                  ApplicationStep step = programDefinition.applicationSteps().get(index);
-                  step.addTitleTranslation(locale, update.localizedTitle());
-                  step.addDescriptionTranslation(locale, update.localizedDescription());
-                  return step;
-                })
-            .collect(ImmutableList.toImmutableList());
+    ArrayList<ApplicationStep> updatedApplicationSteps = new ArrayList<>();
+    for (int i = 0; i < localizationUpdate.applicationSteps().size(); i++) {
+      LocalizationUpdate.ApplicationStepUpdate update =
+          localizationUpdate.applicationSteps().get(i);
+      ApplicationStep step = programDefinition.applicationSteps().get(i);
+      step.addTitleTranslation(locale, update.localizedTitle());
+      step.addDescriptionTranslation(locale, update.localizedDescription());
+      updatedApplicationSteps.add(step);
+    }
 
     ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
@@ -916,7 +908,7 @@ public final class ProgramService {
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setBlockDefinitions(toUpdateBlockBuilder.build())
-            .setApplicationSteps(updatedApplicationSteps);
+            .setApplicationSteps(ImmutableList.copyOf(updatedApplicationSteps));
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,

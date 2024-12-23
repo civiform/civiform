@@ -55,9 +55,6 @@ public abstract class LocalizationUpdate {
   /** Captures updates to the application steps for a program. */
   @AutoValue
   public abstract static class ApplicationStepUpdate {
-    /** The step that is being updated */
-    public abstract int index();
-
     /** The new application step title to update for a locale. */
     public abstract String localizedTitle();
 
@@ -70,8 +67,6 @@ public abstract class LocalizationUpdate {
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setIndex(int v);
-
       public abstract Builder setLocalizedTitle(String v);
 
       public abstract Builder setLocalizedDescription(String v);

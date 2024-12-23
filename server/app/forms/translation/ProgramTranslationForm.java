@@ -16,6 +16,7 @@ import play.mvc.Http;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
+import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.ProgramDefinition;
 import services.statuses.StatusDefinitions;
 
@@ -218,8 +219,7 @@ public final class ProgramTranslationForm {
     return dataBuilder.build();
   }
 
-  private ImmutableList<LocalizationUpdate.ApplicationStepUpdate>
-      parseApplicationStepUpdatesFromRequest() {
+  private ImmutableList<ApplicationStepUpdate> parseApplicationStepUpdatesFromRequest() {
     // there are only ever at most 5 application steps
     return IntStream.range(0, 5)
         .boxed()
@@ -230,10 +230,9 @@ public final class ProgramTranslationForm {
               Optional<String> maybeTitleValue = getStringFormField(fieldNameTitle);
               Optional<String> maybeDescriptionValue = getStringFormField(fieldNameDescription);
               if (maybeTitleValue.isEmpty() || maybeDescriptionValue.isEmpty()) {
-                return Optional.<LocalizationUpdate.ApplicationStepUpdate>empty();
+                return Optional.<ApplicationStepUpdate>empty();
               }
-              LocalizationUpdate.ApplicationStepUpdate.Builder resultBuilder =
-                  LocalizationUpdate.ApplicationStepUpdate.builder().setIndex(i);
+              ApplicationStepUpdate.Builder resultBuilder = ApplicationStepUpdate.builder();
               resultBuilder.setLocalizedTitle(maybeTitleValue.get());
               resultBuilder.setLocalizedDescription(maybeDescriptionValue.get());
               return Optional.of(resultBuilder.build());
