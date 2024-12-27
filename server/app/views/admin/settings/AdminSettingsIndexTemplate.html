@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet" />
+  <script
+    th:nonce="${cspNonce}"
+    th:src="${uswdsJsInit}"
+    type="text/javascript"
+  ></script>
+</head>
+<body style="margin: 1rem">
+<ul>
+  <li>Programs</li>
+</ul>
+
+
+<style type="text/css">
+.bold, .usa-label {
+  font-weight: bold;
+}
+
+.usa-input:read-only,
+.usa-input[aria-readonly="true"],
+.usa-textarea:read-only,
+.usa-textarea[aria-readonly="true"] {
+  color: #454545;
+  background-color: #c9c9c9;
+  opacity: 1;
+}
+</style>
+
+<div class="usa-in-page-nav-container">
+  <aside
+    class="usa-in-page-nav"
+    data-title-text="On this page"
+    data-heading-elements="h2"
+    data-title-heading-level="h4"
+    data-scroll-offset="0"
+    data-root-margin="0px 0px 0px 0px"
+    data-threshold="1"
+  ></aside>
+  <main id="main-content" class="main-content usa-prose">
+    <h1>Settings</h1>
+    <th:block th:each="section : ${orderedSections}">
+        <h2 th:text="${section.sectionName()}"></h2>
+        <p th:text="${section.sectionDescription()}"></p>
+        <div th:replace="~{admin/settings/AdminSettingsIndexFragments ::setting(${section.settings()})}"></div>
+        <div th:replace="~{admin/settings/AdminSettingsIndexFragments :: subsection(${section.subsections()})}"></div>
+    </th:block>
+  </main>
+</div>
+
+<th:block th:fragment="pageFooterScripts">
+  <script
+    th:nonce="${cspNonce}"
+    th:src="${uswdsJsBundle}"
+    type="text/javascript"
+  ></script>
+</th:block>
+
+</body>
+</html>

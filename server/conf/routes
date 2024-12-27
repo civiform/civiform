@@ -148,6 +148,7 @@ POST /admin/import/hx/saveProgram                   controllers.admin.AdminImpor
 
 # Admin settings
 GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
+GET      /admin/settings2                            controllers.admin.AdminSettingsController.index2(request: Request)
 POST     /admin/settings                             controllers.admin.AdminSettingsController.update(request: Request)
 
 # Admin reporting

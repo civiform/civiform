@@ -1,0 +1,145 @@
+<th:block th:fragment="subsection(subsections)">
+  <th:block th:each="subsection : ${subsections}">
+    <th:block th:if="${subsection.shouldDisplay()}">
+      <section>
+        <h3 th:text="${subsection.sectionName()}"></h3>
+        <p th:text="${subsection.sectionDescription()}"></p>
+      </section>
+      <div th:replace="~{::setting(${subsection.settings()})}"></div>
+      <div th:replace="~{::subsection(${subsection.subsections()})}"></div>
+    </th:block>
+  </th:block>
+</th:block>
+
+<th:block th:fragment="setting(settings)">
+  <th:block th:each="setting : ${settings}">
+    <th:block th:if="${setting.shouldDisplay()}">
+      <div>
+        <div th:replace="~{::settingValue(${setting})}"></div>
+      </div>
+    </th:block>
+  </th:block>
+</th:block>
+
+<th:block th:fragment="settingValue(setting)">
+  <div th:switch="${setting.settingType().toString()}">
+    <div th:case="BOOLEAN">
+      <div th:replace="~{::settingBoolean(${setting})}"></div>
+    </div>
+    <div th:case="ENUM">
+      <div th:replace="~{::settingEnum(${setting})}"></div>
+    </div>
+    <div th:case="INT">
+      <div th:replace="~{::settingInt(${setting})}"></div>
+    </div>
+    <div th:case="STRING">
+      <div th:replace="~{::settingString(${setting})}"></div>
+    </div>
+    <div th:case="LIST_OF_STRINGS">
+      <div th:replace="~{::settingListOfStrings(${setting})}"></div>
+    </div>
+    <div th:case="*">
+      OTHER
+    </div>
+  </div>
+  <p th:utext="${presenter.sanitizeHtml(setting.settingDescription())}"></p>
+</th:block>
+
+<th:block th:fragment="settingBoolean(setting)">
+
+  <fieldset class="usa-fieldset">
+    <legend class="usa-legend bold" th:text="${setting.variableName()}" />
+
+    <div>BOOLEAN; Readonly <span th:text="${setting.isReadOnly()}"></span></div>
+
+    <div class="usa-radio">
+      <input
+        type="radio"
+        class="usa-radio__input usa-radio__input--tile"
+        value="true"
+        th:id="enabled_ + ${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:checked="${presenter.getSettingDisplayValue(setting)}"
+        th:readonly="${setting.isReadOnly()} ? 'readonly' : null" />
+
+      <label
+        class="usa-radio__label"
+        th:for="enabled_ + ${setting.variableName()}">True</label>
+    </div>
+
+    <div class="usa-radio">
+      <input
+        type="radio"
+        class="usa-radio__input usa-radio__input--tile"
+        value="false"
+        th:id="disabled_ + ${setting.variableName()}"
+        th:name="${setting.variableName()}"
+        th:checked="${!presenter.getSettingDisplayValue(setting)}"
+        th:readonly="${setting.isReadOnly()} ? 'readonly' : null" />
+
+      <label
+        class="usa-radio__label"
+        th:for="disabled_ + ${setting.variableName()}">False</label>
+    </div>
+  </fieldset>
+</th:block>
+
+<th:block th:fragment="settingEnum(setting)">
+  <label class="usa-label"
+         th:for="${setting.variableName()}"
+         th:text="${setting.variableName()}" />
+
+  <div>ENUM; Readonly <span th:text="${setting.isReadOnly()}"></span></div>
+
+  <input type="text"
+         class="usa-input"
+         placeholder="empty"
+         th:name="${setting.variableName()}"
+         th:value="${presenter.getSettingDisplayValue(setting)}"
+         th:readonly="${setting.isReadOnly()} ? 'readonly' : null" />
+</th:block>
+
+<th:block th:fragment="settingInt(setting)">
+  <label class="usa-label"
+         th:for="${setting.variableName()}"
+         th:text="${setting.variableName()}" />
+
+  <div>INT; Readonly <span th:text="${setting.isReadOnly()}"></span></div>
+
+  <input type="text"
+         class="usa-input"
+         placeholder="empty"
+         th:name="${setting.variableName()}"
+         th:value="${presenter.getSettingDisplayValue(setting)}"
+         th:readonly="${setting.isReadOnly()} ? 'readonly' : null" />
+</th:block>
+
+<th:block th:fragment="settingString(setting)">
+  <label class="usa-label"
+         th:for="${setting.variableName()}"
+         th:text="${setting.variableName()}" />
+
+  <div>STRING; Readonly <span th:text="${setting.isReadOnly()}"></span></div>
+
+  <input type="text"
+         class="usa-input"
+         placeholder="empty"
+         th:name="${setting.variableName()}"
+         th:value="${presenter.getSettingDisplayValue(setting)}"
+         th:readonly="${setting.isReadOnly()} ? 'readonly' : null" />
+</th:block>
+
+<th:block th:fragment="settingListOfStrings(setting)">
+  <label class="usa-label"
+         th:for="${setting.variableName()}"
+         th:text="${setting.variableName()}" />
+
+  <div>LIST_OF_STRINGS; Readonly <span th:text="${setting.isReadOnly()}"></span></div>
+
+  <textarea
+        type="text"
+        class="usa-textarea"
+        placeholder="empty"
+        th:text="${presenter.getSettingDisplayValue(setting)}"
+        th:readonly="${setting.isReadOnly()} ? 'readonly' : null"></textarea>
+</th:block>
