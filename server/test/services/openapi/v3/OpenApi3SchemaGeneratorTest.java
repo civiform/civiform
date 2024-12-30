@@ -672,7 +672,7 @@ components:
                                   original_file_name_list:
                                     type: array
                                     items:
-                                      type: object                                      
+                                      type: object
             """),
         new Data(
             QuestionType.ID,
