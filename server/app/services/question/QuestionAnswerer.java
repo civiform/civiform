@@ -88,6 +88,22 @@ public final class QuestionAnswerer {
     }
   }
 
+  public static void answerFileQuestionWithMultipleUploadOriginalNames(
+      ApplicantData applicantData, Path contextualizedPath, int index, String originalName) {
+    applicantData.putString(
+        contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(index),
+        originalName);
+  }
+
+  public static void answerFileQuestionWithMultipleUploadOriginalNames(
+      ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> originalNames) {
+    for (int i = 0; i < originalNames.size(); i++) {
+      applicantData.putString(
+          contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(i),
+          originalNames.get(i));
+    }
+  }
+
   public static void answerMultiSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(

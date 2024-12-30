@@ -684,6 +684,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<String> bucket = request.queryString("bucket");
               Optional<String> key = request.queryString("key");
 
+              // Original file name is only set for Azure, where we have to generate a UUID when
+              // uploading a file to Azure Blob storage because we cannot upload a file without a
+              // name. For AWS, the file key and original file name are the same. For the future,
+              // GCS supports POST uploads so this field won't be needed either:
+              // <link> https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
+              // This is only really needed for Azure blob storage.
+              Optional<String> originalFileName = request.queryString("originalFileName");
+
               if (bucket.isEmpty() || key.isEmpty()) {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
@@ -700,6 +708,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   new ImmutableMap.Builder<>();
               Optional<ImmutableList<String>> keysOptional =
                   fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
 
               if (keysOptional.isPresent()) {
                 ImmutableList<String> keys = keysOptional.get();
@@ -746,7 +756,44 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
               }
 
-              return ensureFileRecord(key.get(), Optional.empty())
+              if (originalFileName.isPresent()) {
+                if (originalFileNamesOptional.isPresent()) {
+                  ImmutableList<String> orignalFileNames = originalFileNamesOptional.get();
+
+                  boolean appendValue = true;
+
+                  // Write the existing filenames so that we don't delete any.
+                  for (int i = 0; i < orignalFileNames.size(); i++) {
+                    String originalFileNameValue = orignalFileNames.get(i);
+                    fileUploadQuestionFormData.put(
+                        fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                        originalFileNameValue);
+                    // OriginalFileName already exists in question, no need to append it. But we may
+                    // want
+                    // to render some kind of error in this case in the future, since it means the
+                    // user
+                    // essentially "replaced" whatever file already existed with that same name.
+                    // Alternatively, we could prevent this on the client-side.
+                    if (originalFileNameValue.equals(originalFileName.get())) {
+                      appendValue = false;
+                    }
+                  }
+
+                  if (appendValue) {
+                    fileUploadQuestionFormData.put(
+                        fileUploadQuestion
+                            .getOriginalFileNameListPathForIndex(orignalFileNames.size())
+                            .toString(),
+                        originalFileName.get());
+                  }
+                } else {
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(0).toString(),
+                      originalFileName.get());
+                }
+              }
+
+              return ensureFileRecord(key.get(), originalFileName)
                   .thenComposeAsync(
                       (StoredFileModel unused) ->
                           applicantService.stageAndUpdateIfValid(

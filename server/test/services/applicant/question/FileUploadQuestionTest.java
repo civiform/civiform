@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -65,6 +66,65 @@ public class FileUploadQuestionTest extends ResetPostgres {
 
     assertThat(fileUploadQuestion.getFileKeyValue().get()).isEqualTo("file-key");
     assertThat(fileUploadQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  public void withApplicantData_multiFile_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("filekey1", "filekey2"));
+    assertThat(fileUploadQuestion.getFileKeyListValue().get())
+        .containsExactly("filekey1", "filekey2");
+    assertThat(fileUploadQuestion.getFileKeyValueForIndex(0).get()).isEqualTo("filekey1");
+    assertThat(fileUploadQuestion.getFileKeyValueForIndex(1).get()).isEqualTo("filekey2");
+    assertThat(fileUploadQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  public void getOriginalFileName_MultiFile_notAnswered_returnsNotPresent() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+    assertFalse(fileUploadQuestion.getOriginalFileNameListValue().isPresent());
+    assertFalse(fileUploadQuestion.getOriginalFileNameValueForIndex(0).isPresent());
+  }
+
+  @Test
+  public void getOriginalFileName_multiFile_emptyAnswer_returnsNotPresent() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+    QuestionAnswerer.answerFileQuestionWithMultipleUploadOriginalNames(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(""));
+    assertFalse(fileUploadQuestion.getOriginalFileNameListValue().isPresent());
+    assertFalse(fileUploadQuestion.getOriginalFileNameValueForIndex(0).isPresent());
+  }
+
+  @Test
+  public void getOriginalFileName_MultiFile() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+    QuestionAnswerer.answerFileQuestionWithMultipleUploadOriginalNames(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("filename1", "filename2"));
+    assertThat(fileUploadQuestion.getOriginalFileNameListValue().get())
+        .containsExactly("filename1", "filename2");
+    assertThat(fileUploadQuestion.getOriginalFileNameValueForIndex(0).get()).isEqualTo("filename1");
+    assertThat(fileUploadQuestion.getOriginalFileNameValueForIndex(1).get()).isEqualTo("filename2");
   }
 
   @Test

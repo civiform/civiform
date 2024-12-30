@@ -16,6 +16,15 @@ import services.question.types.FileUploadQuestionDefinition;
  */
 public final class FileUploadQuestion extends Question {
 
+  // There is an unfortunate dual logic in the how filenames are stored for question answers. AWS
+  // deployements store the filename in the key, Azure stores them in a separate column.
+  //
+  // In order for the application to work properly we must look for data in the original file names
+  // Scalar, and absent that data, return the file keys as the filename.
+  //
+  // Remember whether to use original filenames, to avoid multiple reads for AWS deployments.
+  private boolean useOriginalFileNames;
+
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
   // and if they are this value could still not be set.
@@ -24,6 +33,7 @@ public final class FileUploadQuestion extends Question {
 
   FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
+    this.useOriginalFileNames = true;
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
   }
@@ -37,7 +47,11 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath(), getFileKeyListPath());
+    return ImmutableList.of(
+        getFileKeyPath(),
+        getFileKeyListPath(),
+        getOriginalFileNamePath(),
+        getOriginalFileNameListPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
@@ -57,6 +71,10 @@ public final class FileUploadQuestion extends Question {
 
   public Optional<ImmutableList<String>> getFileKeyListValue() {
     return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
+  }
+
+  public Optional<String> getFileKeyValueForIndex(int index) {
+    return applicantQuestion.getApplicantData().readString(getFileKeyListPathForIndex(index));
   }
 
   /**
@@ -88,6 +106,42 @@ public final class FileUploadQuestion extends Question {
     return originalFileNameValueCache.get();
   }
 
+  /*
+   * Returns the stored original filenames. If this data does not exist, return the file key values.
+   */
+  public Optional<ImmutableList<String>> getOriginalFileNameListValue() {
+    if (useOriginalFileNames) {
+      Optional<ImmutableList<String>> originalFileNames =
+          applicantQuestion.getApplicantData().readStringList(getOriginalFileNameListPath());
+      if (originalFileNames.isPresent()) {
+        return originalFileNames;
+      }
+    }
+
+    useOriginalFileNames = false;
+    return getFileKeyListValue();
+  }
+
+  /*
+   * Returns the stored original filename for the given index. If this data does not exist, return the
+   * file key value for the same index.
+   */
+  public Optional<String> getOriginalFileNameValueForIndex(int index) {
+    if (useOriginalFileNames) {
+      Optional<String> originalFileName =
+          applicantQuestion
+              .getApplicantData()
+              .readString(getOriginalFileNameListPathForIndex(index));
+      if (originalFileName.isPresent()) {
+        return originalFileName;
+      }
+    }
+
+    // Execution will reach this point, if we have no data for original file names.
+    useOriginalFileNames = false;
+    return getFileKeyValueForIndex(index);
+  }
+
   public FileUploadQuestionDefinition getQuestionDefinition() {
     return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -110,6 +164,18 @@ public final class FileUploadQuestion extends Question {
 
   public Path getOriginalFileNamePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
+  public Path getOriginalFileNameListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME_LIST);
+  }
+
+  public Path getOriginalFileNameListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.ORIGINAL_FILE_NAME_LIST)
+        .asArrayElement()
+        .atIndex(index);
   }
 
   public Optional<String> getFilename() {
