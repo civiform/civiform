@@ -425,6 +425,10 @@ definitions:
                       type: "array"
                       items:
                         type: "string"
+                    original_file_name_list:
+                      type: "array"
+                      items:
+                        type: "object"
                     question_type:
                       type: "string"
                 sample_id_question:
@@ -655,6 +659,10 @@ definitions:
                                   type: "array"
                                   items:
                                     type: "string"
+                                original_file_name_list:
+                                  type: "array"
+                                  items:
+                                    type: "object"
                                 question_type:
                                   type: "string"
             """),
