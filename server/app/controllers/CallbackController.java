@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.UrlUtils;
 
 /**
  * This is a convenience class to wrap org.pac4j.play.CallbackController. Controllers outside our
@@ -25,7 +26,7 @@ public class CallbackController extends Controller {
             result -> {
               Optional<String> redirectTo = request.session().get(REDIRECT_TO_SESSION_KEY);
               if (redirectTo.isPresent()) {
-                Result redirect = redirect(redirectTo.get());
+                Result redirect = redirect(UrlUtils.checkIsRelativeUrl(redirectTo.get()));
                 if (result.session() != null) {
                   redirect = redirect.withSession(result.session());
                   redirect = redirect.removingFromSession(request, REDIRECT_TO_SESSION_KEY);

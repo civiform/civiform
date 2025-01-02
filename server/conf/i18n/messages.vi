@@ -429,6 +429,13 @@ title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
 title.getStarted=Hãy bắt đầu.
 title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#

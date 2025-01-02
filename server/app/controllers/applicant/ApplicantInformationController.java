@@ -27,6 +27,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import repository.AccountRepository;
 import repository.VersionRepository;
+import services.UrlUtils;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -85,7 +86,9 @@ public final class ApplicantInformationController extends CiviFormController {
 
               String redirectLink;
               if (request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)) {
-                redirectLink = request.session().data().get(REDIRECT_TO_SESSION_KEY);
+                redirectLink =
+                    UrlUtils.checkIsRelativeUrl(
+                        request.session().data().get(REDIRECT_TO_SESSION_KEY));
               } else if (profileUtils.currentUserProfile(request).isTrustedIntermediary()) {
                 redirectLink =
                     controllers.ti.routes.TrustedIntermediaryController.dashboard(
@@ -99,7 +102,6 @@ public final class ApplicantInformationController extends CiviFormController {
                 CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 redirectLink = applicantRoutes.index(profile, applicantId).url();
               }
-
               return redirect(redirectLink)
                   .withLang(preferredLocale, messagesApi)
                   .withSession(request.session());
@@ -133,7 +135,7 @@ public final class ApplicantInformationController extends CiviFormController {
     }
 
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
-    String redirectLocation = infoForm.getRedirectLink();
+    String redirectLocation = UrlUtils.checkIsRelativeUrl(infoForm.getRedirectLink());
     Locale locale = infoForm.getLocale();
 
     return CompletableFuture.completedFuture(
@@ -161,7 +163,7 @@ public final class ApplicantInformationController extends CiviFormController {
       redirectLocation = applicantRoutes.index(profile, applicantId).url();
       session = request.session();
     } else {
-      redirectLocation = infoForm.getRedirectLink();
+      redirectLocation = UrlUtils.checkIsRelativeUrl(infoForm.getRedirectLink());
       session = request.session().removing(REDIRECT_TO_SESSION_KEY);
     }
 

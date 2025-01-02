@@ -2,6 +2,9 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -9,6 +12,7 @@ import com.nimbusds.jwt.PlainJWT;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -23,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.ti.EmailAddressExistsException;
 import support.ProgramBuilder;
 
@@ -30,12 +35,24 @@ public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
+  // Clock that is within the default session duration (less than 10 hours)
+  public static final Clock VALID_SESSION_CLOCK =
+      Clock.fixed(Instant.now().minusSeconds(10), ZoneId.systemDefault());
+  // Clock is outside of the default session duration (greater than 10 hours / 36000 seconds)
+  public static final Clock INVALID_SESSION_CLOCK =
+      Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault());
 
   private AccountRepository repo;
+  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setupApplicantRepository() {
-    repo = instanceOf(AccountRepository.class);
+    mockSettingsManifest = mock(SettingsManifest.class);
+    repo =
+        new AccountRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            instanceOf(Clock.class),
+            mockSettingsManifest);
   }
 
   @Test
@@ -350,9 +367,14 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addIdTokenAndPrune() {
+    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
     account.setEmailAddress(fakeEmail);
+    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
+    account.storeIdTokenInActiveSession("sessionId1", "idToken1");
+    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
+    account.storeIdTokenInActiveSession("sessionId2", "idToken2");
     account.save();
     long accountId = account.id;
 
@@ -376,6 +398,62 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Valid token
     assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
         .hasValue(validJwt.serialize());
+  }
+
+  @Test
+  public void addIdTokenAndPrune_sessionReplayEnabled() {
+    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    account.addActiveSession("sessionId1", VALID_SESSION_CLOCK);
+    account.storeIdTokenInActiveSession("sessionId1", "idToken1");
+    account.addActiveSession("sessionId2", VALID_SESSION_CLOCK);
+    account.storeIdTokenInActiveSession("sessionId2", "idToken2");
+    account.save();
+    long accountId = account.id;
+
+    // Create a JWT that just expired.
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(1, ChronoUnit.SECONDS).toInstant(ZoneOffset.UTC);
+    JWT expiredJwt = getJwtWithExpirationTime(timeInPast);
+
+    repo.addIdTokenAndPrune(account, "sessionId1", expiredJwt.serialize());
+
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+
+    repo.addIdTokenAndPrune(account, "sessionId2", validJwt.serialize());
+
+    Optional<AccountModel> retrievedAccount = repo.lookupAccount(accountId);
+    assertThat(retrievedAccount).isNotEmpty();
+    // Expired token
+    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId1")).isEmpty();
+    // Valid token
+    assertThat(retrievedAccount.get().getIdTokens().getIdToken("sessionId2"))
+        .hasValue(validJwt.serialize());
+  }
+
+  @Test
+  public void addIdTokenAndPrune_throwsWithoutActiveSession() {
+    when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+    AccountModel account = new AccountModel();
+    String fakeEmail = "fake email";
+    account.setEmailAddress(fakeEmail);
+    account.addActiveSession("sessionId", INVALID_SESSION_CLOCK);
+    account.storeIdTokenInActiveSession("sessionId", "idToken");
+    account.save();
+
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+
+    // Create a JWT that won't expire for an hour.
+    Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
+    JWT validJwt = getJwtWithExpirationTime(timeInFuture);
+
+    assertThrows(
+        RuntimeException.class,
+        () -> repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize()));
   }
 
   @Test

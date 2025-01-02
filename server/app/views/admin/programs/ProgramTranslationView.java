@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
+import models.ApplicationStep;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.TranslationLocales;
@@ -190,6 +191,32 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 "Translations entered below will be visible at a future launch"
                                     + " date."))));
 
+    ImmutableList.Builder<DomContent> newProgramFieldsBuilder =
+        ImmutableList.<DomContent>builder()
+            .add(
+                fieldWithDefaultLocaleTextHint(
+                    FieldWithLabel.input()
+                        .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
+                        .setLabelText("Short program description")
+                        .setValue(updateData.localizedShortDescription())
+                        .getInputTag(),
+                    program.localizedShortDescription()));
+
+    newProgramFieldsBuilder =
+        addApplicationSteps(newProgramFieldsBuilder, program, updateData.applicationSteps());
+
+    result.add(
+        fieldSetForFields(
+            legend()
+                .with(
+                    span("New program details fields"),
+                    new LinkElement()
+                        .setText("(edit default)")
+                        .setHref(programDetailsLink)
+                        .setStyles("ml-2")
+                        .asAnchorText()),
+            newProgramFieldsBuilder.build()));
+
     // Add fields for Screen names and descriptions
     ImmutableList<LocalizationUpdate.ScreenUpdate> screens = updateData.screens();
     for (int i = 0; i < screens.size(); i++) {
@@ -289,5 +316,45 @@ public final class ProgramTranslationView extends TranslationFormView {
               program.localizedSummaryImageDescription().get()));
     }
     return applicantVisibleDetails.build();
+  }
+
+  private ImmutableList.Builder<DomContent> addApplicationSteps(
+      ImmutableList.Builder<DomContent> newProgramFieldsBuilder,
+      ProgramDefinition program,
+      ImmutableList<LocalizationUpdate.ApplicationStepUpdate> updatedApplicationSteps) {
+    // Get the application steps from the program data
+    // if we have default text, add a box for translations
+    ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
+    // TODO: Once we've fully transitioned to the new fields, we probably want each application step
+    // to be it's own section
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep step = applicationSteps.get(i);
+      LocalizationUpdate.ApplicationStepUpdate updatedStep = updatedApplicationSteps.get(i);
+      if (!step.getTitle().getDefault().isEmpty()) {
+        newProgramFieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedApplicationStepTitle(i))
+                    .setLabelText(
+                        String.format("Application step %s title", Integer.toString(i + 1)))
+                    .setScreenReaderText(
+                        String.format("Application step %s title", Integer.toString(i + 1)))
+                    .setValue(updatedStep.localizedTitle())
+                    .getInputTag(),
+                step.getTitle()));
+        newProgramFieldsBuilder.add(
+            fieldWithDefaultLocaleTextHint(
+                FieldWithLabel.input()
+                    .setFieldName(ProgramTranslationForm.localizedApplicationStepDescription(i))
+                    .setLabelText(
+                        String.format("Application step %s description", Integer.toString(i + 1)))
+                    .setScreenReaderText(
+                        String.format("Application step %s description", Integer.toString(i + 1)))
+                    .setValue(updatedStep.localizedDescription())
+                    .getInputTag(),
+                step.getDescription()));
+      }
+    }
+    return newProgramFieldsBuilder;
   }
 }

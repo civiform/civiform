@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.3.1-jre",
+      "com.google.guava" % "guava" % "33.4.0-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -37,21 +37,21 @@ lazy val root = (project in file("."))
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
-      "org.thymeleaf" % "thymeleaf" % "3.1.2.RELEASE",
+      "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
       "org.commonmark" % "commonmark" % "0.24.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.24.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.29",
-      "software.amazon.awssdk" % "ses" % "2.29.29",
+      "software.amazon.awssdk" % "s3" % "2.29.43",
+      "software.amazon.awssdk" % "ses" % "2.29.43",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.14.2",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.23.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.25.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.4",
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.26.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.3.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.51",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.52",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -119,7 +119,15 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.12"
+      "ch.qos.logback" % "logback-classic" % "1.5.12",
+
+      // Swagger 2.0 Dependencies
+      "io.swagger" % "swagger-core" % "1.6.14" exclude ("javax.validation", "validation-api"),
+      "io.swagger" % "swagger-parser" % "1.0.72",
+
+      // OpenAPI 3.x Dependencies
+      "io.swagger.core.v3" % "swagger-core" % "2.2.27",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.24"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

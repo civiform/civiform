@@ -94,6 +94,13 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
+  public String getMultiFileUploadFormClass() {
+    // The TS module for AWS file upload does not need to discern between single file and
+    // multi file uploads, so the form class should be the same.
+    return getUploadFormClass();
+  }
+
+  @Override
   public ImmutableList<ScriptTag> extraScriptTags() {
     return ImmutableList.of();
   }

@@ -429,6 +429,13 @@ title.commonIntakeSummary=Resumen del proceso de evaluación para acceder a los 
 title.getStarted=Comencemos.
 title.programSummary=Resumen de la inscripción al programa
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Program Overview
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#

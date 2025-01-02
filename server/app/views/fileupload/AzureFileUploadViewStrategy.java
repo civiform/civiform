@@ -76,4 +76,11 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   public String getUploadFormClass() {
     return "azure-upload";
   }
+
+  @Override
+  public String getMultiFileUploadFormClass() {
+    // Return a different form class for multi-file uploads so that ths TS module can vary its event
+    // handling strategy.
+    return "azure-multi-file-upload";
+  }
 }

@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import controllers.BadRequestException;
 import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -542,6 +543,9 @@ public final class ProgramService {
     LocalizedStrings newConfirmationMessageTranslations =
         maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
 
+    applicationSteps =
+        preserveApplicationStepTranslations(applicationSteps, programDefinition.applicationSteps());
+
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
         && !programDefinition.isCommonIntakeForm()) {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
@@ -581,6 +585,32 @@ public final class ProgramService {
                     programRepository.updateProgramSync(program)))
             .toCompletableFuture()
             .join());
+  }
+
+  /** Preserve translations on existing titles and descriptions in application steps */
+  private ImmutableList<ApplicationStep> preserveApplicationStepTranslations(
+      ImmutableList<ApplicationStep> newSteps, ImmutableList<ApplicationStep> existingSteps) {
+    return newSteps.stream()
+        .map(
+            step -> {
+              String defaultTitle = step.getTitle().getDefault();
+              String defaultDescription = step.getDescription().getDefault();
+              LocalizedStrings preservedTitle =
+                  existingSteps.stream()
+                      .filter(s -> s.getTitle().getDefault().equals(defaultTitle))
+                      .map(ApplicationStep::getTitle)
+                      .findFirst()
+                      .orElse(step.getTitle());
+              LocalizedStrings preservedDescription =
+                  existingSteps.stream()
+                      .filter(s -> s.getDescription().getDefault().equals(defaultDescription))
+                      .map(ApplicationStep::getDescription)
+                      .findFirst()
+                      .orElse(step.getDescription());
+
+              return step.setTitle(preservedTitle).setDescription(preservedDescription);
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   /** Removes eligibility predicates from all blocks in this program. */
@@ -781,9 +811,33 @@ public final class ProgramService {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
-    validateProgramText(
-        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
+
+    // only validate the short description if the program has one
+    // short description is now a required field, but older programs might not have one yet
+    Optional<String> shortDescription =
+        programDefinition.localizedShortDescription().maybeGet(LocalizedStrings.DEFAULT_LOCALE);
+    if (shortDescription.isPresent() && !shortDescription.get().isBlank()) {
+      validateProgramText(
+          errorsBuilder,
+          "short display description",
+          localizationUpdate.localizedShortDescription());
+    }
+
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
+
+    // Only validate application steps if the program has them and is not a common intake program
+    // We only need to validate the first application step because only one is required
+    if (!programDefinition.isCommonIntakeForm()
+        && !programDefinition.applicationSteps().isEmpty()) {
+      validateProgramText(
+          errorsBuilder,
+          "application step one title",
+          localizationUpdate.applicationSteps().get(0).localizedTitle());
+      validateProgramText(
+          errorsBuilder,
+          "application step one description",
+          localizationUpdate.applicationSteps().get(0).localizedDescription());
+    }
 
     ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
     for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
@@ -823,6 +877,18 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
+    // loop through the translation updates and use the index to fetch and update the correct
+    // application step
+    ArrayList<ApplicationStep> updatedApplicationSteps = new ArrayList<>();
+    for (int i = 0; i < localizationUpdate.applicationSteps().size(); i++) {
+      LocalizationUpdate.ApplicationStepUpdate update =
+          localizationUpdate.applicationSteps().get(i);
+      ApplicationStep step = programDefinition.applicationSteps().get(i);
+      step.addTitleTranslation(locale, update.localizedTitle());
+      step.addDescriptionTranslation(locale, update.localizedDescription());
+      updatedApplicationSteps.add(step);
+    }
+
     ProgramDefinition.Builder newProgram =
         programDefinition.toBuilder()
             .setLocalizedName(
@@ -833,11 +899,16 @@ public final class ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setLocalizedShortDescription(
+                programDefinition
+                    .localizedShortDescription()
+                    .updateTranslation(locale, localizationUpdate.localizedShortDescription()))
             .setLocalizedConfirmationMessage(
                 programDefinition
                     .localizedConfirmationMessage()
                     .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
-            .setBlockDefinitions(toUpdateBlockBuilder.build());
+            .setBlockDefinitions(toUpdateBlockBuilder.build())
+            .setApplicationSteps(ImmutableList.copyOf(updatedApplicationSteps));
     updateSummaryImageDescriptionLocalization(
         programDefinition,
         newProgram,

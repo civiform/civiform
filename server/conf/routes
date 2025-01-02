@@ -215,9 +215,16 @@ POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:
 # API
 GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
 GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
-GET     /api/docs/v1                                        controllers.api.ApiDocsController.index(request: Request)
-GET     /api/docs/v1/:programSlug/active                    controllers.api.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
-GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
+
+# API Docs
+GET     /docs/api/programs                            controllers.docs.ApiDocsController.index(request: Request)
+GET     /docs/api/programs/:programSlug/active        controllers.docs.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
+GET     /docs/api/programs/:programSlug/draft         controllers.docs.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
+GET     /docs/api/schemas/:programSlug/yaml           controllers.docs.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
+GET     /docs/api/schemas/:programSlug                controllers.docs.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
+
+# Serves swagger-ui files for the docs schema ui viewer
+GET     /public/swagger-ui/*file                      controllers.Assets.at(path="/public/swagger-ui", file)
 
 # Methods for user support incidents
 GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)

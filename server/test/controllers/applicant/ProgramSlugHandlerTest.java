@@ -2,7 +2,10 @@ package controllers.applicant;
 
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -31,6 +34,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.applicant.NorthStarProgramOverviewView;
 
 public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
@@ -202,7 +206,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             languageUtils,
-            applicantRoutes);
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -239,7 +246,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             languageUtils,
-            applicantRoutes);
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
     Result result =
         handler
             .showProgram(controller, fakeRequest(), programDefinition.slug())
@@ -250,5 +260,46 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             controllers.applicant.routes.ApplicantProgramReviewController.review(
                     programDefinition.id())
                 .url());
+  }
+
+  @Test
+  public void showProgram_withNorthStarEnabled_loadsProgramOverview() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    createApplicantWithMockedProfile();
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
+    Result result =
+        handler
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("Welcome to the program overview page!");
   }
 }
