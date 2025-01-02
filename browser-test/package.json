@@ -13,7 +13,7 @@
     "@typescript-eslint/eslint-plugin": "8.19.0",
     "@typescript-eslint/parser": "8.19.0",
     "axe-core": "4.10.2",
-    "eslint": "8.57.1",
+    "eslint": "9.17.0",
     "eslint-plugin-no-unsanitized": "^4.0.2",
     "eslint-plugin-playwright": "2.1.0",
     "playwright": "1.49.1",
