@@ -3,6 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  loginAsTestUser,
   selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
@@ -398,24 +399,48 @@ test.describe('Admin can manage program translations', () => {
     adminQuestions,
     adminTranslations,
     adminPredicates,
+    applicantQuestions,
   }) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
-    await adminQuestions.addTextQuestion({questionName: 'text-question'})
-
+    const questionName = 'eligibility-question-q'
+    const eligibilityMsg = 'Cutomized eligibility mesage'
     const programName = 'Program with blocks'
     const screenName = 'Screen 1'
-    const eligibilityMsg = 'Cutomized eligibility mesage'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlockUsingSpec(programName, {
-      name: screenName,
-      description: 'first screen',
-      questions: [{name: 'text-question'}],
+
+    await test.step('Add program and a screen', async () => {
+      await adminQuestions.addTextQuestion({questionName: questionName})
+      await adminQuestions.addTextQuestion({
+        questionName: 'eligibility-other-q',
+        description: 'desc',
+        questionText: 'eligibility question',
+      })
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockUsingSpec(programName, {
+        name: screenName,
+        description: 'first screen',
+        questions: [{name: questionName}],
+      })
+    })
+
+    await test.step('Add predicate for the screen', async () => {
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.addPredicates({
+        questionName: questionName,
+        scalar: 'text',
+        operator: 'is equal to',
+        value: 'eligible',
+      })
+      await adminPredicates.expectPredicateDisplayTextContains(
+        'Screen 1 is eligible if "eligibility-question-q" text is equal to "eligible"',
+      )
     })
 
     await test.step('Update translations', async () => {
-      // add eligibility message
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
@@ -445,6 +470,20 @@ test.describe('Admin can manage program translations', () => {
         'Spanish block eligibility message',
       )
     })
-    // TODO: publish and verify the translation applicant-side
+
+    await test.step('Publish and verify the translation on applicant side', async () => {
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'Español')
+      await applicantQuestions.applyProgram('Spanish name')
+      await applicantQuestions.answerTextQuestion('ineligible')
+      await page.click('text="Guardar y continuar"')
+      await validateScreenshot(
+        page,
+        'ineligible-view-with-translated-eligibility-msg',
+      )
+    })
   })
 })

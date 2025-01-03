@@ -432,7 +432,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
               roApplicantProgramService,
               messagesApi.preferred(request),
               applicantId,
-              programDefinition));
+              programDefinition,
+              /* blockDefinition= */ Optional.empty()));
     }
   }
 
