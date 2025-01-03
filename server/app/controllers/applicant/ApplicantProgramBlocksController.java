@@ -54,6 +54,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -1225,19 +1226,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } else {
       return supplyAsync(
           () -> {
+            Optional<BlockDefinition> blockDefinition = Optional.empty();
             try {
-              return ok(
-                  ineligibleBlockView.render(
-                      request,
-                      profile,
-                      roApplicantProgramService,
-                      messagesApi.preferred(request),
-                      applicantId,
-                      programDefinition,
-                      Optional.of(blockId)));
+              blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
             } catch (ProgramBlockDefinitionNotFoundException e) {
-              throw new RuntimeException(e);
+              notFound(e.toString());
             }
+            return ok(
+                ineligibleBlockView.render(
+                    request,
+                    profile,
+                    roApplicantProgramService,
+                    messagesApi.preferred(request),
+                    applicantId,
+                    programDefinition,
+                    blockDefinition));
           });
     }
   }
