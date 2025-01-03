@@ -1230,7 +1230,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             try {
               blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
             } catch (ProgramBlockDefinitionNotFoundException e) {
-              notFound(e.toString());
+              throw new RuntimeException(e);
             }
             return ok(
                 ineligibleBlockView.render(
