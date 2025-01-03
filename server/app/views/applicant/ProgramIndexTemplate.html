@@ -33,16 +33,21 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main class="grid-container padding-0">
+    <main>
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
         id="top-content"
-        class="bg-primary-darker text-white border-y border-primary usa-prose padding-section-large"
+        class="bg-primary-darker border-y border-primary padding-y-4 padding-x-2"
       >
-        <h1 th:text="#{heading.homepage}"></h1>
-        <div th:text="#{content.homepageIntro}"></div>
+        <div class="grid-container text-white usa-prose">
+          <h1 th:text="#{heading.homepage}"></h1>
+          <div th:text="#{content.homepageIntro}"></div>
+        </div>
       </div>
-      <div id="programs-list" class="padding-section-large usa-prose">
+      <div
+        id="programs-list"
+        class="grid-container padding-section-large usa-prose"
+      >
         <div th:if="${commonIntakeSection.isPresent()}">
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
