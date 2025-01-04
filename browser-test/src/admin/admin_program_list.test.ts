@@ -3,7 +3,6 @@ import {
   AdminPrograms,
   enableFeatureFlag,
   isLocalDevEnvironment,
-  seedProgramsAndCategories,
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
@@ -45,16 +44,18 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
-  test('view program with categories', async ({page, adminPrograms}) => {
+  test('view program with categories', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+    await seeding.seedProgramsAndCategories()
 
     await test.step('create new program', async () => {
+      await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
     })

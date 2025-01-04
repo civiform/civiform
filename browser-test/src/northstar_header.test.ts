@@ -6,7 +6,6 @@ import {
   validateScreenshot,
   validateAccessibility,
   enableFeatureFlag,
-  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
@@ -20,6 +19,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     await test.step('Take a screenshot with no profile/account', async () => {
       await validateScreenshot(page.getByRole('main'), 'not-logged-in')
@@ -28,7 +28,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       // Since a guest account is not created until you start applying for something,
       // we have to make a program.
       await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await seedProgramsAndCategories(page)
+      await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
