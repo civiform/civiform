@@ -433,6 +433,15 @@ test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
         await applicantQuestions.validateQuestionIsOnPage(
           fileUploadQuestionText,
         )
+
+        const formInputs = await page
+          .locator('#cf-block-form')
+          .locator('input')
+          .all()
+        const lastFormInput = formInputs[formInputs.length - 1]
+
+        // AWS requires that the <input type="file"> element to be the last <input> in the <form>
+        await expect(lastFormInput).toHaveAttribute('type', 'file')
       })
 
       await test.step('Hides error when smaller file is uploaded', async () => {
@@ -557,6 +566,7 @@ test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
       await applicantQuestions.answerFileUploadQuestionFromAssets(
         'file-upload-second.png',
       )
+      await applicantFileQuestion.expectFileNameDisplayed('file2.txt')
 
       await applicantQuestions.clickReview()
 
