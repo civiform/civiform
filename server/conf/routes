@@ -271,6 +271,8 @@ POST    /dev/seedPrograms                         controllers.dev.DevToolsContro
 +nocsrf
 POST    /dev/seedProgramsHeadless                 controllers.dev.DevToolsController.seedProgramsHeadless()
 POST    /dev/seed/clear                           controllers.dev.DevToolsController.clear()
++nocsrf
+POST    /dev/seed/clearHeadless                   controllers.dev.DevToolsController.clearHeadless()
 POST    /dev/seed/clearCache                      controllers.dev.DevToolsController.clearCache()
 GET     /dev/icons                                controllers.dev.IconsController.index(request: Request)
 GET     /dev/addressChecker                       controllers.dev.AddressCheckerController.index(request: Request)

@@ -23,12 +23,9 @@ test.describe(
   'Application Version Fast-Forward Flow',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page, request}) => {
+    test.beforeEach(async ({page, seeding}) => {
+      await seeding.clearDatabase()
       await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-      await test.step('Clear database', async () => {
-        await request.post('/dev/seed/clear')
-      })
     })
 
     test('all major steps - fast forward flag disabled', async ({browser}) => {

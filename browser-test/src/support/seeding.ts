@@ -13,4 +13,11 @@ export class Seeding {
       await expect(response).toBeOK()
     })
   }
+
+  async clearDatabase() {
+    await test.step('Clear database', async () => {
+      const response = await this.request.post('/dev/seed/clearHeadless')
+      await expect(response).toBeOK()
+    })
+  }
 }

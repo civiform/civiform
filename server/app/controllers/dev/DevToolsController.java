@@ -151,10 +151,28 @@ public class DevToolsController extends Controller {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    clearCacheIfEnabled();
-    resetTables();
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "The database has been cleared");
+    Result result = redirect(routes.DevToolsController.index().url());
+    return clearInternal()
+        ? result.flashing(FlashKey.SUCCESS, "The database has been cleared")
+        : result.flashing(FlashKey.ERROR, "Could not clear database");
+  }
+
+  /** Remove all content from the program and question tables. */
+  public Result clearHeadless() {
+    return clearInternal() ? ok() : internalServerError();
+  }
+
+  /** Remove all content from the program and question tables. */
+  private boolean clearInternal() {
+    try {
+      clearCacheIfEnabled();
+      resetTables();
+
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to clear cache or tables.", ex);
+      return false;
+    }
   }
 
   /** Remove all content from the cache. */

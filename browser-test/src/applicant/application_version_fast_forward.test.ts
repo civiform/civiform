@@ -16,10 +16,8 @@ import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
-  test.beforeEach(async ({request}) => {
-    await test.step('Clear database', async () => {
-      await request.post('/dev/seed/clear')
-    })
+  test.beforeEach(async ({seeding}) => {
+    await seeding.clearDatabase()
   })
 
   test('all major steps - fast forward flag disabled', async ({browser}) => {
