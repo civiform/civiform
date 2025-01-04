@@ -97,10 +97,24 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedQuestions() {
-    devDatabaseSeedTask.seedQuestions();
+    Result result = redirect(routes.DevToolsController.index().url());
+    return seedQuestionsInternal()
+        ? result.flashing(FlashKey.SUCCESS, "Sample questions seeded")
+        : result.flashing(FlashKey.ERROR, "Failed to seed questions");
+  }
 
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "Sample questions seeded");
+  public Result seedQuestionsHeadless() {
+    return seedQuestionsInternal() ? ok() : internalServerError();
+  }
+
+  private boolean seedQuestionsInternal() {
+    try {
+      devDatabaseSeedTask.seedQuestions();
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to seed questions", ex);
+      return false;
+    }
   }
 
   public Result seedPrograms() {
