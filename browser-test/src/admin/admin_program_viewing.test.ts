@@ -1,10 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  seedProgramsAndCategories,
-  validateScreenshot,
-} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('admin program view page', () => {
   test('view active program shows read only view', async ({
@@ -23,16 +18,15 @@ test.describe('admin program view page', () => {
   test('view program details shows program categories', async ({
     page,
     adminPrograms,
+    seeding,
   }) => {
     const programName = 'Active Program'
     await enableFeatureFlag(page, 'program_filtering_enabled')
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+    await seeding.seedProgramsAndCategories()
 
     await test.step('login as admin', async () => {
+      await page.goto('/')
       await loginAsAdmin(page)
     })
 

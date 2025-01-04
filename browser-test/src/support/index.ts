@@ -250,13 +250,6 @@ export const seedQuestions = async (page: Page) => {
   await page.click('#sample-questions')
 }
 
-export const seedProgramsAndCategories = async (page: Page) => {
-  await test.step('Seed programs', async () => {
-    await page.goto('/dev/seed')
-    await page.click('#sample-programs')
-  })
-}
-
 export const disableFeatureFlag = async (page: Page, flag: string) => {
   await test.step(`Disable feature flag: ${flag}`, async () => {
     await page.goto(`/dev/feature/${flag}/disable`)
