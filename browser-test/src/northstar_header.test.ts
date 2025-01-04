@@ -6,7 +6,6 @@ import {
   validateScreenshot,
   validateAccessibility,
   enableFeatureFlag,
-  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {

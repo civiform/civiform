@@ -3,7 +3,6 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
-  seedProgramsAndCategories,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
@@ -1229,13 +1228,10 @@ test.describe('program creation', () => {
   })
 
   test.describe('create and update programs with program filtering enabled', () => {
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async ({page, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
-
-      await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
-        await page.goto('/')
-      })
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
     })
 
     test('create and update program with categories', async ({

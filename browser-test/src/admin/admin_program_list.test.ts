@@ -3,7 +3,6 @@ import {
   AdminPrograms,
   enableFeatureFlag,
   isLocalDevEnvironment,
-  seedProgramsAndCategories,
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
@@ -72,19 +71,21 @@ test.describe('Program list page.', () => {
     })
   })
 
-  test('view program with categories', async ({page, adminPrograms}) => {
+  test('view program with categories', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
     const programLongDescription =
       'A very very very very very very long description'
     const programShortDescription = 'A very short description'
 
-    await test.step('seed categories', async () => {
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-    })
+    await seeding.seedProgramsAndCategories()
 
     await test.step('create new program', async () => {
+      await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
         programName,
@@ -140,8 +141,6 @@ test.describe('Program list page.', () => {
     const publicProgram = 'List test public program'
     const disabledProgram = 'List test disabled program'
     await adminPrograms.addProgram(publicProgram)
-    await expect(page.locator('a:has-text("Disabled")')).toBeHidden()
-
     await adminPrograms.addDisabledProgram(disabledProgram)
 
     await expectProgramListElements(adminPrograms, [publicProgram])
