@@ -245,11 +245,6 @@ export const dropTables = async (page: Page) => {
   await page.click('#clear')
 }
 
-export const seedQuestions = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-questions')
-}
-
 export const disableFeatureFlag = async (page: Page, flag: string) => {
   await test.step(`Disable feature flag: ${flag}`, async () => {
     await page.goto(`/dev/feature/${flag}/disable`)
