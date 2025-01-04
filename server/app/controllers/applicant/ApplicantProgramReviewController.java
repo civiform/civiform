@@ -469,11 +469,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Optional<Long> latestProgramId =
           applicantService.updateApplicationToLatestProgramVersion(applicantId, programId);
 
-      RouteExtractor routeExtractor = new RouteExtractor(request);
-
       if (latestProgramId.isPresent()) {
         Call redirectLocation =
-            routeExtractor.containsKey("applicantId")
+            request.path().contains("applicants")
                 ? controllers.applicant.routes.ApplicantProgramReviewController
                     .reviewWithApplicantId(applicantId, latestProgramId.get())
                 : controllers.applicant.routes.ApplicantProgramReviewController.review(
