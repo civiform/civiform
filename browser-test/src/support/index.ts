@@ -240,11 +240,6 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
-export const dropTables = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#clear')
-}
-
 export const disableFeatureFlag = async (page: Page, flag: string) => {
   await test.step(`Disable feature flag: ${flag}`, async () => {
     await page.goto(`/dev/feature/${flag}/disable`)
