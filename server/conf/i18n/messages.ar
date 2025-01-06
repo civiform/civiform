@@ -64,11 +64,11 @@ button.review=مراجعة الإجابات
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=يفتح الرابط علامة تبويب جديدة
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=قائمة التنقّل الأساسية
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=معرّف الوكالة،
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=تنبيه يتضمّن معلومات حول جلسة الضيف
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr=متابعة إرسال طلب للانضمام إلى "{0}"
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=البدء هنا
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=عرض طلب الانضمام وإرساله
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=عرض طلب الانضمام وإرساله إلى "{0}"
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=المتابعة إلى الطلب
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=يساعدك CiviForm في العثور على �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=إرسال طلبات للانضمام إلى البرامج من مكان واحد
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=يمكنك الحصول على المساعدة بشأن رعاية الأطفال والطعام والنقل وشركات الطاقة وغير ذلك.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=البحث عن خدمات
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=طلباتي ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=طلباتي
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=البرامج والخدمات ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=البرامج والخدمات المتاحة
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=تم حفظ الطلب بنجاح. معرّف الطلب:
 # Alert banner when an application was already completed
 toast.programCompleted=سبق أن تمّ إكمال الطلب.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=لم يتم إرسال الطلب بعد
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=تم إرسال الطلب
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=تم الإرسال في ‎{0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={0} في ‎{1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -434,7 +434,7 @@ title.programSummary=ملخّص طلب البرنامج
 #----------------------------------------------------------------------------#
 
 # The HTML page title for the program overview page.  The {0} is the program name.
-title.programOverview={0} - Program Overview
+title.programOverview=‫{0} - نظرة عامة على البرنامج
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
