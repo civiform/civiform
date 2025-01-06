@@ -54,7 +54,9 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
+import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -1180,7 +1182,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             applicantId,
             personalInfo,
             roApplicantProgramService,
-            programDefinition);
+            programDefinition,
+            blockId);
       }
     } catch (ProgramNotFoundException e) {
       notFound(e.toString());
@@ -1205,7 +1208,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       ApplicantPersonalInfo personalInfo,
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      String blockId) {
     if (settingsManifest.getNorthStarApplicantUi(request)) {
       NorthStarApplicantIneligibleView.Params params =
           NorthStarApplicantIneligibleView.Params.builder()
@@ -1221,15 +1225,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
     } else {
       return supplyAsync(
-          () ->
-              ok(
-                  ineligibleBlockView.render(
-                      request,
-                      profile,
-                      roApplicantProgramService,
-                      messagesApi.preferred(request),
-                      applicantId,
-                      programDefinition)));
+          () -> {
+            Optional<BlockDefinition> blockDefinition = Optional.empty();
+            try {
+              blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
+            } catch (ProgramBlockDefinitionNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+            return ok(
+                ineligibleBlockView.render(
+                    request,
+                    profile,
+                    roApplicantProgramService,
+                    messagesApi.preferred(request),
+                    applicantId,
+                    programDefinition,
+                    blockDefinition));
+          });
     }
   }
 
