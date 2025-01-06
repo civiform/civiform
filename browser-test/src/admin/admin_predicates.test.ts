@@ -403,6 +403,7 @@ test.describe('create and edit predicates', () => {
       await page.getByText('name suffix').isHidden()
     })
   })
+
   test('eligibility message field is available to use', async ({
     page,
     adminQuestions,

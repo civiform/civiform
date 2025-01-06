@@ -8,6 +8,7 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  normalizeElements,
 } from '../support'
 
 test.describe('with program statuses', {tag: ['@northstar']}, () => {
@@ -57,7 +58,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       await loginAsTestUser(page)
 
       const locator = page.locator('.cf-application-card')
-
+      await normalizeElements(page)
       await expect(locator.getByText('Submitted on 1/1/30')).toBeHidden()
       await expect(locator.getByText(approvedStatusName)).toBeVisible()
 
