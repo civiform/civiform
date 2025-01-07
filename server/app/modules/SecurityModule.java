@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
@@ -90,7 +89,7 @@ public class SecurityModule extends AbstractModule {
 
     bind(SessionStore.class).toInstance(civiFormSessionStoreFactory.newSessionStore());
     bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);
-  
+
     bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
   }

@@ -52,10 +52,12 @@ class CiviFormLogoutLogic extends DefaultLogoutLogic {
           CiviFormProfile profile = maybeProfile.get();
           profile
               .getAccount()
-              .thenAccept(account -> {
-                account.removeActiveSession(profile.getProfileData().getSessionId());
-                account.save();
-              }).join();
+              .thenAccept(
+                  account -> {
+                    account.removeActiveSession(profile.getProfileData().getSessionId());
+                    account.save();
+                  })
+              .join();
         }
       } catch (RuntimeException e) {
         logger.error("Error clearing session from account", e);
