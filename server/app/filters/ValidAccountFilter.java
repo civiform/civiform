@@ -51,7 +51,7 @@ public class ValidAccountFilter extends EssentialFilter {
 
   private boolean isValidSession(CiviFormProfile profile) {
     if (config.getBoolean("session_replay_protection_enabled")) {
-      profile
+      return profile
           .getAccount()
           .thenApply(
               account ->
