@@ -11,6 +11,7 @@ import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
 import play.mvc.Results;
+import services.settings.SettingsManifest;
 
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
@@ -18,10 +19,12 @@ import play.mvc.Results;
  */
 public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ValidAccountFilter(ProfileUtils profileUtils) {
+  public ValidAccountFilter(ProfileUtils profileUtils, SettingsManifest settingsManifest) {
     this.profileUtils = checkNotNull(profileUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Override
@@ -29,9 +32,9 @@ public class ValidAccountFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-          if (profile.isPresent() && !profileUtils.validCiviFormProfile(profile.get())) {
-            // The cookie is present but the profile is not valid, redirect to logout and clear the
-            // cookie.
+          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
+            // The cookie is present but the profile or session is not valid, redirect to logout and
+            // clear the cookie.
             if (!allowedEndpoint(request)) {
               return Accumulator.done(
                   Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
@@ -40,6 +43,22 @@ public class ValidAccountFilter extends EssentialFilter {
 
           return next.apply(request);
         });
+  }
+
+  private boolean shouldLogoutUser(CiviFormProfile profile) {
+    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
+  }
+
+  private boolean isValidSession(CiviFormProfile profile) {
+    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+      profile
+          .getAccount()
+          .thenApply(
+              account ->
+                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent())
+          .join();
+    }
+    return true;
   }
 
   /**
