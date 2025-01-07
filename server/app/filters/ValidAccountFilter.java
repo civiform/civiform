@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.typesafe.config.Config;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
@@ -11,7 +12,6 @@ import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
 import play.mvc.Results;
-import services.settings.SettingsManifest;
 
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
@@ -19,12 +19,12 @@ import services.settings.SettingsManifest;
  */
 public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
-  private final SettingsManifest settingsManifest;
+  private final Config config;
 
   @Inject
-  public ValidAccountFilter(ProfileUtils profileUtils, SettingsManifest settingsManifest) {
+  public ValidAccountFilter(ProfileUtils profileUtils, Config config) {
     this.profileUtils = checkNotNull(profileUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
+    this.config = checkNotNull(config);
   }
 
   @Override
@@ -50,7 +50,7 @@ public class ValidAccountFilter extends EssentialFilter {
   }
 
   private boolean isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+    if (config.getBoolean("session_replay_protection_enabled")) {
       profile
           .getAccount()
           .thenApply(
