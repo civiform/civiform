@@ -13,6 +13,12 @@ import {
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
+  test.beforeEach(async ({page}) => {
+    await test.step('turn on feature flags', async () => {
+      await enableFeatureFlag(page, 'bulk_status_update_enabled')
+    })
+  })
+
   test(
     'all major steps with multiple file upload flag',
     {tag: ['@skip-on-azure']},
@@ -239,28 +245,34 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('View the submitted application', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        await adminPrograms.viewApplicationForApplicantForBulkStatus(
+          testUserDisplayName(),
+        )
       })
 
       await test.step('Review screen 1', async () => {
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 1',
           'address-q',
           '1234 St',
         )
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 1',
           'name-q',
           'Queen',
         )
 
-        await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
+          'Screen 1',
+          'radio-q',
+          '2',
+        )
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 1',
           'date-q',
           '05/10/2021',
         )
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 1',
           'email-q',
           'test1@gmail.com',
@@ -268,23 +280,23 @@ test.describe('Program admin review of submitted applications', () => {
       })
 
       await test.step('Review screen 2', async () => {
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 2',
           'ice-cream-q',
           '2',
         )
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 2',
           'favorite-trees-q',
           'pine; cherry',
         )
 
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 2',
           'number-q',
           '42',
         )
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 2',
           'text-q',
           'some text',
@@ -292,16 +304,17 @@ test.describe('Program admin review of submitted applications', () => {
       })
 
       await test.step('Review screen 3', async () => {
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 3',
           'fileupload-q',
           'file-upload.png',
         )
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 3',
           'fileupload-q',
           'file-upload-second.png',
         )
+        await page.getByRole('link', {name: 'Back'}).click()
       })
 
       await test.step('Log in as civiform admin', async () => {
@@ -326,12 +339,16 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('Review updated screen 2', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-        await adminPrograms.expectApplicationAnswers(
+        await adminPrograms.viewApplicationForApplicantForBulkStatus(
+          testUserDisplayName(),
+        )
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 2',
           'favorite-trees-q',
           'pine; cherry',
         )
+
+        await page.getByRole('link', {name: 'Back'}).click()
       })
 
       await test.step('Click CiviForm logo and navigate to the programs admins home page', async () => {
@@ -618,28 +635,34 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('View the submitted application', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        testUserDisplayName(),
+      )
     })
 
     await test.step('Review screen 1', async () => {
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         'address-q',
         '1234 St',
       )
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         'name-q',
         'Queen',
       )
 
-      await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
+        'Screen 1',
+        'radio-q',
+        '2',
+      )
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         'date-q',
         '05/10/2021',
       )
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 1',
         'email-q',
         'test1@gmail.com',
@@ -647,19 +670,23 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Review screen 2', async () => {
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 2',
         'ice-cream-q',
         '2',
       )
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 2',
         'favorite-trees-q',
         'pine; cherry',
       )
 
-      await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
+        'Screen 2',
+        'number-q',
+        '42',
+      )
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 2',
         'text-q',
         'some text',
@@ -667,10 +694,11 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Review screen 3', async () => {
-      await adminPrograms.expectApplicationAnswerLinks(
+      await adminPrograms.expectApplicationAnswerLinksForBulkStatus(
         'Screen 3',
         'fileupload-q',
       )
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Log in as civiform admin', async () => {
@@ -695,12 +723,15 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('Review updated screen 2', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-      await adminPrograms.expectApplicationAnswers(
+      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        testUserDisplayName(),
+      )
+      await adminPrograms.expectApplicationAnswersForBulkStatus(
         'Screen 2',
         'favorite-trees-q',
         'pine; cherry',
       )
+      await page.getByRole('link', {name: 'Back'}).click()
     })
 
     await test.step('Click CiviForm logo and navigate to the programs admins home page', async () => {
@@ -802,14 +833,15 @@ test.describe('Program admin review of submitted applications', () => {
 
       for (let i = 0; i < answers.length; i++) {
         await page.click(
-          `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
+          `:nth-match(.cf-admin-application-row, ${i + 1}) a:text("Guest")`,
         )
-        await adminPrograms.waitForApplicationFrame()
-        await adminPrograms.expectApplicationAnswers(
+        await waitForPageJsLoad(page)
+        await adminPrograms.expectApplicationAnswersForBulkStatus(
           'Screen 1',
           'fruit-text-q',
           answers[answers.length - i - 1],
         )
+        await page.getByRole('link', {name: 'Back'}).click()
       }
     })
   })
