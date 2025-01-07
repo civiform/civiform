@@ -14,6 +14,7 @@ import auth.CiviFormSessionStoreFactory;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
+import auth.ProfileUtils;
 import auth.Role;
 import auth.oidc.admin.AdfsClientProvider;
 import auth.oidc.applicant.Auth0ClientProvider;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.inject.Provider;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
@@ -88,7 +90,7 @@ public class SecurityModule extends AbstractModule {
 
     bind(SessionStore.class).toInstance(civiFormSessionStoreFactory.newSessionStore());
     bind(CiviFormSessionStoreFactory.class).toInstance(civiFormSessionStoreFactory);
-
+  
     bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
   }
@@ -159,6 +161,12 @@ public class SecurityModule extends AbstractModule {
       default:
         logger.info("No provider specified for for applicants");
     }
+  }
+
+  @Provides
+  @Singleton
+  protected CiviFormLogoutLogic civiFormLogoutLogic(ProfileUtils profileUtils) {
+    return new CiviFormLogoutLogic(checkNotNull(profileUtils));
   }
 
   @Provides
@@ -296,13 +304,14 @@ public class SecurityModule extends AbstractModule {
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
-      CiviFormSessionStoreFactory civiFormSessionStoreFactory) {
+      CiviFormSessionStoreFactory civiFormSessionStoreFactory,
+      CiviFormLogoutLogic civiformLogoutLogic) {
     Config config = new Config();
     config.setClients(clients);
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
     config.setSessionStoreFactory(civiFormSessionStoreFactory);
-    config.setLogoutLogic(new CiviFormLogoutLogic());
+    config.setLogoutLogic(civiformLogoutLogic);
     return config;
   }
 }
