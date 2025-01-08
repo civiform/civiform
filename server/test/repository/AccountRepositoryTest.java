@@ -464,7 +464,10 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
     assertThat(logsList.get(0).getMessage())
-        .isEqualTo("Session ID not found in account when adding ID token. Adding new session.");
+        .isEqualTo(
+            "Session ID not found in account when adding ID token. Adding new session for account"
+                + " with ID: "
+                + account.id);
   }
 
   @Test

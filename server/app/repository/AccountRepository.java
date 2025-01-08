@@ -487,7 +487,10 @@ public final class AccountRepository {
       // For now, we set the duration to Auth0s default of 10 hours.
       account.removeExpiredActiveSessions(sessionLifecycle);
       if (!account.getActiveSession(sessionId).isPresent()) {
-        logger.warn("Session ID not found in account when adding ID token. Adding new session.");
+        logger.warn(
+            "Session ID not found in account when adding ID token. Adding new session for account"
+                + " with ID: {}",
+            account.id);
         account.addActiveSession(sessionId, clock);
       }
       account.storeIdTokenInActiveSession(sessionId, idToken);
