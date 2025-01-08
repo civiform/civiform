@@ -245,34 +245,28 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('View the submitted application', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus(
-          testUserDisplayName(),
-        )
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       })
 
       await test.step('Review screen 1', async () => {
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'address-q',
           '1234 St',
         )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'name-q',
           'Queen',
         )
 
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
-          'Screen 1',
-          'radio-q',
-          '2',
-        )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
+        await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'date-q',
           '05/10/2021',
         )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'email-q',
           'test1@gmail.com',
@@ -280,23 +274,23 @@ test.describe('Program admin review of submitted applications', () => {
       })
 
       await test.step('Review screen 2', async () => {
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'ice-cream-q',
           '2',
         )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'favorite-trees-q',
           'pine; cherry',
         )
 
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'number-q',
           '42',
         )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'text-q',
           'some text',
@@ -304,12 +298,12 @@ test.describe('Program admin review of submitted applications', () => {
       })
 
       await test.step('Review screen 3', async () => {
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 3',
           'fileupload-q',
           'file-upload.png',
         )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 3',
           'fileupload-q',
           'file-upload-second.png',
@@ -339,10 +333,8 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('Review updated screen 2', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus(
-          testUserDisplayName(),
-        )
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+        await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'favorite-trees-q',
           'pine; cherry',
@@ -635,34 +627,28 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('View the submitted application', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     })
 
     await test.step('Review screen 1', async () => {
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'address-q',
         '1234 St',
       )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'name-q',
         'Queen',
       )
 
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
-        'Screen 1',
-        'radio-q',
-        '2',
-      )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
+      await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'date-q',
         '05/10/2021',
       )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'email-q',
         'test1@gmail.com',
@@ -670,23 +656,19 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Review screen 2', async () => {
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'ice-cream-q',
         '2',
       )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'favorite-trees-q',
         'pine; cherry',
       )
 
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
-        'Screen 2',
-        'number-q',
-        '42',
-      )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
+      await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'text-q',
         'some text',
@@ -694,7 +676,7 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Review screen 3', async () => {
-      await adminPrograms.expectApplicationAnswerLinksForBulkStatus(
+      await adminPrograms.expectApplicationAnswerLinks(
         'Screen 3',
         'fileupload-q',
       )
@@ -723,10 +705,8 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('Review updated screen 2', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus(
-        testUserDisplayName(),
-      )
-      await adminPrograms.expectApplicationAnswersForBulkStatus(
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+      await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'favorite-trees-q',
         'pine; cherry',
@@ -836,7 +816,7 @@ test.describe('Program admin review of submitted applications', () => {
           `:nth-match(.cf-admin-application-row, ${i + 1}) a:text("Guest")`,
         )
         await waitForPageJsLoad(page)
-        await adminPrograms.expectApplicationAnswersForBulkStatus(
+        await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'fruit-text-q',
           answers[answers.length - i - 1],

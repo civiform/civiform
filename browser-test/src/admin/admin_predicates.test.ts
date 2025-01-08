@@ -103,9 +103,7 @@ test.describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
     expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
 
@@ -208,9 +206,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(await page.locator('#application-view').innerText()).toContain(
       'Screen 2',
     )
@@ -354,9 +350,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(await page.locator('#application-view').innerText()).toContain(
       'Screen 1',
     )
