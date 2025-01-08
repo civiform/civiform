@@ -43,10 +43,10 @@ test.describe('view an application in an older version', () => {
 
     // See the application in admin page
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
-    await adminPrograms.expectApplicationAnswersForBulkStatus(
+    await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
       'some text',
@@ -64,10 +64,10 @@ test.describe('view an application in an older version', () => {
 
     // See the application in admin page in the old version
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
-    await adminPrograms.expectApplicationAnswersForBulkStatus(
+    await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
       'some text',

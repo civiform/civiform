@@ -1130,7 +1130,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.expectActiveProgram(programName)
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programName,
       approvedStatusName,
@@ -1217,7 +1217,7 @@ test.describe('applicant program index page with images', () => {
     )
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programNameSubmittedWithImageAndStatus,
       approvedStatusName,
@@ -1251,7 +1251,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.expectActiveProgram(programNameSubmittedWithStatus)
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programNameSubmittedWithStatus,
       approvedStatusName,
@@ -1296,7 +1296,7 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
-  async function submitApplicationAndApplyStatusForBulkStatus(
+  async function submitApplicationAndApplyStatus(
     page: Page,
     programName: string,
     statusName: string,
@@ -1312,12 +1312,12 @@ test.describe('applicant program index page with images', () => {
     // Set a status as a program admin
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
     const modal =
-      await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(statusName)
-    await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+      await adminPrograms.setStatusOptionAndAwaitModal(statusName)
+    await adminPrograms.confirmStatusUpdateModal(modal)
     await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
   }

@@ -110,32 +110,10 @@ export class AdminPrograms {
     applicant: string,
     statusString: string,
   ) {
-    expect(
-      await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
-      ),
-    ).toContain(`Status: ${statusString}`)
-  }
-
-  async expectApplicationStatusDoesntContain(
-    applicant: string,
-    statusString: string,
-  ) {
-    expect(
-      await this.page.innerText(
-        this.selectApplicationCardForApplicant(applicant),
-      ),
-    ).not.toContain(statusString)
-  }
-
-  async expectApplicationHasStatusStringForBulkStatus(
-    applicant: string,
-    statusString: string,
-  ) {
     await expect(this.getRowLocator(applicant)).toContainText(`${statusString}`)
   }
 
-  async expectApplicationStatusDoesntContainForBulkStatus(
+  async expectApplicationStatusDoesntContain(
     applicant: string,
     statusString: string,
   ) {
@@ -1043,31 +1021,15 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async expectApplicationCountForBulkStatus(expectedCount: number) {
+  async expectApplicationCount(expectedCount: number) {
     await expect(this.page.locator('.cf-admin-application-row')).toHaveCount(
       expectedCount,
     )
   }
 
-  async expectApplicationCount(expectedCount: number) {
-    await expect(this.page.locator('.cf-admin-application-card')).toHaveCount(
-      expectedCount,
-    )
-  }
-
-  selectApplicationCardForApplicant(applicantName: string) {
-    return `.cf-admin-application-card:has-text("${applicantName}")`
-  }
-
   getRowLocator(applicantName: string): Locator {
     return this.page.locator(
       `.cf-admin-application-row:has-text("${applicantName}")`,
-    )
-  }
-
-  selectWithinApplicationForApplicant(applicantName: string, selector: string) {
-    return (
-      this.selectApplicationCardForApplicant(applicantName) + ' ' + selector
     )
   }
 
@@ -1133,57 +1095,11 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await Promise.all([
-      this.waitForApplicationFrame(),
-      this.page.click(
-        this.selectWithinApplicationForApplicant(
-          applicantName,
-          'a:text("View")',
-        ),
-      ),
-    ])
-  }
-
-  private static APPLICATION_DISPLAY_FRAME_NAME = 'application-display-frame'
-
-  applicationFrame(): Frame {
-    return this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)!
-  }
-
-  applicationFrameLocator() {
-    return this.page.frameLocator(
-      `iframe[name="${AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME}"]`,
-    )
-  }
-
-  async waitForApplicationFrame() {
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    await frame.waitForNavigation()
-    await waitForPageJsLoad(frame)
-  }
-
-  async viewApplicationForApplicantForBulkStatus(applicantName: string) {
     await this.page.getByRole('link', {name: applicantName}).click()
     await waitForPageJsLoad(this.page)
   }
 
   async expectApplicationAnswers(
-    blockName: string,
-    questionName: string,
-    answer: string,
-  ) {
-    const blockText = await this.applicationFrameLocator()
-      .locator(this.selectApplicationBlock(blockName))
-      .innerText()
-
-    expect(blockText).toContain(questionName)
-    expect(blockText).toContain(answer)
-  }
-
-  async expectApplicationAnswersForBulkStatus(
     blockName: string,
     questionName: string,
     answer: string,
@@ -1196,7 +1112,7 @@ export class AdminPrograms {
     expect(blockText).toContain(answer)
   }
 
-  async expectApplicationAnswerLinksForBulkStatus(
+  async expectApplicationAnswerLinks(
     blockName: string,
     questionName: string,
   ) {
@@ -1211,48 +1127,12 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
-  async expectApplicationAnswerLinks(blockName: string, questionName: string) {
-    await expect(
-      this.applicationFrameLocator().locator(
-        this.selectApplicationBlock(blockName),
-      ),
-    ).toContainText(questionName)
-    expect(
-      this.applicationFrameLocator()
-        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
-        .getAttribute('href'),
-    ).not.toBeNull()
-  }
-
   async isStatusSelectorVisible(): Promise<boolean> {
-    return this.applicationFrameLocator()
-      .locator(this.statusSelector())
-      .isVisible()
-  }
-
-  async isStatusSelectorVisibleForBulkStatus(): Promise<boolean> {
     return this.page.locator(this.statusSelector()).isVisible()
   }
 
   async getStatusOption(): Promise<string> {
-    return this.applicationFrameLocator()
-      .locator(this.statusSelector())
-      .inputValue()
-  }
-
-  async getStatusOptionForBulkStatus(): Promise<string> {
     return this.page.locator(this.statusSelector()).inputValue()
-  }
-
-  /**
-   * Selects the provided status option and then awaits the confirmation dialog.
-   */
-  async setStatusOptionAndAwaitModalForBulkStatus(
-    status: string,
-  ): Promise<ElementHandle<HTMLElement>> {
-    await this.page.locator(this.statusSelector()).selectOption(status)
-
-    return waitForAnyModal(this.page)
   }
 
   /**
@@ -1261,16 +1141,9 @@ export class AdminPrograms {
   async setStatusOptionAndAwaitModal(
     status: string,
   ): Promise<ElementHandle<HTMLElement>> {
-    await this.applicationFrameLocator()
-      .locator(this.statusSelector())
-      .selectOption(status)
+    await this.page.locator(this.statusSelector()).selectOption(status)
 
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-
-    return waitForAnyModal(frame)
+    return waitForAnyModal(this.page)
   }
 
   /**
@@ -1285,15 +1158,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async confirmStatusUpdateModalForBulkStatus(
-    modal: ElementHandle<HTMLElement>,
-  ) {
-    // Confirming shouldn't cause any redirects
-    await (await modal.$('text=Confirm'))!.click()
-
-    await waitForPageJsLoad(this.page)
-  }
-
   async expectUpdateStatusToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain('Application status updated')
@@ -1304,12 +1168,6 @@ export class AdminPrograms {
   }
 
   async isEditNoteVisible(): Promise<boolean> {
-    return this.applicationFrameLocator()
-      .locator(this.editNoteSelector())
-      .isVisible()
-  }
-
-  async isEditNoteVisibleForBulkStatus(): Promise<boolean> {
     return this.page.locator(this.editNoteSelector()).isVisible()
   }
 
@@ -1317,23 +1175,6 @@ export class AdminPrograms {
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.applicationFrameLocator()
-      .locator(this.editNoteSelector())
-      .click()
-
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    const editModal = await waitForAnyModal(frame)
-    const noteContentArea = (await editModal.$('textarea'))!
-    return noteContentArea.inputValue()
-  }
-
-  /**
-   * Returns the content of the note modal when viewing an application.
-   */
-  async getNoteContentForBulkStatus() {
     await this.page.locator(this.editNoteSelector()).click()
 
     const editModal = await waitForAnyModal(this.page)
@@ -1345,40 +1186,9 @@ export class AdminPrograms {
    * Clicks the edit note button, and returns the modal.
    */
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.applicationFrameLocator()
-      .locator(this.editNoteSelector())
-      .click()
-
-    const frame = this.page.frame(AdminPrograms.APPLICATION_DISPLAY_FRAME_NAME)
-    if (!frame) {
-      throw new Error('Expected an application frame')
-    }
-    return await waitForAnyModal(frame)
-  }
-
-  /**
-   * Clicks the edit note button, and returns the modal.
-   */
-  async awaitEditNoteModalForBulkStatus(): Promise<ElementHandle<HTMLElement>> {
     await this.page.locator(this.editNoteSelector()).click()
 
     return await waitForAnyModal(this.page)
-  }
-
-  /**
-   * Clicks the edit note button, sets the note content to the provided text,
-   * and confirms the dialog.
-   */
-  async editNoteForBulkStatus(noteContent: string) {
-    const editModal = await this.awaitEditNoteModalForBulkStatus()
-    const noteContentArea = (await editModal.$('textarea'))!
-    await noteContentArea.fill(noteContent)
-
-    // Confirming should cause the page to redirect and waitForNavigation must be called prior
-    // to taking the action that would trigger navigation.
-    const saveButton = (await editModal.$('text=Save'))!
-    await Promise.all([this.page.waitForNavigation(), saveButton.click()])
-    await waitForPageJsLoad(this.page)
   }
 
   /**
@@ -1426,21 +1236,8 @@ export class AdminPrograms {
 
     return JSON.parse(readFileSync(path, 'utf8')) as DownloadedApplication[]
   }
-  async getApplicationPdf() {
-    const [downloadEvent] = await Promise.all([
-      this.page.waitForEvent('download'),
-      this.applicationFrameLocator()
-        .locator('button:has-text("Export to PDF")')
-        .click(),
-    ])
-    const path = await downloadEvent.path()
-    if (path === null) {
-      throw new Error('download failed')
-    }
-    return readFileSync(path, 'utf8')
-  }
 
-  async getApplicationPdfForBulkStatus() {
+  async getApplicationPdf() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.locator('button:has-text("Export to PDF")').click(),
@@ -1565,11 +1362,6 @@ export class AdminPrograms {
 
   async clickCommonIntakeFormToggle() {
     await this.page.click('input[name=isCommonIntakeForm]')
-  }
-
-  async isPaginationVisibleForApplicationList(): Promise<boolean> {
-    const applicationListDiv = this.page.getByTestId('application-list')
-    return applicationListDiv.locator('.usa-pagination').isVisible()
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {

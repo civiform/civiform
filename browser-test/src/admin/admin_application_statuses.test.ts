@@ -45,11 +45,11 @@ test.describe('view program statuses', () => {
       // Navigate to the submitted application as the program admin.
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithoutStatusesName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
     })
 
     test('does not show status options', async ({adminPrograms}) => {
-      expect(await adminPrograms.isStatusSelectorVisibleForBulkStatus()).toBe(
+      expect(await adminPrograms.isStatusSelectorVisible()).toBe(
         false,
       )
     })
@@ -59,14 +59,14 @@ test.describe('view program statuses', () => {
       adminPrograms,
     }) => {
       await page.getByRole('link', {name: 'Back'}).click()
-      await adminPrograms.expectApplicationStatusDoesntContainForBulkStatus(
+      await adminPrograms.expectApplicationStatusDoesntContain(
         'Guest',
         'Status: ',
       )
     })
 
     test('does not show edit note', async ({page, adminPrograms}) => {
-      expect(await adminPrograms.isEditNoteVisibleForBulkStatus()).toBe(false)
+      expect(await adminPrograms.isEditNoteVisible()).toBe(false)
       await page.getByRole('link', {name: 'Back'}).click()
     })
 
@@ -128,18 +128,18 @@ test.describe('view program statuses', () => {
         await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+        await adminPrograms.viewApplicationForApplicant('Guest')
       },
     )
 
     test('shows status selector', async ({adminPrograms}) => {
-      expect(await adminPrograms.isStatusSelectorVisibleForBulkStatus()).toBe(
+      expect(await adminPrograms.isStatusSelectorVisible()).toBe(
         true,
       )
     })
 
     test('shows placeholder option', async ({adminPrograms}) => {
-      expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+      expect(await adminPrograms.getStatusOption()).toBe(
         'Choose an option:',
       )
     })
@@ -152,7 +152,7 @@ test.describe('view program statuses', () => {
       adminPrograms,
     }) => {
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      await adminPrograms.expectApplicationHasStatusString(
         'Guest',
         'None',
       )
@@ -160,7 +160,7 @@ test.describe('view program statuses', () => {
 
     test.describe('when a status is changed, a confirmation dialog is shown', () => {
       test('renders', async ({page, adminPrograms}) => {
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+        await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
         )
         await validateScreenshot(page, 'change-status-modal')
@@ -170,11 +170,11 @@ test.describe('view program statuses', () => {
         page,
         adminPrograms,
       }) => {
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+        await adminPrograms.setStatusOptionAndAwaitModal(
           noEmailStatusName,
         )
         await dismissModal(page)
-        expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+        expect(await adminPrograms.getStatusOption()).toBe(
           'Choose an option:',
         )
       })
@@ -183,14 +183,14 @@ test.describe('view program statuses', () => {
         adminPrograms,
       }) => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             noEmailStatusName,
           )
         expect(await modal.innerText()).toContain(
           `Status Change: Unset -> ${noEmailStatusName}`,
         )
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-        expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(
           noEmailStatusName,
         )
         await adminPrograms.expectUpdateStatusToast()
@@ -201,7 +201,7 @@ test.describe('view program statuses', () => {
         adminPrograms,
       }) => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             noEmailStatusName,
           )
         expect(await modal.innerText()).toContain(
@@ -215,7 +215,7 @@ test.describe('view program statuses', () => {
         adminPrograms,
       }) => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
         expect(await modal.innerText()).toContain(
@@ -230,17 +230,17 @@ test.describe('view program statuses', () => {
       }) => {
         await test.step('Set initial status', async () => {
           const modal =
-            await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+            await adminPrograms.setStatusOptionAndAwaitModal(
               noEmailStatusName,
             )
-          await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-          expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(
             noEmailStatusName,
           )
         })
 
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
         expect(await modal.innerText()).toContain(
@@ -255,29 +255,29 @@ test.describe('view program statuses', () => {
       }) => {
         await test.step('Set initial status', async () => {
           const modal =
-            await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+            await adminPrograms.setStatusOptionAndAwaitModal(
               noEmailStatusName,
             )
-          await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-          expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(
             noEmailStatusName,
           )
         })
 
         await page.getByRole('link', {name: 'Back'}).click()
 
-        await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+        await adminPrograms.expectApplicationHasStatusString(
           'Guest',
           noEmailStatusName,
         )
-        await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         await page.getByRole('link', {name: 'Back'}).click()
-        await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+        await adminPrograms.expectApplicationHasStatusString(
           'Guest',
           emailStatusName,
         )
@@ -287,7 +287,7 @@ test.describe('view program statuses', () => {
         test.beforeEach(async ({page, adminPrograms}) => {
           await enableFeatureFlag(page, 'bulk_status_update_enabled')
           await adminPrograms.viewApplications(programWithStatusesName)
-          await adminPrograms.viewApplicationForApplicantForBulkStatus(
+          await adminPrograms.viewApplicationForApplicant(
             testUserDisplayName(),
           )
         })
@@ -300,15 +300,15 @@ test.describe('view program statuses', () => {
             ? await extractEmailsForRecipient(page, testUserDisplayName())
             : []
           const modal =
-            await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+            await adminPrograms.setStatusOptionAndAwaitModal(
               emailStatusName,
             )
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           expect(notifyCheckbox).not.toBeNull()
           await notifyCheckbox!.uncheck()
           expect(await notifyCheckbox!.isChecked()).toBe(false)
-          await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-          expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(
             emailStatusName,
           )
           await adminPrograms.expectUpdateStatusToast()
@@ -330,15 +330,15 @@ test.describe('view program statuses', () => {
             ? await extractEmailsForRecipient(page, testUserDisplayName())
             : []
           const modal =
-            await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+            await adminPrograms.setStatusOptionAndAwaitModal(
               emailStatusName,
             )
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           expect(notifyCheckbox).not.toBeNull()
           expect(await notifyCheckbox!.isChecked()).toBe(true)
           expect(await modal.innerText()).toContain(' of this change at ')
-          await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-          expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+          await adminPrograms.confirmStatusUpdateModal(modal)
+          expect(await adminPrograms.getStatusOption()).toBe(
             emailStatusName,
           )
           await adminPrograms.expectUpdateStatusToast()
@@ -359,7 +359,7 @@ test.describe('view program statuses', () => {
       page,
       adminPrograms,
     }) => {
-      await adminPrograms.editNoteForBulkStatus('Some note content')
+      await adminPrograms.editNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
 
       // Confirm that the application is shown after reloading the page.
@@ -370,7 +370,7 @@ test.describe('view program statuses', () => {
     })
 
     test('renders the note dialog', async ({page, adminPrograms}) => {
-      await adminPrograms.awaitEditNoteModalForBulkStatus()
+      await adminPrograms.awaitEditNoteModal()
       await page.evaluate(() => {
         window.scrollTo(0, 0)
       })
@@ -379,31 +379,31 @@ test.describe('view program statuses', () => {
 
     test('shows the current note content', async ({adminPrograms}) => {
       const noteText = 'Some note content'
-      await adminPrograms.editNoteForBulkStatus(noteText)
+      await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
       // Reload the note editor.
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
 
-      expect(await adminPrograms.getNoteContentForBulkStatus()).toBe(noteText)
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
 
     test('allows updating a note', async ({adminPrograms}) => {
       const noteText = 'Some note content'
-      await adminPrograms.editNoteForBulkStatus('first note content')
+      await adminPrograms.editNote('first note content')
       await adminPrograms.expectNoteUpdatedToast()
-      await adminPrograms.editNoteForBulkStatus(noteText)
+      await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
       // Reload the note editor.
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
 
-      expect(await adminPrograms.getNoteContentForBulkStatus()).toBe(noteText)
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
     test('allow notes to be exported', async ({page, adminPrograms}) => {
-      await adminPrograms.editNoteForBulkStatus('Note is exported')
+      await adminPrograms.editNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
       const noApplyFilters = false
       await page.getByRole('link', {name: 'Back'}).click()
@@ -413,19 +413,19 @@ test.describe('view program statuses', () => {
     })
 
     test('export only the latest note', async ({page, adminPrograms}) => {
-      await adminPrograms.editNoteForBulkStatus('Note is exported')
+      await adminPrograms.editNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
       const noApplyFilters = false
 
       // Update note only gets exported
-      await adminPrograms.editNoteForBulkStatus('Note is updated')
+      await adminPrograms.editNote('Note is updated')
       await adminPrograms.expectNoteUpdatedToast()
       await page.getByRole('link', {name: 'Back'}).click()
       const csvContent = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContent).toContain('Note is updated')
 
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
-      await adminPrograms.editNoteForBulkStatus('Note is finalized')
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      await adminPrograms.editNote('Note is finalized')
       await page.getByRole('link', {name: 'Back'}).click()
       const csvContentFinal = await adminPrograms.getCsv(noApplyFilters)
       expect(csvContentFinal).toContain('Note is finalized')
@@ -433,12 +433,12 @@ test.describe('view program statuses', () => {
 
     test('preserves newlines in notes', async ({adminPrograms}) => {
       await adminPrograms.viewApplications(programWithStatusesName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
       const noteText = 'Some note content\nwithseparatelines'
-      await adminPrograms.editNoteForBulkStatus(noteText)
+      await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
-      expect(await adminPrograms.getNoteContentForBulkStatus()).toBe(noteText)
+      expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
   })
 
@@ -500,37 +500,37 @@ test.describe('view program statuses', () => {
       page,
       adminPrograms,
     }) => {
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      await adminPrograms.expectApplicationHasStatusString(
         'Guest',
         `${waitingStatus} (default)`,
       )
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      await adminPrograms.expectApplicationHasStatusString(
         testUserDisplayName(),
         `${waitingStatus} (default)`,
       )
 
       // Approve guest application
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+        await adminPrograms.setStatusOptionAndAwaitModal(
           approvedStatus,
         )
       expect(await modal.innerText()).toContain(
         `Status Change: ${waitingStatus} -> ${approvedStatus}`,
       )
-      await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-      expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+      await adminPrograms.confirmStatusUpdateModal(modal)
+      expect(await adminPrograms.getStatusOption()).toBe(
         approvedStatus,
       )
       await adminPrograms.expectUpdateStatusToast()
 
       await page.getByRole('link', {name: 'Back'}).click()
 
-      await adminPrograms.expectApplicationStatusDoesntContainForBulkStatus(
+      await adminPrograms.expectApplicationStatusDoesntContain(
         'Guest',
         '(default)',
       )
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      await adminPrograms.expectApplicationHasStatusString(
         testUserDisplayName(),
         `${waitingStatus} (default)`,
       )
@@ -590,31 +590,31 @@ test.describe('view program statuses', () => {
     }) => {
       await adminPrograms.viewApplications(programForFilteringName)
       // Default page shows all applications.
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
 
       // Included when filtering to applications without statuses.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption:
           AdminPrograms.NO_STATUS_APPLICATION_FILTER_OPTION,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
 
       // Excluded when selecting specific statuses.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: approvedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(0)
+      await adminPrograms.expectApplicationCount(0)
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: rejectedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(0)
+      await adminPrograms.expectApplicationCount(0)
 
       // Included when explicitly selecting the default option to show all applications.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption:
           AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
     })
 
     test('applied application status filter is used when downloading', async ({
@@ -658,12 +658,12 @@ test.describe('view program statuses', () => {
     }) => {
       await test.step('explicitly set a status for the application', async () => {
         await adminPrograms.viewApplications(programForFilteringName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             approvedStatusName,
           )
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         await page.getByRole('link', {name: 'Back'}).click()
       })
 
@@ -672,26 +672,26 @@ test.describe('view program statuses', () => {
         applicationStatusOption:
           AdminPrograms.NO_STATUS_APPLICATION_FILTER_OPTION,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(0)
+      await adminPrograms.expectApplicationCount(0)
 
       // Included when selecting the "approved" status.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: approvedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
 
       // Excluded when selecting the "rejected" status.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: rejectedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(0)
+      await adminPrograms.expectApplicationCount(0)
 
       // Included when explicitly selecting the default option to show all applications.
       await adminPrograms.filterProgramApplications({
         applicationStatusOption:
           AdminPrograms.ANY_STATUS_APPLICATION_FILTER_OPTION,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
     })
 
     test('shows the application on reload after the status is updated to something no longer in the filter', async ({
@@ -700,26 +700,26 @@ test.describe('view program statuses', () => {
     }) => {
       await test.step('explicitly set a status for the application', async () => {
         await adminPrograms.viewApplications(programForFilteringName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+        await adminPrograms.viewApplicationForApplicant('Guest')
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             approvedStatusName,
           )
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         await page.getByRole('link', {name: 'Back'}).click()
       })
 
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: approvedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(1)
+      await adminPrograms.expectApplicationCount(1)
 
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+        await adminPrograms.setStatusOptionAndAwaitModal(
           rejectedStatusName,
         )
-      await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+      await adminPrograms.confirmStatusUpdateModal(modal)
       await page.getByRole('link', {name: 'Back'}).click()
 
       // The application should no longer be in the list, since its status is no longer "approved".
@@ -728,11 +728,11 @@ test.describe('view program statuses', () => {
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: approvedStatusName,
       })
-      await adminPrograms.expectApplicationCountForBulkStatus(0)
+      await adminPrograms.expectApplicationCount(0)
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: rejectedStatusName,
       })
-      await adminPrograms.viewApplicationForApplicantForBulkStatus('Guest')
+      await adminPrograms.viewApplicationForApplicant('Guest')
       const applicationText = await page
         .locator('#application-view')
         .innerText()
@@ -877,7 +877,7 @@ test.describe('view program statuses', () => {
         await logout(page)
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        await adminPrograms.viewApplicationForApplicant(
           `${guestEmail} (${id})`,
         )
       })
@@ -891,7 +891,7 @@ test.describe('view program statuses', () => {
 
       await test.step('set new status and confirm change via modal', async () => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
 
@@ -901,8 +901,8 @@ test.describe('view program statuses', () => {
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
-        expect(await adminPrograms.getStatusOptionForBulkStatus()).toBe(
+        await adminPrograms.confirmStatusUpdateModal(modal)
+        expect(await adminPrograms.getStatusOption()).toBe(
           emailStatusName,
         )
         await adminPrograms.expectUpdateStatusToast()
@@ -935,7 +935,7 @@ test.describe('view program statuses', () => {
         await logout(page)
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        await adminPrograms.viewApplicationForApplicant(
           `${otherTestUserEmail} (${id})`,
         )
       })
@@ -953,7 +953,7 @@ test.describe('view program statuses', () => {
 
       await test.step('set new status and confirm change via modal', async () => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
         expect(await modal.innerText()).toContain(
@@ -963,7 +963,7 @@ test.describe('view program statuses', () => {
             otherTestUserEmail,
         )
 
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         await adminPrograms.expectUpdateStatusToast()
       })
       await test.step('verify status update email was sent to both email addresses', async () => {
@@ -998,7 +998,7 @@ test.describe('view program statuses', () => {
         await logout(page)
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
-        await adminPrograms.viewApplicationForApplicantForBulkStatus(
+        await adminPrograms.viewApplicationForApplicant(
           `${testUserDisplayName()} (${id})`,
         )
       })
@@ -1012,7 +1012,7 @@ test.describe('view program statuses', () => {
 
       await test.step('set new status and confirm change via modal', async () => {
         const modal =
-          await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+          await adminPrograms.setStatusOptionAndAwaitModal(
             emailStatusName,
           )
         expect(await modal.innerText()).toContain(
@@ -1020,7 +1020,7 @@ test.describe('view program statuses', () => {
         )
         expect(await modal.innerText()).not.toContain(' and ')
 
-        await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.confirmStatusUpdateModal(modal)
         await adminPrograms.expectUpdateStatusToast()
       })
       await test.step('verify status update email was sent to the applicant', async () => {

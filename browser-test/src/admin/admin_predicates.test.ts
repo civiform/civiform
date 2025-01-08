@@ -103,7 +103,7 @@ test.describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
 
@@ -208,7 +208,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
     expect(await page.locator('#application-view').innerText()).toContain(
@@ -354,7 +354,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
+    await adminPrograms.viewApplicationForApplicant(
       testUserDisplayName(),
     )
     expect(await page.locator('#application-view').innerText()).toContain(

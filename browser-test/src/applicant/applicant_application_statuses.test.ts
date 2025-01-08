@@ -35,14 +35,14 @@ test.describe('with program statuses', () => {
       // Navigate to the submitted application as the program admin and set a status.
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus(
+      await adminPrograms.viewApplicationForApplicant(
         testUserDisplayName(),
       )
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
+        await adminPrograms.setStatusOptionAndAwaitModal(
           approvedStatusName,
         )
-      await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+      await adminPrograms.confirmStatusUpdateModal(modal)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
     },
