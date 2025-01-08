@@ -6,6 +6,9 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
@@ -25,6 +28,7 @@ import models.LifecycleStage;
 import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
@@ -437,6 +441,11 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addIdTokenAndPrune_throwsWithoutActiveSession() {
+    Logger logger = (Logger) LoggerFactory.getLogger(AccountRepository.class);
+    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
     when(mockSettingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";
@@ -454,6 +463,9 @@ public class AccountRepositoryTest extends ResetPostgres {
     assertThrows(
         RuntimeException.class,
         () -> repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize()));
+    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
+    assertThat(logsList.get(0).getMessage(""))
+        .isEqualTo("Session ID not found in account when adding ID token. Adding new session.");
   }
 
   @Test
