@@ -463,7 +463,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize());
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
-    assertThat(logsList.get(0).getMessage())
+    assertThat(logsList.get(0).getFormattedMessage())
         .isEqualTo(
             "Session ID not found in account when adding ID token. Adding new session for account"
                 + " with ID: "
