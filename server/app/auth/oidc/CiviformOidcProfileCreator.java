@@ -156,12 +156,16 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
           .getAccount()
           .thenAccept(
               account -> {
+                String sessionId = civiformProfile.getProfileData().getSessionId();
+                if (!account.getActiveSession(sessionId).isPresent()) {
+                  LOGGER.warn(
+                      "Session not in account's active sessions for role {}, and OIDC profile {}",
+                      roles,
+                      oidcProfile.getClass().getName());
+                }
                 accountRepositoryProvider
                     .get()
-                    .addIdTokenAndPrune(
-                        account,
-                        civiformProfile.getProfileData().getSessionId(),
-                        oidcProfile.getIdTokenString());
+                    .addIdTokenAndPrune(account, sessionId, oidcProfile.getIdTokenString());
               })
           .join();
     }
