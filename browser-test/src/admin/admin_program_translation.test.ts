@@ -8,6 +8,7 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
+import {BASE_URL} from '../support/config'
 
 test.describe('Admin can manage program translations', () => {
   test('page layout screenshot', async ({
@@ -485,6 +486,43 @@ test.describe('Admin can manage program translations', () => {
         'ineligible-view-with-translated-eligibility-msg',
       )
     })
+
+    await test.step('Clear eligibility message', async () => {
+      await selectApplicantLanguage(page, 'English')
+      await page.goto(BASE_URL)
+      await logout(page)
+      await loginAsAdmin(page)
+      await adminPrograms.editProgram(programName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        screenName,
+      )
+      await adminPredicates.updateEligibilityMessage('')
+      await validateToastMessage(page, 'Eligibility message removed.')
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+        '',
+      )
+
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+    })
+
+    await test.step('Verify that eligibility message does not show up on the applicant side', async () => {
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'Español')
+      await page.click('text="Continuar"')
+      await page.click('text="Editar"')
+      await page.click('text="Guardar y continuar"')
+
+      await expect(page.locator('main')).not.toContainText(
+        'Spanish block eligibility message',
+      )
+    })
   })
 
   test('Add translation for block name, description, when eligibility message is not set', async ({
@@ -565,9 +603,8 @@ test.describe('Admin can manage program translations', () => {
         await applicantQuestions.applyProgram('Spanish name')
         await applicantQuestions.answerTextQuestion('ineligible')
         await page.click('text="Guardar y continuar"')
-        await validateScreenshot(
-          page,
-          'ineligible-view-without-translated-eligibility-msg',
+        await expect(page.locator('main')).not.toContainText(
+          'Spanish block eligibility message',
         )
       })
     })
