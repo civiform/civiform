@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Frame, Page, Locator} from 'playwright'
+import {ElementHandle, Page, Locator} from 'playwright'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -1112,10 +1112,7 @@ export class AdminPrograms {
     expect(blockText).toContain(answer)
   }
 
-  async expectApplicationAnswerLinks(
-    blockName: string,
-    questionName: string,
-  ) {
+  async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     await expect(
       this.page.locator(this.selectApplicationBlock(blockName)),
     ).toContainText(questionName)

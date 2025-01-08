@@ -53,9 +53,7 @@ test.describe(
 
       // See the application in admin page
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         questionName,
@@ -74,9 +72,7 @@ test.describe(
 
       // See the application in admin page in the old version
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         questionName,

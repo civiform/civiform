@@ -245,9 +245,7 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('View the submitted application', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicant(
-          testUserDisplayName(),
-        )
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       })
 
       await test.step('Review screen 1', async () => {
@@ -262,11 +260,7 @@ test.describe('Program admin review of submitted applications', () => {
           'Queen',
         )
 
-        await adminPrograms.expectApplicationAnswers(
-          'Screen 1',
-          'radio-q',
-          '2',
-        )
+        await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
         await adminPrograms.expectApplicationAnswers(
           'Screen 1',
           'date-q',
@@ -339,9 +333,7 @@ test.describe('Program admin review of submitted applications', () => {
 
       await test.step('Review updated screen 2', async () => {
         await adminPrograms.viewApplications(programName)
-        await adminPrograms.viewApplicationForApplicant(
-          testUserDisplayName(),
-        )
+        await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
         await adminPrograms.expectApplicationAnswers(
           'Screen 2',
           'favorite-trees-q',
@@ -635,9 +627,7 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('View the submitted application', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     })
 
     await test.step('Review screen 1', async () => {
@@ -652,11 +642,7 @@ test.describe('Program admin review of submitted applications', () => {
         'Queen',
       )
 
-      await adminPrograms.expectApplicationAnswers(
-        'Screen 1',
-        'radio-q',
-        '2',
-      )
+      await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2')
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'date-q',
@@ -681,11 +667,7 @@ test.describe('Program admin review of submitted applications', () => {
         'pine; cherry',
       )
 
-      await adminPrograms.expectApplicationAnswers(
-        'Screen 2',
-        'number-q',
-        '42',
-      )
+      await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
       await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'text-q',
@@ -723,9 +705,7 @@ test.describe('Program admin review of submitted applications', () => {
 
     await test.step('Review updated screen 2', async () => {
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       await adminPrograms.expectApplicationAnswers(
         'Screen 2',
         'favorite-trees-q',

@@ -36,13 +36,9 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       // Navigate to the submitted application as the program admin and set a status.
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicant(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModal(
-          approvedStatusName,
-        )
+        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
