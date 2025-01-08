@@ -460,6 +460,8 @@ public class AccountRepositoryTest extends ResetPostgres {
     Instant timeInFuture = now.plus(1, ChronoUnit.HOURS).toInstant(ZoneOffset.UTC);
     JWT validJwt = getJwtWithExpirationTime(timeInFuture);
 
+    repo.addIdTokenAndPrune(account, "sessionId", validJwt.serialize())
+
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
     assertThat(logsList.get(0).getMessage())
         .isEqualTo("Session ID not found in account when adding ID token. Adding new session.");
