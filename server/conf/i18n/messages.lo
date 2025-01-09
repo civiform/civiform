@@ -64,11 +64,11 @@ button.review=ກວດສອບ
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=ເປີດໃນແຖບໃໝ່
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=ການນຳທາງຫຼັກ
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=ຕົວລະບຸຕົວແທນ,
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=ແຈ້ງເຕືອນຂໍ້ມູນໄລຍະເວລາຂອງແຂກ
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr=ສືບຕໍ່ສະໝັກ {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ເລີ່ມຕົ້ນບ່ອນນີ້
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=ເບິ່ງ ແລະ ນຳໃຊ້
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=ເບິ່ງ ແລະ ນຳໃຊ້ກັບ {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ສືບຕໍ່ສະໝັກ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອ
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=ນຳໃຊ້ກັບໂປຣແກຣມໃນບ່ອນດຽວ
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=ຮັບຄວາມຊ່ວຍເຫຼືອດ້ານການເບິ່ງແຍງເດັກນ້ອຍ, ອາຫານ, ການຂົນສົ່ງ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=ຊອກຫາບໍລິການ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=ໃບສະໝັກຂອງຂ້ອຍ ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=ແອັບພລິເຄຊັນຂອງຂ້ອຍ
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການອື່ນໆ ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=ໂປຣແກຣມ ແລະ ບໍໍລິການທີ່ມີໃຫ້
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=ໂປຣແກຣມທີ່ອີງຕາມການເລືອກຂອງທ່ານ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດ
 # Alert banner when an application was already completed
 toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=ບໍ່ທັນສົ່ງ
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=ສົ່ງແລ້ວ
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=ສົ່ງເມື່ອ {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={0} ເມື່ອ {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -434,7 +434,7 @@ title.programSummary=ສະຫຼຸບການສະໝັກໂຄງກາ�
 #----------------------------------------------------------------------------#
 
 # The HTML page title for the program overview page.  The {0} is the program name.
-title.programOverview={0} - Program Overview
+title.programOverview={0} - ພາບຮວມໂປຣແກຣມ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -911,7 +911,7 @@ category.tag.economic=ເສດຖະກິດ
 category.tag.education=ການສຶກສາ
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=ການຈ້າງງານ
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=ອາຫານ
@@ -929,7 +929,7 @@ category.tag.housing=ທີ່ຢູ່ອາໄສ
 category.tag.internet=ອິນເຕີເນັດ
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=ການຝຶກອົບຮົມ
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=ການຂົນສົ່ງ

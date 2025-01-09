@@ -43,6 +43,11 @@ public final class FakeRequestBuilder extends RequestBuilder {
     return this;
   }
 
+  public FakeRequestBuilder addSessionValue(String key, String value) {
+    session(key, value);
+    return this;
+  }
+
   public FakeRequestBuilder addCSRFToken() {
     play.api.test.CSRFTokenHelper.addCSRFToken(this);
     return this;
