@@ -428,10 +428,6 @@ components:
                         type: array
                         items:
                           type: string
-                      original_file_name_list:
-                        type: array
-                        items:
-                          type: object
                   sample_id_question:
                     type: object
                     properties:
@@ -669,10 +665,6 @@ components:
                                     type: array
                                     items:
                                       type: string
-                                  original_file_name_list:
-                                    type: array
-                                    items:
-                                      type: object
             """),
         new Data(
             QuestionType.ID,
