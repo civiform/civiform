@@ -54,7 +54,7 @@ class CiviFormLogoutLogic extends DefaultLogoutLogic {
               .getAccount()
               .thenAccept(
                   account -> {
-                    account.removeActiveSession(profile.getProfileData().getSessionId());
+                    account.clearActiveSessions();
                     account.save();
                   })
               .exceptionally(
