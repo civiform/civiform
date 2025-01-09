@@ -14,6 +14,7 @@ import auth.CiviFormSessionStoreFactory;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
+import auth.ProfileUtils;
 import auth.Role;
 import auth.oidc.admin.AdfsClientProvider;
 import auth.oidc.applicant.Auth0ClientProvider;
@@ -163,6 +164,12 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
+  protected CiviFormLogoutLogic civiFormLogoutLogic(ProfileUtils profileUtils) {
+    return new CiviFormLogoutLogic(checkNotNull(profileUtils));
+  }
+
+  @Provides
+  @Singleton
   protected GuestClient guestClient(ProfileFactory profileFactory) {
     return new GuestClient(profileFactory);
   }
@@ -296,13 +303,14 @@ public class SecurityModule extends AbstractModule {
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
-      CiviFormSessionStoreFactory civiFormSessionStoreFactory) {
+      CiviFormSessionStoreFactory civiFormSessionStoreFactory,
+      CiviFormLogoutLogic civiformLogoutLogic) {
     Config config = new Config();
     config.setClients(clients);
     config.setAuthorizers(authorizors);
     config.setHttpActionAdapter(civiFormHttpActionAdapter);
     config.setSessionStoreFactory(civiFormSessionStoreFactory);
-    config.setLogoutLogic(new CiviFormLogoutLogic());
+    config.setLogoutLogic(civiformLogoutLogic);
     return config;
   }
 }

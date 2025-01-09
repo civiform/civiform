@@ -27,6 +27,8 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
@@ -40,6 +42,7 @@ import services.ti.NotEligibleToBecomeTiError;
  * ApplicantModel}.
  */
 public final class AccountRepository {
+  private static final Logger logger = LoggerFactory.getLogger(AccountRepository.class);
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("AccountRepository");
 
@@ -483,6 +486,13 @@ public final class AccountRepository {
     if (settingsManifest.getSessionReplayProtectionEnabled()) {
       // For now, we set the duration to Auth0s default of 10 hours.
       account.removeExpiredActiveSessions(sessionLifecycle);
+      if (!account.getActiveSession(sessionId).isPresent()) {
+        logger.warn(
+            "Session ID not found in account when adding ID token. Adding new session for account"
+                + " with ID: {}",
+            account.id);
+        account.addActiveSession(sessionId, clock);
+      }
       account.storeIdTokenInActiveSession(sessionId, idToken);
     }
 
