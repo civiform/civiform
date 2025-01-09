@@ -13,12 +13,6 @@ import {
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
-  test.beforeEach(async ({page}) => {
-    await test.step('turn on feature flags', async () => {
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
-    })
-  })
-
   test(
     'all major steps with multiple file upload flag',
     {tag: ['@skip-on-azure']},
