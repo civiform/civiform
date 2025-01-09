@@ -295,6 +295,27 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showWithApplicantId_withStringProgramParam_redirectsToReview() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    // Set preferred locale so that browser doesn't get redirected to set it. This way we get a
+    // meaningful redirect location.
+    currentApplicant.getApplicantData().setPreferredLocale(Locale.US);
+    currentApplicant.save();
+
+    String alphaNumProgramParam = program.getSlug();
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), currentApplicant.id, alphaNumProgramParam)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .contains(routes.ApplicantProgramReviewController.review(program.id).url());
+  }
+
+  @Test
   public void showInfoDisabledProgram() {
     ProgramModel disabledProgram = resourceCreator.insertActiveDisabledProgram("disabledProgram");
 

@@ -16,6 +16,7 @@ import {
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramMigration} from './admin_program_migration'
 import {ApplicantProgramList} from './applicant_program_list'
+import {ApplicantProgramOverview} from './applicant_program_overview'
 
 type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
@@ -30,6 +31,7 @@ type CiviformFixtures = {
   adminSettings: AdminSettings
   applicantFileQuestion: ApplicantFileQuestion
   applicantProgramList: ApplicantProgramList
+  programOverview: ApplicantProgramOverview
   tiDashboard: TIDashboard
   adminTiGroups: AdminTIGroups
 }
@@ -81,6 +83,10 @@ export const test = base.extend<CiviformFixtures>({
 
   applicantProgramList: async ({page}, use) => {
     await use(new ApplicantProgramList(page))
+  },
+
+  programOverview: async ({page}, use) => {
+    await use(new ApplicantProgramOverview(page))
   },
 
   tiDashboard: async ({page}, use) => {

@@ -87,42 +87,47 @@ public final class ProgramSlugHandler {
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
-              return getProgramVersionForApplicant(applicantId, programSlug, request)
-                  .thenComposeAsync(
-                      (Optional<ProgramDefinition> programForExistingApplication) -> {
-                        // Check to see if the applicant already has an application
-                        // for this program, redirect to program version associated
-                        // with that application if so.
-                        if (programForExistingApplication.isPresent()) {
-                          long programId = programForExistingApplication.get().id();
-                          return CompletableFuture.completedFuture(
-                              redirectToReviewPage(
-                                  controller,
-                                  programId,
-                                  applicantId,
-                                  programSlug,
-                                  request,
-                                  profile));
-                        } else {
-                          return programService
-                              .getActiveFullProgramDefinitionAsync(programSlug)
-                              .thenApply(
-                                  activeProgramDefinition ->
-                                      redirectToOverviewOrReviewPage(
-                                          controller,
-                                          request,
-                                          programSlug,
-                                          profile,
-                                          applicantId,
-                                          activeProgramDefinition))
-                              .exceptionally(
-                                  ex ->
-                                      controller
-                                          .notFound(ex.getMessage())
-                                          .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
-                        }
-                      },
-                      classLoaderExecutionContext.current());
+              return showProgramWithApplicantId(
+                  controller, request, programSlug, applicantId, profile);
+            },
+            classLoaderExecutionContext.current());
+  }
+
+  public CompletionStage<Result> showProgramWithApplicantId(
+      CiviFormController controller,
+      Http.Request request,
+      String programSlug,
+      Long applicantId,
+      CiviFormProfile profile) {
+    return getProgramVersionForApplicant(applicantId, programSlug, request)
+        .thenComposeAsync(
+            (Optional<ProgramDefinition> programForExistingApplication) -> {
+              CompletionStage<ProgramDefinition> programDefinitionStage;
+              // Check to see if the applicant already has an application
+              // for this program, redirect to program version associated
+              // with that application if so.
+              if (programForExistingApplication.isPresent()) {
+                long programId = programForExistingApplication.get().id();
+                programDefinitionStage = programService.getFullProgramDefinitionAsync(programId);
+              } else {
+                programDefinitionStage =
+                    programService.getActiveFullProgramDefinitionAsync(programSlug);
+              }
+              return programDefinitionStage
+                  .thenApply(
+                      activeProgramDefinition ->
+                          redirectToOverviewOrReviewPage(
+                              controller,
+                              request,
+                              programSlug,
+                              profile,
+                              applicantId,
+                              activeProgramDefinition))
+                  .exceptionally(
+                      ex ->
+                          controller
+                              .notFound(ex.getMessage())
+                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
             },
             classLoaderExecutionContext.current());
   }
@@ -147,6 +152,7 @@ public final class ProgramSlugHandler {
                     profile,
                     activeProgramDefinition))
             .as("text/html")
+            .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
         : redirectToReviewPage(
             controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
   }
