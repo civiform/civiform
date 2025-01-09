@@ -20,6 +20,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
@@ -68,6 +69,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
     context.setVariable("programDescription", localizedProgramDescription);
+
+    String localizedEligibilityMsg = 
 
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
@@ -120,6 +123,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     abstract ProgramDefinition programDefinition();
 
+    abstract BlockDefinition blockDefinition();
+
     abstract ReadOnlyApplicantProgramService roApplicantProgramService();
 
     abstract Messages messages();
@@ -136,6 +141,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
 
       public abstract Builder setProgramDefinition(ProgramDefinition programDefinition);
+
+      public abstract Builder setBlockDefinition(BlockDefinition blockDefinition);
 
       public abstract Builder setRoApplicantProgramService(
           ReadOnlyApplicantProgramService rOnlyApplicantProgramService);

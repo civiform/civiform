@@ -66,6 +66,17 @@ public final class EligibilityAlertSettingsCalculator {
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
 
+    if (pageHasSupplementalInformation == true && isNorthStarEnabled == true) {
+      String msg = messages.at(triple.textKey.getKeyName());
+      msg = 
+      return new AlertSettings(
+        true,
+        Optional.of(messages.at(triple.titleKey.getKeyName())),
+        messages.at(triple.textKey.getKeyName()),
+        triple.alertType,
+        formattedQuestions);
+    }
+
     return new AlertSettings(
         true,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
