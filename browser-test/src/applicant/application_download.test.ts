@@ -13,7 +13,6 @@ import {
 
 test.describe('csv export for multioption question', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     await seedQuestions(page)
     await page.goto('/')
   })
@@ -136,7 +135,6 @@ test.describe('csv export for multioption question', () => {
 
 test.describe('normal application flow', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     await seedQuestions(page)
     await page.goto('/')
   })

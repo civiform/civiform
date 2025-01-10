@@ -5,7 +5,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  enableFeatureFlag,
   waitForPageJsLoad,
   testUserDisplayName,
   supportsEmailInspection,
@@ -23,7 +22,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -122,8 +120,6 @@ test.describe('when email is configured for the status and applicant, a checkbox
         applicantQuestions,
         adminProgramStatuses,
       )
-      // enable bulk status feature flag
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithStatusesName)
     },
