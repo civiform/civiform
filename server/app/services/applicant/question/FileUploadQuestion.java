@@ -17,7 +17,7 @@ import services.question.types.FileUploadQuestionDefinition;
 public final class FileUploadQuestion extends Question {
 
   // There is an unfortunate dual logic in the how filenames are stored for question answers. AWS
-  // deployements store the filename in the key, Azure stores them in a separate column.
+  // deployments store the filename in the key, Azure stores them in a separate column.
   //
   // In order for the application to work properly we must look for data in the original file names
   // Scalar, and absent that data, return the file keys as the filename.
