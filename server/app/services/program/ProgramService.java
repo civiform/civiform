@@ -861,7 +861,7 @@ public final class ProgramService {
                   block
                       .localizedDescription()
                       .updateTranslation(locale, screenUpdate.get().localizedDescription()));
-      if (screenUpdate.get().localizedEligibilityMessage().isPresent()) {
+      if (!screenUpdate.get().localizedEligibilityMessage().isEmpty()) {
         blockBuilder.setLocalizedEligibilityMessage(
             Optional.of(
                 block
