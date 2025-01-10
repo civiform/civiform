@@ -2586,11 +2586,13 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setBlockIdToUpdate(1L)
                         .setLocalizedName("a french screen name")
                         .setLocalizedDescription("a french description")
+                        .setLocalizedEligibilityMessage("")
                         .build(),
                     LocalizationUpdate.ScreenUpdate.builder()
                         .setBlockIdToUpdate(2L)
                         .setLocalizedName("a second french screen name")
                         .setLocalizedDescription("another french description")
+                        .setLocalizedEligibilityMessage("")
                         .build()))
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2645,6 +2647,7 @@ public class ProgramServiceTest extends ResetPostgres {
                         .setBlockIdToUpdate(3L)
                         .setLocalizedName("a second french screen name")
                         .setLocalizedDescription("another french description")
+                        .setLocalizedEligibilityMessage("")
                         .build()))
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
