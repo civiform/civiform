@@ -164,21 +164,21 @@ public class AccountModelTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiveSessionsForTest_returnsAllActiveSessions() {
+  public void getActiveSessions_returnsAllActiveSessions() {
     AccountModel accountModel = new AccountModel();
     accountModel.addActiveSession("session1", CLOCK);
     accountModel.addActiveSession("session2", CLOCK);
 
-    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessionsForTest();
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
 
     assertThat(activeSessions).containsKeys("session1", "session2");
   }
 
   @Test
-  public void getActiveSessionsForTest_returnsEmptyMapWhenNoActiveSessions() {
+  public void getActiveSessions_returnsEmptyMapWhenNoActiveSessions() {
     AccountModel accountModel = new AccountModel();
 
-    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessionsForTest();
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
 
     assertThat(activeSessions).isEmpty();
   }
