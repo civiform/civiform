@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -57,7 +56,6 @@ public class LogoutAllSessionsController extends Controller {
     }
 
     // Redirect to the landing page
-    return CompletableFuture.completedFuture(
-        redirect(routes.HomeController.index().url()));
+    return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
   }
 }
