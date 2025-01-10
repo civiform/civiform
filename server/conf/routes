@@ -264,7 +264,7 @@ GET     /idcsRegister                controllers.LoginController.register(reques
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
 # Log out of the application through a separate endpoint that clears all sessions
-GET     /backChannelLogout           controllers.BackChannelLogoutController.index(request: Request)
+GET     /logoutAllSessions           controllers.LogoutAllSessionsController.index(request: Request)
 
 ## Dev tools
 GET     /dev/seed                                 controllers.dev.DevToolsController.index(request: Request)

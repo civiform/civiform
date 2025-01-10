@@ -19,14 +19,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
 
-public class BackChannelLogoutControllerTest extends WithMockedProfiles {
-  private BackChannelLogoutController controller;
+public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
+  private LogoutAllSessionsController controller;
   private CiviFormProfile testProfile;
   private AccountRepository accountRepository;
 
   @Before
   public void setup() {
-    controller = instanceOf(BackChannelLogoutController.class);
+    controller = instanceOf(LogoutAllSessionsController.class);
     accountRepository = instanceOf(AccountRepository.class);
 
     testProfile = mock(CiviFormProfile.class);

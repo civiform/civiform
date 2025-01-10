@@ -20,13 +20,13 @@ import play.mvc.Result;
  * a user resets their password, the government can choose to send a back channel logout request to
  * CiviForm.
  */
-public class BackChannelLogoutController extends Controller {
+public class LogoutAllSessionsController extends Controller {
 
-  private static final Logger logger = LoggerFactory.getLogger(BackChannelLogoutController.class);
+  private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;
 
   @Inject
-  public BackChannelLogoutController(ProfileUtils profileUtils) {
+  public LogoutAllSessionsController(ProfileUtils profileUtils) {
 
     this.profileUtils = checkNotNull(profileUtils);
   }
