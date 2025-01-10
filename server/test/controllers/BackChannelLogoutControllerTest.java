@@ -36,7 +36,7 @@ public class BackChannelLogoutControllerTest extends WithMockedProfiles {
   public void testIndexWithNoProfile() {
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
     Result result = controller.index(request).toCompletableFuture().join();
-    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/programs"));
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
@@ -62,7 +62,7 @@ public class BackChannelLogoutControllerTest extends WithMockedProfiles {
 
     AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
     assertThat(updatedAccount.getActiveSessions()).isEmpty();
-    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/programs"));
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
@@ -89,6 +89,6 @@ public class BackChannelLogoutControllerTest extends WithMockedProfiles {
 
     AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
     assertThat(updatedAccount.getActiveSessions()).isEmpty();
-    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/programs"));
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 }

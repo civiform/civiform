@@ -58,7 +58,6 @@ public class BackChannelLogoutController extends Controller {
 
     // Redirect to the landing page
     return CompletableFuture.completedFuture(
-        redirect(
-            controllers.applicant.routes.ApplicantProgramsController.index(ImmutableList.of())));
+        redirect(routes.HomeController.index().url()));
   }
 }
