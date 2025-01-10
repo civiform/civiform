@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import auth.oidc.IdTokens;
 import autovalue.shaded.com.google.common.base.Strings;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
@@ -234,5 +235,10 @@ public class AccountModel extends BaseModel {
                     .getCreationTime()
                     .plus(sessionLifecycle.getMaxSessionDuration())
                     .isBefore(sessionLifecycle.getClock().instant()));
+  }
+
+  @VisibleForTesting
+  public Map<String, SessionDetails> getActiveSessionsForTest() {
+    return activeSessions;
   }
 }
