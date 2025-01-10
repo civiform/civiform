@@ -51,18 +51,14 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     when(testProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(account));
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    Result result = controller.index(request).toCompletableFuture().join();
-
-    // Wait because the active session clearing is async and non-blocking
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-    assertThat(updatedAccount.getActiveSessions()).isEmpty();
-    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+    controller
+        .index(request)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
   }
 
   @Test
@@ -78,17 +74,13 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     when(testProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(account));
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    Result result = controller.index(request).toCompletableFuture().join();
-
-    // Wait because the active session clearing is async and non-blocking
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-    assertThat(updatedAccount.getActiveSessions()).isEmpty();
-    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+    controller
+        .index(request)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
   }
 }
