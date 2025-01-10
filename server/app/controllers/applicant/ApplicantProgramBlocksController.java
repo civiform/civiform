@@ -591,15 +591,36 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   new ImmutableMap.Builder<>();
               Optional<ImmutableList<String>> keysOptional =
                   fileUploadQuestion.getFileKeyListValue();
+              Optional<ImmutableList<String>> originalFileNamesOptional =
+                  fileUploadQuestion.getOriginalFileNameListValue();
+
+              int fileKeyIndexRemoved = -1;
 
               if (keysOptional.isPresent()) {
                 ImmutableList<String> keys = keysOptional.get();
                 // Write all existing keys back to the form data, except the one we want to delete.
                 for (int i = 0; i < keys.size(); i++) {
                   String keyValue = keys.get(i);
+                  boolean removeKey = false;
+                  if (keyValue.equals(fileKeyToRemove)) {
+                    removeKey = true;
+                    fileKeyIndexRemoved = i;
+                  }
                   fileUploadQuestionFormData.put(
                       fileUploadQuestion.getFileKeyListPathForIndex(i).toString(),
-                      !keyValue.equals(fileKeyToRemove) ? keyValue : "");
+                      removeKey ? "" : keyValue);
+                }
+              }
+
+              if (originalFileNamesOptional.isPresent() && (fileKeyIndexRemoved >= 0)) {
+                // Write all existing original file names back to the form data, except the one
+                // that was removed from the file keys list.
+                ImmutableList<String> originalFileNames = originalFileNamesOptional.get();
+                for (int i = 0; i < originalFileNames.size(); i++) {
+                  String originalFileNameValue = originalFileNames.get(i);
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
+                      i == fileKeyIndexRemoved ? "" : originalFileNameValue);
                 }
               }
 
@@ -762,32 +783,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 if (originalFileNamesOptional.isPresent()) {
                   ImmutableList<String> orignalFileNames = originalFileNamesOptional.get();
 
-                  boolean appendValue = true;
-
                   // Write the existing filenames so that we don't delete any.
                   for (int i = 0; i < orignalFileNames.size(); i++) {
                     String originalFileNameValue = orignalFileNames.get(i);
                     fileUploadQuestionFormData.put(
                         fileUploadQuestion.getOriginalFileNameListPathForIndex(i).toString(),
                         originalFileNameValue);
-                    // OriginalFileName already exists in question, no need to append it. But we may
-                    // want
-                    // to render some kind of error in this case in the future, since it means the
-                    // user
-                    // essentially "replaced" whatever file already existed with that same name.
-                    // Alternatively, we could prevent this on the client-side.
-                    if (originalFileNameValue.equals(originalFileName.get())) {
-                      appendValue = false;
-                    }
+                    // We do not need to check if this original file name already exists.
+                    // Original file names are stored in the record and not used to reference the
+                    // file in storage, so collisions in the names do not affect the application.
+                    //
+                    // The actual file key is a UID in this case, and we've already checked for
+                    // key collisions above.
                   }
 
-                  if (appendValue) {
-                    fileUploadQuestionFormData.put(
-                        fileUploadQuestion
-                            .getOriginalFileNameListPathForIndex(orignalFileNames.size())
-                            .toString(),
-                        originalFileName.get());
-                  }
+                  fileUploadQuestionFormData.put(
+                      fileUploadQuestion
+                          .getOriginalFileNameListPathForIndex(orignalFileNames.size())
+                          .toString(),
+                      originalFileName.get());
                 } else {
                   fileUploadQuestionFormData.put(
                       fileUploadQuestion.getOriginalFileNameListPathForIndex(0).toString(),
