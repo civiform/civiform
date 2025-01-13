@@ -753,6 +753,7 @@ test.describe('file upload applicant flow', () => {
             'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
           )
           await applicantFileQuestion.expectFileInputDisabled()
+          await validateAccessibility(page)
         })
 
         await test.step('Remove files', async () => {
