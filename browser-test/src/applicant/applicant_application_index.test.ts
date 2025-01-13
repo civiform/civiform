@@ -26,7 +26,6 @@ test.describe('applicant program index page', () => {
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Create a program with two questions on separate blocks so that an applicant can partially
     // complete an application.
@@ -279,7 +278,6 @@ test.describe('applicant program index page', () => {
 
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await adminPrograms.addProgram(
         commonIntakeFormProgramName,
         'program description',
@@ -383,7 +381,6 @@ test.describe('applicant program index page', () => {
   test.describe('applicant program index page with program filtering', () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
       await test.step('seed categories', async () => {
         await seedProgramsAndCategories(page)
@@ -599,7 +596,6 @@ test.describe('applicant program index page', () => {
     () => {
       test.beforeEach(async ({page}) => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
       })
 
       test('validate initial page load as guest user', async ({
@@ -726,7 +722,6 @@ test.describe('applicant program index page', () => {
       test.describe('program filtering', () => {
         test.beforeEach(async ({page, adminPrograms}) => {
           await enableFeatureFlag(page, 'program_filtering_enabled')
-          await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
           await test.step('seed categories', async () => {
             await seedProgramsAndCategories(page)
@@ -1130,7 +1125,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.expectActiveProgram(programName)
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programName,
       approvedStatusName,
@@ -1217,7 +1212,7 @@ test.describe('applicant program index page with images', () => {
     )
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programNameSubmittedWithImageAndStatus,
       approvedStatusName,
@@ -1251,7 +1246,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.expectActiveProgram(programNameSubmittedWithStatus)
     await logout(page)
 
-    await submitApplicationAndApplyStatusForBulkStatus(
+    await submitApplicationAndApplyStatus(
       page,
       programNameSubmittedWithStatus,
       approvedStatusName,
@@ -1296,7 +1291,7 @@ test.describe('applicant program index page with images', () => {
     await validateAccessibility(page)
   })
 
-  async function submitApplicationAndApplyStatusForBulkStatus(
+  async function submitApplicationAndApplyStatus(
     page: Page,
     programName: string,
     statusName: string,
@@ -1312,12 +1307,9 @@ test.describe('applicant program index page with images', () => {
     // Set a status as a program admin
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
-    const modal =
-      await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(statusName)
-    await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
+    const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
+    await adminPrograms.confirmStatusUpdateModal(modal)
     await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
   }

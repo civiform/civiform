@@ -5,7 +5,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  enableFeatureFlag,
   waitForPageJsLoad,
   testUserDisplayName,
   supportsEmailInspection,
@@ -23,7 +22,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -50,8 +48,8 @@ test.describe('with program statuses', () => {
     adminPrograms,
   }) => {
     // Default page shows all applications.
-    await adminPrograms.expectApplicationCountForBulkStatus(1)
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationCount(1)
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       'None',
     )
@@ -59,7 +57,7 @@ test.describe('with program statuses', () => {
     await page.locator('#bulk-status-selector').selectOption('Approved')
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       approvedStatusName,
     )
@@ -96,14 +94,14 @@ test.describe('with program statuses', () => {
     )
 
     for (let i = 0; i < 100; i++) {
-      await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+      await adminPrograms.expectApplicationHasStatusString(
         `Guest (${id - i})`,
         approvedStatusName,
       )
     }
     await page.locator('.usa-pagination__button:has-text("2")').click()
     // last applicant
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       'None',
     )
@@ -122,8 +120,6 @@ test.describe('when email is configured for the status and applicant, a checkbox
         applicantQuestions,
         adminProgramStatuses,
       )
-      // enable bulk status feature flag
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programWithStatusesName)
     },
@@ -142,7 +138,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
 
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       emailStatusName,
     )
@@ -170,7 +166,7 @@ test.describe('when email is configured for the status and applicant, a checkbox
     await page.getByRole('button', {name: 'Status change'}).click()
     await waitForPageJsLoad(page)
 
-    await adminPrograms.expectApplicationHasStatusStringForBulkStatus(
+    await adminPrograms.expectApplicationHasStatusString(
       testUserDisplayName(),
       emailStatusName,
     )

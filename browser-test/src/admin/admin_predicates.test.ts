@@ -21,7 +21,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -103,9 +102,7 @@ test.describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
 
     expect(await page.innerHTML('#application-view')).not.toContain('Screen 2')
 
@@ -120,7 +117,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -208,9 +204,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(await page.locator('#application-view').innerText()).toContain(
       'Screen 2',
     )
@@ -226,8 +220,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
       questionName: 'eligibility-predicate-q',
@@ -354,9 +346,7 @@ test.describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
 
-    await adminPrograms.viewApplicationForApplicantForBulkStatus(
-      testUserDisplayName(),
-    )
+    await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     expect(await page.locator('#application-view').innerText()).toContain(
       'Screen 1',
     )

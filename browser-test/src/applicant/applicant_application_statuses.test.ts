@@ -7,7 +7,6 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('with program statuses', () => {
@@ -16,7 +15,6 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -35,14 +33,10 @@ test.describe('with program statuses', () => {
       // Navigate to the submitted application as the program admin and set a status.
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
-      await adminPrograms.viewApplicationForApplicantForBulkStatus(
-        testUserDisplayName(),
-      )
+      await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
       const modal =
-        await adminPrograms.setStatusOptionAndAwaitModalForBulkStatus(
-          approvedStatusName,
-        )
-      await adminPrograms.confirmStatusUpdateModalForBulkStatus(modal)
+        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
+      await adminPrograms.confirmStatusUpdateModal(modal)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
     },

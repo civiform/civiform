@@ -381,11 +381,9 @@ test.describe('csv json pdf download test- two applications', () => {
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(programName)
       await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
-      await adminPrograms.viewApplicationForApplicantForBulkStatus(
-        'smith, sarah',
-      )
+      await adminPrograms.viewApplicationForApplicant('smith, sarah')
 
-      const pdfFile = await adminPrograms.getApplicationPdfForBulkStatus()
+      const pdfFile = await adminPrograms.getApplicationPdf()
       expect(pdfFile.length).toBeGreaterThan(1)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
