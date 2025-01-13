@@ -13,7 +13,6 @@ import {
   extractEmailsForRecipient,
   validateScreenshot,
   AdminProgramStatuses,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('view program statuses', () => {
@@ -26,9 +25,6 @@ test.describe('view program statuses', () => {
     const programWithoutStatusesName = 'Test program without statuses'
     test.beforeEach(async ({page, adminPrograms, applicantQuestions}) => {
       await loginAsAdmin(page)
-
-      // enable bulk status feature flag
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithoutStatusesName)
@@ -122,8 +118,7 @@ test.describe('view program statuses', () => {
           applicantQuestions,
           adminProgramStatuses,
         )
-        // enable bulk status feature flag
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
+
         await loginAsProgramAdmin(page)
         await adminPrograms.viewApplications(programWithStatusesName)
         await adminPrograms.viewApplicationForApplicant('Guest')
@@ -249,8 +244,7 @@ test.describe('view program statuses', () => {
       })
 
       test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
-        test.beforeEach(async ({page, adminPrograms}) => {
-          await enableFeatureFlag(page, 'bulk_status_update_enabled')
+        test.beforeEach(async ({adminPrograms}) => {
           await adminPrograms.viewApplications(programWithStatusesName)
           await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
         })
@@ -410,7 +404,6 @@ test.describe('view program statuses', () => {
         applicantQuestions,
         adminProgramStatuses,
       }) => {
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
 
         // Add a program, no questions are needed.
@@ -505,7 +498,6 @@ test.describe('view program statuses', () => {
         applicantQuestions,
         adminProgramStatuses,
       }) => {
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
 
         // Add a program with a single question that is used for asserting downloaded content.
@@ -698,7 +690,6 @@ test.describe('view program statuses', () => {
         applicantQuestions,
         adminPrograms,
       }) => {
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
 
         // Create a program without eligibility
@@ -789,7 +780,6 @@ test.describe('view program statuses', () => {
           applicantQuestions,
           adminProgramStatuses,
         )
-        await enableFeatureFlag(page, 'bulk_status_update_enabled')
         await loginAsAdmin(page)
         await adminQuestions.addEmailQuestion({
           questionName: 'Email',

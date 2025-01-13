@@ -218,6 +218,16 @@ public class AccountModel extends BaseModel {
     activeSessions.remove(sessionId);
   }
 
+  /** Clear all active sessions. */
+  public void clearActiveSessions() {
+    activeSessions.clear();
+  }
+
+  /** Returns all active sessions. */
+  public Map<String, SessionDetails> getActiveSessions() {
+    return activeSessions;
+  }
+
   /** Removes any sessions that have exceeded the given max session length. */
   public void removeExpiredActiveSessions(SessionLifecycle sessionLifecycle) {
     activeSessions
