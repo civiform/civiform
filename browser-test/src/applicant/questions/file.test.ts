@@ -761,7 +761,9 @@ test.describe('file upload applicant flow', () => {
           await applicantFileQuestion.expectFileInputEnabled()
           await applicantFileQuestion.removeFileUpload('file-upload-second.png')
           await applicantFileQuestion.expectFileInputEnabled()
-          await applicantFileQuestion.removeFileUpload('file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png')
+          await applicantFileQuestion.removeFileUpload(
+            'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
+          )
           await applicantFileQuestion.expectFileInputEnabled()
         })
       })
