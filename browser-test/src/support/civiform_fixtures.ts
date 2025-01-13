@@ -31,7 +31,7 @@ type CiviformFixtures = {
   adminSettings: AdminSettings
   applicantFileQuestion: ApplicantFileQuestion
   applicantProgramList: ApplicantProgramList
-  programOverview: ApplicantProgramOverview
+  applicantProgramOverview: ApplicantProgramOverview
   tiDashboard: TIDashboard
   adminTiGroups: AdminTIGroups
 }
@@ -85,7 +85,7 @@ export const test = base.extend<CiviformFixtures>({
     await use(new ApplicantProgramList(page))
   },
 
-  programOverview: async ({page}, use) => {
+  applicantProgramOverview: async ({page}, use) => {
     await use(new ApplicantProgramOverview(page))
   },
 

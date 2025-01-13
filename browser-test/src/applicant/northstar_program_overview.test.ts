@@ -41,11 +41,11 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     test('takes guests and logged in users to the program overview', async ({
       page,
       applicantQuestions,
-      programOverview,
+      applicantProgramOverview: applicantProgramOverview,
     }) => {
       // Exercise guest path
       await page.goto(`/programs/${programName}`)
-      await programOverview.expectProgramOverviewPage()
+      await applicantProgramOverview.expectProgramOverviewPage()
 
       await logout(page)
 
@@ -56,14 +56,17 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       await page.goto(`/programs/${programName}`)
-      await programOverview.expectProgramOverviewPage()
+      await applicantProgramOverview.expectProgramOverviewPage()
     })
   })
 
-  test('can view program overview', async ({page, programOverview}) => {
+  test('can view program overview', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
     await page.goto(`/programs/${programName}`)
 
-    await programOverview.expectProgramOverviewPage()
+    await applicantProgramOverview.expectProgramOverviewPage()
     expect(await page.title()).toBe('test - Program Overview')
   })
 
@@ -105,7 +108,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   test('trusted intermediary can view program overview with applicant id in the URL', async ({
     page,
     tiDashboard,
-    programOverview,
+    applicantProgramOverview: applicantProgramOverview,
   }) => {
     await loginAsTrustedIntermediary(page)
     const client: ClientInformation = {
@@ -124,7 +127,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await page.goto(`${url}/${programName}`)
 
-    await programOverview.expectProgramOverviewPage()
+    await applicantProgramOverview.expectProgramOverviewPage()
   })
 
   test('Going to a deep link does not retain redirect in session', async ({
