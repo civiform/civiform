@@ -26,8 +26,6 @@ test.describe(
   () => {
     test.beforeEach(async ({page, request}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await enableFeatureFlag(page, 'bulk_status_update_enabled')
-
       await test.step('Clear database', async () => {
         await request.post('/dev/seed/clear')
       })
