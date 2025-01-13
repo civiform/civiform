@@ -69,7 +69,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String eligibilityMsg = "";
     boolean isEligibilityMsgEnabled =
         settingsManifest.getCustomizedEligibilityMessageEnabled(request);
-    if (blockDefinition.isPresent()) {
+    if (blockDefinition.isPresent() && isEligibilityMsgEnabled) {
       Locale preferredLocale = messages.lang().toLocale();
       eligibilityMsg =
           blockDefinition
