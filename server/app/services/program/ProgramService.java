@@ -861,12 +861,12 @@ public final class ProgramService {
                   block
                       .localizedDescription()
                       .updateTranslation(locale, screenUpdate.get().localizedDescription()));
-      if (!screenUpdate.get().localizedEligibilityMessage().isEmpty()) {
+      if (screenUpdate.get().localizedEligibilityMessage().isPresent()) {
         blockBuilder.setLocalizedEligibilityMessage(
             Optional.of(
                 block
                     .localizedEligibilityMessage()
-                    .orElse(LocalizedStrings.empty())
+                    .orElse(LocalizedStrings.withEmptyDefault())
                     .updateTranslation(locale, screenUpdate.get().localizedEligibilityMessage())));
       }
       toUpdateBlockBuilder.add(blockBuilder.build());

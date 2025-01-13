@@ -122,7 +122,7 @@ public abstract class LocalizationUpdate {
     public abstract String localizedDescription();
 
     /** The new block eligibility message to update for a locale */
-    public abstract String localizedEligibilityMessage();
+    public abstract Optional<String> localizedEligibilityMessage();
 
     public static Builder builder() {
       return new AutoValue_LocalizationUpdate_ScreenUpdate.Builder();
