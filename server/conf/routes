@@ -221,6 +221,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 GET     /docs/api/programs                            controllers.docs.ApiDocsController.index(request: Request)
 GET     /docs/api/programs/:programSlug/active        controllers.docs.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
 GET     /docs/api/programs/:programSlug/draft         controllers.docs.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
+GET     /docs/api/schemas                             controllers.docs.OpenApiSchemaController.getSchemaUIRedirect(request: Request, programSlug: java.util.Optional[String], stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 GET     /docs/api/schemas/:programSlug/yaml           controllers.docs.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 GET     /docs/api/schemas/:programSlug                controllers.docs.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 
