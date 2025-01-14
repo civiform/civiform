@@ -202,7 +202,7 @@ public class ApiDocsView extends BaseHtmlView {
   private DivTag buildTabs() {
     return div(ul(
                 li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
-                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED),
+                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
                 li(a("API Schema Viewer")
                         .withHref(
                             routes.OpenApiSchemaController.getSchemaUI(
