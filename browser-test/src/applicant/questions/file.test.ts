@@ -738,6 +738,20 @@ test.describe('file upload applicant flow', () => {
             /* mobileScreenshot= */ false,
           )
         })
+      })
+
+      test('Multiple file upload limit with North Star enabled', async ({
+        page,
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initially enabled', async () => {
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
+          await applicantFileQuestion.expectFileInputEnabled()
+        })
 
         await test.step('Disable input when max files reached', async () => {
           await applicantQuestions.answerFileUploadQuestionFromAssets(
