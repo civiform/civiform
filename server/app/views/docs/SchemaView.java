@@ -247,6 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 .url()))
                     .withClasses("border-b-2", AdminStyles.LINK_SELECTED))
             .withClasses("flex", "gap-4"))
-        .withClasses("my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+        .withClasses("ml-2", "my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
   }
 }
