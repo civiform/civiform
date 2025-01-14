@@ -11,6 +11,7 @@ import {
   AdminPredicates,
   enableFeatureFlag,
   disableFeatureFlag,
+  testUserDisplayName,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {
@@ -25,7 +26,6 @@ test.describe(
   () => {
     test.beforeEach(async ({page, request}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
-
       await test.step('Clear database', async () => {
         await request.post('/dev/seed/clear')
       })
@@ -449,26 +449,31 @@ test.describe(
         })
 
         await test.step('sees submitted application with questions from program version v1', async () => {
-          const cardLocator = programAdminActor.getCardLocator()
-          await expect(cardLocator).toHaveCount(1)
+          const rowLocator = programAdminActor.getRowLocator()
+          await expect(rowLocator).toHaveCount(1)
 
-          const cardButton = cardLocator.getByRole('link', {name: 'View'})
-          expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
-          ).toBe(programIdV1)
+          const row = rowLocator.getByRole('link', {
+            name: testUserDisplayName(),
+          })
+
+          expect(await programAdminActor.parseProgramIdFromLocator(row)).toBe(
+            programIdV1,
+          )
         })
 
         await test.step('does not see submitted application with questions from program version v2 or v3', async () => {
-          const cardLocator = programAdminActor.getCardLocator()
-          await expect(cardLocator).toHaveCount(1)
+          const rowLocator = programAdminActor.getRowLocator()
+          await expect(rowLocator).toHaveCount(1)
 
-          const cardButton = cardLocator.getByRole('link', {name: 'View'})
+          const row = rowLocator.getByRole('link', {
+            name: testUserDisplayName(),
+          })
           expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
+            await programAdminActor.parseProgramIdFromLocator(row),
           ).not.toBe(programIdV2)
 
           expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
+            await programAdminActor.parseProgramIdFromLocator(row),
           ).not.toBe(programIdV3)
         })
       })
@@ -921,26 +926,30 @@ test.describe(
         })
 
         await test.step('sees submitted application with questions from program version v3', async () => {
-          const cardLocator = programAdminActor.getCardLocator()
-          await expect(cardLocator).toHaveCount(1)
+          const rowLocator = programAdminActor.getRowLocator()
+          await expect(rowLocator).toHaveCount(1)
 
-          const cardButton = cardLocator.getByRole('link', {name: 'View'})
-          expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
-          ).toBe(programIdV3)
+          const row = rowLocator.getByRole('link', {
+            name: testUserDisplayName(),
+          })
+          expect(await programAdminActor.parseProgramIdFromLocator(row)).toBe(
+            programIdV3,
+          )
         })
 
         await test.step('does not see submitted application with questions from program version v1 or v2', async () => {
-          const cardLocator = programAdminActor.getCardLocator()
-          await expect(cardLocator).toHaveCount(1)
+          const rowLocator = programAdminActor.getRowLocator()
+          await expect(rowLocator).toHaveCount(1)
 
-          const cardButton = cardLocator.getByRole('link', {name: 'View'})
+          const row = rowLocator.getByRole('link', {
+            name: testUserDisplayName(),
+          })
           expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
+            await programAdminActor.parseProgramIdFromLocator(row),
           ).not.toBe(programIdV1)
 
           expect(
-            await programAdminActor.parseProgramIdFromLocator(cardButton),
+            await programAdminActor.parseProgramIdFromLocator(row),
           ).not.toBe(programIdV2)
         })
       })
@@ -1924,8 +1933,8 @@ class FastForwardProgramAdminActor {
    * Get a locator any admin application cards. There may be 0-♾️
    * @returns {Locator} Locator to admin application card
    */
-  getCardLocator(): Locator {
-    return this.page.locator('.cf-admin-application-card')
+  getRowLocator(): Locator {
+    return this.page.locator('.cf-admin-application-row')
   }
 
   /**

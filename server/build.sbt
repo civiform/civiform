@@ -43,8 +43,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.43",
-      "software.amazon.awssdk" % "ses" % "2.29.43",
+      "software.amazon.awssdk" % "s3" % "2.29.45",
+      "software.amazon.awssdk" % "ses" % "2.29.45",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.14.2",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.36.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.3",
+      "org.checkerframework" % "dataflow-errorprone" % "3.48.4",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.12.0",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.12",
+      "ch.qos.logback" % "logback-classic" % "1.5.16",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.14" exclude ("javax.validation", "validation-api"),

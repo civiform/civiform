@@ -29,7 +29,7 @@ footer.technicalSupport=テクニカル サポート: {0}
 # This should be consistent with button.guestLogin.
 guest=ゲスト
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=言語を選択
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=言語を選択
 # A label on the button that opens the header menu shown on mobile
@@ -64,11 +64,11 @@ button.review=確認
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=新しいタブで開く
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=メイン ナビゲーション
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=代理店 ID
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=ゲスト セッション情報アラート
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -106,12 +106,12 @@ link.adminLogin=管理者ログイン
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=アップロード済みのファイル: {0}
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=1 個のファイルを選択
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=ファイルを選択（最大 {0} 個）
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=ファイルを選択（複数可）
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=削除
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -123,7 +123,7 @@ button.previousScreen=前へ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=戻る
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=確認して終了
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=スキップ
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -133,7 +133,7 @@ content.blockProgressFull={0}/{1} 回答済み
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=申請の進行状況
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=確認と送信
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -178,9 +178,9 @@ button.continueSr={0} への申請を続行
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ここから開始
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=確認して {0} に申請
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm は、{0} で対象となり得るプ�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=さまざまなプログラムへの申請を 1 か所で
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=育児、食べ物、輸送、ユーティリティなどに関する支援を受けられます。
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # Link text to read more about a program.
@@ -227,15 +227,15 @@ title.benefitsFinderSection.v2=サービスを探す
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=申請一覧（{0}）
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=申請一覧
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=その他のプログラムとサービス（{0}）
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=プログラムとサービス（{0}）
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=利用可能なプログラムとサービス
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=選択内容に一致するプログラム（{0}）
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=完了したセクション
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -245,13 +245,13 @@ toast.applicationSaved=申請は正常に保存されました（申請 ID {0}�
 # Alert banner when an application was already completed
 toast.programCompleted=すでに申請が完了しています。
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=未送信
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=送信済み
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn={0}に送信済み
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={1}に{0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -399,7 +399,7 @@ title.tiAccountSettings=信頼できる仲介者 - アカウント設定を表�
 # Submit application button
 button.submit=送信
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=申請を送信
 # Continue application button
 button.continue=続行
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -434,14 +434,14 @@ title.programSummary=プログラム申請の概要
 #----------------------------------------------------------------------------#
 
 # The HTML page title for the program overview page.  The {0} is the program name.
-title.programOverview={0} - Program Overview
+title.programOverview={0} - プログラムの概要
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=対象外のプログラム
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=以下の質問への回答から、{0} の対象ではありません。
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -549,11 +549,11 @@ title.commonIntakeConfirmationTi=クライアントに対象の可能性があ�
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=[プログラムに申請] をクリックしてオンライン申請で申請した場合、これらのプログラムに登録できる場合があります。
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=回答によると、以下のプログラムの対象となる可能性があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=[プログラムに申請] をクリックしてオンライン申請で申請した場合、クライアントはこれらのプログラムに登録できる場合があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=回答によると、クライアントは以下のプログラムの対象となる可能性があります。
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=事前チェックでは、現時点で対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -563,7 +563,7 @@ content.commonIntakeNoMatchingProgramsNextStep=前のページに戻って、回
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=あなたが興味を持ちそうなその他のプログラム
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=申請内容をダウンロード
 button.downloadPdf=PDF をダウンロード
 # A button prompting users to apply to programs.
 button.applyToPrograms=プログラムに申請
@@ -739,9 +739,9 @@ validation.fileRequired=ファイルを選択してください。
 validation.fileTooLarge=ファイルが大きすぎます。{0} MB 未満のファイルを選択してください。
 button.chooseFile=ファイルを選択
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=アップロード中
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=アップロードしたファイル
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -902,37 +902,37 @@ banner.endYourSession=セッションを終了
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=育児
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=経済
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=教育
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=雇用
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=食べ物
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=全般
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=ヘルスケア
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=住宅
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-category.tag.internet=Internet
+category.tag.internet=インターネット
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=トレーニング
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=輸送
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=ユーティリティ
