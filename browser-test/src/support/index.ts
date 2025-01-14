@@ -310,6 +310,7 @@ export const validateScreenshot = async (
   fileName: string,
   fullPage?: boolean,
   mobileScreenshot?: boolean,
+  mask?: Array<Locator>,
 ) => {
   // Do not make image snapshots when running locally
   if (DISABLE_SCREENSHOTS) {
@@ -343,7 +344,7 @@ export const validateScreenshot = async (
       expect(fileName).toMatch(/^[a-z0-9-]+$/)
 
       // Full/desktop width
-      await softAssertScreenshot(element, `${fileName}`, fullPage)
+      await softAssertScreenshot(element, `${fileName}`, fullPage, mask)
 
       // If we add additional breakpoints the browser-test/src/reporters/file_placement_reporter.ts
       // needs to be updated to handle the additional options.
@@ -352,11 +353,21 @@ export const validateScreenshot = async (
         const height = page.viewportSize()?.height || 720
         // Mobile width
         await page.setViewportSize({width: 320, height})
-        await softAssertScreenshot(element, `${fileName}-mobile`, fullPage)
+        await softAssertScreenshot(
+          element,
+          `${fileName}-mobile`,
+          fullPage,
+          mask,
+        )
 
         // Medium width
         await page.setViewportSize({width: 800, height})
-        await softAssertScreenshot(element, `${fileName}-medium`, fullPage)
+        await softAssertScreenshot(
+          element,
+          `${fileName}-medium`,
+          fullPage,
+          mask,
+        )
 
         // Reset back to original width
         await page.setViewportSize({width: existingWidth, height})
@@ -376,6 +387,7 @@ const softAssertScreenshot = async (
   element: Page | Locator,
   fileName: string,
   fullPage?: boolean,
+  mask?: Array<Locator>,
 ) => {
   const testFileName = path
     .basename(test.info().file)
@@ -385,6 +397,7 @@ const softAssertScreenshot = async (
     .soft(element)
     .toHaveScreenshot([testFileName, fileName + '.png'], {
       fullPage: fullPage,
+      mask: mask,
     })
 }
 
