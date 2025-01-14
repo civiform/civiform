@@ -251,6 +251,10 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async northstarAnswerQuestionOnReviewPage(questionText: string) {
+    await this.page.getByText(questionText).isVisible()
+  }
+
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
   async editQuestionFromReviewPage(
     questionText: string,
@@ -634,6 +638,18 @@ export class ApplicantQuestions {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click('a:has-text("click to download")'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
+  async downloadFileFromUploadPage(fileName: string) {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText(fileName).click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
