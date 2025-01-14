@@ -100,7 +100,7 @@ lazy val root = (project in file("."))
       "org.checkerframework" % "dataflow-errorprone" % "3.48.4",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.12.0",
+      "org.apache.commons" % "commons-csv" % "1.13.0",
       "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
