@@ -176,6 +176,8 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  CONTENT_EXTERNAL_SITE_PART1("content.visitExternalSite.part1"), // North Star only
+  CONTENT_EXTERNAL_SITE_PART2("content.visitExternalSite.part2"), // North Star only
   CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
@@ -234,11 +236,13 @@ public enum MessageKey {
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
   HEADING_APPLICANT_NAME("heading.applicantName"), // North Star Only
+  HEADING_APPLICATION_STEPS("heading.applicationSteps"), // North Star only
   HEADING_CONFIRMATION_NUMBER("heading.confirmationNumber"), // North Star Only
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
+  HEADING_HOW_IT_WORKS("heading.howItWorks"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only

@@ -435,6 +435,14 @@ title.programSummary=Program application summary
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Program Overview
+# Heading for the section of the program overview page that contains general program information.
+heading.howItWorks=How it works
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=How to apply
+# Invitation to visit an external website for more information on the program.
+content.visitExternalSite.part1=Visit
+# Invitation to visit an external website for more information on the program.
+content.visitExternalSite.part2= for more detailed information about the program.
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

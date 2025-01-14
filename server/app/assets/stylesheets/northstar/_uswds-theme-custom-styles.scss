@@ -388,3 +388,8 @@ main {
 .tag-submitted {
   background: var(--State-tokens-info-info-light, #99deea);
 }
+
+// Changes the color of an svg icon to primary blue #005EA2
+.primary-color-filter {
+  filter: invert(24%) sepia(96%) saturate(1338%) hue-rotate(183deg) brightness(95%) contrast(102%);
+}

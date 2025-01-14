@@ -68,6 +68,8 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await applicantProgramOverview.expectProgramOverviewPage()
     expect(await page.title()).toBe('test - Program Overview')
+    expect(await page.getByRole('heading', {name: programName})).toBeVisible()
+    await validateScreenshot(page, 'program-overview')
   })
 
   test('redirects to disabled program info page when program is disabled', async ({

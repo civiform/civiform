@@ -62,6 +62,15 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             MessageKey.TITLE_PROGRAM_OVERVIEW.getKeyName(),
             programDefinition.localizedName().getOrDefault(preferredLocale)));
 
+    String localizedProgramName = programDefinition.localizedName().getOrDefault(preferredLocale);
+    context.setVariable("programName", localizedProgramName);
+
+    String localizedProgramDescription = programDefinition.localizedDescription().getOrDefault(preferredLocale);
+    context.setVariable("programDescription", localizedProgramDescription);
+
+    String externalLink = programDefinition.externalLink();
+    context.setVariable("externalLink", externalLink);
+
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
   }
 }
