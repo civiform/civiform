@@ -15,7 +15,7 @@ import views.components.TextFormatter;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class StaticContentQuestion extends Question {
+public final class StaticContentQuestion extends AbstractQuestion {
 
   StaticContentQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);

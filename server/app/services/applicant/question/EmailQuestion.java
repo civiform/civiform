@@ -15,7 +15,7 @@ import services.question.types.EmailQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class EmailQuestion extends Question {
+public final class EmailQuestion extends AbstractQuestion {
 
   private Optional<String> emailValue;
 
