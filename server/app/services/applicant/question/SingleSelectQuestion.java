@@ -18,7 +18,7 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class SingleSelectQuestion extends Question {
+public final class SingleSelectQuestion extends AbstractQuestion {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<LocalizedQuestionOption>> selectedOptionValueCache;

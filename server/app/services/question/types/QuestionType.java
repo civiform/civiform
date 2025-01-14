@@ -1,6 +1,7 @@
 package services.question.types;
 
 import java.util.Locale;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
@@ -13,7 +14,6 @@ import services.applicant.question.NameQuestion;
 import services.applicant.question.NullQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
-import services.applicant.question.Question;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.StaticContentQuestion;
 import services.applicant.question.TextQuestion;
@@ -39,9 +39,9 @@ public enum QuestionType {
   NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;
-  private final Class<? extends Question> supportedQuestion;
+  private final Class<? extends AbstractQuestion> supportedQuestion;
 
-  QuestionType(String label, Class<? extends Question> supportedQuestion) {
+  QuestionType(String label, Class<? extends AbstractQuestion> supportedQuestion) {
     this.label = label;
     this.supportedQuestion = supportedQuestion;
   }
@@ -79,7 +79,7 @@ public enum QuestionType {
     return this.label;
   }
 
-  public Class<? extends Question> getSupportedQuestion() {
+  public Class<? extends AbstractQuestion> getSupportedQuestion() {
     return supportedQuestion;
   }
 }

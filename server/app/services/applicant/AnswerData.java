@@ -4,8 +4,8 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.Path;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.Question;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -144,8 +144,8 @@ public abstract class AnswerData {
     public abstract AnswerData build();
   }
 
-  /** Creates a {@link Question} for the given {@link AnswerData}'s type. */
-  public Question createQuestion() {
+  /** Creates a {@link AbstractQuestion} for the given {@link AnswerData}'s type. */
+  public AbstractQuestion createQuestion() {
     switch (questionDefinition().getQuestionType()) {
       case ENUMERATOR:
         return applicantQuestion().createEnumeratorQuestion();

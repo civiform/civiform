@@ -12,8 +12,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import models.ApplicantModel;
 import services.Path;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -249,7 +249,10 @@ public final class Block {
     return isAnswered() && !hasErrors();
   }
 
-  /** A block is answered if all of its {@link ApplicantQuestion}s {@link Question#isAnswered()}. */
+  /**
+   * A block is answered if all of its {@link ApplicantQuestion}s {@link
+   * AbstractQuestion#isAnswered()}.
+   */
   private boolean isAnswered() {
     return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
