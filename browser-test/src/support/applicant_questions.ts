@@ -634,7 +634,7 @@ export class ApplicantQuestions {
   /**
    * On the review page, users can download already-uploaded files;
    * this method downloads one of them and returns the file content.
-   * 
+   *
    * In North Star, the anchor text for the download link is the name
    * of the file. (Prior to North Star, the anchor text was "click to
    * download".)
