@@ -2,6 +2,7 @@ package services;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import views.components.TextFormatter;
 
 /**
  * Contains settings
@@ -33,6 +34,12 @@ public record AlertSettings(
       String text,
       AlertType alertType,
       ImmutableList<String> additionalText) {
-    this(show, title, text, false, alertType, additionalText);
+    this(show, title, text, true, alertType, additionalText);
+  }
+
+  /** Sanitized HTML for text in the alert */
+  public String getFormattedAlertText(String text) {
+    return TextFormatter.formatTextToSanitizedHTML(
+        text, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
   }
 }
