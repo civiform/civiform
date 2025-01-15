@@ -51,6 +51,7 @@
     th:aria-describedby="${questionId} + '-description'"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
+    th:disabled="${!fileUploadQuestion.canUploadFile()}"
   />
 </div>
 
