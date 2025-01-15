@@ -625,6 +625,14 @@ export class ApplicantQuestions {
     }
   }
 
+  /**
+   * On the review page, users can download already-uploaded files;
+   * this method downloads one of them and returns the file content.
+   * 
+   * In North Star, the anchor text for the download link is the name
+   * of the file. (Prior to North Star, the anchor text was "click to
+   * download".)
+   */
   async downloadSingleQuestionFromReviewPage(
     northStarEnabled = false,
     downloadText = 'click to download',
@@ -649,6 +657,10 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
+  /**
+   * On the upload page, users can download already-uploaded files;
+   * this method downloads the one specified by the user returns the file content.
+   */
   async downloadFileFromUploadPage(fileName: string) {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
