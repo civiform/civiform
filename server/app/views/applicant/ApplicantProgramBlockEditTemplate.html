@@ -11,7 +11,8 @@
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
-          ${applicationParams.programDescription()})}"
+          ${applicationParams.programDescription()},
+          true)}"
       ></div>
 
       <div class="grid-container">

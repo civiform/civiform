@@ -1,4 +1,6 @@
-<th:block th:fragment="titleAndDescriptionFragment(title, description)">
+<th:block
+  th:fragment="titleAndDescriptionFragment(title, description, includeSeparator)"
+>
   <section class="grid-container section">
     <div class="grid-row">
       <div class="tablet:grid-col-8 usa-prose">
@@ -11,5 +13,5 @@
   </section>
 
   <!-- Separator -->
-  <div class="border-t border-base-lighter"></div>
+  <div th:if="${includeSeparator}" class="border-t border-base-lighter"></div>
 </th:block>

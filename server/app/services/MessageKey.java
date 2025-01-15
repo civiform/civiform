@@ -52,6 +52,7 @@ public enum MessageKey {
       "alert.eligibility_ti_fastforwarded_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
+  ALERT_LIKELY_ELIGIBLE("alert.likelyEligible"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
@@ -176,8 +177,6 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
-  CONTENT_EXTERNAL_SITE_PART1("content.visitExternalSite.part1"), // North Star only
-  CONTENT_EXTERNAL_SITE_PART2("content.visitExternalSite.part2"), // North Star only
   CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
@@ -242,8 +241,8 @@ public enum MessageKey {
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
-  HEADING_HOW_IT_WORKS("heading.howItWorks"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
+  HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),

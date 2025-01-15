@@ -7,7 +7,7 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription}, true)}"
       ></div>
       <div class="grid-container">
         <div class="grid-row">
