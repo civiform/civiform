@@ -15,7 +15,7 @@ import services.question.types.CurrencyQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class CurrencyQuestion extends Question {
+public final class CurrencyQuestion extends AbstractQuestion {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<Currency>> currencyCache;

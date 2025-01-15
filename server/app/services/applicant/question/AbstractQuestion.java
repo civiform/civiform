@@ -24,10 +24,10 @@ import services.question.types.QuestionType;
  *   <li>Present validation errors if any
  * </ul>
  */
-public abstract class Question {
+public abstract class AbstractQuestion {
   protected final ApplicantQuestion applicantQuestion;
 
-  public Question(ApplicantQuestion applicantQuestion) {
+  public AbstractQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = Preconditions.checkNotNull(applicantQuestion);
 
     QuestionType supportedQuestionType = applicantQuestion.getType();
@@ -91,10 +91,10 @@ public abstract class Question {
   }
 
   /**
-   * Question-type specific implementation of {@link Question.getValidationErrors}. Note that keys
-   * with an empty set of errors will be filtered out by {@link Question.getValidationErrors} so
-   * that calls to isEmpty on the getvalidationErrors result are sufficient to indicate if there any
-   * errors.
+   * Question-type specific implementation of {@link AbstractQuestion.getValidationErrors}. Note
+   * that keys with an empty set of errors will be filtered out by {@link
+   * AbstractQuestion.getValidationErrors} so that calls to isEmpty on the getvalidationErrors
+   * result are sufficient to indicate if there any errors.
    */
   protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>>
       getValidationErrorsInternal();

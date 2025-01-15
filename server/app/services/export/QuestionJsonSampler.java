@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import models.ApplicantModel;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
@@ -20,7 +21,6 @@ import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
-import services.applicant.question.Question;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
 import services.geo.ServiceAreaInclusion;
@@ -37,7 +37,7 @@ import services.question.types.QuestionType;
  *
  * <p>Some {@link QuestionType}s share the same {@link QuestionJsonSampler}.
  */
-public interface QuestionJsonSampler<Q extends Question> {
+public interface QuestionJsonSampler<Q extends AbstractQuestion> {
 
   default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
       QuestionDefinition questionDefinition, boolean multipleFileUploadEnabled) {
@@ -292,7 +292,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class EmptyJsonSampler implements QuestionJsonSampler<Question> {
+  class EmptyJsonSampler implements QuestionJsonSampler<AbstractQuestion> {
 
     @Override
     public ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
@@ -301,7 +301,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public Question getQuestion(ApplicantQuestion applicantQuestion) {
+    public AbstractQuestion getQuestion(ApplicantQuestion applicantQuestion) {
       return null;
     }
 

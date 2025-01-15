@@ -19,7 +19,7 @@ import services.question.types.DateQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class DateQuestion extends Question {
+public final class DateQuestion extends AbstractQuestion {
 
   private Optional<LocalDate> dateValue;
 

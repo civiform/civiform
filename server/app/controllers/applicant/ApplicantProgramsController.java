@@ -209,6 +209,14 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
+  public CompletionStage<Result> showWithApplicantId(
+      Request request, long applicantId, String programName) {
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    return programSlugHandler.showProgramWithApplicantId(
+        this, request, programName, applicantId, profile);
+  }
+
+  @Secure
   public CompletionStage<Result> editWithApplicantId(
       Request request, long applicantId, long programId) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
