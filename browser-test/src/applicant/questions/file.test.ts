@@ -690,10 +690,12 @@ test.describe('file upload applicant flow', () => {
 
       test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
         await loginAsAdmin(page)
+        await enableFeatureFlag(page, 'multiple_file_upload_enabled')
 
         await adminQuestions.addFileUploadQuestion({
           questionName: 'file-upload-test-q',
           questionText: fileUploadQuestionText,
+          maxFiles: 3,
         })
         await adminPrograms.addAndPublishProgramWithQuestions(
           ['file-upload-test-q'],
@@ -715,7 +717,6 @@ test.describe('file upload applicant flow', () => {
             /* northStarEnabled= */ true,
           )
           await applicantFileQuestion.expectFileSelectionErrorHidden()
-
           await validateScreenshot(
             page.getByTestId('questionRoot'),
             'file-required-north-star',
@@ -736,6 +737,48 @@ test.describe('file upload applicant flow', () => {
             /* fullPage= */ false,
             /* mobileScreenshot= */ false,
           )
+        })
+      })
+
+      test('Multiple file upload limit with North Star enabled', async ({
+        page,
+        applicantFileQuestion,
+        applicantQuestions,
+      }) => {
+        await test.step('Initially enabled', async () => {
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
+          await applicantFileQuestion.expectFileInputEnabled()
+        })
+
+        await test.step('Disable input when max files reached', async () => {
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload.png',
+          )
+          await applicantFileQuestion.expectFileInputEnabled()
+
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload-second.png',
+          )
+          await applicantFileQuestion.expectFileInputEnabled()
+          await applicantQuestions.answerFileUploadQuestionFromAssets(
+            'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
+          )
+          await applicantFileQuestion.expectFileInputDisabled()
+          await validateAccessibility(page)
+        })
+
+        await test.step('Remove files', async () => {
+          await applicantFileQuestion.removeFileUpload('file-upload.png')
+          await applicantFileQuestion.expectFileInputEnabled()
+          await applicantFileQuestion.removeFileUpload('file-upload-second.png')
+          await applicantFileQuestion.expectFileInputEnabled()
+          await applicantFileQuestion.removeFileUpload(
+            'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
+          )
+          await applicantFileQuestion.expectFileInputEnabled()
         })
       })
 
