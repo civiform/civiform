@@ -64,11 +64,11 @@ button.review=Dib u eeg
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=Hagitaanka aasasiga ah
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=Aqooonsiga hay'adda,
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=Digniinta warbixineed ee fadhi martiyeedka
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr=U sii wad codsiga ila {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Halkan ka bilow.
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=Eeg oo codso
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=Eeg oo codso {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=Codso barnaamijyada isku hal meel ah
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=U hel caawino daryeelka ubadka, cuntada, gaadiidka, adeegyada guriga iyo waxyaabo kale oo badan.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=Hel adeegyo
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Codsiyadayda ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=Codsiyadayda
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=Adeegyada iyo barnaamijyada la heli karo
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Barnaamijyo ku salaysan xulushooyinkaaga({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=Weli lama gudbin
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=La gudbiyay
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=La gudbiyay {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={0} markay tahay {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -428,6 +428,13 @@ title.commonIntakeSummary=Faa'iidooyinka hore u baadhaha oo kooban
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Aan bilowno.
 title.programSummary=Soo koobida barnaamijka codsiga
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - Guudmarka Barnaamijka
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -904,7 +911,7 @@ category.tag.economic=Dhaqaale
 category.tag.education=Waxbarasho
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=Shaqalaysiin
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=Cunto
@@ -922,7 +929,7 @@ category.tag.housing=Guriyaynta
 category.tag.internet=Khadka
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Tababar
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=Gaadiidka

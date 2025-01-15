@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Clock;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -219,8 +218,18 @@ public class AccountModel extends BaseModel {
     activeSessions.remove(sessionId);
   }
 
+  /** Clear all active sessions. */
+  public void clearActiveSessions() {
+    activeSessions.clear();
+  }
+
+  /** Returns all active sessions. */
+  public Map<String, SessionDetails> getActiveSessions() {
+    return activeSessions;
+  }
+
   /** Removes any sessions that have exceeded the given max session length. */
-  public void removeExpiredActiveSessions(Clock clock, Duration maxSessionLength) {
+  public void removeExpiredActiveSessions(SessionLifecycle sessionLifecycle) {
     activeSessions
         .entrySet()
         .removeIf(
@@ -228,7 +237,7 @@ public class AccountModel extends BaseModel {
                 entry
                     .getValue()
                     .getCreationTime()
-                    .plus(maxSessionLength)
-                    .isBefore(clock.instant()));
+                    .plus(sessionLifecycle.getMaxSessionDuration())
+                    .isBefore(sessionLifecycle.getClock().instant()));
   }
 }

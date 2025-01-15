@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.typesafe.config.Config;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
@@ -18,10 +19,12 @@ import play.mvc.Results;
  */
 public class ValidAccountFilter extends EssentialFilter {
   private final ProfileUtils profileUtils;
+  private final Config config;
 
   @Inject
-  public ValidAccountFilter(ProfileUtils profileUtils) {
+  public ValidAccountFilter(ProfileUtils profileUtils, Config config) {
     this.profileUtils = checkNotNull(profileUtils);
+    this.config = checkNotNull(config);
   }
 
   @Override
@@ -29,9 +32,9 @@ public class ValidAccountFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-          if (profile.isPresent() && !profileUtils.validCiviFormProfile(profile.get())) {
-            // The cookie is present but the profile is not valid, redirect to logout and clear the
-            // cookie.
+          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
+            // The cookie is present but the profile or session is not valid, redirect to logout and
+            // clear the cookie.
             if (!allowedEndpoint(request)) {
               return Accumulator.done(
                   Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
@@ -40,6 +43,22 @@ public class ValidAccountFilter extends EssentialFilter {
 
           return next.apply(request);
         });
+  }
+
+  private boolean shouldLogoutUser(CiviFormProfile profile) {
+    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
+  }
+
+  private boolean isValidSession(CiviFormProfile profile) {
+    if (config.getBoolean("session_replay_protection_enabled")) {
+      return profile
+          .getAccount()
+          .thenApply(
+              account ->
+                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent())
+          .join();
+    }
+    return true;
   }
 
   /**

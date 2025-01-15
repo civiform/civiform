@@ -64,11 +64,11 @@ button.review=ገምግም
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=ዋና አሰሳ
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=የወኪል ለዪ፣
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=የእንግዳ ክፍለ-ጊዜ መረጃዊ ማንቂያ
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr=ወደ {0} ማመልከትን ቀጥል
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=እዚህ ይጀምሩ
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=አሳይ እና ተግብር
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=በ{0} ላይ አሳይ እና ተግብር
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የ�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=በአንድ ቦታ ባሉ ፕሮግራሞች ላይ ተግብር
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=በልጅ እንክብካቤ፣ ምግብ፣ መጓጓዣ፣ መገልገያዎች እና ሌሎችም ላይ እገዛ ያግኙ።
 # The label for the program filter buttons
 label.programFilters=የፕሮግራም ማጣሪያዎች
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=አገልግሎቶችን ያግኙ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=የእኔ መተግበሪያዎች ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=የእኔ ማመልከቻዎች
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=የሚገኙ ፕሮግራሞች እና አገልግሎቶች
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=በእርስዎ ምርጫዎች ላይ የተመሠረቱ ፕሮግራሞች ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦
 # Alert banner when an application was already completed
 toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=እስካሁን አልገባም
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=ገብቷል
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=የገባው {0} ላይ
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={1} ላይ {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -428,6 +428,13 @@ title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠ
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=እንጀምር።
 title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - የፕሮግራም አጠቃላይ እይታ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

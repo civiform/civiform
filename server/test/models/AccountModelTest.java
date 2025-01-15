@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -153,10 +154,32 @@ public class AccountModelTest extends ResetPostgres {
     accountModel.addActiveSession("session2", clock100);
     accountModel.addActiveSession("session3", clock110);
 
-    accountModel.removeExpiredActiveSessions(clock110, Duration.ofSeconds(10));
+    SessionLifecycle sessionLifecycle = new SessionLifecycle(clock110, Duration.ofSeconds(10));
+
+    accountModel.removeExpiredActiveSessions(sessionLifecycle);
 
     assertThat(accountModel.getActiveSession("session1")).isEmpty();
     assertThat(accountModel.getActiveSession("session2")).isPresent();
     assertThat(accountModel.getActiveSession("session3")).isPresent();
+  }
+
+  @Test
+  public void getActiveSessions_returnsAllActiveSessions() {
+    AccountModel accountModel = new AccountModel();
+    accountModel.addActiveSession("session1", CLOCK);
+    accountModel.addActiveSession("session2", CLOCK);
+
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
+
+    assertThat(activeSessions).containsKeys("session1", "session2");
+  }
+
+  @Test
+  public void getActiveSessions_returnsEmptyMapWhenNoActiveSessions() {
+    AccountModel accountModel = new AccountModel();
+
+    Map<String, SessionDetails> activeSessions = accountModel.getActiveSessions();
+
+    assertThat(activeSessions).isEmpty();
   }
 }

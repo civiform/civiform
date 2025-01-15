@@ -166,5 +166,15 @@ public abstract class FileUploadViewStrategy {
    */
   public abstract String getUploadFormClass();
 
+  /**
+   * Returns strategy-specific class to add to the <form> element when the form implements
+   * multi-file-upload. It helps to dinstinguish different client-side strategies (AWS or Azure)
+   */
+  public abstract String getMultiFileUploadFormClass();
+
+  /**
+   * Internal method returns extra script tags needed to support file upload from the client.
+   * Invoked by the method footerTags() in this file.
+   */
   protected abstract ImmutableList<ScriptTag> extraScriptTags();
 }

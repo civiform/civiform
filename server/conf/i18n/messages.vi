@@ -64,11 +64,11 @@ button.review=Xem lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=Điều hướng chính
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=Mã nhận dạng đại lý
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=Cảnh báo thông tin phiên khách
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr=Tiếp tục đăng ký {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Bắt đầu tại đây
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=Xem và đăng ký
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=Xem và đăng ký {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm giúp bạn tìm được những chư�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=Đăng ký nhiều chương trình tại một nơi
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=Tìm dịch vụ
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Đơn đăng ký của tôi ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=Đơn đăng ký của tôi
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=Các chương trình và dịch vụ có sẵn
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Các chương trình dựa trên lựa chọn của bạn ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng
 # Alert banner when an application was already completed
 toast.programCompleted=Đăng ký thành công.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=Chưa nộp
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=Đã nộp
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=Đã nộp vào {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={0} vào {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -428,6 +428,13 @@ title.commonIntakeSummary=Tóm tắt sàng lọc sơ bộ về lợi ích
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Hãy bắt đầu.
 title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} — Tổng quan về chương trình
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

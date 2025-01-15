@@ -369,6 +369,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
     SelectTag dropdownTag =
         select()
             .withName("statusText")
+            .withId("bulk-status-selector")
             .withClasses(
                 "outline-none",
                 "px-3",
@@ -433,6 +434,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                           input()
                               .withType("checkbox")
                               .withName("shouldSendEmail")
+                              .withId("bulk-status-notification")
                               .withClasses(BaseStyles.CHECKBOX),
                           submitButton("Status change").withClasses("usa-button"),
                           alertTag,

@@ -313,7 +313,7 @@ public final class ApplicantQuestion {
     return new TextQuestion(this);
   }
 
-  public Question getQuestion() {
+  public AbstractQuestion getQuestion() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();

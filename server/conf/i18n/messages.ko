@@ -64,11 +64,11 @@ button.review=검토
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=기본 탐색
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=기관 식별자,
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=게스트 세션 정보 알림
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -178,9 +178,9 @@ button.continueSr={0} 신청 계속하기
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=여기부터 시작
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=보기 및 신청
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=보기 및 {0} 신청
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=애플리케이션으로 계속하기
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=한곳에서 프로그램 신청
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=육아, 식품, 교통, 공공 서비스 등에 대한 도움을 받으세요.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # Link text to read more about a program.
@@ -227,13 +227,13 @@ title.benefitsFinderSection.v2=서비스 찾기
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=내 신청 프로그램({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=내 신청서
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=사용 가능한 프로그램 및 서비스
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -245,13 +245,13 @@ toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
 # Alert banner when an application was already completed
 toast.programCompleted=신청서가 이미 작성되어 있습니다.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=아직 제출되지 않음
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=제출됨
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn={0}에 제출됨
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={1} 에 {0}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -428,6 +428,13 @@ title.commonIntakeSummary=혜택 사전 선별 요약
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=시작하기
 title.programSummary=프로그램 신청 요약
+
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} - 프로그램 개요
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -904,7 +911,7 @@ category.tag.economic=경제
 category.tag.education=교육
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=고용
 
 # A tag used to filter the list of programs down to those that are related to food.
 category.tag.food=음식
@@ -922,7 +929,7 @@ category.tag.housing=주택
 category.tag.internet=인터넷
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=교육
 
 # A tag used to filter the list of programs down to those that are related to transportation.
 category.tag.transportation=교통

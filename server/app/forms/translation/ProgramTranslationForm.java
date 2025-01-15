@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import models.ApplicationStep;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.Lang;
@@ -15,6 +16,7 @@ import play.mvc.Http;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.LocalizationUpdate;
+import services.program.LocalizationUpdate.ApplicationStepUpdate;
 import services.program.ProgramDefinition;
 import services.statuses.StatusDefinitions;
 
@@ -29,6 +31,7 @@ public final class ProgramTranslationForm {
   private static final Lang DEFAULT_LANG = new Lang(LocalizedStrings.DEFAULT_LOCALE);
   public static final String DISPLAY_NAME_FORM_NAME = "displayName";
   public static final String DISPLAY_DESCRIPTION_FORM_NAME = "displayDescription";
+  public static final String SHORT_DESCRIPTION_FORM_NAME = "shortDescription";
   public static final String CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME = "confirmationMessage";
   public static final String IMAGE_DESCRIPTION_FORM_NAME = "imageDescription";
 
@@ -57,6 +60,9 @@ public final class ProgramTranslationForm {
                 DISPLAY_DESCRIPTION_FORM_NAME,
                 new String[] {program.localizedDescription().maybeGet(locale).orElse("")})
             .put(
+                SHORT_DESCRIPTION_FORM_NAME,
+                new String[] {program.localizedShortDescription().maybeGet(locale).orElse("")})
+            .put(
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME,
                 new String[] {program.localizedConfirmationMessage().maybeGet(locale).orElse("")});
     boolean hasSummaryImageDescription = program.localizedSummaryImageDescription().isPresent();
@@ -84,6 +90,17 @@ public final class ProgramTranslationForm {
                 .maybeGet(locale)
                 .orElse("")
           });
+    }
+
+    ImmutableList<ApplicationStep> applicationSteps = program.applicationSteps();
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      ApplicationStep applicationStep = applicationSteps.get(i);
+      formValuesBuilder.put(
+          localizedApplicationStepTitle(i),
+          new String[] {applicationStep.getTitle().maybeGet(locale).orElse("")});
+      formValuesBuilder.put(
+          localizedApplicationStepDescription(i),
+          new String[] {applicationStep.getDescription().maybeGet(locale).orElse("")});
     }
 
     for (int i = 0; i < program.blockDefinitions().size(); i++) {
@@ -119,7 +136,8 @@ public final class ProgramTranslationForm {
                 TypedMap.empty(),
                 formValuesBuilder.build(),
                 ImmutableMap.of(),
-                allFieldNames(statuses.size(), hasSummaryImageDescription, blockIds)
+                allFieldNames(
+                        statuses.size(), hasSummaryImageDescription, applicationSteps, blockIds)
                     .toArray(new String[0]));
     return new ProgramTranslationForm(
         form, activeStatusDefinitions.getStatuses().size(), hasSummaryImageDescription);
@@ -130,6 +148,7 @@ public final class ProgramTranslationForm {
       FormFactory formFactory,
       int maxStatusTranslations,
       boolean hasSummaryImageDescription,
+      ImmutableList<ApplicationStep> applicationSteps,
       ImmutableList<Long> blockIds) {
     // We limit the number of status entries read from the form data to that of the
     // current configured set of statuses.
@@ -138,18 +157,26 @@ public final class ProgramTranslationForm {
             .form()
             .bindFromRequest(
                 request,
-                allFieldNames(maxStatusTranslations, hasSummaryImageDescription, blockIds)
+                allFieldNames(
+                        maxStatusTranslations,
+                        hasSummaryImageDescription,
+                        applicationSteps,
+                        blockIds)
                     .toArray(new String[0]));
     return new ProgramTranslationForm(form, maxStatusTranslations, hasSummaryImageDescription);
   }
 
   private static ImmutableList<String> allFieldNames(
-      int maxStatusTranslations, boolean hasSummaryImageDescription, ImmutableList<Long> blockIds) {
+      int maxStatusTranslations,
+      boolean hasSummaryImageDescription,
+      ImmutableList<ApplicationStep> applicationSteps,
+      ImmutableList<Long> blockIds) {
     ImmutableList.Builder<String> builder =
         ImmutableList.<String>builder()
             .add(
                 DISPLAY_NAME_FORM_NAME,
                 DISPLAY_DESCRIPTION_FORM_NAME,
+                SHORT_DESCRIPTION_FORM_NAME,
                 CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME);
     if (hasSummaryImageDescription) {
       builder.add(IMAGE_DESCRIPTION_FORM_NAME);
@@ -157,6 +184,9 @@ public final class ProgramTranslationForm {
     for (int i = 0; i < maxStatusTranslations; i++) {
       builder.add(
           statusKeyToUpdateFieldName(i), localizedStatusFieldName(i), localizedEmailFieldName(i));
+    }
+    for (int i = 0; i < applicationSteps.size(); i++) {
+      builder.add(localizedApplicationStepTitle(i), localizedApplicationStepDescription(i));
     }
     for (int i = 0; i < blockIds.size(); i++) {
       builder.add(
@@ -175,15 +205,41 @@ public final class ProgramTranslationForm {
             .setLocalizedDisplayName(getStringFormField(DISPLAY_NAME_FORM_NAME).orElse(""))
             .setLocalizedDisplayDescription(
                 getStringFormField(DISPLAY_DESCRIPTION_FORM_NAME).orElse(""))
+            .setLocalizedShortDescription(
+                getStringFormField(SHORT_DESCRIPTION_FORM_NAME).orElse(""))
             .setLocalizedConfirmationMessage(
                 getStringFormField(CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME).orElse(""));
     if (hasSummaryImageDescription) {
       dataBuilder.setLocalizedSummaryImageDescription(
           getStringFormField(IMAGE_DESCRIPTION_FORM_NAME).orElse(""));
     }
+    dataBuilder.setApplicationSteps(parseApplicationStepUpdatesFromRequest());
     dataBuilder.setStatuses(parseStatusUpdatesFromRequest());
     dataBuilder.setScreens(parseScreenUpdatesFromRequest(blockIds));
     return dataBuilder.build();
+  }
+
+  private ImmutableList<ApplicationStepUpdate> parseApplicationStepUpdatesFromRequest() {
+    // there are only ever at most 5 application steps
+    return IntStream.range(0, 5)
+        .boxed()
+        .map(
+            i -> {
+              String fieldNameTitle = localizedApplicationStepTitle(i);
+              String fieldNameDescription = localizedApplicationStepDescription(i);
+              Optional<String> maybeTitleValue = getStringFormField(fieldNameTitle);
+              Optional<String> maybeDescriptionValue = getStringFormField(fieldNameDescription);
+              if (maybeTitleValue.isEmpty() || maybeDescriptionValue.isEmpty()) {
+                return Optional.<ApplicationStepUpdate>empty();
+              }
+              ApplicationStepUpdate.Builder resultBuilder = ApplicationStepUpdate.builder();
+              resultBuilder.setLocalizedTitle(maybeTitleValue.get());
+              resultBuilder.setLocalizedDescription(maybeDescriptionValue.get());
+              return Optional.of(resultBuilder.build());
+            })
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ImmutableList<LocalizationUpdate.StatusUpdate> parseStatusUpdatesFromRequest() {
@@ -258,6 +314,14 @@ public final class ProgramTranslationForm {
 
   public static String localizedEmailFieldName(int index) {
     return String.format("localized-email-%d", index);
+  }
+
+  public static String localizedApplicationStepTitle(long stepNumber) {
+    return String.format("application-step-title-%d", stepNumber);
+  }
+
+  public static String localizedApplicationStepDescription(long stepNumber) {
+    return String.format("application-step-description-%d", stepNumber);
   }
 
   public static String localizedScreenName(long blockId) {

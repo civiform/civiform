@@ -29,7 +29,7 @@ footer.technicalSupport=Служба технической поддержки: 
 # This should be consistent with button.guestLogin.
 guest=Гость
 # Clicking this button shows a dropdown menu to change the display language
-button.languages=Select Language
+button.languages=Выбрать язык
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Выбрать язык
 # A label on the button that opens the header menu shown on mobile
@@ -64,11 +64,11 @@ button.review=Проверить ответы
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
 # Aria-label for the primary navigation
-label.primaryNavigation=Primary navigation
+label.primaryNavigation=Основное меню навигации
 # Aria-label for agency identifier
-label.agencyIdentifier=Agency identifier,
+label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
-label.guestSessionAlert=Guest session informational alert
+label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -106,12 +106,12 @@ link.adminLogin=Войти как администратор
 # The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=Загружен файл "{0}".
 # Hint placed above file input for questions which accept a single file.
-input.singleFileUploadHint=Select a file
+input.singleFileUploadHint=Выберите файл
 # Hint placed above file input for questions which accept multiple, but not unlimited, files. {0} contains a number,
 # 2 or greater, representing the maximum number of files.
-input.multipleFileUploadHint=Select one or more files (maximum of {0})
+input.multipleFileUploadHint=Выберите один или несколько файлов (не более {0})
 # Hint placed above file inputs which accept any number of files.
-input.unlimitedFileUploadHint=Select one or more files
+input.unlimitedFileUploadHint=Выберите один или несколько файлов
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Удалить
 # The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
@@ -123,7 +123,7 @@ button.previousScreen=Перейти к предыдущему экрану
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Назад
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Проверить и закрыть форму заявки
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Пропустить
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -133,7 +133,7 @@ content.blockProgressFull=Дано ответов: {0} из {1}
 # An aria-label on a progress bar showing user how much of the application they have completed.
 content.blockProgressLabel=Прогресс заполнения заявки
 # Heading on the application review page. The page shows all the answers the user inputted.
-heading.reviewAndSubmit=Review and submit
+heading.reviewAndSubmit=Проверка и отправка заявки
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
@@ -178,9 +178,9 @@ button.continueSr=Продолжить заполнять заявку на уч
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Начать
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
-button.viewAndApply=View and apply
+button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
-button.viewAndApplySr=View and apply to {0}
+button.viewAndApplySr=Узнать больше и подать заявку на участие в программе "{0}"
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -198,12 +198,12 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=Подавайте заявки на участие в программах поддержки
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=Получайте помощь с оплатой расходов на уход за детьми, питание, транспорт, коммунальные услуги и многое другое.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # Link text to read more about a program.
@@ -227,15 +227,15 @@ title.benefitsFinderSection.v2=Находите услуги
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
 title.myApplicationsSection=Мои заявки ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
+title.myApplicationsSection.v2=Мои заявки
 # Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Другие программы и услуги ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Программы и услуги ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=Доступные программы и услуги
 # Title of the section on the home page that shows programs that match any of the selected filters.
-title.recommendedSection.v2=Programs based on your selections ({0})
+title.recommendedSection.v2=Программы по фильтрам ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
 title.programSectionCompleted=Вы заполнили этот раздел
 # Subtitle for the list of programs for which the applicant has already submitted an application
@@ -245,13 +245,13 @@ toast.applicationSaved=Заявка с идентификатором {0} сох
 # Alert banner when an application was already completed
 toast.programCompleted=Заявка уже заполнена.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=Заявка не подана
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
-label.submitted=Submitted
+label.submitted=Заявка подана
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=Заявка подана {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
-label.statusOn={0} on {1}
+label.statusOn={0} {1}
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -399,7 +399,7 @@ title.tiAccountSettings=Надежный посредник – Просмотр
 # Submit application button
 button.submit=Отправить
 # Submit application button
-button.submitApplication=Submit application
+button.submitApplication=Подать заявку
 # Continue application button
 button.continue=Продолжить
 # Button text on a button that will allow the user to start filling out a section of questions.
@@ -429,12 +429,19 @@ title.commonIntakeSummary=Сводные данные об этой форме
 title.getStarted=Давайте начнем
 title.programSummary=Сводные данные о заявке на участие в программе
 
+#----------------------------------------------------------------------------#
+# PROGRAM OVERVIEW PAGE - contains text specific to the program overview page. #
+#----------------------------------------------------------------------------#
+
+# The HTML page title for the program overview page.  The {0} is the program name.
+title.programOverview={0} – Обзор программы
+
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
 #------------------------------------------------------------------------#
 
 # Tab title for ineligible page
-title.ineligible=Ineligible for program
+title.ineligible=Вы не подпадаете под условия программы
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
 title.applicantNotEligible=Судя по ответам на следующие вопросы, вы не подходите под требования программы "{0}"
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
@@ -542,11 +549,11 @@ title.commonIntakeConfirmationTi=Программы, которые могут �
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=Возможно, вы соответствуете критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=На основе ваших ответов мы подобрали программы, которые могут быть вам доступны:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Возможно, ваш клиент соответствует критериям допуска к этим программам. Чтобы подать заявки, нажмите "Зарегистрироваться в программах" и заполните онлайн-формы.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.commonIntakeConfirmationTi.v2=На основе ваших ответов мы подобрали программы, которые могут быть доступны вашему клиенту:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.commonIntakeNoMatchingPrograms=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть вам доступны. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
@@ -556,7 +563,7 @@ content.commonIntakeNoMatchingProgramsNextStep=Вы также можете ве
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Другие программы, которые могут быть вам интересны
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
-button.downloadApplication=Download your application
+button.downloadApplication=Скачать заявку
 button.downloadPdf=Скачать в формате PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Зарегистрироваться в программах
@@ -732,9 +739,9 @@ validation.fileRequired=Выберите файл.
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
 button.chooseFile=Выбрать файл
 # Text shown on a tag while a file is uploading.
-label.uploading=Uploading
+label.uploading=Загрузка
 # Label applied to a list of uploaded files
-label.uploadedFiles=Uploaded Files
+label.uploadedFiles=Загруженные файлы
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
@@ -895,37 +902,37 @@ banner.endYourSession=завершите сеанс
 #------------------------------------------------------------------------------#
 
 # A tag used to filter the list of programs down to those that are related to childcare.
-category.tag.childcare=Childcare
+category.tag.childcare=Уход за детьми
 
 # A tag used to filter the list of programs down to those that are related to economy.
-category.tag.economic=Economic
+category.tag.economic=Экономика
 
 # A tag used to filter the list of programs down to those that are related to education.
-category.tag.education=Education
+category.tag.education=Образование
 
 # A tag used to filter the list of programs down to those that are related to employment.
-category.tag.employment=Employment
+category.tag.employment=Трудоустройство
 
 # A tag used to filter the list of programs down to those that are related to food.
-category.tag.food=Food
+category.tag.food=Питание
 
 # A tag used to filter the list of programs down to those that have a general purpose.
-category.tag.general=General
+category.tag.general=Общее
 
 # A tag used to filter the list of programs down to those that are related to healthcare.
-category.tag.healthcare=Healthcare
+category.tag.healthcare=Здравоохранение
 
 # A tag used to filter the list of programs down to those that are related to housing.
-category.tag.housing=Housing
+category.tag.housing=Жилье
 
 # A tag used to filter the list of programs down to those that are related to the Internet.
-category.tag.internet=Internet
+category.tag.internet=Интернет
 
 # A tag used to filter the list of programs down to those that are related to training.
-category.tag.training=Training
+category.tag.training=Обучение
 
 # A tag used to filter the list of programs down to those that are related to transportation.
-category.tag.transportation=Transportation
+category.tag.transportation=Транспорт
 
 # A tag used to filter the list of programs down to those that are related to utilities.
-category.tag.utilities=Utilities
+category.tag.utilities=Коммунальные услуги

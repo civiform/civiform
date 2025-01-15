@@ -1,6 +1,8 @@
 package controllers.applicant;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.stubMessagesApi;
@@ -61,6 +63,24 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void setLangFromBrowser_badRedirect_throwsException() {
+    Http.Request request =
+        fakeRequestBuilder()
+            .addSessionValue(REDIRECT_TO_SESSION_KEY, "https://google.com")
+            .call(routes.ApplicantInformationController.setLangFromBrowser(currentApplicant.id))
+            .header("Accept-Language", "es-US")
+            .build();
+
+    assertThrows(
+        RuntimeException.class,
+        () ->
+            controller
+                .setLangFromBrowser(request, currentApplicant.id)
+                .toCompletableFuture()
+                .join());
+  }
+
+  @Test
   public void setLangFromSwitcher_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
@@ -90,6 +110,23 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void setLangFromSwitcher_badRedirect_throwsException() {
+    Http.Request request =
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcher(currentApplicant.id))
+            .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
+            .build();
+
+    assertThrows(
+        RuntimeException.class,
+        () ->
+            controller
+                .setLangFromSwitcher(request, currentApplicant.id)
+                .toCompletableFuture()
+                .join());
+  }
+
+  @Test
   public void setLangFromSwitcherWithoutApplicant_redirectsToProgramIndex_withNonEnglishLocale() {
     Http.Request request =
         fakeRequestBuilder()
@@ -102,6 +139,19 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.cookie("PLAY_LANG").get().value()).isEqualTo("es-US");
+  }
+
+  @Test
+  public void setLangFromSwitcherWithoutApplicant_badRedirect_throwsException() {
+    Http.Request request =
+        fakeRequestBuilder()
+            .call(routes.ApplicantInformationController.setLangFromSwitcherWithoutApplicant())
+            .bodyForm(ImmutableMap.of("locale", "es-US", "redirectLink", "https://google.com"))
+            .build();
+
+    assertThrows(
+        RuntimeException.class,
+        () -> controller.setLangFromSwitcherWithoutApplicant(request).toCompletableFuture().join());
   }
 
   @Test

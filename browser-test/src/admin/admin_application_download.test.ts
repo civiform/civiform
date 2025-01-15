@@ -385,6 +385,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
       const pdfFile = await adminPrograms.getApplicationPdf()
       expect(pdfFile.length).toBeGreaterThan(1)
+      await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
     })
 

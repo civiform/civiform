@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import models.ApplicationStep;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
       ImmutableMap.<String, String>builder()
           .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
           .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+          .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
           .put(ProgramTranslationForm.statusKeyToUpdateFieldName(0), "first status configured text")
           .put(ProgramTranslationForm.localizedStatusFieldName(0), "first status text")
           .put(ProgramTranslationForm.localizedEmailFieldName(0), "first status email")
@@ -45,6 +47,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
       ImmutableMap.<String, String>builder()
           .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
           .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+          .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
           .put(ProgramTranslationForm.localizedScreenName(0), "first block name")
           .put(ProgramTranslationForm.localizedScreenDescription(0), "first block description")
           .put(ProgramTranslationForm.localizedScreenName(1), "second block name")
@@ -56,6 +59,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
           ImmutableMap.<String, String>builder()
               .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
               .put(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+              .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
               .put(ProgramTranslationForm.localizedScreenName(0), "first block name")
               .put(ProgramTranslationForm.localizedScreenDescription(0), "first block description")
               .put(
@@ -73,6 +77,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -80,12 +85,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 2,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
@@ -99,6 +106,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setLocalizedStatusText(Optional.of("second status text"))
                             .setLocalizedEmailBody(Optional.of("second status email"))
                             .build()))
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(ImmutableList.of())
                 .build());
   }
@@ -108,6 +116,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -115,12 +124,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 1,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
@@ -129,6 +140,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setLocalizedStatusText(Optional.of("first status text"))
                             .setLocalizedEmailBody(Optional.of("first status email"))
                             .build()))
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(ImmutableList.of())
                 .build());
   }
@@ -138,6 +150,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
     Request request = fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_TRANSLATIONS).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     // While parsing the form, it's expected for there to be 3 distinct statuses. When there are
     // only 2 statuses provided in the request body, attempting to parse a 3rd should not throw
@@ -148,12 +161,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 3,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
@@ -167,6 +182,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                             .setLocalizedStatusText(Optional.of("second status text"))
                             .setLocalizedEmailBody(Optional.of("second status email"))
                             .build()))
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(ImmutableList.of())
                 .build());
   }
@@ -177,6 +193,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
         fakeRequestBuilder().bodyForm(REQUEST_DATA_WITH_TWO_BLOCKS_TRANSLATED).build();
 
     ImmutableList<Long> blockIds = ImmutableList.of(0l, 1l);
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -184,14 +201,17 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 3,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(ImmutableList.of())
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(
                     ImmutableList.of(
                         LocalizationUpdate.ScreenUpdate.builder()
@@ -217,6 +237,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ImmutableList<Long> blockIds = ImmutableList.of(0l, 1l);
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -224,14 +245,17 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 3,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(ImmutableList.of())
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(
                     ImmutableList.of(
                         LocalizationUpdate.ScreenUpdate.builder()
@@ -258,6 +282,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     .put(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME, "")
                     .put(
                         ProgramTranslationForm.statusKeyToUpdateFieldName(0),
@@ -274,6 +299,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -281,12 +307,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 2,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
     assertThat(form.getUpdateData(blockIds))
         .isEqualTo(
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("display name")
                 .setLocalizedDisplayDescription("display description")
+                .setLocalizedShortDescription("short description")
                 .setLocalizedConfirmationMessage("")
                 .setStatuses(
                     ImmutableList.of(
@@ -296,6 +324,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                         LocalizationUpdate.StatusUpdate.builder()
                             .setStatusKeyToUpdate("second configured status text")
                             .build()))
+                .setApplicationSteps(ImmutableList.of())
                 .setScreens(ImmutableList.of())
                 .build());
   }
@@ -309,9 +338,11 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     .build())
             .build();
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -319,6 +350,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 0,
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
 
     assertThat(form.getUpdateData(blockIds).localizedSummaryImageDescription().isPresent())
@@ -334,6 +366,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     // When the form sets an image description...
                     .put(
                         ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME,
@@ -342,6 +375,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             .build();
 
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -350,6 +384,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             /* maxStatusTranslations= */ 0,
             // ... But the form is set up to not have a description...
             /* hasSummaryImageDescription= */ false,
+            applicationSteps,
             blockIds);
 
     // ... Then the localization update doesn't contain the image description from the form.
@@ -366,12 +401,14 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     .put(
                         ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME,
                         "fake image description")
                     .build())
             .build();
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -379,6 +416,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 0,
             /* hasSummaryImageDescription= */ true,
+            applicationSteps,
             blockIds);
 
     assertThat(form.getUpdateData(blockIds).localizedSummaryImageDescription().isPresent())
@@ -397,9 +435,11 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     .build())
             .build();
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     // ...even though the form says there is an image description...
     ProgramTranslationForm form =
@@ -408,6 +448,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 0,
             /* hasSummaryImageDescription= */ true,
+            applicationSteps,
             blockIds);
 
     // ... Then the form should still parse successfully.
@@ -426,10 +467,12 @@ public class ProgramTranslationFormTest extends ResetPostgres {
                     .put(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME, "display name")
                     .put(
                         ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME, "display description")
+                    .put(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME, "short description")
                     .put(ProgramTranslationForm.IMAGE_DESCRIPTION_FORM_NAME, "")
                     .build())
             .build();
     ImmutableList<Long> blockIds = ImmutableList.of();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
 
     ProgramTranslationForm form =
         ProgramTranslationForm.bindFromRequest(
@@ -437,6 +480,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             instanceOf(FormFactory.class),
             /* maxStatusTranslations= */ 0,
             /* hasSummaryImageDescription= */ true,
+            applicationSteps,
             blockIds);
 
     assertThat(form.getUpdateData(blockIds).localizedSummaryImageDescription().isPresent())
@@ -450,9 +494,28 @@ public class ProgramTranslationFormTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("english-name", "english-description")
             .withLocalizedName(Locale.FRENCH, "french-name")
             .withLocalizedDescription(Locale.FRENCH, "french-description")
+            .withLocalizedShortDescription(Locale.FRENCH, "french-short-desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(Locale.US, "us-image-desc", Locale.FRENCH, "french-image-desc"))
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US, "step one title", Locale.FRENCH, "step one french title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "step one description",
+                            Locale.FRENCH,
+                            "step one french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US, "step two title", Locale.FRENCH, "step two french title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "step two description",
+                            Locale.FRENCH,
+                            "step two french description"))))
             .build();
     StatusDefinitions statusDefinitions =
         new StatusDefinitions(
@@ -487,8 +550,19 @@ public class ProgramTranslationFormTest extends ResetPostgres {
             LocalizationUpdate.builder()
                 .setLocalizedDisplayName("french-name")
                 .setLocalizedDisplayDescription("french-description")
+                .setLocalizedShortDescription("french-short-desc")
                 .setLocalizedConfirmationMessage("")
                 .setLocalizedSummaryImageDescription("french-image-desc")
+                .setApplicationSteps(
+                    ImmutableList.of(
+                        LocalizationUpdate.ApplicationStepUpdate.builder()
+                            .setLocalizedTitle("step one french title")
+                            .setLocalizedDescription("step one french description")
+                            .build(),
+                        LocalizationUpdate.ApplicationStepUpdate.builder()
+                            .setLocalizedTitle("step two french title")
+                            .setLocalizedDescription("step two french description")
+                            .build()))
                 .setScreens(ImmutableList.of())
                 .setStatuses(
                     ImmutableList.of(

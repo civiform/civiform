@@ -15,6 +15,7 @@ import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +25,13 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
@@ -37,18 +42,26 @@ import services.ti.NotEligibleToBecomeTiError;
  * ApplicantModel}.
  */
 public final class AccountRepository {
+  private static final Logger logger = LoggerFactory.getLogger(AccountRepository.class);
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
+  private final SettingsManifest settingsManifest;
+  private final SessionLifecycle sessionLifecycle;
 
   @Inject
-  public AccountRepository(DatabaseExecutionContext executionContext, Clock clock) {
+  public AccountRepository(
+      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
+    this.settingsManifest = checkNotNull(settingsManifest);
+    // TODO(#9460): make the session duration configurable.
+    // For now, we set the duration to Auth0s default of 10 hours.
+    this.sessionLifecycle = new SessionLifecycle(clock, Duration.ofHours(10));
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
@@ -469,6 +482,20 @@ public final class AccountRepository {
     }
     idTokens.purgeExpiredIdTokens(clock);
     idTokens.storeIdToken(sessionId, idToken);
+
+    if (settingsManifest.getSessionReplayProtectionEnabled()) {
+      // For now, we set the duration to Auth0s default of 10 hours.
+      account.removeExpiredActiveSessions(sessionLifecycle);
+      if (!account.getActiveSession(sessionId).isPresent()) {
+        logger.warn(
+            "Session ID not found in account when adding ID token. Adding new session for account"
+                + " with ID: {}",
+            account.id);
+        account.addActiveSession(sessionId, clock);
+      }
+      account.storeIdTokenInActiveSession(sessionId, idToken);
+    }
+
     account.save();
   }
 }

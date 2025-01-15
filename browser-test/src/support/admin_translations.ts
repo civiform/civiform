@@ -27,6 +27,9 @@ export class AdminTranslations {
     blockName,
     blockDescription,
     statuses = [],
+    shortDescription = 'short desc',
+    applicationStepTitle = 'step one title',
+    applicationStepDescription = 'step one description',
     blockEligibilityMsg = '',
   }: {
     name: string
@@ -34,10 +37,14 @@ export class AdminTranslations {
     blockName: string
     blockDescription: string
     statuses: ProgramStatusTranslationParams[]
+    shortDescription: string
+    applicationStepTitle: string
+    applicationStepDescription: string
     blockEligibilityMsg?: string
   }) {
     await this.page.fill('text=Program name', name)
     await this.page.fill('text=Program description', description)
+    await this.page.fill('text=Short program description', shortDescription)
 
     for (const status of statuses) {
       await this.page.fill(
@@ -58,6 +65,12 @@ export class AdminTranslations {
       }
     }
 
+    await this.page.fill('text=Application step 1 title', applicationStepTitle)
+    await this.page.fill(
+      'text=Application step 1 description',
+      applicationStepDescription,
+    )
+
     await this.page.fill('text=Screen name', blockName)
     await this.page.fill('text=Screen description', blockDescription)
     if (blockEligibilityMsg != '') {
@@ -74,15 +87,44 @@ export class AdminTranslations {
   async expectProgramTranslation({
     expectProgramName,
     expectProgramDescription,
+    expectProgramShortDescription = 'short description',
+    expectApplicationStepTitle = 'step one title',
+    expectApplicationStepDescription = 'step one description',
   }: {
     expectProgramName: string
     expectProgramDescription: string
+    expectProgramShortDescription: string
+    expectApplicationStepTitle: string
+    expectApplicationStepDescription: string
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
 
-    const programDescriptionValue = this.page.getByLabel('Program description')
+    const programDescriptionValue = this.page.getByLabel(
+      'Program description',
+      {exact: true},
+    )
     await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+
+    const programShortDescriptionValue = this.page.getByLabel(
+      'Short program description',
+    )
+    await expect(programShortDescriptionValue).toHaveValue(
+      expectProgramShortDescription,
+    )
+
+    const applicationStepTitleValue = this.page.getByLabel(
+      'Application step 1 title',
+    )
+    await expect(applicationStepTitleValue).toHaveValue(
+      expectApplicationStepTitle,
+    )
+    const applicationStepDescriptionValue = this.page.getByLabel(
+      'Application step 1 description',
+    )
+    await expect(applicationStepDescriptionValue).toHaveValue(
+      expectApplicationStepDescription,
+    )
   }
 
   async expectNoProgramStatusTranslations() {

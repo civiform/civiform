@@ -303,6 +303,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("German Short Desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(
@@ -316,6 +317,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -360,6 +362,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing French short desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
@@ -381,6 +384,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new French short desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
@@ -397,6 +401,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<StatusDefinitions, CiviFormError> result =
@@ -442,6 +447,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing French short desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .build();
     applicationStatusesRepo.createOrUpdateStatusDefinitions(
@@ -451,6 +457,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new French short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -467,6 +474,7 @@ public class StatusServiceTest extends ResetPostgres {
                             Optional.of(STATUS_WITH_NO_EMAIL_FRENCH_NAME + "-updated"))
                         .setLocalizedEmailBody(Optional.of("a localized email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -493,6 +501,7 @@ public class StatusServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing short French desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .build();
     applicationStatusesRepo.createOrUpdateStatusDefinitions(
@@ -503,6 +512,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -512,6 +522,7 @@ public class StatusServiceTest extends ResetPostgres {
                     LocalizationUpdate.StatusUpdate.builder()
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -560,6 +571,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -577,6 +589,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setStatusKeyToUpdate(STATUS_WITH_NO_EMAIL_ENGLISH_NAME)
                         .setLocalizedStatusText(Optional.of("german-status-with-no-email"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 
@@ -603,6 +616,7 @@ public class StatusServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
@@ -611,6 +625,7 @@ public class StatusServiceTest extends ResetPostgres {
                         .setLocalizedStatusText(Optional.of("german-status-with-email"))
                         .setLocalizedEmailBody(Optional.of("german email body"))
                         .build()))
+            .setApplicationSteps(ImmutableList.of())
             .setScreens(ImmutableList.of())
             .build();
 

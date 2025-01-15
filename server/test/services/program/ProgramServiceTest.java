@@ -1108,14 +1108,6 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getProgramDefinition() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
-
-    assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
-  }
-
-  @Test
   public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
     ps.createProgramDefinition(
         "name-one",
@@ -1347,6 +1339,107 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
     assertThat(result.getResult().getBlockCount()).isEqualTo(1);
     assertThat(result.getResult().getLastBlockDefinition().eligibilityDefinition()).isPresent();
+  }
+
+  @Test
+  public void updateProgram_preservesExistingTranslationsOnApplicationSteps() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("original", "original description")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step one title")
+                            .updateTranslation(Locale.FRENCH, "step one french title"),
+                        LocalizedStrings.withDefaultValue("step one description")
+                            .updateTranslation(Locale.FRENCH, "step one french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step two title")
+                            .updateTranslation(Locale.FRENCH, "step two french title"),
+                        LocalizedStrings.withDefaultValue("step two description")
+                            .updateTranslation(Locale.FRENCH, "step two french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step three title")
+                            .updateTranslation(Locale.FRENCH, "step three french title"),
+                        LocalizedStrings.withDefaultValue("step three description")
+                            .updateTranslation(Locale.FRENCH, "step three french description")),
+                    new ApplicationStep(
+                        LocalizedStrings.withDefaultValue("step four title")
+                            .updateTranslation(Locale.FRENCH, "step four french title"),
+                        LocalizedStrings.withDefaultValue("step four description")
+                            .updateTranslation(Locale.FRENCH, "step four french description"))))
+            .buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(
+                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
+            /* eligibilityIsGating= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categories= */ ImmutableList.of(),
+            ImmutableList.of(
+                new ApplicationStep("new step one title", "step one description"),
+                new ApplicationStep("step two title", "new step two description"),
+                new ApplicationStep("new step three title", "new step three description"),
+                new ApplicationStep("step four title", "step four description")));
+
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgram = result.getResult();
+
+    ProgramDefinition found = ps.getFullProgramDefinition(updatedProgram.id());
+
+    ApplicationStep stepOne = found.applicationSteps().get(0);
+    ApplicationStep stepTwo = found.applicationSteps().get(1);
+    ApplicationStep stepThree = found.applicationSteps().get(2);
+    ApplicationStep stepFour = found.applicationSteps().get(3);
+
+    // Title changed for step one, so title translations should be cleared but description
+    // translations should persist
+    assertThat(stepOne.getTitle().getDefault()).isEqualTo("new step one title");
+    assertThat(stepOne.getTitle().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+    assertThat(stepOne.getDescription().getDefault()).isEqualTo("step one description");
+    assertThat(stepOne.getDescription().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step one french description"));
+
+    // Description changed for step two, so description translations should be cleared but title
+    // translations should persist
+    assertThat(stepTwo.getTitle().getDefault()).isEqualTo("step two title");
+    assertThat(stepTwo.getTitle().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step two french title"));
+    assertThat(stepTwo.getDescription().getDefault()).isEqualTo("new step two description");
+    assertThat(stepTwo.getDescription().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+
+    // Both title and description changed for step three, so translations for both should have been
+    // cleared
+    assertThat(stepThree.getTitle().getDefault()).isEqualTo("new step three title");
+    assertThat(stepThree.getTitle().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+    assertThat(stepThree.getDescription().getDefault()).isEqualTo("new step three description");
+    assertThat(stepThree.getDescription().maybeGet(Locale.FRENCH)).isEqualTo(Optional.empty());
+
+    // Neither title nor description changed for step four, so translations for both should persist
+    assertThat(stepFour.getTitle().getDefault()).isEqualTo("step four title");
+    assertThat(stepFour.getTitle().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step four french title"));
+    assertThat(stepFour.getDescription().getDefault()).isEqualTo("step four description");
+    assertThat(stepFour.getDescription().maybeGet(Locale.FRENCH))
+        .isEqualTo(Optional.of("step four french description"));
+  }
+
+  @Test
+  public void getProgramDefinition() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition found = ps.getFullProgramDefinition(programDefinition.id());
+
+    assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
   }
 
   @Test
@@ -2477,9 +2570,16 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2529,9 +2629,16 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(
                 ImmutableList.of(
                     LocalizationUpdate.ScreenUpdate.builder()
@@ -2568,9 +2675,16 @@ public class ProgramServiceTest extends ResetPostgres {
   //        LocalizationUpdate.builder()
   //            .setLocalizedDisplayName("new French name")
   //            .setLocalizedDisplayDescription("new French description")
+  //            .setLocalizedShortDescription("new short French desc")
   //            .setLocalizedSummaryImageDescription("new French image description")
   //            .setLocalizedConfirmationMessage("")
   //            .setStatuses(ImmutableList.of())
+  //            .setApplicationSteps(
+  //                ImmutableList.of(
+  //                    LocalizationUpdate.ApplicationStepUpdate.builder()
+  //                        .setLocalizedTitle("title")
+  //                        .setLocalizedDescription("description")
+  //                        .build()))
   //            .setScreens(
   //                ImmutableList.of(
   //                    LocalizationUpdate.ScreenUpdate.builder()
@@ -2597,8 +2711,15 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("")
             .setLocalizedDisplayDescription("")
+            .setLocalizedShortDescription("")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("")
+                        .setLocalizedDescription("")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2608,7 +2729,41 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors())
         .containsExactly(
             CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
+            CiviFormError.of("program short display description cannot be blank"),
+            CiviFormError.of("program application step one title cannot be blank"),
+            CiviFormError.of("program application step one description cannot be blank"));
+  }
+
+  @Test
+  public void updateLocalizations_applicationStepValidationIsSkippedForCommonIntakeProgram()
+      throws Exception {
+    ProgramModel program = ProgramBuilder.newActiveCommonIntakeForm("prescreener").build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("")
+            .setLocalizedDisplayDescription("")
+            .setLocalizedShortDescription("")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        // blank values for title and description would usually trigger a validation
+                        // error
+                        .setLocalizedTitle("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .setScreens(ImmutableList.of())
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("program display name cannot be blank"),
+            CiviFormError.of("program short display description cannot be blank"));
   }
 
   @Test
@@ -2617,8 +2772,15 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("a name")
             .setLocalizedDisplayDescription("a description")
+            .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -2636,9 +2798,16 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("short desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("invalid French image description")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
 
@@ -2658,15 +2827,30 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram()
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.withDefaultValue("default image description"))
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep("step one title", "step one description"),
+                    new ApplicationStep("step two title", "step two description")))
             .build();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedShortDescription("Short German Desc")
             .setLocalizedConfirmationMessage("")
             .setLocalizedSummaryImageDescription("German Image Description")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("Step one German title")
+                        .setLocalizedDescription("Step one German description")
+                        .build(),
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("Step two German title")
+                        .setLocalizedDescription("Step two German description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2677,9 +2861,19 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.GERMAN)).isEqualTo("German Name");
     assertThat(definition.localizedDescription().get(Locale.GERMAN))
         .isEqualTo("German Description");
+    assertThat(definition.localizedShortDescription().get(Locale.GERMAN))
+        .isEqualTo("Short German Desc");
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.GERMAN))
         .isEqualTo("German Image Description");
+    assertThat(definition.applicationSteps().get(0).getTitle().get(Locale.GERMAN))
+        .isEqualTo("Step one German title");
+    assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.GERMAN))
+        .isEqualTo("Step one German description");
+    assertThat(definition.applicationSteps().get(1).getTitle().get(Locale.GERMAN))
+        .isEqualTo("Step two German title");
+    assertThat(definition.applicationSteps().get(1).getDescription().get(Locale.GERMAN))
+        .isEqualTo("Step two German description");
   }
 
   @Test
@@ -2688,7 +2882,32 @@ public class ProgramServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedShortDescription(Locale.FRENCH, "existing short French desc")
             .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 1 title",
+                            Locale.FRENCH,
+                            "existing French step 1 title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 1 description",
+                            Locale.FRENCH,
+                            "existing French step 1 description")),
+                    new ApplicationStep(
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 2 title",
+                            Locale.FRENCH,
+                            "existing French step 2 title"),
+                        LocalizedStrings.of(
+                            Locale.US,
+                            "English step 2 description",
+                            Locale.FRENCH,
+                            "existing French step 2 description"))))
             .setLocalizedSummaryImageDescription(
                 LocalizedStrings.of(
                     Locale.US,
@@ -2701,9 +2920,20 @@ public class ProgramServiceTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
             .setLocalizedSummaryImageDescription("new French image description")
             .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("new step one French title")
+                        .setLocalizedDescription("new step one French description")
+                        .build(),
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("new step two French title")
+                        .setLocalizedDescription("new step two French description")
+                        .build()))
             .setScreens(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -2714,9 +2944,19 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(definition.localizedName().get(Locale.FRENCH)).isEqualTo("new French name");
     assertThat(definition.localizedDescription().get(Locale.FRENCH))
         .isEqualTo("new French description");
+    assertThat(definition.localizedShortDescription().get(Locale.FRENCH))
+        .isEqualTo("new short French desc");
     assertThat(definition.localizedSummaryImageDescription().isPresent()).isTrue();
     assertThat(definition.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("new French image description");
+    assertThat(definition.applicationSteps().get(0).getTitle().get(Locale.FRENCH))
+        .isEqualTo("new step one French title");
+    assertThat(definition.applicationSteps().get(0).getDescription().get(Locale.FRENCH))
+        .isEqualTo("new step one French description");
+    assertThat(definition.applicationSteps().get(1).getTitle().get(Locale.FRENCH))
+        .isEqualTo("new step two French title");
+    assertThat(definition.applicationSteps().get(1).getDescription().get(Locale.FRENCH))
+        .isEqualTo("new step two French description");
   }
 
   @Test

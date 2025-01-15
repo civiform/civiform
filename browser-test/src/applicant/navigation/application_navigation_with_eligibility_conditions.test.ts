@@ -1,10 +1,12 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
 
@@ -353,6 +355,40 @@ test.describe('Applicant navigation flow', () => {
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
       )
+    })
+
+    test('eligibility message markdown enabled', async ({
+      page,
+      applicantQuestions,
+      adminPredicates,
+      adminPrograms,
+    }) => {
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
+
+      await test.step('Add eligibility message with markdown', async () => {
+        const eligibilityMsg =
+          '**Customized** *eligibility* [message](https://staging-aws.civiform.dev/programs)'
+        await adminPrograms.editProgram(fullProgramName)
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          fullProgramName,
+          'Screen 1',
+        )
+        await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+        await validateToastMessage(page, eligibilityMsg)
+        await adminPrograms.publishProgram(fullProgramName)
+      })
+
+      await test.step('Verifies that eligibility message shows up on the applicant side with markdown', async () => {
+        await logout(page)
+        await applicantQuestions.applyProgram(fullProgramName)
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickNext()
+        await validateScreenshot(
+          page,
+          'ineligible-view-eligibility-msg-markdown',
+        )
+      })
     })
 
     test('shows may be eligible with nongating eligibility', async ({

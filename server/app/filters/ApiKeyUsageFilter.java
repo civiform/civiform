@@ -57,8 +57,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
                 .map(
                     result -> {
                       try {
-                        if (request.path().startsWith("/api/")
-                            && !request.path().startsWith("/api/docs/")) {
+                        if (request.path().startsWith("/api/")) {
                           Optional<String> maybeApiKeyId =
                               profileUtilsProvider.get().currentApiKeyId(request);
 
