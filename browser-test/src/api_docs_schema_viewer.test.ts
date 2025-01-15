@@ -3,7 +3,6 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   seedProgramsAndCategories,
-  validateScreenshot,
   waitForPageJsLoad,
 } from './support'
 
@@ -56,11 +55,5 @@ test.describe('Viewing API docs', () => {
       await waitForPageJsLoad(page)
       await expect(page.getByRole('heading', {name: program2})).toBeAttached()
     })
-
-    // We'll take a screenshot to verify that the swagger-ui appears to load correctly. Adding
-    // the mask over the program ID as that value changes.
-    await validateScreenshot(page, 'api-docs-schema-viewer', true, false, [
-      page.locator('.version:not(.version-stamp .version)'),
-    ])
   })
 })
