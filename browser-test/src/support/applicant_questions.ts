@@ -625,7 +625,10 @@ export class ApplicantQuestions {
     }
   }
 
-  async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
+  async downloadSingleQuestionFromReviewPage(
+    northStarEnabled = false,
+    downloadText = 'click to download',
+  ) {
     // Assert that we're on the review page.
     if (northStarEnabled) {
       await expect(this.page.getByText('Review and submit')).toBeVisible()
@@ -637,7 +640,7 @@ export class ApplicantQuestions {
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('a:has-text("click to download")'),
+      this.page.click(`a:has-text("${downloadText}")`),
     ])
     const path = await downloadEvent.path()
     if (path === null) {

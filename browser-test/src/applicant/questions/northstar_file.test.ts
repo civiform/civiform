@@ -1,4 +1,3 @@
-import {readFileSync} from 'fs'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   enableFeatureFlag,
@@ -279,7 +278,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await applicantFileQuestion.expectHasSubmitButton()
       // A required file upload question should never show a Delete button
       await applicantFileQuestion.expectNoDeleteButton()
     })
@@ -1532,7 +1530,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
 
       test('clicking continue with new file does *not* save new file and redirects to next page', async ({
         applicantQuestions,
-        page,
       }) => {
         // First, open the email block so that the email block is considered answered
         // and we're not taken back to it when we click "Continue".
@@ -1585,18 +1582,12 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
           fileUploadQuestionText,
           'old.txt',
         )
-        // The legacy test used applicantQuestions.downloadSingleQuestionFromReviewPage,
-        // which (even for North Star) looks for the text "click to download".
-        // Since that text isn't on the page, we download old.txt directly.
-        const [downloadEvent] = await Promise.all([
-          page.waitForEvent('download'),
-          page.click('a:has-text("old.txt")'),
-        ])
-        const path = await downloadEvent.path()
-        if (path === null) {
-          throw new Error('download failed')
-        }
-        const downloadedFileContent = readFileSync(path, 'utf8')
+
+        const downloadedFileContent =
+          await applicantQuestions.downloadSingleQuestionFromReviewPage(
+            /* northStarEnabled= */ true,
+            'old.txt',
+          )
         expect(downloadedFileContent).toEqual('some old text')
       })
     })

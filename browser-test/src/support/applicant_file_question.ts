@@ -71,10 +71,6 @@ export class ApplicantFileQuestion {
     ).toHaveCount(count)
   }
 
-  async expectHasSubmitButton() {
-    expect(this.page.locator("button[type='submit']"))
-  }
-
   async expectHasSkipButton() {
     expect(await this.page.locator(this.skipButtonLocator).count()).toEqual(1)
   }
