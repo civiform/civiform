@@ -27,6 +27,52 @@ public final class EligibilityAlertSettingsCalculator {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
+  public AlertSettings calculate(
+      Http.Request request,
+      boolean isTI,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation,
+      long programId,
+      String eligibilityMsg,
+      ImmutableList<ApplicantQuestion> questions) {
+    Messages messages = messagesApi.preferred(request);
+
+    if (!canShowEligibilitySettings(programId)) {
+      return AlertSettings.empty();
+    }
+
+    boolean isApplicationFastForwarded =
+        request.flash().get(FlashKey.SHOW_FAST_FORWARDED_MESSAGE).isPresent();
+
+    Triple triple =
+        isTI
+            ? getTi(
+                isApplicationFastForwarded,
+                isApplicationEligible,
+                isNorthStarEnabled,
+                pageHasSupplementalInformation)
+            : getApplicant(
+                isApplicationFastForwarded,
+                isApplicationEligible,
+                isNorthStarEnabled,
+                pageHasSupplementalInformation);
+
+    ImmutableList<String> formattedQuestions =
+        questions.stream()
+            .map(ApplicantQuestion::getQuestionText)
+            .collect(ImmutableList.toImmutableList());
+
+    String msg = messages.at(triple.textKey.getKeyName()) + "</br>" +eligibilityMsg;
+
+    return new AlertSettings(
+        true,
+        Optional.of(messages.at(triple.titleKey.getKeyName())),
+        msg,
+        triple.alertType,
+        formattedQuestions);
+  }
+
   /**
    * questions: List of questions that the applicant answered that may make the applicant
    * ineligible. The list may be empty.
@@ -65,17 +111,6 @@ public final class EligibilityAlertSettingsCalculator {
         questions.stream()
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
-
-    if (pageHasSupplementalInformation == true && isNorthStarEnabled == true) {
-      String msg = messages.at(triple.textKey.getKeyName());
-      msg = 
-      return new AlertSettings(
-        true,
-        Optional.of(messages.at(triple.titleKey.getKeyName())),
-        messages.at(triple.textKey.getKeyName()),
-        triple.alertType,
-        formattedQuestions);
-    }
 
     return new AlertSettings(
         true,

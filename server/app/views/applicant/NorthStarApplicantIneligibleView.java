@@ -63,6 +63,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     ProgramDefinition program = params.programDefinition();
 
+    BlockDefinition block = params.blockDefinition();
+
     Locale userLocale = params.messages().lang().toLocale();
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
@@ -70,7 +72,11 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
     context.setVariable("programDescription", localizedProgramDescription);
 
-    String localizedEligibilityMsg = 
+    String localizedEligibilityMsg =
+        block
+            .localizedEligibilityMessage()
+            .map(localizedStrings -> localizedStrings.maybeGet(userLocale).orElse(""))
+            .orElse("");
 
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
@@ -80,6 +86,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
             true,
             true,
             program.id(),
+            localizedEligibilityMsg,
             params.roApplicantProgramService().getIneligibleQuestions());
     context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
 

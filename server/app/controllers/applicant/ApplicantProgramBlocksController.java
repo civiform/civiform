@@ -1211,18 +1211,27 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramDefinition programDefinition,
       String blockId) {
     if (settingsManifest.getNorthStarApplicantUi(request)) {
-      NorthStarApplicantIneligibleView.Params params =
-          NorthStarApplicantIneligibleView.Params.builder()
-              .setRequest(request)
-              .setApplicantId(applicantId)
-              .setProfile(profile)
-              .setApplicantPersonalInfo(personalInfo)
-              .setProgramDefinition(programDefinition)
-              .setRoApplicantProgramService(roApplicantProgramService)
-              .setMessages(messagesApi.preferred(request))
-              .build();
       return supplyAsync(
-          () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+          () -> {
+            BlockDefinition blockDefinition;
+            try {
+              blockDefinition = programDefinition.getBlockDefinition(blockId);
+            } catch (ProgramBlockDefinitionNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+            NorthStarApplicantIneligibleView.Params params =
+                NorthStarApplicantIneligibleView.Params.builder()
+                    .setRequest(request)
+                    .setApplicantId(applicantId)
+                    .setProfile(profile)
+                    .setApplicantPersonalInfo(personalInfo)
+                    .setProgramDefinition(programDefinition)
+                    .setBlockDefinition(blockDefinition)
+                    .setRoApplicantProgramService(roApplicantProgramService)
+                    .setMessages(messagesApi.preferred(request))
+                    .build();
+            return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+          });
     } else {
       return supplyAsync(
           () -> {
