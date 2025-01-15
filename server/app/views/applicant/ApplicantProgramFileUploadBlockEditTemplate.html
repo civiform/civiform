@@ -100,13 +100,12 @@
 
             <div class="section-external">
               <div>
-                <button
-                  type="submit"
-                  th:formaction="${previousPageWithoutFile}"
+                <a
+                  th:href="${previousBlockWithoutFile}"
                   form="cf-fileupload-continue-form"
                   class="usa-button usa-button--outline margin-bottom-1 zero-top-margin cf-disable-when-uploading"
                   th:text="#{button.back}"
-                ></button>
+                ></a>
                 <button
                   type="submit"
                   form="cf-fileupload-continue-form"
