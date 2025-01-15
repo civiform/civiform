@@ -1,10 +1,12 @@
 package views.docs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
@@ -12,6 +14,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.style;
+import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -36,6 +39,8 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.style.AdminStyles;
+import views.style.BaseStyles;
 
 public class SchemaView extends BaseHtmlView {
   public record Form(String programSlug, Optional<String> stage, Optional<String> openApiVersion) {}
@@ -81,6 +86,7 @@ public class SchemaView extends BaseHtmlView {
             .addMainContent(
                 div(
                         h1("API schema").withClasses("ml-4"),
+                        buildTabs(),
                         p().withClasses("ml-4", "my-4", "max-w-prose")
                             .withText(
                                 "This page shows a visualization of the OpenAPI Schema. Both"
@@ -228,5 +234,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return currentUserProfile.isPresent()
         && (currentUserProfile.get().isCiviFormAdmin()
             || currentUserProfile.get().isProgramAdmin());
+  }
+
+  private DivTag buildTabs() {
+    return div(ul(
+                li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
+                    .withClasses(AdminStyles.LINK_NOT_SELECTED),
+                li(a("API Schema Viewer")
+                        .withHref(
+                            routes.OpenApiSchemaController.getSchemaUI(
+                                    "", Optional.empty(), Optional.empty())
+                                .url()))
+                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED))
+            .withClasses("flex", "gap-4"))
+        .withClasses("ml-2", "my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
   }
 }
