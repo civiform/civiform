@@ -20,6 +20,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import controllers.AssetsFinder;
 import controllers.docs.routes;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -46,6 +47,7 @@ public class SchemaView extends BaseHtmlView {
   public record Form(String programSlug, Optional<String> stage, Optional<String> openApiVersion) {}
 
   private final ProfileUtils profileUtils;
+  private final AssetsFinder assetsFinder;
   private final BaseHtmlLayout unauthenticatedLayout;
   private final AdminLayout authenticatedLayout;
 
@@ -53,9 +55,11 @@ public class SchemaView extends BaseHtmlView {
   public SchemaView(
       AdminLayoutFactory layoutFactory,
       ProfileUtils profileUtils,
+      AssetsFinder assetsFinder,
       BaseHtmlLayout unauthenticatedLayout) {
     this.profileUtils = checkNotNull(profileUtils);
     this.unauthenticatedLayout = checkNotNull(unauthenticatedLayout);
+    this.assetsFinder = checkNotNull(assetsFinder);
     this.authenticatedLayout = layoutFactory.getLayout(NavPage.API_DOCS);
   }
 
@@ -75,15 +79,15 @@ public class SchemaView extends BaseHtmlView {
             .addStylesheets(
                 link()
                     .withRel("stylesheet")
-                    .withHref(controllers.routes.Assets.at("swagger-ui.css").url())
+                    .withHref(assetsFinder.path("swagger-ui/swagger-ui.css"))
                     .attr("nonce", cspNonce))
             .addHeadScripts(
                 script()
-                    .withSrc(controllers.routes.Assets.at("swagger-ui-bundle.js").url())
+                    .withSrc(assetsFinder.path("swagger-ui/swagger-ui-bundle.js"))
                     .attr("nonce", cspNonce))
             .addHeadScripts(
                 script()
-                    .withSrc(controllers.routes.Assets.at("swagger-ui-standalone-preset.js").url())
+                    .withSrc(assetsFinder.path("swagger-ui/swagger-ui-standalone-preset.js"))
                     .attr("nonce", cspNonce))
             .addMainContent(
                 div(
