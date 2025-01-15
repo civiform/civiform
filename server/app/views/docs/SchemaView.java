@@ -75,13 +75,15 @@ public class SchemaView extends BaseHtmlView {
             .addStylesheets(
                 link()
                     .withRel("stylesheet")
-                    .withHref("/public/swagger-ui/swagger-ui.css")
+                    .withHref(controllers.routes.Assets.at("swagger-ui.css").url())
                     .attr("nonce", cspNonce))
             .addHeadScripts(
-                script().withSrc("/public/swagger-ui/swagger-ui-bundle.js").attr("nonce", cspNonce))
+                script()
+                    .withSrc(controllers.routes.Assets.at("swagger-ui-bundle.js").url())
+                    .attr("nonce", cspNonce))
             .addHeadScripts(
                 script()
-                    .withSrc("/public/swagger-ui/swagger-ui-standalone-preset.js")
+                    .withSrc(controllers.routes.Assets.at("swagger-ui-standalone-preset.js").url())
                     .attr("nonce", cspNonce))
             .addMainContent(
                 div(
