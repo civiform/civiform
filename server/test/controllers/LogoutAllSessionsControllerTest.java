@@ -83,4 +83,53 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
               assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
             });
   }
+
+  @Test
+  public void testIndexWithAuthorityId_withSession() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("fake session", clock);
+    account.save();
+
+    // Set authority ID to account ID to ensure uniqueness
+    String authorityId = account.id.toString();
+    account.setAuthorityId(authorityId);
+    account.save();
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
+
+  @Test
+  public void testIndexWithAuthorityId_withMultipleSessions() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("session1", clock);
+    account.addActiveSession("session2", clock);
+    account.save();
+
+    // Set authority ID to account ID to ensure uniqueness
+    String authorityId = account.id.toString();
+    account.setAuthorityId(authorityId);
+    account.save();
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
 }

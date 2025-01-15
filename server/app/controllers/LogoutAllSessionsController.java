@@ -8,11 +8,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.AccountModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.AccountRepository;
 
 /**
  * This controller handles back channel logout requests from the identity provider. For example, if
@@ -23,11 +25,14 @@ public class LogoutAllSessionsController extends Controller {
 
   private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;
+  private final AccountRepository accountRepository;
 
   @Inject
-  public LogoutAllSessionsController(ProfileUtils profileUtils) {
+  public LogoutAllSessionsController(
+      ProfileUtils profileUtils, AccountRepository accountRepository) {
 
     this.profileUtils = checkNotNull(profileUtils);
+    this.accountRepository = checkNotNull(accountRepository);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -51,6 +56,27 @@ public class LogoutAllSessionsController extends Controller {
       } else {
         logger.warn("No account found for back channel logout");
       }
+    } catch (RuntimeException e) {
+      logger.error("Error clearing session from account", e);
+    }
+
+    // Redirect to the landing page
+    return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
+  }
+
+  public CompletionStage<Result> logoutFromAuthorityId(Http.Request request, String authorityId) {
+    try {
+      Optional<AccountModel> maybeAccount = accountRepository.lookupAccountByAuthorityId(authorityId);
+
+      if (maybeAccount.isPresent()) {
+        AccountModel account = maybeAccount.get();
+        logger.debug("Found account for back channel logout: {}", account.id);
+        account.clearActiveSessions();
+        account.save();
+      } else {
+        logger.warn("No account found for back channel logout");
+      }
+
     } catch (RuntimeException e) {
       logger.error("Error clearing session from account", e);
     }
