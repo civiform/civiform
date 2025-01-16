@@ -185,7 +185,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newActiveDisabledProgram("program2")
+    ProgramBuilder.newDisabledActiveProgram("program2")
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()
@@ -3275,5 +3275,30 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition deleteResult = ps.deleteSummaryImageFileKey(program.id());
 
     assertThat(deleteResult.summaryImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void anyDisabledPrograms_checks_disabledProgramExist() {
+    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
+    // When there are no programs, there are no disabled programs.
+    assertThat(ps.anyDisabledPrograms()).isFalse();
+
+    // Adding an active program doesn't change the result.
+    ProgramBuilder.newActiveProgram("active-program").buildDefinition();
+    assertThat(ps.anyDisabledPrograms()).isFalse();
+
+    // Adding a draft program doesn't change the result.
+    ProgramBuilder.newDraftProgram("draft-program").buildDefinition();
+    assertThat(ps.anyDisabledPrograms()).isFalse();
+
+    // Adding disabled programs changes the result.
+    ProgramBuilder.newDisabledDraftProgram("program1").buildDefinition();
+    assertThat(ps.anyDisabledPrograms()).isTrue();
+    ProgramBuilder.newDisabledActiveProgram("program2").buildDefinition();
+    assertThat(ps.anyDisabledPrograms()).isTrue();
+
+    // Adding an active program doesn't change the result.
+    ProgramBuilder.newActiveProgram("another-active-program").buildDefinition();
+    assertThat(ps.anyDisabledPrograms()).isTrue();
   }
 }

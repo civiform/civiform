@@ -100,6 +100,8 @@ test.describe('Program list page.', () => {
     const publicProgram = 'List test public program'
     const disabledProgram = 'List test disabled program'
     await adminPrograms.addProgram(publicProgram)
+    await expect(page.locator('a:has-text("Disabled")')).toBeHidden()
+
     await adminPrograms.addDisabledProgram(disabledProgram)
 
     await expectProgramListElements(adminPrograms, [publicProgram])

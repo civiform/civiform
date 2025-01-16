@@ -1094,4 +1094,19 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
   }
+
+  @Test
+  public void testAnyDisabledPrograms() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding non-disabled programs and verify that there are still no disabled programs
+    ProgramBuilder.newActiveProgram("active-program").build();
+    ProgramBuilder.newDraftProgram("draft-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled program and verify that now we have disabled programs
+    ProgramBuilder.newDisabledDraftProgram("disabled-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+  }
 }
