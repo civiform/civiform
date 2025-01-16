@@ -106,7 +106,9 @@ public final class EligibilityAlertSettingsCalculator {
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
 
-    String msg = messages.at(triple.textKey.getKeyName()) + "\n" + eligibilityMsg;
+    String msg =
+        messages.at(triple.textKey.getKeyName())
+            + (eligibilityMsg.isEmpty() ? "" : "\n" + eligibilityMsg);
 
     return new AlertSettings(
         true,

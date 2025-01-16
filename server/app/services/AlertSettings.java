@@ -34,7 +34,7 @@ public record AlertSettings(
       String text,
       AlertType alertType,
       ImmutableList<String> additionalText) {
-    this(show, title, text, true, alertType, additionalText);
+    this(show, title, text, /* unescapedDescription= */ true, alertType, additionalText);
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */
