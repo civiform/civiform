@@ -1096,17 +1096,30 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testAnyDisabledPrograms() {
+  public void testAnyDisabledPrograms_activeProgramDisabled() {
     // When no programs, there are no disabled programs
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
-    // Adding non-disabled programs and verify that there are still no disabled programs
+    // Adding a non-disabled active program and verify that there are still no disabled programs
     ProgramBuilder.newActiveProgram("active-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled program and verify that now we have disabled programs
+    ProgramBuilder.newDisabledActiveProgram("disabled-active-program").build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+  }
+
+  @Test
+  public void testAnyDisabledPrograms_draftProgramDisabled() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding non-disabled draft programs and verify that there are still no disabled programs
     ProgramBuilder.newDraftProgram("draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
     // Adding a disabled program and verify that now we have disabled programs
-    ProgramBuilder.newDisabledDraftProgram("disabled-program").build();
+    ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
   }
 }
