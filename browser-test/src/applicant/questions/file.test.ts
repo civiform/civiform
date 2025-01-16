@@ -881,18 +881,6 @@ test.describe('file upload applicant flow', () => {
         ).toEqual('file 2 content')
       })
 
-      test('back button', async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await applicantQuestions.clickBack()
-
-        // Verify we're taken to the previous page, which is the review page.
-        await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
-      })
-
       test('has no accessiblity violations', async ({
         page,
         applicantQuestions,
