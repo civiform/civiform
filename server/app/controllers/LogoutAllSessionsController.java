@@ -66,6 +66,7 @@ public class LogoutAllSessionsController extends Controller {
 
   public CompletionStage<Result> logoutFromAuthorityId(Http.Request request, String authorityId) {
     try {
+      logger.info("Received back channel logout request for authorityId: {}", authorityId);
       Optional<AccountModel> maybeAccount = accountRepository.lookupAccountByAuthorityId(authorityId);
 
       if (maybeAccount.isPresent()) {
