@@ -37,7 +37,7 @@ public record AlertSettings(
     this(show, title, text, true, alertType, additionalText);
   }
 
-  /** Sanitized HTML for text in the alert */
+  /** Sanitized HTML for the alert text that processes Markdown. */
   public String getFormattedAlertText(String text) {
     return TextFormatter.formatTextToSanitizedHTML(
         text, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
