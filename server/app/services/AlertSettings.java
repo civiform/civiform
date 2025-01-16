@@ -26,7 +26,7 @@ public record AlertSettings(
   }
 
   public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {
-    this(show, title, text, alertType, ImmutableList.of(), false);
+    this(show, title, text, alertType, ImmutableList.of(), /* isSlim= */ false);
   }
 
   public AlertSettings(

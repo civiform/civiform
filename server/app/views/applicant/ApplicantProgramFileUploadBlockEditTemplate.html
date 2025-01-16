@@ -16,11 +16,11 @@
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
-          ${applicationParams.programDescription()},
-          true)}"
-      >
-        <! --/* includeSeparator=true */-->
-      </div>
+          ${applicationParams.programDescription()})}"
+      ></div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
 
       <div class="grid-container usa-form usa-form--large">
         <div class="grid-row">
