@@ -87,7 +87,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
   }
 
   @Test
-  public void getOriginalFileName_MultiFile_notAnswered_returnsNotPresent() {
+  public void getOriginalFileName_multiFile_notAnswered_returnsNotPresent() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
@@ -111,7 +111,7 @@ public class FileUploadQuestionTest extends ResetPostgres {
   }
 
   @Test
-  public void getOriginalFileName_MultiFile() {
+  public void getOriginalFileName_multiFile() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());

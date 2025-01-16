@@ -779,7 +779,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     fileUploadQuestion.getFileKeyListPathForIndex(0).toString(), key.get());
               }
 
+              // Original file names are only set for Azure deployments, when the form contains 
+              // the original file name field. The value will be stored in the file record.
               if (originalFileName.isPresent()) {
+                // If there are no originalFileNames in the question data, we don't need to append.
                 if (originalFileNamesOptional.isPresent()) {
                   ImmutableList<String> orignalFileNames = originalFileNamesOptional.get();
 
