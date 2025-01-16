@@ -866,7 +866,7 @@ public final class ProgramService {
             Optional.of(
                 block
                     .localizedEligibilityMessage()
-                    .orElse(LocalizedStrings.empty())
+                    .orElse(LocalizedStrings.withEmptyDefault())
                     .updateTranslation(locale, screenUpdate.get().localizedEligibilityMessage())));
       }
       toUpdateBlockBuilder.add(blockBuilder.build());

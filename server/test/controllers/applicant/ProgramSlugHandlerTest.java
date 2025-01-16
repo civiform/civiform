@@ -263,14 +263,115 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void showProgram_withNorthStarEnabled_loadsProgramOverview() {
+  public void showProgram_withNorthStarEnabled_whenApplicationStarted_loadsProgramOverview() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
+    Result result =
+        handler
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("Welcome to the program overview page!");
+  }
+
+  @Test
+  public void showProgram_withNorthStarEnabled_whenNoApplication_loadsProgramOverview() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
+
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
+    Result result =
+        handler
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("Welcome to the program overview page!");
+  }
+
+  @Test
+  public void showProgram_withNorthStarEnabled_whenApplicationSubmitted_loadsProgramOverview() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = Mockito.mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
     LanguageUtils languageUtils =
         new LanguageUtils(
             instanceOf(AccountRepository.class),

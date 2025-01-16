@@ -51,11 +51,11 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.25.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.25.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.4",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.21.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.21.2",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -65,9 +65,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.2" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,

@@ -23,7 +23,7 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class MultiSelectQuestion extends Question {
+public final class MultiSelectQuestion extends AbstractQuestion {
 
   private Optional<ImmutableList<LocalizedQuestionOption>> selectedOptionsValue;
 

@@ -69,7 +69,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String eligibilityMsg = "";
     boolean isEligibilityMsgEnabled =
         settingsManifest.getCustomizedEligibilityMessageEnabled(request);
-    if (blockDefinition.isPresent()) {
+    if (blockDefinition.isPresent() && isEligibilityMsgEnabled) {
       Locale preferredLocale = messages.lang().toLocale();
       eligibilityMsg =
           blockDefinition
@@ -132,7 +132,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .withClasses("mb-4"))
             .condWith(
                 isEligibilityMsgEnabled && !eligibilityMsg.isEmpty(),
-                div(rawHtml(eligibilityMsg)).withClasses("mb-4"))
+                div().with(TextFormatter.formatText(eligibilityMsg)).withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))

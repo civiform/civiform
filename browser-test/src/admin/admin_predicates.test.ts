@@ -21,7 +21,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
@@ -118,7 +117,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -222,8 +220,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-
-    await enableFeatureFlag(page, 'bulk_status_update_enabled')
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
       questionName: 'eligibility-predicate-q',

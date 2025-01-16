@@ -14,7 +14,7 @@ import services.question.types.FileUploadQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class FileUploadQuestion extends Question {
+public final class FileUploadQuestion extends AbstractQuestion {
 
   // There is an unfortunate dual logic in the how filenames are stored for question answers. AWS
   // deployments store the filename in the key, Azure stores them in a separate column.
