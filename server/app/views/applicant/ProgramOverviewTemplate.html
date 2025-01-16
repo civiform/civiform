@@ -11,8 +11,13 @@
     <main>
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment ::
-        titleAndDescriptionFragment(#{heading.programOverview(${programName})},${programDescription}, false)}"
-      ></div>
+          titleAndDescriptionFragment(
+          #{heading.programOverview(${programName})},
+          ${programDescription},
+           false)}"
+      >
+        <! --/* includeSeparator=false */-->
+      </div>
       <div class="grid-container">
         <button class="usa-button" th:text="#{button.startApp}"></button>
         <div class="usa-prose section">

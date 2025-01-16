@@ -1,5 +1,6 @@
 <div
   th:fragment="alert(alertSettings, headingLevel)"
+  th:if="${alertSettings.title.isPresent() || alertSettings.isSlim}"
   th:class="${'usa-alert usa-alert--' + alertSettings.alertType.name().toLowerCase()}"
   th:classappend="${alertSettings.isSlim ? 'usa-alert--slim' : ''}"
   aria-live="polite"

@@ -104,7 +104,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             alertText,
             AlertType.INFO,
             ImmutableList.of(),
-            true);
+            /* isSlim= */ true);
     return eligibilityAlertSettings;
   }
 

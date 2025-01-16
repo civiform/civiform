@@ -8,7 +8,9 @@
     <main>
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programDescription}, true)}"
-      ></div>
+      >
+        <! --/* includeSeparator=true */-->
+      </div>
       <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
