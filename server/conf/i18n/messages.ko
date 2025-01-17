@@ -435,6 +435,10 @@ title.programSummary=프로그램 신청 요약
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - 프로그램 개요
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=How to apply
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Apply for {0} program
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +527,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=고객의 답변 또는 자격 
 alert.eligibility_ti_fastforwarded_not_eligible_title=고객이 더 이상 이 프로그램에 참여할 자격이 없을 수도 있습니다
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=You are likely eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
