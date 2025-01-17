@@ -8,8 +8,35 @@
   ></head>
   <body>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main class="grid-container padding-0">
-      <div>Welcome to the program overview page!</div>
+    <main>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment ::
+          titleAndDescriptionFragment(
+          #{heading.programOverview(${programName})},
+          ${programDescription})}"
+      ></div>
+      <div class="grid-container">
+        <button class="usa-button" th:text="#{button.startApp}"></button>
+        <div class="usa-prose section">
+          <h2 th:text="#{heading.applicationSteps}"></h2>
+          <ol class="usa-process-list">
+            <li
+              th:each="applicationStep : ${applicationSteps}"
+              class="usa-process-list__item"
+            >
+              <h3
+                th:text="${applicationStep.getKey()}"
+                class="usa-process-list__heading"
+              ></h3>
+              <p th:text="${applicationStep.getValue()}"></p>
+            </li>
+          </ol>
+          <div
+            th:replace="~{components/AlertFragment ::
+            alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H6')}"
+          ></div>
+        </div>
+      </div>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>

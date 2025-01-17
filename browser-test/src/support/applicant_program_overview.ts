@@ -12,9 +12,12 @@ export class ApplicantProgramOverview {
     this.page = page
   }
 
-  async expectProgramOverviewPage() {
+  async expectProgramOverviewPage(programName: string): Promise<void> {
+    expect(await this.page.title()).toBe('test - Program Overview')
     await expect(
-      this.page.getByText('Welcome to the program overview page!'),
+      this.page.getByRole('heading', {
+        name: `Apply for ${programName} program`,
+      }),
     ).toBeVisible()
   }
 }

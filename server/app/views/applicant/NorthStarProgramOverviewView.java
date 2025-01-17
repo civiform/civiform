@@ -1,6 +1,8 @@
 package views.applicant;
 
 import auth.CiviFormProfile;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -11,6 +13,8 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -50,6 +54,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       ApplicantPersonalInfo personalInfo,
       CiviFormProfile profile,
       ProgramDefinition programDefinition) {
+
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request, Optional.of(applicantId), Optional.of(profile), personalInfo, messages);
@@ -62,6 +67,59 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             MessageKey.TITLE_PROGRAM_OVERVIEW.getKeyName(),
             programDefinition.localizedName().getOrDefault(preferredLocale)));
 
+    String localizedProgramName = programDefinition.localizedName().getOrDefault(preferredLocale);
+    context.setVariable("programName", localizedProgramName);
+
+    String localizedProgramDescription = getProgramDescription(programDefinition, preferredLocale);
+    context.setVariable("programDescription", localizedProgramDescription);
+
+    ImmutableMap<String, String> applicationStepsMap =
+        getStepsMap(programDefinition, preferredLocale);
+    context.setVariable("applicationSteps", applicationStepsMap.entrySet());
+
+    AlertSettings eligibilityAlertSettings = createEligibilityAlertSettings(messages);
+    context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
+
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
+  }
+
+  private String getProgramDescription(
+      ProgramDefinition programDefinition, Locale preferredLocale) {
+    String localizedProgramDescription =
+        programDefinition.localizedDescription().getOrDefault(preferredLocale);
+
+    if (localizedProgramDescription.isEmpty()) {
+      localizedProgramDescription =
+          programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
+    }
+    return localizedProgramDescription;
+  }
+
+  private AlertSettings createEligibilityAlertSettings(Messages messages) {
+    String alertText = messages.at(MessageKey.ALERT_LIKELY_ELIGIBLE.getKeyName());
+    AlertSettings eligibilityAlertSettings =
+        new AlertSettings(
+            /* show= */ true,
+            Optional.empty(),
+            alertText,
+            AlertType.INFO,
+            ImmutableList.of(),
+            /* isSlim= */ true);
+    return eligibilityAlertSettings;
+  }
+
+  private ImmutableMap<String, String> getStepsMap(
+      ProgramDefinition programDefinition, Locale preferredLocale) {
+    ImmutableMap.Builder<String, String> applicationStepsBuilder = ImmutableMap.builder();
+    programDefinition
+        .applicationSteps()
+        .forEach(
+            (step) -> {
+              applicationStepsBuilder.put(
+                  step.getTitle().getOrDefault(preferredLocale),
+                  step.getDescription().getOrDefault(preferredLocale));
+            });
+    ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
+    return applicationStepsMap;
   }
 }
