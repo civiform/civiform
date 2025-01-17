@@ -138,12 +138,15 @@ public final class ProgramRepository {
   }
 
   /**
-   * Gets the program definition without the associated question data.
+   * Retrieves the program definition for the given program.
+   *
+   * <p>This method prioritizes fetching the program definition from the cache. If not found in the
+   * cache, it retrieves the definition directly from the program model.
    *
    * <p>This method should replace any calls to ProgramModel.getProgramDefinition()
    */
   public ProgramDefinition getShallowProgramDefinition(ProgramModel program) {
-    return program.getProgramDefinition();
+    return getFullProgramDefinitionFromCache(program).orElseGet(program::getProgramDefinition);
   }
 
   /**

@@ -133,7 +133,7 @@ public class ResourceCreator {
   }
 
   public ProgramModel insertActiveDisabledProgram(String name) {
-    return ProgramBuilder.newActiveDisabledProgram(name).build();
+    return ProgramBuilder.newDisabledActiveProgram(name).build();
   }
 
   public ProgramModel insertActiveTiOnlyProgram(String name) {
