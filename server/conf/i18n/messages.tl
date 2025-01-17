@@ -435,6 +435,10 @@ title.programSummary=Buod ng application para sa programa
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Pangkalahatang-ideya sa Programa
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=How to apply
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Apply for {0} program
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +527,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=Posibleng may mga bago o na-upd
 alert.eligibility_ti_fastforwarded_not_eligible_title=Posibleng hindi na kwalipikado ang kliyente mo para sa programang ito
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=You are likely eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
