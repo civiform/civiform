@@ -37,6 +37,7 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
+    logger.warn("Got to the logout all sessions controller");
     Optional<CiviFormProfile> optionalProfile = profileUtils.optionalCurrentUserProfile(request);
     try {
       if (optionalProfile.isPresent()) {
@@ -45,7 +46,7 @@ public class LogoutAllSessionsController extends Controller {
             .getAccount()
             .thenAccept(
                 account -> {
-                  logger.debug("Found account for back channel logout: {}", account.id);
+                  logger.info("Found account for back channel logout: {}", account.id);
                   account.clearActiveSessions();
                   account.save();
                 })
@@ -67,7 +68,7 @@ public class LogoutAllSessionsController extends Controller {
 
   public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
     try {
-      logger.info("Received back channel logout request for authorityId: {}", email);
+      logger.warn("Received back channel logout request for authorityId: {}", email);
 
       accountRepository
           .lookupAccountByEmailAsync(email)
@@ -78,7 +79,7 @@ public class LogoutAllSessionsController extends Controller {
                   logger.debug("Found account for back channel logout: {}", account.id);
                   account.clearActiveSessions();
                   account.save();
-                  Results.redirect(org.pac4j.play.routes.LogoutController.logout());
+                  redirect(org.pac4j.play.routes.LogoutController.logout());
                 } else {
                   logger.warn("No account found for back channel logout");
                 }
