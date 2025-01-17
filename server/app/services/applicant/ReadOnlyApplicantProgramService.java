@@ -470,8 +470,12 @@ public final class ReadOnlyApplicantProgramService {
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
+            ImmutableList<String> originalFileNames =
+                fileUploadQuestion.getOriginalFileNameListValue().get();
             fileNames =
-                fileKeys.stream().map(FileUploadQuestion::getFileName).collect(toImmutableList());
+                originalFileNames.stream()
+                    .map(FileUploadQuestion::getFileName)
+                    .collect(toImmutableList());
             encodedFileKeys =
                 fileKeys.stream()
                     .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
