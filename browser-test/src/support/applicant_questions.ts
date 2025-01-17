@@ -251,6 +251,10 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async northstarAnswerQuestionOnReviewPage(questionText: string) {
+    await this.page.getByText(questionText).isVisible()
+  }
+
   /** On the review page, click "Edit" to change an answer to a previously answered question. */
   async editQuestionFromReviewPage(
     questionText: string,
@@ -627,7 +631,18 @@ export class ApplicantQuestions {
     }
   }
 
-  async downloadSingleQuestionFromReviewPage(northStarEnabled = false) {
+  /**
+   * On the review page, users can download already-uploaded files;
+   * this method downloads one of them and returns the file content.
+   *
+   * In North Star, the anchor text for the download link is the name
+   * of the file. (Prior to North Star, the anchor text was "click to
+   * download".)
+   */
+  async downloadSingleQuestionFromReviewPage(
+    northStarEnabled = false,
+    downloadText = 'click to download',
+  ) {
     // Assert that we're on the review page.
     if (northStarEnabled) {
       await expect(this.page.getByText('Review and submit')).toBeVisible()
@@ -639,7 +654,23 @@ export class ApplicantQuestions {
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('a:has-text("click to download")'),
+      this.page.click(`a:has-text("${downloadText}")`),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
+  /**
+   * On the upload page, users can download already-uploaded files;
+   * this method downloads the one specified by the user returns the file content.
+   */
+  async downloadFileFromUploadPage(fileName: string) {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText(fileName).click(),
     ])
     const path = await downloadEvent.path()
     if (path === null) {
