@@ -153,8 +153,7 @@ public final class ReportingService {
             .toArray(String[]::new);
 
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
-      var printer =
-          new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(csvHeaders).build());
+      var printer = new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(csvHeaders).get());
 
       for (var stat : stats) {
         printFn.accept(printer, stat);
