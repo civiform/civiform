@@ -15,7 +15,10 @@
 </th:block>
 
 <th:block th:fragment="multilineAnswer(answerData)">
-  <ol id="summary-multiline-list" class="grid-col-6 right-align">
+  <ol
+    id="summary-multiline-list"
+    class="grid-col-6 right-align usa-list usa-list--unstyled"
+  >
     <li
       th:each="answerLine, status : ${answerData.multilineAnswerText()}"
       class="usa-prose"
