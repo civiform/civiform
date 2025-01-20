@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.28",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.24"
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
