@@ -14,13 +14,12 @@ https://designsystem.digital.gov/utilities/.
   app/assets/stylesheets/uswds/styles.scss. The fonts and images are still
   in the uswds directory under node_modules. So, we specify the correct paths here.
    */
-    $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
+  $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
   $theme-image-path: '../../../../node_modules/@uswds/uswds/dist/img',
   // We set the background to a dark color so that the banner uses the dark theme,
   // but we override the background color with Tailwind "bg-gray-900" when we
   // create the banner.
   $theme-banner-background-color: 'blue-90',
-  $color-settings: ('output': false),
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
   $theme-focus-offset: 0.5,
   $theme-heading-line-height: 2,
