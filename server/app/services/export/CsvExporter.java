@@ -52,7 +52,7 @@ public final class CsvExporter implements AutoCloseable {
         CSVFormat.DEFAULT
             .builder()
             .setHeader(columns.stream().map(Column::header).toArray(String[]::new))
-            .build();
+            .get();
     this.printer = new CSVPrinter(writer, format);
   }
 
