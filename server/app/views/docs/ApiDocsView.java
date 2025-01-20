@@ -152,7 +152,8 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
                     .with(h1("API documentation"))
-                    .with(buildTabs())
+                    // TODO will re-enable after getting the swagger-ui files working in prod build
+                    // .with(buildTabs())
                     .with(
                         p().withClasses("my-2")
                             .with(
