@@ -73,6 +73,7 @@ public class LogoutAllSessionsController extends Controller {
               if (maybeAccount.isPresent()) {
                 AccountModel account = maybeAccount.get();
                 logger.debug("Found account for back channel logout: {}", account.id);
+                logger.info("Found authority id for back channel logout: {}", account.getAuthorityId());
                 account.clearActiveSessions();
                 account.save();
               } else {
