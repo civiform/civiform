@@ -1210,15 +1210,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
+    Optional<BlockDefinition> blockDefinition;
+    try {
+      blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
     if (settingsManifest.getNorthStarApplicantUi(request)) {
       return supplyAsync(
           () -> {
-            BlockDefinition blockDefinition;
-            try {
-              blockDefinition = programDefinition.getBlockDefinition(blockId);
-            } catch (ProgramBlockDefinitionNotFoundException e) {
-              throw new RuntimeException(e);
-            }
             NorthStarApplicantIneligibleView.Params params =
                 NorthStarApplicantIneligibleView.Params.builder()
                     .setRequest(request)
@@ -1235,12 +1235,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } else {
       return supplyAsync(
           () -> {
-            Optional<BlockDefinition> blockDefinition = Optional.empty();
-            try {
-              blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-            } catch (ProgramBlockDefinitionNotFoundException e) {
-              throw new RuntimeException(e);
-            }
             return ok(
                 ineligibleBlockView.render(
                     request,

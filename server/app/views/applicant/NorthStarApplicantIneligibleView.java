@@ -63,7 +63,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     ProgramDefinition program = params.programDefinition();
 
-    BlockDefinition block = params.blockDefinition();
+    Optional<BlockDefinition> block = params.blockDefinition();
 
     Locale userLocale = params.messages().lang().toLocale();
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
@@ -72,11 +72,15 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
     context.setVariable("programDescription", localizedProgramDescription);
 
-    String localizedEligibilityMsg =
-        block
-            .localizedEligibilityMessage()
-            .map(localizedStrings -> localizedStrings.maybeGet(userLocale).orElse(""))
-            .orElse("");
+    String localizedEligibilityMsg = "";
+    if (!block.isEmpty()) {
+      BlockDefinition blockDefinition = block.orElseThrow();
+      localizedEligibilityMsg =
+          blockDefinition
+              .localizedEligibilityMessage()
+              .map(localizedStrings -> localizedStrings.maybeGet(userLocale).orElse(""))
+              .orElse("");
+    }
 
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
@@ -130,7 +134,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     abstract ProgramDefinition programDefinition();
 
-    abstract BlockDefinition blockDefinition();
+    abstract Optional<BlockDefinition> blockDefinition();
 
     abstract ReadOnlyApplicantProgramService roApplicantProgramService();
 
@@ -149,7 +153,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
       public abstract Builder setProgramDefinition(ProgramDefinition programDefinition);
 
-      public abstract Builder setBlockDefinition(BlockDefinition blockDefinition);
+      public abstract Builder setBlockDefinition(Optional<BlockDefinition> blockDefinition);
 
       public abstract Builder setRoApplicantProgramService(
           ReadOnlyApplicantProgramService rOnlyApplicantProgramService);
