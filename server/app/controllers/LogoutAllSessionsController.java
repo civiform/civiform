@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import repository.AccountRepository;
 
 /**
@@ -46,7 +45,7 @@ public class LogoutAllSessionsController extends Controller {
             .getAccount()
             .thenAccept(
                 account -> {
-                  logger.info("Found account for back channel logout: {}", account.id);
+                  logger.debug("Found account for back channel logout: {}", account.id);
                   account.clearActiveSessions();
                   account.save();
                 })
@@ -77,7 +76,6 @@ public class LogoutAllSessionsController extends Controller {
                   logger.debug("Found account for back channel logout: {}", account.id);
                   account.clearActiveSessions();
                   account.save();
-                  // redirect(org.pac4j.play.routes.LogoutController.logout());
                 } else {
                   logger.warn("No account found for back channel logout");
                 }

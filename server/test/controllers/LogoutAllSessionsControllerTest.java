@@ -85,21 +85,21 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testIndexWithAuthorityId_withSession() {
+  public void testLogoutWithEmail_withSession() {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
     account.addActiveSession("fake session", clock);
     account.save();
 
-    // Set authority ID to account ID to ensure uniqueness
-    String authorityId = account.id.toString();
-    account.setAuthorityId(authorityId);
+    // Set email with account ID to ensure uniqueness
+    String email = account.id.toString() + "@test.com";
+    account.setEmailAddress(email);
     account.save();
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
     controller
-        .logoutFromAuthorityId(request, authorityId)
+        .logoutFromEmail(request, email)
         .thenAccept(
             result -> {
               AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
@@ -109,7 +109,7 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testIndexWithAuthorityId_withMultipleSessions() {
+  public void testLogoutWithEmail_withMultipleSessions() {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
@@ -117,14 +117,14 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     account.addActiveSession("session2", clock);
     account.save();
 
-    // Set authority ID to account ID to ensure uniqueness
-    String authorityId = account.id.toString();
-    account.setAuthorityId(authorityId);
+    // Set email with account ID to ensure uniqueness
+    String email = account.id.toString() + "@test.com";
+    account.setEmailAddress(email);
     account.save();
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
     controller
-        .logoutFromAuthorityId(request, authorityId)
+        .logoutFromEmail(request, email)
         .thenAccept(
             result -> {
               AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
