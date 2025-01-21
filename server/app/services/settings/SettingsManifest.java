@@ -972,17 +972,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_MIGRATION_ENABLED");
   }
 
+  /** When enabled, admins will be able to select many applications for status updates */
+  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
+    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
    * screen.
    */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
-  }
-
-  /** When enabled, admins will be able to select many applications for status updates */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
 
   /**
