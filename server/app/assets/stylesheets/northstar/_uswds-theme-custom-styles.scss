@@ -48,6 +48,22 @@ svg {
 }
 // -- end
 
+.hidden {
+  display: none;
+}
+
+.cf-file-uploading-tag {
+  background-color: #fff7bf;
+  color: #594d00;
+  visibility: hidden;
+}
+
+/* If a file is being uploaded, show the file uploading tag... */
+
+.cf-file-uploading .cf-file-uploading-tag {
+  visibility: visible;
+}
+
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
 .usa-checkbox__input:focus + [class*='__label']::before,
