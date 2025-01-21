@@ -68,8 +68,6 @@ public class LogoutAllSessionsController extends Controller {
 
   public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
     try {
-      logger.warn("Received back channel logout request for authorityId: {}", email);
-
       accountRepository
           .lookupAccountByEmailAsync(email)
           .thenAccept(
@@ -79,7 +77,7 @@ public class LogoutAllSessionsController extends Controller {
                   logger.debug("Found account for back channel logout: {}", account.id);
                   account.clearActiveSessions();
                   account.save();
-                  redirect(org.pac4j.play.routes.LogoutController.logout());
+                  // redirect(org.pac4j.play.routes.LogoutController.logout());
                 } else {
                   logger.warn("No account found for back channel logout");
                 }
