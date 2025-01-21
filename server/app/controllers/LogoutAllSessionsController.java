@@ -65,7 +65,8 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
-    logger.info("Received back channel logout request from remote address: {}", request.remoteAddress());
+    logger.info("Received back channel logout request forwarded for: {}", request.header("X_FORWARDED_FOR"));
+    logger.info("Received back channel logout request from forwarded host: {}", request.header("X_FORWARDED_HOST"));
     accountRepository
         .lookupAccountByEmailAsync(email)
         .thenAccept(
