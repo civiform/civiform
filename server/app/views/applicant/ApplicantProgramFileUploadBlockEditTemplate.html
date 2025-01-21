@@ -18,15 +18,19 @@
           ${applicationParams.programTitle()},
           ${applicationParams.programDescription()})}"
       ></div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
 
       <div class="grid-container usa-form usa-form--large">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
+            <!-- /* Northstar templates only support multi-file uploads for applicant forms */ -->
             <form
               enctype="multipart/form-data"
               method="POST"
               id="cf-block-form"
-              th:class="${fileUploadViewStrategy.getUploadFormClass()}"
+              th:class="${fileUploadViewStrategy.getMultiFileUploadFormClass()}"
               th:action="${fileUploadViewStrategy.formAction(questionParams.signedFileUploadRequest().get())}"
             >
               <!--/* Render hidden inputs (actual inputs vary depending on whether it's AWS or Azure) */-->
@@ -62,11 +66,11 @@
                 class="grid"
               >
                 <li
-                  th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
                   class="grid-row margin-y-1"
                 >
                   <span
-                    th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+                    th:text="${fileUploadViewStrategy.getFileName(fileUploadQuestion.getOriginalFileNameValueForIndex(iter.index).get())}"
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a
@@ -123,6 +127,9 @@
           </div>
         </div>
       </div>
+      <th:block th:each="footerTag : ${fileUploadFooterTags}">
+        [(${footerTag.render()})]
+      </th:block>
     </main>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>

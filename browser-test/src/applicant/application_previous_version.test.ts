@@ -47,7 +47,7 @@ test.describe('view an application in an older version', () => {
       questionName,
       'some text',
     )
-
+    await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
     await loginAsAdmin(page)
 

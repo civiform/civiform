@@ -146,6 +146,8 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
                     .with(h1("API documentation"))
+                    // TODO will re-enable after getting the swagger-ui files working in prod build
+                    // .with(buildTabs())
                     .with(
                         p().withClasses("my-2")
                             .with(
@@ -191,6 +193,20 @@ public class ApiDocsView extends BaseHtmlView {
     divTag.with(fullProgramDiv);
     return divTag;
   }
+
+  //  private DivTag buildTabs() {
+  //    return div(ul(
+  //                li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
+  //                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
+  //                li(a("API Schema Viewer")
+  //                        .withHref(
+  //                            routes.OpenApiSchemaController.getSchemaUI(
+  //                                    "", Optional.empty(), Optional.empty())
+  //                                .url()))
+  //                    .withClasses(AdminStyles.LINK_NOT_SELECTED))
+  //            .withClasses("flex", "gap-4"))
+  //        .withClasses("my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+  //  }
 
   private DivTag apiResponseSampleDiv(
       ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {

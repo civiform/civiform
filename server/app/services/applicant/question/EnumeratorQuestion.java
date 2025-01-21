@@ -15,7 +15,7 @@ import services.question.types.EnumeratorQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public final class EnumeratorQuestion extends Question {
+public final class EnumeratorQuestion extends AbstractQuestion {
 
   EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);

@@ -88,7 +88,7 @@ public final class ViewUtils {
   }
 
   /** Generates an HTML link tag for loading the CSS file found at public/main/[filePath].css. */
-  LinkTag makeLocalCssTag(String filePath) {
+  public LinkTag makeLocalCssTag(String filePath) {
     return link().withHref(assetsFinder.path(filePath + ".css")).withRel("stylesheet");
   }
 

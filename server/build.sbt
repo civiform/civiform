@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.29.45",
-      "software.amazon.awssdk" % "ses" % "2.29.45",
+      "software.amazon.awssdk" % "s3" % "2.30.2",
+      "software.amazon.awssdk" % "ses" % "2.30.2",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.14.2",
+      "com.azure" % "azure-identity" % "1.15.0",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.25.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.25.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.4",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.21.0",
+      "org.postgresql" % "postgresql" % "42.7.5",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.22.0",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -65,9 +65,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
-      "org.assertj" % "assertj-core" % "3.26.3" % Test,
+      "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,
@@ -100,13 +100,13 @@ lazy val root = (project in file("."))
       "org.checkerframework" % "dataflow-errorprone" % "3.48.4",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.12.0",
+      "org.apache.commons" % "commons-csv" % "1.13.0",
       "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.52",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.53",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -122,12 +122,12 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.5.16",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.14" exclude ("javax.validation", "validation-api"),
-      "io.swagger" % "swagger-parser" % "1.0.72",
+      "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
+      "io.swagger" % "swagger-parser" % "1.0.73",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.27",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.24"
+      "io.swagger.core.v3" % "swagger-core" % "2.2.28",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

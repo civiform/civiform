@@ -168,7 +168,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
 
-    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)
+        && programService.anyDisabledPrograms()) {
       contentDiv.with(
           renderFilterLink(
               ProgramTab.IN_USE,

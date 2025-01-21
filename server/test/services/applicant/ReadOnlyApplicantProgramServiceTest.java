@@ -1364,6 +1364,48 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     assertThat(result).hasSize(2);
     assertThat(result.get(0).encodedFileKeys()).isEmpty();
     assertThat(result.get(1).encodedFileKeys()).containsExactly("file-key-1", "file-key-2");
+
+    // When no original filenames are set, then the file-key is returned as the filename.
+    assertThat(result.get(0).fileNames()).isEmpty();
+    assertThat(result.get(1).fileNames()).containsExactly("file-key-1", "file-key-2");
+  }
+
+  @Test
+  public void getSummaryDataOnlyActive_returnsFileNamesForUploadedFiles() {
+    // Create a program with a fileupload question and a non-fileupload question
+    QuestionDefinition fileUploadQuestionDefinition =
+        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(fileUploadQuestionDefinition)
+            .buildDefinition();
+    // Answer the questions
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        ImmutableList.of("file-key-1", "file-key-2"));
+    QuestionAnswerer.answerFileQuestionWithMultipleUploadOriginalNames(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileUploadQuestionDefinition.getQuestionPathSegment()),
+        ImmutableList.of("file-name-1", "file-name-2"));
+
+    // Test the summary data
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+    ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
+
+    assertThat(result).hasSize(2);
+    // The file set will be returned (as expected)
+    assertThat(result.get(0).encodedFileKeys()).isEmpty();
+    assertThat(result.get(1).encodedFileKeys()).containsExactly("file-key-1", "file-key-2");
+
+    // The set original filenames will be returned (instead of the filekeys)
+    assertThat(result.get(0).fileNames()).isEmpty();
+    assertThat(result.get(1).fileNames()).containsExactly("file-name-1", "file-name-2");
   }
 
   @Test

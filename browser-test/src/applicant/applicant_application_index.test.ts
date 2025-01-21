@@ -1310,6 +1310,7 @@ test.describe('applicant program index page with images', () => {
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
     const modal = await adminPrograms.setStatusOptionAndAwaitModal(statusName)
     await adminPrograms.confirmStatusUpdateModal(modal)
+    await page.getByRole('link', {name: 'Back'}).click()
     await logout(page)
   }
 })

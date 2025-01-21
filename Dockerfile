@@ -47,7 +47,7 @@ RUN mkdir -p "${PROJECT_LOC}"
 WORKDIR "${PROJECT_LOC}"
 
 # SBT downloads a lot at run-time.
-RUN sbt update
+RUN sbt update --allow-empty
 
 ########################################################
 ### Install dependancies and build the server,       ###

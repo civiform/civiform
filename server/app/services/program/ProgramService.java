@@ -162,6 +162,11 @@ public final class ProgramService {
     return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsUnsynced(versionRepository);
   }
 
+  /** Checks if there is any disabled program in active or draft version. */
+  public boolean anyDisabledPrograms() {
+    return versionRepository.anyDisabledPrograms();
+  }
+
   /*
    * Looks at the most recent version of each program and returns the program marked as the
    * common intake form if it exists. The most recent version may be in the draft or active stage.
@@ -866,7 +871,7 @@ public final class ProgramService {
             Optional.of(
                 block
                     .localizedEligibilityMessage()
-                    .orElse(LocalizedStrings.empty())
+                    .orElse(LocalizedStrings.withEmptyDefault())
                     .updateTranslation(locale, screenUpdate.get().localizedEligibilityMessage())));
       }
       toUpdateBlockBuilder.add(blockBuilder.build());

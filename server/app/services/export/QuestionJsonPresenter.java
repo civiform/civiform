@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.Path;
+import services.applicant.question.AbstractQuestion;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
@@ -23,7 +24,6 @@ import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
-import services.applicant.question.Question;
 import services.applicant.question.Scalar;
 import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
@@ -38,7 +38,7 @@ import services.settings.SettingsManifest;
  *
  * <p>Some {@link QuestionType}s share the same {@link QuestionJsonPresenter}.
  */
-public interface QuestionJsonPresenter<Q extends Question> {
+public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
 
   /**
    * The answer entries that should be present in a JSON export of answers, for this question.
@@ -59,8 +59,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
   /**
    * The metadata entries that should be present in a JSON export of answers, for this question.
    *
-   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question,
-   * boolean)}.
+   * <p>The returned map follows the same semantics as {@link
+   * #getAnswerJsonEntries(AbstractQuestion, boolean)}.
    *
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional metadata values.
@@ -82,8 +82,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
    * The metadata and answer entries that should be present in a JSON export of answers, for this
    * question.
    *
-   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question,
-   * boolean)}.
+   * <p>The returned map follows the same semantics as {@link
+   * #getAnswerJsonEntries(AbstractQuestion, boolean)}.
    *
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional metadata and answer values.
@@ -254,10 +254,10 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
+  class EmptyJsonPresenter implements QuestionJsonPresenter<AbstractQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(
-        Question question, boolean multipleFileUploadEnabled) {
+        AbstractQuestion question, boolean multipleFileUploadEnabled) {
       return ImmutableMap.of();
     }
   }
