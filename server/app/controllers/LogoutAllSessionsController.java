@@ -3,6 +3,7 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ClientIpResolver;
 import auth.ProfileUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,13 +27,16 @@ public class LogoutAllSessionsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;
   private final AccountRepository accountRepository;
+  private final ClientIpResolver clientIpResolver;
 
   @Inject
   public LogoutAllSessionsController(
-      ProfileUtils profileUtils, AccountRepository accountRepository) {
+      ProfileUtils profileUtils, AccountRepository accountRepository,
+      ClientIpResolver clientIpResolver) {
 
     this.profileUtils = checkNotNull(profileUtils);
     this.accountRepository = checkNotNull(accountRepository);
+    this.clientIpResolver = checkNotNull(clientIpResolver);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -65,8 +69,9 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
-    logger.info("Received back channel logout request forwarded for: {}", request.header("X_FORWARDED_FOR"));
-    logger.info("Received back channel logout request from forwarded host: {}", request.header("X_FORWARDED_HOST"));
+    String remoteAddress = clientIpResolver.resolveClientIp(request);
+    logger.info("Received back channel logout request forwarded for resolved IP: {}",  remoteAddress);
+    logger.info("Received back channel logout request remote address: {}", request.remoteAddress());
     accountRepository
         .lookupAccountByEmailAsync(email)
         .thenAccept(
