@@ -18,7 +18,6 @@ import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
@@ -51,7 +50,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
-import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -153,15 +151,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addModals(downloadModal)
             .addMainStyles("flex")
             .addMainContent(makeCsrfTokenInputTag(request), applicationListDiv, applicationShowDiv);
-
-    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
-    if (maybeSuccessMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
-    }
-    Optional<String> maybeErrorMessage = request.flash().get(FlashKey.ERROR);
-    if (maybeErrorMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(maybeErrorMessage.get()));
-    }
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 
