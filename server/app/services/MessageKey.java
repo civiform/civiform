@@ -52,6 +52,7 @@ public enum MessageKey {
       "alert.eligibility_ti_fastforwarded_not_eligible_title"),
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
+  ALERT_LIKELY_ELIGIBLE("alert.likelyEligible"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
@@ -234,12 +235,14 @@ public enum MessageKey {
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
   HEADING_APPLICANT_NAME("heading.applicantName"), // North Star Only
+  HEADING_APPLICATION_STEPS("heading.applicationSteps"), // North Star only
   HEADING_CONFIRMATION_NUMBER("heading.confirmationNumber"), // North Star Only
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
+  HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),

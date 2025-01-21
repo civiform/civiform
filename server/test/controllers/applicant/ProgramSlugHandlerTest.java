@@ -308,7 +308,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(content).contains("Welcome to the program overview page!");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
@@ -352,7 +352,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(content).contains("Welcome to the program overview page!");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 
   @Test
@@ -401,6 +401,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(content).contains("Welcome to the program overview page!");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
   }
 }

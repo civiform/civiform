@@ -6,6 +6,7 @@ import {
   loginAsTrustedIntermediary,
   ClientInformation,
   loginAsTestUser,
+  validateScreenshot,
 } from '../support'
 
 test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
@@ -45,7 +46,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     }) => {
       // Exercise guest path
       await page.goto(`/programs/${programName}`)
-      await applicantProgramOverview.expectProgramOverviewPage()
+      await applicantProgramOverview.expectProgramOverviewPage(programName)
 
       await logout(page)
 
@@ -56,7 +57,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       await page.goto(`/programs/${programName}`)
-      await applicantProgramOverview.expectProgramOverviewPage()
+      await applicantProgramOverview.expectProgramOverviewPage(programName)
     })
   })
 
@@ -66,8 +67,64 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   }) => {
     await page.goto(`/programs/${programName}`)
 
-    await applicantProgramOverview.expectProgramOverviewPage()
-    expect(await page.title()).toBe('test - Program Overview')
+    await applicantProgramOverview.expectProgramOverviewPage(programName)
+    await validateScreenshot(
+      page.locator('main'),
+      'program-overview',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+  })
+
+  test('displays short description if there is no long description', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await page.goto(`/programs/${programName}`)
+
+    await test.step('expect the long description to initially be displayed', async () => {
+      await expect(page.getByText('program description')).toBeVisible()
+      await expect(page.getByText('short program description')).toBeHidden()
+    })
+
+    await test.step('log in as an admin and remove the long description', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.goToProgramDescriptionPage(
+        programName,
+        /* createNewDraft= */ true,
+      )
+      await page
+        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .fill('')
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+    })
+
+    await test.step('expect the short description to be displayed', async () => {
+      await page.goto(`/programs/${programName}`)
+      await expect(page.getByText('short program description')).toBeVisible()
+    })
+  })
+
+  test('shows the application steps', async ({page}) => {
+    await page.goto(`/programs/${programName}`)
+    await expect(
+      page.getByRole('listitem').getByRole('heading', {
+        name: 'title',
+      }) /* 'title' is the heading on the first application step */,
+    ).toBeVisible()
+
+    await expect(
+      page
+        .getByRole('listitem')
+        .getByText(
+          'description',
+        ) /* 'description' is the text on the first application step */,
+    ).toBeVisible()
+
+    await expect(page.getByRole('list').filter({hasText: 'title'})).toHaveCount(
+      1,
+    )
   })
 
   test('redirects to disabled program info page when program is disabled', async ({
@@ -127,7 +184,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await page.goto(`${url}/${programName}`)
 
-    await applicantProgramOverview.expectProgramOverviewPage()
+    await applicantProgramOverview.expectProgramOverviewPage(programName)
   })
 
   test('Going to a deep link does not retain redirect in session', async ({

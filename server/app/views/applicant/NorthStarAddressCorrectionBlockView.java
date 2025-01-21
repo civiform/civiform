@@ -1,6 +1,5 @@
 package views.applicant;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -88,8 +87,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
             /* show= */ true,
             Optional.of(params.messages().at(MessageKey.ADDRESS_CORRECTION_LINE_1.getKeyName())),
             alertMessage,
-            AlertType.WARNING,
-            ImmutableList.of());
+            AlertType.WARNING);
     context.setVariable("addressAlertSettings", addressAlertSettings);
 
     return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);

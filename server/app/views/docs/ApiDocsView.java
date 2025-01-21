@@ -1,7 +1,6 @@
 package views.docs;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.aside;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.blockquote;
@@ -12,21 +11,18 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static j2html.TagCreator.ul;
 import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import controllers.docs.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.AsideTag;
 import j2html.tags.specialized.CodeTag;
@@ -57,8 +53,6 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.AccordionFactory;
 import views.components.LinkElement;
-import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 // TODO: If we're being strict about code organization, access to the ProgramJsonSampler and
@@ -152,7 +146,8 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
                     .with(h1("API documentation"))
-                    .with(buildTabs())
+                    // TODO will re-enable after getting the swagger-ui files working in prod build
+                    // .with(buildTabs())
                     .with(
                         p().withClasses("my-2")
                             .with(
@@ -199,19 +194,19 @@ public class ApiDocsView extends BaseHtmlView {
     return divTag;
   }
 
-  private DivTag buildTabs() {
-    return div(ul(
-                li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
-                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
-                li(a("API Schema Viewer")
-                        .withHref(
-                            routes.OpenApiSchemaController.getSchemaUI(
-                                    "", Optional.empty(), Optional.empty())
-                                .url()))
-                    .withClasses(AdminStyles.LINK_NOT_SELECTED))
-            .withClasses("flex", "gap-4"))
-        .withClasses("my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
-  }
+  //  private DivTag buildTabs() {
+  //    return div(ul(
+  //                li(a("API documentation").withHref(routes.ApiDocsController.index().url()))
+  //                    .withClasses("border-b-2", AdminStyles.LINK_SELECTED, "mx-0"),
+  //                li(a("API Schema Viewer")
+  //                        .withHref(
+  //                            routes.OpenApiSchemaController.getSchemaUI(
+  //                                    "", Optional.empty(), Optional.empty())
+  //                                .url()))
+  //                    .withClasses(AdminStyles.LINK_NOT_SELECTED))
+  //            .withClasses("flex", "gap-4"))
+  //        .withClasses("my-4", BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
+  //  }
 
   private DivTag apiResponseSampleDiv(
       ProgramDefinition programDefinition, boolean multipleFileUploadEnabled) {

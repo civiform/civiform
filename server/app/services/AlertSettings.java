@@ -19,13 +19,15 @@ public record AlertSettings(
     String text,
     Boolean unescapedDescription,
     AlertType alertType,
-    ImmutableList<String> additionalText) {
+    ImmutableList<String> additionalText,
+    Boolean isSlim) {
+
   public static AlertSettings empty() {
     return new AlertSettings(false, Optional.empty(), "", AlertType.NONE);
   }
 
   public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {
-    this(show, title, text, alertType, ImmutableList.of());
+    this(show, title, text, alertType, ImmutableList.of(), /* isSlim= */ false);
   }
 
   public AlertSettings(
@@ -33,8 +35,9 @@ public record AlertSettings(
       Optional<String> title,
       String text,
       AlertType alertType,
-      ImmutableList<String> additionalText) {
-    this(show, title, text, /* unescapedDescription= */ true, alertType, additionalText);
+      ImmutableList<String> additionalText,
+      Boolean isSlim) {
+    this(show, title, text, /* unescapedDescription= */ true, alertType, additionalText, isSlim);
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */

@@ -160,7 +160,7 @@ public class ProgramBuilder {
    * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
    * blank description and disabled.
    */
-  public static ProgramBuilder newActiveDisabledProgram(String name) {
+  public static ProgramBuilder newDisabledActiveProgram(String name) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,

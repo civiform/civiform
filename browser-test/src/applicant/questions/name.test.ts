@@ -297,6 +297,21 @@ test.describe('name applicant flow', () => {
           await applicantQuestions.submitFromReviewPage()
         })
       })
+
+      test('carries over suffix value when validation fails', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await applicantQuestions.applyProgram(programName)
+
+        await test.step('partially anwers name question with suffix', async () => {
+          await applicantQuestions.answerNameQuestion('Ann', '', '', 'V')
+          await applicantQuestions.clickNext()
+
+          await expect(page.locator(`${NAME_LAST}-error`)).toBeVisible()
+          await expect(page.getByLabel('Suffix')).toHaveValue('V')
+        })
+      })
     },
   )
 

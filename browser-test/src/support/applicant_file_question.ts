@@ -6,8 +6,10 @@ export class ApplicantFileQuestion {
   private fileSelectionErrorLocator = '#cf-fileupload-required-error'
   private fileTooLargeErrorLocator = '#cf-fileupload-too-large-error'
   private continueButtonLocator = '#fileupload-continue-button'
+  private continueFormLocator = '#cf-fileupload-continue-form'
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
+  private questionErrorLocator = '.cf-question-error-message'
   private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
 
   private page!: Page
@@ -16,12 +18,32 @@ export class ApplicantFileQuestion {
     this.page = page
   }
 
+  async expectQuestionErrorShown() {
+    const error = this.page.locator(this.questionErrorLocator)
+    expect(await error?.isHidden()).toEqual(false)
+  }
+
+  async expectQuestionErrorHidden() {
+    const error = this.page.locator(this.questionErrorLocator)
+    expect(await error?.isHidden()).toEqual(true)
+  }
+
   async expectFileSelectionErrorShown() {
     const error = this.page.locator(this.fileSelectionErrorLocator)
     expect(await error?.isHidden()).toEqual(false)
   }
 
   async expectFileSelectionErrorHidden() {
+    const error = this.page.locator(this.fileSelectionErrorLocator)
+    expect(await error?.isHidden()).toEqual(true)
+  }
+
+  async expectNorthStarNoFileSelectedErrorShown() {
+    const error = this.page.locator(this.fileSelectionErrorLocator)
+    expect(await error?.isHidden()).toEqual(false)
+  }
+
+  async expectNorthStarNoFileSelectedErrorHidden() {
     const error = this.page.locator(this.fileSelectionErrorLocator)
     expect(await error?.isHidden()).toEqual(true)
   }
@@ -83,6 +105,15 @@ export class ApplicantFileQuestion {
     expect(await this.page.locator(this.continueButtonLocator).count()).toEqual(
       0,
     )
+  }
+
+  // In North Star, the Continue button has form="cf-fileupload-continue-form".
+  async expectHasContinueForm() {
+    expect(await this.page.locator(this.continueFormLocator).count()).toEqual(1)
+  }
+
+  async expectNoContinueForm() {
+    expect(await this.page.locator(this.continueFormLocator).count()).toEqual(0)
   }
 
   async clickContinue() {

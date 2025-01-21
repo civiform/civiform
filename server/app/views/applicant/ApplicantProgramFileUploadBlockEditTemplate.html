@@ -18,6 +18,9 @@
           ${applicationParams.programTitle()},
           ${applicationParams.programDescription()})}"
       ></div>
+      <div
+        th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
+      ></div>
 
       <div class="grid-container usa-form usa-form--large">
         <div class="grid-row">
@@ -63,11 +66,11 @@
                 class="grid"
               >
                 <li
-                  th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
                   class="grid-row margin-y-1"
                 >
                   <span
-                    th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+                    th:text="${fileUploadViewStrategy.getFileName(fileUploadQuestion.getOriginalFileNameValueForIndex(iter.index).get())}"
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a

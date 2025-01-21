@@ -435,6 +435,10 @@ title.programSummary=Program application summary
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Program Overview
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=How to apply
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Apply for {0} program
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +527,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=There may be new or updated que
 alert.eligibility_ti_fastforwarded_not_eligible_title=Your client may not be eligible for this program anymore
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=There may be new or updated questions that affect your client''s answers or eligibility. Please review all questions below.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=You are likely eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

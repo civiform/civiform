@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import javax.inject.Inject;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -547,6 +548,19 @@ public final class VersionRepository {
     return getProgramsForVersion(maybeVersion).stream()
         .filter(p -> programRepository.getShallowProgramDefinition(p).adminName().equals(name))
         .findAny();
+  }
+
+  public boolean anyDisabledPrograms() {
+    return anyDisabledPrograms(Optional.of(getActiveVersion()))
+        || anyDisabledPrograms(getDraftVersion());
+  }
+
+  private boolean anyDisabledPrograms(Optional<VersionModel> maybeVersion) {
+    return getProgramsForVersion(maybeVersion).stream()
+        .anyMatch(
+            p ->
+                programRepository.getShallowProgramDefinition(p).displayMode()
+                    == DisplayMode.DISABLED);
   }
 
   /** Returns the names of all the programs. */

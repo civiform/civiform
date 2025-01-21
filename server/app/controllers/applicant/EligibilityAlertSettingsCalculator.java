@@ -115,7 +115,8 @@ public final class EligibilityAlertSettingsCalculator {
         Optional.of(messages.at(triple.titleKey.getKeyName())),
         msg,
         triple.alertType,
-        formattedQuestions);
+        formattedQuestions,
+        /* isSlim= */ false);
   }
 
   private Triple getTi(
