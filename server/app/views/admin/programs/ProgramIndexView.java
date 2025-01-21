@@ -53,7 +53,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
-import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -218,12 +217,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     maybePublishModal.ifPresent(htmlBundle::addModals);
 
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    }
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
 
     return layout.renderCentered(htmlBundle);
   }

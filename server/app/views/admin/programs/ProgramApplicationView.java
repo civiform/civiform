@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-import controllers.FlashKey;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -55,7 +54,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -174,10 +172,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .addModals(updateNoteModal)
             .addModals(statusUpdateConfirmationModals)
             .setJsBundle(JsBundle.ADMIN);
-    Optional<String> maybeSuccessMessage = request.flash().get(FlashKey.SUCCESS);
-    if (maybeSuccessMessage.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(maybeSuccessMessage.get()));
-    }
+    addToastMessagesOnSuccess(htmlBundle, request.flash());
     return layout.render(htmlBundle);
   }
 
