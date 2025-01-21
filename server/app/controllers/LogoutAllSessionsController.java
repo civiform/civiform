@@ -65,29 +65,25 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
-    try {
-      accountRepository
-          .lookupAccountByEmailAsync(email)
-          .thenAccept(
-              maybeAccount -> {
-                if (maybeAccount.isPresent()) {
-                  AccountModel account = maybeAccount.get();
-                  logger.debug("Found account for back channel logout: {}", account.id);
-                  account.clearActiveSessions();
-                  account.save();
-                } else {
-                  logger.warn("No account found for back channel logout");
-                }
-              })
-          .exceptionally(
-              e -> {
-                logger.error(e.getMessage(), e);
-                return null;
-              });
-
-    } catch (RuntimeException e) {
-      logger.error("Error clearing session from account", e);
-    }
+    logger.info("Received back channel logout request from remote address: {}", request.remoteAddress());
+    accountRepository
+        .lookupAccountByEmailAsync(email)
+        .thenAccept(
+            maybeAccount -> {
+              if (maybeAccount.isPresent()) {
+                AccountModel account = maybeAccount.get();
+                logger.debug("Found account for back channel logout: {}", account.id);
+                account.clearActiveSessions();
+                account.save();
+              } else {
+                logger.warn("No account found for back channel logout");
+              }
+            })
+        .exceptionally(
+            e -> {
+              logger.error(e.getMessage(), e);
+              return null;
+            });
 
     // Redirect to the landing page
     return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
