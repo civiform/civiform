@@ -36,7 +36,6 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
-    logger.warn("Got to the logout all sessions controller");
     Optional<CiviFormProfile> optionalProfile = profileUtils.optionalCurrentUserProfile(request);
     try {
       if (optionalProfile.isPresent()) {
