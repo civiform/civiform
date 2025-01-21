@@ -29,6 +29,20 @@ See the radio-option below as an example.
   font-weight: font-weight('bold');
 }
 
+// -- start
+// Backwards compatible step for migrating tailwind to keep some SVGs correctly
+// sized. This is shared in admin and applicant sides so until we rewrite SVG
+// support or migrate the admin we'll use the same settings from tailwind.
+svg {
+  &.w-auto {
+    width: auto;
+  }
+  &.h-5 {
+    height: 1.25rem;
+  }
+}
+// -- end
+
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
 .usa-checkbox__input:focus + [class*='__label']::before,
