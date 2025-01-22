@@ -11,7 +11,14 @@ import play.mvc.Http.RequestHeader;
 final class NonUserRoutes {
   public static ImmutableList<String> prefixes =
       ImmutableList.of(
-          "/api/", "/assets/", "/dev/", "/favicon", "/apple-touch-icon", "/playIndex", "/metrics", "/logoutAllSessions");
+          "/api/",
+          "/assets/",
+          "/dev/",
+          "/favicon",
+          "/apple-touch-icon",
+          "/playIndex",
+          "/metrics",
+          "/logoutAllSessions");
 
   public static boolean anyMatch(RequestHeader requestHeader) {
     String path = requestHeader.path();

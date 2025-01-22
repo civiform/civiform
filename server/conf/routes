@@ -267,7 +267,7 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 
 # Log out of the application through a separate endpoint that clears all sessions
 GET     /logoutAllSessions                       controllers.LogoutAllSessionsController.index(request: Request)
-GET     /logoutAllSessions/:email         controllers.LogoutAllSessionsController.logoutFromEmail(request: Request, email: String)
+GET     /logoutAllSessions/:authority_id        controllers.LogoutAllSessionsController.logoutFromAuthorityId(request: Request, authority_id: String)
 
 ## Dev tools
 GET     /dev/seed                                 controllers.dev.DevToolsController.index(request: Request)
