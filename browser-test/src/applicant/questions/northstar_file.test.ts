@@ -6,6 +6,7 @@ import {
   seedQuestions,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
 } from '../../support'
 import {BASE_URL} from '../../support/config'
 
@@ -551,6 +552,8 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
         )
+
+        await waitForPageJsLoad(page)
 
         await validateScreenshot(
           page.locator('main'),
