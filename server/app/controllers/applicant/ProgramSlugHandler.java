@@ -139,6 +139,9 @@ public final class ProgramSlugHandler {
       CiviFormProfile profile,
       long applicantId,
       ProgramDefinition activeProgramDefinition) {
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
                 != DisplayMode.DISABLED // If the program is disabled,
@@ -148,7 +151,7 @@ public final class ProgramSlugHandler {
                     messagesApi.preferred(request),
                     request,
                     applicantId,
-                    ApplicantPersonalInfo.ofGuestUser(),
+                    applicantPersonalInfo.join(),
                     profile,
                     activeProgramDefinition))
             .as("text/html")

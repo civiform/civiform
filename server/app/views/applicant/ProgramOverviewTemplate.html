@@ -16,8 +16,12 @@
           ${programDescription})}"
       ></div>
       <div class="grid-container">
-        <button class="usa-button" th:text="#{button.startApp}"></button>
-        <div class="usa-prose section">
+        <a
+          th:href="${actionUrl}"
+          class="usa-button"
+          th:text="#{button.startApp}"
+        ></a>
+        <div class="usa-prose section" data-testId="steps-and-alerts">
           <h2 th:text="#{heading.applicationSteps}"></h2>
           <ol class="usa-process-list">
             <li
@@ -35,6 +39,18 @@
             th:replace="~{components/AlertFragment ::
             alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H6')}"
           ></div>
+          <div th:if="${isGuest}" class="section-internal">
+            <div
+              th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
+            ></div>
+          </div>
+          <div th:if="${!isGuest}" class="section-internal">
+            <a
+              th:href="${actionUrl}"
+              class="usa-button"
+              th:text="#{button.startApp}"
+            ></a>
+          </div>
         </div>
       </div>
     </main>
