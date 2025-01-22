@@ -15,7 +15,6 @@ import {
 test.describe('Program admin review of submitted applications', () => {
   test(
     'all major steps with multiple file upload flag',
-    {tag: ['@skip-on-azure']},
     async ({page, adminQuestions, adminPrograms, applicantQuestions}) => {
       test.slow()
 
