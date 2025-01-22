@@ -316,6 +316,40 @@ public class EligibilityAlertSettingsCalculatorTest {
     assertThat(result.text()).isEqualTo(value.expectedText);
   }
 
+
+  @Test
+  public void build_expected_Eligibility_alert_settings_when_eligibility_message_enabled() 
+    throws ProgramNotFoundException {
+    
+        boolean isEligibilityEnabled = true;
+
+        MessagesApi messagesApiMock = getMessagesApiMock();
+        ProgramService programServiceMock = mock(ProgramService.class);
+        when(programServiceMock.getFullProgramDefinition(any(Long.class)))
+            .thenReturn(createProgramDefinition(isEligibilityEnabled));
+    
+        EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
+            new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);
+    
+        Http.Request request = createFakeRequest(false);
+    
+        AlertSettings result =
+            eligibilityAlertSettingsCalculator.calculate(
+                request,
+                /* isTi= */ false,
+                /* isApplicationEligible*/ false,
+                /*isNorthStarEnabled*/ false,
+                /*pageHasSupplementalInformation*/ true,
+                /* programId */ 1L,
+                "This is a customized eligibility message.",
+                ImmutableList.of());
+    
+        assertThat(result.show()).isEqualTo(true);
+        //assertThat(result.alertType()).isEqualTo(value.expectedAlertType);
+        //assertThat(result.title().get()).isEqualTo(value.expectedTitle);
+        assertThat(result.text()).isEqualTo("APPLICANT_NOT_ELIGIBLE_TEXT\nThis is a customized eligibility message.");
+  }
+
   @Test
   public void formats_questions() throws ProgramNotFoundException {
     boolean isEligibilityEnabled = true;

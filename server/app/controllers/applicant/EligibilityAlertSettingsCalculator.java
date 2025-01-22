@@ -27,6 +27,21 @@ public final class EligibilityAlertSettingsCalculator {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
+  /**
+   * Calculates the alert settings for the given request. This method contains a String param
+   * representing eligibility message.
+   *
+   * @param request The HTTP request.
+   * @param isTI True if the request is from a tax advisor.
+   * @param isApplicationEligible True if the application is eligible for the program.
+   * @param isNorthStarEnabled True if NorthStar is enabled.
+   * @param pageHasSupplementalInformation True if the page has supplemental information.
+   * @param programId The program ID.
+   * @param eligibilityMsg The eligibility message.
+   * @param questions The list of applicant questions that the applicant answered that may make the
+   *     applicant ineligible. The list may be empty.
+   * @return The alert settings.
+   */
   public AlertSettings calculate(
       Http.Request request,
       boolean isTI,
@@ -48,8 +63,17 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   /**
-   * questions: List of questions that the applicant answered that may make the applicant
-   * ineligible. The list may be empty.
+   * Calculates the alert settings for the given request.
+   *
+   * @param request The HTTP request.
+   * @param isTI True if the request is from a tax advisor.
+   * @param isApplicationEligible True if the application is eligible for the program.
+   * @param isNorthStarEnabled True if NorthStar is enabled.
+   * @param pageHasSupplementalInformation True if the page has supplemental information.
+   * @param programId The program ID.
+   * @param questions The list of applicant questions that the applicant answered that may make the
+   *     applicant ineligible. The list may be empty.
+   * @return The alert settings.
    */
   public AlertSettings calculate(
       Http.Request request,
