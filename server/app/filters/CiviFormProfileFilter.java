@@ -43,8 +43,6 @@ public final class CiviFormProfileFilter extends Filter {
   private boolean shouldRedirect(Http.RequestHeader requestHeader) {
     return NonUserRoutes.noneMatch(requestHeader)
         && OptionalProfileRoutes.noneMatch(requestHeader)
-        // Ensure authorization server (IDP) can call this endpoint without redirecting
-        && !requestHeader.path().startsWith("/logoutAllSessions")
         && !requestHeader.path().startsWith("/callback")
         // TODO(#8504) extend to all HTTP methods
         && (requestHeader.method().equals("GET") || requestHeader.method().equals("HEAD"))
