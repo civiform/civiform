@@ -867,11 +867,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("APPLICATION_EXPORTABLE", request);
   }
 
-  /** When enabled, admins will be able to select many applications for status updates. */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
   /** Enables the feature that allows programs to be disabled from CiviForm */
   public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
     return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
@@ -975,6 +970,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables migrating programs between deployed environments */
   public boolean getProgramMigrationEnabled() {
     return getBool("PROGRAM_MIGRATION_ENABLED");
+  }
+
+  /** When enabled, admins will be able to select many applications for status updates */
+  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
+    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
 
   /**
@@ -1971,13 +1971,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "BULK_STATUS_UPDATE_ENABLED",
-                      "When enabled, admins will be able to select many"
-                          + " applications for status updates",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
                       "DISABLED_VISIBILITY_CONDITION_ENABLED",
                       "Enables the feature that allows programs to be disabled from CiviForm",
                       /* isRequired= */ false,
@@ -2089,7 +2082,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables migrating programs between deployed environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "BULK_STATUS_UPDATE_ENABLED",
+                      "When enabled, admins will be able to select many applications for status"
+                          + " updates",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Experimental",
           SettingsSection.create(
               "Experimental",

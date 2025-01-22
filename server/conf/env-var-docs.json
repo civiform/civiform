@@ -824,6 +824,11 @@
         "mode": "ADMIN_READABLE",
         "description": "Enables migrating programs between deployed environments",
         "type": "bool"
+      },
+      "BULK_STATUS_UPDATE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "When enabled, admins will be able to select many applications for status updates",
+        "type": "bool"
       }
     }
   },
@@ -833,11 +838,6 @@
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per screen.",
-        "type": "bool"
-      },
-      "BULK_STATUS_UPDATE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for status updates",
         "type": "bool"
       },
       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {
