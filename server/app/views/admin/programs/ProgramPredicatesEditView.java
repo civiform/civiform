@@ -44,7 +44,6 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.TextFormatter;
-import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
@@ -266,14 +265,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                     ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
                     request),
                 content);
-
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 

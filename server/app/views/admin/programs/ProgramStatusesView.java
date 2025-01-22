@@ -41,7 +41,6 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -128,13 +127,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .addModals(createStatusModal)
             .addModals(statusContainerAndModals.getRight());
 
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 

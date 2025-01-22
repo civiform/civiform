@@ -159,6 +159,18 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
+    test('back button', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await applicantQuestions.clickBack()
+
+      // Verify we're taken to the previous page, which is the review page.
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+    })
+
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     test('missing file error disappears when file uploaded', async ({
       applicantQuestions,

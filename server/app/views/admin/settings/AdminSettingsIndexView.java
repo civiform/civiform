@@ -103,22 +103,15 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                     request, errorMessages, settingsManifest.getSections().get(sectionName))));
 
     HtmlBundle bundle = layout.getBundle(request).addMainContent(mainContent);
-
-    if (errorMessages.isPresent()) {
-      bundle.addToastMessages(
-          ToastMessage.error(
-              "That update didn't look quite right. Please fix the errors in the form and try"
-                  + " saving again.",
-              messagesApi.preferred(request)));
-    }
-    request
-        .flash()
-        .get("success")
-        .ifPresent(successMessage -> bundle.addToastMessages(ToastMessage.success(successMessage)));
-    request
-        .flash()
-        .get("warning")
-        .ifPresent(warningMessage -> bundle.addToastMessages(ToastMessage.warning(warningMessage)));
+    errorMessages
+        .map(
+            errors ->
+                ToastMessage.error(
+                    "That update didn't look quite right. Please fix the errors in the form and try"
+                        + " saving again.",
+                    messagesApi.preferred(request)))
+        .ifPresent(bundle::addToastMessages);
+    addSuccessAndWarningToasts(bundle, request.flash());
 
     return layout.render(bundle);
   }
