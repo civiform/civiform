@@ -9,7 +9,6 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
-  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -23,8 +22,7 @@ test.describe('Program admin review of submitted applications', () => {
 
     const programName = 'A shiny new program'
 
-    await enableFeatureFlag(page, 'multiple_file_upload_enabled')
-    await loginAsAdmin(page)
+      await loginAsAdmin(page)
 
     await test.step('Create new questions', async () => {
       await adminQuestions.addDateQuestion({questionName: 'date-q'})

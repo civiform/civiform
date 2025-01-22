@@ -294,10 +294,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     createFakeApplications();
 
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(
-                TimeFilter.EMPTY, /* isMultipleFileUploadEnabled= */ false),
-            DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
     CSVRecord firstApplicationRecord = parser.getRecords().get(0);
 
     assertThat(firstApplicationRecord.get("Create Time")).isEqualTo("2022/04/09 03:07:02 AM PDT");
@@ -315,9 +312,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id,
-                SubmittedApplicationFilter.EMPTY,
-                /* isMultipleFileUploadEnabled= */ true),
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
             DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(0);
@@ -344,10 +339,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeProgramBuilder.newActiveProgram().withQuestion(testQuestionBank.idApplicantId()).build();
 
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(
-                TimeFilter.EMPTY, /* isMultipleFileUploadEnabled= */ false),
-            DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(0);
     assertThat(parser.getHeaderNames())
@@ -378,9 +370,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id,
-                SubmittedApplicationFilter.EMPTY,
-                /* isMultipleFileUploadEnabled= */ true),
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
             DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(1);
@@ -412,10 +402,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(
-                TimeFilter.EMPTY, /* isMultipleFileUploadEnabled= */ false),
-            DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(1);
     assertThat(parser.getHeaderNames())
@@ -1309,8 +1296,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             ImmutableList.of("test-file-key-1", "test-file-key-2"))
         .submit();
 
-    CSVRecord record =
-        getParsedRecords(fakeProgram.id, /* isMultipleFileUploadEnabled= */ true).get(0);
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
 
     assertThat(record.get("applicant file (file_urls)"))
         .isEqualTo(
@@ -1342,8 +1328,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             ImmutableList.of("test-file-key-1", "test-file-key-2"))
         .submit();
 
-    CSVRecord record =
-        getParsedRecords(fakeProgram.id, /* isMultipleFileUploadEnabled= */ true).get(0);
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
 
     assertThat(record.get("applicant household members[0] - household member file (file_urls)"))
         .isEqualTo(
@@ -1361,59 +1346,9 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
-    CSVRecord record =
-        getParsedRecords(fakeProgram.id, /* isMultipleFileUploadEnabled= */ true).get(0);
+    CSVRecord record = getParsedRecords(fakeProgram.id).get(0);
 
     assertThat(record.get("applicant file (file_urls)")).isEmpty();
-  }
-
-  // TODO(#8563): This should be removed when we remove support for single file uploads.
-  @Test
-  public void
-      getProgramAllVersionsCsv_whenMultipleFileUploadDisabled_whenFileUploadQuestionIsAnswered_columnsArePopulated()
-          throws Exception {
-    createFakeQuestions();
-    ProgramModel fakeProgram =
-        FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.fileUploadApplicantFile())
-            .build();
-    FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerFileUploadQuestion(testQuestionBank.fileUploadApplicantFile(), "test-file-key")
-        .submit();
-
-    CSVRecord record =
-        getParsedRecords(fakeProgram.id, /* isMultipleFileUploadEnabled= */ false).get(0);
-
-    assertThat(record.get("applicant file (file_key)"))
-        .isEqualTo("%s/admin/applicant-files/test-file-key".formatted(BASE_URL));
-    assertThat(record.get("applicant file (file_urls)"))
-        .isEqualTo("%s/admin/applicant-files/test-file-key".formatted(BASE_URL));
-
-    // Assert exact set and order of question headers
-    // (file_key is only present when Multiple File Upload is not enabled)
-    Stream<String> resultHeaders =
-        record.getParser().getHeaderNames().stream().filter(h -> !metadataHeaders.contains(h));
-    assertThat(resultHeaders)
-        .containsExactly("applicant file (file_key)", "applicant file (file_urls)");
-  }
-
-  // TODO(#8563): This should be removed when we remove support for single file uploads.
-  @Test
-  public void
-      getProgramAllVersionsCsv_whenMultipleFileUploadDisabled_whenFileUploadQuestionIsNotAnswered_columnsAreEmpty()
-          throws Exception {
-    createFakeQuestions();
-    ProgramModel fakeProgram =
-        FakeProgramBuilder.newActiveProgram()
-            .withQuestion(testQuestionBank.fileUploadApplicantFile())
-            .build();
-    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
-
-    CSVRecord record =
-        getParsedRecords(fakeProgram.id, /* isMultipleFileUploadEnabled= */ false).get(0);
-
-    assertThat(record.get("applicant file (file_urls)")).isEmpty();
-    assertThat(record.get("applicant file (file_key)")).isEmpty();
   }
 
   @Test
@@ -2010,13 +1945,12 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             .withQuestion(testQuestionBank.fileUploadApplicantFile())
             .build();
     FakeApplicationFiller.newFillerFor(fakeProgram)
-        .answerFileUploadQuestion(testQuestionBank.fileUploadApplicantFile(), "test-file-key")
+        .answerFileQuestionWithMultipleUpload(
+            testQuestionBank.fileUploadApplicantFile(), ImmutableList.of("test-file-key"))
         .submit();
 
     CSVRecord record = getParsedRecordsFromDemographicCsv().get(0);
 
-    assertThat(record.get("applicant file (file_key)"))
-        .isEqualTo(fakeHash("%s/admin/applicant-files/test-file-key".formatted(BASE_URL)));
     assertThat(record.get("applicant file (file_urls)"))
         .isEqualTo(fakeHash("%s/admin/applicant-files/test-file-key".formatted(BASE_URL)));
   }
@@ -2160,25 +2094,16 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   }
 
   private ImmutableList<CSVRecord> getParsedRecords(long programId) throws Exception {
-    return getParsedRecords(programId, false);
-  }
-
-  private ImmutableList<CSVRecord> getParsedRecords(
-      long programId, boolean isMultipleFileUploadEnabled) throws Exception {
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramAllVersionsCsv(
-                programId,
-                SubmittedApplicationFilter.EMPTY,
-                /* isMultipleFileUploadEnabled= */ isMultipleFileUploadEnabled),
+            exporterService.getProgramAllVersionsCsv(programId, SubmittedApplicationFilter.EMPTY),
             DEFAULT_FORMAT);
     return ImmutableList.copyOf(parser.getRecords());
   }
 
   private ImmutableList<CSVRecord> getParsedRecordsFromDemographicCsv() throws Exception {
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(TimeFilter.EMPTY, false), DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
     return ImmutableList.copyOf(parser.getRecords());
   }
 }

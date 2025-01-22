@@ -41,7 +41,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ADDRESS)
-            .getSampleJsonEntries(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -83,7 +83,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CURRENCY)
-            .getSampleJsonEntries(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -100,7 +100,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
-            .getSampleJsonEntries(DATE_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(DATE_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyEntriesOf(
@@ -117,7 +117,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.EMAIL)
-            .getSampleJsonEntries(EMAIL_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(EMAIL_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -134,7 +134,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.FILEUPLOAD)
-            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId(), true);
+            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -149,32 +149,12 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
-  public void samplesFileUploadQuestion_whenMultipleFileDisabled_showsBothFileKeys() {
-    @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
-        questionJsonSamplerFactory
-            .create(QuestionType.FILEUPLOAD)
-            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId(), false);
-
-    assertThat(entries)
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(
-                Path.create("applicant.sample_file_upload_question.question_type"),
-                Optional.of("FILE_UPLOAD"),
-                Path.create("applicant.sample_file_upload_question.file_key"),
-                Optional.of("http://localhost:9000/admin/applicant-files/my-file-key"),
-                Path.create("applicant.sample_file_upload_question.file_urls"),
-                Optional.of(
-                    Arrays.asList("http://localhost:9000/admin/applicant-files/my-file-key"))));
-  }
-
-  @Test
   public void samplesIdQuestion() {
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ID)
-            .getSampleJsonEntries(ID_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(ID_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -191,7 +171,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CHECKBOX)
-            .getSampleJsonEntries(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -208,7 +188,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NAME)
-            .getSampleJsonEntries(NAME_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(NAME_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -231,7 +211,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NUMBER)
-            .getSampleJsonEntries(NUMBER_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(NUMBER_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -248,7 +228,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.PHONE)
-            .getSampleJsonEntries(PHONE_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(PHONE_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -265,7 +245,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.RADIO_BUTTON)
-            .getSampleJsonEntries(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -282,7 +262,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.TEXT)
-            .getSampleJsonEntries(TEXT_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(TEXT_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -299,7 +279,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.STATIC)
-            .getSampleJsonEntries(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries).isEmpty();
   }
@@ -311,7 +291,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ENUMERATOR)
-            .getSampleJsonEntries(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries).isEmpty();
   }
@@ -323,8 +303,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
-            .getSampleJsonEntries(
-                dateEnumeratedQuestionDefinition(1L).withPopulatedTestId(), false);
+            .getSampleJsonEntries(dateEnumeratedQuestionDefinition(1L).withPopulatedTestId());
 
     assertThat(entries).isEmpty();
   }

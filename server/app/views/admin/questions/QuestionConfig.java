@@ -45,8 +45,7 @@ public final class QuestionConfig {
 
   private QuestionConfig() {}
 
-  public static Optional<DivTag> buildQuestionConfig(
-      QuestionForm questionForm, Messages messages, boolean multipleFileUpload) {
+  public static Optional<DivTag> buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -82,12 +81,10 @@ public final class QuestionConfig {
                 .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
                 .getContainer());
       case FILEUPLOAD:
-        return multipleFileUpload
-            ? Optional.of(
-                config
-                    .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
-                    .getContainer())
-            : Optional.empty();
+        return Optional.of(
+            config
+                .addFileUploadQuestionFields((FileUploadQuestionForm) questionForm)
+                .getContainer());
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended

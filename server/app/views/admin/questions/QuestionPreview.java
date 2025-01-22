@@ -40,7 +40,6 @@ public final class QuestionPreview {
     ApplicantQuestionRendererParams.Builder paramsBuilder =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setMultipleFileUploadEnabled(settingsManifest.getMultipleFileUploadEnabled(request))
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS);
     if (type == QuestionType.NAME) {
       params =

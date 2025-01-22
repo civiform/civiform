@@ -20,4 +20,9 @@ export class ApplicantProgramOverview {
       }),
     ).toBeVisible()
   }
+
+  async expectFirstPageOfApplication(): Promise<void> {
+    expect(await this.page.title()).toBe('test — 1 of 2')
+    await expect(this.page.getByText('Screen 1')).toBeVisible()
+  }
 }
