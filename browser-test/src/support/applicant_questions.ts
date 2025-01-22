@@ -525,6 +525,9 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  /**
+   * @deprecated
+   */
   async clickSkip() {
     await this.page.click('text="Skip"')
     await waitForPageJsLoad(this.page)

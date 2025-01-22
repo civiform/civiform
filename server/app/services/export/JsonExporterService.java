@@ -65,13 +65,12 @@ public final class JsonExporterService {
   public String export(
       ProgramDefinition programDefinition,
       SubmitTimeSequentialAccessPaginationSpec paginationSpec,
-      SubmittedApplicationFilter filters,
-      boolean multipleFileUploadEnabled) {
+      SubmittedApplicationFilter filters) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), paginationSpec, filters);
 
-    return exportPage(programDefinition, paginationResult, multipleFileUploadEnabled);
+    return exportPage(programDefinition, paginationResult);
   }
 
   /**
@@ -83,9 +82,7 @@ public final class JsonExporterService {
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition,
-      PaginationResult<ApplicationModel> paginationResult,
-      boolean multipleFileUploadEnabled) {
+      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
@@ -115,7 +112,7 @@ public final class JsonExporterService {
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
               .create(applicantQuestion.getType())
-              .getAllJsonEntries(applicantQuestion.getQuestion(), multipleFileUploadEnabled);
+              .getAllJsonEntries(applicantQuestion.getQuestion());
       entriesBuilder.putAll(questionEntries);
     }
     CfJsonDocumentContext template = new CfJsonDocumentContext();
@@ -131,9 +128,7 @@ public final class JsonExporterService {
             .map(
                 app ->
                     buildApplicationExportData(
-                        app,
-                        programDefinitionsForAllVersions.get(app.getProgram().id),
-                        multipleFileUploadEnabled))
+                        app, programDefinitionsForAllVersions.get(app.getProgram().id)))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
@@ -165,9 +160,7 @@ public final class JsonExporterService {
   }
 
   private ApplicationExportData buildApplicationExportData(
-      ApplicationModel application,
-      ProgramDefinition programDefinition,
-      boolean multipleFileUploadEnabled) {
+      ApplicationModel application, ProgramDefinition programDefinition) {
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
         .getReadOnlyApplicantProgramService(application, programDefinition)
@@ -180,9 +173,7 @@ public final class JsonExporterService {
               // the json entries for any Question in one line.
               @SuppressWarnings("unchecked")
               ImmutableMap<Path, Optional<?>> questionEntries =
-                  presenterFactory
-                      .create(aq.getType())
-                      .getAllJsonEntries(aq.getQuestion(), multipleFileUploadEnabled);
+                  presenterFactory.create(aq.getType()).getAllJsonEntries(aq.getQuestion());
               entriesBuilder.putAll(questionEntries);
             });
 

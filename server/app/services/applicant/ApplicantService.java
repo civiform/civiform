@@ -652,10 +652,7 @@ public final class ApplicantService {
                             notifyProgramAdminsFuture,
                             notifyApplicantFuture,
                             notifyTiSubmitterFuture,
-                            updateStoredFileAclsForSubmit(
-                                    applicantId,
-                                    programId,
-                                    settingsManifest.getMultipleFileUploadEnabled(request))
+                            updateStoredFileAclsForSubmit(applicantId, programId)
                                 .toCompletableFuture())
                         .thenApplyAsync(
                             (ignoreVoid) -> application, classLoaderExecutionContext.current());
@@ -714,15 +711,14 @@ public final class ApplicantService {
    * When an application is submitted, we store the name of its program in the ACLs for each file in
    * the application.
    */
-  private CompletionStage<Void> updateStoredFileAclsForSubmit(
-      long applicantId, long programId, boolean multipleFileUploadEnabled) {
+  private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                applicantService -> applicantService.getStoredFileKeys(multipleFileUploadEnabled),
+                applicantService -> applicantService.getStoredFileKeys(),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
                 storedFileRepository::lookupFiles, classLoaderExecutionContext.current())

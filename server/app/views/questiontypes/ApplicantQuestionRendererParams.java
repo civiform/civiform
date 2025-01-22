@@ -61,8 +61,7 @@ public abstract class ApplicantQuestionRendererParams {
   public static Builder builder() {
     return new AutoValue_ApplicantQuestionRendererParams.Builder()
         .setAutofocus(AutoFocusTarget.NONE)
-        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
-        .setMultipleFileUploadEnabled(false);
+        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS);
   }
 
   public abstract Messages messages();
@@ -72,8 +71,6 @@ public abstract class ApplicantQuestionRendererParams {
   public abstract Optional<Boolean> isNameSuffixEnabled();
 
   public abstract ErrorDisplayMode errorDisplayMode();
-
-  public abstract boolean multipleFileUploadEnabled();
 
   public boolean shouldShowErrors() {
     return ErrorDisplayMode.shouldShowErrors(errorDisplayMode());
@@ -119,8 +116,6 @@ public abstract class ApplicantQuestionRendererParams {
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
     public abstract Builder setAutofocus(AutoFocusTarget autofocus);
-
-    public abstract Builder setMultipleFileUploadEnabled(boolean multipleFileUploadEnabled);
 
     public abstract ApplicantQuestionRendererParams build();
   }
