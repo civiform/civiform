@@ -176,8 +176,7 @@ public final class AdminApplicationController extends CiviFormController {
         jsonExporterService.export(
             program,
             SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
-            filters,
-            settingsManifest.getMultipleFileUploadEnabled(request));
+            filters);
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -215,9 +214,7 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv =
-          exporterService.getProgramAllVersionsCsv(
-              programId, filters, settingsManifest.getMultipleFileUploadEnabled(request));
+      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -268,9 +265,7 @@ public final class AdminApplicationController extends CiviFormController {
             .setUntilTime(parseDateTimeFromQuery(dateConverter, untilDate, RelativeTimeOfDay.END))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv =
-        exporterService.getDemographicsCsv(
-            submitTimeFilter, /* isMultipleFileUploadEnabled= */ false);
+    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));

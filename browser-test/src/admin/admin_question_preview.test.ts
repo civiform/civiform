@@ -12,18 +12,7 @@ test.describe('File upload question preview', () => {
       })
     })
 
-    await test.step('Expect preview renders properly multi-file disabled', async () => {
-      await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
-
-      await validateScreenshot(
-        page.locator('#sample-question'),
-        'file-question-preview-single-file',
-      )
-    })
-
-    await enableFeatureFlag(page, 'multiple_file_upload_enabled')
-
-    await test.step('Expect preview renders properly multi-file enabled', async () => {
+    await test.step('Expect preview renders properly', async () => {
       await adminQuestions.gotoQuestionEditPage(fileUploadQuestionName)
 
       await validateScreenshot(

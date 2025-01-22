@@ -310,7 +310,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         adminPrograms,
       }) => {
         await test.step('Add file upload question and publish', async () => {
-          await enableFeatureFlag(page, 'multiple_file_upload_enabled')
           await loginAsAdmin(page)
 
           await adminQuestions.addFileUploadQuestion({
@@ -357,8 +356,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     test.fixme(
       'shows correct hint text based on max files',
       async ({applicantQuestions, page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'multiple_file_upload_enabled')
-
         await test.step('Add file upload questions and publish', async () => {
           await loginAsAdmin(page)
 
@@ -434,7 +431,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     const fileUploadQuestionText = 'Required file upload question'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'multiple_file_upload_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addFileUploadQuestion({

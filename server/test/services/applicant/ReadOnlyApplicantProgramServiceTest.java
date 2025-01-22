@@ -86,30 +86,6 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getStoredFileKeys_includesAnsweredFileQuestions() {
-    QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
-    programDefinition =
-        ProgramBuilder.newDraftProgram("My Program")
-            .withLocalizedName(Locale.GERMAN, "Mein Programm")
-            .withBlock("Block one")
-            .withBlock("file-one")
-            .withRequiredQuestionDefinition(fileQuestionDefinition)
-            .buildDefinition();
-
-    QuestionAnswerer.answerFileQuestion(
-        applicantData,
-        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
-        "file-key");
-
-    ReadOnlyApplicantProgramService service =
-        new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-
-    assertThat(service.getStoredFileKeys(false)).containsExactly("file-key");
-  }
-
-  @Test
   public void getStoredFileKeys_worksForMultipleFileUploads() {
     QuestionDefinition fileQuestionDefinition =
         testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
@@ -130,7 +106,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
 
-    assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
+    assertThat(service.getStoredFileKeys()).containsOnly("file-key", "file-key-2");
   }
 
   @Test
@@ -159,26 +135,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
 
-    assertThat(service.getStoredFileKeys(true)).containsOnly("file-key", "file-key-2");
-  }
-
-  @Test
-  public void getStoredFileKeys_doesNotIncludeUnansweredFileQuestions() {
-    QuestionDefinition fileQuestionDefinition =
-        testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
-    programDefinition =
-        ProgramBuilder.newDraftProgram("My Program")
-            .withLocalizedName(Locale.GERMAN, "Mein Programm")
-            .withBlock("Block one")
-            .withBlock("file-one")
-            .withRequiredQuestionDefinition(fileQuestionDefinition)
-            .buildDefinition();
-
-    ReadOnlyApplicantProgramService service =
-        new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-
-    assertThat(service.getStoredFileKeys(false)).isEmpty();
+    assertThat(service.getStoredFileKeys()).containsOnly("file-key", "file-key-2");
   }
 
   @Test

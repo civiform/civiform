@@ -1095,7 +1095,12 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.fileupload").join(Scalar.FILE_KEY).toString(), fileKey)
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                fileKey)
             .build();
 
     var fileUploadQuestion =

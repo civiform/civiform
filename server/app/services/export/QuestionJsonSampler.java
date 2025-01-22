@@ -40,7 +40,7 @@ import services.question.types.QuestionType;
 public interface QuestionJsonSampler<Q extends AbstractQuestion> {
 
   default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
-      QuestionDefinition questionDefinition, boolean multipleFileUploadEnabled) {
+      QuestionDefinition questionDefinition) {
     if (questionDefinition.getEnumeratorId().isPresent()) {
       // TODO(#5238): support enumerated questions.
       return ImmutableMap.of();
@@ -53,24 +53,20 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             programQuestionDefinition, applicant, applicantData, Optional.empty());
-    addSampleData(applicantData, applicantQuestion, multipleFileUploadEnabled);
+    addSampleData(applicantData, applicantQuestion);
 
     Q question = getQuestion(applicantQuestion);
     // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
-        getJsonPresenter().getAllJsonEntries(question, multipleFileUploadEnabled);
+    ImmutableMap<Path, Optional<?>> entries = getJsonPresenter().getAllJsonEntries(question);
 
     return entries;
   }
 
   Q getQuestion(ApplicantQuestion applicantQuestion);
 
-  void addSampleData(
-      ApplicantData applicantData,
-      ApplicantQuestion applicantQuestion,
-      boolean multipleFileUploadEnabled);
+  void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion);
 
   QuestionJsonPresenter getJsonPresenter();
 
@@ -177,10 +173,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerAddressQuestion(
           applicantData,
           applicantQuestion.getContextualizedPath(),
@@ -220,10 +213,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerCurrencyQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), "123.45");
     }
@@ -248,10 +238,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerDateQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), "2023-01-02");
     }
@@ -276,10 +263,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerEmailQuestion(
           applicantData,
           applicantQuestion.getContextualizedPath(),
@@ -296,7 +280,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
 
     @Override
     public ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
-        QuestionDefinition questionDefinition, boolean multipleFileUploadEnabled) {
+        QuestionDefinition questionDefinition) {
       return ImmutableMap.of();
     }
 
@@ -306,10 +290,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       // no-op
     }
 
@@ -333,19 +314,11 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
-      if (multipleFileUploadEnabled) {
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-            applicantData,
-            applicantQuestion.getContextualizedPath(),
-            ImmutableList.of("my-file-key-1", "my-file-key-2"));
-      } else {
-        QuestionAnswerer.answerFileQuestion(
-            applicantData, applicantQuestion.getContextualizedPath(), "my-file-key");
-      }
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+          applicantData,
+          applicantQuestion.getContextualizedPath(),
+          ImmutableList.of("my-file-key-1", "my-file-key-2"));
     }
 
     @Override
@@ -368,10 +341,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerIdQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), "12345");
     }
@@ -398,10 +368,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       ImmutableList<LocalizedQuestionOption> questionOptions =
           applicantQuestion.createMultiSelectQuestion().getOptions();
 
@@ -442,10 +409,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerNameQuestion(
           applicantData,
           applicantQuestion.getContextualizedPath(),
@@ -476,10 +440,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerNumberQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), 12321);
     }
@@ -504,10 +465,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerPhoneQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), "US", "(214)-367-3764");
     }
@@ -535,10 +493,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       ImmutableList<LocalizedQuestionOption> questionOptions =
           applicantQuestion.createSingleSelectQuestion().getOptions();
 
@@ -569,10 +524,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     @Override
-    public void addSampleData(
-        ApplicantData applicantData,
-        ApplicantQuestion applicantQuestion,
-        boolean multipleFileUploadEnabled) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       QuestionAnswerer.answerTextQuestion(
           applicantData, applicantQuestion.getContextualizedPath(), "I love CiviForm!");
     }
