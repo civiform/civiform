@@ -260,9 +260,11 @@ public enum MessageKey {
   LINK_ALL_DONE("link.allDone"),
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
+  LINK_CREATE_ACCOUNT_FROM_OVERVIEW("link.createAccountFromOverview"), // North Star only
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
+  LINK_START_AS_GUEST("link.startAsGuest"), // North Star only
   LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
   LABEL_AGENCY_IDENTIFIER("label.agencyIdentifier"),
   LABEL_GUEST_SESSION_ALERT("label.guestSessionAlert"),
