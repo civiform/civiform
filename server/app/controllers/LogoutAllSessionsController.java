@@ -3,7 +3,6 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
-import auth.ClientIpResolver;
 import auth.ProfileUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -27,17 +26,13 @@ public class LogoutAllSessionsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;
   private final AccountRepository accountRepository;
-  private final ClientIpResolver clientIpResolver;
 
   @Inject
   public LogoutAllSessionsController(
-      ProfileUtils profileUtils,
-      AccountRepository accountRepository,
-      ClientIpResolver clientIpResolver) {
+      ProfileUtils profileUtils, AccountRepository accountRepository) {
 
     this.profileUtils = checkNotNull(profileUtils);
     this.accountRepository = checkNotNull(accountRepository);
-    this.clientIpResolver = checkNotNull(clientIpResolver);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -69,42 +64,8 @@ public class LogoutAllSessionsController extends Controller {
     return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
   }
 
-  // public CompletionStage<Result> logoutFromEmail(Http.Request request, String email) {
-  //   String remoteAddress = clientIpResolver.resolveClientIp(request);
-  //   logger.info("Received back channel logout request forwarded for resolved IP: {}",
-  // remoteAddress);
-  //   logger.info("Received back channel logout request remote address: {}",
-  // request.remoteAddress());
-  //   accountRepository
-  //       .lookupAccountByEmailAsync(email)
-  //       .thenAccept(
-  //           maybeAccount -> {
-  //             if (maybeAccount.isPresent()) {
-  //               AccountModel account = maybeAccount.get();
-  //               logger.debug("Found account for back channel logout: {}", account.id);
-  //               logger.info("Found authority id for back channel logout: {}",
-  // account.getAuthorityId());
-  //               account.clearActiveSessions();
-  //               account.save();
-  //             } else {
-  //               logger.warn("No account found for back channel logout");
-  //             }
-  //           })
-  //       .exceptionally(
-  //           e -> {
-  //             logger.error(e.getMessage(), e);
-  //             return null;
-  //           });
-
-  //   // Redirect to the landing page
-  //   return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
-  // }
-
   public CompletionStage<Result> logoutFromAuthorityId(Http.Request request, String authorityId) {
     try {
-      String remoteAddress = clientIpResolver.resolveClientIp(request);
-      logger.info(
-          "Received back channel logout request forwarded for resolved IP: {}", remoteAddress);
       Optional<AccountModel> maybeAccount =
           accountRepository.lookupAccountByAuthorityId(authorityId);
 
