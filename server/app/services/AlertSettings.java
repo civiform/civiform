@@ -43,6 +43,6 @@ public record AlertSettings(
   /** Sanitized HTML for the alert text that processes Markdown. */
   public String getFormattedAlertText(String text) {
     return TextFormatter.formatTextToSanitizedHTML(
-        text, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+        text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
   }
 }
