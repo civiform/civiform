@@ -29,6 +29,11 @@ See the radio-option below as an example.
   font-weight: font-weight('bold');
 }
 
+// Backwards compatible step for migrating tailwind
+.text-red-600 {
+  @include u-color('error-dark');
+}
+
 // -- start
 // Backwards compatible step for migrating tailwind to keep some SVGs correctly
 // sized. This is shared in admin and applicant sides so until we rewrite SVG
