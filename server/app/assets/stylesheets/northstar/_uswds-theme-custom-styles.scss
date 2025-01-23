@@ -307,6 +307,11 @@ h1.usa-step-indicator__heading {
   max-width: 480px;
 }
 
+// Custom gap for use on flexbox since there isn't one currently defined in default USWDS utility classes.
+.cf-flex-gap {
+  gap: units(1);
+}
+
 // Let the body expand to fill the entire viewport
 body {
   display: flex;

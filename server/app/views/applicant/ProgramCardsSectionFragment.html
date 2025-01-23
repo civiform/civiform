@@ -60,13 +60,10 @@
     <div class="usa-card__body">
       <div
         th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
-        class="display-flex flex-wrap"
+        class="display-flex flex-wrap cf-flex-gap"
       >
         <th:block th:each="category : ${card.categories()}">
-          <div
-            th:text="${category}"
-            class="usa-tag margin-bottom-1 margin-right-105"
-          ></div>
+          <div th:text="${category}" class="usa-tag"></div>
         </th:block>
       </div>
 
