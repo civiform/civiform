@@ -439,6 +439,10 @@ title.programOverview=‫{0} - نظرة عامة على البرنامج
 heading.applicationSteps=How to apply
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Apply for {0} program
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=Start application with an account
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=Start application as a guest
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
