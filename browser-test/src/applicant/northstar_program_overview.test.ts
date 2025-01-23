@@ -71,6 +71,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         )
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
+      await logout(page)
     })
 
     await page.goto(`/programs/${programName}`)
