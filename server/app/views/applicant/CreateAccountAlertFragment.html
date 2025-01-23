@@ -1,7 +1,7 @@
 <!-- Element that looks similar to a USWDS alert. It has more customization,
      such as the "Create account" button. -->
 <div
-  th:fragment="createAccount(createAccountLink, loginLink)"
+  th:fragment="createAccount(createAccountLink, loginLink, createAccountLinkText, loginLinkText)"
   class="usa-alert usa-alert--info"
 >
   <div class="usa-alert__body">
@@ -13,13 +13,12 @@
 
     <div class="grid-row">
       <div class="grid-col-auto">
-        <button
-          type="button"
+        <a
           class="usa-button usa-button--inverse"
-          th:text="#{button.createAnAccount}"
+          th:text="${createAccountLinkText}"
           id="create-account"
-          th:attr="data-redirect-to=${createAccountLink}"
-        ></button>
+          th:href="${createAccountLink}"
+        ></a>
       </div>
     </div>
 
@@ -29,7 +28,7 @@
       <a
         class="usa-link"
         href="javascript:void(0);"
-        th:text="#{content.loginToExistingAccount}"
+        th:text="${loginLinkText}"
         th:href="${loginLink}"
       ></a>
     </p>

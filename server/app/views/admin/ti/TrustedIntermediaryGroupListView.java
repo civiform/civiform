@@ -23,7 +23,6 @@ import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.List;
 import models.TrustedIntermediaryGroupModel;
-import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -37,7 +36,6 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.QuestionSortOption;
 import views.components.SelectWithLabel;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -73,17 +71,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                             ImmutableList.of(
                                 QuestionSortOption.TI_NAME, QuestionSortOption.TI_NUM_MEMBERS))),
                 renderTiGroupCards(tis, request));
-
-    if (request.flash().get(FlashKey.ERROR).isPresent()) {
-      LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get(FlashKey.ERROR).get());
-      String error = request.flash().get(FlashKey.ERROR).get();
-      htmlBundle.addToastMessages(
-          ToastMessage.errorNonLocalized(error)
-              .setId("warning-message-ti-form-fill")
-              .setIgnorable(false)
-              .setDuration(0));
-    }
+    addToastMessagesOnError(
+        htmlBundle, request.flash(), this.getClass(), "warning-message-ti-form-fill");
     return layout.renderCentered(htmlBundle);
   }
 
