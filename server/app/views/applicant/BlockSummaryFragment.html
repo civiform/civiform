@@ -13,7 +13,7 @@
       ></a>
     </div>
 
-    <ul class="zero-padding">
+    <ul class="zero-padding usa-list usa-list--unstyled">
       <li th:each="answerData : ${blockSummary.answerData()}">
         <div
           th:replace="~{applicant/QuestionSummaryFragment :: questionSummaryFragment(${answerData})}"

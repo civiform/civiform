@@ -1274,28 +1274,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
+    Optional<BlockDefinition> blockDefinition;
+    try {
+      blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
     if (settingsManifest.getNorthStarApplicantUi(request)) {
-      NorthStarApplicantIneligibleView.Params params =
-          NorthStarApplicantIneligibleView.Params.builder()
-              .setRequest(request)
-              .setApplicantId(applicantId)
-              .setProfile(profile)
-              .setApplicantPersonalInfo(personalInfo)
-              .setProgramDefinition(programDefinition)
-              .setRoApplicantProgramService(roApplicantProgramService)
-              .setMessages(messagesApi.preferred(request))
-              .build();
       return supplyAsync(
-          () -> ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML));
+          () -> {
+            NorthStarApplicantIneligibleView.Params params =
+                NorthStarApplicantIneligibleView.Params.builder()
+                    .setRequest(request)
+                    .setApplicantId(applicantId)
+                    .setProfile(profile)
+                    .setApplicantPersonalInfo(personalInfo)
+                    .setProgramDefinition(programDefinition)
+                    .setBlockDefinition(blockDefinition)
+                    .setRoApplicantProgramService(roApplicantProgramService)
+                    .setMessages(messagesApi.preferred(request))
+                    .build();
+            return ok(northStarApplicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
+          });
     } else {
       return supplyAsync(
           () -> {
-            Optional<BlockDefinition> blockDefinition = Optional.empty();
-            try {
-              blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-            } catch (ProgramBlockDefinitionNotFoundException e) {
-              throw new RuntimeException(e);
-            }
             return ok(
                 ineligibleBlockView.render(
                     request,

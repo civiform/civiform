@@ -20,6 +20,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
@@ -62,12 +63,24 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     ProgramDefinition program = params.programDefinition();
 
+    Optional<BlockDefinition> block = params.blockDefinition();
+
     Locale userLocale = params.messages().lang().toLocale();
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
 
     String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
     context.setVariable("programDescription", localizedProgramDescription);
+
+    String localizedEligibilityMsg = "";
+    if (!block.isEmpty()) {
+      BlockDefinition blockDefinition = block.orElseThrow();
+      localizedEligibilityMsg =
+          blockDefinition
+              .localizedEligibilityMessage()
+              .map(localizedStrings -> localizedStrings.maybeGet(userLocale).orElse(""))
+              .orElse("");
+    }
 
     AlertSettings eligibilityAlertSettings =
         eligibilityAlertSettingsCalculator.calculate(
@@ -77,6 +90,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
             true,
             true,
             program.id(),
+            localizedEligibilityMsg,
             params.roApplicantProgramService().getIneligibleQuestions());
     context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
 
@@ -120,6 +134,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     abstract ProgramDefinition programDefinition();
 
+    abstract Optional<BlockDefinition> blockDefinition();
+
     abstract ReadOnlyApplicantProgramService roApplicantProgramService();
 
     abstract Messages messages();
@@ -136,6 +152,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
 
       public abstract Builder setProgramDefinition(ProgramDefinition programDefinition);
+
+      public abstract Builder setBlockDefinition(Optional<BlockDefinition> blockDefinition);
 
       public abstract Builder setRoApplicantProgramService(
           ReadOnlyApplicantProgramService rOnlyApplicantProgramService);

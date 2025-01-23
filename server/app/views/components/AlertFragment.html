@@ -34,7 +34,10 @@
     ></h6>
 
     <div th:if="${alertSettings.unescapedDescription()} == true">
-      <p class="usa-alert__text" th:utext="${alertSettings.text}"></p>
+      <p
+        class="usa-alert__text"
+        th:utext="${alertSettings.getFormattedAlertText(alertSettings.text)}"
+      ></p>
     </div>
     <div th:if="${alertSettings.unescapedDescription()} == false">
       <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
