@@ -75,7 +75,7 @@ public class LogoutAllSessionsController extends Controller {
         account.clearActiveSessions();
         account.save();
       } else {
-        logger.warn("No account found for back channel logout with authority id: {}", authorityId);
+        logger.warn("No account found for back channel logout with authority ID");
       }
 
     } catch (RuntimeException e) {
