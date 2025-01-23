@@ -8,7 +8,7 @@ import {
 } from '../../support'
 import {BASE_URL} from '../../support/config'
 
-test.describe('file upload applicant flow', () => {
+test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
   test.beforeEach(async ({page}) => {
     await seedQuestions(page)
     await page.goto(BASE_URL)
