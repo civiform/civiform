@@ -37,7 +37,42 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   test('can view program overview', async ({
     page,
     applicantProgramOverview: applicantProgramOverview,
+    adminPrograms,
   }) => {
+    await test.step('edit the long description and application step description so that they have markdown', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.goToProgramDescriptionPage(
+        programName,
+        /* createNewDraft= */ true,
+      )
+      await page
+        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .fill(
+          'This is the _program long description_ with markdown\n' +
+            '[This is a link](https://www.example.com)\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n' +
+            '\n' +
+            'There are some empty lines below this that should be preserved\n' +
+            '\n' +
+            '\n' +
+            'Autodetected link: https://www.example.com\n',
+        )
+
+      await page
+        .getByRole('textbox', {name: 'Step 1 description *'})
+        .fill(
+          'This is the _application step_ with markdown\n' +
+            'Autodetected link: https://www.example.com\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n',
+        )
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+    })
+
     await page.goto(`/programs/${programName}`)
 
     await applicantProgramOverview.expectProgramOverviewPage(programName)

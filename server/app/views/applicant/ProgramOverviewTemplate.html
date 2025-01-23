@@ -32,7 +32,7 @@
                 th:text="${applicationStep.getKey()}"
                 class="usa-process-list__heading"
               ></h3>
-              <p th:text="${applicationStep.getValue()}"></p>
+              <p th:utext="${applicationStep.getValue()}"></p>
             </li>
           </ol>
           <div
