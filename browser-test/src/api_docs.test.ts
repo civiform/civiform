@@ -44,106 +44,6 @@ test.describe('Viewing API docs', () => {
         page.getByRole('complementary').getByRole('code'),
       ).toContainText('"program_name" : "comprehensive-sample-program"')
 
-      await validateScreenshot(page, 'comprehensive-program-active-version')
-    })
-
-    await test.step('Select a different program and verify minimal sample program', async () => {
-      await page
-        .getByRole('combobox', {name: 'Select a program'})
-        .selectOption('minimal-sample-program')
-
-      await waitForPageJsLoad(page)
-
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "minimal-sample-program"')
-
-      await validateScreenshot(page, 'minimal-program-active-version')
-    })
-  })
-
-  test('Views active API docs without logging in', async ({
-    page,
-    adminPrograms,
-    context,
-  }) => {
-    await page.goto('/')
-    await loginAsAdmin(page)
-
-    await adminPrograms.publishAllDrafts()
-
-    const freshPage =
-      await test.step('Log out and clear cookies before accessing API docs', async () => {
-        const apiDocsUrl = await page.getByText('API docs').getAttribute('href')
-
-        await logout(page)
-        await context.clearCookies()
-        const freshPage = await context.newPage()
-        await freshPage.goto(apiDocsUrl!)
-        await waitForPageJsLoad(freshPage)
-        return freshPage
-      })
-
-    await test.step('Verify default comprehensive sample program', async () => {
-      await expect(
-        freshPage.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "comprehensive-sample-program"')
-
-      await validateScreenshot(
-        freshPage,
-        'comprehensive-program-active-version-logged-out',
-      )
-    })
-
-    await test.step('Select a different program and verify minimal sample program', async () => {
-      await freshPage.selectOption('#select-slug', {
-        value: 'minimal-sample-program',
-      })
-
-      await waitForPageJsLoad(freshPage)
-
-      expect(await freshPage.textContent('html')).toContain(
-        '"program_name" : "minimal-sample-program"',
-      )
-      await validateScreenshot(
-        freshPage,
-        'minimal-program-active-version-logged-out',
-      )
-    })
-  })
-
-  // TODO(#8362): Remove the duplicate 'Views active API docs with multiple upload', and stop enabling this flag, once the flag is removed.
-  test('Views active API docs with multiple upload', async ({
-    page,
-    adminPrograms,
-    adminQuestions,
-  }) => {
-    await enableFeatureFlag(page, 'multiple_file_upload_enabled')
-    await page.goto('/')
-    await loginAsAdmin(page)
-
-    await test.step('Add additional option to checkbox to ensure all historical options are shown', async () => {
-      await adminPrograms.publishAllDrafts()
-      await adminQuestions.gotoQuestionEditPage('Sample Checkbox Question')
-      await adminQuestions.deleteMultiOptionAnswer(0)
-
-      await adminQuestions.addMultiOptionAnswer({
-        adminName: 'spirograph',
-        text: 'spirograph',
-      })
-
-      await adminQuestions.clickSubmitButtonAndNavigate('Update')
-      await adminPrograms.publishAllDrafts()
-    })
-
-    await page.getByRole('link', {name: 'API docs'}).click()
-    await waitForPageJsLoad(page)
-
-    await test.step('Verify default comprehensive sample program', async () => {
-      await expect(
-        page.getByRole('complementary').getByRole('code'),
-      ).toContainText('"program_name" : "comprehensive-sample-program"')
-
       await validateScreenshot(
         page,
         'comprehensive-program-active-version-with-multiple-upload',
@@ -168,13 +68,11 @@ test.describe('Viewing API docs', () => {
     })
   })
 
-  // TODO(#8362): Remove the duplicate 'Views active API docs without logging in with multiple upload', and stop enabling this flag, once the flag is removed.
-  test('Views active API docs without logging in with multiple upload', async ({
+  test('Views active API docs without logging in', async ({
     page,
     adminPrograms,
     context,
   }) => {
-    await enableFeatureFlag(page, 'multiple_file_upload_enabled')
     await page.goto('/')
     await loginAsAdmin(page)
 

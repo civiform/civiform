@@ -972,20 +972,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PROGRAM_MIGRATION_ENABLED");
   }
 
+  /** When enabled, admins will be able to select many applications for status updates */
+  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
+    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
+  }
+
   /**
    * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
    * screen.
    */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) When enabled, admins will be able to select many applications for
-   * status updates
-   */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
   }
 
   /**
@@ -1000,11 +997,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enables filtering programs by category on the homepage */
   public boolean getProgramFilteringEnabled(RequestHeader request) {
     return getBool("PROGRAM_FILTERING_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload questions. */
-  public boolean getMultipleFileUploadEnabled(RequestHeader request) {
-    return getBool("MULTIPLE_FILE_UPLOAD_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables suffix dropdown field in name question. */
@@ -2085,7 +2077,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables migrating programs between deployed environments",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "BULK_STATUS_UPDATE_ENABLED",
+                      "When enabled, admins will be able to select many applications for status"
+                          + " updates",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Experimental",
           SettingsSection.create(
               "Experimental",
@@ -2097,13 +2096,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
                           + " eligibility message per screen.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "BULK_STATUS_UPDATE_ENABLED",
-                      "(NOT FOR PRODUCTION USE) When enabled, admins will be able to select many"
-                          + " applications for status updates",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
@@ -2120,13 +2112,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PROGRAM_FILTERING_ENABLED",
                       "(NOT FOR PRODUCTION USE) Enables filtering programs by category on the"
                           + " homepage",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "MULTIPLE_FILE_UPLOAD_ENABLED",
-                      "(NOT FOR PRODUCTION USE) Enables multiple file uploads for file upload"
-                          + " questions.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),

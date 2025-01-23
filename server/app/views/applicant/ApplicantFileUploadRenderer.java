@@ -2,35 +2,26 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.applicant.ApplicantRequestedAction.NEXT_BLOCK;
-import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
-import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
-import static views.fileupload.FileUploadViewStrategy.createFileTooLargeError;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.nimbusds.jose.shaded.gson.JsonArray;
-import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import j2html.TagCreator;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Optional;
 import java.util.OptionalInt;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
 import play.mvc.Http.HttpVerbs;
 import services.AlertType;
 import services.MessageKey;
@@ -59,35 +50,11 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
-  private static final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
-  private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
-  private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
-
   private static final String FILE_UPLOADING_TAG_CLASS = "cf-file-uploading-tag";
 
   // Class to apply to elements which should be disabled when an upload is triggered. This logic is
   // implemented in file_upload.ts
   private static final String DISABLED_WHEN_UPLOADING_CLASS = "cf-disable-when-uploading";
-
-  /**
-   * A data key that points to a redirect URL that should be used if the user has uploaded a file.
-   * Should be set on each action button.
-   *
-   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
-   */
-  private static final String REDIRECT_WITH_FILE_KEY = "redirect-with-file";
-
-  /**
-   * A data key that points to a redirect URL that should be used if the user has *not* uploaded a
-   * file. This should be set on any button whose action should be permitted even if the user hasn't
-   * uploaded a file. Right now, we allow users to navigate to the review page and previous page if
-   * they haven't uploaded a file, but we *don't* allow them to navigate to the next page without
-   * uploading a file. (Note that optional file upload questions have a separate Skip button -- see
-   * {@link #maybeRenderSkipOrDeleteButton}.)
-   *
-   * <p>Should be kept in sync with {@link assets.javascripts.file_upload.ts}.
-   */
-  private static final String REDIRECT_WITHOUT_FILE_KEY = "redirect-without-file";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final ApplicantRoutes applicantRoutes;
@@ -196,20 +163,16 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     result.with(
         fileUploadViewStrategy.additionalFileUploadFormInputs(params.signedFileUploadRequest()));
 
-    if (params.multipleFileUploadEnabled()) {
-      result.with(
-          FileUploadViewStrategy.createUswdsFileInputFormElement(
-              fileInputId,
-              settingsManifest
-                  .getFileUploadAllowedFileTypeSpecifiers()
-                  .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK),
-              ImmutableList.of(getFileInputHint(fileUploadQuestion, params)),
-              /* disabled= */ !fileUploadQuestion.canUploadFile(),
-              applicantStorageClient.getFileLimitMb(),
-              params.messages()));
-    } else {
-      result.with(createFileInputFormElement(fileInputId, ariaDescribedByIds, hasErrors));
-    }
+    result.with(
+        FileUploadViewStrategy.createUswdsFileInputFormElement(
+            fileInputId,
+            settingsManifest
+                .getFileUploadAllowedFileTypeSpecifiers()
+                .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK),
+            ImmutableList.of(getFileInputHint(fileUploadQuestion, params)),
+            /* disabled= */ !fileUploadQuestion.canUploadFile(),
+            applicantStorageClient.getFileLimitMb(),
+            params.messages()));
     // TODO(#6804): Use HTMX to add these errors to the DOM only when they're needed.
     result.with(
         AlertComponent.renderSlimAlert(
@@ -219,27 +182,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
                 /* hidden= */ true,
                 "mb-2")
             .withId(ReferenceClasses.FILEUPLOAD_REQUIRED_ERROR_ID));
-
-    if (!params.multipleFileUploadEnabled()) {
-      result.with(
-          createFileTooLargeError(applicantStorageClient.getFileLimitMb(), params.messages()));
-
-      Optional<String> uploaded =
-          fileUploadQuestion
-              .getFilename()
-              .map(
-                  f ->
-                      params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
-      result.with(
-          div()
-              .withText(uploaded.orElse(""))
-              // adds INPUT_FILE_ALREADY_UPLOADED text to data attribute here so client side
-              // can render the translated text if it gets added
-              .attr(
-                  "data-upload-text",
-                  params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName()))
-              .attr("aria-live", "polite"));
-    }
 
     return result;
   }
@@ -256,32 +198,16 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
       ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
 
     String onSuccessRedirectUrl;
-    boolean multipleFileUploadEnabled =
-        settingsManifest.getMultipleFileUploadEnabled(params.request());
-    if (multipleFileUploadEnabled) {
-      onSuccessRedirectUrl =
-          params.baseUrl()
-              + applicantRoutes
-                  .addFile(
-                      params.profile(),
-                      params.applicantId(),
-                      params.programId(),
-                      params.block().getId(),
-                      params.inReview())
-                  .url();
-    } else {
-      onSuccessRedirectUrl =
-          params.baseUrl()
-              + applicantRoutes
-                  .updateFile(
-                      params.profile(),
-                      params.applicantId(),
-                      params.programId(),
-                      params.block().getId(),
-                      params.inReview(),
-                      NEXT_BLOCK)
-                  .url();
-    }
+    onSuccessRedirectUrl =
+        params.baseUrl()
+            + applicantRoutes
+                .addFile(
+                    params.profile(),
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    params.inReview())
+                .url();
 
     String key =
         ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
@@ -294,7 +220,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .setMessages(params.messages())
             .setSignedFileUploadRequest(signedRequest)
             .setErrorDisplayMode(params.errorDisplayMode())
-            .setMultipleFileUploadEnabled(multipleFileUploadEnabled)
             .build();
 
     FormTag uploadForm =
@@ -304,31 +229,20 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
             .with(requiredFieldsExplanationContent(params.messages()));
     Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
 
-    if (multipleFileUploadEnabled) {
-      Optional<ApplicantQuestion> fileUploadQuestion =
-          params.block().getQuestions().stream()
-              .filter(question -> question.isFileUploadQuestion())
-              .findFirst();
+    Optional<ApplicantQuestion> fileUploadQuestion =
+        params.block().getQuestions().stream()
+            .filter(question -> question.isFileUploadQuestion())
+            .findFirst();
 
-      Preconditions.checkState(
-          fileUploadQuestion.isPresent(),
-          "File upload blocks must contain a file upload question.");
-      uploadForm.withClasses("max-w-xl", fileUploadViewStrategy.getMultiFileUploadFormClass());
-      uploadForm.with(
-          applicantQuestionRendererFactory
-              .getRenderer(fileUploadQuestion.get(), Optional.of(params.messages()))
-              .render(rendererParams)
-              .with(createFileUploadTag(params))
-              .with(uploadedFiles(params, fileUploadQuestion.get().createFileUploadQuestion())));
-    } else {
-      uploadForm.with(
-          each(
-              params.block().getQuestions(),
-              question ->
-                  applicantQuestionRendererFactory
-                      .getRenderer(question, Optional.of(params.messages()))
-                      .render(rendererParams)));
-    }
+    Preconditions.checkState(
+        fileUploadQuestion.isPresent(), "File upload blocks must contain a file upload question.");
+    uploadForm.withClasses("max-w-xl", fileUploadViewStrategy.getMultiFileUploadFormClass());
+    uploadForm.with(
+        applicantQuestionRendererFactory
+            .getRenderer(fileUploadQuestion.get(), Optional.of(params.messages()))
+            .render(rendererParams)
+            .with(createFileUploadTag(params))
+            .with(uploadedFiles(params, fileUploadQuestion.get().createFileUploadQuestion())));
 
     DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
     DivTag buttons = renderFileUploadBottomNavButtons(params);
@@ -343,78 +257,6 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
         .withText(params.messages().at(MessageKey.UPLOADING.getKeyName()))
         .withClasses(FILE_UPLOADING_TAG_CLASS, "inline-block", "px-2", "py-1")
         .attr("role", "alert");
-  }
-
-  /**
-   * Creates the <input type="file"> element needed for the file upload <form>.
-   *
-   * <p>Note: This likely could be migrated to use the USWDS file input component instead -- see
-   * {@link FileUploadViewStrategy#createUswdsFileInputFormElement}.
-   *
-   * @param fileInputId an ID associated with the file <input> field. Can be used to associate
-   *     custom screen reader functionality with the file input.
-   */
-  private InputTag createFileInputFormElement(
-      String fileInputId, ImmutableList<String> ariaDescribedByIds, boolean hasErrors) {
-    return input()
-        .withId(fileInputId)
-        .condAttr(hasErrors, "aria-invalid", "true")
-        .condAttr(
-            !ariaDescribedByIds.isEmpty(),
-            "aria-describedby",
-            StringUtils.join(ariaDescribedByIds, " "))
-        .withType("file")
-        .withName("file")
-        .withClass("hidden")
-        .attr("data-file-limit-mb", applicantStorageClient.getFileLimitMb())
-        .withAccept(
-            settingsManifest
-                .getFileUploadAllowedFileTypeSpecifiers()
-                .orElse(ALLOWED_FILE_TYPE_SPECIFIERS_FALLBACK));
-  }
-
-  /**
-   * Renders a form submit button for delete form if the file upload question is optional.
-   *
-   * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
-   *
-   * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
-   */
-  private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(ApplicationBaseViewParams params) {
-    if (hasAtLeastOneRequiredQuestion(params)) {
-      // If the file question is required, skip or delete is not allowed.
-      return Optional.empty();
-    }
-    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
-    if (hasUploadedFile(params)) {
-      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
-    }
-    ButtonTag button =
-        TagCreator.button(buttonText)
-            .withType("submit")
-            .withForm(FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
-            .withId(buttonId);
-    return Optional.of(button);
-  }
-
-  /**
-   * Renders a form submit button for continue form if an uploaded file is present.
-   *
-   * <p>See {@link #renderDeleteAndContinueFileUploadForms}.
-   */
-  private Optional<ButtonTag> maybeRenderContinueButton(ApplicationBaseViewParams params) {
-    if (!hasUploadedFile(params)) {
-      return Optional.empty();
-    }
-    ButtonTag button =
-        submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
-            .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
-            .withClasses(ButtonStyles.SOLID_BLUE)
-            .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
-    return Optional.of(button);
   }
 
   /**
@@ -524,101 +366,12 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
 
-  private boolean hasUploadedFile(ApplicationBaseViewParams params) {
-    if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
-      return params.block().getQuestions().stream()
-          .map(ApplicantQuestion::createFileUploadQuestion)
-          .map(FileUploadQuestion::getFileKeyListValue)
-          .anyMatch(Optional::isPresent);
-    }
-    return params.block().getQuestions().stream()
-        .map(ApplicantQuestion::createFileUploadQuestion)
-        .map(FileUploadQuestion::getFileKeyValue)
-        .anyMatch(Optional::isPresent);
-  }
-
-  private boolean hasAtLeastOneRequiredQuestion(ApplicationBaseViewParams params) {
-    return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
-  }
-
   private DivTag renderFileUploadBottomNavButtons(ApplicationBaseViewParams params) {
     DivTag ret = div().withClasses(ApplicantStyles.APPLICATION_NAV_BAR);
-    if (settingsManifest.getMultipleFileUploadEnabled(params.request())) {
-      ret.with(renderReviewButton(params))
-          .with(renderPreviousButton(params))
-          .with(renderSaveAndNextButton(params));
-    } else {
-      Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
-      Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-      ret.with(renderButton(params, REVIEW_PAGE)).with(renderButton(params, PREVIOUS_BLOCK));
-      if (maybeSkipOrDeleteButton.isPresent()) {
-        ret.with(maybeSkipOrDeleteButton.get());
-      }
-      ret.with(renderButton(params, NEXT_BLOCK));
-      if (maybeContinueButton.isPresent()) {
-        ret.with(maybeContinueButton.get());
-      }
-    }
+    ret.with(renderReviewButton(params))
+        .with(renderPreviousButton(params))
+        .with(renderSaveAndNextButton(params));
 
     return ret;
-  }
-
-  private DomContent renderButton(
-      ApplicationBaseViewParams params, ApplicantRequestedAction action) {
-    MessageKey buttonMessage;
-    @Nullable String redirectWithoutFile;
-    switch (action) {
-      case NEXT_BLOCK:
-        buttonMessage = MessageKey.BUTTON_NEXT_SCREEN;
-        // Don't allow the user to proceed to the next block without uploading a file.
-        redirectWithoutFile = null;
-        break;
-      case PREVIOUS_BLOCK:
-        buttonMessage = MessageKey.BUTTON_PREVIOUS_SCREEN;
-        redirectWithoutFile =
-            params.baseUrl()
-                + applicantRoutes
-                    .blockPreviousOrReview(
-                        params.profile(),
-                        params.applicantId(),
-                        params.programId(),
-                        params.blockIndex(),
-                        params.inReview())
-                    .url();
-        break;
-      case REVIEW_PAGE:
-        buttonMessage = MessageKey.BUTTON_REVIEW;
-        redirectWithoutFile =
-            params.baseUrl()
-                + applicantRoutes
-                    .review(params.profile(), params.applicantId(), params.programId())
-                    .url();
-        break;
-      default:
-        throw new IllegalStateException("Action not handled: " + action.name());
-    }
-
-    String redirectWithFile =
-        params.baseUrl()
-            + applicantRoutes
-                .updateFile(
-                    params.profile(),
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview(),
-                    action)
-                .url();
-
-    String buttonStyle = ButtonStyles.OUTLINED_TRANSPARENT;
-    if (action == NEXT_BLOCK && !hasUploadedFile(params)) {
-      buttonStyle = ButtonStyles.SOLID_BLUE;
-    }
-
-    return submitButton(params.messages().at(buttonMessage.getKeyName()))
-        .withClasses(buttonStyle, "file-upload-action-button")
-        .withData(REDIRECT_WITH_FILE_KEY, redirectWithFile)
-        .withData(REDIRECT_WITHOUT_FILE_KEY, redirectWithoutFile)
-        .withForm(BLOCK_FORM_ID);
   }
 }

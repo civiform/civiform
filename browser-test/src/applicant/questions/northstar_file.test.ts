@@ -6,6 +6,7 @@ import {
   seedQuestions,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
 } from '../../support'
 import {BASE_URL} from '../../support/config'
 
@@ -159,6 +160,18 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
       expect(downloadedFileContent).toEqual(fileContent)
     })
 
+    test('back button', async ({applicantQuestions}) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await applicantQuestions.clickBack()
+
+      // Verify we're taken to the previous page, which is the review page.
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
+    })
+
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     test('missing file error disappears when file uploaded', async ({
       applicantQuestions,
@@ -298,7 +311,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         adminPrograms,
       }) => {
         await test.step('Add file upload question and publish', async () => {
-          await enableFeatureFlag(page, 'multiple_file_upload_enabled')
           await loginAsAdmin(page)
 
           await adminQuestions.addFileUploadQuestion({
@@ -345,8 +357,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     test.fixme(
       'shows correct hint text based on max files',
       async ({applicantQuestions, page, adminQuestions, adminPrograms}) => {
-        await enableFeatureFlag(page, 'multiple_file_upload_enabled')
-
         await test.step('Add file upload questions and publish', async () => {
           await loginAsAdmin(page)
 
@@ -422,7 +432,6 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     const fileUploadQuestionText = 'Required file upload question'
 
     test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await enableFeatureFlag(page, 'multiple_file_upload_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addFileUploadQuestion({
@@ -543,6 +552,8 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-veryverylongnamethatcouldcauserenderingissuesandhideremovefile.png',
         )
+
+        await waitForPageJsLoad(page)
 
         await validateScreenshot(
           page.locator('main'),

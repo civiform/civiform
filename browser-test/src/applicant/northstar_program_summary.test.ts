@@ -214,6 +214,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       const downloadedFileContent =
         await applicantQuestions.downloadSingleQuestionFromReviewPage(
           /* northStarEnabled= */ true,
+          fileName,
         )
       expect(downloadedFileContent).toEqual(fileContent)
     })

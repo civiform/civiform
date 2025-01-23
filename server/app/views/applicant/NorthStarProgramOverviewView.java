@@ -80,6 +80,12 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     AlertSettings eligibilityAlertSettings = createEligibilityAlertSettings(messages);
     context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
 
+    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
+
+    // This works for logged-in and logged-out applicants
+    String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
+    context.setVariable("actionUrl", actionUrl);
+
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
   }
 

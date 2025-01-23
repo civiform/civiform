@@ -2,22 +2,17 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
-import play.i18n.Messages;
-import services.MessageKey;
 import services.Path;
 import services.RandomStringUtils;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.applicant.ApplicantFileUploadRenderer;
-import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
@@ -60,7 +55,6 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
 
     return div()
@@ -71,22 +65,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
                 .withText(applicantQuestion.getQuestionTextForScreenReader()))
         .with(
             applicantFileUploadRenderer.signedFileUploadFields(
-                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
-        .condWith(
-            !params.multipleFileUploadEnabled(),
-            label()
-                .withFor(fileInputId)
-                .with(
-                    span()
-                        .attr("role", "button")
-                        .attr("tabindex", 0)
-                        .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                        .withClasses(
-                            ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")))
-        .condWith(
-            !params.multipleFileUploadEnabled(),
-            p(params.messages().at(MessageKey.MOBILE_FILE_UPLOAD_HELP.getKeyName()))
-                .withClasses("text-sm", "text-gray-600", "my-2"));
+                params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors));
   }
 
   @Override

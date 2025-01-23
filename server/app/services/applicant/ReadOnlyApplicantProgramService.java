@@ -117,22 +117,19 @@ public final class ReadOnlyApplicantProgramService {
   }
 
   /** Get the string identifiers for all stored files for this application. */
-  public ImmutableList<String> getStoredFileKeys(boolean multipleUploadsEnabled) {
+  public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
         .flatMap(block -> block.getQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
-        .flatMap(question -> getFileKeyValues(question, multipleUploadsEnabled))
+        .flatMap(ReadOnlyApplicantProgramService::getFileKeyValues)
         .collect(ImmutableList.toImmutableList());
   }
 
-  private static Stream<String> getFileKeyValues(
-      FileUploadQuestion question, boolean multipleUploadsEnabled) {
-    return multipleUploadsEnabled
-        ? question.getFileKeyListValue().orElseGet(() -> ImmutableList.<String>of()).stream()
-        : question.getFileKeyValue().stream();
+  private static Stream<String> getFileKeyValues(FileUploadQuestion question) {
+    return question.getFileKeyListValue().orElseGet(ImmutableList::of).stream();
   }
 
   /**

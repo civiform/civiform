@@ -14,7 +14,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.FlashKey;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
@@ -24,15 +23,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import views.HtmlBundle;
-import views.admin.ti.TrustedIntermediaryGroupListView;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -70,13 +66,7 @@ public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryD
                         .withClass("px-20")))
             .addMainStyles("bg-white");
 
-    Http.Flash flash = request.flash();
-    if (flash.get("error").isPresent()) {
-      LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
-          .info(request.flash().get(FlashKey.ERROR).get());
-      bundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get(FlashKey.ERROR).get()).setDuration(-1));
-    }
+    addToastMessagesOnError(bundle, request.flash(), this.getClass());
     return layout.renderWithNav(
         request, personalInfo, messages, bundle, Optional.of(currentTisApplicantId));
   }

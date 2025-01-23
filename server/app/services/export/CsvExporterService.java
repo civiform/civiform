@@ -71,8 +71,7 @@ public final class CsvExporterService {
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
-  public String getProgramAllVersionsCsv(
-      long programId, SubmittedApplicationFilter filters, boolean isMultipleFileUploadEnabled)
+  public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -89,10 +88,7 @@ public final class CsvExporterService {
 
     CsvExportConfig exportConfig =
         generateCsvConfig(
-            applications,
-            programDefinitionsForAllVersions,
-            currentProgram.hasEligibilityEnabled(),
-            isMultipleFileUploadEnabled);
+            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
 
     return exportCsv(
         exportConfig,
@@ -106,8 +102,7 @@ public final class CsvExporterService {
   private CsvExportConfig generateCsvConfig(
       ImmutableList<ApplicationModel> applications,
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
-      boolean showEligibilityColumn,
-      boolean isMultipleFileUploadEnabled)
+      boolean showEligibilityColumn)
       throws ProgramNotFoundException {
     Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
@@ -129,8 +124,7 @@ public final class CsvExporterService {
             .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(
-        sortedUniqueQuestions, showEligibilityColumn, isMultipleFileUploadEnabled);
+    return buildColumnHeaders(sortedUniqueQuestions, showEligibilityColumn);
   }
 
   /**
@@ -187,9 +181,7 @@ public final class CsvExporterService {
    * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<ApplicantQuestion> exemplarQuestions,
-      boolean showEligibilityColumn,
-      boolean isMultipleFileUploadEnabled) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions, boolean showEligibilityColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -232,10 +224,7 @@ public final class CsvExporterService {
     // Add columns for each scalar path to an answer.
     exemplarQuestions.stream()
         .filter(aq -> !NON_EXPORTED_QUESTION_TYPES.contains(aq.getType()))
-        .flatMap(
-            aq ->
-                csvColumnFactory.buildColumns(
-                    aq, ColumnType.APPLICANT_ANSWER, isMultipleFileUploadEnabled))
+        .flatMap(aq -> csvColumnFactory.buildColumns(aq, ColumnType.APPLICANT_ANSWER))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
@@ -247,7 +236,7 @@ public final class CsvExporterService {
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    * TODO(#6746): Include repeated questions in the demographic export
    */
-  public String getDemographicsCsv(TimeFilter filter, boolean isMultipleFileUploadEnabled) {
+  public String getDemographicsCsv(TimeFilter filter) {
     // Use the ProgramDefinition cache in the ProgramRepository, since we don't already have a local
     // cache of ProgramDefinitions. This will cause a database call for program definitions that
     // aren't yet in the cache.
@@ -264,13 +253,13 @@ public final class CsvExporterService {
           }
         };
     return exportCsv(
-        getDemographicsExporterConfig(isMultipleFileUploadEnabled),
+        getDemographicsExporterConfig(),
         applicantService.getApplications(filter),
         getProgramDefinition,
         /* currentProgram= */ Optional.empty());
   }
 
-  private CsvExportConfig getDemographicsExporterConfig(boolean isMultipleFileUploadEnabled) {
+  private CsvExportConfig getDemographicsExporterConfig() {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // First add the ID, submit time, and submitter email columns.
@@ -320,8 +309,7 @@ public final class CsvExporterService {
                       aq,
                       tagType == QuestionTag.DEMOGRAPHIC_PII
                           ? ColumnType.APPLICANT_OPAQUE
-                          : ColumnType.APPLICANT_ANSWER,
-                      isMultipleFileUploadEnabled))
+                          : ColumnType.APPLICANT_ANSWER))
           .forEachOrdered(columnsBuilder::add);
     }
 

@@ -55,7 +55,6 @@ import views.components.Modal.Width;
 import views.components.QuestionBank;
 import views.components.QuestionSortOption;
 import views.components.TextFormatter;
-import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -113,16 +112,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
             .addMainContent(contentDiv);
-
-    Http.Flash flash = request.flash();
-    if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.success(flash.get("success").get()).setDismissible(false));
-    } else if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(
-          ToastMessage.errorNonLocalized(flash.get("error").get()).setDismissible(false));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 
