@@ -8,9 +8,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import ch.qos.logback.classic.Level;
+import io.ebean.SerializableConflictException;
+import io.ebean.Transaction;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
@@ -24,6 +33,7 @@ import services.export.CsvExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import views.HtmlBundle;
 
 /**
  * The service responsible for accessing the Question resource. Admins create {@link
@@ -33,7 +43,7 @@ import services.question.types.QuestionDefinition;
  * that can be collected for a given applicant across all programs.
  */
 public final class QuestionService {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(QuestionService.class);
   private final QuestionRepository questionRepository;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
@@ -54,20 +64,38 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
+    LOGGER.debug("atlee before operation");
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
-    ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-    ImmutableSet<CiviFormError> errors =
-        ImmutableSet.<CiviFormError>builder()
-            .addAll(validationErrors)
-            .addAll(conflictErrors)
-            .build();
-    if (!errors.isEmpty()) {
-      return ErrorAnd.error(errors);
+    try (Transaction transaction = questionRepository.beginSerializedTransaction()) {
+      // atlee checks repository for question name conflict
+      ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
+      ImmutableSet<CiviFormError> errors =
+          ImmutableSet.<CiviFormError>builder()
+              .addAll(validationErrors)
+              .addAll(conflictErrors)
+              .build();
+      if (!errors.isEmpty()) {
+        return ErrorAnd.error(errors);
+      }
+      // atlee allow me to force a race condition
+      if (questionDefinition.getName().contains("Pause")) {
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(20));
+      }
+      QuestionModel question = new QuestionModel(questionDefinition);
+      // atlee get a new version if we need. has an inner serializable transaction
+      question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
+      // atlee just calls .insert() with the new question
+      questionRepository.insertQuestionSync(question);
+      transaction.commit();
+      LOGGER.debug("atlee after operation");
+      return ErrorAnd.of(question.getQuestionDefinition());
+    } catch (SerializableConflictException e) {
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              CiviFormError.of(
+                  "A question with a conflicting admin name was created at the same time. Please"
+                      + " try again.")));
     }
-    QuestionModel question = new QuestionModel(questionDefinition);
-    question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
-    questionRepository.insertQuestionSync(question);
-    return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 
   /**

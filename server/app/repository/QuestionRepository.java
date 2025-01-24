@@ -31,7 +31,7 @@ import services.question.types.QuestionDefinitionBuilder;
  * QuestionRepository performs complicated operations on {@link QuestionModel} that often involve
  * other EBean models or asynchronous handling.
  */
-public final class QuestionRepository {
+public final class QuestionRepository extends BaseRepository {
   private final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("QuestionRepository");
 

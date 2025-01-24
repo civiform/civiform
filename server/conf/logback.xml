@@ -32,7 +32,7 @@
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />
   <logger name="controllers" level="INFO" />
-  <logger name="services" level="INFO" />
+  <logger name="services" level="DEBUG" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
@@ -53,8 +53,8 @@
       io.ebean.SQL -> for SQL and bind values
       io.ebean.TXN -> for Transaction commit and rollback events
   -->
-  <logger name="io.ebean.SQL" level="OFF" />
-  <logger name="io.ebean.TXN" level="OFF" />
+  <logger name="io.ebean.SQL" level="TRACE" />
+  <logger name="io.ebean.TXN" level="TRACE" />
 
 
   <root level="WARN">
