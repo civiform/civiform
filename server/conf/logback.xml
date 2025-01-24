@@ -53,8 +53,8 @@
       io.ebean.SQL -> for SQL and bind values
       io.ebean.TXN -> for Transaction commit and rollback events
   -->
-  <logger name="io.ebean.SQL" level="OFF" />
-  <logger name="io.ebean.TXN" level="OFF" />
+  <logger name="io.ebean.SQL" level="INFO" />
+  <logger name="io.ebean.TXN" level="INFO" />
 
 
   <root level="WARN">
