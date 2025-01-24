@@ -353,8 +353,29 @@ public final class VersionRepository {
     // is rolled back (a RollbackException is thrown).  We are forced to retry.  This is expensive
     // in relative terms, but new drafts are very rare.  It is unlikely this will represent a real
     // performance penalty for any applicant - or even any admin, really.
+    //
+    // TODO confirm that REQUIRES_NEW is the correct TxScope to use here:
+    // - REQUIRES_NEW creates a new transaction that's independent of the outer transaction
+    // - Crucially, the outer transaction _does not_ see the changes made by the inner transaction
+    // because
+    //   it uses the snapshot from the beginning of its transaction.
+    // - Also should the checking for a draft version be inside this transaction?
+    // - Also if we're in a transaction we should probably just use that one? and if this fails then
+    // fail the whole thing.
+
+    Optional<Transaction> currentTransaction = Optional.ofNullable(database.currentTransaction());
+
+    if (currentTransaction.isPresent()) {
+      logger.info("atlee - getDraftVersionOrCreate - transaction already present");
+      for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+        logger.info("atlee - " + ste);
+      }
+    } else {
+      logger.info("atlee - getDraftVersionOrCreate - transaction not present");
+    }
+
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       VersionModel newDraftVersion = new VersionModel(LifecycleStage.DRAFT);
       database.insert(newDraftVersion);
