@@ -314,7 +314,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       // indentation value for enums and repeaters
       int listIndentationFactor =
           BASE_INDENTATION_SIZE + (level * INDENTATION_FACTOR_INCREASE_ON_LEVEL);
-      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-info-light" : "";
       DivTag blockTag =
           div()
               .withClasses(
