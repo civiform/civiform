@@ -95,8 +95,7 @@ public final class CsvExporterService {
         applications,
         // Use our local program definition cache when exporting applications,
         // it's faster then the cache in the ProgramRepository.
-        programDefinitionsForAllVersions::get,
-        Optional.of(currentProgram));
+        programDefinitionsForAllVersions::get);
   }
 
   private CsvExportConfig generateCsvConfig(
@@ -133,13 +132,13 @@ public final class CsvExporterService {
    * @param exportConfig the CsvExportConfig to use
    * @param applications the list of ApplicationModels to export
    * @param getProgramDefinition a function used to retrieve the ProgramDefinition by ID
-   * @param currentProgram the current program definition
    */
   private String exportCsv(
       CsvExportConfig exportConfig,
       ImmutableList<ApplicationModel> applications,
-      Function<Long, ProgramDefinition> getProgramDefinition,
-      Optional<ProgramDefinition> currentProgram) {
+      Function<Long, ProgramDefinition> getProgramDefinition
+      // Optional<ProgramDefinition> currentProgram
+      ) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       try (CsvExporter csvExporter =
@@ -148,22 +147,25 @@ public final class CsvExporterService {
               config.getString("play.http.secret.key"),
               writer,
               dateConverter)) {
-        boolean shouldCheckEligibility =
-            currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
-
+        /*
+            boolean shouldCheckEligibility =
+        currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
+        */
         for (ApplicationModel application : applications) {
           ProgramDefinition programDefForApplication =
               getProgramDefinition.apply(application.getProgram().id);
           ReadOnlyApplicantProgramService roApplicantService =
               applicantService.getReadOnlyApplicantProgramService(
                   application, programDefForApplication);
+          /*
+                    Optional<Boolean> optionalEligibilityStatus =
+                        shouldCheckEligibility
+                            ? applicantService.getApplicationEligibilityStatus(
+                                application, programDefForApplication)
+                            : Optional.empty();
+          */
 
-          Optional<Boolean> optionalEligibilityStatus =
-              shouldCheckEligibility
-                  ? applicantService.getApplicationEligibilityStatus(
-                      application, programDefForApplication)
-                  : Optional.empty();
-
+          Optional<Boolean> optionalEligibilityStatus = Optional.empty();
           csvExporter.exportRecord(
               application, roApplicantService, optionalEligibilityStatus, programDefForApplication);
         }
@@ -255,8 +257,8 @@ public final class CsvExporterService {
     return exportCsv(
         getDemographicsExporterConfig(),
         applicantService.getApplications(filter),
-        getProgramDefinition,
-        /* currentProgram= */ Optional.empty());
+        getProgramDefinition
+        /* currentProgram= */ );
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {
