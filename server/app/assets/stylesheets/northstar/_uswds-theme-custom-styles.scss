@@ -47,25 +47,26 @@ svg {
   display: none;
 }
 
-// -- start
+// -- start fileupload
+// These are used by the file upload component to style temporary ui
+// elements during the upload process.
 .cf-file-uploading-tag {
   background-color: #fff7bf;
   color: #594d00;
   visibility: hidden;
 }
 
-/* If a file is being uploaded, show the file uploading tag... */
-
+// If a file is being uploaded, show the file uploading tag...
 .cf-file-uploading .cf-file-uploading-tag {
   visibility: visible;
 }
 
-/* ... and apply disabled styling to any interactive elements. */
+// Apply disabled styling to any interactive elements.
 .cf-file-uploading .cf-disable-when-uploading {
   pointer-events: none;
   cursor: default;
 }
-//-- end
+//-- end fileupload
 
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
