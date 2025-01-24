@@ -647,7 +647,12 @@ test.describe('applicant program index page', () => {
             /* northStarEnabled= */ true,
           )
 
-          // Screen 1 has no questions, so expect to navigate directly to screen 2
+          await expect(page.getByText('Review and submit')).toBeVisible()
+          // Screen 1 has no questions, so navigate directly to screen 2
+          await applicantQuestions.editQuestionFromReviewPage(
+            'Screen 2',
+            /* northStarEnabled= */ true,
+          )
           await expect(page.getByText('Screen 2')).toBeVisible()
           await applicantQuestions.answerTextQuestion('first answer')
           await applicantQuestions.clickContinue()
@@ -673,6 +678,11 @@ test.describe('applicant program index page', () => {
             /* northStarEnabled= */ true,
           )
           // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
+          await expect(page.getByText('Review and submit')).toBeVisible()
+          await applicantQuestions.editQuestionFromReviewPage(
+            'Screen 3',
+            /* northStarEnabled= */ true,
+          )
           await expect(page.getByText('Screen 3')).toBeVisible()
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
@@ -698,6 +708,14 @@ test.describe('applicant program index page', () => {
             'program-index-page-submitted-northstar',
           )
           await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
+        })
+
+        await test.step('Clicking edit on submitted application goes to review page', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+          )
+          await expect(page.getByText('Review and submit')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
@@ -819,6 +837,10 @@ test.describe('applicant program index page', () => {
               primaryProgramName,
               /* northStarEnabled= */ true,
             )
+            await applicantQuestions.editQuestionFromReviewPage(
+              'Screen 1',
+              /* northStarEnabled= */ true,
+            )
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
           })
@@ -868,6 +890,10 @@ test.describe('applicant program index page', () => {
 
           await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
             await applicantQuestions.applyProgram(primaryProgramName, true)
+            await applicantQuestions.editQuestionFromReviewPage(
+              'Screen 2',
+              /* northStarEnabled= */ true,
+            )
             await applicantQuestions.answerTextQuestion('first answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
@@ -889,6 +915,10 @@ test.describe('applicant program index page', () => {
 
           await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
             await applicantQuestions.applyProgram(primaryProgramName, true)
+            await applicantQuestions.editQuestionFromReviewPage(
+              'Screen 3',
+              /* northStarEnabled= */ true,
+            )
             await applicantQuestions.answerTextQuestion('second answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.submitFromReviewPage(true)
