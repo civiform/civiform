@@ -166,7 +166,7 @@ jobs:
           retention-days: 3
           path: browser-test/diff_output
 
-      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure 
+      # We only want updated snapshots for aws. Otherwise we'll hit conflicts if both aws and azure
       # attempt to update the same images
       - name: Upload updated snapshots
         if: ${{ matrix.cloud == 'aws' && failure() }}
@@ -176,7 +176,7 @@ jobs:
           retention-days: 3
           path: browser-test/updated_snapshots
 
-      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we 
+      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we
       # have access to what happened in failed tests.
       - name: Upload test videos on failure
         if: failure()
