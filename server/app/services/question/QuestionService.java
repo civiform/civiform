@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
-
 import models.QuestionModel;
 import models.QuestionTag;
 import models.VersionModel;
@@ -60,31 +59,34 @@ public final class QuestionService {
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
 
-    return TransactionManager.executeInTransaction(
-        () -> {
-          ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
-          ImmutableSet<CiviFormError> errors =
-              ImmutableSet.<CiviFormError>builder()
-                  .addAll(validationErrors)
-                  .addAll(conflictErrors)
-                  .build();
-          if (!errors.isEmpty()) {
-            return ErrorAnd.error(errors);
-          }      // atlee allow me to force a race condition
-          if (questionDefinition.getName().contains("Pause")) {
-            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(20));
-          }
-          QuestionModel question = new QuestionModel(questionDefinition);
-          question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
-          questionRepository.insertQuestionSync(question);
-          return ErrorAnd.of(question.getQuestionDefinition());
-        },
-        () ->
-            ErrorAnd.error(
-                ImmutableSet.of(
-                    CiviFormError.of(
-                        "A question with a conflicting admin name was created at the same time."
-                            + " Please try again."))));
+    return TransactionManager.<ErrorAnd<QuestionDefinition, CiviFormError>>newTransactionContext()
+        .work(
+            () -> {
+              ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
+              ImmutableSet<CiviFormError> errors =
+                  ImmutableSet.<CiviFormError>builder()
+                      .addAll(validationErrors)
+                      .addAll(conflictErrors)
+                      .build();
+              if (!errors.isEmpty()) {
+                return ErrorAnd.error(errors);
+              } // atlee allow me to force a race condition
+              if (questionDefinition.getName().contains("Pause")) {
+                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(20));
+              }
+              QuestionModel question = new QuestionModel(questionDefinition);
+              question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
+              questionRepository.insertQuestionSync(question);
+              return ErrorAnd.of(question.getQuestionDefinition());
+            })
+        .onFailure(
+            () ->
+                ErrorAnd.error(
+                    ImmutableSet.of(
+                        CiviFormError.of(
+                            "A question with a conflicting admin name was created at the same time."
+                                + " Please try again."))))
+        .execute();
   }
 
   /**
