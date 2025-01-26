@@ -18,10 +18,10 @@ class ApiDocs {
       const slugDropdown = document.getElementById(
         'select-slug',
       ) as HTMLSelectElement
-      const slugValue: string = slugDropdown.value
+      const slugValue: string = encodeURIComponent(slugDropdown.value)
 
       const versionDropdown = event.currentTarget as HTMLSelectElement
-      const versionValue: string = versionDropdown.value
+      const versionValue: string = encodeURIComponent(versionDropdown.value)
 
       window.location.href = `/api/docs/v1/${slugValue}/${versionValue}`
     })
