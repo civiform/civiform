@@ -22,8 +22,7 @@ public class HSTSFilter extends EssentialFilter {
   @Override
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
-        request -> {
-          if (request.secure()) {
+        request ->
             return next.apply(request)
                 .map(
                     // https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
@@ -31,10 +30,6 @@ public class HSTSFilter extends EssentialFilter {
                         result.withHeader(
                             "Strict-Transport-Security",
                             "max-age=31536000; includeSubDomains; preload"),
-                    exec);
-          } else {
-            return next.apply(request);
-          }
-        });
+                    exec));
   }
 }
