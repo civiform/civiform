@@ -22,11 +22,16 @@ public class HSTSFilter extends EssentialFilter {
   @Override
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
-        request ->
-            next.apply(request)
-                .map(
-                    // https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
-                    result -> result.withHeader("Strict-Transport-Security", "max-age=31536000"),
-                    exec));
+        request -> {
+            if (request.secure()) {
+                next.apply(request)
+                    .map(
+                        // https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+                        result -> result.withHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"),
+                        exec));
+            } else {
+                return next.apply(request);
+            }
+        }
   }
 }
