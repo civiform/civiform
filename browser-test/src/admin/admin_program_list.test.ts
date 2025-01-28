@@ -64,6 +64,12 @@ test.describe('Program list page.', () => {
       const firstProgram = page.locator('.cf-admin-program-card').first()
       await expect(firstProgram.getByText('Categories: None')).toBeVisible()
     })
+    await test.step('check that program visibility is displayed', async () => {
+      const firstProgram = page.locator('.cf-admin-program-card').first()
+      await expect(
+        firstProgram.getByText('Visibility state: PUBLIC'),
+      ).toBeVisible()
+    })
 
     await test.step('add two categories', async () => {
       await adminPrograms.gotoEditDraftProgramPage(programName)
