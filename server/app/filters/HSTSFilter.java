@@ -26,7 +26,7 @@ public class HSTSFilter extends EssentialFilter {
             next.apply(request)
                 .map(
                     // https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
-                    result -> result.withHeader("Strict-Transport-Security", "max-age=31536000"),
+                    result -> result.withHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains"),
                     exec));
   }
 }
