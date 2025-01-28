@@ -67,7 +67,7 @@ test.describe('Program list page.', () => {
     await test.step('check that program visibility is displayed', async () => {
       const firstProgram = page.locator('.cf-admin-program-card').first()
       await expect(
-        firstProgram.getByText('Visibility state: PUBLIC'),
+        firstProgram.getByText('Visibility state: Public'),
       ).toBeVisible()
     })
 
