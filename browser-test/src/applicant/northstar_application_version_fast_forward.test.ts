@@ -825,7 +825,7 @@ test.describe(
         })
 
         await test.step('As applicant - navigate to a question edit page and wait there', async () => {
-          await applicantActor.clickApplyProgramButton()
+          await applicantActor.applyToProgram()
 
           expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
             programIdV2,
@@ -1283,7 +1283,7 @@ test.describe(
         })
 
         await test.step('As applicant - navigate to a question edit page and wait there', async () => {
-          await applicantActor.clickApplyProgramButton()
+          await applicantActor.applyToProgram()
 
           expect(applicantActor.getProgramIdFromApplicationReviewUrl()).toBe(
             programIdV2,
@@ -1737,7 +1737,7 @@ class FastForwardApplicantActor {
    */
   async applyToProgram() {
     await test.step(`apply to program ${this.programName}`, async () => {
-      await this.applicantQuestions.applyProgram(this.programName, true)
+      await this.applicantQuestions.applyProgram(this.programName)
     })
   }
 

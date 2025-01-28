@@ -198,7 +198,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     await test.step('Download file in North Star', async () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.editQuestionFromReviewPage(
+        'Screen 1',
+        /* northStarEnabled= */ true,
+      )
+      await applicantQuestions.clickContinue()
 
       await expect(page.getByText(fileName)).toBeVisible()
 

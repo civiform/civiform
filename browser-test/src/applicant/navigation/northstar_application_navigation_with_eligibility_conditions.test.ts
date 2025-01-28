@@ -61,7 +61,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     test("does not show 'not eligible' when there is no answer", async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.clickReview(/* northStarEnabled= */ true)
       await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
     })
@@ -84,7 +84,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('verify not eligible alert is shown on review page', async () => {
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await applicantQuestions.applyProgram(fullProgramName)
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
 
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
@@ -102,7 +102,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await test.step('answer the other question', async () => {
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await applicantQuestions.applyProgram(fullProgramName)
         await applicantQuestions.answerEmailQuestion('email@email.com')
       })
 
@@ -205,7 +205,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       })
       await test.step('verify ineligibility message on review page of overlapping program', async () => {
-        await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await applicantQuestions.applyProgram(fullProgramName)
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
