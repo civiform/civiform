@@ -91,7 +91,7 @@ test.describe('Prevent Duplicate Submission', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
 
         await loginAsTestUser(page)
-        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('0')
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(

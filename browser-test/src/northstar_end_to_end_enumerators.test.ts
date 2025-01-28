@@ -230,7 +230,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       await expect(page.locator('.application-summary')).toContainText('12')
 
       // Go back to delete enumerator answers
-      await applicantQuestions.editQuestionFromReviewPage('Household members')
+      await applicantQuestions.editQuestionFromReviewPage(
+        'Household members',
+        /* northStarEnabled= */ true,
+      )
       await waitForPageJsLoad(page)
 
       await applicantQuestions.deleteEnumeratorEntity('Bugs')
@@ -252,7 +255,10 @@ test.describe('End to end enumerator test', {tag: ['@northstar']}, () => {
       )
 
       // Go back and add an enumerator answer.
-      await applicantQuestions.editQuestionFromReviewPage('Household members')
+      await applicantQuestions.editQuestionFromReviewPage(
+        'Household members',
+        /* northStarEnabled= */ true,
+      )
       await waitForPageJsLoad(page)
       await applicantQuestions.addEnumeratorAnswer('Tweety')
       await applicantQuestions.clickContinue()
