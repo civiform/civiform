@@ -35,10 +35,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -64,10 +61,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -75,10 +69,7 @@ test.describe(
       test('with valid number submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('8')
         await applicantQuestions.clickContinue()
 
@@ -91,10 +82,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // Leave field blank.
         await applicantQuestions.clickContinue()
 
@@ -105,10 +93,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         const testValues = ['12e3', '12E3', '-123', '1.23']
 
         for (const testValue of testValues) {
@@ -149,10 +134,7 @@ test.describe(
       test('with valid numbers submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('100', 0)
         await applicantQuestions.answerNumberQuestion('33', 1)
         await applicantQuestions.clickContinue()
@@ -166,10 +148,7 @@ test.describe(
         applicantQuestions,
       }) => {
         // Only answer required question.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('33', 1)
         await applicantQuestions.clickContinue()
 
@@ -182,10 +161,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('-10', 0)
         await applicantQuestions.answerNumberQuestion('33', 1)
         await applicantQuestions.clickContinue()
@@ -197,10 +173,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNumberQuestion('10', 0)
         await applicantQuestions.answerNumberQuestion('-5', 1)
         await applicantQuestions.clickContinue()
@@ -212,10 +185,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

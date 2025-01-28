@@ -33,10 +33,7 @@ test.describe(
 
       await logout(page)
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
       await applicantQuestions.clickContinue()
       await applicantQuestions.submitFromReviewPage(

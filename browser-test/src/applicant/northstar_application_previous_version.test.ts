@@ -39,10 +39,7 @@ test.describe(
       await applicantQuestions.validateHeader('en-US')
 
       // Submit an application to the program
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('some text')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()

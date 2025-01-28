@@ -281,16 +281,13 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async applyProgram(programName: string, northStarEnabled = false) {
+  async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
 
-    // In North Star, clicking on "Apply" navigates to the first unanswered question.
-    if (!northStarEnabled) {
-      // In the legacy UI, the user navigates to the application review page. They must click another
-      // button to reach the first unanswered question.
-      await this.page.click(`#continue-application-button`)
-    }
+    // Clicking on "Apply" navigates to the application review page. They must click another
+    // button to reach the first unanswered question.
+    await this.page.click(`#continue-application-button`)
 
     await waitForPageJsLoad(this.page)
   }

@@ -31,10 +31,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
@@ -60,10 +57,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -72,20 +66,14 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
 
       await expectQuestionHasNoErrors(page)
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickContinue()
 
@@ -98,10 +86,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickContinue()
 
@@ -130,10 +115,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('with valid name does submit', async ({applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -153,10 +135,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', '', 0)
       await applicantQuestions.answerNameQuestion(
         'Chuckie',
@@ -178,10 +157,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', '', 1)
       await applicantQuestions.clickContinue()
@@ -197,10 +173,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -234,10 +207,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
     test('with valid required name does submit', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickContinue()
 
@@ -250,10 +220,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', '', 1)
       await applicantQuestions.clickContinue()
@@ -269,10 +236,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', '', 1)
       await applicantQuestions.clickContinue()
 
@@ -304,10 +268,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('name question has suffix field available and no default value selected', async () => {
           await expect(page.getByLabel('Suffix')).toBeVisible()
@@ -325,10 +286,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion(
@@ -350,10 +308,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('anwers name question with suffix', async () => {
           await applicantQuestions.answerNameQuestion('Ann', 'Gates', 'Quiroz')

@@ -642,17 +642,9 @@ test.describe('applicant program index page', () => {
         })
 
         await test.step('Fill out part of the primary program application', async () => {
-          await applicantQuestions.applyProgram(
-            primaryProgramName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(primaryProgramName)
 
-          await expect(page.getByText('Review and submit')).toBeVisible()
           // Screen 1 has no questions, so navigate directly to screen 2
-          await applicantQuestions.editQuestionFromReviewPage(
-            'Screen 2',
-            /* northStarEnabled= */ true,
-          )
           await expect(page.getByText('Screen 2')).toBeVisible()
           await applicantQuestions.answerTextQuestion('first answer')
           await applicantQuestions.clickContinue()
@@ -673,16 +665,8 @@ test.describe('applicant program index page', () => {
         })
 
         await test.step('Finish the primary program application', async () => {
-          await applicantQuestions.applyProgram(
-            primaryProgramName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(primaryProgramName)
           // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
-          await expect(page.getByText('Review and submit')).toBeVisible()
-          await applicantQuestions.editQuestionFromReviewPage(
-            'Screen 3',
-            /* northStarEnabled= */ true,
-          )
           await expect(page.getByText('Screen 3')).toBeVisible()
           await applicantQuestions.answerTextQuestion('second answer')
           await applicantQuestions.clickContinue()
@@ -711,10 +695,7 @@ test.describe('applicant program index page', () => {
         })
 
         await test.step('Clicking edit on submitted application goes to review page', async () => {
-          await applicantQuestions.applyProgram(
-            primaryProgramName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.clickApplyProgramButton(primaryProgramName)
           await expect(page.getByText('Review and submit')).toBeVisible()
         })
 
@@ -833,14 +814,7 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('start applying to a program', async () => {
-            await applicantQuestions.applyProgram(
-              primaryProgramName,
-              /* northStarEnabled= */ true,
-            )
-            await applicantQuestions.editQuestionFromReviewPage(
-              'Screen 1',
-              /* northStarEnabled= */ true,
-            )
+            await applicantQuestions.applyProgram(primaryProgramName)
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
           })
@@ -890,10 +864,6 @@ test.describe('applicant program index page', () => {
 
           await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
             await applicantQuestions.applyProgram(primaryProgramName, true)
-            await applicantQuestions.editQuestionFromReviewPage(
-              'Screen 2',
-              /* northStarEnabled= */ true,
-            )
             await applicantQuestions.answerTextQuestion('first answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
@@ -915,10 +885,6 @@ test.describe('applicant program index page', () => {
 
           await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
             await applicantQuestions.applyProgram(primaryProgramName, true)
-            await applicantQuestions.editQuestionFromReviewPage(
-              'Screen 3',
-              /* northStarEnabled= */ true,
-            )
             await applicantQuestions.answerTextQuestion('second answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.submitFromReviewPage(true)
@@ -1100,10 +1066,7 @@ test.describe('applicant program index page with images', () => {
       await validateAccessibility(page)
 
       await test.step('Fill out part of the program application', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.clickSubmitApplication()
         await applicantQuestions.gotoApplicantHomePage()
       })

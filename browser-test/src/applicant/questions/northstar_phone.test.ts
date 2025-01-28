@@ -31,10 +31,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -60,10 +57,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -72,10 +66,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('4256373270')
         await validateScreenshot(page, 'phone-format-usa')
         await applicantQuestions.clickContinue()
@@ -87,10 +78,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('2507274212')
 
         await validateScreenshot(page, 'phone-format-ca')
@@ -103,10 +91,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Click next without inputting anything
         await applicantQuestions.clickContinue()
@@ -118,10 +103,7 @@ test.describe(
       })
 
       test('invalid phone numbers', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('1234567890')
 
         await applicantQuestions.clickContinue()
@@ -133,10 +115,7 @@ test.describe(
       })
 
       test('555 fake phone numbers', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('5553231234')
 
         await applicantQuestions.clickContinue()
@@ -150,10 +129,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('123###1212')
 
         await applicantQuestions.clickContinue()
@@ -167,10 +143,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('123###1212121')
 
         await applicantQuestions.clickContinue()
@@ -184,10 +157,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('615974')
 
         await applicantQuestions.clickContinue()
@@ -201,10 +171,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('2507274212.')
 
         // Ensure that clicking enter while on phone input doesn't trigger form
@@ -256,10 +223,7 @@ test.describe(
       test('with both selections submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('2507274212', 0)
         await applicantQuestions.answerPhoneQuestion('4256373270', 1)
         await applicantQuestions.clickContinue()
@@ -271,10 +235,7 @@ test.describe(
         applicantQuestions,
       }) => {
         // Only answer second question. First is optional.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('4256373270', 1)
         await applicantQuestions.clickContinue()
 
@@ -285,10 +246,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('1234567320', 0)
         await applicantQuestions.answerPhoneQuestion('4256373270', 1)
         await applicantQuestions.clickContinue()
@@ -302,10 +260,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerPhoneQuestion('4256373270', 0)
         await applicantQuestions.answerPhoneQuestion('1234567320', 1)
         await applicantQuestions.clickContinue()

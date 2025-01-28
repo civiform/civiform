@@ -28,10 +28,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Screenshot without errors', async () => {
         await validateScreenshot(
@@ -71,10 +68,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     })
 
     test('attempts to submit', async ({applicantQuestions, page}) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('with no answer does not submit', async () => {
         // Click "Continue" without selecting anything.
@@ -99,10 +93,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })
@@ -138,10 +129,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
     test('with valid dates submits successfully', async ({
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerMemorableDateQuestion(
         '2022',
         '07 - July',
@@ -164,10 +152,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       // Only answer second question.
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerMemorableDateQuestion(
         '1990',
         '10 - October',
@@ -183,10 +168,7 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
     })

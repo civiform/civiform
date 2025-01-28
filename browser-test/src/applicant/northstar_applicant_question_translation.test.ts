@@ -48,10 +48,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
 
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
 
     // TODO(#9203): When the bug is fixed, we don't need to select Español again.
     await selectApplicantLanguage(page, 'Español')
@@ -97,10 +94,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
 
@@ -148,10 +142,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'Español')
 
     expect(await page.innerText('main form')).toContain('uno')
@@ -187,10 +178,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await applicantQuestions.applyProgram(
-      programName,
-      /* northStarEnabled= */ true,
-    )
+    await applicantQuestions.applyProgram(programName)
     await selectApplicantLanguage(page, 'Español')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')

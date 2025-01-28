@@ -83,10 +83,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     }) => {
       await loginAsTestUser(page)
       // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -106,10 +103,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     }) => {
       await loginAsTestUser(page)
       // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -128,10 +122,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -156,10 +147,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -181,10 +169,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantProgramList,
     }) => {
       // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -234,10 +219,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await tiDashboard.clickOnViewApplications()
 
       // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
@@ -270,10 +252,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await tiDashboard.clickOnViewApplications()
 
       // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()

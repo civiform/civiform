@@ -32,10 +32,7 @@ test.describe(
       })
 
       test('validate screenshot', async ({page, applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('Screenshot without errors', async () => {
           await validateScreenshot(
@@ -61,10 +58,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })
@@ -128,10 +122,7 @@ test.describe(
       test('with selection submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.clickContinue()
 
@@ -142,10 +133,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Click next without inputting anything
         await applicantQuestions.clickContinue()
@@ -223,10 +211,7 @@ test.describe(
         )
         await logout(page)
 
-        await applicantQuestions.applyProgram(
-          longTextProgramName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(longTextProgramName)
         await validateScreenshot(page, 'radio-options-long-text-applicant')
       })
     })
@@ -271,10 +256,7 @@ test.describe(
       test('with both selections submits successfully', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.answerRadioButtonQuestion('mountains')
         await applicantQuestions.clickContinue()
@@ -286,10 +268,7 @@ test.describe(
         applicantQuestions,
       }) => {
         // Only answer second question. First is optional.
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerRadioButtonQuestion('matcha')
         await applicantQuestions.clickContinue()
 
@@ -300,10 +279,7 @@ test.describe(
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await validateAccessibility(page)
       })

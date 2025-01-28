@@ -118,10 +118,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
@@ -154,10 +151,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(

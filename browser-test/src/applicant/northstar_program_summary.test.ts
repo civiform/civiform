@@ -92,10 +92,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
     test('Verify program summary page', async ({page, applicantQuestions}) => {
       await test.step('Apply to program', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
@@ -136,10 +133,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       // Clicking "Apply" navigates to the first block edit page
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       // Go to the review page
       await applicantQuestions.clickBack()
@@ -204,10 +198,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     await test.step('Download file in North Star', async () => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await expect(page.getByText(fileName)).toBeVisible()
 

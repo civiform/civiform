@@ -33,10 +33,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
       await logout(page)
-      await applicantQuestions.applyProgram(
-        'Minimal Sample Program',
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram('Minimal Sample Program')
       await validateScreenshot(
         page.getByRole('main'),
         'not-logged-in-guest-mode-enabled',

@@ -99,10 +99,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking previous on first block goes to summary page', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await applicantQuestions.clickBack()
 
@@ -112,10 +109,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking previous on later blocks goes to previous blocks', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // Fill out the first block and click next
         await applicantQuestions.answerMemorableDateQuestion(
@@ -170,10 +164,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking previous with correct form shows previous page and saves answers', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
           '11 - November',
@@ -210,10 +201,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // There is also a date question, and it's intentionally not answered
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
@@ -235,10 +223,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking previous with no answers does not show error modal', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // If the applicant has never answered this block before and doesn't fill in any
         // answers now, we shouldn't show the error modal and should just go straight to
@@ -252,10 +237,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('error on previous modal > click stay and fix > shows block', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // await applicantQuestions.answerDateQuestion('')
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
@@ -297,10 +279,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('error on previous modal > click previous without saving > answers not saved', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
           '11 - November',
@@ -329,10 +308,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('error on previous modal > click previous without saving > shows previous block', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
           '11 - November',
@@ -373,10 +349,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('answer questions on first block', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
             '2021',
             '11 - November',
@@ -406,10 +379,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('answer blocks with all required questions', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
             '2021',
             '11 - November',
@@ -598,10 +568,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       test('can skip optional questions', async ({applicantQuestions}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         await test.step('screen 1', async () => {
           await applicantQuestions.answerMemorableDateQuestion(
@@ -661,7 +628,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       test('answering questions out of order', async ({applicantQuestions}) => {
-        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
 
         await test.step('answer screen 4', async () => {
@@ -765,10 +732,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking review with correct form shows review page with saved answers', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
           '11 - November',
@@ -792,10 +756,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking review with some missing answers shows modal', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
@@ -810,10 +771,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('clicking review with no answers does not show error modal', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
 
         // If the applicant has never answered this block before and doesn't fill in any
         // answers now, we shouldn't show the error modal and should just go straight to
@@ -826,10 +784,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('error on review modal > click stay and fix > shows block', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         // Intentionally do NOT answer the date question
         await applicantQuestions.answerEmailQuestion('test1@gmail.com')
 
@@ -867,10 +822,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       test('error on review modal > click review without saving > shows review page without saved answers', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerMemorableDateQuestion(
           '2021',
           '11 - November',
@@ -899,10 +851,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('answer questions on first block', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
             '2021',
             '11 - November',
@@ -932,10 +881,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantQuestions,
       }) => {
         await test.step('answer blocks with all required questions', async () => {
-          await applicantQuestions.applyProgram(
-            programName,
-            /* northStarEnabled= */ true,
-          )
+          await applicantQuestions.applyProgram(programName)
           await applicantQuestions.answerMemorableDateQuestion(
             '2021',
             '11 - November',
@@ -1026,10 +972,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Expect Page B as the first page', async () => {
         // Even though Page B was created second, it's the first page in the application
@@ -1053,10 +996,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled= */ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await test.step('Fill out page 1, then go to home page', async () => {
         await expect(page.getByText('1 of 3', {exact: true})).toBeVisible()
@@ -1066,10 +1006,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Edit application and expect page 2', async () => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+        await applicantQuestions.applyProgram(programName)
         await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
       })
     })

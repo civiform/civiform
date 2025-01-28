@@ -60,10 +60,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -111,10 +108,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Setup: submit application', async () => {
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
 
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
@@ -163,10 +157,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('View the ineligible page with markdown-compatible eligibility message', async () => {
       await loginAsTestUser(page)
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
       await validateScreenshot(
@@ -200,10 +191,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
 
     await test.step('Answer questions', async () => {
       await tiDashboard.clickOnViewApplications()
-      await applicantQuestions.applyProgram(
-        programName,
-        /* northStarEnabled=*/ true,
-      )
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('0')
       await applicantQuestions.clickContinue()
     })
