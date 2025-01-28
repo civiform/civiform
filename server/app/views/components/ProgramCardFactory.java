@@ -1,6 +1,7 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
@@ -107,7 +108,10 @@ public final class ProgramCardFactory {
                                 StyleUtils.responsiveLarge("text-base"))
                             .with(
                                 span("Admin note: ").withClasses("font-semibold"),
-                                span(adminNoteText)))
+                                span(adminNoteText),
+                                br(),
+                                span("Visibility State: ").withClasses("font-semibold"),
+                                span(displayProgram.displayMode().getValue().replace("_", " "))))
                     .condWith(
                         showCategories,
                         p(
