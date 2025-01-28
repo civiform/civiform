@@ -127,6 +127,14 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
         "email" : "homer.simpson@springfield.gov",
         "question_type" : "EMAIL"
       },
+      "sample_enumerator_question" : {
+        "entities" : [ {
+          "entity_name" : "member1"
+        }, {
+          "entity_name" : "member2"
+        } ],
+        "question_type" : "ENUMERATOR"
+      },
       "sample_file_upload_question" : {
         "file_urls" : [ "http://localhost:9000/admin/applicant-files/my-file-key-1", "http://localhost:9000/admin/applicant-files/my-file-key-2" ],
         "question_type" : "FILE_UPLOAD"
