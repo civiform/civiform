@@ -1,7 +1,6 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
@@ -90,7 +89,6 @@ public final class ProgramCardFactory {
                                     /* addRequiredIndicator= */ false))
                             .withClasses(
                                 "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
-                    .with(br())
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
@@ -101,13 +99,20 @@ public final class ProgramCardFactory {
                             .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
                     .condWith(
                         !adminNoteText.isBlank(),
-                        p(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText))
-                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base")))
+                        p().withClasses(
+                                "pt-4",
+                                "line-clamp-3",
+                                "text-sm",
+                                StyleUtils.responsiveLarge("text-base"))
+                            .with(
+                                span("Admin note: ").withClasses("font-semibold"),
+                                span(adminNoteText)))
                     .with(
                         p(
                                 span("Visibility state: ").withClasses("font-semibold"),
                                 span(displayProgram.displayMode().visibilityState))
-                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base")))
+                            .withClasses(
+                                "text-sm", StyleUtils.responsiveLarge("text-base", "mb-4")))
                     .condWith(
                         showCategories,
                         p(
