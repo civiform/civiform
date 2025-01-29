@@ -62,7 +62,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
   default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
       QuestionDefinition questionDefinition) {
     return getSampleJsonEntries(
-        questionDefinition, new SampleDataContext(new ApplicantModel(), new HashMap<>()));
+        questionDefinition, new SampleDataContext());
   }
 
   default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
