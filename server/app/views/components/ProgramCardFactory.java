@@ -90,6 +90,7 @@ public final class ProgramCardFactory {
                                     /* addRequiredIndicator= */ false))
                             .withClasses(
                                 "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
+                    .with(br())
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
@@ -100,18 +101,13 @@ public final class ProgramCardFactory {
                             .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
                     .condWith(
                         !adminNoteText.isBlank(),
-                        p().withClasses(
-                                "mb-4",
-                                "pt-4",
-                                "line-clamp-3",
-                                "text-sm",
-                                StyleUtils.responsiveLarge("text-base"))
-                            .with(
-                                span("Admin note: ").withClasses("font-semibold"),
-                                span(adminNoteText),
-                                br(),
-                                span("Visibility State: ").withClasses("font-semibold"),
-                                span(displayProgram.displayMode().getVisibilityState())))
+                        p(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText))
+                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base")))
+                    .with(
+                        p(
+                                span("Visibility state: ").withClasses("font-semibold"),
+                                span(displayProgram.displayMode().visibilityState))
+                            .withClasses("text-sm", StyleUtils.responsiveLarge("text-base")))
                     .condWith(
                         showCategories,
                         p(
