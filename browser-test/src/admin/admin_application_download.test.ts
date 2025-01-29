@@ -188,17 +188,17 @@ test.describe('csv json pdf download test- two applications', () => {
       await adminQuestions.addDateQuestion({questionName: 'csv-date'})
       await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
       await adminQuestions.exportQuestion('Sample Name Question')
-      await adminQuestions.exportQuestion('dropdown-csv-download')
       await adminQuestions.exportQuestion('csv-date')
       await adminQuestions.exportQuestion('csv-currency')
       await adminQuestions.exportQuestion('csv-color')
+      await adminQuestions.exportQuestion('dropdown-csv-download')
       await adminPrograms.addAndPublishProgramWithQuestions(
         [
           'Sample Name Question',
-          'dropdown-csv-download',
           'csv-date',
           'csv-currency',
           'csv-color',
+          'dropdown-csv-download',
         ],
         programName,
       )
@@ -210,11 +210,11 @@ test.describe('csv json pdf download test- two applications', () => {
       await applicantQuestions.applyProgram(programName)
 
       // Applicant fills out first application block.
-      await applicantQuestions.answerNameQuestion('sarah', 'smith')
-      await applicantQuestions.answerDropdownQuestion('op2')
+      await applicantQuestions.answerNameQuestion('sarah', 'smith', '', '')
       await applicantQuestions.answerDateQuestion('2021-05-10')
       await applicantQuestions.answerCurrencyQuestion('1000')
       await applicantQuestions.answerCheckboxQuestion(['blue'])
+      await applicantQuestions.answerDropdownQuestion('op2')
       await applicantQuestions.clickNext()
 
       // Applicant submits answers from review page.
