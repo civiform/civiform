@@ -436,13 +436,13 @@ title.programSummary=Сводные данные о заявке на участ
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} – Обзор программы
 # Heading for the section of the program overview page that contains the application steps.
-heading.applicationSteps=How to apply
+heading.applicationSteps=Как подать заявку
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=Apply for {0} program
+heading.programOverview=Как подать заявку на участие в программе "{0}"
 # The text on the button that takes users to the account creation form.
-link.createAccountFromOverview=Start application with an account
+link.createAccountFromOverview=Создать аккаунт для подачи заявки
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Start application as a guest
+link.startAsGuest=Подать заявку в качестве гостя
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -533,7 +533,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Возможно, эта �
 alert.eligibility_ti_fastforwarded_not_eligible_text=В форме заявки могут быть новые или измененные вопросы, влияющие на ответы клиента или его допуск к участию в программе. Проверьте всю информацию ниже.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=You are likely eligible for this program based on responses to another application.
+alert.likelyEligible=Судя по ответам в другой заявке, вы подходите под требования этой программы.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
