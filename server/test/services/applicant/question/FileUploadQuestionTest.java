@@ -68,6 +68,24 @@ public class FileUploadQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withApplicantData_multiFile_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            fileUploadQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("filekey1", "filekey2"));
+    assertThat(fileUploadQuestion.getFileKeyListValue().get())
+        .containsExactly("filekey1", "filekey2");
+    assertThat(fileUploadQuestion.getFileKeyValueForIndex(0).get()).isEqualTo("filekey1");
+    assertThat(fileUploadQuestion.getFileKeyValueForIndex(1).get()).isEqualTo("filekey2");
+    assertThat(fileUploadQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
   public void getFilename_notAnswered_returnsEmpty() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(

@@ -37,7 +37,11 @@ public final class FileUploadQuestion extends AbstractQuestion {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath(), getFileKeyListPath());
+    return ImmutableList.of(
+        getFileKeyPath(),
+        getFileKeyListPath(),
+        getOriginalFileNamePath(),
+        getOriginalFileNameListPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
@@ -57,6 +61,10 @@ public final class FileUploadQuestion extends AbstractQuestion {
 
   public Optional<ImmutableList<String>> getFileKeyListValue() {
     return applicantQuestion.getApplicantData().readStringList(getFileKeyListPath());
+  }
+
+  public Optional<String> getFileKeyValueForIndex(int index) {
+    return applicantQuestion.getApplicantData().readString(getFileKeyListPathForIndex(index));
   }
 
   /**
@@ -88,6 +96,21 @@ public final class FileUploadQuestion extends AbstractQuestion {
     return originalFileNameValueCache.get();
   }
 
+  /*
+   * Returns the stored original filenames. If this data does not exist, return the file key values.
+   */
+  public Optional<ImmutableList<String>> getOriginalFileNameListValue() {
+    return getFileKeyListValue();
+  }
+
+  /*
+   * Returns the stored original filename for the given index. If this data does not exist, return the
+   * file key value for the same index.
+   */
+  public Optional<String> getOriginalFileNameValueForIndex(int index) {
+    return getFileKeyValueForIndex(index);
+  }
+
   public FileUploadQuestionDefinition getQuestionDefinition() {
     return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -110,6 +133,18 @@ public final class FileUploadQuestion extends AbstractQuestion {
 
   public Path getOriginalFileNamePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
+  public Path getOriginalFileNameListPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME_LIST);
+  }
+
+  public Path getOriginalFileNameListPathForIndex(int index) {
+    return applicantQuestion
+        .getContextualizedPath()
+        .join(Scalar.ORIGINAL_FILE_NAME_LIST)
+        .asArrayElement()
+        .atIndex(index);
   }
 
   public Optional<String> getFilename() {

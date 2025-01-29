@@ -1321,6 +1321,10 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     assertThat(result).hasSize(2);
     assertThat(result.get(0).encodedFileKeys()).isEmpty();
     assertThat(result.get(1).encodedFileKeys()).containsExactly("file-key-1", "file-key-2");
+
+    // When no original filenames are set, then the file-key is returned as the filename.
+    assertThat(result.get(0).fileNames()).isEmpty();
+    assertThat(result.get(1).fileNames()).containsExactly("file-key-1", "file-key-2");
   }
 
   @Test
