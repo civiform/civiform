@@ -436,13 +436,13 @@ title.programSummary=Buod ng application para sa programa
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Pangkalahatang-ideya sa Programa
 # Heading for the section of the program overview page that contains the application steps.
-heading.applicationSteps=How to apply
+heading.applicationSteps=Paano mag-apply
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=Apply for {0} program
+heading.programOverview=Mag-apply sa programang {0}
 # The text on the button that takes users to the account creation form.
-link.createAccountFromOverview=Start application with an account
+link.createAccountFromOverview=Simulan ang pag-apply nang gumagamit ng account
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Start application as a guest
+link.startAsGuest=Simulan ang pag-apply bilang bisita
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -533,7 +533,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=Posibleng hindi na kwalipi
 alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na-update na tanong na nakakaapekto sa mga sagot o pagiging kwalipikado ng kliyente mo. Pakisuri ang lahat ng tanong sa ibaba.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=You are likely eligible for this program based on responses to another application.
+alert.likelyEligible=Malamang na kwalipikado ka sa programang ito batay sa mga sagot sa ibang pag-apply.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
