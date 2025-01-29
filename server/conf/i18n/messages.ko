@@ -436,13 +436,13 @@ title.programSummary=프로그램 신청 요약
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - 프로그램 개요
 # Heading for the section of the program overview page that contains the application steps.
-heading.applicationSteps=How to apply
+heading.applicationSteps=신청 방법
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=Apply for {0} program
+heading.programOverview={0} 프로그램 신청
 # The text on the button that takes users to the account creation form.
-link.createAccountFromOverview=Start application with an account
+link.createAccountFromOverview=계정으로 신청 시작
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Start application as a guest
+link.startAsGuest=게스트로 신청 시작
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -533,7 +533,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=고객이 더 이상 이 �
 alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자격 요건에 영향을 미치는 새로운 질문이나 업데이트된 질문이 있을 수 있습니다. 아래의 질문을 모두 검토해 주세요.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=You are likely eligible for this program based on responses to another application.
+alert.likelyEligible=다른 신청서에 대한 응답에 따라 귀하는 이 프로그램에 참여할 자격이 있을 수 있습니다.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
