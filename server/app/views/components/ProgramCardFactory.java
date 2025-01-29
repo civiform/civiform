@@ -112,7 +112,7 @@ public final class ProgramCardFactory {
                                 span("Visibility state: ").withClasses("font-semibold"),
                                 span(displayProgram.displayMode().visibilityState))
                             .withClasses(
-                                "text-sm", StyleUtils.responsiveLarge("text-base", "mb-4")))
+                                "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
                     .condWith(
                         showCategories,
                         p(
