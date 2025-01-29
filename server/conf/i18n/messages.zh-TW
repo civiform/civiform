@@ -436,13 +436,13 @@ title.programSummary=計畫申請摘要
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - 計畫簡介
 # Heading for the section of the program overview page that contains the application steps.
-heading.applicationSteps=How to apply
+heading.applicationSteps=申請方式
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=Apply for {0} program
+heading.programOverview=申請「{0}」計畫
 # The text on the button that takes users to the account creation form.
-link.createAccountFromOverview=Start application with an account
+link.createAccountFromOverview=使用帳戶申請計畫
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Start application as a guest
+link.startAsGuest=以訪客身分申請計畫
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -533,7 +533,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=您的客戶可能不再�
 alert.eligibility_ti_fastforwarded_not_eligible_text=申請書中新增或更新的問題可能會影響您客戶的回答或合格狀態。請查看下方所有問題。
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=You are likely eligible for this program based on responses to another application.
+alert.likelyEligible=根據您對其他申請書的回覆，您可能符合這項計畫的資格。
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
