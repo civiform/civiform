@@ -143,7 +143,7 @@ public abstract class AbstractOpenApiSchemaGenerator {
   /** Rules to determine if a scalar is included in the schema generation output */
   protected static Boolean excludeScalarFromSchemaOutput(Scalar scalar) {
     return switch (scalar) {
-      case ORIGINAL_FILE_NAME, ORIGINAL_FILE_NAME_LIST -> true;
+      case ORIGINAL_FILE_NAME -> true;
       default -> false;
     };
   }

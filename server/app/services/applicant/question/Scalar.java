@@ -32,7 +32,6 @@ public enum Scalar {
   LONGITUDE("longitude", ScalarType.DOUBLE),
   MIDDLE_NAME("middle name", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
-  ORIGINAL_FILE_NAME_LIST("original file names", ScalarType.LIST_OF_STRINGS),
   ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
   SELECTION("selection", ScalarType.STRING),
   SELECTIONS("selections", ScalarType.LIST_OF_STRINGS),
@@ -124,8 +123,7 @@ public enum Scalar {
       case EMAIL:
         return ImmutableSet.of(EMAIL);
       case FILEUPLOAD:
-        return ImmutableSet.of(
-            FILE_KEY, FILE_KEY_LIST, ORIGINAL_FILE_NAME, ORIGINAL_FILE_NAME_LIST);
+        return ImmutableSet.of(FILE_KEY, FILE_KEY_LIST, ORIGINAL_FILE_NAME);
       case ID:
         return ImmutableSet.of(ID);
       case NAME:

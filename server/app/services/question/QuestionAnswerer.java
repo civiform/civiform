@@ -73,40 +73,18 @@ public final class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.FILE_KEY), fileKey);
   }
 
-  // Will set the given file key in the applicant data under the FILE_KEY_LIST scalar.
   public static void answerFileQuestionWithMultipleUpload(
       ApplicantData applicantData, Path contextualizedPath, int index, String fileKey) {
     applicantData.putString(
         contextualizedPath.join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX).atIndex(index), fileKey);
   }
 
-  // Will set the given file keys in the applicant data under the FILE_KEY_LIST scalar.
   public static void answerFileQuestionWithMultipleUpload(
       ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> fileKeys) {
     for (int i = 0; i < fileKeys.size(); i++) {
       applicantData.putString(
           contextualizedPath.join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX).atIndex(i),
           fileKeys.get(i));
-    }
-  }
-
-  // Will set the given original file name in the applicant data under the ORIGINAL_FILE_NAME_LIST
-  // scalar.
-  public static void answerFileQuestionWithMultipleUploadOriginalNames(
-      ApplicantData applicantData, Path contextualizedPath, int index, String originalName) {
-    applicantData.putString(
-        contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(index),
-        originalName);
-  }
-
-  // Will set the given original file names in the applicant data under the ORIGINAL_FILE_NAME_LIST
-  // scalar.
-  public static void answerFileQuestionWithMultipleUploadOriginalNames(
-      ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> originalNames) {
-    for (int i = 0; i < originalNames.size(); i++) {
-      applicantData.putString(
-          contextualizedPath.join(Scalar.ORIGINAL_FILE_NAME_LIST + Path.ARRAY_SUFFIX).atIndex(i),
-          originalNames.get(i));
     }
   }
 
