@@ -14,34 +14,34 @@ public enum DisplayMode {
   // The program should be fully visible.
   PUBLIC {
     @Override
-    public String getVisibilityStateString() {
+    public String getVisibilityState() {
       return "Public";
     }
   },
   // Visible only to Trusted Intermediaries
   TI_ONLY {
     @Override
-    public String getVisibilityStateString() {
+    public String getVisibilityState() {
       return "TI Only";
     }
   },
   // The program is hidden from applicants, trusted intermediaries, and program admins.
   DISABLED {
     @Override
-    public String getVisibilityStateString() {
+    public String getVisibilityState() {
       return "Disabled";
     }
   },
   // The program should not appear in the applicant's index screen.
   HIDDEN_IN_INDEX {
     @Override
-    public String getVisibilityStateString() {
+    public String getVisibilityState() {
       return "Hidden";
     }
   },
   SELECT_TI {
     @Override
-    public String getVisibilityStateString() {
+    public String getVisibilityState() {
       return "Select TI";
     }
   };
@@ -51,5 +51,5 @@ public enum DisplayMode {
     return this.name();
   }
 
-  public abstract String getVisibilityStateString();
+  public abstract String getVisibilityState();
 }

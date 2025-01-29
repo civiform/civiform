@@ -111,7 +111,7 @@ public final class ProgramCardFactory {
                                 span(adminNoteText),
                                 br(),
                                 span("Visibility State: ").withClasses("font-semibold"),
-                                span(displayProgram.displayMode().getVisibilityStateString())))
+                                span(displayProgram.displayMode().getVisibilityState())))
                     .condWith(
                         showCategories,
                         p(
