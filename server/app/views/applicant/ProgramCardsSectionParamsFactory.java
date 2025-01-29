@@ -134,18 +134,18 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    // Logged out user, unsubmitted application.
     String actionUrl = applicantRoutes.edit(program.id()).url();
     if (programDatum.latestApplicationLifecycleStage().isPresent()
         && programDatum.latestApplicationLifecycleStage().get() == LifecycleStage.ACTIVE) {
       // ACTIVE lifecycle stage means the application was submitted.
+      // TIs need to specify applicant ID.
       actionUrl =
           profile.isPresent() && applicantId.isPresent()
               ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
               : applicantRoutes.review(program.id()).url();
     } else if (profile.isPresent() && applicantId.isPresent()) {
-      // Logged in user, unsubmitted application.
-      applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
+      // TIs need to specify applicant ID.
+      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
     }
 
     boolean isGuest = personalInfo.getType() == GUEST;
