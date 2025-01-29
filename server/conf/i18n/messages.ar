@@ -436,13 +436,13 @@ title.programSummary=ملخّص طلب البرنامج
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview=‫{0} - نظرة عامة على البرنامج
 # Heading for the section of the program overview page that contains the application steps.
-heading.applicationSteps=How to apply
+heading.applicationSteps=كيفية إرسال طلب
 # Top-level heading for the program overview page.  The {0} is the program name.
-heading.programOverview=Apply for {0} program
+heading.programOverview=إرسال طلب للانضمام إلى برنامج {0}
 # The text on the button that takes users to the account creation form.
-link.createAccountFromOverview=Start application with an account
+link.createAccountFromOverview=بدء الطلب باستخدام حساب
 # The link that directs users to the start of the application without creating an account.
-link.startAsGuest=Start application as a guest
+link.startAsGuest=بدء الطلب كضيف
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -533,7 +533,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_title=قد لا يكون عمي�
 alert.eligibility_ti_fastforwarded_not_eligible_text=قد تتوفر أسئلة جديدة أو مُعدَّلة تؤثر في إجابات عميلك أو أهليته. يُرجى مراجعة جميع الأسئلة أدناه.
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
-alert.likelyEligible=You are likely eligible for this program based on responses to another application.
+alert.likelyEligible=أنت على الأرجح من المؤهلين للانضمام إلى هذا البرنامج استنادًا إلى ردودك المرسَلة على طلب آخر.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
