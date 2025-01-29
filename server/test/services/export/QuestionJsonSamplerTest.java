@@ -298,7 +298,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
             .create(QuestionType.ENUMERATOR)
             .getSampleJsonEntries(
                 ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), sampleDataContext);
-    EnumeratorQuestionDefinition nestedEnumeratedQuestionDefinition =
+    EnumeratorQuestionDefinition nestedEnumeratorQuestionDefinition =
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("Sample Nested Enumerator Question")
@@ -314,14 +314,14 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
         questionJsonSamplerFactory
             .create(QuestionType.ENUMERATOR)
             .getSampleJsonEntries(
-                nestedEnumeratedQuestionDefinition.withPopulatedTestId(), sampleDataContext);
+                nestedEnumeratorQuestionDefinition.withPopulatedTestId(), sampleDataContext);
 
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> repeatedEntityQuestion =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
             .getSampleJsonEntries(
-                dateEnumeratedQuestionDefinition(nestedEnumeratedQuestionDefinition.getId())
+                dateEnumeratedQuestionDefinition(nestedEnumeratorQuestionDefinition.getId())
                     .withPopulatedTestId(),
                 sampleDataContext);
 
