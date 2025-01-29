@@ -80,6 +80,20 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
                     Optional.empty(), programQuestionDefinition, sampleDataContext));
   }
 
+  /**
+   * Generates sample JSON entries for a question associated with an enumerator question. This
+   * method processes the given question for each repeated entity associated with the specified
+   * enumerator, effectively creating sample JSON data for each entity.
+   *
+   * @param enumeratorId The ID of the enumerator question.
+   * @param programQuestionDefinition The definition of the program question for which to generate
+   *     JSON.
+   * @param sampleDataContext The sample data context containing information about repeated
+   *     entities.
+   * @return An ImmutableMap representing the generated JSON entries, where keys are Paths and
+   *     values are Optional values. Returns an empty map if no repeated entities are found for the
+   *     given enumerator ID.
+   */
   private ImmutableMap<Path, Optional<?>> getJsonEntriesForEnumerator(
       long enumeratorId,
       ProgramQuestionDefinition programQuestionDefinition,
@@ -236,27 +250,28 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     @Override
     public void addSampleData(
         SampleDataContext sampleDataContext, ApplicantQuestion applicantQuestion) {
+      // Answers enumerator question with sample entities
       QuestionAnswerer.answerEnumeratorQuestion(
           sampleDataContext.getApplicantData(),
           applicantQuestion.getContextualizedPath(),
           SAMPLE_ENTITY_NAMES);
-      List<ImmutableList<RepeatedEntity>> allRepeatedEntities = new ArrayList<>();
+
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
           (EnumeratorQuestionDefinition) applicantQuestion.getQuestionDefinition();
+
+      // Create repeated entities and store it in the sampleDataContext. These entities will be used
+      // when processing a question that is associated with this enumerator question.
       ImmutableList<RepeatedEntity> repeatedEntities =
           RepeatedEntity.createRepeatedEntities(
               applicantQuestion.getRepeatedEntity(),
               enumeratorQuestionDefinition,
               Optional.empty(),
               sampleDataContext.getApplicantData());
-      allRepeatedEntities.add(repeatedEntities);
-      sampleDataContext.enumeratorRepeatedEntities.merge(
-          enumeratorQuestionDefinition.getId(),
-          allRepeatedEntities,
-          (existing, newRepeatedEntities) -> {
-            existing.addAll(newRepeatedEntities);
-            return existing;
-          });
+
+      sampleDataContext
+          .enumeratorRepeatedEntities
+          .computeIfAbsent(enumeratorQuestionDefinition.getId(), k -> new ArrayList<>())
+          .add(repeatedEntities);
     }
 
     @Override
