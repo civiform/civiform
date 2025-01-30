@@ -132,8 +132,20 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await test.step('fill out application without submitting and verify message on review page', async () => {
+      await test.step('fill out application without submitting and verify message on edit page', async () => {
         await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+        await validateScreenshot(
+          page,
+          'application-eligible-edit-page',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('fill out application without submitting and verify message on review page', async () => {
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(
@@ -144,7 +156,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       })
 
-      await test.step('verify no eligibility tags on in-progress application', async () => {
+      // TODO(dwaterman): why this?
+      await test.step('verify no eligibility tags on in-progress application card', async () => {
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       })
