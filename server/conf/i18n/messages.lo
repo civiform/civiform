@@ -435,6 +435,14 @@ title.programSummary=ສະຫຼຸບການສະໝັກໂຄງກາ�
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - ພາບຮວມໂປຣແກຣມ
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=ວິທີສະໝັກ
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=ສະໝັກເຂົ້າຮ່ວມໂຄງການ {0}
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=ເລີ່ມຕົ້ນການສະໝັກໂດຍໃຊ້ບັນຊີ
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=ເລີ່ມຕົ້ນການສະໝັກໃນຖານະແຂກ
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +531,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=ອາດມີຄຳຖາມ�
 alert.eligibility_ti_fastforwarded_not_eligible_title=ລູກຄ້າຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ອີກຕໍ່ໄປ
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=ອາດມີຄຳຖາມໃໝ່ ຫຼື ຄຳຖາມທີ່ໄດ້ຮັບການອັບເດດເຊິ່ງສົ່ງຜົນຕໍ່ຄຳຕອບ ຫຼື ການມີສິດຂອງລູກຄ້າຂອງທ່ານ. ກະລຸນາກວດສອບຄຳຕອບທັງໝົດລຸ່ມນີ້.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=ທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

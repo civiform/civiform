@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -82,5 +84,54 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
               assertThat(updatedAccount.getActiveSessions()).isEmpty();
               assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
             });
+  }
+
+  @Test
+  public void testLogoutWithAuthorityId_withSession() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("fake session", clock);
+    account.save();
+    String authorityId = setAndGetEncodedAuthorityId(account);
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
+
+  @Test
+  public void testLogoutWithAuthorityId_withMultipleSessions() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("session1", clock);
+    account.addActiveSession("session2", clock);
+    account.save();
+    String authorityId = setAndGetEncodedAuthorityId(account);
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
+
+  private String setAndGetEncodedAuthorityId(AccountModel account) {
+    // Set authority ID with account ID to ensure uniqueness
+    String authorityId = "iss: auth0 sub:" + account.id.toString();
+    account.setAuthorityId(authorityId);
+    account.save();
+    return URLEncoder.encode(authorityId, StandardCharsets.UTF_8);
   }
 }

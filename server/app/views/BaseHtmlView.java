@@ -15,6 +15,7 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableSet;
+import controllers.FlashKey;
 import j2html.TagCreator;
 import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
@@ -40,6 +42,7 @@ import services.MessageKey;
 import services.RandomStringUtils;
 import services.applicant.ValidationErrorMessage;
 import views.components.Icons;
+import views.components.ToastMessage;
 import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -302,5 +305,69 @@ public abstract class BaseHtmlView {
             span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR),
             span(" are required.").withClass(BaseStyles.FORM_LABEL_TEXT_COLOR))
         .withClass("text-sm");
+  }
+
+  protected static void addSuccessAndErrorToasts(HtmlBundle htmlBundle, Http.Flash flash) {
+    addToastMessagesOnSuccess(htmlBundle, flash);
+    addToastMessagesOnError(htmlBundle, flash);
+  }
+
+  protected static void addSuccessAndWarningToasts(HtmlBundle htmlBundle, Http.Flash flash) {
+    addToastMessagesOnSuccess(htmlBundle, flash);
+    addToastMessagesOnWarning(htmlBundle, flash);
+  }
+
+  private static void addToastMessagesOnWarning(HtmlBundle htmlBundle, Http.Flash flash) {
+    addToastMessages(htmlBundle, flash, FlashKey.WARNING, ToastMessage::warning);
+  }
+
+  protected static void addToastMessagesOnSuccess(HtmlBundle htmlBundle, Http.Flash flash) {
+    addToastMessages(htmlBundle, flash, FlashKey.SUCCESS, ToastMessage::success);
+  }
+
+  private static void addToastMessages(
+      HtmlBundle htmlBundle,
+      Http.Flash flash,
+      String key,
+      Function<String, ToastMessage> getToastMessage) {
+    flash
+        .get(key)
+        .ifPresent(
+            keyValue -> {
+              htmlBundle.addToastMessages(getToastMessage.apply(keyValue));
+            });
+  }
+
+  private static void addToastMessagesOnError(HtmlBundle htmlBundle, Http.Flash flash) {
+    addToastMessagesOnError(htmlBundle, flash, Optional.empty(), Optional.empty());
+  }
+
+  protected static void addToastMessagesOnError(
+      HtmlBundle htmlBundle, Http.Flash flash, Class<? extends BaseHtmlView> loggerClazz) {
+    addToastMessagesOnError(htmlBundle, flash, Optional.of(loggerClazz), Optional.empty());
+  }
+
+  protected static void addToastMessagesOnError(
+      HtmlBundle htmlBundle,
+      Http.Flash flash,
+      Class<? extends BaseHtmlView> loggerClazz,
+      String errorToastId) {
+    addToastMessagesOnError(htmlBundle, flash, Optional.of(loggerClazz), Optional.of(errorToastId));
+  }
+
+  private static void addToastMessagesOnError(
+      HtmlBundle htmlBundle,
+      Http.Flash flash,
+      Optional<Class<? extends BaseHtmlView>> maybeLoggerClazz,
+      Optional<String> maybeErrorToastId) {
+    flash
+        .get(FlashKey.ERROR)
+        .ifPresent(
+            error -> {
+              maybeLoggerClazz.ifPresent(clazz -> LoggerFactory.getLogger(clazz).info(error));
+              ToastMessage toastMessage = ToastMessage.errorNonLocalized(error);
+              maybeErrorToastId.ifPresent(errorToastId -> toastMessage.setId(errorToastId));
+              htmlBundle.addToastMessages(toastMessage);
+            });
   }
 }

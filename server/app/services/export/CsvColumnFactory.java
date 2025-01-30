@@ -59,8 +59,7 @@ final class CsvColumnFactory {
     this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
-  Stream<Column> buildColumns(
-      ApplicantQuestion aq, ColumnType columnType, boolean isMultipleFileUploadEnabled) {
+  Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType) {
     switch (aq.getType()) {
       case ADDRESS:
         return buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
@@ -80,8 +79,7 @@ final class CsvColumnFactory {
       case ENUMERATOR:
         return Stream.empty();
       case FILEUPLOAD:
-        return buildColumnsForFileUploadQuestion(
-            aq.createFileUploadQuestion(), columnType, isMultipleFileUploadEnabled);
+        return buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
       case ID:
         return buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
       case NAME:
@@ -231,7 +229,7 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForFileUploadQuestion(
-      FileUploadQuestion q, ColumnType columnType, boolean isMultipleFileUploadEnabled) {
+      FileUploadQuestion q, ColumnType columnType) {
     String baseUrl = settingsManifest.getBaseUrl().orElse("");
 
     Column fileKeyListColumn =
@@ -240,41 +238,16 @@ final class CsvColumnFactory {
             .setHeader(formatHeader(q.getFileKeyListPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(
-                fuq -> {
-                  FileUploadQuestion innerQ = (FileUploadQuestion) fuq;
-
-                  Stream<String> keyStream =
-                      isMultipleFileUploadEnabled
-                          ? innerQ
-                              .getFileKeyListValue()
-                              .map(ImmutableList::stream)
-                              .orElseGet(Stream::empty)
-                          : innerQ.getFileKeyValue().stream();
-
-                  return keyStream
-                      .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey))
-                      .collect(Collectors.joining(", "));
-                })
-            .build();
-
-    if (isMultipleFileUploadEnabled) {
-      return Stream.of(fileKeyListColumn);
-    }
-
-    Column fileKeyColumn =
-        Column.builder()
-            .setColumnType(columnType)
-            .setHeader(formatHeader(q.getFileKeyPath()))
-            .setQuestionPath(q.getContextualizedPath())
-            .setAnswerExtractor(
                 fuq ->
                     ((FileUploadQuestion) fuq)
-                        .getFileKeyValue()
+                        .getFileKeyListValue()
+                        .map(ImmutableList::stream)
+                        .orElseGet(Stream::empty)
                         .map(fileKey -> ExportFormatUtils.formatFileUrlForAdmin(baseUrl, fileKey))
-                        .orElse(""))
+                        .collect(Collectors.joining(", ")))
             .build();
 
-    return Stream.of(fileKeyColumn, fileKeyListColumn);
+    return Stream.of(fileKeyListColumn);
   }
 
   private Stream<Column> buildColumnsForIdQuestion(IdQuestion q, ColumnType columnType) {

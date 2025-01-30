@@ -23,7 +23,11 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.LocalizedStrings;
 import services.Path;
+import services.export.QuestionJsonSampler.SampleDataContext;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 
 public class QuestionJsonSamplerTest extends ResetPostgres {
@@ -41,7 +45,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ADDRESS)
-            .getSampleJsonEntries(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -83,7 +87,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CURRENCY)
-            .getSampleJsonEntries(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -100,7 +104,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
-            .getSampleJsonEntries(DATE_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(DATE_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyEntriesOf(
@@ -117,7 +121,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.EMAIL)
-            .getSampleJsonEntries(EMAIL_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(EMAIL_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -134,7 +138,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.FILEUPLOAD)
-            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId(), true);
+            .getSampleJsonEntries(
+                FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId(), new SampleDataContext());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -149,32 +154,12 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
-  public void samplesFileUploadQuestion_whenMultipleFileDisabled_showsBothFileKeys() {
-    @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
-        questionJsonSamplerFactory
-            .create(QuestionType.FILEUPLOAD)
-            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId(), false);
-
-    assertThat(entries)
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(
-                Path.create("applicant.sample_file_upload_question.question_type"),
-                Optional.of("FILE_UPLOAD"),
-                Path.create("applicant.sample_file_upload_question.file_key"),
-                Optional.of("http://localhost:9000/admin/applicant-files/my-file-key"),
-                Path.create("applicant.sample_file_upload_question.file_urls"),
-                Optional.of(
-                    Arrays.asList("http://localhost:9000/admin/applicant-files/my-file-key"))));
-  }
-
-  @Test
   public void samplesIdQuestion() {
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ID)
-            .getSampleJsonEntries(ID_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(ID_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -191,7 +176,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CHECKBOX)
-            .getSampleJsonEntries(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -208,7 +193,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NAME)
-            .getSampleJsonEntries(NAME_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(NAME_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -231,7 +216,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NUMBER)
-            .getSampleJsonEntries(NUMBER_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(NUMBER_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -248,7 +233,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.PHONE)
-            .getSampleJsonEntries(PHONE_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(PHONE_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -265,7 +250,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.RADIO_BUTTON)
-            .getSampleJsonEntries(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -282,7 +267,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.TEXT)
-            .getSampleJsonEntries(TEXT_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(TEXT_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
@@ -299,33 +284,119 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.STATIC)
-            .getSampleJsonEntries(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId());
 
     assertThat(entries).isEmpty();
   }
 
-  // TODO(#4975): update this test once enumerator questions are supported.
   @Test
-  public void enumeratorQuestions_returnEmpty() {
+  public void sampleEnumeratorQuestions_nestedEnumerator() {
+    SampleDataContext sampleDataContext = new SampleDataContext();
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> enumEntries =
+        questionJsonSamplerFactory
+            .create(QuestionType.ENUMERATOR)
+            .getSampleJsonEntries(
+                ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), sampleDataContext);
+    EnumeratorQuestionDefinition nestedEnumeratorQuestionDefinition =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("Sample Nested Enumerator Question")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.withDefaultValue("$this's sources of income."))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                .setEnumeratorId(ENUMERATOR_QUESTION_DEFINITION.getId())
+                .build(),
+            LocalizedStrings.withDefaultValue("household member income source"));
+
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> nestedEnumEntries =
+        questionJsonSamplerFactory
+            .create(QuestionType.ENUMERATOR)
+            .getSampleJsonEntries(
+                nestedEnumeratorQuestionDefinition.withPopulatedTestId(), sampleDataContext);
+
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> repeatedEntityQuestion =
+        questionJsonSamplerFactory
+            .create(QuestionType.DATE)
+            .getSampleJsonEntries(
+                dateEnumeratedQuestionDefinition(nestedEnumeratorQuestionDefinition.getId())
+                    .withPopulatedTestId(),
+                sampleDataContext);
+
+    assertThat(repeatedEntityQuestion)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_nested_enumerator_question.entities[0].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_nested_enumerator_question.entities[0].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_nested_enumerator_question.entities[1].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_nested_enumerator_question.entities[1].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_nested_enumerator_question.entities[0].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_nested_enumerator_question.entities[0].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_nested_enumerator_question.entities[1].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_nested_enumerator_question.entities[1].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02")));
+  }
+
+  @Test
+  public void sampleEnumeratorQuestions() {
+    SampleDataContext sampleDataContext = new SampleDataContext();
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ENUMERATOR)
-            .getSampleJsonEntries(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), false);
+            .getSampleJsonEntries(
+                ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId(), sampleDataContext);
 
-    assertThat(entries).isEmpty();
-  }
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_enumerator_question.question_type"),
+                Optional.of("ENUMERATOR"),
+                Path.create("applicant.sample_enumerator_question.entities[0].entity_name"),
+                Optional.of("member1"),
+                Path.create("applicant.sample_enumerator_question.entities[1].entity_name"),
+                Optional.of("member2")));
 
-  // TODO(#5238): update this test once enumerated questions are supported.
-  @Test
-  public void enumeratedQuestions_returnEmpty() {
     @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
+    ImmutableMap<Path, Optional<?>> repeatedEntityQuestion =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
             .getSampleJsonEntries(
-                dateEnumeratedQuestionDefinition(1L).withPopulatedTestId(), false);
+                dateEnumeratedQuestionDefinition(ENUMERATOR_QUESTION_DEFINITION.getId())
+                    .withPopulatedTestId(),
+                sampleDataContext);
 
-    assertThat(entries).isEmpty();
+    assertThat(repeatedEntityQuestion)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[0].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_enumerated_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create(
+                    "applicant.sample_enumerator_question.entities[1].sample_enumerated_date_question.date"),
+                Optional.of("2023-01-02")));
   }
 }

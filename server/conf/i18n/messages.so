@@ -435,6 +435,14 @@ title.programSummary=Soo koobida barnaamijka codsiga
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - Guudmarka Barnaamijka
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=Sida loo codsado
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Codso barnaamijka {0}
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=Ku bilow codsiga adigoo furanayo akoon
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=Ku bilow codsiga sidii qof marti ah
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +531,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=Waxaa jiri kara su'aalo cusub m
 alert.eligibility_ti_fastforwarded_not_eligible_title=Waxaa suurtagal ah in macmiilkaagu u qalmin barnaamijkan mar dambe
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cusub mise la cusboonaysiiyay oo saameeya jawaabaha macmiilkaaga mise u qalmitaankooda. Fadlan dib u eeg dhammaan su'aalaha hoose.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=Waxay u badan tahay inaad u qalanto barnaamijkan iyadoo lagu saleynayo jawaabaha aad ku bixisay codsi kale.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

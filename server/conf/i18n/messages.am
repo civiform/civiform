@@ -435,6 +435,14 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - የፕሮግራም አጠቃላይ እይታ
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=እንዴት ማመልከት እንደሚቻል
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=ለ{0} ፕሮግራም ያመልክቱ
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=መተግበሪያውን በመለያ ጀምር
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=መተግበሪያውን እንደ እንግዳ ጀምር
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +531,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=በደንበኛዎ መልሶች
 alert.eligibility_ti_fastforwarded_not_eligible_title=ደንበኛዎ ከአሁን በኋላ ለዚህ ፕሮግራም ብቁ ላይሆኑ ይችላሉ።
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=በደንበኛዎ መልሶች ወይም ብቁነት ላይ ተጽዕኖ የሚያሳርፉ አዲስ ወይም የተዘመኑ ጥያቄዎች ሊኖሩ ይችላሉ። እባክዎ ከዚህ በታች ሁሉንም ጥያቄዎች ይከልሱ።
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=ለሌላ መተግበሪያ በሚሰጡ ምላሾች መሰረት ለዚህ ፕሮግራም ብቁ ሊሆኑ ይችላሉ
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

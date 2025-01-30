@@ -28,8 +28,19 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   /**
-   * questions: List of questions that the applicant answered that may make the applicant
-   * ineligible. The list may be empty.
+   * Calculates the alert settings for the given request. This method contains a String param
+   * representing eligibility message.
+   *
+   * @param request The HTTP request.
+   * @param isTI True if the request is from a tax advisor.
+   * @param isApplicationEligible True if the application is eligible for the program.
+   * @param isNorthStarEnabled True if NorthStar is enabled.
+   * @param pageHasSupplementalInformation True if the page has supplemental information.
+   * @param programId The program ID.
+   * @param eligibilityMsg The eligibility message.
+   * @param questions The list of applicant questions that the applicant answered that may make the
+   *     applicant ineligible. The list may be empty.
+   * @return The alert settings.
    */
   public AlertSettings calculate(
       Http.Request request,
@@ -38,6 +49,59 @@ public final class EligibilityAlertSettingsCalculator {
       boolean isNorthStarEnabled,
       boolean pageHasSupplementalInformation,
       long programId,
+      String eligibilityMsg,
+      ImmutableList<ApplicantQuestion> questions) {
+    return calculateCommon(
+        request,
+        isTI,
+        isApplicationEligible,
+        isNorthStarEnabled,
+        pageHasSupplementalInformation,
+        programId,
+        eligibilityMsg,
+        questions);
+  }
+
+  /**
+   * Calculates the alert settings for the given request.
+   *
+   * @param request The HTTP request.
+   * @param isTI True if the request is from a tax advisor.
+   * @param isApplicationEligible True if the application is eligible for the program.
+   * @param isNorthStarEnabled True if NorthStar is enabled.
+   * @param pageHasSupplementalInformation True if the page has supplemental information.
+   * @param programId The program ID.
+   * @param questions The list of applicant questions that the applicant answered that may make the
+   *     applicant ineligible. The list may be empty.
+   * @return The alert settings.
+   */
+  public AlertSettings calculate(
+      Http.Request request,
+      boolean isTI,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation,
+      long programId,
+      ImmutableList<ApplicantQuestion> questions) {
+    return calculateCommon(
+        request,
+        isTI,
+        isApplicationEligible,
+        isNorthStarEnabled,
+        pageHasSupplementalInformation,
+        programId,
+        "",
+        questions);
+  }
+
+  private AlertSettings calculateCommon(
+      Http.Request request,
+      boolean isTI,
+      boolean isApplicationEligible,
+      boolean isNorthStarEnabled,
+      boolean pageHasSupplementalInformation,
+      long programId,
+      String eligibilityMsg,
       ImmutableList<ApplicantQuestion> questions) {
     Messages messages = messagesApi.preferred(request);
 
@@ -66,10 +130,14 @@ public final class EligibilityAlertSettingsCalculator {
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
 
+    String msg =
+        messages.at(triple.textKey.getKeyName())
+            + (eligibilityMsg.isEmpty() ? "" : "\n" + eligibilityMsg);
+
     return new AlertSettings(
         true,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
-        messages.at(triple.textKey.getKeyName()),
+        msg,
         triple.alertType,
         formattedQuestions,
         /* isSlim= */ false);

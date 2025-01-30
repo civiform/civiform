@@ -7,6 +7,7 @@ import {
   ClientInformation,
   loginAsTestUser,
   validateScreenshot,
+  validateAccessibility,
 } from '../support'
 
 test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
@@ -31,6 +32,58 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await adminPrograms.publishProgram(programName)
       await logout(page)
     })
+  })
+
+  test('can view program overview', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+    adminPrograms,
+  }) => {
+    await test.step('edit the long description and application step description so that they have markdown', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.goToProgramDescriptionPage(
+        programName,
+        /* createNewDraft= */ true,
+      )
+      await page
+        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .fill(
+          'This is the _program long description_ with markdown\n' +
+            '[This is a link](https://www.example.com)\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n' +
+            '\n' +
+            'There are some empty lines below this that should be preserved\n' +
+            '\n' +
+            '\n' +
+            'Autodetected link: https://www.example.com\n',
+        )
+
+      await page
+        .getByRole('textbox', {name: 'Step 1 description *'})
+        .fill(
+          'This is the _application step_ with markdown\n' +
+            'Autodetected link: https://www.example.com\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n',
+        )
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await page.goto(`/programs/${programName}`)
+
+    await applicantProgramOverview.expectProgramOverviewPage(programName)
+    await validateScreenshot(
+      page.locator('main'),
+      'program-overview',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+    await validateAccessibility(page)
   })
 
   test.describe('after starting an application', () => {
@@ -59,21 +112,6 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await page.goto(`/programs/${programName}`)
       await applicantProgramOverview.expectProgramOverviewPage(programName)
     })
-  })
-
-  test('can view program overview', async ({
-    page,
-    applicantProgramOverview: applicantProgramOverview,
-  }) => {
-    await page.goto(`/programs/${programName}`)
-
-    await applicantProgramOverview.expectProgramOverviewPage(programName)
-    await validateScreenshot(
-      page.locator('main'),
-      'program-overview',
-      /* fullPage= */ false,
-      /* mobileScreenshot= */ true,
-    )
   })
 
   test('displays short description if there is no long description', async ({
@@ -202,5 +240,70 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         name: 'Apply to programs in one place',
       }),
     ).toBeAttached()
+  })
+
+  test('clicking on "Start an application" goes to the first page of the application', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
+    await page.goto(`/programs/${programName}`)
+    await page.getByRole('link', {name: 'Start an application'}).click()
+    await applicantProgramOverview.expectFirstPageOfApplication()
+  })
+
+  test('when user is logged in', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
+    await loginAsTestUser(page)
+    await page.goto(`/programs/${programName}`)
+
+    await test.step('verify "logged in as" and logout button are visible', async () => {
+      await expect(page.getByText('Logged in as')).toBeVisible()
+      await expect(page.getByRole('link', {name: 'Logout'})).toBeVisible()
+    })
+
+    const stepsAndAlertsLocator = page.getByTestId('steps-and-alerts')
+
+    await test.step('verify there is no create account alert but, rather, a "Start an application" button', async () => {
+      await expect(page.locator('#create-account')).toBeHidden()
+      await expect(
+        stepsAndAlertsLocator.getByRole('link', {name: 'Start an application'}),
+      ).toBeVisible()
+    })
+
+    await test.step('click on 2nd "Start an application" button and verify that it goes to the application', async () => {
+      await stepsAndAlertsLocator
+        .getByRole('link', {name: 'Start an application'})
+        .click()
+      await applicantProgramOverview.expectFirstPageOfApplication()
+    })
+  })
+
+  test('when user is a guest', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
+    await page.goto(`/programs/${programName}`)
+
+    await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
+
+    await test.step('verify the create account alert is visible', async () => {
+      await expect(
+        page.getByRole('link', {name: 'Start application with an account'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Create an account to save your application information',
+        }),
+      ).toBeVisible()
+    })
+
+    await test.step('click "Start application as a guest" and verify that it goes to the application', async () => {
+      await page
+        .getByRole('link', {name: 'Start application as a guest'})
+        .click()
+      await applicantProgramOverview.expectFirstPageOfApplication()
+    })
   })
 })

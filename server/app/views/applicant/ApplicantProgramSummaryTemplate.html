@@ -39,7 +39,7 @@
               th:replace="~{applicant/ApplicantBaseFragment :: requiredFieldsExplanation}"
             ></div>
 
-            <ol class="application-summary">
+            <ol class="application-summary usa-list usa-list--unstyled">
               <li class="" th:each="blockSummary: ${blockSummaries}">
                 <div
                   th:replace="~{applicant/BlockSummaryFragment :: blockSummaryFragment(${blockSummary})}"

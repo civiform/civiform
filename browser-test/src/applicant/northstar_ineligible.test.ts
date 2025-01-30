@@ -138,6 +138,44 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('As applicant, start answering questions, then view the alert with eligibility message on ineligible page', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    applicantQuestions,
+  }) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
+
+    await test.step('Add an eligibility message with special character for markdown', async () => {
+      const eligibilityMsg =
+        'This is *a* **customized** eligibility [message](https://staging-aws.civiform.dev)'
+      await loginAsAdmin(page)
+      await adminPrograms.editProgram(programName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 1',
+      )
+      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
+      await adminPrograms.publishProgram(programName)
+      await logout(page)
+    })
+
+    await test.step('View the ineligible page with markdown-compatible eligibility message', async () => {
+      await loginAsTestUser(page)
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+      await validateScreenshot(
+        page.getByRole('alert'),
+        'northstar-eligibility-msg',
+      )
+    })
+  })
+
   test('As TI, view ineligible page', async ({
     page,
     applicantQuestions,

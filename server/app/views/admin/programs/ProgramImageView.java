@@ -58,7 +58,6 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
-import views.components.ToastMessage;
 import views.fileupload.FileUploadViewStrategy;
 import views.style.StyleUtils;
 
@@ -175,14 +174,7 @@ public final class ProgramImageView extends BaseHtmlView {
             .addMainContent(div().with(backButton, mainContent))
             .addModals(deleteImageModal);
 
-    // TODO(#6593): Write a helper method for this toast display logic.
-    Http.Flash flash = request.flash();
-    if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
-    } else if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
-    }
-
+    addSuccessAndErrorToasts(htmlBundle, request.flash());
     return layout.renderCentered(htmlBundle);
   }
 

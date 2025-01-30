@@ -27,7 +27,6 @@ import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 
 /** API controller for admin access to a specific program's applications. */
 public final class ProgramApplicationsApiController extends CiviFormApiController {
@@ -40,7 +39,6 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final JsonExporterService jsonExporterService;
   private final int maxPageSize;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationsApiController(
@@ -52,15 +50,13 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramService programService,
       VersionRepository versionRepository,
-      Config config,
-      SettingsManifest settingsManifest) {
+      Config config) {
     super(apiPaginationTokenSerializer, apiPayloadWrapper, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.jsonExporterService = checkNotNull(jsonExporterService);
     this.programService = checkNotNull(programService);
     this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public CompletionStage<Result> list(
@@ -111,10 +107,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                       programDefinition.id(), paginationSpec, filters);
 
               String applicationsJson =
-                  jsonExporterService.exportPage(
-                      programDefinition,
-                      paginationResult,
-                      settingsManifest.getMultipleFileUploadEnabled(request));
+                  jsonExporterService.exportPage(programDefinition, paginationResult);
 
               String responseJson =
                   apiPayloadWrapper.wrapPayload(
