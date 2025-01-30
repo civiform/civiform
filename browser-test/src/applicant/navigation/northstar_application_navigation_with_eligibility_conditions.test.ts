@@ -156,7 +156,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       })
 
-      // TODO(dwaterman): why this?
       await test.step('verify no eligibility tags on in-progress application card', async () => {
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeNoEligibilityTags(fullProgramName)
