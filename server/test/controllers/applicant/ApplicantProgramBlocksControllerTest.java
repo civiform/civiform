@@ -2096,10 +2096,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.addFileWithApplicantId(
                     applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
-    addQueryString(
-        request,
-        ImmutableMap.of(
-            "key", "fake-key", "bucket", "fake-bucket", "originalFileName", "fake-file-name"));
+    addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
     Result result =
         subject
@@ -2118,7 +2115,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
-    assertThat(applicantData).contains("fake-key", "fake-file-name");
+    assertThat(applicantData).contains("fake-key");
   }
 
   @Test
@@ -2204,10 +2201,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.addFileWithApplicantId(
                     applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
-    addQueryString(
-        requestOne,
-        ImmutableMap.of(
-            "key", "keyOne", "bucket", "fake-bucket", "originalFileName", "fileNameOne"));
+    addQueryString(requestOne, ImmutableMap.of("key", "keyOne", "bucket", "fake-bucket"));
 
     subject
         .addFileWithApplicantId(
@@ -2220,10 +2214,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .call(
                 routes.ApplicantProgramBlocksController.addFileWithApplicantId(
                     applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
-    addQueryString(
-        requestTwo,
-        ImmutableMap.of(
-            "key", "keyTwo", "bucket", "fake-bucket", "originalFileName", "fileNameTwo"));
+    addQueryString(requestTwo, ImmutableMap.of("key", "keyTwo", "bucket", "fake-bucket"));
 
     subject
         .addFileWithApplicantId(
@@ -2233,8 +2224,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
-    assertThat(applicantData).contains("keyOne", "fileNameOne");
-    assertThat(applicantData).contains("keyTwo", "fileNameTwo");
+    assertThat(applicantData).contains("keyOne");
+    assertThat(applicantData).contains("keyTwo");
 
     // Assert that corresponding entries were created in the stored file repo.
     var storedFileRepo = instanceOf(StoredFileRepository.class);
@@ -2599,63 +2590,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String applicantDataString = applicant.getApplicantData().asJsonString();
     assertThat(applicantDataString).contains("file-key-1", "file-key-2");
     assertThat(applicantDataString).doesNotContain("key-to-remove");
-  }
-
-  @Test
-  public void removeFile_removesFileWithOriginalNamesAndRerenders() {
-    program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock("block 1")
-            .withRequiredQuestion(testQuestionBank().fileUploadApplicantFile())
-            .build();
-
-    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-        applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank()
-                .fileUploadApplicantFile()
-                .getQuestionDefinition()
-                .getQuestionPathSegment()),
-        ImmutableList.of("file-key-1", "key-to-remove", "file-key-2"));
-
-    QuestionAnswerer.answerFileQuestionWithMultipleUploadOriginalNames(
-        applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(
-            testQuestionBank()
-                .fileUploadApplicantFile()
-                .getQuestionDefinition()
-                .getQuestionPathSegment()),
-        ImmutableList.of("file-name-1", "key-name-to-remove", "file-name-2"));
-
-    applicant.save();
-
-    RequestBuilder request =
-        fakeRequestBuilder()
-            .call(
-                routes.ApplicantProgramBlocksController.removeFile(
-                    program.id,
-                    /* blockId= */ "1",
-                    /* fileKey= */ "key-to-remove",
-                    /* inReview= */ false));
-
-    Result result =
-        subject
-            .removeFile(
-                request.build(),
-                program.id,
-                /* blockId= */ "1",
-                /* fileKey= */ "key-to-remove",
-                /* inReview= */ false)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-
-    applicant.refresh();
-    String applicantDataString = applicant.getApplicantData().asJsonString();
-    assertThat(applicantDataString)
-        .contains("file-key-1", "file-key-2", "file-name-1", "file-name-2");
-    assertThat(applicantDataString).doesNotContain("key-to-remove", "file-name-to-remove");
   }
 
   @Test

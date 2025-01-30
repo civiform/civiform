@@ -21,6 +21,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.components.TextFormatter;
 
 /**
  * Renders the program overview page for applicants, which describes the program to the applicant
@@ -94,11 +95,14 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     String localizedProgramDescription =
         programDefinition.localizedDescription().getOrDefault(preferredLocale);
 
-    if (localizedProgramDescription.isEmpty()) {
-      localizedProgramDescription =
-          programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
+    if (!localizedProgramDescription.isEmpty()) {
+      return TextFormatter.formatTextToSanitizedHTML(
+          localizedProgramDescription,
+          /* preserveEmptyLines= */ true,
+          /* addRequiredIndicator= */ false);
     }
-    return localizedProgramDescription;
+
+    return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
   }
 
   private AlertSettings createEligibilityAlertSettings(Messages messages) {
@@ -123,7 +127,10 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             (step) -> {
               applicationStepsBuilder.put(
                   step.getTitle().getOrDefault(preferredLocale),
-                  step.getDescription().getOrDefault(preferredLocale));
+                  TextFormatter.formatTextToSanitizedHTML(
+                      step.getDescription().getOrDefault(preferredLocale),
+                      /* preserveEmptyLines= */ true,
+                      /* addRequiredIndicator= */ false));
             });
     ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
     return applicationStepsMap;

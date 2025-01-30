@@ -12,17 +12,23 @@ import io.ebean.annotation.DbEnumValue;
 public enum DisplayMode {
   // The following modes are mutually exclusive.
   // The program should be fully visible.
-  PUBLIC,
+  PUBLIC("Public"),
   // Visible only to Trusted Intermediaries
-  TI_ONLY,
+  TI_ONLY("TI Only"),
   // The program is hidden from applicants, trusted intermediaries, and program admins.
-  DISABLED,
+  DISABLED("Disabled"),
   // The program should not appear in the applicant's index screen.
-  HIDDEN_IN_INDEX,
-  SELECT_TI;
+  HIDDEN_IN_INDEX("Hidden"),
+  SELECT_TI("Select TI");
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {
     return this.name();
+  }
+
+  public final String visibilityState;
+
+  DisplayMode(String visibilityState) {
+    this.visibilityState = visibilityState;
   }
 }
