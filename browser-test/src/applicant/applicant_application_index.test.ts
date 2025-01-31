@@ -700,6 +700,15 @@ test.describe('applicant program index page', () => {
           await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
+        await test.step('Expect editing submitted application takes user to review page', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+          )
+
+          await expect(page.getByText('Review and submit')).toBeVisible()
+        })
+
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
           await logout(page, false)
 
