@@ -25,4 +25,42 @@ export class ApplicantProgramOverview {
     expect(await this.page.title()).toBe('test — 1 of 2')
     await expect(this.page.getByText('Screen 1')).toBeVisible()
   }
+
+  async expectYouAreEligibleAlert(): Promise<void> {
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You are likely eligible'}),
+    ).toBeVisible()
+
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You may not be eligible'}),
+    ).toBeHidden()
+  }
+
+  async expectYouMayNotBeEligibleAlert(): Promise<void> {
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You may not be eligible'}),
+    ).toBeVisible()
+
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You are likely eligible'}),
+    ).toBeHidden()
+  }
+
+  async expectNoEligibilityAlerts(): Promise<void> {
+    await expect(
+      this.page.getByTestId('eligibility-alert').getByRole('alert'),
+    ).toBeHidden()
+  }
 }

@@ -142,6 +142,10 @@ public final class ProgramSlugHandler {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
+    Optional<Boolean> optionalIsEligible =
+        applicantService.getApplicantMayBeEligibleStatus(
+            profile.getApplicant().join(), activeProgramDefinition);
+
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
                 != DisplayMode.DISABLED // If the program is disabled,
@@ -153,7 +157,8 @@ public final class ProgramSlugHandler {
                     applicantId,
                     applicantPersonalInfo.join(),
                     profile,
-                    activeProgramDefinition))
+                    activeProgramDefinition,
+                    optionalIsEligible))
             .as("text/html")
             .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
         : redirectToReviewPage(

@@ -9,6 +9,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -18,6 +19,7 @@ import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
@@ -54,7 +56,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       Long applicantId,
       ApplicantPersonalInfo personalInfo,
       CiviFormProfile profile,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      Optional<Boolean> optionalIsEligible) {
 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -78,8 +81,25 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
         getStepsMap(programDefinition, preferredLocale);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
-    AlertSettings eligibilityAlertSettings = createEligibilityAlertSettings(messages);
-    context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
+    ApplicantService.ApplicantProgramData applicantProgramData =
+        ApplicantService.ApplicantProgramData.builder(programDefinition).build();
+    boolean showEligibilityAlert =
+        shouldShowEligibilityTag(applicantProgramData, optionalIsEligible);
+
+    if (showEligibilityAlert) {
+      boolean isTrustedIntermediary = profile.isTrustedIntermediary();
+      context.setVariable(
+          "eligibilityAlertSettings",
+          createEligibilityAlertSettings(
+              messages, isTrustedIntermediary, optionalIsEligible.get()));
+      context.setVariable(
+          "nonEligibilityAlertSettings",
+          createEligibilityAlertSettings(
+              messages, isTrustedIntermediary, optionalIsEligible.get()));
+      context.setVariable("isEligible", optionalIsEligible.get());
+    }
+
+    context.setVariable("showEligibilityAlert", showEligibilityAlert);
 
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
@@ -105,14 +125,31 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
   }
 
-  private AlertSettings createEligibilityAlertSettings(Messages messages) {
-    String alertText = messages.at(MessageKey.ALERT_LIKELY_ELIGIBLE.getKeyName());
+  private AlertSettings createEligibilityAlertSettings(
+      Messages messages, boolean isTrustedIntermediary, boolean isEligible) {
+    String alertText;
+    AlertType alertType;
+
+    if (isEligible) {
+      alertText =
+          isTrustedIntermediary
+              ? messages.at(MessageKey.ALERT_CLIENT_LIKELY_ELIGIBLE.getKeyName())
+              : messages.at(MessageKey.ALERT_LIKELY_ELIGIBLE.getKeyName());
+      alertType = AlertType.INFO;
+    } else {
+      alertText =
+          isTrustedIntermediary
+              ? messages.at(MessageKey.ALERT_CLIENT_LIKELY_INELIGIBLE.getKeyName())
+              : messages.at(MessageKey.ALERT_LIKELY_INELIGIBLE.getKeyName());
+      alertType = AlertType.WARNING;
+    }
+
     AlertSettings eligibilityAlertSettings =
         new AlertSettings(
             /* show= */ true,
             Optional.empty(),
             alertText,
-            AlertType.INFO,
+            alertType,
             ImmutableList.of(),
             /* isSlim= */ true);
     return eligibilityAlertSettings;
@@ -134,5 +171,20 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             });
     ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
     return applicationStepsMap;
+  }
+
+  private boolean shouldShowEligibilityTag(
+      ApplicantService.ApplicantProgramData programData, Optional<Boolean> optionalIsEligible) {
+    if (!optionalIsEligible.isPresent()) {
+      return false;
+    }
+
+    if (programData.latestApplicationLifecycleStage().isPresent()
+        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
+            || programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
+      return false;
+    }
+
+    return programData.program().eligibilityIsGating() || optionalIsEligible.get();
   }
 }
