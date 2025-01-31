@@ -59,9 +59,9 @@ public final class AccountRepository {
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
-    // TODO(#9460): make the session duration configurable.
-    // For now, we set the duration to Auth0s default of 10 hours.
-    this.sessionLifecycle = new SessionLifecycle(clock, Duration.ofHours(10));
+    this.sessionLifecycle =
+        new SessionLifecycle(
+            clock, Duration.ofMinutes(settingsManifest.getMaximumSessionDurationMinutes()));
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {

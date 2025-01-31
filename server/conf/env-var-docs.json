@@ -687,6 +687,11 @@
     "description": "Specifies the allowed file types that can be uploaded. Uses any valid [file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers). Multiple are separated by commas. Default: \"image/*,.pdf\"",
     "type": "string"
   },
+  "MAXIMUM_SESSION_DURATION_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
+    "type": "int"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
