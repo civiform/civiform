@@ -27,7 +27,6 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
-import modules.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.CiviFormError;
