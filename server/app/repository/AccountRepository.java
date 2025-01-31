@@ -64,10 +64,8 @@ public final class AccountRepository {
     int sessionDurationMinutes =
         settingsManifest
             .getMaximumSessionDurationMinutes()
-            .orElseThrow(
-                () ->
-                    new ConfigurationException(
-                        "MAXIMUM_SESSION_DURATION_MINUTES is not configured"));
+            // Default to 10 hours if not configured.
+            .orElse(600);
     this.sessionLifecycle =
         new SessionLifecycle(clock, Duration.ofMinutes(Long.valueOf(sessionDurationMinutes)));
   }
