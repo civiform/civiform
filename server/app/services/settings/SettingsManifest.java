@@ -769,6 +769,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * IP addresses that are allowed to logout a user through the /logoutAllSessions endpoint. If
+   * configured, this will normally be the IP address(es) of the authentication provider. If not
+   * specified, all IP addresses are allowed.
+   */
+  public Optional<ImmutableList<String>> getAllowedIpAddressesForLogout() {
+    return getListOfStrings("ALLOWED_IP_ADDRESSES_FOR_LOGOUT");
+  }
+
+  /**
    * Where to find the IP address for incoming requests. Default is "DIRECT" where the IP address of
    * the request is the originating IP address. If "FORWARDED" then request has been reverse proxied
    * and the originating IP address is stored in the X-Forwarded-For header.
@@ -2214,6 +2223,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " 'latest'.",
                       /* isRequired= */ false,
                       SettingType.STRING,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "ALLOWED_IP_ADDRESSES_FOR_LOGOUT",
+                      "IP addresses that are allowed to logout a user through the"
+                          + " /logoutAllSessions endpoint. If configured, this will normally be the"
+                          + " IP address(es) of the authentication provider. If not specified, all"
+                          + " IP addresses are allowed.",
+                      /* isRequired= */ false,
+                      SettingType.LIST_OF_STRINGS,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CLIENT_IP_TYPE",

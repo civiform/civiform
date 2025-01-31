@@ -666,6 +666,11 @@
     "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
     "type": "string"
   },
+  "ALLOWED_IP_ADDRESSES_FOR_LOGOUT": {
+    "mode": "ADMIN_READABLE",
+    "description": "IP addresses that are allowed to logout a user through the /logoutAllSessions endpoint. If configured, this will normally be the IP address(es) of the authentication provider. If not specified, all IP addresses are allowed.",
+    "type": "index-list"
+  },
   "CLIENT_IP_TYPE": {
     "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
