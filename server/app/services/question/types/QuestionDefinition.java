@@ -451,7 +451,9 @@ public abstract class QuestionDefinition {
    */
   @VisibleForTesting
   public QuestionDefinition withPopulatedTestId() {
-    config = config.toBuilder().setId(new Random().nextLong()).build();
+    if (config.id().isEmpty()) {
+      config = config.toBuilder().setId(new Random().nextLong()).build();
+    }
     return this;
   }
 }

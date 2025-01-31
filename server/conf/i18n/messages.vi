@@ -435,6 +435,14 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} — Tổng quan về chương trình
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=Cách đăng ký
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview=Đăng ký chương trình {0}
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=Bắt đầu đăng ký bằng việc tạo tài khoản
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=Bắt đầu đăng ký với tư cách khách
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +531,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=Những câu hỏi mới hoặc
 alert.eligibility_ti_fastforwarded_not_eligible_title=Khách hàng của bạn có thể không còn đủ điều kiện tham gia chương trình này nữa
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=Những câu hỏi mới hoặc câu hỏi mới được cập nhật có thể ảnh hưởng đến câu trả lời hoặc tình trạng đủ điều kiện của khách hàng của bạn. Vui lòng xem lại tất cả các câu hỏi dưới đây.
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=Bạn có khả năng đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

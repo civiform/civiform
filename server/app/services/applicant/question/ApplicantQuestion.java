@@ -66,6 +66,10 @@ public final class ApplicantQuestion {
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
+  public Optional<RepeatedEntity> getRepeatedEntity() {
+    return repeatedEntity;
+  }
+
   public ApplicantData getApplicantData() {
     return this.applicantData;
   }

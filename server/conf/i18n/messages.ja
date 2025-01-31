@@ -435,6 +435,14 @@ title.programSummary=プログラム申請の概要
 
 # The HTML page title for the program overview page.  The {0} is the program name.
 title.programOverview={0} - プログラムの概要
+# Heading for the section of the program overview page that contains the application steps.
+heading.applicationSteps=申請方法
+# Top-level heading for the program overview page.  The {0} is the program name.
+heading.programOverview={0} プログラムへの申請
+# The text on the button that takes users to the account creation form.
+link.createAccountFromOverview=アカウントを作成して申請を開始
+# The link that directs users to the start of the application without creating an account.
+link.startAsGuest=ゲストとして申請を開始
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #
@@ -523,6 +531,9 @@ alert.eligibility_ti_fastforwarded_eligible_text=新しい質問または更新�
 alert.eligibility_ti_fastforwarded_not_eligible_title=クライアントは、このプログラムの対象から外れた可能性があります
 # Alert text when TI client may not be eligible for a program after the application gets updated to using a newer program version
 alert.eligibility_ti_fastforwarded_not_eligible_text=新しい質問または更新された質問により、クライアントの回答や資格に影響がある可能性があります。以下の質問をすべてご確認ください。
+
+# Alert on the program overview page letting the user know that they will likely be eligible for the program.
+alert.likelyEligible=あなたは、別の申請に対する回答から判断すると、このプログラムに申請できる可能性があります。
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

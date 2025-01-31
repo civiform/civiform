@@ -100,7 +100,6 @@ public final class ProgramCardFactory {
                     .condWith(
                         !adminNoteText.isBlank(),
                         p().withClasses(
-                                "mb-4",
                                 "pt-4",
                                 "line-clamp-3",
                                 "text-sm",
@@ -108,6 +107,12 @@ public final class ProgramCardFactory {
                             .with(
                                 span("Admin note: ").withClasses("font-semibold"),
                                 span(adminNoteText)))
+                    .with(
+                        p(
+                                span("Visibility state: ").withClasses("font-semibold"),
+                                span(displayProgram.displayMode().visibilityState))
+                            .withClasses(
+                                "text-sm", StyleUtils.responsiveLarge("text-base"), "mb-4"))
                     .condWith(
                         showCategories,
                         p(

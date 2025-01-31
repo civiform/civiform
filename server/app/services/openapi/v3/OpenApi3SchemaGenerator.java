@@ -202,7 +202,6 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
   private ImmutableList<Server> getServers(String path) {
     var result = ImmutableList.<Server>builder();
 
-    // todo gwen: fix
     if (openApiSchemaSettings.allowHttpScheme()) {
       result.add(new Server().url(String.format("http://%s%s", getHostName(), path)));
     }
