@@ -86,6 +86,9 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.messages());
     context.setVariable("progressBar", progressBar);
 
+    // Eligibility Alerts
+    context.setVariable("eligibilityAlertSettings", applicationParams.eligibilityAlertSettings());
+
     Map<Long, ApplicantQuestionRendererParams> questionParams =
         getApplicantQuestionRendererParams(applicationParams);
     context.setVariable("questionRendererParams", questionParams);
