@@ -106,7 +106,7 @@
       </div>
 
       <section
-        th:if="${cardsSection.cards().size() > 0}"
+        th:if="${showProgramsCardsSection}"
         class="section-external"
       >
         <div class="grid-container">
@@ -124,6 +124,10 @@
           ></div>
         </div>
       </section>
+
+      <div th:unless="${showProgramsCardsSection}" class="page-spacing">
+        <!-- Add spacing only when the 'Program Cards' section is hidden, since that section adds its own bottom margins. !-->
+      </div>
     </main>
 
     <div th:if="${isGuest}">
