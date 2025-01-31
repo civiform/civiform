@@ -27,6 +27,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.SessionLifecycle;
 import models.TrustedIntermediaryGroupModel;
+import modules.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.CiviFormError;
@@ -59,9 +60,16 @@ public final class AccountRepository {
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
+
+    int sessionDurationMinutes =
+        settingsManifest
+            .getMaximumSessionDurationMinutes()
+            .orElseThrow(
+                () ->
+                    new ConfigurationException(
+                        "MAXIMUM_SESSION_DURATION_MINUTES is not configured"));
     this.sessionLifecycle =
-        new SessionLifecycle(
-            clock, Duration.ofMinutes(settingsManifest.getMaximumSessionDurationMinutes()));
+        new SessionLifecycle(clock, Duration.ofMinutes(Long.valueOf(sessionDurationMinutes)));
   }
 
   public CompletionStage<Set<ApplicantModel>> listApplicants() {
