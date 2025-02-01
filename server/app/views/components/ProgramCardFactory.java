@@ -40,7 +40,10 @@ public final class ProgramCardFactory {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
-    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+    String programDescriptionText = displayProgram.localizedShortDescription().getDefault();
+    if (programDescriptionText.isBlank()) {
+      programDescriptionText = displayProgram.localizedDescription().getDefault();
+    }
     String adminNoteText = displayProgram.adminDescription();
     ImmutableList<String> programCategoryNames =
         displayProgram.categories().stream()
@@ -88,7 +91,11 @@ public final class ProgramCardFactory {
                                     /* preserveEmptyLines= */ false,
                                     /* addRequiredIndicator= */ false))
                             .withClasses(
-                                "line-clamp-2", "text-sm", StyleUtils.responsiveLarge("text-base")))
+                                ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
+                                "line-clamp-2",
+                                "text-sm",
+                                StyleUtils.responsiveLarge("text-base"),
+                                "mb-4"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
