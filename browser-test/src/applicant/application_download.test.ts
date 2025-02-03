@@ -145,6 +145,7 @@ test.describe('normal application flow', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
+    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
     test.slow()
 
     const noApplyFilters = false
