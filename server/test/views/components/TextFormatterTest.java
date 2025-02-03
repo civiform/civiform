@@ -332,4 +332,19 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true)).isEmpty();
     assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true)).isEmpty();
   }
+
+  @Test
+  public void removeMarkdown_removesAllMarkdown() {
+    assertThat(
+            TextFormatter.removeMarkdown(
+                "# Hello!\n"
+                    + "This is a string with *italics* and **bold** and `inline code` and a list:\n"
+                    + "- one\n"
+                    + "- two\n"
+                    + "- three"))
+        .isEqualTo(
+            "Hello!\n"
+                + "This is a string with italics and bold and inline code and a list:\n"
+                + "onetwothree\n"); // whitespace is removed when markdown is removed
+  }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DateConverter;
@@ -24,6 +25,7 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
+import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -156,9 +158,11 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
+    String description = selectAndFormatDescription(program, preferredLocale);
+
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
-        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setIsCommonIntakeForm(program.isCommonIntakeForm())
@@ -217,6 +221,24 @@ public final class ProgramCardsSectionParamsFactory {
     }
 
     return cardBuilder.build();
+  }
+
+  /**
+   * Use the short description if present, otherwise use the long description with all markdown
+   * removed and truncated to 100 characters.
+   */
+  static String selectAndFormatDescription(ProgramDefinition program, Locale preferredLocale) {
+    String description = program.localizedShortDescription().getOrDefault(preferredLocale);
+
+    if (description.isEmpty()) {
+      description = program.localizedDescription().getOrDefault(preferredLocale);
+      // Add a space before any new line characters so when markdown is stripped off the words
+      // aren't smooshed together
+      description = String.join("&nbsp;\n", description.split("\n"));
+      description = StringUtils.abbreviate(TextFormatter.removeMarkdown(description), 100);
+    }
+
+    return description;
   }
 
   /**
