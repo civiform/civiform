@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM localstack/localstack:4.0.3
+FROM localstack/localstack:4.1.0
 
 # Localstack tries to connect to the host specified
 # by success_redirect_url upon successful upload of
