@@ -99,7 +99,7 @@ public final class ProgramCardFactory {
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(displayProgram),
                         div()
-                            .withClasses("text-black", "items-center", "flex", "pt-4")
+                            .withClasses("text-black", "items-center", "flex", "mb-4")
                             .with(
                                 Icons.svg(Icons.CHECK)
                                     .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
@@ -107,10 +107,7 @@ public final class ProgramCardFactory {
                     .condWith(
                         !adminNoteText.isBlank(),
                         p().withClasses(
-                                "pt-4",
-                                "line-clamp-3",
-                                "text-sm",
-                                StyleUtils.responsiveLarge("text-base"))
+                                "line-clamp-3", "text-sm", StyleUtils.responsiveLarge("text-base"))
                             .with(
                                 span("Admin note: ").withClasses("font-semibold"),
                                 span(adminNoteText)))
