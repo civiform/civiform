@@ -56,6 +56,21 @@
               ></div>
 
               <div
+                th:if="${question.getQuestionDefinition().getMaxFiles().isPresent()}"
+                class="usa-hint"
+              >
+                <p
+                  th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() == 1}"
+                  th:text="#{input.singleFileUploadHint}"
+                ></p>
+                <p
+                  th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() > 1}"
+                  class="usa-hint"
+                  th:text="#{input.multipleFileUploadHint(${question.getQuestionDefinition().getMaxFiles().getAsInt()})}"
+                ></p>
+              </div>
+
+              <div
                 th:text="#{label.uploading}"
                 role="alert"
                 class="cf-file-uploading-tag padding-1 display-inline-block"
