@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
+import auth.ClientIpResolver;
+import com.google.common.collect.ImmutableList;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -20,11 +22,14 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   private LogoutAllSessionsController controller;
   private CiviFormProfile testProfile;
   private AccountRepository accountRepository;
+  private ClientIpResolver clientIpResolver;
+  private SettingsManifest settingsManifest;
 
   @Before
   public void setup() {
@@ -32,6 +37,8 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     accountRepository = instanceOf(AccountRepository.class);
 
     testProfile = mock(CiviFormProfile.class);
+    clientIpResolver = mock(ClientIpResolver.class);
+    settingsManifest = mock(SettingsManifest.class);
   }
 
   @Test
@@ -123,6 +130,56 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
             result -> {
               AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
               assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
+
+  @Test
+  public void testLogoutWithAuthorityId_withAllowedIps_allowed() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("session1", clock);
+    account.addActiveSession("session2", clock);
+    account.save();
+    String authorityId = setAndGetEncodedAuthorityId(account);
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    when(settingsManifest.getAllowedIpAddressesForLogout())
+        .thenReturn(Optional.of(ImmutableList.of("allowed.ip")));
+    when(clientIpResolver.resolveClientIp(request)).thenReturn("allowed.ip");
+
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isEmpty();
+              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
+            });
+  }
+
+  @Test
+  public void testLogoutWithAuthorityId_withAllowedIps_notAllowed() {
+    // Add active session to account
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    AccountModel account = new AccountModel();
+    account.addActiveSession("session1", clock);
+    account.addActiveSession("session2", clock);
+    account.save();
+    String authorityId = setAndGetEncodedAuthorityId(account);
+
+    Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
+    when(settingsManifest.getAllowedIpAddressesForLogout())
+        .thenReturn(Optional.of(ImmutableList.of("allowed.ip")));
+    when(clientIpResolver.resolveClientIp(request)).thenReturn("not.allowed.ip");
+
+    controller
+        .logoutFromAuthorityId(request, authorityId)
+        .thenAccept(
+            result -> {
+              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+              assertThat(updatedAccount.getActiveSessions()).isNotEmpty();
               assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
             });
   }

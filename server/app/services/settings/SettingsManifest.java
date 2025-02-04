@@ -769,6 +769,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * IP addresses that are allowed to logout a user through the /logoutAllSessions endpoint. If
+   * configured, this will normally be the IP address(es) of the authentication provider. If not
+   * specified, all IP addresses are allowed.
+   */
+  public Optional<ImmutableList<String>> getAllowedIpAddressesForLogout() {
+    return getListOfStrings("ALLOWED_IP_ADDRESSES_FOR_LOGOUT");
+  }
+
+  /**
    * Where to find the IP address for incoming requests. Default is "DIRECT" where the IP address of
    * the request is the originating IP address. If "FORWARDED" then request has been reverse proxied
    * and the originating IP address is stored in the X-Forwarded-For header.
@@ -792,6 +801,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
     return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
+  }
+
+  /**
+   * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
+   * Note that there isn't yet messaging on the frontend to notify a user when their session is
+   * expired.
+   */
+  public Optional<Integer> getMaximumSessionDurationMinutes() {
+    return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
   }
 
   /**
@@ -2216,6 +2234,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
+                      "ALLOWED_IP_ADDRESSES_FOR_LOGOUT",
+                      "IP addresses that are allowed to logout a user through the"
+                          + " /logoutAllSessions endpoint. If configured, this will normally be the"
+                          + " IP address(es) of the authentication provider. If not specified, all"
+                          + " IP addresses are allowed.",
+                      /* isRequired= */ false,
+                      SettingType.LIST_OF_STRINGS,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
                       "CLIENT_IP_TYPE",
                       "Where to find the IP address for incoming requests. Default is \"DIRECT\""
                           + " where the IP address of the request is the originating IP address. If"
@@ -2240,5 +2267,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                       /* isRequired= */ false,
                       SettingType.STRING,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "MAXIMUM_SESSION_DURATION_MINUTES",
+                      "The amount of time, in minutes, that a session lasts. The default is 600"
+                          + " minutes, or 10 hours. Note that there isn't yet messaging on the"
+                          + " frontend to notify a user when their session is expired.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
                       SettingMode.ADMIN_READABLE))));
 }
