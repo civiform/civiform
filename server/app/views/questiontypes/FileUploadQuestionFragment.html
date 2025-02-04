@@ -12,23 +12,22 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
   <div
-    th:if="${question.getQuestionDefinition().getMaxFiles().isPresent()}"
     class="usa-hint"
+    th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   >
     <p
-      th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() == 1}"
+      th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
       th:text="#{input.singleFileUploadHint}"
     ></p>
     <p
-      th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() > 1}"
-      th:text="#{input.multipleFileUploadHint(${question.getQuestionDefinition().getMaxFiles().getAsInt()})}"
+      th:if="${maxFiles.isPresent() and maxFiles.getAsInt() > 1}"
+      th:text="#{input.multipleFileUploadHint(${maxFiles.getAsInt()})}"
+    ></p>
+    <p
+      th:unless="${maxFiles.isPresent()}"
+      th:text="#{input.unlimitedFileUploadHint}"
     ></p>
   </div>
-  <p
-    th:if="${question.getQuestionDefinition().getMaxFiles().isEmpty()}"
-    class="usa-hint"
-    th:text="#{input.unlimitedFileUploadHint}"
-  ></p>
 
   <!--/* Display errors */-->
   <div
