@@ -136,19 +136,14 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    String actionUrl = applicantRoutes.edit(program.id()).url();
-    if (programDatum.latestApplicationLifecycleStage().isPresent()
-        && programDatum.latestApplicationLifecycleStage().get() == LifecycleStage.ACTIVE) {
-      // ACTIVE lifecycle stage means the application was submitted.
-      // TIs need to specify applicant ID.
-      actionUrl =
-          profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.review(program.id()).url();
-    } else if (profile.isPresent() && applicantId.isPresent()) {
-      // TIs need to specify applicant ID.
-      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
-    }
+    String actionUrl =
+        getActionUrl(
+            applicantRoutes,
+            program.id(),
+            program.adminName(),
+            programDatum.latestApplicationLifecycleStage(),
+            applicantId,
+            profile);
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
@@ -239,6 +234,45 @@ public final class ProgramCardsSectionParamsFactory {
     }
 
     return description;
+  }
+
+  /**
+   * Get the url that the button on the card should redirect to. If it's the first time filling out
+   * the application, navigate to the program overview page. If the program is in draft mode,
+   * navigate to where the applicant left off. If the program is submitted, navigate to the review
+   * page.
+   */
+  static String getActionUrl(
+      ApplicantRoutes applicantRoutes,
+      Long programId,
+      String programSlug,
+      Optional<LifecycleStage> optionalLifecycleStage,
+      Optional<Long> applicantId,
+      Optional<CiviFormProfile> profile) {
+    // Render the program overview page
+    String actionUrl =
+        controllers.applicant.routes.ApplicantProgramsController.show(programSlug).url();
+
+    if (optionalLifecycleStage.isPresent()) {
+      // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
+      // page.
+      if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
+        // TIs need to specify applicant ID.
+        actionUrl =
+            profile.isPresent() && applicantId.isPresent()
+                ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.review(programId).url();
+      } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
+        // DRAFT lifecylce stage means they have started but not submitted an application. Redirect
+        // them to where they left off in the application.
+        // TIs need to specify applicant ID.
+        actionUrl =
+            profile.isPresent() && applicantId.isPresent()
+                ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.edit(programId).url();
+      }
+    }
+    return actionUrl;
   }
 
   /**
