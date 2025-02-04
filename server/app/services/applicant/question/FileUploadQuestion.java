@@ -16,6 +16,21 @@ import services.question.types.FileUploadQuestionDefinition;
  */
 public final class FileUploadQuestion extends AbstractQuestion {
 
+  // There is an unfortunate dual logic in the how filenames are stored for question answers. AWS
+  // deployments store the filename in the key, Azure stores them in a separate column.
+  //
+  // In order for the application to work properly we must look for data in the original file names
+  // Scalar, and absent that data, return the file key as the filename.
+  //
+  // This class is initialized with useFileNameMap set to true, which will attempt to read
+  // the original file name from the stored table. If that initial read fails find any
+  // data, then useFileNameMap will be set to false, and any future operations
+  // will assume that the filename is derived from the file key.
+  //
+  // In practical terms, this variable will end up being set to false for AWS, and true for Azure
+  // deployments.
+  private boolean useFileNameMap;
+
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
   // and if they are this value could still not be set.
@@ -24,6 +39,7 @@ public final class FileUploadQuestion extends AbstractQuestion {
 
   FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
+    this.useFileNameMap = true;
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
   }
@@ -100,6 +116,15 @@ public final class FileUploadQuestion extends AbstractQuestion {
    * Returns the stored original filenames. If this data does not exist, return the file key values.
    */
   public Optional<ImmutableList<String>> getOriginalFileNameListValue() {
+    if (useFileNameMap) {
+      Optional<ImmutableList<String>> originalFileNames =
+          applicantQuestion.getApplicantData().readStringList(getOriginalFileNameListPath());
+      if (originalFileNames.isPresent()) {
+        return originalFileNames;
+      }
+    }
+
+    useFileNameMap = false;
     return getFileKeyListValue();
   }
 
@@ -108,6 +133,22 @@ public final class FileUploadQuestion extends AbstractQuestion {
    * file key value for the same index.
    */
   public Optional<String> getOriginalFileNameValueForIndex(int index) {
+    if (useFileNameMap) {
+      Optional<String> originalFileName =
+          applicantQuestion
+              .getApplicantData()
+              .readString(getOriginalFileNameListPathForIndex(index));
+      if (originalFileName.isPresent()) {
+        return originalFileName;
+      }
+    }
+
+    // No data is stored for the original file name, (AWS deployments), set
+    // useFileNameMap to false, and return the file key value.
+    //
+    // Future invocations of methods in this class will avoid searching for original file name
+    // data in storage.
+    useFileNameMap = false;
     return getFileKeyValueForIndex(index);
   }
 
