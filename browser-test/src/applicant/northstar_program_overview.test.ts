@@ -202,6 +202,12 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await logout(page)
     })
 
+    await test.step('verify that no alert shows when the eligibility question has not been answered in another application', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectNoEligibilityAlerts()
+      await logout(page)
+    })
+
     await test.step('apply to first program in an eligible way', async () => {
       await applicantQuestions.applyProgram(programName, true)
       await applicantQuestions.answerTextQuestion('eligible')

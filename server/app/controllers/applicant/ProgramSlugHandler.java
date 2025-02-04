@@ -99,13 +99,21 @@ public final class ProgramSlugHandler {
       String programSlug,
       Long applicantId,
       CiviFormProfile profile) {
-    return getProgramVersionForApplicant(applicantId, programSlug, request)
+    return applicantService
+        .relevantProgramsForApplicant(applicantId, profile, request)
         .thenComposeAsync(
-            (Optional<ProgramDefinition> programForExistingApplication) -> {
-              CompletionStage<ProgramDefinition> programDefinitionStage;
+            (ApplicationPrograms relevantPrograms) -> {
               // Check to see if the applicant already has an application
               // for this program, redirect to program version associated
               // with that application if so.
+              Optional<ProgramDefinition> programForExistingApplication =
+                  relevantPrograms.inProgress().stream()
+                      .map(ApplicantProgramData::program)
+                      .filter(program -> program.slug().equals(programSlug))
+                      .findFirst();
+
+              CompletionStage<ProgramDefinition> programDefinitionStage;
+
               if (programForExistingApplication.isPresent()) {
                 long programId = programForExistingApplication.get().id();
                 programDefinitionStage = programService.getFullProgramDefinitionAsync(programId);
@@ -122,7 +130,8 @@ public final class ProgramSlugHandler {
                               programSlug,
                               profile,
                               applicantId,
-                              activeProgramDefinition))
+                              activeProgramDefinition,
+                              relevantPrograms))
                   .exceptionally(
                       ex ->
                           controller
@@ -138,13 +147,17 @@ public final class ProgramSlugHandler {
       String programSlug,
       CiviFormProfile profile,
       long applicantId,
-      ProgramDefinition activeProgramDefinition) {
+      ProgramDefinition activeProgramDefinition,
+      ApplicationPrograms relevantPrograms) {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
-    Optional<Boolean> optionalIsEligible =
-        applicantService.getApplicantMayBeEligibleStatus(
-            profile.getApplicant().join(), activeProgramDefinition);
+    Optional<ApplicantProgramData> optionalProgramData =
+        relevantPrograms.unapplied().stream()
+            .filter(
+                (ApplicantProgramData applicantProgramData) ->
+                    applicantProgramData.programId() == activeProgramDefinition.id())
+            .findFirst();
 
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
@@ -158,7 +171,7 @@ public final class ProgramSlugHandler {
                     applicantPersonalInfo.join(),
                     profile,
                     activeProgramDefinition,
-                    optionalIsEligible))
+                    optionalProgramData))
             .as("text/html")
             .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
         : redirectToReviewPage(
@@ -178,21 +191,5 @@ public final class ProgramSlugHandler {
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.
         .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-  }
-
-  private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
-      long applicantId, String programSlug, Http.Request request) {
-    // Find all applicant's DRAFT applications for programs of the same slug
-    // redirect to the newest program version with a DRAFT application.
-    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
-    return applicantService
-        .relevantProgramsForApplicant(applicantId, requesterProfile, request)
-        .thenApplyAsync(
-            (ApplicationPrograms relevantPrograms) ->
-                relevantPrograms.inProgress().stream()
-                    .map(ApplicantProgramData::program)
-                    .filter(program -> program.slug().equals(programSlug))
-                    .findFirst(),
-            classLoaderExecutionContext.current());
   }
 }

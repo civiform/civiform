@@ -9,7 +9,6 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import java.util.Optional;
-import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -57,7 +56,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       ApplicantPersonalInfo personalInfo,
       CiviFormProfile profile,
       ProgramDefinition programDefinition,
-      Optional<Boolean> optionalIsEligible) {
+      Optional<ApplicantService.ApplicantProgramData> optionalProgramData) {
 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -81,22 +80,21 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
         getStepsMap(programDefinition, preferredLocale);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
-    ApplicantService.ApplicantProgramData applicantProgramData =
-        ApplicantService.ApplicantProgramData.builder(programDefinition).build();
     boolean showEligibilityAlert =
-        shouldShowEligibilityTag(applicantProgramData, optionalIsEligible);
+        optionalProgramData.isPresent()
+            ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
+            : false;
 
     if (showEligibilityAlert) {
       boolean isTrustedIntermediary = profile.isTrustedIntermediary();
+      boolean isEligible = optionalProgramData.get().isProgramMaybeEligible().get();
       context.setVariable(
           "eligibilityAlertSettings",
-          createEligibilityAlertSettings(
-              messages, isTrustedIntermediary, optionalIsEligible.get()));
+          createEligibilityAlertSettings(messages, isTrustedIntermediary, isEligible));
       context.setVariable(
           "nonEligibilityAlertSettings",
-          createEligibilityAlertSettings(
-              messages, isTrustedIntermediary, optionalIsEligible.get()));
-      context.setVariable("isEligible", optionalIsEligible.get());
+          createEligibilityAlertSettings(messages, isTrustedIntermediary, isEligible));
+      context.setVariable("isEligible", isEligible);
     }
 
     context.setVariable("showEligibilityAlert", showEligibilityAlert);
@@ -173,18 +171,19 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     return applicationStepsMap;
   }
 
-  private boolean shouldShowEligibilityTag(
-      ApplicantService.ApplicantProgramData programData, Optional<Boolean> optionalIsEligible) {
-    if (!optionalIsEligible.isPresent()) {
-      return false;
-    }
-
-    if (programData.latestApplicationLifecycleStage().isPresent()
-        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
-            || programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
-      return false;
-    }
-
-    return programData.program().eligibilityIsGating() || optionalIsEligible.get();
-  }
+  //  private boolean shouldShowEligibilityTag(
+  //      ApplicantService.ApplicantProgramData programData, Optional<Boolean> optionalIsEligible) {
+  //    if (!optionalIsEligible.isPresent()) {
+  //      return false;
+  //    }
+  //
+  //    if (programData.latestApplicationLifecycleStage().isPresent()
+  //        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
+  //            ||
+  // programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
+  //      return false;
+  //    }
+  //
+  //    return programData.program().eligibilityIsGating() || optionalIsEligible.get();
+  //  }
 }
