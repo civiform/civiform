@@ -152,6 +152,8 @@ public final class ProgramSlugHandler {
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
+    // Find the program data for the program that we're trying to show so that
+    // we can check isProgramMaybeEligible.
     Optional<ApplicantProgramData> optionalProgramData =
         relevantPrograms.unapplied().stream()
             .filter(
