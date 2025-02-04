@@ -133,38 +133,34 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     var htmlBundle =
         createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content);
 
-    if (!settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(request)) {
-      return layout.renderWithNav(
-          request, personalInfo, messages, htmlBundle, Optional.of(applicantId));
-    }
-
-    var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
-
-    if (relevantPrograms.size() > 0) {
-      htmlBundle.addMainContent(
-          div()
-              .withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER)
-              .with(
-                  div()
-                      .withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER)
-                      .with(
-                          h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
-                              .withClasses("mb-4 font-bold"),
-                          programCardViewRenderer.programCardsSection(
-                              request,
-                              messages,
-                              personalInfo,
-                              /* sectionTitle= */ Optional.empty(),
-                              ProgramCardViewRenderer.programCardsContainerStyles(
-                                  relevantPrograms.size()),
-                              Optional.of(applicantId),
-                              locale,
-                              relevantPrograms,
-                              MessageKey.BUTTON_APPLY,
-                              MessageKey.BUTTON_APPLY_SR,
-                              htmlBundle,
-                              Optional.of(profile),
-                              /* isMyApplicationsSection= */ false))));
+    if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(request)) {
+        var relevantPrograms = applicantPrograms.unappliedAndPotentiallyEligible();
+        if (relevantPrograms.size() > 0) {
+          htmlBundle.addMainContent(
+              div()
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_GRANDPARENT_CONTAINER)
+                  .with(
+                      div()
+                          .withClasses(ApplicantStyles.PROGRAM_CARDS_PARENT_CONTAINER)
+                          .with(
+                              h2(messages.at(CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR.getKeyName()))
+                                  .withClasses("mb-4 font-bold"),
+                              programCardViewRenderer.programCardsSection(
+                                  request,
+                                  messages,
+                                  personalInfo,
+                                  /* sectionTitle= */ Optional.empty(),
+                                  ProgramCardViewRenderer.programCardsContainerStyles(
+                                      relevantPrograms.size()),
+                                  Optional.of(applicantId),
+                                  locale,
+                                  relevantPrograms,
+                                  MessageKey.BUTTON_APPLY,
+                                  MessageKey.BUTTON_APPLY_SR,
+                                  htmlBundle,
+                                  Optional.of(profile),
+                                  /* isMyApplicationsSection= */ false))));
+        }
     }
 
     return layout.renderWithNav(

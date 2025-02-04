@@ -106,7 +106,7 @@
       </div>
 
       <section
-        th:if="${cardsSection.cards().size() > 0}"
+        th:if="${cardsSection.isPresent() && cardsSection.get().cards().size() > 0}"
         class="section-external"
       >
         <div class="grid-container">
@@ -120,7 +120,7 @@
         </div>
         <div class="section-internal">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
           ></div>
         </div>
       </section>

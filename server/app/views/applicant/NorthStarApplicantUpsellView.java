@@ -92,18 +92,21 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     // Create account or login alert
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
-    ProgramSectionParams cardsSection =
-        programCardsSectionParamsFactory.getSection(
-            params.request(),
-            params.messages(),
-            Optional.empty(),
-            MessageKey.BUTTON_VIEW_AND_APPLY,
-            params.eligiblePrograms().get(),
-            /* preferredLocale= */ params.messages().lang().toLocale(),
-            Optional.of(params.profile()),
-            Optional.of(params.applicantId()),
-            params.applicantPersonalInfo(),
-            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
+    Optional<ProgramSectionParams> cardsSection = Optional.empty();
+    if (settingsManifest.getSuggestProgramsOnApplicationConfirmationPage(params.request())) {
+        cardsSection =
+            Optional.of(programCardsSectionParamsFactory.getSection(
+                params.request(),
+                params.messages(),
+                Optional.empty(),
+                MessageKey.BUTTON_VIEW_AND_APPLY,
+                params.eligiblePrograms().get(),
+                /* preferredLocale= */ params.messages().lang().toLocale(),
+                Optional.of(params.profile()),
+                Optional.of(params.applicantId()),
+                params.applicantPersonalInfo(),
+                ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+    }
     context.setVariable("cardsSection", cardsSection);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
