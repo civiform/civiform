@@ -12,8 +12,18 @@ export class ApplicantProgramOverview {
     this.page = page
   }
 
+  async startApplicationFromProgramOverviewPage(
+    programName: string,
+  ): Promise<void> {
+    await this.expectProgramOverviewPage(programName)
+    await this.page
+      .getByRole('link', {name: 'Start an application'})
+      .first()
+      .click()
+  }
+
   async expectProgramOverviewPage(programName: string): Promise<void> {
-    expect(await this.page.title()).toBe('test - Program Overview')
+    expect(await this.page.title()).toContain('Program Overview')
     await expect(
       this.page.getByRole('heading', {
         name: `Apply for ${programName} program`,

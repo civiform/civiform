@@ -66,7 +66,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             "fake-program",
             Optional
                 .empty(), // empty lifecycle stage means this is their first time filling out this
-                          // application
+            // application
             Optional.empty(),
             Optional.empty());
     assertThat(url).isEqualTo("/programs/fake-program");
