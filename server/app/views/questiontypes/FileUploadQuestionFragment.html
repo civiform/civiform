@@ -11,7 +11,19 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
-
+  <div
+    th:if="${question.getQuestionDefinition().getMaxFiles().isPresent()}"
+    class="usa-hint"
+  >
+    <p
+      th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() == 1}"
+      th:text="#{input.singleFileUploadHint}"
+    ></p>
+    <p
+      th:if="${question.getQuestionDefinition().getMaxFiles().getAsInt() > 1}"
+      th:text="#{input.multipleFileUploadHint(${question.getQuestionDefinition().getMaxFiles().getAsInt()})}"
+    ></p>
+  </div>
   <!--/* Display errors */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
