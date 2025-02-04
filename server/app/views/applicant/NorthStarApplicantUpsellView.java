@@ -108,6 +108,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
                 ProgramCardsSectionParamsFactory.SectionType.STANDARD));
     }
     context.setVariable("cardsSection", cardsSection);
+    context.setVariable("showProgramsCardsSection", cardsSection.cards().size() > 0);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }
