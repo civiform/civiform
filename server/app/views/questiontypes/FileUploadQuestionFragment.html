@@ -24,6 +24,12 @@
       th:text="#{input.multipleFileUploadHint(${question.getQuestionDefinition().getMaxFiles().getAsInt()})}"
     ></p>
   </div>
+  <p
+    th:if="${question.getQuestionDefinition().getMaxFiles().isEmpty()}"
+    class="usa-hint"
+    th:text="#{input.unlimitedFileUploadHint}"
+  ></p>
+
   <!--/* Display errors */-->
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
