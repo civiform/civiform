@@ -54,7 +54,10 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
-    await enableFeatureFlag(page, 'suggest_programs_on_application_confirmation_page')
+    await enableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -106,7 +109,10 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
-    await disableFeatureFlag(page, 'suggest_programs_on_application_confirmation_page')
+    await disableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
