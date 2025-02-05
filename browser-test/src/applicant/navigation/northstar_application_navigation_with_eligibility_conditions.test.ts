@@ -73,14 +73,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     test("shows 'not eligible' alerts with ineligible answer and gating eligibility", async ({
       page,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await applicantQuestions.applyProgram(
         fullProgramName,
         /* northStarEnabled= */ true,
-      )
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        fullProgramName,
       )
 
       await test.step('fill out application with ineligible answer', async () => {
@@ -134,14 +130,10 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     test("shows 'eligible' alerts with an eligible answer and gating eligibility", async ({
       page,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await applicantQuestions.applyProgram(
         fullProgramName,
         /* northStarEnabled= */ true,
-      )
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        fullProgramName,
       )
 
       await test.step('fill out application without submitting and verify message on edit page', async () => {
@@ -220,9 +212,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
         )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          overlappingOneQProgramName,
-        )
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
       })
@@ -262,7 +251,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       adminPrograms,
       applicantQuestions,
       applicantProgramList,
-      applicantProgramOverview,
     }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -284,9 +272,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          overlappingOneQProgramName,
         )
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
@@ -315,7 +300,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await test.step('set up program with non-gating eligibility', async () => {
         await loginAsAdmin(page)
@@ -332,9 +316,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          fullProgramName,
         )
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
@@ -366,7 +347,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await test.step('set up program with nongating eligibility', async () => {
         await loginAsAdmin(page)
@@ -383,9 +363,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          fullProgramName,
         )
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
@@ -417,7 +394,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -448,9 +424,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          overlappingOneQProgramName,
         )
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
@@ -467,7 +440,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -498,9 +470,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          overlappingOneQProgramName,
         )
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
@@ -522,7 +491,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
       adminPredicates,
       adminPrograms,
-      applicantProgramOverview,
     }) => {
       const questionName = 'question-with-markdown'
       const programName = 'Program with markdown question'
@@ -559,9 +527,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
         )
         await applicantQuestions.answerTextQuestion('bar')
         await applicantQuestions.clickContinue()

@@ -621,7 +621,6 @@ test.describe('applicant program index page', () => {
 
       test('categorizes programs for draft and applied applications as guest user', async ({
         applicantQuestions,
-        applicantProgramOverview,
         page,
       }) => {
         await loginAsTestUser(page)
@@ -646,11 +645,6 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
-          )
-
-          // Navigate to program overview page and click apply from there
-          await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-            primaryProgramName,
           )
 
           // Screen 1 has no questions, so expect to navigate directly to screen 2
@@ -797,7 +791,6 @@ test.describe('applicant program index page', () => {
           page,
           adminPrograms,
           applicantQuestions,
-          applicantProgramOverview,
         }) => {
           await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
             await logout(page)
@@ -836,10 +829,6 @@ test.describe('applicant program index page', () => {
               /* northStarEnabled= */ true,
             )
 
-            await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-              primaryProgramName,
-            )
-
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
           })
@@ -856,7 +845,6 @@ test.describe('applicant program index page', () => {
           page,
           adminPrograms,
           applicantQuestions,
-          applicantProgramOverview,
         }) => {
           await test.step('publish programs with categories', async () => {
             await adminPrograms.publishAllDrafts()
@@ -890,9 +878,6 @@ test.describe('applicant program index page', () => {
 
           await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
             await applicantQuestions.applyProgram(primaryProgramName, true)
-            await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-              primaryProgramName,
-            )
             await applicantQuestions.answerTextQuestion('first answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
@@ -1078,13 +1063,7 @@ test.describe('applicant program index page with images', () => {
   test(
     'shows program with wide image in North Star and removes image from card when in My Applications',
     {tag: ['@northstar']},
-    async ({
-      page,
-      adminPrograms,
-      adminProgramImage,
-      applicantQuestions,
-      applicantProgramOverview,
-    }) => {
+    async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
       const programName = 'Wide Image Program'
       await loginAsAdmin(page)
       await adminPrograms.addProgram(programName)
@@ -1104,9 +1083,6 @@ test.describe('applicant program index page with images', () => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
-        )
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
         )
         await applicantQuestions.clickSubmitApplication()
         await applicantQuestions.gotoApplicantHomePage()
