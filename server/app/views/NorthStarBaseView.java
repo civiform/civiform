@@ -82,13 +82,21 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    String CommonIntakeMoreResourceLink = settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get();
+    context.setVariable(
+      "moreResourcesLink",
+      "<a id=\"more-resources-link\" class=\"usa-link\" href=\""
+      + CommonIntakeMoreResourceLink
+      + "\">"
+      + "Visit " + CommonIntakeMoreResourceLink
+      + "</a>");
+
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
     context.setVariable("requestUri", request.uri());
-    context.setVariable("moreResourcesLink", settingsManifest.getCommonIntakeMoreResourcesLinkText(request).get());
     
     // Add auth parameters.
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);

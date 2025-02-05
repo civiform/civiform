@@ -315,6 +315,7 @@
               th:attr="alt=${civicEntityFullName + ' Logo'}"
           /></a>
         </div>
+        <di
         <section class="usa-identifier__identity">
           <p
             class="usa-identifier__identity-disclaimer"
@@ -322,14 +323,15 @@
           ></p>
         </section>
         </section>
-        <section class="usa-identifier__identity">
-          <div class="usa-identifier__container">
-          <p
-            class="usa-identifier"
-            th:text="#{footer.informationServices(${moreResourcesLink})}"
-            ></p>
-          </div>
-        </section>
+          <section class="usa-identifier__identity"
+          th:if="${moreResourcesLink !=''}">
+            <div class="usa-identifier__container">
+            <p
+              class="usa-identifier"
+              th:utext="#{footer.informationServices(${moreResourcesLink})}"
+              ></p>
+            </div>
+          </section>
       </div>
     </section>
   </div>
