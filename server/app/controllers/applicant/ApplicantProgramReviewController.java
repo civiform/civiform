@@ -5,7 +5,6 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import actions.ProgramDisabledAction;
-import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
@@ -127,8 +126,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      request, applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -265,8 +267,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> {
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      request, applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -464,28 +469,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
    *
    * @return {@link Result} if application was updated; empty if not
    */
-  private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, Request request) {
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      Optional<Long> latestProgramId =
-          applicantService.updateApplicationToLatestProgramVersion(applicantId, programId);
-
-      RouteExtractor routeExtractor = new RouteExtractor(request);
-
-      if (latestProgramId.isPresent()) {
-        Call redirectLocation =
-            routeExtractor.containsKey("applicantId")
-                ? controllers.applicant.routes.ApplicantProgramReviewController
-                    .reviewWithApplicantId(applicantId, latestProgramId.get())
-                : controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    latestProgramId.get());
-
-        return Optional.of(
-            redirect(redirectLocation.url())
-                .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
-      }
+  public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
+      Http.Request request, long applicantId, long programId, CiviFormProfile profile) {
+    if (!settingsManifest.getFastforwardEnabled(request)) {
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    return applicantService
+        .updateApplicationToLatestProgramVersion(applicantId, programId)
+        .map(
+            id ->
+                redirect(applicantRoutes.review(profile, applicantId, id).url())
+                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
   }
 }
