@@ -80,6 +80,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
         getStepsMap(programDefinition, preferredLocale);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
+    // The program data will be empty if the applicant has started or submitted an application
+    // for the program.  We only want to show the eligibility alert for unstarted programs.
     boolean showEligibilityAlert =
         optionalProgramData.isPresent()
             ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
@@ -170,20 +172,4 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
     return applicationStepsMap;
   }
-
-  //  private boolean shouldShowEligibilityTag(
-  //      ApplicantService.ApplicantProgramData programData, Optional<Boolean> optionalIsEligible) {
-  //    if (!optionalIsEligible.isPresent()) {
-  //      return false;
-  //    }
-  //
-  //    if (programData.latestApplicationLifecycleStage().isPresent()
-  //        && (programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.ACTIVE)
-  //            ||
-  // programData.latestApplicationLifecycleStage().get().equals(LifecycleStage.DRAFT))) {
-  //      return false;
-  //    }
-  //
-  //    return programData.program().eligibilityIsGating() || optionalIsEligible.get();
-  //  }
 }
