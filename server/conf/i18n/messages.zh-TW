@@ -534,6 +534,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=申請書中新增或更新
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=根據您對其他申請書的回覆，您可能符合這項計畫的資格。
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=You may not be eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Your client is likely eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Your client may not be eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
