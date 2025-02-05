@@ -144,6 +144,35 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programName);
     this.versionRepository.publishNewSynchronizedVersion();
 
+    var fakeRequest =
+        fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build();
+
+    Result result =
+        controller
+            .indexWithApplicantId(fakeRequest, currentApplicant.id, ImmutableList.of())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    // A program's name appears in the index view page content 3 times:
+    //  1) Program card title
+    //  2) Apply button aria-label
+    // If it appears 6 times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
+  }
+
+  @Test
+  public void test_deduplicate_inProgressPrograms_fastforward_enabled() {
+    versionRepository = instanceOf(VersionRepository.class);
+    String programName = "In Progress Program";
+    ProgramModel program = resourceCreator().insertActiveProgram(programName);
+
+    ApplicationModel app = new ApplicationModel(currentApplicant, program, LifecycleStage.DRAFT);
+    app.save();
+
+    resourceCreator().insertDraftProgram(programName);
+    this.versionRepository.publishNewSynchronizedVersion();
+
     Result result =
         controller
             .indexWithApplicantId(fakeRequest(), currentApplicant.id, ImmutableList.of())
@@ -151,11 +180,12 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(OK);
-    // A program's name appears in the index view page content 2 times:
+    // A program's name appears in the index view page content 3 times:
     //  1) Program card title
     //  2) Apply button aria-label
-    // If it appears 6 times, that means there is a duplicate of the program.
-    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(2);
+    //  3) Info link aria-label
+    // If it appears 9 times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(3);
   }
 
   /** Returns the number of times a substring appears in the string. */

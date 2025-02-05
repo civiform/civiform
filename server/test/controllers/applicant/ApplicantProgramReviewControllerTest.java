@@ -135,7 +135,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
-    answer(draftProgramDefinition.id());
+    answer(draftProgramDefinition.id(), true);
 
     Result result = this.submit(applicant.id, draftProgramDefinition.id());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -168,9 +168,24 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     versionRepository.publishNewSynchronizedVersion();
 
-    answer(programDefinition.id());
+    answer(programDefinition.id(), false);
 
-    Result result = this.submit(applicant.id, programDefinition.id());
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("FASTFORWARD_ENABLED", "false")
+            .call(
+                routes.ApplicantProgramReviewController.submitWithApplicantId(
+                    applicant.id, programDefinition.id()))
+            .header(skipUserProfile, "false")
+            .build();
+
+    Result result =
+        subject
+            .submitWithApplicantId(request, applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join();
+
+    //    Result result = this.submit(applicant.id, programDefinition.id());
     assertThat(result.status()).isEqualTo(FOUND);
 
     // An application was submitted
@@ -196,7 +211,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     versionRepository.publishNewSynchronizedVersion();
 
-    answer(programDefinition.id());
+    answer(programDefinition.id(), true);
 
     var programId = programDefinition.id();
 
@@ -248,7 +263,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     versionRepository.publishNewSynchronizedVersion();
 
-    answer(programDefinition.id());
+    answer(programDefinition.id(), true);
 
     var programId = programDefinition.id();
 
@@ -290,7 +305,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
-    answer(activeProgram.id);
+    answer(activeProgram.id, true);
 
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(FOUND);
@@ -330,7 +345,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
-    answer(activeProgram.id);
+    answer(activeProgram.id, true);
     this.submit(applicant.id, activeProgram.id);
 
     // Submit the application again without editing
@@ -339,7 +354,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(noEditsResult.status()).isEqualTo(OK);
 
     // Edit the application but re-enter the same values
-    answer(activeProgram.id);
+    answer(activeProgram.id, true);
     Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
     // Error is handled and applicant is shown duplicates page
     assertThat(sameValuesResult.status()).isEqualTo(OK);
@@ -383,9 +398,24 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .join();
   }
 
-  private void answer(long programId) {
+  public Result submit_fastforwarddisabled(long applicantId, long programId) {
     Request request =
         fakeRequestBuilder()
+            //            .call(
+            //                routes.ApplicantProgramReviewController.submitWithApplicantId(
+            //                    applicantId, programId))
+            .header(skipUserProfile, "false")
+            .build();
+    return subject
+        .submitWithApplicantId(request, applicantId, programId)
+        .toCompletableFuture()
+        .join();
+  }
+
+  private void answer(long programId, boolean fastforwardEnabled) {
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("FASTFORWARD_ENABLED", Boolean.toString(fastforwardEnabled))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),

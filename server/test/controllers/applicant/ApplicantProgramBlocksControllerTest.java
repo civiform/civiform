@@ -147,6 +147,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
   }
 
+  private Request createRequestWithFastForwardDisabled() {
+    return fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build();
+  }
+
   @Test
   public void edit_obsoleteProgram_isOk() {
     ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
@@ -253,6 +257,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void previous_toAnExistingBlock_rendersTheBlock() {
     Request request =
         fakeRequestBuilder()
+            // TODO gwen
+            // .addCiviFormSetting("FASTFORWARD_ENABLED", "true")
             .call(
                 routes.ApplicantProgramBlocksController.previousWithApplicantId(
                     applicant.id, program.id, 0, true))
