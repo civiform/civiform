@@ -478,8 +478,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
-            id ->
-                redirect(applicantRoutes.review(profile, applicantId, id).url())
+            latestProgramId ->
+                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
                     .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
   }
 }
