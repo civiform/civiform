@@ -31,6 +31,24 @@ export class ApplicantProgramOverview {
     ).toBeVisible()
   }
 
+  async startApplicationFromTranslatedProgramOverviewPage(
+    pageTitle: string,
+    header: string,
+    buttonText: string,
+  ): Promise<void> {
+    await this.expectTranslatedProgramOverviewPage(pageTitle, header)
+    await this.page.getByRole('link', {name: buttonText}).first().click()
+  }
+
+  async expectTranslatedProgramOverviewPage(pageTitle: string, header: string) {
+    expect(await this.page.title()).toContain(pageTitle)
+    await expect(
+      this.page.getByRole('heading', {
+        name: header,
+      }),
+    ).toBeVisible()
+  }
+
   async expectFirstPageOfApplication(): Promise<void> {
     expect(await this.page.title()).toBe('test — 1 of 2')
     await expect(this.page.getByText('Screen 1')).toBeVisible()

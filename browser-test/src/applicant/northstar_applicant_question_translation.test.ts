@@ -18,6 +18,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     adminQuestions,
     adminTranslations,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     await loginAsAdmin(page)
 
@@ -51,6 +52,12 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await applicantQuestions.applyProgram(
       programName,
       /* northStarEnabled= */ true,
+      /* showDefaultProgramOverviewPage= */ false,
+    )
+    await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
+      'Descripción general del programa', // translated page title
+      'Inscribirse en el programa Spanish question program', // translated page header
+      'Comenzar una solicitud', // translated button text
     )
 
     // TODO(#9203): When the bug is fixed, we don't need to select Español again.
