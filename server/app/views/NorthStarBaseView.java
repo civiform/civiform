@@ -88,7 +88,8 @@ public abstract class NorthStarBaseView {
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
     context.setVariable("requestUri", request.uri());
-
+    context.setVariable("moreResourcesLink", settingsManifest.getCommonIntakeMoreResourcesLinkText(request).get());
+    
     // Add auth parameters.
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
     boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
