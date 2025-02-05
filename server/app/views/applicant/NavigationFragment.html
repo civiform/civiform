@@ -323,16 +323,15 @@
           ></p>
         </section>
         </section>
-          <section class="usa-identifier__identity"
-          th:if="${moreResourcesLink !=''}">
-            <div class="usa-identifier__container">
-            <p
-              class="usa-identifier"
-              th:utext="#{footer.informationServices(${moreResourcesLink})}"
-              ></p>
+        <th:block class="usa-identifier__identity"
+        th:if="${moreResourcesLink != null}">
+          <div class="usa-identifier__container">
+              <p class="usa-identifier"
+                 th:utext="#{footer.informationServices(${moreResourcesLink})}">
+              </p>
+          </div>
+        </th:block>
             </div>
-          </section>
-      </div>
     </section>
   </div>
   <div

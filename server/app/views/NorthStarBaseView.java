@@ -82,14 +82,20 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+
     String CommonIntakeMoreResourceLink = settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get();
+  
+    if(CommonIntakeMoreResourceLink != null && !CommonIntakeMoreResourceLink.isEmpty()){
     context.setVariable(
       "moreResourcesLink",
-      "<a id=\"more-resources-link\" class=\"usa-link\" href=\""
+      "<a id=\"more-resources-link\" class=\"text-white underline font-bold\" href=\""
       + CommonIntakeMoreResourceLink
       + "\">"
       + "Visit " + CommonIntakeMoreResourceLink
-      + "</a>");
+      + "</a>");}
+      else{
+        context.setVariable("moreResourcesLink",null);
+      }
 
 
     // Language selector params
