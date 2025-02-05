@@ -534,6 +534,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Malamang na kwalipikado ka sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=You may not be eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Your client is likely eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Your client may not be eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
