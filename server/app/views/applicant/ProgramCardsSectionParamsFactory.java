@@ -226,7 +226,9 @@ public final class ProgramCardsSectionParamsFactory {
    *
    * <p>Applications that have been started do not show eligibility tags.
    */
-  private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+  static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+    // This case happens when the applicant hasn't answered the eligibility question
+    // on any application or when the program doesn't have eligibility criteria.
     if (!programData.isProgramMaybeEligible().isPresent()) {
       return false;
     }

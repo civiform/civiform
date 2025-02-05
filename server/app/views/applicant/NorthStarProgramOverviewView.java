@@ -18,6 +18,7 @@ import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
@@ -54,7 +55,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       Long applicantId,
       ApplicantPersonalInfo personalInfo,
       CiviFormProfile profile,
-      ProgramDefinition programDefinition) {
+      ProgramDefinition programDefinition,
+      Optional<ApplicantService.ApplicantProgramData> optionalProgramData) {
 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -78,8 +80,26 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
         getStepsMap(programDefinition, preferredLocale);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
-    AlertSettings eligibilityAlertSettings = createEligibilityAlertSettings(messages);
-    context.setVariable("eligibilityAlertSettings", eligibilityAlertSettings);
+    // The program data will be empty if the applicant has started or submitted an application
+    // for the program.  We only want to show the eligibility alert for unstarted programs.
+    boolean showEligibilityAlert =
+        optionalProgramData.isPresent()
+            ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
+            : false;
+
+    if (showEligibilityAlert) {
+      boolean isTrustedIntermediary = profile.isTrustedIntermediary();
+      boolean isEligible = optionalProgramData.get().isProgramMaybeEligible().get();
+      context.setVariable(
+          "eligibilityAlertSettings",
+          createEligibilityAlertSettings(messages, isTrustedIntermediary, isEligible));
+      context.setVariable(
+          "nonEligibilityAlertSettings",
+          createEligibilityAlertSettings(messages, isTrustedIntermediary, isEligible));
+      context.setVariable("isEligible", isEligible);
+    }
+
+    context.setVariable("showEligibilityAlert", showEligibilityAlert);
 
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
@@ -105,14 +125,31 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
   }
 
-  private AlertSettings createEligibilityAlertSettings(Messages messages) {
-    String alertText = messages.at(MessageKey.ALERT_LIKELY_ELIGIBLE.getKeyName());
+  private AlertSettings createEligibilityAlertSettings(
+      Messages messages, boolean isTrustedIntermediary, boolean isEligible) {
+    String alertText;
+    AlertType alertType;
+
+    if (isEligible) {
+      alertText =
+          isTrustedIntermediary
+              ? messages.at(MessageKey.ALERT_CLIENT_LIKELY_ELIGIBLE.getKeyName())
+              : messages.at(MessageKey.ALERT_LIKELY_ELIGIBLE.getKeyName());
+      alertType = AlertType.INFO;
+    } else {
+      alertText =
+          isTrustedIntermediary
+              ? messages.at(MessageKey.ALERT_CLIENT_LIKELY_INELIGIBLE.getKeyName())
+              : messages.at(MessageKey.ALERT_LIKELY_INELIGIBLE.getKeyName());
+      alertType = AlertType.WARNING;
+    }
+
     AlertSettings eligibilityAlertSettings =
         new AlertSettings(
             /* show= */ true,
             Optional.empty(),
             alertText,
-            AlertType.INFO,
+            alertType,
             ImmutableList.of(),
             /* isSlim= */ true);
     return eligibilityAlertSettings;
