@@ -180,6 +180,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     page,
     applicantQuestions,
     tiDashboard,
+    applicantProgramOverview,
   }) => {
     await loginAsTrustedIntermediary(page)
 
@@ -224,6 +225,9 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     await test.step('Go back and update answers to become eligible', async () => {
       // Click "Continue" on the program card
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
 
       // All questions have been answered
       await applicantQuestions.expectReviewPage(/* northStarEnabled */ true)

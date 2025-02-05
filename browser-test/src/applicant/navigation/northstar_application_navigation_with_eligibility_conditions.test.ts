@@ -169,6 +169,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showDefaultProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -330,6 +331,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showDefaultProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -378,6 +380,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showDefaultProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
