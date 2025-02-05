@@ -1,5 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from '../support'
 
 test.describe('admin program preview', () => {
   test('preview draft program and submit', async ({
@@ -8,6 +13,9 @@ test.describe('admin program preview', () => {
     adminQuestions,
     applicantQuestions,
   }) => {
+    // await disableFeatureFlag(page, 'FASTFORWARD_ENABLED')
+    await enableFeatureFlag(page, 'FASTFORWARD_ENABLED')
+
     await loginAsAdmin(page)
 
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})

@@ -13,6 +13,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.routing.Router;
 import services.program.ProgramDefinition;
+import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
@@ -35,11 +36,22 @@ public class ProgramDisabledAction extends Action.Simple {
   }
 
   private boolean programIsDisabled(String programSlug) {
-    ProgramDefinition programDefiniton =
-        programService
-            .getActiveFullProgramDefinitionAsync(programSlug)
-            .toCompletableFuture()
-            .join();
+    ProgramDefinition programDefiniton = null;
+
+    try {
+      programDefiniton =
+          programService
+              .getActiveFullProgramDefinitionAsync(programSlug)
+              .toCompletableFuture()
+              .join();
+    } catch (RuntimeException e) {
+      try {
+        programDefiniton = programService.getDraftFullProgramDefinition(programSlug);
+      } catch (RuntimeException | ProgramDraftNotFoundException e2) {
+        // Couldn't find
+        throw new RuntimeException(e2);
+      }
+    }
     return programDefiniton.displayMode() == DisplayMode.DISABLED;
   }
 
@@ -75,8 +87,11 @@ public class ProgramDisabledAction extends Action.Simple {
       return programSlugOptional;
     }
 
-    if (!settingsManifest.getFastforwardEnabled(request)
-        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+    if (!settingsManifest.getFastforwardEnabled(request)) {
+      return Optional.empty();
+    }
+
+    if (!request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
       return Optional.empty();
     }
 
