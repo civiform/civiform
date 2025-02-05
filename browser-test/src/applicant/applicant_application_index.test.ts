@@ -705,6 +705,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
+            /* showDefaultProgramOverviewPage= */ false,
           )
 
           await expect(page.getByText('Review and submit')).toBeVisible()
