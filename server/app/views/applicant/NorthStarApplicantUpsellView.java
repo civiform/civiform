@@ -92,6 +92,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     // Create account or login alert
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
+    // Cards section
     ProgramSectionParams cardsSection =
         programCardsSectionParamsFactory.getSection(
             params.request(),
@@ -105,6 +106,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             params.applicantPersonalInfo(),
             ProgramCardsSectionParamsFactory.SectionType.STANDARD);
     context.setVariable("cardsSection", cardsSection);
+    context.setVariable("showProgramsCardsSection", cardsSection.cards().size() > 0);
 
     return templateEngine.process("applicant/ApplicantUpsellTemplate", context);
   }

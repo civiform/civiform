@@ -352,79 +352,79 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         })
       },
     )
+    test('shows correct hint text based on max files', async ({
+      applicantQuestions,
+      page,
+      adminQuestions,
+      adminPrograms,
+    }) => {
+      await test.step('Add file upload questions and publish', async () => {
+        await loginAsAdmin(page)
 
-    // TODO(9454): remove ".fixme" once https://github.com/civiform/civiform/issues/9454 is fixed
-    test.fixme(
-      'shows correct hint text based on max files',
-      async ({applicantQuestions, page, adminQuestions, adminPrograms}) => {
-        await test.step('Add file upload questions and publish', async () => {
-          await loginAsAdmin(page)
-
-          await adminQuestions.addFileUploadQuestion({
-            questionName: 'file-upload-no-limit',
-            questionText: fileUploadQuestionText,
-          })
-
-          await adminQuestions.addFileUploadQuestion({
-            questionName: 'file-upload-limit',
-            questionText: fileUploadQuestionText,
-            maxFiles: 1,
-          })
-
-          await adminQuestions.addFileUploadQuestion({
-            questionName: 'second-file-upload-limit',
-            questionText: fileUploadQuestionText,
-            maxFiles: 2,
-          })
-
-          await adminPrograms.addProgram(programName)
-
-          await adminPrograms.editProgramBlockUsingSpec(programName, {
-            description: 'File upload no limit',
-            questions: [{name: 'file-upload-no-limit', isOptional: true}],
-          })
-          await adminPrograms.addProgramBlockUsingSpec(programName, {
-            description: 'File upload with limit 1',
-            questions: [{name: 'file-upload-limit', isOptional: true}],
-          })
-          await adminPrograms.addProgramBlockUsingSpec(programName, {
-            description: 'File upload with limit 2',
-            questions: [{name: 'second-file-upload-limit', isOptional: true}],
-          })
-
-          await adminPrograms.gotoAdminProgramsPage()
-          await adminPrograms.publishProgram(programName)
-          await logout(page)
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-no-limit',
+          questionText: fileUploadQuestionText,
         })
 
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-
-        await test.step('Check that text is correct for file upload with no limit set', async () => {
-          await expect(
-            page.getByText('Select one or more files', {exact: true}),
-          ).toBeVisible()
-          await applicantQuestions.clickContinue()
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-limit',
+          questionText: fileUploadQuestionText,
+          maxFiles: 1,
         })
 
-        await test.step('Check that text is correct for file upload with a max of 1 file set', async () => {
-          await expect(
-            page.getByText('Select a file', {exact: true}),
-          ).toBeVisible()
-          await applicantQuestions.clickContinue()
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'second-file-upload-limit',
+          questionText: fileUploadQuestionText,
+          maxFiles: 2,
         })
 
-        await test.step('Check that text is correct for file upload with a max above 1 set', async () => {
-          await expect(
-            page.getByText('Select one or more files (maximum of 2)', {
-              exact: true,
-            }),
-          ).toBeVisible()
+        await adminPrograms.addProgram(programName)
+
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          description: 'File upload no limit',
+          questions: [{name: 'file-upload-no-limit', isOptional: true}],
         })
-      },
-    )
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          description: 'File upload with limit 1',
+          questions: [{name: 'file-upload-limit', isOptional: true}],
+        })
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          description: 'File upload with limit 2',
+          questions: [{name: 'second-file-upload-limit', isOptional: true}],
+        })
+
+        await adminPrograms.gotoAdminProgramsPage()
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+
+      await test.step('Check that text is correct for file upload with no limit set', async () => {
+        await expect(
+          page.getByText('Select one or more files', {exact: true}),
+        ).toBeVisible()
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Check that text is correct for file upload with a max of 1 file set', async () => {
+        await expect(
+          page.getByText('Select a file', {exact: true}),
+        ).toBeVisible()
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Check that text is correct for file upload with a max above 1 set', async () => {
+        await expect(
+          page.getByText('Select one or more files (maximum of 2)', {
+            exact: true,
+          }),
+        ).toBeVisible()
+      })
+    })
   })
 
   test.describe('required file upload question with multiple file uploads', () => {
