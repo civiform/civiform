@@ -534,6 +534,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=고객의 답변 또는 자
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=다른 신청서에 대한 응답에 따라 귀하는 이 프로그램에 참여할 자격이 있을 수 있습니다.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=You may not be eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Your client is likely eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Your client may not be eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
