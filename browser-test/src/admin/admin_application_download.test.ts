@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -154,6 +155,7 @@ test.describe('csv json pdf download test- two applications', () => {
     adminPrograms,
     applicantQuestions,
   }) => {
+    await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
     test.slow()
 
     const noApplyFilters = false
@@ -211,7 +213,7 @@ test.describe('csv json pdf download test- two applications', () => {
 
       // Applicant fills out first application block.
       await applicantQuestions.answerNameQuestion('sarah', 'smith')
-      await applicantQuestions.answerDropdownQuestion('op2')
+      await applicantQuestions.answerDropdownQuestion('op2', 1)
       await applicantQuestions.answerDateQuestion('2021-05-10')
       await applicantQuestions.answerCurrencyQuestion('1000')
       await applicantQuestions.answerCheckboxQuestion(['blue'])
@@ -267,7 +269,7 @@ test.describe('csv json pdf download test- two applications', () => {
       // Apply to the program again, this time a different user
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Gus', 'Guest')
-      await applicantQuestions.answerDropdownQuestion('op2')
+      await applicantQuestions.answerDropdownQuestion('op2', 1)
       await applicantQuestions.answerDateQuestion('1990-01-01')
       await applicantQuestions.answerCurrencyQuestion('2000')
       await applicantQuestions.answerNumberQuestion('1600')
