@@ -67,7 +67,7 @@ public final class ApplicantRoutes {
    * Returns the route corresponding to the applicant show action. In the North Star UI, this
    * returns the program overview page
    *
-   * @param programSlug - ID of the program to view
+   * @param programSlug - slug of the program to view
    * @return Route for the program view action
    */
   public Call show(String programSlug) {
@@ -80,7 +80,7 @@ public final class ApplicantRoutes {
    *
    * @param profile - Profile corresponding to the logged-in user (applicant or TI).
    * @param applicantId - ID of applicant for whom the action should be performed.
-   * @param programSlug - ID of the program to view
+   * @param programSlug - slug of the program to view
    * @return Route for the program view action
    */
   public Call show(CiviFormProfile profile, long applicantId, String programSlug) {
