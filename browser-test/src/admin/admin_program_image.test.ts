@@ -26,12 +26,17 @@ test.describe('Admin can manage program image', () => {
     async ({page, adminPrograms, adminProgramImage}) => {
       const programName = 'Test Program'
       const programDescription = 'Test description'
+      const shortDescription = 'Short description'
 
       await test.step('Set up program', async () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
         await loginAsAdmin(page)
 
-        await adminPrograms.addProgram(programName, programDescription)
+        await adminPrograms.addProgram(
+          programName,
+          programDescription,
+          shortDescription,
+        )
 
         await adminPrograms.goToProgramImagePage(programName)
       })
@@ -41,6 +46,7 @@ test.describe('Admin can manage program image', () => {
         await adminProgramImage.expectProgramPreviewCard(
           programName,
           programDescription,
+          shortDescription,
         )
       })
 
@@ -60,6 +66,7 @@ test.describe('Admin can manage program image', () => {
         await adminProgramImage.expectProgramPreviewCard(
           programName,
           programDescription,
+          shortDescription,
         )
       })
     },
