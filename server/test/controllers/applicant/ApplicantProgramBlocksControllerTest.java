@@ -2193,7 +2193,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addFile_canAddMultipleFiles() {
+  public void addFile_canAddAndRemoveMultipleFiles() {
     program =
         ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
@@ -2231,10 +2231,49 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         .toCompletableFuture()
         .join();
 
+    RequestBuilder requestThree =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.removeFile(
+                    program.id,
+                    /* blockId= */ "1",
+                    /* fileKey= */ "keyTwo",
+                    /* inReview= */ false));
+
+    subject
+        .removeFile(
+            requestThree.build(),
+            program.id,
+            /* blockId= */ "1",
+            /* fileKey= */ "keyTwo",
+            /* inReview= */ false)
+        .toCompletableFuture()
+        .join();
+
+    RequestBuilder requestFour =
+        fakeRequestBuilder()
+            .call(
+                routes.ApplicantProgramBlocksController.addFileWithApplicantId(
+                    applicant.id, program.id, /* blockId= */ "1", /* inReview= */ false));
+    addQueryString(
+        requestFour,
+        ImmutableMap.of(
+            "key", "keyThree", "bucket", "fake-bucket", "originalFileName", "fileNameThree"));
+
+    subject
+        .addFileWithApplicantId(
+            requestFour.build(),
+            applicant.id,
+            program.id,
+            /* blockId= */ "1",
+            /* inReview= */ false)
+        .toCompletableFuture()
+        .join();
+
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
     assertThat(applicantData).contains("keyOne", "fileNameOne");
-    assertThat(applicantData).contains("keyTwo", "fileNameTwo");
+    assertThat(applicantData).contains("keyThree", "fileNameThree");
 
     // Assert that corresponding entries were created in the stored file repo.
     var storedFileRepo = instanceOf(StoredFileRepository.class);
