@@ -55,6 +55,10 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
+    await enableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
@@ -95,6 +99,39 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         'Logged in as testuser@example.com',
       )
     })
+  })
+
+  test('view application submitted page with related program cards feature disabled', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    // This test will only validate that no related programs are shown when the
+    // suggest_programs_on_application_confirmation_page flag is disabled
+    await createRelatedProgram(page, adminPrograms)
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'application_exportable')
+    await disableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await validateApplicationSubmittedPage(
+      page,
+      /* expectRelatedProgram= */ false,
+      applicantQuestions,
+    )
   })
 
   test('view application submitted page while logged in without download link', async ({
