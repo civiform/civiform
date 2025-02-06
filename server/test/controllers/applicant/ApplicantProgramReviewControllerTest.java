@@ -185,7 +185,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    //    Result result = this.submit(applicant.id, programDefinition.id());
     assertThat(result.status()).isEqualTo(FOUND);
 
     // An application was submitted
