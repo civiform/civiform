@@ -26,7 +26,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'text question', isOptional: true}],
+        questions: [{name: 'text question', isOptional: false}],
       })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
@@ -163,6 +163,118 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     await expect(page.getByRole('list').filter({hasText: 'title'})).toHaveCount(
       1,
     )
+  })
+
+  test('shows the correct eligibility alert under the right conditions', async ({
+    page,
+    adminPrograms,
+    adminPredicates,
+    applicantQuestions,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
+    const secondProgram = 'Second Program'
+
+    await test.step('verify that the alert does not show when no eligibililty conditions exist on program', async () => {
+      await page.goto(`/programs/${programName}`)
+      await applicantProgramOverview.expectNoEligibilityAlerts()
+    })
+
+    await test.step('create a second program with the same text question and an eligibility condition', async () => {
+      await loginAsAdmin(page)
+
+      await adminPrograms.addProgram(secondProgram)
+      await adminPrograms.editProgramBlockUsingSpec(secondProgram, {
+        description: 'First block',
+        questions: [{name: 'text question', isOptional: false}],
+      })
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        secondProgram,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicates({
+        questionName: 'text question',
+        scalar: 'text',
+        operator: 'is equal to',
+        value: 'eligible',
+      })
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(secondProgram)
+      await logout(page)
+    })
+
+    await test.step('verify that no alert shows when the eligibility question has not been answered in another application', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectNoEligibilityAlerts()
+      await logout(page)
+    })
+
+    await test.step('apply to first program in an eligible way', async () => {
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('eligible')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+    })
+
+    // Eligibility is gating by default
+    await test.step('verify that the alert shows as eligible when the eligibility condition is met and eligibilty is gating', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectYouAreEligibleAlert()
+      await logout(page)
+    })
+
+    await test.step('apply to first program in an ineligible way', async () => {
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('not eligible')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+    })
+
+    await test.step('verify that the alert shows as ineligible when the eligibility condition is not met and eligibilty is gating', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectYouMayNotBeEligibleAlert()
+    })
+
+    // Eligibility is not gating
+    await test.step('log in as an admin and make eligibiliy not gating on the second program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.goToProgramDescriptionPage(
+        secondProgram,
+        /* createNewDraft= */ true,
+      )
+      await page
+        .getByRole('radio', {
+          name: "Allow residents to submit applications even if they don't meet eligibility requirements",
+        })
+        .click()
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await test.step('apply to first program in an ineligible way', async () => {
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('not eligible')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+    })
+
+    await test.step('verify that no alert shows when eligibilty is not gating and the eligibility condition is not met', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectNoEligibilityAlerts()
+      await logout(page)
+    })
+
+    await test.step('apply to first program in an eligible way', async () => {
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.answerTextQuestion('eligible')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+    })
+
+    await test.step('verify that the alert shows as eligible when the eligibility condition is met and eligibilty is not gating', async () => {
+      await page.goto(`/programs/second-program`)
+      await applicantProgramOverview.expectYouAreEligibleAlert()
+    })
   })
 
   test('redirects to disabled program info page when program is disabled', async ({

@@ -117,7 +117,7 @@
         </div>
         <div class="section-internal">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
           ></div>
         </div>
       </section>
