@@ -217,7 +217,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
   }
 
   @Test
-  public void testProgramOnlyHasDraftVersion_whenFastForwardIsDisabled() {
+  public void testProgramOnlyHasDraftVersion_whenFastForwardIsEnabled() {
     ProgramModel program = createProgram(DisplayMode.DISABLED, LifecycleStage.DRAFT);
 
     Request request =
