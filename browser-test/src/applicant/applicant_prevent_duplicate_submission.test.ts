@@ -86,12 +86,15 @@ test.describe('Prevent Duplicate Submission', () => {
   test(
     'View Prevent Duplicate Submission modal in North Star',
     {tag: ['@northstar']},
-    async ({applicantQuestions, page}) => {
+    async ({applicantQuestions, page, applicantProgramOverview}) => {
       await test.step('As applicant, submit an application', async () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
 
         await loginAsTestUser(page)
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
+        )
         await applicantQuestions.answerNumberQuestion('0')
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(

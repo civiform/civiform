@@ -35,12 +35,20 @@ public class ProgramDisabledAction extends Action.Simple {
   }
 
   private boolean programIsDisabled(String programSlug) {
-    ProgramDefinition programDefiniton =
-        programService
-            .getActiveFullProgramDefinitionAsync(programSlug)
-            .toCompletableFuture()
-            .join();
-    return programDefiniton.displayMode() == DisplayMode.DISABLED;
+    try {
+      ProgramDefinition programDefiniton =
+          programService
+              .getActiveFullProgramDefinitionAsync(programSlug)
+              .toCompletableFuture()
+              .join();
+
+      return programDefiniton.displayMode() == DisplayMode.DISABLED;
+    } catch (RuntimeException e) {
+      // No active program was found. Return false here on error and
+      // let the rest of the application take over to handle programs
+      // that are missing or only have a draft version
+      return false;
+    }
   }
 
   private ProgramDefinition getProgram(long programId) {
