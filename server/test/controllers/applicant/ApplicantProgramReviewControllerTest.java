@@ -397,14 +397,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .join();
   }
 
-  public Result submit_fastforwarddisabled(long applicantId, long programId) {
-    Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    return subject
-        .submitWithApplicantId(request, applicantId, programId)
-        .toCompletableFuture()
-        .join();
-  }
-
   private void answer(long programId, boolean fastforwardEnabled) {
     Request request =
         fakeRequestBuilder()
