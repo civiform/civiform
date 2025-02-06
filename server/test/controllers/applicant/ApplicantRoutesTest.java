@@ -25,6 +25,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static long APPLICANT_ACCOUNT_ID = 456L;
   private static long TI_ACCOUNT_ID = 789L;
   private static long PROGRAM_ID = 321L;
+  private static String PROGRAM_SLUG = "test-program";
   private static String BLOCK_ID = "test_block";
   private static final int CURRENT_BLOCK_INDEX = 7;
 
@@ -123,6 +124,36 @@ public class ApplicantRoutesTest extends ResetPostgres {
     Counts after = getApplicantIdInProfileCounts();
     assertThat(after.present).isEqualTo(before.present);
     assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testShowRoute_withoutApplicantWithProgramSlug() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    String expectedShowUrl = String.format("/programs/%s", PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().show(PROGRAM_SLUG).url()).isEqualTo(expectedShowUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent);
+  }
+
+  @Test
+  public void testShowRoute_forTrustedIntermediaryWithProgramSlug() {
+    Counts before = getApplicantIdInProfileCounts();
+
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    profileData.addRole(Role.ROLE_TI.toString());
+    CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedEditUrl =
+        String.format("/applicants/%d/programs/%s", APPLICANT_ID, PROGRAM_SLUG);
+    assertThat(new ApplicantRoutes().show(tiProfile, APPLICANT_ID, PROGRAM_SLUG).url())
+        .isEqualTo(expectedEditUrl);
+
+    Counts after = getApplicantIdInProfileCounts();
+    assertThat(after.present).isEqualTo(before.present);
+    assertThat(after.absent).isEqualTo(before.absent + 1);
   }
 
   @Test

@@ -52,7 +52,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await applicantQuestions.applyProgram(
       programName,
       /* northStarEnabled= */ true,
-      /* showDefaultProgramOverviewPage= */ false,
+      /* isApplicationUnstarted= */ false, // in this case, the application is unstarted, but we pass in false so that we can use the translated version of the program overview page below
     )
     await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
       'Descripción general del programa', // translated page title

@@ -250,17 +250,13 @@ public final class ProgramCardsSectionParamsFactory {
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile) {
     // Render the program overview page
-    String actionUrl =
-        controllers.applicant.routes.ApplicantProgramsController.show(programSlug).url();
+    String actionUrl = applicantRoutes.show(programSlug).url();
 
     boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
 
     if (!optionalLifecycleStage.isPresent() && haveApplicant) {
       // Render the program overview page with applicant ID when applying as TI.
-      actionUrl =
-          controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
-                  applicantId.get(), programSlug)
-              .url();
+      actionUrl = applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url();
     } else if (optionalLifecycleStage.isPresent()) {
       if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
         // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review

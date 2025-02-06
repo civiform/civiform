@@ -287,7 +287,7 @@ export class ApplicantQuestions {
   async applyProgram(
     programName: string,
     northStarEnabled = false,
-    showDefaultProgramOverviewPage = true,
+    isApplicationUnstarted = true,
   ) {
     await this.clickApplyProgramButton(programName)
 
@@ -295,7 +295,7 @@ export class ApplicantQuestions {
     // If the applicant has already submitted an application, it will take them to the review page.
     // If the applicant has a partially completed application, it will take them to the page with the first unanswered question.
     if (northStarEnabled) {
-      if (showDefaultProgramOverviewPage) {
+      if (isApplicationUnstarted) {
         await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )

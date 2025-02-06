@@ -671,7 +671,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
-            /* showDefaultProgramOverviewPage= */ false,
+            /* isApplicationUnstarted= */ false,
           )
           // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
           await expect(page.getByText('Screen 3')).toBeVisible()
@@ -705,7 +705,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
-            /* showDefaultProgramOverviewPage= */ false,
+            /* isApplicationUnstarted= */ false,
           )
 
           await expect(page.getByText('Review and submit')).toBeVisible()
@@ -903,7 +903,7 @@ test.describe('applicant program index page', () => {
             await applicantQuestions.applyProgram(
               primaryProgramName,
               /* northStarEnabled= */ true,
-              /* showDefaultProgramOverviewPage= */ false,
+              /* isApplicationUnstarted= */ false,
             )
             await applicantQuestions.answerTextQuestion('second answer')
             await applicantQuestions.clickContinue()

@@ -1082,7 +1082,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
-          /* showDefaultProgramOverviewPage= */ false,
+          /* isApplicationUnstarted= */ false,
         )
         await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
       })
