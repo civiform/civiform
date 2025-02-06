@@ -253,25 +253,32 @@ public final class ProgramCardsSectionParamsFactory {
     String actionUrl =
         controllers.applicant.routes.ApplicantProgramsController.show(programSlug).url();
 
-    if (optionalLifecycleStage.isPresent()) {
-      // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
-      // page.
+    boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
+
+    if (!optionalLifecycleStage.isPresent() && haveApplicant) {
+      // Render the program overview page with applicant ID when applying as TI.
+      actionUrl =
+          controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
+                  applicantId.get(), programSlug)
+              .url();
+    } else if (optionalLifecycleStage.isPresent()) {
       if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
-        // TIs need to specify applicant ID.
+        // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
+        // page. TIs need to specify applicant ID.
         actionUrl =
-            profile.isPresent() && applicantId.isPresent()
+            haveApplicant
                 ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.review(programId).url();
       } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
-        // DRAFT lifecylce stage means they have started but not submitted an application. Redirect
-        // them to where they left off in the application.
-        // TIs need to specify applicant ID.
+        // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
+        // them to where they left off in the application. TIs need to specify applicant ID.
         actionUrl =
-            profile.isPresent() && applicantId.isPresent()
+            haveApplicant
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
       }
     }
+
     return actionUrl;
   }
 

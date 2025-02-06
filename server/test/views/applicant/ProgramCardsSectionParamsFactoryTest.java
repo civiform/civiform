@@ -1,7 +1,12 @@
 package views.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
@@ -9,6 +14,7 @@ import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
 import models.LifecycleStage;
+import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -16,6 +22,18 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 
 public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
+  private CiviFormProfile testProfile;
+  private CiviFormProfileData testProfileData;
+
+  @Before
+  public void setup() {
+    testProfile = mock(CiviFormProfile.class);
+    testProfileData = mock(CiviFormProfileData.class);
+    when(testProfile.isTrustedIntermediary()).thenReturn(true);
+    when(testProfile.getProfileData()).thenReturn(testProfileData);
+    when(testProfileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME))
+        .thenReturn(false);
+  }
 
   @Test
   public void selectAndFormatDescription_usesShortDescriptionWhenPresent() {
@@ -62,14 +80,30 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
-            1L,
-            "fake-program",
-            Optional
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
+            /* lifeCycleStage= */ Optional
                 .empty(), // empty lifecycle stage means this is their first time filling out this
             // application
-            Optional.empty(),
-            Optional.empty());
+            /* applicantId= */ Optional.empty(),
+            /* profile= */ Optional.empty());
     assertThat(url).isEqualTo("/programs/fake-program");
+  }
+
+  @Test
+  public void getActionUrl_returnsProgramOverviewUrlWithApplicantIdWhenPresent() {
+    ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+    String url =
+        ProgramCardsSectionParamsFactory.getActionUrl(
+            applicantRoutes,
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
+            /* lifeCycleStage= */ Optional
+                .empty(), // empty lifecycle stage means this is their first time filling out this
+            // application
+            /* applicantId= */ Optional.of(1L),
+            /* profile= */ Optional.of(testProfile));
+    assertThat(url).isEqualTo("/applicants/1/programs/fake-program");
   }
 
   @Test
@@ -78,13 +112,28 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
-            1L,
-            "fake-program",
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
-            Optional.empty(),
-            Optional.empty());
+            /* applicantId= */ Optional.empty(),
+            /* profile= */ Optional.empty());
     assertThat(url).isEqualTo("/programs/1/edit");
+  }
+
+  @Test
+  public void getActionUrl_returnsEditUrlWithApplicantIdWhenPresent() {
+    ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+    String url =
+        ProgramCardsSectionParamsFactory.getActionUrl(
+            applicantRoutes,
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
+            Optional.of(
+                LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
+            /* applicantId= */ Optional.of(1L),
+            /* profile= */ Optional.of(testProfile));
+    assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
   }
 
   @Test
@@ -93,14 +142,30 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
-            1L,
-            "fake-program",
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
             Optional.of(
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
-            Optional.empty(),
-            Optional.empty());
+            /* applicantId= */ Optional.empty(),
+            /* profile= */ Optional.empty());
     assertThat(url).isEqualTo("/programs/1/review");
+  }
+
+  @Test
+  public void getActionUrl_returnsReviewUrlWithApplicantIdWhenPresent() {
+    ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+    String url =
+        ProgramCardsSectionParamsFactory.getActionUrl(
+            applicantRoutes,
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
+            Optional.of(
+                LifecycleStage
+                    .ACTIVE), // active lifecycle stage means they have submitted the application
+            /* applicantId= */ Optional.of(1L),
+            /* profile= */ Optional.of(testProfile));
+    assertThat(url).isEqualTo("/applicants/1/programs/1/review");
   }
 
   private ProgramDefinition createProgramDefinition(
