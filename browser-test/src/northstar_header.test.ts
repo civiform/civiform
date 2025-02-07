@@ -10,45 +10,65 @@ import {
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    // Since a guest account is not created until you start applying for something,
+    // we have to make a program.
+    await seedProgramsAndCategories(page)
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
   })
   /**
    * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
    */
-  test('Check screenshots and validate accessibility', async ({
+  test('Check screenshots and validate accessibility on desktop', async ({
     page,
-    adminPrograms,
     applicantQuestions,
   }) => {
-    await test.step('Take a screenshot with no profile/account', async () => {
-      await validateScreenshot(page.getByRole('main'), 'not-logged-in')
+    await test.step('Take a screenshot with no profile/account on desktop', async () => {
+      await validateScreenshot(page, 'not-logged-in')
     })
-    await test.step('Take a screenshot as a guest', async () => {
-      // Since a guest account is not created until you start applying for something,
-      // we have to make a program.
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-      await loginAsAdmin(page)
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
+    await test.step('Take a screenshot as a guest on desktop', async () => {
       await applicantQuestions.applyProgram(
         'Minimal Sample Program',
         /* northStarEnabled= */ true,
       )
-      await validateScreenshot(
-        page.getByRole('main'),
-        'not-logged-in-guest-mode-enabled',
-      )
+      await validateScreenshot(page, 'not-logged-in-guest-mode-enabled')
     })
 
-    await test.step('Take a screenshot as the test user', async () => {
+    await test.step('Take a screenshot as the test user on desktop', async () => {
       await loginAsTestUser(page)
-      await validateScreenshot(page.getByRole('main'), 'logged-in')
+      await validateScreenshot(page, 'logged-in')
     })
 
-    await test.step('Passes accessibility test', async () => {
+    await test.step('Passes accessibility test on desktop', async () => {
+      await validateAccessibility(page)
+    })
+  })
+
+  test('Check screenshots and validate accessibility on mobile', async ({
+    page,
+  }) => {
+    await page.setViewportSize({width: 360, height: 800})
+
+    await test.step('Take a screenshot with no profile/account', async () => {
+      await page.click('button:has-text("MENU")')
+      await validateScreenshot(page, 'not-logged-in-mobile')
+    })
+    await test.step('Take a screenshot as a guest on mobile', async () => {
+      await validateScreenshot(page, 'not-logged-in-guest-mode-enabled-mobile')
+    })
+
+    await test.step('Take a screenshot as the test user on mobile', async () => {
+      await loginAsTestUser(page)
+      await page.click('button:has-text("MENU")')
+      await validateScreenshot(page, 'logged-in-mobile')
+    })
+
+    await test.step('Passes accessibility test on mobile', async () => {
       await validateAccessibility(page)
     })
   })
