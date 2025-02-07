@@ -568,7 +568,7 @@
       },
       "IT_EMAIL_ADDRESS": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "This email address receives error notifications from CiviForm when things break.",
+        "description": "This email address receives error notifications from CiviForm when there is an internal server error or a durable job fails.",
         "type": "string"
       },
       "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {

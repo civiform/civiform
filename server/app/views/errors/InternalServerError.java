@@ -65,12 +65,12 @@ public final class InternalServerError extends BaseHtmlView {
 
   private UnescapedText buildAdditionalInfo(
       Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
-    String supportEmail = settingsManifest.getSupportEmailAddress(requestHeader).get();
+    String itEmail = settingsManifest.getString("IT_EMAIL_ADDRESS", requestHeader).get();
     String emailLinkHref =
-        String.format("mailto:%s?body=[CiviForm Error ID: %s]", supportEmail, exceptionId);
+        String.format("mailto:%s?body=[CiviForm Error ID: %s]", itEmail, exceptionId);
     ATag emailAction =
         new LinkElement()
-            .setText(supportEmail)
+            .setText(itEmail)
             .setHref(emailLinkHref)
             .asAnchorText()
             .withClasses(ApplicantStyles.LINK);
