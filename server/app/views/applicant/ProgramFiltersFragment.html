@@ -1,4 +1,4 @@
-<th:block th:fragment="programFiltersFragment(categoryOptions)">
+<th:block th:fragment="programFiltersFragment(categoryOptions, applicantId)">
   <form
     th:if="${!categoryOptions.isEmpty()}"
     id="ns-category-filter-form"
@@ -7,6 +7,11 @@
     hx-target="#not-started-programs"
     hx-swap="innerHTML show:top"
   >
+    <input
+      type="hidden"
+      name="applicantId"
+      th:value="${applicantId.orElse('')}"
+    />
     <fieldset class="grid-row grid-gap border-0">
       <legend th:text="#{label.programFilters}"></legend>
       <th:block th:each="categoryOption : ${categoryOptions}">

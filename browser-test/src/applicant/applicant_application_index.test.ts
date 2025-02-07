@@ -2,14 +2,17 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
+  ClientInformation,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
+  loginAsTrustedIntermediary,
   logout,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
   seedProgramsAndCategories,
   selectApplicantLanguage,
 } from '../support'
@@ -979,6 +982,90 @@ test.describe('applicant program index page', () => {
               /* filtersOn= */ false,
               /* northStarEnabled= */ true,
             )
+          })
+        })
+
+        test('with program filters enabled, categorizes programs correctly for Trusted Intermediaries', async ({
+          page,
+          adminPrograms,
+          tiDashboard,
+          applicantQuestions,
+        }) => {
+          await test.step('publish programs with categories', async () => {
+            await adminPrograms.publishAllDrafts()
+          })
+          await test.step('Navigate to homepage', async () => {
+            await logout(page)
+            await loginAsTrustedIntermediary(page)
+          })
+          await test.step('Create a new client', async () => {
+            await tiDashboard.gotoTIDashboardPage(page)
+            await waitForPageJsLoad(page)
+            const client: ClientInformation = {
+              emailAddress: 'fake@sample.com',
+              firstName: 'first',
+              middleName: 'middle',
+              lastName: 'last',
+              dobDate: '2021-05-10',
+            }
+            await tiDashboard.createClient(client)
+            await tiDashboard.expectDashboardContainClient(client)
+            await tiDashboard.clickOnViewApplications()
+          })
+          await test.step('Apply to a program and verify that applied program is under my applicatins section of view application page', async () => {
+            await applicantQuestions.applyProgram(primaryProgramName, true)
+            await applicantQuestions.answerTextQuestion('first answer')
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.gotoApplicantHomePage()
+            await tiDashboard.clickOnViewApplications()
+            await applicantQuestions.expectProgramsWithFilteringEnabled(
+              {
+                expectedProgramsInMyApplicationsSection: [primaryProgramName],
+                expectedProgramsInProgramsAndServicesSection: [
+                  otherProgramName,
+                  'Minimal Sample Program',
+                  'Comprehensive Sample Program',
+                ],
+                expectedProgramsInRecommendedSection: [],
+                expectedProgramsInOtherProgramsSection: [],
+              },
+              /* filtersOn= */ false,
+              /* northStarEnabled= */ true,
+            )
+          })
+
+          await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections', async () => {
+            await applicantQuestions.filterProgramsByCategory('General')
+            await validateScreenshot(
+              page.locator('#programs-list'),
+              'north-star-in-progress-homepage-programs-filtered',
+            )
+
+            await applicantQuestions.expectProgramsWithFilteringEnabled(
+              {
+                expectedProgramsInMyApplicationsSection: [primaryProgramName],
+                expectedProgramsInProgramsAndServicesSection: [],
+                expectedProgramsInRecommendedSection: [otherProgramName],
+                expectedProgramsInOtherProgramsSection: [
+                  'Minimal Sample Program',
+                  'Comprehensive Sample Program',
+                ],
+              },
+              /* filtersOn= */ true,
+              /* northStarEnabled= */ true,
+            )
+
+            // Check the program count in the section headings
+            await expect(
+              page.getByRole('heading', {
+                name: 'Programs based on your selections (1)',
+              }),
+            ).toBeVisible()
+            await expect(
+              page.getByRole('heading', {
+                name: 'Other programs and services (2)',
+              }),
+            ).toBeVisible()
           })
         })
 

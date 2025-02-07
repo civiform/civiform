@@ -10,6 +10,9 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -61,7 +64,6 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
       ImmutableList<String> selectedCategoriesFromParams) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
-
     Locale preferredLocale = messages.lang().toLocale();
 
     // Find all programs that have at least one of the selected categories
@@ -76,10 +78,14 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
                                     category.getLocalizedName().getOrDefault(preferredLocale))))
             .collect(ImmutableList.toImmutableList());
 
-    // Find all programs that don't have any of the selected categories
+    Set<ApplicantService.ApplicantProgramData> inProgressOrFilteredPrograms =
+        Stream.concat(applicationPrograms.inProgress().stream(), filteredPrograms.stream())
+            .collect(Collectors.toSet());
+
+    // Find all programs that don't have any of the selected categories or are not in-progress
     ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
         applicationPrograms.unapplied().stream()
-            .filter(programData -> !filteredPrograms.contains(programData))
+            .filter(programData -> !inProgressOrFilteredPrograms.contains(programData))
             .collect(ImmutableList.toImmutableList());
 
     ProgramCardsSectionParamsFactory.ProgramSectionParams recommendedSection =
