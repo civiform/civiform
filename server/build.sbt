@@ -252,7 +252,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 
-jacocoExcludes := Seq("views*", "*Routes*")
+jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Include North Star HTML files when running 'sbt dist' when building the prod image.
