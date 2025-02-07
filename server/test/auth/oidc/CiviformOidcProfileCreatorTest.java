@@ -16,11 +16,14 @@ import com.typesafe.config.ConfigFactory;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -29,6 +32,7 @@ import repository.AccountRepository;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 
+@RunWith(JUnitParamsRunner.class)
 public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
   private static final String NAME = "Philip J. Fry";
@@ -36,6 +40,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
   private static final String ID_TOKEN_STRING = "id token string";
+  private static final String PHONE_NUMBER = "2535554321";
+  private static final String PHONE_NUMBER_ATTRIBUTE_NAME = "phone_number";
 
   private static OidcProfile profile;
 
@@ -56,28 +62,56 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     profile.setIdTokenString(ID_TOKEN_STRING);
   }
 
-  private CiviformOidcProfileCreator getOidcProfileCreator(boolean enhancedLogoutEnabled) {
-    Config civiformConfig =
-        ConfigFactory.parseMap(
-            ImmutableMap.of(
-                "applicant_oidc_enhanced_logout_enabled", String.valueOf(enhancedLogoutEnabled)));
+  private CiviformOidcProfileCreator getOidcProfileCreator(
+      boolean enhancedLogoutEnabled, boolean includePhoneScope) {
+    ImmutableMap.Builder<String, Object> configMapBuilder =
+        ImmutableMap.<String, Object>builder()
+            .put("applicant_oidc_enhanced_logout_enabled", String.valueOf(enhancedLogoutEnabled));
+
+    Optional<String> phoneNumberAttribute = Optional.empty();
+
+    if (includePhoneScope) {
+      configMapBuilder
+          .put("applicant_generic_oidc.additional_scopes", "phone")
+          // gwen
+          // .put("applicant_generic_oidc.phone_number_attribute", PHONE_NUMBER_ATTRIBUTE_NAME)
+          .put("idcs.phone_number_attribute", PHONE_NUMBER_ATTRIBUTE_NAME);
+
+      phoneNumberAttribute = Optional.of(PHONE_NUMBER_ATTRIBUTE_NAME);
+    }
+
+    Config civiformConfig = ConfigFactory.parseMap(configMapBuilder.build());
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration oidcConfig = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
+
+    StandardClaimsAttributeNames standardClaimsAttributeNames =
+        StandardClaimsAttributeNames.builder()
+            .setEmail("user_emailid")
+            .setLocale(Optional.of("user_locale"))
+            .setNames(ImmutableList.of("user_displayname"))
+            .setPhoneNumber(phoneNumberAttribute)
+            .build();
+
     return new IdcsApplicantProfileCreator(
         oidcConfig,
         client,
         OidcClientProviderParams.create(
             civiformConfig,
             profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository)));
+            CfTestHelpers.userRepositoryProvider(accountRepository)),
+        standardClaimsAttributeNames);
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreator() {
-    return getOidcProfileCreator(false);
+    return getOidcProfileCreator(false, false);
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreatorWithEnhancedLogoutEnabled() {
-    return getOidcProfileCreator(true);
+    return getOidcProfileCreator(true, false);
+  }
+
+  private CiviformOidcProfileCreator getOidcProfileCreatorWithPhoneScope() {
+    return getOidcProfileCreator(false, true);
   }
 
   @Test
@@ -242,6 +276,87 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
     assertThat(maybeApplicant).isNotPresent();
+  }
+
+  private Object[] allowedPhoneNumbers() {
+    return new Object[] {
+      // E164 format phone number for GB
+      new Object[] {"+12535551122", "2535551122"},
+      new Object[] {"253-555-1122", "2535551122"},
+      new Object[] {"(253) 555-1122", "2535551122"},
+    };
+  }
+
+  @Test
+  @Parameters(method = "allowedPhoneNumbers")
+  public void mergeCiviFormProfile_withPhoneScope_importAllowedPhoneNumber(
+      String phoneNumber, String cleanedPhoneNumber) {
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
+    // Execute.
+
+    profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
+
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+
+    // Verify.
+    assertThat(profileData).isNotNull();
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+    assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.of(cleanedPhoneNumber));
+  }
+
+  private Object[] disallowedPhoneNumbers() {
+    return new Object[] {
+      // E164 format phone number for GB
+      new Object[] {"+447911123456"},
+      new Object[] {"asdfklajsdfasdf"},
+      new Object[] {""},
+      new Object[] {null},
+    };
+  }
+
+  @Test
+  @Parameters(method = "disallowedPhoneNumbers")
+  public void mergeCiviFormProfile_withPhoneScope_doesNotImportInvalidPhoneNumber(
+      String phoneNumber) {
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreatorWithPhoneScope();
+    // Execute.
+    profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, phoneNumber);
+
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+
+    // Verify.
+    assertThat(profileData).isNotNull();
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+    assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void mergeCiviFormProfile_withoutPhoneScope_doesNotImportPhoneNumber() {
+    PlayWebContext context = new PlayWebContext(fakeRequest());
+
+    // This does NOT have the phone scope requested
+    CiviformOidcProfileCreator oidcProfileAdapter = getOidcProfileCreator();
+
+    // Execute.
+    profile.addAttribute(PHONE_NUMBER_ATTRIBUTE_NAME, PHONE_NUMBER);
+
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, context);
+
+    // Verify.
+    assertThat(profileData).isNotNull();
+
+    Optional<ApplicantModel> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+    assertThat(maybeApplicant.get().getPhoneNumber()).isEqualTo(Optional.empty());
   }
 
   /** Returns an OidcProfile with required fields set. */

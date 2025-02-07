@@ -201,6 +201,12 @@
                 "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s name suffix.",
                 "type": "string"
+              },
+              "APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE": {
+                "mode": "HIDDEN",
+                "description": "The OIDC attribute name for the user’s phone number.",
+                "type": "string",
+                "required": false
               }
             }
           },
