@@ -1134,7 +1134,9 @@ export class ApplicantQuestions {
       .locator('#ns-category-filter-form')
       .getByText(category)
       .check()
-    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+    await this.page
+      .getByRole('button', {name: 'Apply selections', exact: true})
+      .click()
   }
 
   // On the North Star application summary page, find the block with the given name

@@ -339,6 +339,25 @@ export function init() {
     })
   }
 
+  // Add uswds checkbox tile CSS class to North Star program filter checkboxes for tablet and mobile
+  const handleMediaQueryChange = () => {
+    const mediaQuery = window.matchMedia('(max-width: 63.9em)')
+    const checkboxes = document.querySelectorAll('[id*="ns-check-category-"]')
+
+    if (mediaQuery.matches) {
+      checkboxes.forEach((checkbox) => {
+        checkbox.classList.add('usa-checkbox__input--tile')
+      })
+    } else {
+      checkboxes.forEach((checkbox) => {
+        checkbox.classList.remove('usa-checkbox__input--tile')
+      })
+    }
+  }
+
+  addEventListener('resize', handleMediaQueryChange)
+  handleMediaQueryChange()
+
   // Bind click handler for remove options in multi-option edit view
   addEventListenerToElements(
     '.multi-option-question-field-remove-button',
