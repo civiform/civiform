@@ -46,13 +46,16 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <div class="flex-align-stretch flex-col flex-grow-1 grid-row ">
+        <div class="flex-align-stretch flex-col grid-row grid-gap">
           <div th:replace="~{this :: userName}"></div>
-          <div class="flex-grow-1 grid-row maxw-full">
-            <button  th:if="${showDebugTools}" th:replace="~{this :: showDebugTools}"></button>
+          <div class="flex-grow grid-row">
+            <button
+              th:if="${showDebugTools}"
+              th:replace="~{this :: showDebugTools}"
+            ></button>
             <button th:replace="~{this :: loginOrLogout}"></button>
             <button th:replace="~{this :: languageSelector}"></button>
-         </div>
+          </div>
         </div>
       </nav>
     </div>
@@ -202,7 +205,7 @@
 <div th:fragment="showDebugTools" class="display-flex flex-grow">
   <a
     type="button"
-    class="usa-button usa-button--outline margin-left-1"
+    class="usa-button usa-button--outline flex-grow maxw-full"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -213,19 +216,19 @@
 </div>
 
 <th:block th:fragment="userName">
-    <th:block th:if="${!isGuest}">
-      <div
+  <th:block th:if="${!isGuest}">
+    <div
       th:text="#{header.userName(${loggedInAs})}"
       class="flex-align-self-end margin-right-1 padding-bottom-2 text-ink"
     ></div>
-    </th:block>
+  </th:block>
 </th:block>
 
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline flex-grow margin-left-1"
+      class="usa-button usa-button--outline"
       th:text="#{button.login}"
       id="login-button"
       th:href="${loginLink}"
@@ -235,7 +238,7 @@
   <th:block th:if="${!isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline flex-grow margin-left-1"
+      class="usa-button usa-button--outline"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -243,7 +246,7 @@
   </th:block>
 </th:block>
 
-<div th:fragment="languageSelector" class="flex-grow margin-right-1 margin-left-1">
+<div th:fragment="languageSelector" class="flex-grow margin-right-1">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
