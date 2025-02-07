@@ -343,6 +343,7 @@ test.describe('Admin can manage program translations', () => {
       adminQuestions,
       adminTranslations,
       applicantQuestions,
+      applicantProgramOverview,
     }) => {
       await loginAsAdmin(page)
 
@@ -385,6 +386,11 @@ test.describe('Admin can manage program translations', () => {
         await selectApplicantLanguage(page, 'Español')
 
         await applicantQuestions.clickApplyProgramButton('Spanish name')
+        await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
+          'Descripción general del programa', // translated page title
+          'Inscribirse en el programa Spanish name', // translated page header
+          'Comenzar una solicitud', // translated button text
+        )
 
         await expect(
           page.getByText('Spanish block name - bloque uno'),
