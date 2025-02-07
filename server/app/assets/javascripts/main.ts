@@ -339,7 +339,7 @@ export function init() {
     })
   }
 
-  // Add uswds checkbox tile CSS class to North Star program filter checkboxes for tablet and mobile
+  // Add USWDS checkbox tile CSS class to North Star program filter checkboxes for tablet and mobile
   const handleMediaQueryChange = () => {
     const mediaQuery = window.matchMedia('(max-width: 63.9em)')
     const checkboxes = document.querySelectorAll('[id*="ns-check-category-"]')
