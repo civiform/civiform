@@ -206,6 +206,12 @@ content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ �
 content.homepageIntro=በልጅ እንክብካቤ፣ ምግብ፣ መጓጓዣ፣ መገልገያዎች እና ሌሎችም ላይ እገዛ ያግኙ።
 # The label for the program filter buttons
 label.programFilters=የፕሮግራም ማጣሪያዎች
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
 # The same text, read for screen readers.
