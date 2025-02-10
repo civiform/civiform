@@ -346,8 +346,8 @@ public class EligibilityAlertSettingsCalculatorTest {
     assertThat(result.show()).isEqualTo(true);
     assertThat(result.alertType()).isEqualTo(AlertType.WARNING);
     assertThat(result.title().get()).isEqualTo("APPLICANT_NOT_ELIGIBLE_TITLE");
-    assertThat(result.text())
-        .isEqualTo("APPLICANT_NOT_ELIGIBLE_TEXT\nThis is a customized eligibility message.");
+    assertThat(result.text()).isEqualTo("APPLICANT_NOT_ELIGIBLE_TEXT");
+    assertThat(result.customText().get()).isEqualTo("This is a customized eligibility message.");
   }
 
   @Test

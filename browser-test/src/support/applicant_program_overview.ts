@@ -12,8 +12,18 @@ export class ApplicantProgramOverview {
     this.page = page
   }
 
+  async startApplicationFromProgramOverviewPage(
+    programName: string,
+  ): Promise<void> {
+    await this.expectProgramOverviewPage(programName)
+    await this.page
+      .getByRole('link', {name: 'Start an application'})
+      .first()
+      .click()
+  }
+
   async expectProgramOverviewPage(programName: string): Promise<void> {
-    expect(await this.page.title()).toBe('test - Program Overview')
+    expect(await this.page.title()).toContain('Program Overview')
     await expect(
       this.page.getByRole('heading', {
         name: `Apply for ${programName} program`,
@@ -21,8 +31,64 @@ export class ApplicantProgramOverview {
     ).toBeVisible()
   }
 
+  async startApplicationFromTranslatedProgramOverviewPage(
+    pageTitle: string,
+    header: string,
+    buttonText: string,
+  ): Promise<void> {
+    await this.expectTranslatedProgramOverviewPage(pageTitle, header)
+    await this.page.getByRole('link', {name: buttonText}).first().click()
+  }
+
+  async expectTranslatedProgramOverviewPage(pageTitle: string, header: string) {
+    expect(await this.page.title()).toContain(pageTitle)
+    await expect(
+      this.page.getByRole('heading', {
+        name: header,
+      }),
+    ).toBeVisible()
+  }
+
   async expectFirstPageOfApplication(): Promise<void> {
     expect(await this.page.title()).toBe('test — 1 of 2')
     await expect(this.page.getByText('Screen 1')).toBeVisible()
+  }
+
+  async expectYouAreEligibleAlert(): Promise<void> {
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You are likely eligible'}),
+    ).toBeVisible()
+
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You may not be eligible'}),
+    ).toBeHidden()
+  }
+
+  async expectYouMayNotBeEligibleAlert(): Promise<void> {
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You may not be eligible'}),
+    ).toBeVisible()
+
+    await expect(
+      this.page
+        .getByTestId('eligibility-alert')
+        .getByRole('alert')
+        .filter({hasText: 'You are likely eligible'}),
+    ).toBeHidden()
+  }
+
+  async expectNoEligibilityAlerts(): Promise<void> {
+    await expect(
+      this.page.getByTestId('eligibility-alert').getByRole('alert'),
+    ).toBeHidden()
   }
 }

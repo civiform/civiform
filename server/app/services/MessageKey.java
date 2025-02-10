@@ -53,6 +53,9 @@ public enum MessageKey {
   ALERT_ELIGIBILITY_TI_FASTFORWARDED_NOT_ELIGIBLE_TEXT(
       "alert.eligibility_ti_fastforwarded_not_eligible_text"),
   ALERT_LIKELY_ELIGIBLE("alert.likelyEligible"), // North Star only
+  ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
+  ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
+  ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
@@ -75,11 +78,13 @@ public enum MessageKey {
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
+  BUTTON_APPLY_SELECTIONS("button.applySelections"), // North Star only
   BUTTON_APPLY_SR("button.applySr"),
   BUTTON_BACK_TO_CLIENT_LIST("button.backToClientList"),
   BUTTON_BACK_TO_EDITING("button.backToEditing"),
   BUTTON_CANCEL("button.cancel"),
   BUTTON_CHOOSE_FILE("button.chooseFile"),
+  BUTTON_CLEAR_SELECTIONS("button.clearSelections"), // North Star only
   BUTTON_CLOSE("button.close"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
@@ -256,6 +261,7 @@ public enum MessageKey {
   INPUT_UNLIMITED_FILE_UPLOAD_HINT("input.unlimitedFileUploadHint"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_PROGRAM_FILTERS("label.programFilters"),
+  LABEL_PROGRAM_FILTERS_V2("label.programFilters.v2"), // North Star only
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),
