@@ -314,6 +314,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Long program description (optional)")
             .setMarkdownSupported(true)
             .setValue(displayDescription)
+            .setAttribute(
+                "data-northstar-enabled",
+                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         FieldWithLabel.input()

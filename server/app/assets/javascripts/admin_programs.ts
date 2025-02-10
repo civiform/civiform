@@ -51,34 +51,53 @@ class AdminPrograms {
       const longDescription = document.getElementById(
         'program-display-description-textarea',
       ) as HTMLInputElement
-      if (commonIntakeCheckbox.checked) {
+      const northStarUiEnabled =
+        longDescription.dataset.northstarEnabled === 'true'
+      if (commonIntakeCheckbox.checked && northStarUiEnabled) {
         longDescription.disabled = true
-        longDescription.classList.add(this.DISABLED_TEXT_CLASS, this.DISABLED_BACKGROUND_CLASS)
+        longDescription.classList.add(
+          this.DISABLED_TEXT_CLASS,
+          this.DISABLED_BACKGROUND_CLASS,
+        )
       } else {
         longDescription.disabled = false
       }
 
-      const applicationStepTitles = document.querySelectorAll('input[id^="apply-step"]')
-      const applicationStepDescriptions = document.querySelectorAll('textarea[id^="apply-step"]')
+      const applicationStepTitles = document.querySelectorAll(
+        'input[id^="apply-step"]',
+      )
+      const applicationStepDescriptions = document.querySelectorAll(
+        'textarea[id^="apply-step"]',
+      )
       this.disableApplicationSteps(applicationStepTitles, commonIntakeCheckbox)
-      this.disableApplicationSteps(applicationStepDescriptions, commonIntakeCheckbox)
+      this.disableApplicationSteps(
+        applicationStepDescriptions,
+        commonIntakeCheckbox,
+      )
       // remove the required indicator from the first application step
       const applicationStepOneDiv = document.querySelector('#apply-step-1-div')
       if (commonIntakeCheckbox.checked) {
-        const requiredIndicators = applicationStepOneDiv?.querySelectorAll('span')
-        requiredIndicators?.forEach(indicator => {
+        const requiredIndicators =
+          applicationStepOneDiv?.querySelectorAll('span')
+        requiredIndicators?.forEach((indicator) => {
           indicator.classList.add('hidden')
         })
       }
     })
   }
 
-  static disableApplicationSteps(applicationStepFields: NodeListOf<Element>, commonIntakeCheckbox: HTMLInputElement) {
+  static disableApplicationSteps(
+    applicationStepFields: NodeListOf<Element>,
+    commonIntakeCheckbox: HTMLInputElement,
+  ) {
     applicationStepFields.forEach((step) => {
       const applicationStepField = step as HTMLInputElement
       if (commonIntakeCheckbox.checked) {
         applicationStepField.disabled = true
-        applicationStepField.classList.add(this.DISABLED_TEXT_CLASS, this.DISABLED_BACKGROUND_CLASS)
+        applicationStepField.classList.add(
+          this.DISABLED_TEXT_CLASS,
+          this.DISABLED_BACKGROUND_CLASS,
+        )
       } else {
         applicationStepField.disabled = false
       }
