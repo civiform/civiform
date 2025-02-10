@@ -1015,7 +1015,7 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
-            await page.getByRole('button', {name: 'Clear filters'}).click()
+            await page.getByRole('button', {name: 'Clear selections'}).click()
 
             await expect(
               page.getByRole('checkbox', {name: 'General'}),
