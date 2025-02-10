@@ -23,7 +23,10 @@ class AdminPrograms {
   }
 
   // When the common intake checkbox is selected,
-  // the program category checkboxes should be disabled and unchecked.
+  // the following fields should be disabled:
+  // - program category checkboxes (disabled and unchecked)
+  // - long program description
+  // - application steps
   static attachCommonIntakeChangeListener() {
     addEventListenerToElements('#common-intake-checkbox', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
@@ -33,15 +36,32 @@ class AdminPrograms {
       const programCategoryCheckboxes = document.querySelectorAll(
         '[id^="checkbox-category"]',
       )
-
       programCategoryCheckboxes.forEach((checkbox) => {
         const category = checkbox as HTMLInputElement
-
         if (commonIntakeCheckbox.checked) {
           category.disabled = true
           category.checked = false
         } else {
           category.disabled = false
+        }
+      })
+
+      const longDescription = document.getElementById(
+        'program-display-description-textarea',
+      ) as HTMLInputElement
+      if (commonIntakeCheckbox.checked) {
+        longDescription.disabled = true
+      } else {
+        longDescription.disabled = false
+      }
+
+      const applicationSteps = document.querySelectorAll('[id^="apply-step"]')
+      applicationSteps.forEach((field) => {
+        const applicationStep = field as HTMLInputElement
+        if (commonIntakeCheckbox.checked) {
+          applicationStep.disabled = true
+        } else {
+          applicationStep.disabled = false
         }
       })
     })

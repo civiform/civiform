@@ -1052,26 +1052,48 @@ test.describe('program creation', () => {
 
   test('create common intake form', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
-
     const programName = 'Apc program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.goToProgramDescriptionPage(programName)
 
-    await validateScreenshot(
-      page,
-      'program-description-page-with-intake-form-false',
-    )
+    await test.step('create new program that is not an intake form', async () => {
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.goToProgramDescriptionPage(programName)
+
+      await validateScreenshot(
+        page,
+        'program-description-page-with-intake-form-false',
+      )
+    })
+
     const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
-    await expect(commonIntakeFormInput).not.toBeChecked()
 
-    await adminPrograms.clickCommonIntakeFormToggle()
-    await validateScreenshot(
-      page,
-      'program-description-page-with-intake-form-true',
-    )
-    await expect(commonIntakeFormInput).toBeChecked()
-    await adminPrograms.submitProgramDetailsEdits()
-    await adminPrograms.expectProgramBlockEditPage(programName)
+    await test.step('expect common intake toggle not to be checked', async () => {
+      await expect(commonIntakeFormInput).not.toBeChecked()
+    })
+
+    await test.step('clear application steps and click common intake toggle', async () => {
+      // application steps are disabled on common intake applications
+      await adminPrograms.clearApplicationSteps()
+      await adminPrograms.clickCommonIntakeFormToggle()
+      await validateScreenshot(
+        page,
+        'program-description-page-with-intake-form-true',
+      )
+      await expect(commonIntakeFormInput).toBeChecked()
+    })
+
+    await test.step('expect fields to be disabled', async () => {
+      await expect(
+        page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        }),
+      ).toBeDisabled()
+      await adminPrograms.expectApplicationStepsDisabled()
+    })
+
+    await test.step('save program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.expectProgramBlockEditPage(programName)
+    })
   })
 
   test('correctly renders common intake form change confirmation modal', async ({
@@ -1317,7 +1339,9 @@ test.describe('program creation', () => {
         await page.getByText('Education').check()
       })
 
-      await test.step('click common intake toggle and expect it to be checked', async () => {
+      await test.step('clear application steps and click common intake toggle', async () => {
+        // application steps are disabled on common intake applications
+        await adminPrograms.clearApplicationSteps()
         await adminPrograms.clickCommonIntakeFormToggle()
         await validateScreenshot(
           page.locator('#program-details-form'),
@@ -1326,13 +1350,21 @@ test.describe('program creation', () => {
         await expect(commonIntakeFormInput).toBeChecked()
       })
 
-      await test.step('expect categories to be unchecked and disabled', async () => {
+      await test.step('expect fields to be unchecked and disabled', async () => {
         await expect(page.getByText('Education')).toBeDisabled()
         await expect(page.getByText('Education')).not.toBeChecked()
+        await expect(
+          page.getByRole('textbox', {
+            name: 'Long program description (optional)',
+          }),
+        ).toBeDisabled()
+        await adminPrograms.expectApplicationStepsDisabled()
       })
 
-      await adminPrograms.submitProgramDetailsEdits()
-      await adminPrograms.expectProgramBlockEditPage(programName)
+      await test.step('save program', async () => {
+        await adminPrograms.submitProgramDetailsEdits()
+        await adminPrograms.expectProgramBlockEditPage(programName)
+      })
     })
   })
 })

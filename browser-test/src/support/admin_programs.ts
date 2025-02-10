@@ -218,6 +218,32 @@ export class AdminPrograms {
     }
   }
 
+  async clearApplicationSteps() {
+    for (let i = 0; i < 5; i++) {
+      const indexPlusOne = i + 1
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
+        .fill('')
+      await this.page
+        .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
+        .fill('')
+    }
+  }
+
+  async expectApplicationStepsDisabled() {
+    for (let i = 0; i < 5; i++) {
+      const indexPlusOne = i + 1
+      await expect(
+        this.page.getByRole('textbox', {name: `Step ${indexPlusOne} title`}),
+      ).toBeDisabled()
+      await expect(
+        this.page.getByRole('textbox', {
+          name: `Step ${indexPlusOne} description`,
+        }),
+      ).toBeDisabled()
+    }
+  }
+
   async submitProgramDetailsEdits() {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)

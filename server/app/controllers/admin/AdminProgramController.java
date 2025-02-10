@@ -132,7 +132,8 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
-            applicationSteps);
+            applicationSteps,
+            programData.getIsCommonIntakeForm());
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
@@ -166,7 +167,8 @@ public final class AdminProgramController extends CiviFormController {
                 : ProgramType.DEFAULT,
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
-            applicationSteps);
+            applicationSteps,
+            programData.getIsCommonIntakeForm());
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -272,7 +274,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getNotificationPreferences(),
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
-            applicationSteps);
+            applicationSteps,
+            programData.getIsCommonIntakeForm());
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
@@ -310,7 +313,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
-        ImmutableList.copyOf(applicationSteps));
+        ImmutableList.copyOf(applicationSteps),
+        programData.getIsCommonIntakeForm());
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 
