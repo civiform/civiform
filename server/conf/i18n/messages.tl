@@ -206,6 +206,12 @@ content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at 
 content.homepageIntro=Humingi ng tulong sa pag-aalaga ng bata, pagkain, transportasyon, mga utility, at higit pa.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
