@@ -73,8 +73,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     if (includePhoneScope) {
       configMapBuilder
           .put("applicant_generic_oidc.additional_scopes", "phone")
-          // gwen
-          // .put("applicant_generic_oidc.phone_number_attribute", PHONE_NUMBER_ATTRIBUTE_NAME)
           .put("idcs.phone_number_attribute", PHONE_NUMBER_ATTRIBUTE_NAME);
 
       phoneNumberAttribute = Optional.of(PHONE_NUMBER_ATTRIBUTE_NAME);
