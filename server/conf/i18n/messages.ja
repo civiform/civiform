@@ -206,6 +206,12 @@ content.guestDescription={0} アカウントにログインするか、アカウ
 content.homepageIntro=育児、食べ物、輸送、ユーティリティなどに関する支援を受けられます。
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=プログラムの詳細
 # The same text, read for screen readers.
