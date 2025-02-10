@@ -206,6 +206,12 @@ content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ 
 content.homepageIntro=ຮັບຄວາມຊ່ວຍເຫຼືອດ້ານການເບິ່ງແຍງເດັກນ້ອຍ, ອາຫານ, ການຂົນສົ່ງ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=ລາຍລະອຽດໂຄງການ
 # The same text, read for screen readers.
