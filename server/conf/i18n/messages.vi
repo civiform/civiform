@@ -206,6 +206,12 @@ content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn ho
 content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
