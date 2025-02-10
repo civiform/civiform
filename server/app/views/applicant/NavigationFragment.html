@@ -46,14 +46,14 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <div class="flex-col grid-row">
+        <div class="display-flex flex-col">
           <div th:replace="~{this :: userName}"></div>
-          <div class="flex-grow grid-row grid-gap">
+          <div class="grid-row grid-gap-2">
             <button
               th:if="${showDebugTools}"
               th:replace="~{this :: showDebugTools}"
             ></button>
-            <div class="display-flex flex-grow">
+            <div class="flex-grow">
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
             <button th:replace="~{this :: languageSelector}"></button>
@@ -221,7 +221,7 @@
   <th:block th:if="${!isGuest}">
     <div
       th:text="#{header.userName(${loggedInAs})}"
-      class="flex-align-self-end padding-bottom-2 text-ink"
+      class="flex-align-self-end flex-grow padding-bottom-2 text-ink"
     ></div>
   </th:block>
 </th:block>
