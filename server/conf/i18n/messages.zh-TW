@@ -206,6 +206,12 @@ content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這�
 content.homepageIntro=取得兒童照護、食物、交通運輸、公用事業和其他領域的相關協助。
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=計畫詳情
 # The same text, read for screen readers.
