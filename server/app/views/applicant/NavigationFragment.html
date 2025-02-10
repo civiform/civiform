@@ -46,14 +46,16 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <div class="flex-align-stretch flex-col grid-row grid-gap">
+        <div class="flex-col grid-row">
           <div th:replace="~{this :: userName}"></div>
-          <div class="flex-grow grid-row">
+          <div class="flex-grow grid-row grid-gap">
             <button
               th:if="${showDebugTools}"
               th:replace="~{this :: showDebugTools}"
             ></button>
-            <button th:replace="~{this :: loginOrLogout}"></button>
+            <div class="display-flex flex-grow">
+              <button th:replace="~{this :: loginOrLogout}"></button>
+            </div>
             <button th:replace="~{this :: languageSelector}"></button>
           </div>
         </div>
@@ -205,7 +207,7 @@
 <div th:fragment="showDebugTools" class="display-flex flex-grow">
   <a
     type="button"
-    class="usa-button usa-button--outline flex-grow maxw-full"
+    class="usa-button usa-button--outline flex-grow maxw-full margin-right-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -219,7 +221,7 @@
   <th:block th:if="${!isGuest}">
     <div
       th:text="#{header.userName(${loggedInAs})}"
-      class="flex-align-self-end margin-right-1 padding-bottom-2 text-ink"
+      class="flex-align-self-end padding-bottom-2 text-ink"
     ></div>
   </th:block>
 </th:block>
@@ -228,7 +230,7 @@
   <th:block th:if="${isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.login}"
       id="login-button"
       th:href="${loginLink}"
@@ -238,7 +240,7 @@
   <th:block th:if="${!isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -246,7 +248,7 @@
   </th:block>
 </th:block>
 
-<div th:fragment="languageSelector" class="flex-grow margin-right-1">
+<div th:fragment="languageSelector" class="flex-grow">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
