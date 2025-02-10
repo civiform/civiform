@@ -27,8 +27,8 @@ class AdminPrograms {
   // When the common intake checkbox is selected,
   // the following fields should be disabled:
   // - program category checkboxes (disabled and unchecked)
-  // - long program description
   // - application steps
+  // - long program description (only if northstar UI is enabled)
   static attachCommonIntakeChangeListener() {
     addEventListenerToElements('#common-intake-checkbox', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
