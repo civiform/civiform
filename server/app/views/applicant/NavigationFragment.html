@@ -315,12 +315,14 @@
               th:attr="alt=${civicEntityFullName + ' Logo'}"
           /></a>
         </div>
-        <di
         <section class="usa-identifier__identity">
+          <p class="usa-identifier__identity-domain"
+          th:text="${basebaseUrlWithoutSchemeURL}"> 
+        </p>
           <p
             class="usa-identifier__identity-disclaimer"
-            th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"
-          ></p>
+            th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"> 
+          </p>
         </section>
         </section>
         <th:block class="usa-identifier__identity"
