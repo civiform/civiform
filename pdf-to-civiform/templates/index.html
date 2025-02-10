@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to JSON Converter</title>
+    <script>
+        async function uploadFile(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("pdfFile");
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            document.getElementById("output").innerText = "Processing...";
+            
+            try {
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+                } else {
+                    document.getElementById("output").innerText = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById("output").innerText = `Request failed: ${error}`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>PDF to CiviForm JSON Converter</h1>
+    <form onsubmit="uploadFile(event)">
+        <input type="file" id="pdfFile" accept="application/pdf" required>
+        <button type="submit">Convert</button>
+    </form>
+    <h2>Output JSON:</h2>
+    <pre id="output"></pre>
+</body>
+</html>
