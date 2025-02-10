@@ -206,6 +206,12 @@ content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijya
 content.homepageIntro=U hel caawino daryeelka ubadka, cuntada, gaadiidka, adeegyada guriga iyo waxyaabo kale oo badan.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
