@@ -206,6 +206,12 @@ content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 �
 content.homepageIntro=육아, 식품, 교통, 공공 서비스 등에 대한 도움을 받으세요.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
