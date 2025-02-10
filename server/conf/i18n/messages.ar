@@ -206,6 +206,12 @@ content.guestDescription=يمكنك تسجيل الدخول إلى حسابك ع
 content.homepageIntro=يمكنك الحصول على المساعدة بشأن رعاية الأطفال والطعام والنقل وشركات الطاقة وغير ذلك.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=تفاصيل البرامج
 # The same text, read for screen readers.
