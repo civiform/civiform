@@ -1225,7 +1225,7 @@ public final class ApplicantService {
             ApplicationModel draftApp = maybeDraftApp.get();
             ProgramDefinition programDefinition =
                 getProgramDefinitionForDraftApplication(
-                    allPrograms, draftApp.getProgram().id, request);
+                    allPrograms, draftApp.getProgram().id);
 
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder(programDefinition)
@@ -1334,29 +1334,27 @@ public final class ApplicantService {
    * programId.
    */
   private ProgramDefinition getProgramDefinitionForDraftApplication(
-      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+      ImmutableList<ProgramDefinition> programList, long programId) {
 
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      // Check if the draft application is using the latest version of the program. If it
-      // is not, load the latest version of the program instead since we want to base this
-      // list off of current programs.
-      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+    // Check if the draft application is using the latest version of the program. If it
+    // is not, load the latest version of the program instead since we want to base this
+    // list off of current programs.
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
-      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
-        Optional<ProgramDefinition> programDefinitionOptional =
-            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+    if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+      Optional<ProgramDefinition> programDefinitionOptional =
+          programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
 
-        if (programDefinitionOptional.isPresent()) {
-          return programDefinitionOptional.get();
-        }
+      if (programDefinitionOptional.isPresent()) {
+        return programDefinitionOptional.get();
+      }
 
-        try {
-          // Didn't find it in the list we already had, so go fetch it
-          return programService.getFullProgramDefinition(latestProgramId.get());
-        } catch (ProgramNotFoundException e) {
-          throw new RuntimeException(
-              String.format("Can't find program id: %s", latestProgramId.get()), e);
-        }
+      try {
+        // Didn't find it in the list we already had, so go fetch it
+        return programService.getFullProgramDefinition(latestProgramId.get());
+      } catch (ProgramNotFoundException e) {
+        throw new RuntimeException(
+            String.format("Can't find program id: %s", latestProgramId.get()), e);
       }
     }
 

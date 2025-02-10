@@ -83,8 +83,7 @@ public class ProgramDisabledAction extends Action.Simple {
       return programSlugOptional;
     }
 
-    if (!settingsManifest.getFastforwardEnabled(request)
-        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+    if (!request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
       return Optional.empty();
     }
 
