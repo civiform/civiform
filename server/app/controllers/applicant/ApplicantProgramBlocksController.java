@@ -1406,15 +1406,25 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      eligibilityAlertSettings =
-          eligibilityAlertSettingsCalculator.calculate(
-              request,
-              profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-              !roApplicantProgramService.isApplicationNotEligible(),
-              settingsManifest.getNorthStarApplicantUi(request),
-              false,
-              programId,
-              roApplicantProgramService.getIneligibleQuestions());
+      // Only display the eligibility banner if an eligibility question was just answered,
+      // to avoid showing the banner on multiple blocks in a row.
+      ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
+      int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+      if (currentBlockIndex > 0) {
+        String previousBlockId = blocks.get(currentBlockIndex - 1).getId();
+        if (roApplicantProgramService.blockHasEligibilityPredicate(previousBlockId)
+            && roApplicantProgramService.isActiveBlockEligible(previousBlockId)) {
+          eligibilityAlertSettings =
+              eligibilityAlertSettingsCalculator.calculate(
+                  request,
+                  profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+                  !roApplicantProgramService.isApplicationNotEligible(),
+                  settingsManifest.getNorthStarApplicantUi(request),
+                  false,
+                  programId,
+                  roApplicantProgramService.getIneligibleQuestions());
+        }
+      }
     }
 
     return ApplicationBaseViewParams.builder()
