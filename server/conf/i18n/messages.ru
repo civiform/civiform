@@ -206,6 +206,12 @@ content.guestDescription=Войдите в свой аккаунт, зареги
 content.homepageIntro=Получайте помощь с оплатой расходов на уход за детьми, питание, транспорт, коммунальные услуги и многое другое.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Сведения о программе
 # The same text, read for screen readers.
