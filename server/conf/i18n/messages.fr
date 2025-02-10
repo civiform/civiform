@@ -206,6 +206,12 @@ content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte,
 content.homepageIntro=Obtenez de l'aide pour la garde d'enfants, l'alimentation, les transports, l'énergie et plus.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Détails du programme
 # The same text, read for screen readers.
