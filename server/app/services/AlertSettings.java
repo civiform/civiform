@@ -7,11 +7,14 @@ import views.components.TextFormatter;
 /**
  * Contains settings
  *
- * @param show Determines if the alert be displayed or not
- * @param title Alert title, if any
- * @param text Alert text
+ * @param show Determines whether the alert is displayed
+ * @param title Title, if any
+ * @param text Description text
  * @param unescapedDescription true to use an unescaped description (th:utext). false otherwise.
  * @param alertType {@link AlertType}
+ * @param additionalText Additional text to be displayed as a list
+ * @param customText Customized text added by the admin, if any
+ * @param isSlim Determines whether the alert should have slim layout
  */
 public record AlertSettings(
     Boolean show,
@@ -20,6 +23,7 @@ public record AlertSettings(
     Boolean unescapedDescription,
     AlertType alertType,
     ImmutableList<String> additionalText,
+    Optional<String> customText,
     Boolean isSlim) {
 
   public static AlertSettings empty() {
@@ -37,7 +41,34 @@ public record AlertSettings(
       AlertType alertType,
       ImmutableList<String> additionalText,
       Boolean isSlim) {
-    this(show, title, text, /* unescapedDescription= */ true, alertType, additionalText, isSlim);
+    this(
+        show,
+        title,
+        text,
+        /* unescapedDescription= */ true,
+        alertType,
+        additionalText,
+        /* customText= */ Optional.empty(),
+        isSlim);
+  }
+
+  public AlertSettings(
+      Boolean show,
+      Optional<String> title,
+      String text,
+      AlertType alertType,
+      ImmutableList<String> additionalText,
+      Optional<String> customText,
+      Boolean isSlim) {
+    this(
+        show,
+        title,
+        text,
+        /* unescapedDescription= */ true,
+        alertType,
+        additionalText,
+        customText,
+        isSlim);
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */
