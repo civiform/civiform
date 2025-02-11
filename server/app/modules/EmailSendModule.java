@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 import services.email.EmailSendClient;
 import services.email.EmailSendProvider;
-// import services.email.aws.SimpleEmail;
+import services.email.aws.SimpleEmail;
 import services.email.graph.GraphApiEmailClient;
 
 /** Configures and initializes the classes for interacting with email sending. */
@@ -32,7 +32,7 @@ public class EmailSendModule extends AbstractModule {
       String emailProvider = checkNotNull(config).getString("email.provider");
       logger.info("The email provider from the config is " + emailProvider);
       emailSendProvider =
-          EmailSendProvider.fromString(emailProvider).orElse(EmailSendProvider.AWS_SES);
+          EmailSendProvider.fromString(emailProvider).orElse(EmailSendProvider.GRAPH_API);
     } catch (ConfigException ex) {
       // Default to AWS SES if nothing is configured
       logger.warn("No email provider specified. Defaulting to graph");
@@ -42,7 +42,7 @@ public class EmailSendModule extends AbstractModule {
     switch (emailSendProvider) {
       case AWS_SES:
         logger.info("Got to switch condition " + emailSendProvider);
-        bind(EmailSendClient.class).to(GraphApiEmailClient.class);
+        bind(EmailSendClient.class).to(SimpleEmail.class);
         break;
       case GRAPH_API:
         logger.info("Got to switch condition " + emailSendProvider);
