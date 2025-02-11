@@ -82,7 +82,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
-    context.setVariable("baseUrlWithoutScheme",settingsManifest.getBaseUrl().get());
+    context.setVariable("baseUrlWithoutScheme",getBaseUrlWithoutScheme());
     String CommonIntakeMoreResourceLink = settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get();
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
@@ -175,15 +175,15 @@ public abstract class NorthStarBaseView {
     return context;
   }
 
-  // private String getBaseUrlWithoutScheme(){
-  //   Optional<String> baseUrlOptional = settingsManifest.getBaseUrl();
+  private String getBaseUrlWithoutScheme(){
+     Optional<String> baseUrlOptional = settingsManifest.getBaseUrl();
 
-  //   if(baseUrlOptional.isEmpty())
-  //     return "";
+     if(baseUrlOptional.isEmpty())
+       return "";
 
-  //   String baseUrlWithoutScheme = baseUrlOptional.get();
-  //   return baseUrlWithoutScheme.replaceFirst("^(https?://)", ""); 
-  // }
+     String baseUrlWithoutScheme = baseUrlOptional.get();
+     return baseUrlWithoutScheme.replaceFirst("^(https?://)", ""); 
+   }
 
   private String getAccountIdentifier(
       boolean isTi,
