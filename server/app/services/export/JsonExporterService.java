@@ -247,10 +247,10 @@ public final class JsonExporterService {
 
     Path notePath = Path.create("application_note");
     applicationExportData
-      .applicationNote()
-      .ifPresentOrElse(
-        applicationNote -> jsonApplication.putString(notePath, applicationNote),
-        () -> jsonApplication.putNull(notePath));
+        .applicationNote()
+        .ifPresentOrElse(
+            applicationNote -> jsonApplication.putString(notePath, applicationNote),
+            () -> jsonApplication.putNull(notePath));
 
     exportApplicationEntriesToJsonApplication(
         jsonApplication, applicationExportData.applicationEntries());

@@ -100,6 +100,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("program_version_id", fakeProgram.id);
     resultAsserter.assertValueAtPath("revision_state", "CURRENT");
     resultAsserter.assertNullValueAtPath("status");
+    resultAsserter.assertNullValueAtPath("application_note");
     resultAsserter.assertValueAtPath("submit_time", "2015-10-22T09:28:02-07:00");
     resultAsserter.assertValueAtPath("submitter_type", "APPLICANT");
     resultAsserter.assertNullValueAtPath("ti_email");
