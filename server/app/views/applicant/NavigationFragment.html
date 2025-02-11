@@ -316,23 +316,27 @@
           /></a>
         </div>
         <section class="usa-identifier__identity">
-          <p class="usa-identifier__identity-domain"
-          th:text="${baseUrlWithoutScheme}"> 
-        </p>
+          <p
+            class="usa-identifier__identity-domain"
+            th:text="${baseUrlWithoutScheme}"
+          ></p>
           <p
             class="usa-identifier__identity-disclaimer"
-            th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"> 
-          </p>
+            th:text="#{footer.officialWebsiteOf(${civicEntityFullName})}"
+          ></p>
         </section>
-        <th:block class="usa-identifier__identity"
-        th:if="${moreResourcesLink != null}">
+        <th:block
+          class="usa-identifier__identity"
+          th:if="${moreResourcesLink != null}"
+        >
           <div class="usa-identifier__container">
-              <p class="usa-identifier"
-                 th:utext="#{footer.informationServices(${moreResourcesLink})}">
-              </p>
+            <p
+              class="usa-identifier"
+              th:utext="#{footer.informationServices(${moreResourcesLink})}"
+            ></p>
           </div>
         </th:block>
-            </div>
+      </div>
     </section>
   </div>
   <div
