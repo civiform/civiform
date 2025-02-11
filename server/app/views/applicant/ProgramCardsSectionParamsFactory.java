@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DateConverter;
@@ -24,6 +25,7 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
+import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -134,12 +136,14 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    // This works for logged-in and logged-out applicants
-    String actionUrl = applicantRoutes.edit(program.id()).url();
-    if (profile.isPresent() && applicantId.isPresent()) {
-      // TIs need to specify applicant ID
-      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
-    }
+    String actionUrl =
+        getActionUrl(
+            applicantRoutes,
+            program.id(),
+            program.adminName(),
+            programDatum.latestApplicationLifecycleStage(),
+            applicantId,
+            profile);
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
@@ -149,9 +153,11 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
+    String description = selectAndFormatDescription(program, preferredLocale);
+
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
-        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setIsCommonIntakeForm(program.isCommonIntakeForm())
@@ -213,13 +219,75 @@ public final class ProgramCardsSectionParamsFactory {
   }
 
   /**
+   * Use the short description if present, otherwise use the long description with all markdown
+   * removed and truncated to 100 characters.
+   */
+  static String selectAndFormatDescription(ProgramDefinition program, Locale preferredLocale) {
+    String description = program.localizedShortDescription().getOrDefault(preferredLocale);
+
+    if (description.isEmpty()) {
+      description = program.localizedDescription().getOrDefault(preferredLocale);
+      // Add a space before any new line characters so when markdown is stripped off the words
+      // aren't smooshed together
+      description = String.join("&nbsp;\n", description.split("\n"));
+      description = StringUtils.abbreviate(TextFormatter.removeMarkdown(description), 100);
+    }
+
+    return description;
+  }
+
+  /**
+   * Get the url that the button on the card should redirect to. If it's the first time filling out
+   * the application, navigate to the program overview page. If the program is in draft mode,
+   * navigate to where the applicant left off. If the program is submitted, navigate to the review
+   * page.
+   */
+  static String getActionUrl(
+      ApplicantRoutes applicantRoutes,
+      Long programId,
+      String programSlug,
+      Optional<LifecycleStage> optionalLifecycleStage,
+      Optional<Long> applicantId,
+      Optional<CiviFormProfile> profile) {
+    // Render the program overview page
+    String actionUrl = applicantRoutes.show(programSlug).url();
+
+    boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
+
+    if (!optionalLifecycleStage.isPresent() && haveApplicant) {
+      // Render the program overview page with applicant ID when applying as TI.
+      actionUrl = applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url();
+    } else if (optionalLifecycleStage.isPresent()) {
+      if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
+        // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
+        // page. TIs need to specify applicant ID.
+        actionUrl =
+            haveApplicant
+                ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.review(programId).url();
+      } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
+        // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
+        // them to where they left off in the application. TIs need to specify applicant ID.
+        actionUrl =
+            haveApplicant
+                ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.edit(programId).url();
+      }
+    }
+
+    return actionUrl;
+  }
+
+  /**
    * For unstarted applications: If eligibility is gating, the eligibility tag should always show
    * when present. If eligibility is non-gating, the eligibility tag should only show if the user
    * may be eligible.
    *
    * <p>Applications that have been started do not show eligibility tags.
    */
-  private static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+  static boolean shouldShowEligibilityTag(ApplicantProgramData programData) {
+    // This case happens when the applicant hasn't answered the eligibility question
+    // on any application or when the program doesn't have eligibility criteria.
     if (!programData.isProgramMaybeEligible().isPresent()) {
       return false;
     }

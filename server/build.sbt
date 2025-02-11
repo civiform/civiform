@@ -43,15 +43,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.6",
-      "software.amazon.awssdk" % "ses" % "2.30.6",
+      "software.amazon.awssdk" % "s3" % "2.30.16",
+      "software.amazon.awssdk" % "ses" % "2.30.16",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.15.0",
+      "com.azure" % "azure-identity" % "1.15.1",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.26.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.27.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.0",
+      "org.pac4j" % "pac4j-core" % "6.1.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.0",
+      "org.pac4j" % "pac4j-http" % "6.1.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.0",
+      "org.pac4j" % "pac4j-oidc" % "6.1.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.0",
+      "org.pac4j" % "pac4j-saml" % "6.1.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.36.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.4",
+      "org.checkerframework" % "dataflow-errorprone" % "3.49.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.13.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.53",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.54",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -252,7 +252,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 
-jacocoExcludes := Seq("views*", "*Routes*")
+jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Include North Star HTML files when running 'sbt dist' when building the prod image.

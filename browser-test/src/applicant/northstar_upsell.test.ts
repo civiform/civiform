@@ -46,6 +46,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     // Create a second program for the related programs section
     await createRelatedProgram(page, adminPrograms)
@@ -54,9 +55,16 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
+    await enableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -93,9 +101,43 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
   })
 
+  test('view application submitted page with related program cards feature disabled', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    // This test will only validate that no related programs are shown when the
+    // suggest_programs_on_application_confirmation_page flag is disabled
+    await createRelatedProgram(page, adminPrograms)
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+    await enableFeatureFlag(page, 'application_exportable')
+    await disableFeatureFlag(
+      page,
+      'suggest_programs_on_application_confirmation_page',
+    )
+
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await validateApplicationSubmittedPage(
+      page,
+      /* expectRelatedProgram= */ false,
+      applicantQuestions,
+    )
+  })
+
   test('view application submitted page while logged in without download link', async ({
     page,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     // This test will only validate that the download link is no longer visible.
     await loginAsTestUser(page)
@@ -105,6 +147,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -117,12 +162,16 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   test('view application submitted page while logged out', async ({
     page,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -155,6 +204,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   test('view application submitted page while logged out without download link', async ({
     page,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     // This test will only validate that the download link is no longer visible.
     await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -162,6 +212,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -171,11 +224,18 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     )
   })
 
-  test('Validate login link in alert', async ({page, applicantQuestions}) => {
+  test('Validate login link in alert', async ({
+    page,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -195,6 +255,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
     applicantQuestions,
+    applicantProgramOverview,
   }) => {
     // Create a second program for the related programs section
     await createRelatedProgram(page, adminPrograms)
@@ -205,6 +266,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 
@@ -212,6 +276,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Apply to related program', async () => {
       await applicantQuestions.clickApplyProgramButton(relatedProgramName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        relatedProgramName,
+      )
       await applicantQuestions.clickSubmitApplication()
     })
 

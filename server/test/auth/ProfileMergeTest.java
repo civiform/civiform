@@ -6,9 +6,11 @@ import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.oidc.InvalidOidcProfileException;
 import auth.oidc.OidcClientProviderParams;
+import auth.oidc.StandardClaimsAttributeNames;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlProfileCreator;
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.Optional;
@@ -48,13 +50,23 @@ public class ProfileMergeTest extends ResetPostgres {
     accountRepository = instanceOf(AccountRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
+
+    StandardClaimsAttributeNames standardClaimsAttributeNames =
+        StandardClaimsAttributeNames.builder()
+            .setEmail("user_emailid")
+            .setLocale(Optional.of("user_locale"))
+            .setNames(ImmutableList.of("user_displayname"))
+            .setPhoneNumber(Optional.of("phone_number"))
+            .build();
+
     // Just need some complete adaptor to access methods.
     idcsApplicantProfileCreator =
         new IdcsApplicantProfileCreator(
             client_config,
             client,
             OidcClientProviderParams.create(
-                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
+            standardClaimsAttributeNames);
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration= */ null,
@@ -137,6 +149,25 @@ public class ProfileMergeTest extends ResetPostgres {
                     Optional.of(profileFactory.wrapProfileData(profileData)), oidcProfile, context)
                 .getEmail())
         .isEqualTo("foo@example.com");
+
+    assertThat(idcsApplicantProfileCreator.getExistingApplicant(oidcProfile).get().getPhoneNumber())
+        .isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void testProfileMerge_oidc_with_phone_succeeds() {
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
+    oidcProfile.addAttribute("phone_number", "253-555-1122");
+
+    CiviFormProfileData profileData =
+        idcsApplicantProfileCreator.mergeCiviFormProfile(
+            /* maybeCiviFormProfile= */ Optional.empty(), oidcProfile, context);
+
+    idcsApplicantProfileCreator.mergeCiviFormProfile(
+        Optional.of(profileFactory.wrapProfileData(profileData)), oidcProfile, context);
+
+    assertThat(idcsApplicantProfileCreator.getExistingApplicant(oidcProfile).get().getPhoneNumber())
+        .isEqualTo(Optional.of("2535551122"));
   }
 
   @Test

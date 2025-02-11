@@ -207,6 +207,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         programName,
         /* northStarEnabled= */ true,
+        /* isApplicationUnstarted= */ false,
       )
 
       await expect(page.getByText(fileName)).toBeVisible()

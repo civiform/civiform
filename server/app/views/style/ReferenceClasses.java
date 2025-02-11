@@ -12,6 +12,7 @@ public final class ReferenceClasses {
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
   public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
+  public static final String ADMIN_PROGRAM_CARD_DESCRIPTION = "cf-program-description";
   public static final String ADMIN_PROGRAM_STATUS_LIST = "cf-admin-program-status-list";
   public static final String ADMIN_PROGRAM_STATUS_ITEM = "cf-admin-program-status-item";
   public static final String ADMIN_PUBLISH_REFERENCES_PROGRAM =

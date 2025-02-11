@@ -43,7 +43,7 @@
       <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
     </div>
 
-    <!-- padding-left-205 indents the list -->
+    <!--/* padding-left-205 indents the list */-->
     <ul
       th:if="${not #lists.isEmpty(alertSettings.additionalText)}"
       class="padding-left-205"
@@ -54,5 +54,12 @@
         th:text="${item}"
       ></li>
     </ul>
+
+    <div th:if="${alertSettings.customText.isPresent()}">
+      <p
+        class="usa-alert__text"
+        th:utext="${alertSettings.getFormattedAlertText(alertSettings.customText.get())}"
+      ></p>
+    </div>
   </div>
 </div>
