@@ -10,9 +10,6 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -78,14 +75,10 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
                                     category.getLocalizedName().getOrDefault(preferredLocale))))
             .collect(ImmutableList.toImmutableList());
 
-    Set<ApplicantService.ApplicantProgramData> inProgressOrFilteredPrograms =
-        Stream.concat(applicationPrograms.inProgress().stream(), filteredPrograms.stream())
-            .collect(Collectors.toSet());
-
-    // Find all programs that don't have any of the selected categories or are not in-progress
+    // Find all programs that don't have any of the selected categories
     ImmutableList<ApplicantService.ApplicantProgramData> otherPrograms =
         applicationPrograms.unapplied().stream()
-            .filter(programData -> !inProgressOrFilteredPrograms.contains(programData))
+            .filter(programData -> !filteredPrograms.contains(programData))
             .collect(ImmutableList.toImmutableList());
 
     ProgramCardsSectionParamsFactory.ProgramSectionParams recommendedSection =

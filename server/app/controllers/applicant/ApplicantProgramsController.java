@@ -302,12 +302,11 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request, List<String> categories, String applicantId) {
     Optional<Long> maybeApplicantId = parseApplicantId(request, applicantId);
     CompletableFuture<ApplicationPrograms> programsFuture;
-
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
     if (maybeApplicantId.isEmpty()) {
       programsFuture =
           applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
     } else {
-      CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
       programsFuture =
           applicantService
               .relevantProgramsForApplicant(maybeApplicantId.get(), requesterProfile, request)
@@ -323,7 +322,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                             maybeApplicantId,
                             ApplicantPersonalInfo.ofGuestUser(),
                             programsFuture.join(),
-                            Optional.empty(),
+                            Optional.of(requesterProfile),
                             ImmutableList.copyOf(categories)))
                     .as("text/html"))
         .exceptionally(
