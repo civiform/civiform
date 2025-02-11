@@ -14,6 +14,10 @@ from convert_to_civiform_json import convert_to_civiform_json
 # for better readability, and then converts it into a CiviForm-compatible 
 # JSON format.  It uses a Flask web server to handle file uploads.
 
+# make sure you have your gemini API key in ~/google_api_key
+
+# run this script from command line as: python pdf_to_civiform.py
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -21,9 +25,21 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Set your Google API key
-GOOGLE_API_KEY = "ADD YOUR OWN"
-genai.configure(api_key=GOOGLE_API_KEY)
+# Read Google API key from file
+GOOGLE_API_KEY_FILE = os.path.expanduser("~/google_api_key")  # Use expanduser for home directory
+
+try:
+    with open(GOOGLE_API_KEY_FILE, "r") as f:
+        GOOGLE_API_KEY = f.read().strip()
+    genai.configure(api_key=GOOGLE_API_KEY)
+    logging.info("Google API key loaded successfully.")
+except FileNotFoundError:
+    logging.error(f"Error: Google API key file not found at {GOOGLE_API_KEY_FILE}.")
+    # Exit or handle the error appropriately for your application
+    exit(1)  # Example: exit the application
+except Exception as e:
+    logging.error(f"Error loading Google API key: {e}")
+    # Exit or handle the error
 
 # List available models
 models = genai.list_models()
@@ -34,7 +50,6 @@ model = genai.GenerativeModel("models/gemini-2.0-flash-exp")
 
 output_filename="formated_pdf-extract.json"
 
-# Define JSON Schema for validation
 JSON_EXAMPLE = {
         "title": "[Extracted Form Title]",
         "help_text": "[Relevant Instructional Text]",
@@ -126,14 +141,6 @@ def process_text_with_llm(text, base_name ):
     except Exception as e:
         logging.error(f"Error during LLM processing: {e}")
         return None
-
-def validate_json(json_data):
-    """Validates extracted JSON against the schema."""
-    try:
-        validate(instance=json_data, schema=FORM_SCHEMA)
-        return True, "JSON is valid."
-    except ValidationError as e:
-        return False, f"JSON validation error: {e.message}"
 
 
 def format_json_with_llm(text, base_name):
@@ -231,9 +238,6 @@ def upload_file():
     except json.JSONDecodeError:
         return jsonify({"error": "Failed to parse JSON from AI response."}), 500
     
-    # is_valid, validation_message = validate_json(parsed_json)
-    # if not is_valid:
-     #    return jsonify({"error": validation_message}), 400
     
     print("Done!")
     

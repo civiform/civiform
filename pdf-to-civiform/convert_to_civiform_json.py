@@ -5,6 +5,11 @@ import sys
 import os
 import uuid
 
+
+# TODO
+# * templatize default config values
+# 
+
 # This script converts a JSON representation of a form into a CiviForm-compatible JSON format.
 # It handles different field types, including repeating sections, and generates 
 # the necessary structure for CiviForm programs and questions.
@@ -20,8 +25,6 @@ def replace_field_types(data):
                 data["type"] = "text"
             elif data["type"] == "signature":
                 data["type"] = "text"
-           # elif data["type"] == "number":
-           #     data["type"] = "text"  # Convert number to text
             # Add more type conversions if needed
         # Recursively process the dictionary
         return {k: replace_field_types(v) for k, v in data.items()}
