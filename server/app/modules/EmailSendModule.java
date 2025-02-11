@@ -26,6 +26,7 @@ public class EmailSendModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    logger.info("In configure email send module");
     EmailSendProvider emailSendProvider;
     try {
       String emailProvider = checkNotNull(config).getString("email.provider");
