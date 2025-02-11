@@ -54,12 +54,15 @@ public class GraphApiEmailClient implements EmailSendClient {
 
   @Override
   public void send(String toAddress, String subject, String bodyText) {
+    logger.info("In graph api email send ");
     send(ImmutableList.of(toAddress), subject, bodyText);
   }
 
   @Override
   public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
+    logger.info("In graph api email send ");
     if (toAddresses.isEmpty()) {
+      logger.info("To addresses are empty ");
       return;
     }
     Histogram.Timer timer = emailSendMetrics.getEmailExecutionTime().startTimer();
@@ -79,6 +82,7 @@ public class GraphApiEmailClient implements EmailSendClient {
     }
 
     try {
+      logger.info("Attempting send");
       Message message = new Message();
       message.setSubject(subject);
       ItemBody body = new ItemBody();

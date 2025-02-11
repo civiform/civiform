@@ -69,11 +69,13 @@ public final class SimpleEmail implements EmailSendClient {
 
   @Override
   public void send(String toAddress, String subject, String bodyText) {
+    logger.info("In simple email send ");
     send(ImmutableList.of(toAddress), subject, bodyText);
   }
 
   @Override
   public void send(ImmutableList<String> toAddresses, String subject, String bodyText) {
+    logger.info("In simple email send ");
     if (toAddresses.isEmpty()) {
       return;
     }

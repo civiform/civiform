@@ -20,6 +20,7 @@ public class EmailSendModule extends AbstractModule {
 
   // Environment must always be provided as a param, even if it's unused.
   public EmailSendModule(Environment unused, Config config) {
+    logger.info("In email send module");
     this.config = checkNotNull(config);
   }
 
