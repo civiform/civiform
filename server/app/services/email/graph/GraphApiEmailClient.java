@@ -114,7 +114,7 @@ public class GraphApiEmailClient implements EmailSendClient {
       client
           .get()
           .users()
-          .byUserId("civiform-dev_exygy.com#EXT#@civiformdevexygy.onmicrosoft.com")
+          .byUserId("outlook_7A9B84B1BCF203BA@outlook.com")
           .sendMail()
           .post(sendMailPostRequestBody);
     } catch (ApiException e) {
