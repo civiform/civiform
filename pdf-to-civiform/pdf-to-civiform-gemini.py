@@ -1,15 +1,13 @@
 import pdfplumber
 import google.generativeai as genai
 import json
-import re
-from jsonschema import validate, ValidationError
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 import os
 import logging
 from convert_to_civiform_json import convert_to_civiform_json 
 
-# This script extracts text from uploaded PDF files, uses a Gemini LLM to 
+# This script extracts text from uploaded PDF files, uses Gemini LLM to 
 # convert the text into structured JSON representing a form, formats the JSON
 # for better readability, and then converts it into a CiviForm-compatible 
 # JSON format.  It uses a Flask web server to handle file uploads.
@@ -17,16 +15,16 @@ from convert_to_civiform_json import convert_to_civiform_json
 # make sure you have your gemini API key in ~/google_api_key
 
 # run this script from command line as: python pdf_to_civiform.py
+# output files are stored in ~/pdf-to-civiform/
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Read Google API key from file
 GOOGLE_API_KEY_FILE = os.path.expanduser("~/google_api_key")  # Use expanduser for home directory
+model = genai.GenerativeModel("models/gemini-2.0-flash-exp")
 
 try:
     with open(GOOGLE_API_KEY_FILE, "r") as f:
@@ -41,14 +39,22 @@ except Exception as e:
     logging.error(f"Error loading Google API key: {e}")
     # Exit or handle the error
 
-# List available models
-models = genai.list_models()
-for model in models:
-    print(model.name)
 
-model = genai.GenerativeModel("models/gemini-2.0-flash-exp")
+# app.config['WORK_DIR'] = '~/pdf-to-civiform/'
 
-output_filename="formated_pdf-extract.json"
+# work_dir: ~/pdf-to-civiform/
+# temporary upload dir: ~/pdf-to-civiform/uploads
+work_dir = os.path.expanduser("~/pdf-to-civiform/")
+upload_dir = os.path.join(work_dir, 'uploads')
+os.makedirs(upload_dir, exist_ok=True)
+logging.info("Working directory: %s", work_dir)
+
+# set python cache dir
+default_python_cache_path=os.path.join(work_dir, 'python_cache')
+if 'PYTHONPYCACHEPREFIX' not in os.environ:
+    os.environ['PYTHONPYCACHEPREFIX'] = default_python_cache_path
+
+print(f"PYTHONPYCACHEPREFIX  set to: {os.environ['PYTHONPYCACHEPREFIX']}")
 
 JSON_EXAMPLE = {
         "title": "[Extracted Form Title]",
@@ -94,7 +100,7 @@ def extract_text_from_pdf(pdf_path):
                 text_blocks.append(text)
     return "\n\n".join(text_blocks)
 
-def process_text_with_llm(text, base_name ):
+def process_text_with_llm(text, base_name):
     print(f"process_text_with_llm...")
 
     """Sends extracted PDF text to Gemini and asks it to format the content into structured JSON."""
@@ -116,25 +122,23 @@ def process_text_with_llm(text, base_name ):
     Output only JSON, no explanations.
     """
     
+    logging.info(f"LLM processing input txt extracted from PDF...")
+
     try:
         response = model.generate_content(prompt)
         logging.debug(f"LLM Response (First 500 chars): {response.text[:500]}...")
         logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
-
-         # Compose the output filename
-        output_filename = f"{base_name}-llm-pdf-extract.json"
-        print(f"Output filename: {output_filename}")
         response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
+
+        output_file_full = os.path.join(work_dir, f"{base_name}-llm-pdf-extract.json")
 
         # *** Save the response to a file ***
         try:
-            with open(output_filename, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
+            with open(output_file_full, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
                 f.write(response)
-            logging.info(f"LLM response saved to: {output_filename}")
+            logging.info(f"LLM response saved to: {output_file_full}")
         except Exception as e:
             logging.error(f"Error saving LLM response to file: {e}")
-            # Consider what to do if saving fails - perhaps return the response anyway?
-
 
         return response  # Return the processed text
 
@@ -144,7 +148,7 @@ def process_text_with_llm(text, base_name ):
 
 
 def format_json_with_llm(text, base_name):
-    print(f"format_json_with_llm...")
+    logging.info(f"format_json_with_llm...")
 
     """Sends extracted json text to Gemini and asks it to format the atrributes of each field in one line."""
     prompt_format_json = f"""
@@ -164,15 +168,12 @@ def format_json_with_llm(text, base_name):
 
         response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
 
-        # Compose the output filename
-        output_filename = f"{base_name}-llm-formated-pdf-extract.json"
-        print(f"Output filename: {output_filename}")
-
         # *** Save the response to a file ***
         try:
-            with open(output_filename, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
+            output_file_full = os.path.join(work_dir, f"{base_name}-llm-formated-pdf-extract.json")
+            with open(output_file_full, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
                 f.write(response)
-            logging.info(f"LLM response saved to: {output_filename}")
+            logging.info(f"LLM response saved to: {output_file_full}")
         except Exception as e:
             logging.error(f"Error saving LLM response to file: {e}")
 
@@ -198,48 +199,37 @@ def upload_file():
         return jsonify({"error": "No selected file"}), 400
     
     filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    file_full = os.path.join(upload_dir, filename)
+    file.save(file_full)
     
     # Extract the base filename without extension
-    base_filename = os.path.basename(filename)
-    base_name, _ = os.path.splitext(base_filename)
+    base_name, _ = os.path.splitext(os.path.basename(filename))
 
 
-    extracted_text = extract_text_from_pdf(file_path)
+    extracted_text = extract_text_from_pdf(file_full)
     structured_json = process_text_with_llm(extracted_text, base_name)
 
     if structured_json is None:
         return jsonify({"error": "LLM processing failed."}), 500
 
-
-    #logging.debug(f"structured_json (First 500 chars): {structured_json[:500]}...") # Log first 500 chars
-
-    #logging.debug(f"structured_json (Last 500 chars): {structured_json[-500:]}") # Log the last 500
-
     formated_json = format_json_with_llm(structured_json, base_name)
-
-    logging.debug(f"formated_json : {formated_json}")
-
 
     try:
         parsed_json = json.loads(formated_json)
-        
-        print("converting to CiviForm json ... ") 
-
+    
         civiform_json = convert_to_civiform_json(parsed_json)
 
-        output_filename = f"{base_name}-civiform.json"
-        print(f"Converted JSON saved to {output_filename}")
+        output_file_full = os.path.join(work_dir, f"{base_name}-civiform.json")
+        logging.info(f"Converted JSON saved to {output_file_full}")
     
-        with open(output_filename, "w") as f:
+        with open(output_file_full, "w") as f:
             f.write(civiform_json)
     
     except json.JSONDecodeError:
         return jsonify({"error": "Failed to parse JSON from AI response."}), 500
     
     
-    print("Done!")
+    logging.info("Done!")
     
     return jsonify(parsed_json)
 

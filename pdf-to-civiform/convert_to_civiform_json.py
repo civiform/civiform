@@ -4,7 +4,7 @@ import argparse
 import sys
 import os
 import uuid
-
+import logging
 
 # TODO
 # * templatize default config values
@@ -13,6 +13,11 @@ import uuid
 # This script converts a JSON representation of a form into a CiviForm-compatible JSON format.
 # It handles different field types, including repeating sections, and generates 
 # the necessary structure for CiviForm programs and questions.
+
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 # Replace type "textarea", "signature" as "text"
 # since CiviForm uses text for free form field
@@ -33,42 +38,6 @@ def replace_field_types(data):
         return [replace_field_types(item) for item in data]
     else:
         return data
-
-
-def create_multioption_question(field, question_id, enumerator_id):
-    question_options = [] # Initialize lists here
-    option_admin_names =[]
-    for idx, option in enumerate(field.get("options",), start=1):
-        question_options.append({
-            "id": idx,
-            "adminName": option.lower(),
-            "localizedOptionText": {"translations": {"en_US": option}, "isRequired": True},
-            "displayOrder": idx
-        })
-        option_admin_names.append(option.lower())
-
-    return {
-        "type": "multioption",
-        "config": {
-            "name": field["id"],
-            "description": field["label"],
-            "questionText": {"translations": {"en_US": field["label"]}, "isRequired": True},
-            "questionHelpText": {"translations": {"en_US": field.get("help_text", "questionHelpTextTO-BE-EDITED")}, "isRequired": True},
-            "validationPredicates": {
-                "type": "multioption",
-                "minChoicesRequired": 1,
-                "maxChoicesAllowed": 1 if field.get("original_type") == "radio" else len(field.get("options",))
-            },
-            "id": question_id,
-            "enumeratorId": enumerator_id,
-            "universal": False,
-            "primaryApplicantInfoTags": [] # Empty list
-        },
-        "questionOptions": question_options,
-        "multiOptionQuestionType": "RADIO_BUTTON" if field.get("original_type") == "radio" else "CHECKBOX",
-        "optionAdminNames": option_admin_names,
-        "options": question_options
-    }
 
 def create_question(field, question_id, enumerator_id=None):
     is_multioption = field["type"] in ["radio", "checkbox"]
@@ -204,6 +173,8 @@ def handle_repeating_section(section, question_id, block_id, output):
 
 
 def convert_to_civiform_json(unprocessed_input_json):
+    logging.info("converting to CiviForm json ... ") 
+    
     input_json = replace_field_types(unprocessed_input_json)
 
     program_id =  random.randint(1, 1000)
