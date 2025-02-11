@@ -250,6 +250,14 @@ it is around the label */
   .usa-nav span {
     margin-top: 8px;
   }
+
+  .usa-nav .grid-row {
+    flex-direction: column;
+  }
+
+  .usa-nav .grid-row .usa-button {
+    width: 100%;
+  }
 }
 
 // Styles for mobile
@@ -271,10 +279,6 @@ it is around the label */
     line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .usa-nav .grid-row {
-    flex-direction: column;
   }
 }
 
