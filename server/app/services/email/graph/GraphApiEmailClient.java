@@ -111,7 +111,12 @@ public class GraphApiEmailClient implements EmailSendClient {
       sendMailPostRequestBody.setMessage(message);
       // This can be a configurable value if that is something the team wants.
       sendMailPostRequestBody.setSaveToSentItems(false);
-      client.get().me().sendMail().post(sendMailPostRequestBody);
+      client
+          .get()
+          .users()
+          .byUserId("civiform-dev@exygy.com")
+          .sendMail()
+          .post(sendMailPostRequestBody);
     } catch (ApiException e) {
       logger.error(e.toString());
       e.printStackTrace();
