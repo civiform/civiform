@@ -272,6 +272,10 @@ it is around the label */
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .usa-nav .grid-row {
+    flex-direction: column;
+  }
 }
 
 .usa-header--basic .usa-button {
