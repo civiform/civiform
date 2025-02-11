@@ -39,9 +39,15 @@ public class EmailSendModule extends AbstractModule {
 
     switch (emailSendProvider) {
       case AWS_SES:
+        logger.info("Got to switch condition " + emailSendProvider);
         bind(EmailSendClient.class).to(SimpleEmail.class);
         break;
       case GRAPH_API:
+        logger.info("Got to switch condition " + emailSendProvider);
+        bind(EmailSendClient.class).to(GraphApiEmailClient.class);
+        break;
+      default:
+        logger.info("Got to default condition " + emailSendProvider);
         bind(EmailSendClient.class).to(GraphApiEmailClient.class);
         break;
     }
