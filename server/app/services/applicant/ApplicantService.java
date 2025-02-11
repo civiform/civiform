@@ -449,6 +449,9 @@ public final class ApplicantService {
               classLoaderExecutionContext.current());
     }
 
+    logger.info("Attempting to submit application");
+    logger.warn("Attempting to submit application warn");
+
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
         .thenCompose(
@@ -596,6 +599,9 @@ public final class ApplicantService {
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
                   .orElse(CompletableFuture.completedFuture(null));
 
+          logger.info("About to notify");
+          logger.warn("About to notify warn");
+
           CompletableFuture<Void> notifyProgramAdminsFuture =
               CompletableFuture.runAsync(
                   () -> {
@@ -626,6 +632,9 @@ public final class ApplicantService {
                   applicantPersonalInfo -> {
                     Optional<ImmutableSet<String>> applicantEmails =
                         getApplicantEmails(applicantPersonalInfo);
+
+                    logger.info("About to notify applicant");
+                    logger.warn("About to notify applicant warn");
 
                     CompletableFuture<Void> notifyApplicantFuture;
                     if (applicantEmails.isEmpty() || applicantEmails.get().isEmpty()) {
@@ -777,8 +786,12 @@ public final class ApplicantService {
                 + "View the application at %s.",
             applicantId, applicationId, programName, viewLink);
     if (isStaging) {
+      logger.info("About to notify program admin staging");
+      logger.warn("About to notify program admin staging warn");
       emailSendClient.send(stagingProgramAdminNotificationMailingList, subject, message);
     } else {
+      logger.info("About to notify program admin nonstaging");
+      logger.warn("About to notify program admin nonstaging warn");
       emailSendClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
     }
