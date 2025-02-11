@@ -202,6 +202,7 @@ public final class JsonExporterService {
                 .orElse(EMPTY_VALUE))
         .setSubmitTime(application.getSubmitTime())
         .setStatus(application.getLatestStatus())
+        .setApplicationNote(application.getLatestNote())
         .setRevisionState(toRevisionState(application.getLifecycleStage()))
         // TODO(#9212): There should never be duplicate entries because question paths should be
         // unique, but due to #9212 there sometimes are. They point at the same location in the
@@ -243,6 +244,13 @@ public final class JsonExporterService {
         .ifPresentOrElse(
             status -> jsonApplication.putString(statusPath, status),
             () -> jsonApplication.putNull(statusPath));
+
+    Path notePath = Path.create("application_note");
+    applicationExportData
+      .applicationNote()
+      .ifPresentOrElse(
+        applicationNote -> jsonApplication.putString(notePath, applicationNote),
+        () -> jsonApplication.putNull(notePath));
 
     exportApplicationEntriesToJsonApplication(
         jsonApplication, applicationExportData.applicationEntries());
@@ -331,6 +339,8 @@ public final class JsonExporterService {
 
     public abstract Instant submitTime();
 
+    public abstract Optional<String> applicationNote();
+
     public abstract Optional<String> status();
 
     public abstract RevisionState revisionState();
@@ -365,6 +375,8 @@ public final class JsonExporterService {
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
+
+      public abstract Builder setApplicationNote(Optional<String> applicationNote);
 
       public abstract Builder setRevisionState(RevisionState revisionState);
 

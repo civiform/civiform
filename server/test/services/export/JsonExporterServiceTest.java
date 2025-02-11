@@ -17,6 +17,7 @@ import repository.VersionRepository;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
+import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
@@ -175,6 +176,34 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // results are in reverse order from submission
     resultAsserter.assertNullValueAtPath(0, "status");
     resultAsserter.assertValueAtPath(1, "status", "approved");
+  }
+
+  @Test
+  public void export_whenApplicationHasNote_applicationNoteFieldIsSet() throws Exception {
+    var note = "Needs Document";
+    var admin = resourceCreator.insertAccount();
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram().withStatuses(ImmutableList.of("Pending")).build();
+
+    var fakeApplicationFiller0 = FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+    var fakeApplication0 = fakeApplicationFiller0.getApplication();
+    programAdminApplicationService.setNote(
+        fakeApplication0, ApplicationEventDetails.NoteEvent.create(note), admin);
+
+    FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // results are in reverse order from submission
+    resultAsserter.assertNullValueAtPath(0, "application_note");
+    resultAsserter.assertValueAtPath(1, "application_note", note);
   }
 
   // TODO(#9212): There should never be duplicate entries because question paths should be unique,
