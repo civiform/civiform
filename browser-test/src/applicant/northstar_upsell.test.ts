@@ -10,6 +10,7 @@ import {
   AdminPrograms,
   ApplicantQuestions,
 } from '../support'
+import {ApplicantProgramOverview} from '../support/applicant_program_overview'
 import {Page} from 'playwright'
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
@@ -60,13 +61,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       'suggest_programs_on_application_confirmation_page',
     )
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await validateApplicationSubmittedPage(
       page,
@@ -119,13 +114,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       'suggest_programs_on_application_confirmation_page',
     )
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await validateApplicationSubmittedPage(
       page,
@@ -145,13 +134,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await disableFeatureFlag(page, 'application_exportable')
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await validateApplicationDownloadLink(
       page,
@@ -167,13 +150,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await enableFeatureFlag(page, 'application_exportable')
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await validateApplicationSubmittedPage(
       page,
@@ -210,13 +187,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
     await disableFeatureFlag(page, 'application_exportable')
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await validateApplicationDownloadLink(
       page,
@@ -231,13 +202,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
       await expect(
@@ -264,13 +229,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
+    await submitApplication(applicantQuestions, applicantProgramOverview)
 
     await applicantQuestions.clickBackToHomepageButton()
 
@@ -289,6 +248,51 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         name: programName,
       }),
     ).toBeHidden()
+  })
+
+  test('program description supports markdown', async ({
+    page,
+    adminPrograms,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    await test.step('edit the long description to have markdown', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.goToProgramDescriptionPage(
+        programName,
+        /* createNewDraft= */ true,
+      )
+      await page
+        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .fill(
+          'This is the _program long description_ with markdown\n' +
+            '[This is a link](https://www.example.com)\n' +
+            'This is a list:\n' +
+            '* Item 1\n' +
+            '* Item 2\n' +
+            '\n' +
+            'There are some empty lines below this that should be preserved\n' +
+            '\n' +
+            '\n' +
+            'Autodetected link: https://www.example.com\n',
+        )
+
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await submitApplication(applicantQuestions, applicantProgramOverview)
+
+    await validateScreenshot(
+      page.locator('main'),
+      'upsell-north-star-program-description-markdown',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
   })
 
   async function validateApplicationSubmittedPage(
@@ -350,6 +354,19 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await adminPrograms.publishProgram(relatedProgramName)
       await adminPrograms.expectActiveProgram(relatedProgramName)
       await logout(page)
+    })
+  }
+
+  async function submitApplication(
+    applicantQuestions: ApplicantQuestions,
+    applicantProgramOverview: ApplicantProgramOverview,
+  ) {
+    await test.step('Submit application', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
+      await applicantQuestions.clickSubmitApplication()
     })
   }
 })

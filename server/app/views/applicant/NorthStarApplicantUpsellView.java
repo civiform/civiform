@@ -18,6 +18,7 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.components.TextFormatter;
 
 public class NorthStarApplicantUpsellView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
@@ -56,9 +57,17 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
-    context.setVariable("programDescription", params.programDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
+
+    String programDescription =
+        params.programDescription().isPresent()
+            ? TextFormatter.formatTextToSanitizedHTML(
+                params.programDescription().get(),
+                /* preserveEmptyLines= */ true,
+                /* addRequiredIndicator= */ false)
+            : "";
+    context.setVariable("programDescription", programDescription);
 
     String alertTitle =
         params
