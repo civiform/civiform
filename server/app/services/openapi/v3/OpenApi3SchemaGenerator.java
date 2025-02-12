@@ -79,6 +79,9 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                   buildApplicationDefinitions(programDefinition))
                                               .addProperty("application_id", new IntegerSchema())
                                               .addProperty(
+                                                  "application_note",
+                                                  new StringSchema().nullable(true))
+                                              .addProperty(
                                                   "create_time",
                                                   new StringSchema().format("date-time"))
                                               .addProperty(
