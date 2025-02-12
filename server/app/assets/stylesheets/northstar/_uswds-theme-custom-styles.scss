@@ -251,11 +251,7 @@ it is around the label */
     margin-top: 8px;
   }
 
-  .usa-nav .grid-row {
-    flex-direction: column;
-  }
-
-  .usa-nav .grid-row .usa-button {
+  .usa-nav .grid-row * {
     width: 100%;
   }
 }

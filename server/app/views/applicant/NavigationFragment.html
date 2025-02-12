@@ -34,7 +34,7 @@
       </div>
       <nav
         th:aria-label="#{label.primaryNavigation}"
-        class="usa-nav"
+        class="usa-nav grid-container"
         role="navigation"
       >
         <button
@@ -46,14 +46,14 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <div class="display-flex flex-col">
+        <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
             <button
               th:if="${showDebugTools}"
               th:replace="~{this :: showDebugTools}"
             ></button>
-            <div class="flex-grow">
+            <div>
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
             <button th:replace="~{this :: languageSelector}"></button>
@@ -204,7 +204,7 @@
   </section>
 </div>
 
-<div th:fragment="showDebugTools" class="display-flex flex-grow">
+<div th:fragment="showDebugTools">
   <a
     type="button"
     class="usa-button usa-button--outline margin-right-0"
@@ -221,7 +221,7 @@
   <th:block th:if="${!isGuest}">
     <div
       th:text="#{header.userName(${loggedInAs})}"
-      class="flex-align-self-end flex-grow padding-bottom-2 text-ink"
+      class="display-flex flex-align-self-end padding-bottom-2 text-ink"
     ></div>
   </th:block>
 </th:block>
@@ -248,7 +248,7 @@
   </th:block>
 </th:block>
 
-<div th:fragment="languageSelector" class="flex-grow">
+<div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
