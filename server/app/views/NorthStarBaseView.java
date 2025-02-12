@@ -82,6 +82,24 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    context.setVariable("baseUrlWithoutScheme", getBaseUrlWithoutScheme());
+    String CommonIntakeMoreResourceLink =
+        settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get();
+    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+    // difficult to add HTML within a message. So we have to manually build the html for a link
+    // that will be embedded in the more resources section of the footer.
+    if (CommonIntakeMoreResourceLink != null && !CommonIntakeMoreResourceLink.isEmpty()) {
+      context.setVariable(
+          "moreResourcesLink",
+          "<a id=\"more-resources-link\" class=\"text-white underline font-bold\" href=\""
+              + CommonIntakeMoreResourceLink
+              + "\">"
+              + "Visit "
+              + CommonIntakeMoreResourceLink
+              + "</a>");
+    } else {
+      context.setVariable("moreResourcesLink", null);
+    }
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
@@ -156,6 +174,15 @@ public abstract class NorthStarBaseView {
     context.setVariable("isApplicationExportable", isApplicationExportable);
 
     return context;
+  }
+
+  private String getBaseUrlWithoutScheme() {
+    Optional<String> baseUrlOptional = settingsManifest.getBaseUrl();
+
+    if (baseUrlOptional.isEmpty()) return "";
+
+    String baseUrlWithoutScheme = baseUrlOptional.get();
+    return baseUrlWithoutScheme.replaceFirst("^(https?://)", "");
   }
 
   private String getAccountIdentifier(
