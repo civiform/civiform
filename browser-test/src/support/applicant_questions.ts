@@ -405,6 +405,48 @@ export class ApplicantQuestions {
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
   }
+  async filterProgramsAndExpectWithFilteringEnabled(
+    {
+      filterCategory,
+      expectedProgramsInMyApplicationsSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      filterCategory: string
+      expectedProgramsInMyApplicationsSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
+  ) {
+    await this.filterProgramsByCategory(filterCategory)
+
+    // Check the program count in the section headings
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Programs based on your selections (${expectedProgramsInRecommendedSection.length})`,
+      }),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Other programs and services (${expectedProgramsInOtherProgramsSection.length})`,
+      }),
+    ).toBeVisible()
+
+    await this.expectProgramsWithFilteringEnabled(
+      {
+        expectedProgramsInMyApplicationsSection,
+        expectedProgramsInProgramsAndServicesSection,
+        expectedProgramsInRecommendedSection,
+        expectedProgramsInOtherProgramsSection,
+      },
+      filtersOn,
+      northStarEnabled,
+    )
+  }
 
   async expectProgramsWithFilteringEnabled(
     {
