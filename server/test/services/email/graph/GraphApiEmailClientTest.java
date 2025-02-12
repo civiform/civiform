@@ -24,6 +24,7 @@ import play.Environment;
 import repository.ResetPostgres;
 import services.cloud.azure.Credentials;
 import services.monitoring.EmailSendMetrics;
+import services.settings.SettingsManifest;
 
 public class GraphApiEmailClientTest extends ResetPostgres {
   private final Config mockConfig = mock(Config.class);
@@ -42,7 +43,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
             instanceOf(Credentials.class),
             mockConfig,
             mockEnvironment,
-            instanceOf(EmailSendMetrics.class));
+            instanceOf(EmailSendMetrics.class),
+            instanceOf(SettingsManifest.class));
 
     graphClient = emailClient.getClient().get();
 
