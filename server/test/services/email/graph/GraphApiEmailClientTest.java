@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -43,7 +44,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
     when(mockConfig.getString(GraphApiEmailClient.AZURE_SENDER_CONF_PATH))
         .thenReturn("test@example.com");
     when(mockEnvironment.isProd()).thenReturn(false);
-    when(mockSettingsManifest.getGraphApiEmailAccount()).thenReturn(Optional.of("emailId"));
+    when(mockSettingsManifest.getGraphApiEmailAccount()).thenReturn(Optional.of(GRAPH_ACCOUNT_ID));
 
     emailClient =
         new GraphApiEmailClient(
@@ -55,9 +56,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     graphClient = emailClient.getClient().get();
     when(graphClient.users()).thenReturn(mock(UsersRequestBuilder.class));
-    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID))
-        .thenReturn(mock(UserItemRequestBuilder.class));
-    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail())
+    when(graphClient.users().byUserId(anyString())).thenReturn(mock(UserItemRequestBuilder.class));
+    when(graphClient.users().byUserId(anyString()).sendMail())
         .thenReturn(mock(SendMailRequestBuilder.class));
   }
 
