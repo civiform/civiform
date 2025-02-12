@@ -206,7 +206,7 @@ public class AdminImportController extends CiviFormController {
               ImmutableList.of(), // categories are not migrated
               ImmutableList.of(), // associated TI groups are not migrated
               program.applicationSteps(),
-              program.isCommonIntakeForm());
+              program.programType());
       if (!programErrors.isEmpty()) {
         // We want to reference "admin name" instead of "URL" in errors, because there is no URL
         // field in program migration. The existing error strings were created for the program

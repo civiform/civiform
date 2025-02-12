@@ -370,7 +370,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
-            programType.equals(ProgramType.COMMON_INTAKE_FORM));
+            programType);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -437,7 +437,7 @@ public final class ProgramService {
    *     the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @param applicationSteps The list of steps needed to apply to the program
-   * @param isCommonIntakeForm Whether or not the program is marked as the common intake program
+   * @param programType ProgramType for this program
    * @return a set of errors representing any issues with the provided data.
    */
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
@@ -450,7 +450,7 @@ public final class ProgramService {
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups,
       ImmutableList<ApplicationStep> applicationSteps,
-      Boolean isCommonIntakeForm) {
+      ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
@@ -462,7 +462,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
-            isCommonIntakeForm));
+            programType));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -542,7 +542,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
-            programType.equals(ProgramType.COMMON_INTAKE_FORM));
+            programType);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -697,7 +697,7 @@ public final class ProgramService {
    *     the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @param applicationSteps The list of steps needed to apply to the program
-   * @param isCommonIntakeForm Whether or not the program is marked as the common intake program
+   * @param programType ProgramType for this program
    * @return a set of errors representing any issues with the provided data.
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
@@ -709,7 +709,7 @@ public final class ProgramService {
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups,
       ImmutableList<ApplicationStep> applicationSteps,
-      Boolean isCommonIntakeForm) {
+      ProgramType programType) {
     return validateProgramData(
         displayName,
         shortDescription,
@@ -719,7 +719,7 @@ public final class ProgramService {
         categoryIds,
         tiGroups,
         applicationSteps,
-        isCommonIntakeForm);
+        programType);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -740,7 +740,7 @@ public final class ProgramService {
       List<Long> categoryIds,
       List<Long> tiGroups,
       ImmutableList<ApplicationStep> applicationSteps,
-      Boolean isCommonIntakeForm) {
+      ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
@@ -769,7 +769,7 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
-    if (!isCommonIntakeForm) {
+    if (!programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
       checkApplicationStepErrors(errorsBuilder, applicationSteps);
     }
 

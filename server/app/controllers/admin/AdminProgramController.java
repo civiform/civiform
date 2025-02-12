@@ -133,7 +133,9 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
             applicationSteps,
-            programData.getIsCommonIntakeForm());
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT);
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
@@ -274,7 +276,9 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
             applicationSteps,
-            programData.getIsCommonIntakeForm());
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT);
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
