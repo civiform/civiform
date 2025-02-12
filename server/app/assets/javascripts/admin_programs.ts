@@ -53,15 +53,10 @@ class AdminPrograms {
       ) as HTMLInputElement
       const northStarUiEnabled =
         longDescription.dataset.northstarEnabled === 'true'
-      if (commonIntakeCheckbox.checked && northStarUiEnabled) {
-        longDescription.disabled = true
-        longDescription.classList.add(
-          this.DISABLED_TEXT_CLASS,
-          this.DISABLED_BACKGROUND_CLASS,
-        )
-      } else {
-        longDescription.disabled = false
-      }
+      this.maybeDisableField(
+        longDescription,
+        commonIntakeCheckbox.checked && northStarUiEnabled,
+      )
 
       const applicationStepTitles = document.querySelectorAll(
         'input[id^="apply-step"]',
@@ -69,8 +64,11 @@ class AdminPrograms {
       const applicationStepDescriptions = document.querySelectorAll(
         'textarea[id^="apply-step"]',
       )
-      this.disableApplicationSteps(applicationStepTitles, commonIntakeCheckbox)
-      this.disableApplicationSteps(
+      this.maybeDisableApplicationSteps(
+        applicationStepTitles,
+        commonIntakeCheckbox,
+      )
+      this.maybeDisableApplicationSteps(
         applicationStepDescriptions,
         commonIntakeCheckbox,
       )
@@ -86,22 +84,26 @@ class AdminPrograms {
     })
   }
 
-  static disableApplicationSteps(
+  static maybeDisableApplicationSteps(
     applicationStepFields: NodeListOf<Element>,
     commonIntakeCheckbox: HTMLInputElement,
   ) {
     applicationStepFields.forEach((step) => {
       const applicationStepField = step as HTMLInputElement
-      if (commonIntakeCheckbox.checked) {
-        applicationStepField.disabled = true
-        applicationStepField.classList.add(
-          this.DISABLED_TEXT_CLASS,
-          this.DISABLED_BACKGROUND_CLASS,
-        )
-      } else {
-        applicationStepField.disabled = false
-      }
+      this.maybeDisableField(applicationStepField, commonIntakeCheckbox.checked)
     })
+  }
+
+  static maybeDisableField(field: HTMLInputElement, shouldDisable: boolean) {
+    if (shouldDisable) {
+      field.disabled = true
+      field.classList.add(
+        this.DISABLED_TEXT_CLASS,
+        this.DISABLED_BACKGROUND_CLASS,
+      )
+    } else {
+      field.disabled = false
+    }
   }
 
   static attachEventListenersToEditTIButton() {
