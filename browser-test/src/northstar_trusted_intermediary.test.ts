@@ -166,23 +166,11 @@ test.describe(
           /* northStarEnabled= */ true,
         )
       })
-      async function verifyProgramSections() {
-        await applicantQuestions.filterProgramsByCategory('General')
 
-        // Check the program count in the section headings
-        await expect(
-          page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
-          }),
-        ).toBeVisible()
-        await expect(
-          page.getByRole('heading', {
-            name: 'Other programs and services (2)',
-          }),
-        ).toBeVisible()
-
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with in-progress application', async () => {
+        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
           {
+            filterCategory: 'General',
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
             expectedProgramsInRecommendedSection: [otherProgramName],
@@ -194,10 +182,6 @@ test.describe(
           /* filtersOn= */ true,
           /* northStarEnabled= */ true,
         )
-      }
-
-      await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with in-progress application', async () => {
-        await verifyProgramSections()
       })
 
       await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
@@ -228,7 +212,20 @@ test.describe(
         )
       })
       await test.step('Select a filter, click the filter submit button and verify the Recommended and Other programs sections with finished application', async () => {
-        await verifyProgramSections()
+        await applicantQuestions.filterProgramsAndExpectWithFilteringEnabled(
+          {
+            filterCategory: 'General',
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInOtherProgramsSection: [
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+          },
+          /* filtersOn= */ true,
+          /* northStarEnabled= */ true,
+        )
       })
     })
   },
