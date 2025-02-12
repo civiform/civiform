@@ -55,8 +55,10 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     graphClient = emailClient.getClient().get();
     when(graphClient.users()).thenReturn(mock(UsersRequestBuilder.class));
-    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID)).thenReturn(mock(UserItemRequestBuilder.class));
-    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail()).thenReturn(mock(SendMailRequestBuilder.class));
+    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID))
+        .thenReturn(mock(UserItemRequestBuilder.class));
+    when(graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail())
+        .thenReturn(mock(SendMailRequestBuilder.class));
   }
 
   @Test
@@ -131,7 +133,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     emailClient.send(toAddress, subject, body);
 
-    assertThrows(ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
+    assertThrows(
+        ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
   }
 
   @Test
@@ -149,7 +152,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     emailClient.send(toAddress, subject, body);
 
-    assertThrows(ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
+    assertThrows(
+        ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
   }
 
   @Test
