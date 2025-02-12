@@ -167,8 +167,7 @@ public final class AdminProgramController extends CiviFormController {
                 : ProgramType.DEFAULT,
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
-            applicationSteps,
-            programData.getIsCommonIntakeForm());
+            applicationSteps);
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -313,8 +312,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
-        ImmutableList.copyOf(applicationSteps),
-        programData.getIsCommonIntakeForm());
+        ImmutableList.copyOf(applicationSteps));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 

@@ -185,8 +185,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")),
-              /* isCommonIntakeForm= */ false);
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
@@ -233,8 +232,7 @@ public final class DevDatabaseSeedTask {
               ImmutableList.of(),
               /* categoryIds= */ ImmutableList.of(),
               /* applicationSteps= */ ImmutableList.of(
-                  new ApplicationStep("step 1 title", "step 1 description")),
-              /* isCommonIntakeForm= */ false);
+                  new ApplicationStep("step 1 title", "step 1 description")));
       if (programDefinitionResult.isError()) {
         throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }

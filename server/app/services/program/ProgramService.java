@@ -358,8 +358,7 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
-      ImmutableList<ApplicationStep> applicationSteps,
-      Boolean isCommonIntakeForm) {
+      ImmutableList<ApplicationStep> applicationSteps) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -371,7 +370,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
-            isCommonIntakeForm);
+            programType.equals(ProgramType.COMMON_INTAKE_FORM));
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -530,8 +529,7 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
-      ImmutableList<ApplicationStep> applicationSteps,
-      Boolean isCommonIntakeForm)
+      ImmutableList<ApplicationStep> applicationSteps)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
@@ -544,7 +542,7 @@ public final class ProgramService {
             categoryIds,
             tiGroups,
             applicationSteps,
-            isCommonIntakeForm);
+            programType.equals(ProgramType.COMMON_INTAKE_FORM));
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
