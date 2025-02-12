@@ -22,6 +22,7 @@ import play.Environment;
 import services.cloud.azure.Credentials;
 import services.email.EmailSendClient;
 import services.monitoring.EmailSendMetrics;
+import services.settings.SettingsManifest;
 import software.amazon.awssdk.http.HttpStatusCode;
 
 /** GraphApiEmailClient provides methods to send email notifications through Microsoft Graph API. */
@@ -33,6 +34,7 @@ public class GraphApiEmailClient implements EmailSendClient {
   private final EmailSendMetrics emailSendMetrics;
   private final GraphApiClientInterface client;
   private final Environment environment;
+  private final SettingsManifest settingsManifest;
   private final String sender;
 
   @Inject
@@ -40,10 +42,12 @@ public class GraphApiEmailClient implements EmailSendClient {
       Credentials credentials,
       Config config,
       Environment environment,
-      EmailSendMetrics emailSendMetrics) {
+      EmailSendMetrics emailSendMetrics,
+      SettingsManifest settingsManifest) {
     this.environment = checkNotNull(environment);
     this.sender = checkNotNull(config).getString(AZURE_SENDER_CONF_PATH);
     this.emailSendMetrics = emailSendMetrics;
+    this.settingsManifest = settingsManifest;
 
     if (environment.isProd()) {
       client = new GraphApiClient(credentials);
@@ -107,7 +111,11 @@ public class GraphApiEmailClient implements EmailSendClient {
       sendMailPostRequestBody.setMessage(message);
       // This can be a configurable value if that is something the team wants.
       sendMailPostRequestBody.setSaveToSentItems(false);
-      client.get().me().sendMail().post(sendMailPostRequestBody);
+      if (settingsManifest.getGraphApiEmailAccount().isEmpty()) {
+        logger.error(
+            "GRAPH_API_EMAIL_ACCOUNT is not set. This is needed to send emails through graph API");
+      }
+      client.get().users().byUserId(settingsManifest.getGraphApiEmailAccount().get()).sendMail();
     } catch (ApiException e) {
       logger.error(e.toString());
       e.printStackTrace();
