@@ -115,7 +115,12 @@ public class GraphApiEmailClient implements EmailSendClient {
         logger.error(
             "GRAPH_API_EMAIL_ACCOUNT is not set. This is needed to send emails through graph API");
       } else {
-        client.get().users().byUserId(settingsManifest.getGraphApiEmailAccount().get()).sendMail();
+        client
+            .get()
+            .users()
+            .byUserId(settingsManifest.getGraphApiEmailAccount().get())
+            .sendMail()
+            .post(sendMailPostRequestBody);
       }
     } catch (ApiException e) {
       logger.error(e.toString());
