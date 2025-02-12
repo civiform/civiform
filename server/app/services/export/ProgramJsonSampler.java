@@ -53,6 +53,7 @@ public final class ProgramJsonSampler {
         ApplicationExportData.builder()
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
+          .setApplicationNote(Optional.empty())
             .setStatus(
                 applicationStatusesRepository
                     .lookupActiveStatusDefinitions(programDefinition.adminName())
