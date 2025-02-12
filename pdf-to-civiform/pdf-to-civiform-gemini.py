@@ -115,6 +115,16 @@ def process_text_with_llm(text, base_name):
     and associate instructions with relevant fields.
     
     Additionally, detect repeating sections and mark them accordingly.
+
+    If you can, consider the following rules to assign input field types:
+    1. **Address**: address (e.g., residential, work, mailing). Collate Unit, city, zip code, street etc fields if possible.
+    2. **Currency**: Currency values with decimal separators (e.g., income, debts).
+    4. **Date**: Captures dates (e.g., birth date, graduation date).
+    6. **Email**: Applicant’s email address. Collate domain and username if asked separately.
+    8. **File Upload**: File attachments (e.g., PDFs, images). 
+    10. **Name**: Applicant’s full legal name, or first or middle or last name. Collate them if possible.
+    15. **Phone**: phone numbers
+
     
     Output JSON structure should match this example:
     {json.dumps(JSON_EXAMPLE, indent=4)}
