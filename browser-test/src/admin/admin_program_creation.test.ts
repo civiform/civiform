@@ -1057,11 +1057,6 @@ test.describe('program creation', () => {
     await test.step('create new program that is not an intake form', async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramDescriptionPage(programName)
-
-      await validateScreenshot(
-        page,
-        'program-description-page-with-intake-form-false',
-      )
     })
 
     const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
@@ -1384,7 +1379,7 @@ test.describe('program creation', () => {
           await adminPrograms.clickCommonIntakeFormToggle()
           await validateScreenshot(
             page.locator('#program-details-form'),
-            'program-edit-page-with-intake-form-true-northstar-true',
+            'program-edit-page-with-intake-form-true-northstar-enabled',
           )
           await expect(commonIntakeFormInput).toBeChecked()
         })
@@ -1397,6 +1392,63 @@ test.describe('program creation', () => {
             }),
           ).toBeDisabled()
           await adminPrograms.expectApplicationStepsDisabled()
+        })
+
+        await test.step('save program', async () => {
+          await adminPrograms.submitProgramDetailsEdits()
+          await adminPrograms.expectProgramBlockEditPage(programName)
+        })
+      })
+
+      // This test will replace the similar test above when the feature flag is removed
+      test('create common intake form with with northstar UI and program filtering enabled', async ({
+        page,
+        adminPrograms,
+      }) => {
+        await enableFeatureFlag(page, 'program_filtering_enabled')
+
+        await test.step('seed categories', async () => {
+          await seedProgramsAndCategories(page)
+          await page.goto('/')
+        })
+
+        await loginAsAdmin(page)
+        const programName = 'Apc program'
+
+        await test.step('create new program that is not an intake form', async () => {
+          await adminPrograms.addProgram(programName)
+          await adminPrograms.goToProgramDescriptionPage(programName)
+        })
+
+        const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+
+        await test.step('expect common intake toggle not to be checked', async () => {
+          await expect(commonIntakeFormInput).not.toBeChecked()
+        })
+
+        await test.step('add category to program', async () => {
+          await page.getByText('Education').check()
+        })
+
+        await test.step('click common intake toggle and expect it to be checked', async () => {
+          await adminPrograms.clickCommonIntakeFormToggle()
+          await validateScreenshot(
+            page.locator('#program-details-form'),
+            'program-edit-page-with-intake-form-true-northstar-enabled-filtering-enabled',
+          )
+          await expect(commonIntakeFormInput).toBeChecked()
+        })
+
+        await test.step('expect fields to be unchecked and disabled', async () => {
+          await expect(page.getByText('Education')).toBeDisabled()
+          await expect(page.getByText('Education')).not.toBeChecked()
+          await adminPrograms.expectApplicationStepsDisabled()
+          // Long description is only disabled when the northstar UI is enabled
+          await expect(
+            page.getByRole('textbox', {
+              name: 'Long program description (optional)',
+            }),
+          ).toBeDisabled()
         })
 
         await test.step('save program', async () => {
