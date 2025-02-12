@@ -27,10 +27,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
   }) => {
     await test.step('Take a screenshot as the test user on desktop', async () => {
       await loginAsTestUser(page)
-      await validateScreenshot(
-        page.getByLabel('Primary navigation'),
-        'logged-in',
-      )
+      await validateScreenshot(page.getByRole('banner'), 'logged-in')
     })
 
     await test.step('Passes accessibility test on desktop', async () => {
