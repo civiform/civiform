@@ -188,7 +188,7 @@ test.describe(
         await applicantQuestions.applyProgram(
           primaryProgramName,
           /* northStarEnabled= */ true,
-          /* isApplicationUnstarted= */ false,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('second answer')
         await applicantQuestions.clickContinue()
