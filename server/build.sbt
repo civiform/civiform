@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.27.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.28.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
