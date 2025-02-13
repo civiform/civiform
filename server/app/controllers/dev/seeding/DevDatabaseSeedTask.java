@@ -393,7 +393,7 @@ public final class DevDatabaseSeedTask {
 
   private void inSerializableTransaction(Runnable fn, int tryCount) {
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
 
     try {
       fn.run();
