@@ -116,14 +116,17 @@ def process_text_with_llm(text, base_name):
     
     Additionally, detect repeating sections and mark them accordingly.
 
-    If you can, consider the following rules to assign input field types:
+    make sure to consider the following rules to extract input fields and types:
     1. **Address**: address (e.g., residential, work, mailing). Collate Unit, city, zip code, street etc fields if possible.
     2. **Currency**: Currency values with decimal separators (e.g., income, debts).
+    3. **Checkbox**: collate options for checkboxes as one field of "checkbox" type if possible.
     4. **Date**: Captures dates (e.g., birth date, graduation date).
     6. **Email**: Applicant’s email address. Collate domain and username if asked separately.
     8. **File Upload**: File attachments (e.g., PDFs, images). 
-    10. **Name**: Applicant’s full legal name, or first or middle or last name. Collate them if possible.
-    15. **Phone**: phone numbers
+    9. **Name**: person's name: collate input fields for first name, middle name, last name  name as one field of "name" type if possible.
+    10. **Phone**: phone numbers
+
+    If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID
 
     
     Output JSON structure should match this example:
@@ -241,7 +244,7 @@ def upload_file():
     
     logging.info("Done!")
     
-    return jsonify(parsed_json)
+    return jsonify(json.loads(civiform_json))
 
 
 if __name__ == '__main__':

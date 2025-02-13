@@ -22,16 +22,21 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Replace type "textarea", "signature" as "text"
 # since CiviForm uses text for free form field
 # CiviForm does not have signature type
+
 def replace_field_types(data):
     if isinstance(data, dict):
-        # Check if the key "type" exists and update its value accordingly
         if "type" in data:
-            if data["type"] == "textarea":
+            if data["type"] in ("textarea", "signature", "unknown", "null", None):
+                logging.warning(f"WARNING: Found unknown type that need to be replaced as text: {data}")
                 data["type"] = "text"
-            elif data["type"] == "signature":
-                data["type"] = "text"
-            # Add more type conversions if needed
-        # Recursively process the dictionary
+        # make sure ID not null, and that id exist.
+        if "id" in data:
+            if data["id"] == "null":
+                new_id = "to-be-edited-" + uuid.uuid4().hex
+                data["id"] = new_id.lower()
+                logging.warning(f"WARNING: Replaced 'id' with: {data['id']} in field: {data}") #debug statement
+
+        
         return {k: replace_field_types(v) for k, v in data.items()}
     elif isinstance(data, list):
         # Process each item in the list
@@ -69,18 +74,23 @@ def create_question(field, question_id, enumerator_id=None):
     if is_multioption:
         question_options =[]
         option_admin_names =[]
-        for idx, option in enumerate(field.get("options",), start=1):
-            option_entry = {
-                "id": idx,
-                "adminName": option.lower().replace(" ", "_"),
-                "localizedOptionText": {
-                    "translations": {"en_US": option},
-                    "isRequired": True
-                },
-                "displayOrder": idx
-            }
-            question_options.append(option_entry)
-            option_admin_names.append(option.lower().replace(" ", "_"))
+
+        if "options" in field:
+            for idx, option in enumerate(field.get("options",), start=1):
+                option_entry = {
+                    "id": idx,
+                    "adminName": option.lower().replace(" ", "_"),
+                    "localizedOptionText": {
+                        "translations": {"en_US": option},
+                        "isRequired": True
+                    },
+                    "displayOrder": idx
+                }
+                question_options.append(option_entry)
+                option_admin_names.append(option.lower().replace(" ", "_"))
+        else:
+            logging.warning(f"WARNING: Field '{field.get('id', 'unknown')}' is missing the 'options' key.")
+
 
         question["questionOptions"] = question_options
         question["multiOptionQuestionType"] = "RADIO_BUTTON" if field["type"] == "radio" else "CHECKBOX"
