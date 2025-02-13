@@ -58,6 +58,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
     when(graphClient.users().byUserId(anyString())).thenReturn(mock(UserItemRequestBuilder.class));
     when(graphClient.users().byUserId(anyString()).sendMail())
         .thenReturn(mock(SendMailRequestBuilder.class));
+    when(graphClient.me()).thenReturn(mock(UserItemRequestBuilder.class));
+    when(graphClient.me().sendMail()).thenReturn(mock(SendMailRequestBuilder.class));
   }
 
   @Test
@@ -100,6 +102,37 @@ public class GraphApiEmailClientTest extends ResetPostgres {
     ArgumentCaptor<SendMailPostRequestBody> requestCaptor =
         ArgumentCaptor.forClass(SendMailPostRequestBody.class);
     verify(graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail()).post(requestCaptor.capture());
+    SendMailPostRequestBody requestBody = requestCaptor.getValue();
+
+    assertEquals("Prod Subject", requestBody.getMessage().getSubject());
+    assertFalse(
+        requestBody
+            .getMessage()
+            .getBody()
+            .getContent()
+            .contains("This email was generated from our test server."));
+    assertTrue(requestBody.getMessage().getBody().getContent().contains("Prod Body"));
+    assertEquals(
+        "test@example.com", requestBody.getMessage().getFrom().getEmailAddress().getAddress());
+    assertEquals(
+        toAddress,
+        requestBody.getMessage().getToRecipients().get(0).getEmailAddress().getAddress());
+  }
+
+  @Test
+  public void send_success_prod_noEmailSet() throws ApiException {
+    when(mockEnvironment.isProd()).thenReturn(true);
+    when(mockSettingsManifest.getGraphApiEmailAccount()).thenReturn(Optional.empty());
+
+    String toAddress = "recipient@example.com";
+    String subject = "Prod Subject";
+    String body = "Prod Body";
+
+    emailClient.send(toAddress, subject, body);
+
+    ArgumentCaptor<SendMailPostRequestBody> requestCaptor =
+        ArgumentCaptor.forClass(SendMailPostRequestBody.class);
+    verify(graphClient.me().sendMail()).post(requestCaptor.capture());
     SendMailPostRequestBody requestBody = requestCaptor.getValue();
 
     assertEquals("Prod Subject", requestBody.getMessage().getSubject());
