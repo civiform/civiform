@@ -354,7 +354,7 @@ public final class VersionRepository {
     // in relative terms, but new drafts are very rare.  It is unlikely this will represent a real
     // performance penalty for any applicant - or even any admin, really.
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       VersionModel newDraftVersion = new VersionModel(LifecycleStage.DRAFT);
       database.insert(newDraftVersion);
