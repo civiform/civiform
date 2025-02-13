@@ -339,6 +339,7 @@ public final class AccountRepository {
         .setId(accountId)
         .setLabel("AccountModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupAccount"))
+        // .setUseCache(false)
         .findOneOrEmpty();
   }
 

@@ -32,6 +32,7 @@
   <logger name="application" level="DEBUG" />
   <logger name="loggingfilter" level="INFO" />
   <logger name="controllers" level="INFO" />
+  <logger name="repository" level="INFO" />
   <logger name="services" level="INFO" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
@@ -53,8 +54,8 @@
       io.ebean.SQL -> for SQL and bind values
       io.ebean.TXN -> for Transaction commit and rollback events
   -->
-  <logger name="io.ebean.SQL" level="OFF" />
-  <logger name="io.ebean.TXN" level="OFF" />
+  <logger name="io.ebean.SQL" level="INFO" />
+  <logger name="io.ebean.TXN" level="INFO" />
 
 
   <root level="WARN">
