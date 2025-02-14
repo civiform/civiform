@@ -69,7 +69,8 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
 
-    String localizedProgramDescription = program.localizedDescription().getOrDefault(userLocale);
+    String localizedProgramDescription =
+        program.localizedShortDescription().getOrDefault(userLocale);
     context.setVariable("programDescription", localizedProgramDescription);
 
     String localizedEligibilityMsg = "";
