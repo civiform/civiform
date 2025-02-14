@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def replace_field_types(data):
     if isinstance(data, dict):
         if "type" in data:
-            if data["type"] in ("textarea", "signature", "unknown", "null", None):
+            if data["type"] not in ("name","text", "number", "radio", "checkbox","currency", "date", "email","address", "phone","repeating_section" ):
                 logging.warning(f"WARNING: Found unknown type that need to be replaced as text: {data}")
                 data["type"] = "text"
         # make sure ID not null, and that id exist.
