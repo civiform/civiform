@@ -13,6 +13,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
   test.describe('navigation with five blocks', () => {
     const programDescription = 'Test description'
+    const programShortDescription = 'Test short description'
     const dateQuestionText = 'date question text'
     const emailQuestionText = 'email question text'
     const staticQuestionText = 'static question text'
@@ -60,7 +61,11 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         questionText: currencyQuestionText,
       })
 
-      await adminPrograms.addProgram(programName, programDescription)
+      await adminPrograms.addProgram(
+        programName,
+        programDescription,
+        programShortDescription,
+      )
       await adminPrograms.editProgramBlock(programName, 'first description', [
         'nav-date-q',
         'nav-email-q',
@@ -125,7 +130,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           'Program application summary — Test program for summary page',
         )
         await expect(page.getByText(programName)).toBeVisible()
-        await expect(page.getByText(programDescription)).toBeVisible()
+        await expect(page.getByText(programShortDescription)).toBeVisible()
 
         await validateAccessibility(page)
       })
