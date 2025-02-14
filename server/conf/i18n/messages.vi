@@ -206,6 +206,12 @@ content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn ho
 content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
+# The label for the program filter checkboxes
+label.programFilters.v2=Filter by category
+# The button to apply program filters
+button.applySelections=Apply selections
+# The button to clear program filter selections
+button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
 # The same text, read for screen readers.
@@ -534,6 +540,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Những câu hỏi mới ho
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Bạn có khả năng đủ điều kiện tham gia chương trình này dựa trên các câu trả lời cho một đơn đăng ký khác.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=You may not be eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Your client is likely eligible for this program based on responses to another application.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Your client may not be eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
