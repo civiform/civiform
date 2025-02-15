@@ -131,8 +131,9 @@ def create_question(field, question_id, enumerator_id=None):
 
 
 def handle_repeating_section(section, question_id, block_id, output):
-    #entity_type_label = section["fields"]["label"]  # Use the label of the first field as entity type
-    entity_type_label = section["fields"][0]["label"] # using the first table column as entity_type 
+    # entity_type_label = section["fields"][0]["label"] # using the first table column as entity_type 
+    entity_type_label = section.get("entity_nickname") or section["fields"][0]["label"]
+
     enumerator_question = create_question({
         "type": "enumerator",
         "id": section["title"],
