@@ -16,6 +16,10 @@ from convert_to_civiform_json import convert_to_civiform_json
 
 # run this script from command line as: python pdf_to_civiform.py
 # output files are stored in ~/pdf-to-civiform/
+# known limitations: 
+#    * entity types of an enumerator question is set to the first field of the column
+#    * conditional questions are treated as a separate question and not conditionally related to other questions
+#    * not all help text is extracted/assocated with applicable question
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -147,15 +151,7 @@ def process_text_with_llm(text, base_name):
         logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
         response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
 
-        output_file_full = os.path.join(work_dir, f"{base_name}-llm-pdf-extract.json")
-
-        # *** Save the response to a file ***
-        try:
-            with open(output_file_full, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
-                f.write(response)
-            logging.info(f"LLM response saved to: {output_file_full}")
-        except Exception as e:
-            logging.error(f"Error saving LLM response to file: {e}")
+        save_response_to_file(response, base_name, "-llm-pdf-extract", work_dir)
 
         return response  # Return the processed text
 
@@ -186,19 +182,12 @@ def collate_fields(text, base_name):
         logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
         response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
 
-        # *** Save the response to a file ***
-        try:
-            output_file_full = os.path.join(work_dir, f"{base_name}-llm-adapted.json")
-            with open(output_file_full, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
-                f.write(response)
-            logging.info(f"adapted json saved to: {output_file_full}")
-        except Exception as e:
-            logging.error(f"Error saving adapted json file: {e}")
+        save_response_to_file(response, base_name, "-llm-adapted", work_dir)
 
         return response  # Return the processed text
 
     except Exception as e:
-        logging.error(f"Error during formatting json: {e}")
+        logging.error(f"Error during collating fields: {e}")
         return None
 
 # collate names, address, etc
@@ -228,14 +217,7 @@ def format_json(text, base_name, use_llm=True):
             logging.info(f"format_json_with_python...")
             response = format_json_single_line_fields(text)
 
-        # *** Save the response to a file ***
-        try:
-            output_file_full = os.path.join(work_dir, f"{base_name}-llm-formated-pdf-extract.json")
-            with open(output_file_full, "w", encoding="utf-8") as f:  # Use UTF-8 encoding
-                f.write(response)
-            logging.info(f"Formated json saved to: {output_file_full}")
-        except Exception as e:
-            logging.error(f"Error saving formated json file: {e}")
+        save_response_to_file(response, base_name, "-formated", work_dir)
 
         return response  # Return the processed text
 
@@ -257,6 +239,23 @@ def format_json_single_line_fields(input_json: str) -> str:
     """
     # TODO: This function is a placeholder and needs to be implemented.
 
+def save_response_to_file(response, base_name, output_suffix, work_dir):
+    """
+    Saves a given response string to a file.
+
+    Args:
+        response (str): The string to be saved to the file.
+        base_name (str): The base name of the file.
+        output_suffix (str): The suffix to append to the filename.
+        work_dir (str): The working directory where the file will be saved.
+    """
+    try:
+        output_file_full = os.path.join(work_dir, f"{base_name}-{output_suffix}.json")
+        with open(output_file_full, "w", encoding="utf-8") as f:
+            f.write(response)
+        logging.info(f"{output_suffix} Response saved to: {output_file_full}")
+    except Exception as e:
+        logging.error(f"Error saving response to file: {e}")
 
 @app.route('/')
 def index():
@@ -292,12 +291,12 @@ def upload_file():
     
         civiform_json = convert_to_civiform_json(parsed_json)
 
+        save_response_to_file(civiform_json, base_name, "-civiform", work_dir)
+
         output_file_full = os.path.join(work_dir, f"{base_name}-civiform.json")
         logging.info(f"Converted JSON saved to {output_file_full}")
-    
-        with open(output_file_full, "w") as f:
-            f.write(civiform_json)
-    
+
+
     except json.JSONDecodeError:
         return jsonify({"error": "Failed to parse JSON from AI response."}), 500
     

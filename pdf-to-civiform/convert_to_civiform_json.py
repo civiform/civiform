@@ -27,14 +27,14 @@ def replace_field_types(data):
     if isinstance(data, dict):
         if "type" in data:
             if data["type"] not in ("name","text", "number", "radio", "checkbox","currency", "date", "email","address", "phone","repeating_section" ):
-                logging.warning(f"WARNING: Found unknown type that need to be replaced as text: {data}")
+                logging.warning(f"Found unknown type that need to be replaced as text: {data}")
                 data["type"] = "text"
         # make sure ID not null, and that id exist.
         if "id" in data:
             if data["id"] == "null":
                 new_id = "to-be-edited-" + uuid.uuid4().hex
                 data["id"] = new_id.lower()
-                logging.warning(f"WARNING: Replaced 'id' with: {data['id']} in field: {data}") #debug statement
+                logging.warning(f"Replaced 'id' with: {data['id']} in field: {data}") #debug statement
 
         
         return {k: replace_field_types(v) for k, v in data.items()}
