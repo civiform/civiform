@@ -160,23 +160,26 @@ def process_text_with_llm(text, base_name):
         return None
 
 
-def collate_fields(text, base_name):
+def post_processing_llm(text, base_name):
 
     """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
     prompt_format_json = f"""
-    You are an expert in government forms.  Adapte the following extracted json from a government form to be easier to use:
+    You are an expert in government forms.  Adapt the following extracted json from a government form to be easier to use:
     
     {text}
     
     If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' field if possible.
-    If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field if possible
+    If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field if possible.
+    if you find duplicate fields within the same section asking for similar information, create a separate repeating_section for them.
+    For each repeating_section, create an "entity_nickname" field which best describes the entity that the repeating entries are about
+    If a section contains fields of repeating_section and non repeating_section fields, separate them into individual sections
     
     Output only JSON, no explanations.
     """
     
     try:
   
-        logging.info(f"adapting_json_with_llm. collating names, addresses ...")
+        logging.info(f"post_processing_json_with_llm. collating names, addresses ...")
         response = model.generate_content(prompt_format_json)
         logging.debug(f"LLM Response (First 500 chars): {response.text[:500]}...")
         logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
@@ -284,10 +287,10 @@ def upload_file():
         return jsonify({"error": "LLM processing failed."}), 500
 
     formated_json = format_json(structured_json, base_name, use_llm=True)
-    collated_json = collate_fields(formated_json, base_name)
+    post_processed_json = post_processing_llm(formated_json, base_name)
 
     try:
-        parsed_json = json.loads(collated_json)
+        parsed_json = json.loads(post_processed_json)
     
         civiform_json = convert_to_civiform_json(parsed_json)
 

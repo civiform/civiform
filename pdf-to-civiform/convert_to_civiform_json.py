@@ -58,7 +58,7 @@ def create_question(field, question_id, enumerator_id=None):
                 "isRequired": True
             },
             "questionHelpText": {
-                "translations": {"en_US": field.get("help_text", "TO-BE-EDITED")},
+                "translations": {"en_US": field.get("help_text", "help_text-TO-BE-EDITED")},
                 "isRequired": True
             },
             # Initialize validationPredicates with the basic structure
@@ -148,7 +148,7 @@ def handle_repeating_section(section, question_id, block_id, output):
         "name": section["title"],
         "description": section["title"],
         "localizedName": {"translations": {"en_US": section["title"]}, "isRequired": True},
-        "localizedDescription": {"translations": {"en_US": section.get("help_text", "TO-BE-EDITED")}, "isRequired": True},
+        "localizedDescription": {"translations": {"en_US": section.get("help_text", "help_text-TO-BE-EDITED")}, "isRequired": True},
         "localizedEligibilityMessage": None,
         "hidePredicate": None,
         "optionalPredicate": None,
@@ -192,7 +192,7 @@ def convert_to_civiform_json(unprocessed_input_json):
         "program": {
             "id": str(program_id),
             "adminName": input_json["title"].lower().replace(" ", "_")[:8] + str(program_id),
-            "adminDescription": "TO-BE-EDITED",
+            "adminDescription": "adminDescription-TO-BE-EDITED",
             "externalLink": "",
             "displayMode": "PUBLIC",
             "notificationPreferences":[],
@@ -201,15 +201,15 @@ def convert_to_civiform_json(unprocessed_input_json):
                 "isRequired": True
             },
             "localizedDescription": {
-                "translations": {"en_US": input_json.get("help_text", "TO-BE-EDITED")},
+                "translations": {"en_US": input_json.get("help_text", "help_text-TO-BE-EDITED")},
                 "isRequired": True
             },
             "localizedShortDescription": {
-                "translations": {"en_US": "TO-BE-EDITED"},
+                "translations": {"en_US": "localizedShortDescriptionTO-BE-EDITED"},
                 "isRequired": True
             },
             "localizedConfirmationMessage": {
-                "translations": {"en_US": "TO-BE-EDITED"},
+                "translations": {"en_US": "localizedConfirmationMessageTO-BE-EDITED"},
                 "isRequired": True
             },
             "blockDefinitions":[],
@@ -242,9 +242,9 @@ def convert_to_civiform_json(unprocessed_input_json):
         block = {
             "id": block_id,
             "name": section["title"],
-            "description": section.get("help_text", "TO-BE-EDITED"),
+            "description": section.get("help_text", "help_test-TO-BE-EDITED"),
             "localizedName": {"translations": {"en_US": section["title"]}, "isRequired": True},
-            "localizedDescription": {"translations": {"en_US": section.get("help_text", "TO-BE-EDITED")}, "isRequired": True},
+            "localizedDescription": {"translations": {"en_US": section.get("help_text", "help_text-TO-BE-EDITED")}, "isRequired": True},
             "localizedEligibilityMessage": None,
             "hidePredicate": None,
             "optionalPredicate": None,
