@@ -17,9 +17,10 @@ from convert_to_civiform_json import convert_to_civiform_json
 # run this script from command line as: python pdf_to_civiform.py
 # output files are stored in ~/pdf-to-civiform/
 # known limitations: 
-#    * entity types of an enumerator question is set to the first field of the column
 #    * conditional questions are treated as a separate question and not conditionally related to other questions
 #    * not all help text is extracted/assocated with applicable question
+#    * all questions are treated as required
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
