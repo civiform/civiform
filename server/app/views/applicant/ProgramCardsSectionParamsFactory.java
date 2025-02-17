@@ -260,7 +260,8 @@ public final class ProgramCardsSectionParamsFactory {
             ? applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url()
             : applicantRoutes.show(programSlug).url();
 
-    // If they have applied before, render the edit or review page accordingly
+    // If the applicant has already started or submitted an application, render the edit or review
+    // page accordingly
     if (optionalLifecycleStage.isPresent()) {
       if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
         // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
