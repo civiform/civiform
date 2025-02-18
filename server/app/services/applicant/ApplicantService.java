@@ -37,6 +37,7 @@ import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -590,6 +591,21 @@ public final class ApplicantService {
               applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
+
+          Optional<Boolean> optionalEligibilityStatus =
+              getApplicationEligibilityStatus(application, programDefinition);
+
+          EligibilityDetermination eligibilityDetermination;
+          if (optionalEligibilityStatus.isPresent()) {
+            if (optionalEligibilityStatus.get()) {
+              eligibilityDetermination = EligibilityDetermination.ELIGIBLE;
+            } else {
+              eligibilityDetermination = EligibilityDetermination.INELIGIBLE;
+            }
+          } else {
+            eligibilityDetermination = EligibilityDetermination.NO_ELIGIBILITY_CRITERIA;
+          }
+          applicationRepository.saveEligibilityDetermination(application, eligibilityDetermination);
 
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
