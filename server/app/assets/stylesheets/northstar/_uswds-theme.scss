@@ -8,7 +8,7 @@ See https://designsystem.digital.gov/documentation/settings/ and
 https://designsystem.digital.gov/utilities/.
 */
 
-$primary-color-variable: "red-cool-60v";
+$primary-color-variable: indigo-warm-50v;
 
 @use 'uswds-core' with (
   /* When the Webpack sass-loader compiles Sass into CSS, it doesn't update the
