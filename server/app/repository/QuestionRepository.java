@@ -82,7 +82,7 @@ public final class QuestionRepository {
   public QuestionModel createOrUpdateDraft(QuestionDefinition definition) {
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       Optional<QuestionModel> existingDraft =
           versionRepositoryProvider
               .get()
