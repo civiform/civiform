@@ -12,7 +12,7 @@ public enum EligibilityDetermination {
   // Default eligibility determination used for existing applications
   // submitted before pre-compute eligibility feature were implemented.
   NOT_COMPUTED,
-  // The program itself does not have an eligibility criteria.
+  // The program itself does not have any eligibility criteria.
   NO_ELIGIBILITY_CRITERIA;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
