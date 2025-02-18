@@ -8,6 +8,8 @@ See https://designsystem.digital.gov/documentation/settings/ and
 https://designsystem.digital.gov/utilities/.
 */
 
+$primary-color-variable: "red-cool-60v";
+
 @use 'uswds-core' with (
   /* When the Webpack sass-loader compiles Sass into CSS, it doesn't update the
   font and image urls to be relative to the Sass entrypoint. For us, that's
@@ -20,6 +22,8 @@ https://designsystem.digital.gov/utilities/.
   // but we override the background color with Tailwind "bg-gray-900" when we
   // create the banner.
   $theme-banner-background-color: 'blue-90',
+
+  $theme-color-primary: $primary-color-variable,
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
   $theme-focus-offset: 0.5,
   $theme-heading-line-height: 2,

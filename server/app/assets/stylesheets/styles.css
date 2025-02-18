@@ -34,10 +34,10 @@
     @apply py-3 px-5;
   }
 
-  .usa-button:not(.usa-button--outline) {
+  /* .usa-button:not(.usa-button--outline) {
     background-color: #005ea2;
-  }
-
+  } */
+/* 
   .usa-button.usa-button--outline,
   .usa-button.usa-button--unstyled {
     background-color: transparent;
@@ -47,7 +47,7 @@
   .usa-button.usa-modal__close {
     background-color: transparent;
     color: #71767a;
-  }
+  } */
 
   button:hover {
     @apply bg-blue-700;

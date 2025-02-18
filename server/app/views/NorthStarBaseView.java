@@ -11,6 +11,16 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -26,6 +36,7 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
 
+// TODO(dwaterman)
 public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
@@ -121,6 +132,10 @@ public abstract class NorthStarBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    // Set Sass variable
+    // probably need to read from sass file
+    updateScss();
+
     maybeSetUpNotProductionBanner(context, request, messages);
 
     boolean showDebugTools =
@@ -190,6 +205,38 @@ public abstract class NorthStarBaseView {
         .collect(
             ImmutableMap.toImmutableMap(
                 lang -> lang, lang -> languageUtils.getDisplayString(lang.locale())));
+  }
+
+  private void updateScss() {
+    System.out.println("updateScss");
+    try {
+    BufferedReader in = Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "app/assets/stylesheets/northstar/_uswds-theme.scss"), Charset.defaultCharset());
+    String output = "";
+      String newColorVariableSetting = "$primary-color-variable: \"red-cool-60v\";\n";
+
+    String line = in.readLine();
+    while (line != null) {
+      if (line.contains("$primary-color-variable:")) {
+        System.out.println("Writing new variable");
+        output += newColorVariableSetting;
+      } else {
+        System.out.println("Keeping old line");
+        output += line;
+        output += "\n";
+      }
+      line = in.readLine();
+    }
+    in.close();
+
+    BufferedWriter out = Files.newBufferedWriter(Paths.get(System.getProperty("user.dir"),"app/assets/stylesheets/northstar/_uswds-theme.scss"), Charset.defaultCharset());
+    out.write(output, 0, output.length());
+    out.flush();
+    out.close();
+    
+    } catch (IOException e) {
+      System.out.println("IOException");
+      e.printStackTrace();
+    }
   }
 
   private String getUpdateLanguageAction(Optional<Long> applicantId) {
