@@ -17,6 +17,7 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.slf4j.Logger;
@@ -293,6 +294,21 @@ public final class ApplicationRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("getApplication"))
                 .findOneOrEmpty(),
         executionContext.current());
+  }
+
+  /** Updates the Applications table */
+  public void saveEligibilityDetermination(
+      ApplicationModel application, EligibilityDetermination eligibilityDetermination) {
+    try (Transaction transaction = database.beginTransaction()) {
+      database
+          .update(ApplicationModel.class)
+          .set("eligibility_determination", eligibilityDetermination.getValue())
+          .where()
+          .eq("id", application.id)
+          .update();
+      application.save();
+      transaction.commit();
+    }
   }
 
   public List<ApplicationModel> getApplications(ImmutableList<Long> applicationIds) {
