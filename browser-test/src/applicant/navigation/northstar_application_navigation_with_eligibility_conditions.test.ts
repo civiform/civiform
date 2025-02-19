@@ -185,7 +185,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
-          /* isApplicationUnstarted= */ false,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerTextQuestion('text!')
         await applicantQuestions.clickContinue()
@@ -347,7 +347,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
-          /* isApplicationUnstarted= */ false,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -398,7 +398,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
-          /* isApplicationUnstarted= */ false,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()

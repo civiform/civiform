@@ -163,6 +163,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"
@@ -489,6 +492,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"
@@ -878,6 +884,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"

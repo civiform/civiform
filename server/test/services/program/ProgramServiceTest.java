@@ -642,7 +642,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of("invalid notification preference"),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactlyInAnyOrder(
@@ -669,7 +670,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactlyInAnyOrder(CiviFormError.of("Only existing category ids are allowed"));
@@ -692,7 +694,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(validCategoryId),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -710,7 +713,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -732,7 +736,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
@@ -752,7 +757,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -769,7 +775,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -787,7 +794,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -834,7 +842,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
   }
@@ -852,7 +861,8 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -872,7 +882,27 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.copyOf(tiGroups),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void
+      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForCommonIntakeForm() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name-two",
+            "display name",
+            "display description",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(result).isEmpty();
   }

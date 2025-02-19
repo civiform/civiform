@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.16",
-      "software.amazon.awssdk" % "ses" % "2.30.16",
+      "software.amazon.awssdk" % "s3" % "2.30.21",
+      "software.amazon.awssdk" % "ses" % "2.30.21",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.1",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.27.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.28.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.23.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.23.1",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.54",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.55",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",

@@ -287,7 +287,7 @@ export class ApplicantQuestions {
   async applyProgram(
     programName: string,
     northStarEnabled = false,
-    isApplicationUnstarted = true,
+    showProgramOverviewPage = true,
   ) {
     await this.clickApplyProgramButton(programName)
 
@@ -295,7 +295,7 @@ export class ApplicantQuestions {
     // If the applicant has already submitted an application, it will take them to the review page.
     // If the applicant has a partially completed application, it will take them to the page with the first unanswered question.
     if (northStarEnabled) {
-      if (isApplicationUnstarted) {
+      if (showProgramOverviewPage) {
         await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -404,6 +404,48 @@ export class ApplicantQuestions {
     expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
+  }
+  async filterProgramsAndExpectWithFilteringEnabled(
+    {
+      filterCategory,
+      expectedProgramsInMyApplicationsSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      filterCategory: string
+      expectedProgramsInMyApplicationsSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
+  ) {
+    await this.filterProgramsByCategory(filterCategory)
+
+    // Check the program count in the section headings
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Programs based on your selections (${expectedProgramsInRecommendedSection.length})`,
+      }),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Other programs and services (${expectedProgramsInOtherProgramsSection.length})`,
+      }),
+    ).toBeVisible()
+
+    await this.expectProgramsWithFilteringEnabled(
+      {
+        expectedProgramsInMyApplicationsSection,
+        expectedProgramsInProgramsAndServicesSection,
+        expectedProgramsInRecommendedSection,
+        expectedProgramsInOtherProgramsSection,
+      },
+      filtersOn,
+      northStarEnabled,
+    )
   }
 
   async expectProgramsWithFilteringEnabled(
