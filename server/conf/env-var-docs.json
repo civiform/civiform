@@ -30,6 +30,11 @@
         "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
+      },
+      "NORTH_STAR_UI_PRIMARY_COLOR": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Primary color in North Star UI. Must be a valid USWDS color token.",
+        "type": "string"
       }
     }
   },
