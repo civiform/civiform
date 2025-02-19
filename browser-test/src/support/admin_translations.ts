@@ -31,6 +31,8 @@ export class AdminTranslations {
     applicationStepTitle = 'step one title',
     applicationStepDescription = 'step one description',
     blockEligibilityMsg = '',
+    programType = 'default',
+    northStar = false,
   }: {
     name: string
     description: string
@@ -41,9 +43,14 @@ export class AdminTranslations {
     applicationStepTitle: string
     applicationStepDescription: string
     blockEligibilityMsg?: string
+    programType: string
+    northStar: boolean
   }) {
     await this.page.fill('text=Program name', name)
-    await this.page.fill('text=Program description', description)
+
+    if (programType === 'default' || !northStar) {
+      await this.page.fill('text=Program description', description)
+    }
     await this.page.fill('text=Short program description', shortDescription)
 
     for (const status of statuses) {
@@ -65,11 +72,16 @@ export class AdminTranslations {
       }
     }
 
-    await this.page.fill('text=Application step 1 title', applicationStepTitle)
-    await this.page.fill(
-      'text=Application step 1 description',
-      applicationStepDescription,
-    )
+    if (programType === 'default') {
+      await this.page.fill(
+        'text=Application step 1 title',
+        applicationStepTitle,
+      )
+      await this.page.fill(
+        'text=Application step 1 description',
+        applicationStepDescription,
+      )
+    }
 
     await this.page.fill('text=Screen name', blockName)
     await this.page.fill('text=Screen description', blockDescription)
@@ -90,21 +102,29 @@ export class AdminTranslations {
     expectProgramShortDescription = 'short description',
     expectApplicationStepTitle = 'step one title',
     expectApplicationStepDescription = 'step one description',
+    programType = 'default',
+    northStar = false,
   }: {
     expectProgramName: string
     expectProgramDescription: string
     expectProgramShortDescription: string
     expectApplicationStepTitle: string
     expectApplicationStepDescription: string
+    programType: string
+    northStar: boolean
   }) {
     const programNameValue = this.page.getByLabel('Program name')
     await expect(programNameValue).toHaveValue(expectProgramName)
 
-    const programDescriptionValue = this.page.getByLabel(
-      'Program description',
-      {exact: true},
-    )
-    await expect(programDescriptionValue).toHaveValue(expectProgramDescription)
+    if (programType === 'default' || !northStar) {
+      const programDescriptionValue = this.page.getByLabel(
+        'Program description',
+        {exact: true},
+      )
+      await expect(programDescriptionValue).toHaveValue(
+        expectProgramDescription,
+      )
+    }
 
     const programShortDescriptionValue = this.page.getByLabel(
       'Short program description',
@@ -113,18 +133,20 @@ export class AdminTranslations {
       expectProgramShortDescription,
     )
 
-    const applicationStepTitleValue = this.page.getByLabel(
-      'Application step 1 title',
-    )
-    await expect(applicationStepTitleValue).toHaveValue(
-      expectApplicationStepTitle,
-    )
-    const applicationStepDescriptionValue = this.page.getByLabel(
-      'Application step 1 description',
-    )
-    await expect(applicationStepDescriptionValue).toHaveValue(
-      expectApplicationStepDescription,
-    )
+    if (programType === 'default') {
+      const applicationStepTitleValue = this.page.getByLabel(
+        'Application step 1 title',
+      )
+      await expect(applicationStepTitleValue).toHaveValue(
+        expectApplicationStepTitle,
+      )
+      const applicationStepDescriptionValue = this.page.getByLabel(
+        'Application step 1 description',
+      )
+      await expect(applicationStepDescriptionValue).toHaveValue(
+        expectApplicationStepDescription,
+      )
+    }
   }
 
   async expectNoProgramStatusTranslations() {
@@ -132,6 +154,21 @@ export class AdminTranslations {
     expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
       false,
     )
+  }
+
+  async expectNoApplicationSteps() {
+    await expect(
+      this.page.getByLabel('Application step 1 title'),
+    ).toBeHidden()
+    await expect(
+      this.page.getByLabel('Application step 1 description'),
+    ).toBeHidden()
+  }
+
+  async expectNoLongDescription() {
+    await expect(
+      this.page.getByLabel('Program description', {exact: true}),
+    ).toBeHidden()
   }
 
   async expectProgramStatusTranslationWithEmail({
