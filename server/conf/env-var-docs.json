@@ -201,6 +201,12 @@
                 "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s name suffix.",
                 "type": "string"
+              },
+              "APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE": {
+                "mode": "HIDDEN",
+                "description": "The OIDC attribute name for the user’s phone number.",
+                "type": "string",
+                "required": false
               }
             }
           },
@@ -418,6 +424,11 @@
         "description": "The provider to use for sending emails.",
         "type": "string",
         "values": ["aws-ses", "graph-api"]
+      },
+      "GRAPH_API_EMAIL_ACCOUNT": {
+        "mode": "HIDDEN",
+        "description": "The email or account ID that graph API should use to send the email.",
+        "type": "string"
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
@@ -666,6 +677,11 @@
     "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
     "type": "string"
   },
+  "ALLOWED_IP_ADDRESSES_FOR_LOGOUT": {
+    "mode": "ADMIN_READABLE",
+    "description": "IP addresses that are allowed to logout a user through the /logoutAllSessions endpoint. If configured, this will normally be the IP address(es) of the authentication provider. If not specified, all IP addresses are allowed.",
+    "type": "index-list"
+  },
   "CLIENT_IP_TYPE": {
     "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
@@ -681,6 +697,11 @@
     "mode": "ADMIN_READABLE",
     "description": "Specifies the allowed file types that can be uploaded. Uses any valid [file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers). Multiple are separated by commas. Default: \"image/*,.pdf\"",
     "type": "string"
+  },
+  "MAXIMUM_SESSION_DURATION_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
+    "type": "int"
   },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",

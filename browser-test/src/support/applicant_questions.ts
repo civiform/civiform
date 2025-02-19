@@ -7,14 +7,17 @@ import {
   ApplicantProgramList,
   CardSectionName,
 } from '../support/applicant_program_list'
+import {ApplicantProgramOverview} from './applicant_program_overview'
 
 export class ApplicantQuestions {
   public page!: Page
   private applicantProgramList: ApplicantProgramList
+  private applicantProgramOverview: ApplicantProgramOverview
 
   constructor(page: Page) {
     this.page = page
     this.applicantProgramList = new ApplicantProgramList(page)
+    this.applicantProgramOverview = new ApplicantProgramOverview(page)
   }
 
   async answerAddressQuestion(
@@ -281,12 +284,23 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async applyProgram(programName: string, northStarEnabled = false) {
-    // User clicks the apply button on an application card. It takes them to the application info page.
+  async applyProgram(
+    programName: string,
+    northStarEnabled = false,
+    showProgramOverviewPage = true,
+  ) {
     await this.clickApplyProgramButton(programName)
 
-    // In North Star, clicking on "Apply" navigates to the first unanswered question.
-    if (!northStarEnabled) {
+    // In North Star, clicking on "Apply" navigates to the program overview page if it's the applicant's first time applying.
+    // If the applicant has already submitted an application, it will take them to the review page.
+    // If the applicant has a partially completed application, it will take them to the page with the first unanswered question.
+    if (northStarEnabled) {
+      if (showProgramOverviewPage) {
+        await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
+        )
+      }
+    } else {
       // In the legacy UI, the user navigates to the application review page. They must click another
       // button to reach the first unanswered question.
       await this.page.click(`#continue-application-button`)
@@ -390,6 +404,48 @@ export class ApplicantQuestions {
     expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
+  }
+  async filterProgramsAndExpectWithFilteringEnabled(
+    {
+      filterCategory,
+      expectedProgramsInMyApplicationsSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      filterCategory: string
+      expectedProgramsInMyApplicationsSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
+  ) {
+    await this.filterProgramsByCategory(filterCategory)
+
+    // Check the program count in the section headings
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Programs based on your selections (${expectedProgramsInRecommendedSection.length})`,
+      }),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Other programs and services (${expectedProgramsInOtherProgramsSection.length})`,
+      }),
+    ).toBeVisible()
+
+    await this.expectProgramsWithFilteringEnabled(
+      {
+        expectedProgramsInMyApplicationsSection,
+        expectedProgramsInProgramsAndServicesSection,
+        expectedProgramsInRecommendedSection,
+        expectedProgramsInOtherProgramsSection,
+      },
+      filtersOn,
+      northStarEnabled,
+    )
   }
 
   async expectProgramsWithFilteringEnabled(
@@ -1134,7 +1190,9 @@ export class ApplicantQuestions {
       .locator('#ns-category-filter-form')
       .getByText(category)
       .check()
-    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+    await this.page
+      .getByRole('button', {name: 'Apply selections', exact: true})
+      .click()
   }
 
   // On the North Star application summary page, find the block with the given name

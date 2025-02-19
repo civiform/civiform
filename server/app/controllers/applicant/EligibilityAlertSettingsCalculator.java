@@ -125,21 +125,21 @@ public final class EligibilityAlertSettingsCalculator {
                 isNorthStarEnabled,
                 pageHasSupplementalInformation);
 
+    String text = messages.at(triple.textKey.getKeyName());
     ImmutableList<String> formattedQuestions =
         questions.stream()
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
-
-    String msg =
-        messages.at(triple.textKey.getKeyName())
-            + (eligibilityMsg.isEmpty() ? "" : "\n" + eligibilityMsg);
+    Optional<String> customMessage =
+        eligibilityMsg.isEmpty() ? Optional.empty() : Optional.of(eligibilityMsg);
 
     return new AlertSettings(
         true,
         Optional.of(messages.at(triple.titleKey.getKeyName())),
-        msg,
+        text,
         triple.alertType,
         formattedQuestions,
+        customMessage,
         /* isSlim= */ false);
   }
 

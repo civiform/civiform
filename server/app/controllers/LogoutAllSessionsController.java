@@ -3,7 +3,9 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ClientIpResolver;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -15,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
  * This controller handles back channel logout requests from the identity provider. For example, if
@@ -26,13 +29,20 @@ public class LogoutAllSessionsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;
   private final AccountRepository accountRepository;
+  private final ClientIpResolver clientIpResolver;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public LogoutAllSessionsController(
-      ProfileUtils profileUtils, AccountRepository accountRepository) {
+      ProfileUtils profileUtils,
+      AccountRepository accountRepository,
+      SettingsManifest settingsManifest,
+      ClientIpResolver clientIpResolver) {
 
     this.profileUtils = checkNotNull(profileUtils);
     this.accountRepository = checkNotNull(accountRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.clientIpResolver = checkNotNull(clientIpResolver);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -65,6 +75,15 @@ public class LogoutAllSessionsController extends Controller {
   }
 
   public CompletionStage<Result> logoutFromAuthorityId(Http.Request request, String authorityId) {
+    Optional<ImmutableList<String>> allowedIpAddresses =
+        settingsManifest.getAllowedIpAddressesForLogout();
+    String clientIp = clientIpResolver.resolveClientIp(request);
+    if (allowedIpAddresses.isPresent()
+        && !allowedIpAddresses.get().isEmpty()
+        && !allowedIpAddresses.get().contains(clientIp)) {
+      logger.warn("Unauthorized logout attempt from IP address: {}", clientIp);
+      return CompletableFuture.completedFuture(redirect(routes.HomeController.index().url()));
+    }
     try {
       Optional<AccountModel> maybeAccount =
           accountRepository.lookupAccountByAuthorityId(authorityId);

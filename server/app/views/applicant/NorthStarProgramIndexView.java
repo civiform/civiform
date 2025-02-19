@@ -149,6 +149,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
     context.setVariable("refreshUrl", refreshUrl);
+    context.setVariable("applicantId", applicantId);
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

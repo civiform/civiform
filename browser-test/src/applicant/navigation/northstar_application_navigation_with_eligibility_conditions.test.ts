@@ -60,8 +60,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
     test("does not show 'not eligible' when there is no answer", async ({
       applicantQuestions,
+      applicantProgramOverview,
     }) => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        fullProgramName,
+      )
       await applicantQuestions.clickReview(/* northStarEnabled= */ true)
       await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
     })
@@ -132,8 +136,20 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await test.step('fill out application without submitting and verify message on review page', async () => {
+      await test.step('fill out application without submitting and verify message on edit page', async () => {
         await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+
+        await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+        await validateScreenshot(
+          page,
+          'application-eligible-edit-page',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('fill out application without submitting and verify message on review page', async () => {
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(
@@ -144,7 +160,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
       })
 
-      await test.step('verify no eligibility tags on in-progress application', async () => {
+      await test.step('verify no eligibility tags on in-progress application card', async () => {
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       })
@@ -153,6 +169,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -173,6 +190,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       adminPrograms,
       applicantQuestions,
       applicantProgramList,
+      applicantProgramOverview,
     }) => {
       const overlappingOneQProgramName =
         'Test program with one overlapping question for eligibility navigation flows'
@@ -195,7 +213,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
         )
-
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
       })
@@ -218,6 +235,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
       await test.step('verify ineligibility message on review page of overlapping program', async () => {
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          fullProgramName,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
@@ -254,7 +274,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
         )
-
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
       })
@@ -312,6 +331,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -360,6 +380,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           fullProgramName,
           /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
@@ -407,7 +428,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
         )
-
         await applicantQuestions.answerNumberQuestion('1')
         await applicantQuestions.clickContinue()
       })
@@ -454,7 +474,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           overlappingOneQProgramName,
           /* northStarEnabled= */ true,
         )
-
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
       })

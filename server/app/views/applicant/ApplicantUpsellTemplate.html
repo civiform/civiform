@@ -8,7 +8,7 @@
 
     <main>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -105,10 +105,7 @@
         </div>
       </div>
 
-      <section
-        th:if="${cardsSection.cards().size() > 0}"
-        class="section-external"
-      >
+      <section th:if="${showProgramsCardsSection}" class="section-external">
         <div class="grid-container">
           <div class="grid-row">
             <div class="tablet:grid-col-8">
@@ -120,10 +117,14 @@
         </div>
         <div class="section-internal">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
           ></div>
         </div>
       </section>
+
+      <div th:unless="${showProgramsCardsSection}" class="page-spacing">
+        <!--/* Add spacing only when the 'Program Cards' section is hidden, since that section adds its own bottom margins. */-->
+      </div>
     </main>
 
     <div th:if="${isGuest}">

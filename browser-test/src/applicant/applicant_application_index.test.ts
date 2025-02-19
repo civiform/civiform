@@ -671,6 +671,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
+            /* showProgramOverviewPage= */ false,
           )
           // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
           await expect(page.getByText('Screen 3')).toBeVisible()
@@ -698,6 +699,16 @@ test.describe('applicant program index page', () => {
             'program-index-page-submitted-northstar',
           )
           await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
+        })
+
+        await test.step('Expect editing submitted application takes user to review page', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+            /* showProgramOverviewPage= */ false,
+          )
+
+          await expect(page.getByText('Review and submit')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
@@ -819,6 +830,7 @@ test.describe('applicant program index page', () => {
               primaryProgramName,
               /* northStarEnabled= */ true,
             )
+
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
           })
@@ -888,7 +900,11 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-            await applicantQuestions.applyProgram(primaryProgramName, true)
+            await applicantQuestions.applyProgram(
+              primaryProgramName,
+              /* northStarEnabled= */ true,
+              /* showProgramOverviewPage= */ false,
+            )
             await applicantQuestions.answerTextQuestion('second answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.submitFromReviewPage(true)
@@ -999,7 +1015,7 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
-            await page.getByRole('button', {name: 'Clear filters'}).click()
+            await page.getByRole('button', {name: 'Clear selections'}).click()
 
             await expect(
               page.getByRole('checkbox', {name: 'General'}),

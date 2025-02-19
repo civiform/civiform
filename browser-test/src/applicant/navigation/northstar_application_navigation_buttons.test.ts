@@ -459,8 +459,15 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     })
 
     test.describe('next button', () => {
-      test('next block progression', async ({page, applicantQuestions}) => {
+      test('next block progression', async ({
+        page,
+        applicantQuestions,
+        applicantProgramOverview,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
+        )
 
         await validateAccessibility(page)
 
@@ -660,8 +667,14 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         })
       })
 
-      test('answering questions out of order', async ({applicantQuestions}) => {
+      test('answering questions out of order', async ({
+        applicantQuestions,
+        applicantProgramOverview,
+      }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
 
         await test.step('answer screen 4', async () => {
@@ -1069,6 +1082,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
         )
         await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
       })

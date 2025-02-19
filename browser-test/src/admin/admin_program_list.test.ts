@@ -45,9 +45,39 @@ test.describe('Program list page.', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-versions')
   })
 
+  test('view program with description', async ({page, adminPrograms}) => {
+    const programName = 'Program With Short Description'
+    const programLongDescription =
+      'A very very very very very very long description'
+    const programShortDescription = 'A very short description'
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        programLongDescription,
+        programShortDescription,
+      )
+    })
+
+    await test.step('check that short description is shown', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const firstProgram = page.locator('.cf-admin-program-card').first()
+      const firstProgramDesc = firstProgram.locator('.cf-program-description')
+      await expect(
+        firstProgramDesc.getByText(programShortDescription),
+      ).toBeVisible()
+      await expect(
+        firstProgramDesc.locator(`text=${programLongDescription}`),
+      ).toHaveCount(0) // long description should not be shown
+    })
+  })
+
   test('view program with categories', async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
+    const programLongDescription =
+      'A very very very very very very long description'
+    const programShortDescription = 'A very short description'
 
     await test.step('seed categories', async () => {
       await seedProgramsAndCategories(page)
@@ -56,13 +86,23 @@ test.describe('Program list page.', () => {
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
+      await adminPrograms.addProgram(
+        programName,
+        programLongDescription,
+        programShortDescription,
+      )
     })
 
     await test.step('check that categories show as "None"', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgram = page.locator('.cf-admin-program-card').first()
       await expect(firstProgram.getByText('Categories: None')).toBeVisible()
+    })
+    await test.step('check that program visibility is displayed', async () => {
+      const firstProgram = page.locator('.cf-admin-program-card').first()
+      await expect(
+        firstProgram.getByText('Visibility state: Public'),
+      ).toBeVisible()
     })
 
     await test.step('add two categories', async () => {
