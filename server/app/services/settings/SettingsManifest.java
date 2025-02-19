@@ -512,6 +512,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("EMAIL_PROVIDER");
   }
 
+  /** The email or account ID that graph API should use to send the email. */
+  public Optional<String> getGraphApiEmailAccount() {
+    return getString("GRAPH_API_EMAIL_ACCOUNT");
+  }
+
   /** What static file storage provider to use. */
   public Optional<String> getStorageServiceName() {
     return getString("STORAGE_SERVICE_NAME");
@@ -1828,7 +1833,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.HIDDEN,
-                      ImmutableList.of("aws-ses", "graph-api")))),
+                      ImmutableList.of("aws-ses", "graph-api")),
+                  SettingDescription.create(
+                      "GRAPH_API_EMAIL_ACCOUNT",
+                      "The email or account ID that graph API should use to send the email.",
+                      /* isRequired= */ false,
+                      SettingType.STRING,
+                      SettingMode.HIDDEN))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",

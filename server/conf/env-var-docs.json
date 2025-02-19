@@ -425,6 +425,11 @@
         "type": "string",
         "values": ["aws-ses", "graph-api"]
       },
+      "GRAPH_API_EMAIL_ACCOUNT": {
+        "mode": "HIDDEN",
+        "description": "The email or account ID that graph API should use to send the email.",
+        "type": "string"
+      },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
         "members": {

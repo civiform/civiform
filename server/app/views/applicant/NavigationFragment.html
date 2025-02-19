@@ -34,7 +34,7 @@
       </div>
       <nav
         th:aria-label="#{label.primaryNavigation}"
-        class="usa-nav"
+        class="usa-nav grid-container"
         role="navigation"
       >
         <button
@@ -46,11 +46,19 @@
             th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
           ></svg>
         </button>
-        <th:block th:if="${showDebugTools}">
-          <button th:replace="~{this :: showDebugTools}"></button>
-        </th:block>
-        <button th:replace="~{this :: loginOrLogout}"></button>
-        <button th:replace="~{this :: languageSelector}"></button>
+        <div class="display-flex grid-col-fill flex-column flex-align-end">
+          <div th:replace="~{this :: userName}"></div>
+          <div class="grid-row grid-gap-1">
+            <button
+              th:if="${showDebugTools}"
+              th:replace="~{this :: showDebugTools}"
+            ></button>
+            <div>
+              <button th:replace="~{this :: loginOrLogout}"></button>
+            </div>
+            <button th:replace="~{this :: languageSelector}"></button>
+          </div>
+        </div>
       </nav>
     </div>
   </header>
@@ -199,7 +207,7 @@
 <div th:fragment="showDebugTools">
   <a
     type="button"
-    class="usa-button usa-button--outline"
+    class="usa-button usa-button--outline margin-right-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -209,11 +217,20 @@
   <div th:replace="~{applicant/ModalFragment:: devTools}"></div>
 </div>
 
+<th:block th:fragment="userName">
+  <th:block th:if="${!isGuest}">
+    <div
+      th:text="#{header.userName(${loggedInAs})}"
+      class="display-flex flex-align-self-end padding-bottom-2 text-ink"
+    ></div>
+  </th:block>
+</th:block>
+
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.login}"
       id="login-button"
       th:href="${loginLink}"
@@ -221,13 +238,9 @@
   </th:block>
 
   <th:block th:if="${!isGuest}">
-    <span
-      th:text="#{header.userName(${loggedInAs})}"
-      class="padding-right-1"
-    ></span>
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -243,7 +256,7 @@
     <select
       name="locale"
       th:aria-label="#{label.languageSr}"
-      class="usa-button"
+      class="usa-button margin-right-0"
       id="select-language"
     >
       <option th:text="#{button.languages}"></option>
