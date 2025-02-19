@@ -12,7 +12,7 @@ import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   test.describe('navigation with eligibility conditions', () => {
-    // Create a program with 2 questions and an eligibility condition.
+    // Create a program with 3 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
     const eligibilityQuestionId = 'nav-predicate-number-q'
 
