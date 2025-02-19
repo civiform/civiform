@@ -993,7 +993,7 @@ public final class ProgramService {
       ProgramDefinition programDefinition) {
     if (!programDefinition.isCommonIntakeForm()
         && !programDefinition.applicationSteps().isEmpty()) {
-      IntStream.range(0, programDefinition.applicationSteps().size())
+      IntStream.range(0, programDefinition.applicationSteps().size() - 1)
           .forEach(
               i -> {
                 String title = localizationUpdate.applicationSteps().get(i).localizedTitle();

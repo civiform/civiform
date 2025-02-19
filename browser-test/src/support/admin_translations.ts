@@ -157,9 +157,7 @@ export class AdminTranslations {
   }
 
   async expectNoApplicationSteps() {
-    await expect(
-      this.page.getByLabel('Application step 1 title'),
-    ).toBeHidden()
+    await expect(this.page.getByLabel('Application step 1 title')).toBeHidden()
     await expect(
       this.page.getByLabel('Application step 1 description'),
     ).toBeHidden()
