@@ -27,6 +27,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await adminQuestions.addEmailQuestion({
           questionName: 'nav-predicate-email-q',
         })
+        await adminQuestions.addTextQuestion({
+          questionName: 'nav-predicate-text-q',
+        })
 
         // Add the full program.
         await adminPrograms.addProgram(fullProgramName)
@@ -50,6 +53,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           fullProgramName,
           'second description',
           ['nav-predicate-email-q'],
+        )
+
+        await adminPrograms.addProgramBlock(
+          fullProgramName,
+          'third description',
+          ['nav-predicate-text-q'],
         )
 
         await adminPrograms.gotoAdminProgramsPage()
@@ -111,6 +120,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.gotoApplicantHomePage()
         await applicantQuestions.clickApplyProgramButton(fullProgramName)
         await applicantQuestions.answerEmailQuestion('email@email.com')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.answerTextQuestion('text!')
       })
 
       await test.step("submit and expect to be told it's ineligible", async () => {
@@ -139,7 +150,6 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await test.step('fill out application without submitting and verify message on edit page', async () => {
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
-
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await validateScreenshot(
           page,
@@ -147,6 +157,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
+      })
+
+      await test.step('verify eligibility banner not visible on subsequent edit pages', async () => {
+        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectMayBeEligibileAlertToBeHidden()
       })
 
       await test.step('fill out application without submitting and verify message on review page', async () => {
@@ -171,7 +187,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* northStarEnabled= */ true,
           /* isApplicationUnstarted= */ false,
         )
-        await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.answerTextQuestion('text!')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await applicantQuestions.submitFromReviewPage(
@@ -335,6 +351,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
+        await applicantQuestions.answerTextQuestion('text!')
+        await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
         await applicantQuestions.clickSubmitApplication()
       })
@@ -383,6 +401,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* isApplicationUnstarted= */ false,
         )
         await applicantQuestions.answerEmailQuestion('test@test.com')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.answerTextQuestion('text!')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayNotBeEligibleAlertToBeHidden()
         await applicantQuestions.submitFromReviewPage(
