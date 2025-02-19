@@ -1,8 +1,6 @@
 # --- !Ups
 
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS eligibility_determination VARCHAR;
-
-UPDATE applications SET eligibility_determination = 'NOT_COMPUTED' WHERE eligibility_determination IS NULL;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS eligibility_determination VARCHAR DEFAULT 'NOT_COMPUTED';
 
 # --- !Downs
 ALTER TABLE applications DROP COLUMN IF EXISTS eligibility_determination;
