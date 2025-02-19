@@ -113,8 +113,12 @@ def create_question(field, question_id, enumerator_id=None):
     if question["type"] == "address":
         question["config"]["validationPredicates"]["disallowPoBox"] = False
     elif question["type"] == "multioption":
-        question["config"]["validationPredicates"]["minChoicesRequired"] = 1 if is_multioption else None
-        question["config"]["validationPredicates"]["maxChoicesAllowed"] = len(field.get("options",)) if is_multioption else None
+        question["config"]["validationPredicates"]["minChoicesRequired"] = 1 
+        # Set maxChoicesAllowed to 1 if it's a radio button question
+        if field["type"] == "radio":
+            question["config"]["validationPredicates"]["maxChoicesAllowed"] = 1
+        else:  # For other multioption types (like checkbox), keep the original logic
+            question["config"]["validationPredicates"]["maxChoicesAllowed"] = len(field.get("options",)) 
     elif question["type"] == "id":
         question["config"]["validationPredicates"]["minLength"] = None
         question["config"]["validationPredicates"]["maxLength"] = None
@@ -191,7 +195,7 @@ def convert_to_civiform_json(unprocessed_input_json):
     program_id =  random.randint(1, 1000)
     output = {
         "program": {
-            "id": str(program_id),
+            "id": program_id,
             "adminName": input_json["title"].lower().replace(" ", "_")[:8] + str(program_id),
             "adminDescription": "adminDescription-TO-BE-EDITED",
             "externalLink": "",
@@ -222,13 +226,13 @@ def convert_to_civiform_json(unprocessed_input_json):
             "applicationSteps":[ {
                 "title" : {
                 "translations" : {
-                    "en_US" : "step 1 title"
+                    "en_US" : "Step TO-BE-EDITE"
                 },
                 "isRequired" : True
                 },
                 "description" : {
                 "translations" : {
-                    "en_US" : "step 1 description"
+                    "en_US" : "Step description TO-BE-EDITED"
                 },
                 "isRequired" : True
                 }

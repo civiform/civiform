@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to JSON Converter</title>
+    <title>PDF to CiviForm JSON Converter</title>
     <script>
         async function uploadFile(event) {
             event.preventDefault();
             const fileInput = document.getElementById("pdfFile");
             const file = fileInput.files[0];
             if (!file) {
-                alert("Please select a file.");
+                alert("Please select a PDF file containing program form.");
                 return;
             }
 
             const formData = new FormData();
             formData.append("file", file);
+
+            // Get the selected LLM model name
+            const modelName = document.getElementById("LLMModelSelect").value;
+            formData.append("modelName", modelName); // Add modelId to form data
 
             document.getElementById("output").innerText = "Processing...";
             
@@ -41,6 +45,13 @@
     <h1>PDF to CiviForm JSON Converter</h1>
     <form onsubmit="uploadFile(event)">
         <input type="file" id="pdfFile" accept="application/pdf" required>
+
+        <select id="LLMModelSelect">
+            <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+            <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05</option>
+            <option value="gemini-2.0-flash-lite-preview-02-05">gemini-2.0-flash-lite-preview-02-05</option>
+            </select>
+
         <button type="submit">Convert</button>
     </form>
     <h2>Output JSON:</h2>
