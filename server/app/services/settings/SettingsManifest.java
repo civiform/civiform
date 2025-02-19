@@ -298,6 +298,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("LOGIN_GOV_ACR_VALUE");
   }
 
+  /** (Experimental) Keycloak realm name */
+  public Optional<String> getKeycloakApplicantRealm() {
+    return getString("KEYCLOAK_APPLICANT_REALM");
+  }
+
+  /** (Experimental) Keycloak base uri */
+  public Optional<String> getKeycloakApplicantBaseUri() {
+    return getString("KEYCLOAK_APPLICANT_BASE_URI");
+  }
+
   /** What identity provider to use for admins. */
   public Optional<String> getCiviformAdminIdp() {
     return getString("CIVIFORM_ADMIN_IDP");
@@ -414,6 +424,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getAdminOidcAdditionalScopes() {
     return getString("ADMIN_OIDC_ADDITIONAL_SCOPES");
+  }
+
+  /** (Experimental) Keycloak realm name */
+  public Optional<String> getKeycloakAdminRealm() {
+    return getString("KEYCLOAK_ADMIN_REALM");
+  }
+
+  /** (Experimental) Keycloak base uri */
+  public Optional<String> getKeycloakAdminBaseUri() {
+    return getString("KEYCLOAK_ADMIN_BASE_URI");
   }
 
   /**
@@ -1356,7 +1376,24 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingMode.HIDDEN,
                                       ImmutableList.of(
                                           "http://idmanagement.gov/ns/assurance/ial/1",
-                                          "http://idmanagement.gov/ns/assurance/ial/2"))))),
+                                          "http://idmanagement.gov/ns/assurance/ial/2")))),
+                          SettingsSection.create(
+                              "Keycloak OIDC Server",
+                              "(Experimental) Configuration options for the Keycloak provider",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "KEYCLOAK_APPLICANT_REALM",
+                                      "(Experimental) Keycloak realm name",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "KEYCLOAK_APPLICANT_BASE_URI",
+                                      "(Experimental) Keycloak base uri",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN)))),
                       ImmutableList.of(
                           SettingDescription.create(
                               "CIVIFORM_APPLICANT_IDP",
@@ -1520,6 +1557,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "Scopes the client (CiviForm) is requesting in addition to"
                                           + " the standard scopes the OpenID Connect spec"
                                           + " provides.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN))),
+                          SettingsSection.create(
+                              "Keycloak OIDC Server",
+                              "(Experimental) Configuration options for the Keycloak provider",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "KEYCLOAK_ADMIN_REALM",
+                                      "(Experimental) Keycloak realm name",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "KEYCLOAK_ADMIN_BASE_URI",
+                                      "(Experimental) Keycloak base uri",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN)))),
