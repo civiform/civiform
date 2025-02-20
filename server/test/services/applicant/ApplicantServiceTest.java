@@ -2105,6 +2105,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
 
     applicationRepository
+        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraft.id)
         .toCompletableFuture()
         .join();
@@ -2146,6 +2150,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().get(0),
             result.unapplied().get(0),
             result.unapplied().get(1));
+    assertThat(result.inProgressIncludingCommonIntake().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(commonIntakeForm.id, programForDraft.id);
   }
 
   @Test
