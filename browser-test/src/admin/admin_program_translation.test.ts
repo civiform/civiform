@@ -252,13 +252,13 @@ test.describe('Admin can manage program translations', () => {
         'Spanish block name - bloque uno',
         'Spanish block description',
       )
-    })
 
-    await adminTranslations.expectProgramTranslation({
-      expectProgramName: 'Spanish name',
-      expectProgramDescription: 'Spanish description',
-      expectProgramShortDescription: 'Spanish short description',
-      programType: 'common intake',
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: 'Spanish name',
+        expectProgramDescription: 'Spanish description',
+        expectProgramShortDescription: 'Spanish short description',
+        programType: 'common intake',
+      })
     })
   })
 
@@ -591,13 +591,13 @@ test.describe('Admin can manage program translations', () => {
           'Spanish block name - bloque uno',
           'Spanish block description',
         )
-      })
 
-      await adminTranslations.expectProgramTranslation({
-        expectProgramName: 'Spanish name',
-        expectProgramShortDescription: 'Spanish description',
-        programType: 'common intake',
-        northStar: true,
+        await adminTranslations.expectProgramTranslation({
+          expectProgramName: 'Spanish name',
+          expectProgramShortDescription: 'Spanish description',
+          programType: 'common intake',
+          northStar: true,
+        })
       })
     })
   })

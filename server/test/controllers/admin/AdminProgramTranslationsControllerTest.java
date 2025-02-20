@@ -298,6 +298,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("localized-email-1", "updated spanish second status email")
                     .put("application-step-title-0", "step one title")
                     .put("application-step-description-0", "step one description")
+                    .put("application-step-title-1", "step two title")
+                    .put("application-step-description-1", "step two description")
                     .build());
 
     Result result =
