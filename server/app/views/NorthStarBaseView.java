@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.EligibilityAlertSettingsCalculator;
 import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -234,8 +233,7 @@ public abstract class NorthStarBaseView {
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
-            EligibilityAlertSettingsCalculator.getTitleHelpText(
-                messages, AlertType.EMERGENCY, alertTitle),
+            AlertSettings.getTitleHelpText(messages, AlertType.EMERGENCY, alertTitle),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

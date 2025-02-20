@@ -135,7 +135,7 @@ public final class EligibilityAlertSettingsCalculator {
     Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
     Optional<String> helpText =
         title.isPresent()
-            ? getTitleHelpText(messages, triple.alertType, title.get())
+            ? AlertSettings.getTitleHelpText(messages, triple.alertType, title.get())
             : Optional.empty();
 
     return new AlertSettings(
@@ -230,20 +230,6 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
-
-  public static Optional<String> getTitleHelpText(
-      Messages messages, AlertType alertType, String titleText) {
-    switch (alertType) {
-      case SUCCESS:
-        return Optional.of(
-            messages.at(MessageKey.HEADING_SUCCESS_HELP_TEXT.getKeyName(), titleText));
-      case INFO:
-        return Optional.of(
-            messages.at(MessageKey.HEADING_INFORMATION_HELP_TEXT.getKeyName(), titleText));
-      default:
-        return Optional.empty();
-    }
-  }
 
   /**
    * Returns true if eligibility is enabled on the program and it is not a common intake form, false

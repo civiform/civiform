@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import controllers.applicant.EligibilityAlertSettingsCalculator;
 import controllers.applicant.routes;
 import java.util.Locale;
 import java.util.Optional;
@@ -68,8 +67,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
 
     Optional<String> helpText =
-        EligibilityAlertSettingsCalculator.getTitleHelpText(
-            params.messages(), AlertType.SUCCESS, alertTitle);
+        AlertSettings.getTitleHelpText(params.messages(), AlertType.SUCCESS, alertTitle);
     AlertSettings successAlertSettings =
         new AlertSettings(
             /* show= */ true,

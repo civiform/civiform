@@ -2,6 +2,7 @@ package services;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import play.i18n.Messages;
 import views.components.TextFormatter;
 
 /**
@@ -80,5 +81,19 @@ public record AlertSettings(
   public String getFormattedAlertText(String text) {
     return TextFormatter.formatTextToSanitizedHTML(
         text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+  }
+
+  public static Optional<String> getTitleHelpText(
+      Messages messages, AlertType alertType, String titleText) {
+    switch (alertType) {
+      case SUCCESS:
+        return Optional.of(
+            messages.at(MessageKey.HEADING_SUCCESS_HELP_TEXT.getKeyName(), titleText));
+      case INFO:
+        return Optional.of(
+            messages.at(MessageKey.HEADING_INFORMATION_HELP_TEXT.getKeyName(), titleText));
+      default:
+        return Optional.empty();
+    }
   }
 }
