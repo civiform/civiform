@@ -148,7 +148,10 @@ public final class ApplicationRepository {
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
         app.save();
       }
-
+      application.setEligibilityDetermination(
+          application.getEligibilityDetermination().isEmpty()
+              ? EligibilityDetermination.NOT_COMPUTED
+              : application.getEligibilityDetermination().get());
       application.setApplicantData(applicant.getApplicantData());
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();

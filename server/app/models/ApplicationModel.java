@@ -61,6 +61,7 @@ public class ApplicationModel extends BaseModel {
     this.program = program;
     this.object = "{}";
     this.lifecycleStage = lifecycleStage;
+    this.eligibilityDetermination = EligibilityDetermination.NOT_COMPUTED;
     this.isAdmin =
         applicant.getAccount().getGlobalAdmin()
             || !applicant.getAccount().getAdministeredProgramNames().isEmpty();
