@@ -238,6 +238,21 @@
                 ]
               }
             }
+          },
+          "Keycloak OIDC Server": {
+            "group_description": "(Experimental) Configuration options for the Keycloak provider",
+            "members": {
+              "KEYCLOAK_APPLICANT_REALM": {
+                "mode": "HIDDEN",
+                "description": "(Experimental) Keycloak realm name",
+                "type": "string"
+              },
+              "KEYCLOAK_APPLICANT_BASE_URI": {
+                "mode": "HIDDEN",
+                "description": "(Experimental) Keycloak base uri",
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -337,6 +352,21 @@
               "ADMIN_OIDC_ADDITIONAL_SCOPES": {
                 "mode": "HIDDEN",
                 "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides.",
+                "type": "string"
+              }
+            }
+          },
+          "Keycloak OIDC Server": {
+            "group_description": "(Experimental) Configuration options for the Keycloak provider",
+            "members": {
+              "KEYCLOAK_ADMIN_REALM": {
+                "mode": "HIDDEN",
+                "description": "(Experimental) Keycloak realm name",
+                "type": "string"
+              },
+              "KEYCLOAK_ADMIN_BASE_URI": {
+                "mode": "HIDDEN",
+                "description": "(Experimental) Keycloak base uri",
                 "type": "string"
               }
             }
