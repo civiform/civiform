@@ -17,7 +17,15 @@ import re
 
 # run this script from command line as: python pdf_to_civiform.py
 # output files are stored in ~/pdf-to-civiform/
-# known limitations: 
+
+# TODOs
+# 1. refactor to use code for formatting json. LLM is not needed for this step and is slow
+
+
+# known iisues/limitations: 
+#    * redio button questions were extracted as checkbox questions: 
+#       ex: marital status in  https://www.miamidade.gov/housing/library/forms/condominium-special-assessments-program-application.pdf
+#    * Not reliably identifying number fields. treated as text fields.
 #    * conditional questions are treated as a separate question and not conditionally related to other questions
 #    * not all help text is extracted/assocated with applicable question
 #    * all questions are treated as required
@@ -28,8 +36,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 app = Flask(__name__)
 
-# work_dir: ~/pdf-to-civiform/
-# temporary upload dir: ~/pdf-to-civiform/uploads
 work_dir = os.path.expanduser("~/pdf-to-civiform/")
 upload_dir = os.path.join(work_dir, 'uploads')
 os.makedirs(upload_dir, exist_ok=True)
@@ -62,7 +68,6 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp", api_key_
         model = genai.GenerativeModel(f"models/{model_name}")
 
         # Print available Gemini models
-        logging.info("Available Gemini models: %s", [model_info.name for model_info in genai.list_models()])
         logging.info(f"INFO: Gemini model used: Model name: {model_name} version: {genai.__version__};")
 
         return model
@@ -128,25 +133,27 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
     {text}
     
     Identify form fields, labels, and instructions, and format the output as JSON.
-    Ensure correct field types (text, checkbox, dropdown, etc.), group fields into sections,
+    Ensure correct field types (number, radio button, text, checkbox, etc.), group fields into sections,
     and associate instructions with relevant fields.
     
     Additionally, detect repeating sections and mark them accordingly.
 
     make sure to consider the following rules to extract input fields and types:
-    1. **Address**: If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' field if possible.
+    1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street etc are included. Collate them if possible.
     2. **Currency**: Currency values with decimal separators (e.g., income, debts).
-    3. **Checkbox**: collate options for checkboxes as one field of "checkbox" type if possible.
+    3. **Checkbox**: Allows multiple selections (e.g., ethinicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible.
     4. **Date**: Captures dates (e.g., birth date, graduation date).
-    6. **Email**: Applicant’s email address. Collate domain and username if asked separately.
-    8. **File Upload**: File attachments (e.g., PDFs, images). 
-    9. **Name**: If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field in the JSON output.
-    10. **Phone**: phone numbers
+    5. **Dropdown**: Single selection from long lists (>8 items) (e.g., list of products).
+    6. **Email**: email address. Collate domain and username if asked separately.
+    8. **File Upload**: File attachments (e.g., PDFs, images).
+    9. **ID**: Numeric identifiers. Can specify min/max value.
+    10. **Name**: person's name. Collate first name, middle name, and last name into full name if possible.
+    11. **Number**: Integer values (e.g., number of household members etc).
+    12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
+    14. **Text**: Open-ended text for letters, numbers, or symbols.
+    15. **Phone**: phone numbers.
 
     If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
-    If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' field if possible.
-    If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field .
-
     
     Output JSON structure should match this example:
     {json.dumps(JSON_EXAMPLE, indent=4)}
@@ -175,10 +182,11 @@ def post_processing_llm(model, model_name, text, base_name):
 
     """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
     prompt_post_processing_json = f"""
-    You are an expert in government forms.  Adapt the following extracted json from a government form to be easier to use:
+    You are an expert in government forms.  Process the following extracted json from a government form to be easier to use:
     
     {text}
     
+    make sure to consider the following rules to process the json:
     If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' field if possible. Do not create separate fields for address components.
     If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field if possible. Do not create separate fields for name components.
     if you find duplicate fields within the same section asking for similar information, create a separate repeating_section for them.
@@ -206,6 +214,9 @@ def post_processing_llm(model, model_name, text, base_name):
         return None
 
 # collate names, address, etc
+
+# TODO:
+# 1. LLM is not really needed and too slow for this step. It can be done with a simple python script. 
 
 def format_json(model, model_name, text, base_name, use_llm=True):
 

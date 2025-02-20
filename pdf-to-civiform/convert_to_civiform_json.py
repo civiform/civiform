@@ -7,7 +7,7 @@ import uuid
 import logging
 
 # TODO
-# * templatize default config values
+# * templatize default config values such as "isRequired", "to-be-edited" etc
 # 
 
 # This script converts a JSON representation of a form into a CiviForm-compatible JSON format.
@@ -26,13 +26,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def replace_field_types(data):
     if isinstance(data, dict):
         if "type" in data:
+            data["type"] = data["type"].lower()
             if data["type"] not in ("name","text", "number", "radio", "checkbox","currency", "date", "email","address", "phone","repeating_section" ):
                 logging.warning(f"Found unknown type that need to be replaced as text: {data}")
                 data["type"] = "text"
         # make sure ID not null, and that id exist.
         if "id" in data:
             if data["id"] == "null":
-                new_id = "to-be-edited-" + uuid.uuid4().hex
+                new_id = "id-to-be-edited-" + uuid.uuid4().hex
                 data["id"] = new_id.lower()
                 logging.warning(f"Replaced 'id' with: {data['id']} in field: {data}") #debug statement
 
@@ -45,7 +46,7 @@ def replace_field_types(data):
         return data
 
 def create_question(field, question_id, enumerator_id=None):
-    is_multioption = field["type"] in ["radio", "checkbox"]
+    is_multioption = field["type"] in ["radio", "checkbox", "dropdown"]
     is_enumerator = field["type"] == "enumerator"
 
     question = {
@@ -58,7 +59,7 @@ def create_question(field, question_id, enumerator_id=None):
                 "isRequired": True
             },
             "questionHelpText": {
-                "translations": {"en_US": field.get("help_text", "help_text-TO-BE-EDITED")},
+                "translations": {"en_US": field.get("help_text", "")},
                 "isRequired": True
             },
             # Initialize validationPredicates with the basic structure
@@ -98,12 +99,14 @@ def create_question(field, question_id, enumerator_id=None):
         question["options"] = question_options
 
     if is_enumerator:
-        question["entityType"] = {"translations": {"en_US": "Entity"}, "isRequired": True}
+        question["entityType"] = {"translations": {"en_US": field.get("label", "entity-type-to-be-edited")}, "isRequired": True}
+
         question["config"]["validationPredicates"] = {
             "type": "enumerator",
             "minEntities": None,
             "maxEntities": None
         }
+
 
     # Conditionally add enumeratorId for repeated questions
     if enumerator_id is not None:
@@ -153,7 +156,7 @@ def handle_repeating_section(section, question_id, block_id, output):
         "name": section["title"],
         "description": section["title"],
         "localizedName": {"translations": {"en_US": section["title"]}, "isRequired": True},
-        "localizedDescription": {"translations": {"en_US": section.get("help_text", "help_text-TO-BE-EDITED")}, "isRequired": True},
+        "localizedDescription": {"translations": {"en_US": section.get("help_text", "localizedDescription-TO-BE-EDITED")}, "isRequired": True},
         "localizedEligibilityMessage": None,
         "hidePredicate": None,
         "optionalPredicate": None,
@@ -197,7 +200,7 @@ def convert_to_civiform_json(unprocessed_input_json):
         "program": {
             "id": program_id,
             "adminName": input_json["title"].lower().replace(" ", "_")[:8] + str(program_id),
-            "adminDescription": "adminDescription-TO-BE-EDITED",
+            "adminDescription": "program-adminDescription-TO-BE-EDITED",
             "externalLink": "",
             "displayMode": "PUBLIC",
             "notificationPreferences":[],
@@ -206,15 +209,15 @@ def convert_to_civiform_json(unprocessed_input_json):
                 "isRequired": True
             },
             "localizedDescription": {
-                "translations": {"en_US": input_json.get("help_text", "help_text-TO-BE-EDITED")},
+                "translations": {"en_US": input_json.get("help_text", "program-localizedDescription-TO-BE-EDITED")},
                 "isRequired": True
             },
             "localizedShortDescription": {
-                "translations": {"en_US": "localizedShortDescriptionTO-BE-EDITED"},
+                "translations": {"en_US": "program-localizedShortDescriptionTO-BE-EDITED"},
                 "isRequired": True
             },
             "localizedConfirmationMessage": {
-                "translations": {"en_US": "localizedConfirmationMessageTO-BE-EDITED"},
+                "translations": {"en_US": "program-localizedConfirmationMessageTO-BE-EDITED"},
                 "isRequired": True
             },
             "blockDefinitions":[],
@@ -226,13 +229,13 @@ def convert_to_civiform_json(unprocessed_input_json):
             "applicationSteps":[ {
                 "title" : {
                 "translations" : {
-                    "en_US" : "Step TO-BE-EDITE"
+                    "en_US" : "program-applicationSteps TO-BE-EDITE"
                 },
                 "isRequired" : True
                 },
                 "description" : {
                 "translations" : {
-                    "en_US" : "Step description TO-BE-EDITED"
+                    "en_US" : "program-applicationSteps description TO-BE-EDITED"
                 },
                 "isRequired" : True
                 }
@@ -247,9 +250,9 @@ def convert_to_civiform_json(unprocessed_input_json):
         block = {
             "id": block_id,
             "name": section["title"],
-            "description": section.get("help_text", "help_test-TO-BE-EDITED"),
+            "description": section.get("help_text", "block-description-TO-BE-EDITED"),
             "localizedName": {"translations": {"en_US": section["title"]}, "isRequired": True},
-            "localizedDescription": {"translations": {"en_US": section.get("help_text", "help_text-TO-BE-EDITED")}, "isRequired": True},
+            "localizedDescription": {"translations": {"en_US": section.get("help_text", "block-localizedDescription-TO-BE-EDITED")}, "isRequired": True},
             "localizedEligibilityMessage": None,
             "hidePredicate": None,
             "optionalPredicate": None,
@@ -287,6 +290,14 @@ def main():
     try:
         with open(args.input_file, "r") as f:
             unprocessed_input_json = json.load(f)
+
+        civiform_json = convert_to_civiform_json(unprocessed_input_json)
+
+        with open(output_filename, "w") as f:
+            f.write(civiform_json)
+
+        logging.info(f"Converted JSON saved to {output_filename}. Done!")
+
     except FileNotFoundError:
         print(f"Error: File '{args.input_file}' not found.")
         sys.exit(1)
@@ -294,12 +305,7 @@ def main():
         print(f"Error: File '{args.input_file}' is not valid JSON.")
         sys.exit(1)
 
-    civiform_json = convert_to_civiform_json(unprocessed_input_json)
 
-    with open(output_filename, "w") as f:
-        f.write(civiform_json)
-
-    print(f"Converted JSON saved to {output_filename}")
 
 if __name__ == "__main__":
     main()
