@@ -51,7 +51,7 @@
     >
       <li
         th:each="item : ${alertSettings.additionalText}"
-        th:text="${item}"
+        th:utext="${alertSettings.getFormattedAlertText(item)}"
       ></li>
     </ul>
 
