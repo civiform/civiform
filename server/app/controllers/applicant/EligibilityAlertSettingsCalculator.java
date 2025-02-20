@@ -132,6 +132,11 @@ public final class EligibilityAlertSettingsCalculator {
             .collect(ImmutableList.toImmutableList());
     Optional<String> customMessage =
         eligibilityMsg.isEmpty() ? Optional.empty() : Optional.of(eligibilityMsg);
+    Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
+    Optional<String> helpText =
+        title.isPresent()
+            ? getTitleHelpText(messages, triple.alertType, title.get())
+            : Optional.empty();
 
     return new AlertSettings(
         true,
@@ -140,6 +145,7 @@ public final class EligibilityAlertSettingsCalculator {
         triple.alertType,
         formattedQuestions,
         customMessage,
+        helpText,
         /* isSlim= */ false);
   }
 
@@ -224,6 +230,20 @@ public final class EligibilityAlertSettingsCalculator {
   }
 
   private record Triple(AlertType alertType, MessageKey titleKey, MessageKey textKey) {}
+
+  public static Optional<String> getTitleHelpText(
+      Messages messages, AlertType alertType, String titleText) {
+    switch (alertType) {
+      case SUCCESS:
+        return Optional.of(
+            messages.at(MessageKey.HEADING_SUCCESS_HELP_TEXT.getKeyName(), titleText));
+      case INFO:
+        return Optional.of(
+            messages.at(MessageKey.HEADING_INFORMATION_HELP_TEXT.getKeyName(), titleText));
+      default:
+        return Optional.empty();
+    }
+  }
 
   /**
    * Returns true if eligibility is enabled on the program and it is not a common intake form, false

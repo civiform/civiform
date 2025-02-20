@@ -14,6 +14,7 @@ import views.components.TextFormatter;
  * @param alertType {@link AlertType}
  * @param additionalText Additional text to be displayed as a list
  * @param customText Customized text added by the admin, if any
+ * @param helpText Optional help text for screen readers
  * @param isSlim Determines whether the alert should have slim layout
  */
 public record AlertSettings(
@@ -24,6 +25,7 @@ public record AlertSettings(
     AlertType alertType,
     ImmutableList<String> additionalText,
     Optional<String> customText,
+    Optional<String> helpText,
     Boolean isSlim) {
 
   public static AlertSettings empty() {
@@ -49,6 +51,7 @@ public record AlertSettings(
         alertType,
         additionalText,
         /* customText= */ Optional.empty(),
+        /* helpText= */ Optional.empty(),
         isSlim);
   }
 
@@ -59,6 +62,7 @@ public record AlertSettings(
       AlertType alertType,
       ImmutableList<String> additionalText,
       Optional<String> customText,
+      Optional<String> helpText,
       Boolean isSlim) {
     this(
         show,
@@ -68,6 +72,7 @@ public record AlertSettings(
         alertType,
         additionalText,
         customText,
+        helpText,
         isSlim);
   }
 

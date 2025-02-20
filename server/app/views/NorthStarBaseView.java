@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.EligibilityAlertSettingsCalculator;
 import controllers.routes;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -223,16 +224,18 @@ public abstract class NorthStarBaseView {
       String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
       unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
     }
-
+    String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
     AlertSettings notProductionAlertSettings =
         new AlertSettings(
             true,
-            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            Optional.of(alertTitle),
             unescapedDescription.orElse(""),
             unescapedDescription.isPresent(),
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
+            EligibilityAlertSettingsCalculator.getTitleHelpText(
+                messages, AlertType.EMERGENCY, alertTitle),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

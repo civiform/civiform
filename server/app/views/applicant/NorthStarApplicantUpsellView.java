@@ -2,10 +2,12 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import controllers.applicant.EligibilityAlertSettingsCalculator;
 import controllers.applicant.routes;
 import java.util.Locale;
 import java.util.Optional;
@@ -64,8 +66,20 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         params
             .messages()
             .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
+
+    Optional<String> helpText =
+        EligibilityAlertSettingsCalculator.getTitleHelpText(
+            params.messages(), AlertType.SUCCESS, alertTitle);
     AlertSettings successAlertSettings =
-        new AlertSettings(/* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS);
+        new AlertSettings(
+            /* show= */ true,
+            Optional.of(alertTitle),
+            "",
+            AlertType.SUCCESS,
+            ImmutableList.of(),
+            Optional.empty(),
+            helpText,
+            true);
     context.setVariable("successAlertSettings", successAlertSettings);
 
     String applicantName =
