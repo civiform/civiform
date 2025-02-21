@@ -135,7 +135,7 @@ public final class EligibilityAlertSettingsCalculator {
     Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
     Optional<String> helpText =
         title.isPresent()
-            ? AlertSettings.getTitleHelpText(messages, triple.alertType, title.get())
+            ? Optional.of(AlertSettings.getTitleHelpText(messages, triple.alertType, title.get()))
             : Optional.empty();
 
     return new AlertSettings(

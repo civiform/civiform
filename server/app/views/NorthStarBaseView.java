@@ -233,7 +233,7 @@ public abstract class NorthStarBaseView {
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
-            AlertSettings.getTitleHelpText(messages, AlertType.EMERGENCY, alertTitle),
+            Optional.of(AlertSettings.getTitleHelpText(messages, AlertType.EMERGENCY, alertTitle)),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }
