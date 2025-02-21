@@ -1711,8 +1711,8 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicationPrograms {
     /**
-     * Common Intake Form, if it exists, is populated only here and not in inProgress, submitted, or
-     * unapplied regardless of its application status.
+     * Common Intake Form, if it exists and hasn't been submitted, is populated here and not in
+     * inProgress or unapplied, regardless of its application status.
      */
     public abstract Optional<ApplicantProgramData> commonIntakeForm();
 
@@ -1763,6 +1763,23 @@ public final class ApplicantService {
       allPrograms.addAll(submitted());
       allPrograms.addAll(unapplied());
       return allPrograms.build();
+    }
+
+    /**
+     * Returns all programs that are in progress, including the Common Intake Form, which usually is
+     * not included in the inProgress list.
+     */
+    public ImmutableList<ApplicantProgramData> inProgressIncludingCommonIntake() {
+      ImmutableList.Builder<ApplicantProgramData> inProgress =
+          new ImmutableList.Builder<ApplicantProgramData>();
+
+      commonIntakeForm()
+          .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
+          .filter(stage -> stage.equals(LifecycleStage.DRAFT))
+          .ifPresent(programData -> inProgress.add(commonIntakeForm().get()));
+
+      inProgress.addAll(inProgress());
+      return inProgress.build();
     }
   }
 
