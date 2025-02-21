@@ -197,7 +197,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ProgramModel program = createDraftProgram("Program");
     ApplicationModel application =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
-    assertThat(application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
+    assertThat(
+        application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
   }
 
   private ApplicationModel createSubmittedAppAtInstant(
