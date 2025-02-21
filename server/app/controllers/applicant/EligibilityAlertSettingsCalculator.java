@@ -132,6 +132,11 @@ public final class EligibilityAlertSettingsCalculator {
             .collect(ImmutableList.toImmutableList());
     Optional<String> customMessage =
         eligibilityMsg.isEmpty() ? Optional.empty() : Optional.of(eligibilityMsg);
+    Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
+    Optional<String> helpText =
+        title.isPresent()
+            ? Optional.of(AlertSettings.getTitleHelpText(messages, triple.alertType, title.get()))
+            : Optional.empty();
 
     return new AlertSettings(
         true,
@@ -140,6 +145,7 @@ public final class EligibilityAlertSettingsCalculator {
         triple.alertType,
         formattedQuestions,
         customMessage,
+        helpText,
         /* isSlim= */ false);
   }
 
