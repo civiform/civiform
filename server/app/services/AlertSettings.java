@@ -83,15 +83,12 @@ public record AlertSettings(
         text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
   }
 
-  public static String getTitleHelpText(
-      Messages messages, AlertType alertType, String titleText) {
+  public static String getTitleHelpText(Messages messages, AlertType alertType, String titleText) {
     switch (alertType) {
       case SUCCESS:
-        return 
-            messages.at(MessageKey.HEADING_SUCCESS_HELP_TEXT.getKeyName(), titleText);
+        return messages.at(MessageKey.HEADING_SUCCESS_HELP_TEXT.getKeyName(), titleText);
       case INFO:
-        return 
-            messages.at(MessageKey.HEADING_INFORMATION_HELP_TEXT.getKeyName(), titleText);
+        return messages.at(MessageKey.HEADING_INFORMATION_HELP_TEXT.getKeyName(), titleText);
       default:
         return titleText;
     }

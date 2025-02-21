@@ -107,6 +107,12 @@ test.describe(
             'Create an account to save your application information',
           ),
         ).toBeVisible()
+        // Validate help text for accessibility.
+        await expect(
+          page.getByLabel(
+            'For your information: Create an account to save your application information',
+          ),
+        ).toBeVisible()
 
         await loginAsTestUser(
           page,

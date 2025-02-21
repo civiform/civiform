@@ -1,4 +1,4 @@
-import {test} from '../../support/civiform_fixtures'
+import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   enableFeatureFlag,
@@ -336,6 +336,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerEmailQuestion('test@test.com')
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayBeEligibileAlertToBeVisible()
+        await expect(
+          page.getByLabel('Success: You may be eligible for this program'),
+        ).toBeVisible()
         await applicantQuestions.clickSubmitApplication()
       })
 
