@@ -15,6 +15,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.VersionModel;
@@ -188,6 +189,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                     .join())
         .cause()
         .isInstanceOf(DuplicateApplicationException.class);
+  }
+
+  @Test
+  public void submitApplication_eligibilityDeterminationDefualtNotComputed() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    ProgramModel program = createDraftProgram("Program");
+    ApplicationModel application =
+        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    assertThat(application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
   }
 
   private ApplicationModel createSubmittedAppAtInstant(
