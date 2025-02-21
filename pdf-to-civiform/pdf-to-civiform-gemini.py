@@ -138,6 +138,8 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
     
     Additionally, detect repeating sections and mark them accordingly.
 
+    A table is usually a repeating section. 
+
     make sure to consider the following rules to extract input fields and types:
     1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street etc are included. Collate them if possible.
     2. **Currency**: Currency values with decimal separators (e.g., income, debts).
@@ -150,7 +152,7 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
     10. **Name**: person's name. Collate first name, middle name, and last name into full name if possible.
     11. **Number**: Integer values (e.g., number of household members etc).
     12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
-    14. **Text**: Open-ended text for letters, numbers, or symbols.
+    14. **Text**: Open-ended text field for letters, numbers, or symbols.
     15. **Phone**: phone numbers.
 
     If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
@@ -181,18 +183,22 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
 def post_processing_llm(model, model_name, text, base_name):
 
     """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
+    #  TODO: could not reliablely move repeating sections out of sections without LLM creating unnecessary repeating sections.   
+    #  If a "repeating_section" is inside a section, move it out to a separate section. Do not create new repeating section for single entries. Do not create new repeating section if the entries are not already in a "repeating_section".
+
     prompt_post_processing_json = f"""
     You are an expert in government forms.  Process the following extracted json from a government form to be easier to use:
     
     {text}
     
-    make sure to consider the following rules to process the json:
-    If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' field if possible. Do not create separate fields for address components.
-    If you find separate fields for first name, middle name, and last name, collate them into a single 'name' field if possible. Do not create separate fields for name components.
-    if you find duplicate fields within the same section asking for similar information, create a separate repeating_section for them.
-    For each repeating_section, create an "entity_nickname" field which best describes the entity that the repeating entries are about.
-    If a section contains fields of repeating_section and non repeating_section fields, separate them into individual sections
+    make sure to consider the following rules to process the json: 
+    1. Do NOT create nested sections. 
+    2. Within each section, If you find separate fields for first name, middle name, and last name, collate them into a single 'name' type field if possible. Do not create separate fields for name components. 
+    2. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
+    3. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
     
+    Output JSON structure should match this example:
+    {json.dumps(JSON_EXAMPLE, indent=4)}
 
     Output only JSON, no explanations.
     """

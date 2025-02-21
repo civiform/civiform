@@ -59,7 +59,7 @@ def create_question(field, question_id, enumerator_id=None):
                 "isRequired": True
             },
             "questionHelpText": {
-                "translations": {"en_US": field.get("help_text", "")},
+                "translations": {"en_US": field.get("help_text") or ""},
                 "isRequired": True
             },
             # Initialize validationPredicates with the basic structure
