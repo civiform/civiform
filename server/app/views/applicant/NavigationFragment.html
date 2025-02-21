@@ -8,19 +8,21 @@
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
   <div class="usa-overlay"></div>
-  <header class="usa-header usa-header--basic" role="banner">
+  <header class="usa-header usa-header--basic " role="banner">
     <div class="usa-nav-container">
-      <div class="usa-navbar">
+      <div class="usa-navbar height-8">
         <a
           href="/"
           class="usa-logo display-flex flex-align-center text-ink text-no-underline"
           id="header-return-home"
         >
+        <div class="padding-right-2">
           <img
             th:src="${smallLogoUrl}"
-            class="width-8 padding-right-2 cf-header-logo"
+            class="width-8 cf-header-logo"
             th:attr="alt=${civicEntityFullName + ' Logo'}"
           />
+        </div>
           <em class="usa-logo__text">
             <span th:text="${civicEntityShortName}"></span>
             <span>CiviForm</span>
@@ -28,7 +30,7 @@
         </a>
         <button
           type="button"
-          class="usa-menu-btn"
+          class="usa-menu-btn height-8"
           th:text="#{header.menu}"
         ></button>
       </div>
