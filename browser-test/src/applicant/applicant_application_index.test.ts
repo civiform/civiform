@@ -16,6 +16,7 @@ import {
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
+import {CardSectionName} from '../support/applicant_program_list'
 
 test.describe('applicant program index page', () => {
   const primaryProgramName = 'Application index primary program'
@@ -847,6 +848,7 @@ test.describe('applicant program index page', () => {
           page,
           adminPrograms,
           applicantQuestions,
+          applicantProgramList,
         }) => {
           await test.step('publish programs with categories', async () => {
             await adminPrograms.publishAllDrafts()
@@ -933,30 +935,28 @@ test.describe('applicant program index page', () => {
               'north-star-homepage-programs-filtered',
             )
 
-            await applicantQuestions.expectProgramsWithFilteringEnabled(
-              {
-                expectedProgramsInMyApplicationsSection: [primaryProgramName],
-                expectedProgramsInProgramsAndServicesSection: [],
-                expectedProgramsInRecommendedSection: [otherProgramName],
-                expectedProgramsInOtherProgramsSection: [
-                  'Minimal Sample Program',
-                  'Comprehensive Sample Program',
-                ],
-              },
-              /* filtersOn= */ true,
-              /* northStarEnabled= */ true,
-            )
-
-            // Check the program count in the section headings
             await expect(
-              page.getByRole('heading', {
-                name: 'Programs based on your selections (1)',
-              }),
+              applicantProgramList.getCardLocatorWithCount(
+                CardSectionName.Recommended,
+                1,
+                otherProgramName,
+              ),
             ).toBeVisible()
+
             await expect(
-              page.getByRole('heading', {
-                name: 'Other programs and services (2)',
-              }),
+              applicantProgramList.getCardLocatorWithCount(
+                CardSectionName.OtherPrograms,
+                2,
+                'Minimal Sample Program',
+              ),
+            ).toBeVisible()
+
+            await expect(
+              applicantProgramList.getCardLocatorWithCount(
+                CardSectionName.OtherPrograms,
+                2,
+                'Comprehensive Sample Program',
+              ),
             ).toBeVisible()
           })
 

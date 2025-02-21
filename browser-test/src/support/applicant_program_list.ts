@@ -22,6 +22,21 @@ export class ApplicantProgramList {
   }
 
   /**
+   * Get the card section locator for card sections where a count is displayed in the heading
+   * @param {CardSectionName} cardSectionName The heading for the section, without the count
+   * @param count The card count displayed in the heading
+   * @returns {Locator} Locator to the card section
+   */
+  getCardSectionLocatorWithCount(
+    cardSectionName: CardSectionName,
+    count: number,
+  ): Locator {
+    return this.page.getByRole('region', {
+      name: `${cardSectionName} (${count})`,
+    })
+  }
+
+  /**
    * Get the locator for program card heading in the desired section
    * @param {CardSectionName} cardSectionName to find
    * @param {String} programName to find
@@ -32,6 +47,25 @@ export class ApplicantProgramList {
     programName: string,
   ): Locator {
     return this.getCardSectionLocator(cardSectionName)
+      .getByRole('listitem')
+      .filter({
+        hasText: programName,
+      })
+  }
+
+  /**
+   * Get the locator for a program card in a section with a count in the section heading
+   * @param {CardSectionName} cardSectionName
+   * @param count The card count displayed in the section heading
+   * @param programName
+   * @returns {Locator} Locator for program card in the desired section
+   */
+  getCardLocatorWithCount(
+    cardSectionName: CardSectionName,
+    count: number,
+    programName: string,
+  ): Locator {
+    return this.getCardSectionLocatorWithCount(cardSectionName, count)
       .getByRole('listitem')
       .filter({
         hasText: programName,
@@ -153,6 +187,8 @@ export class ApplicantProgramList {
 export enum CardSectionName {
   MyApplications = 'My applications',
   ProgramsAndServices = 'Programs and services',
+  Recommended = 'Programs based on your selections',
+  OtherPrograms = 'Other programs and services',
 }
 
 /**
