@@ -1,11 +1,21 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 /**
  * Add global styles and classes here.
  */
-@layer base {
+/* @layer base { */
+  :root {
+    /* --color-primary: #005ea2; */
+    --color-primary: #e41d3d;
+    /* --color-primary-dark: #1a4480; */
+    --color-primary-dark: #b50909;
+    --color-base: #71767a;
+    --color-base-lightest: #f0f0f0;
+    --color-base-darkest: #1b1b1b;
+  }
+
   h1 {
     @apply text-2xl;
   }
@@ -20,11 +30,8 @@
     color: rgb(0 0 0);
   }
 
-  button,
-  [type='button'],
-  [type='reset'],
-  [type='submit'] {
-    @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
+  .bg-primary-darker {
+    background-color: var(--color-primary-dark) !important;
   }
 
   /* TODO: Remove these extra USWDS button styles once all our buttons use USWDS classes.
@@ -32,25 +39,45 @@
     we have to override them explicitly here. */
   .usa-button {
     @apply py-3 px-5;
+    background-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .usa-header .usa-menu-btn {
+    background-color: var(--color-primary);
   }
 
   .usa-button:not(.usa-button--outline) {
-    background-color: #005ea2;
+    background-color: var(--color-primary);
   }
 
   .usa-button.usa-button--outline,
   .usa-button.usa-button--unstyled {
     background-color: transparent;
-    color: #005ea2;
+    color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary);
+  }
+
+  .usa-button--secondary::before {
+    color: var(--color-primary);
   }
 
   .usa-button.usa-modal__close {
     background-color: transparent;
-    color: #71767a;
+    color: var(--color-base);
+  }
+
+  .usa-button--outline:visited {
+    color: var(--color-primary-dark) !important;
+  }
+
+  .usa-button--outline:hover, .usa-button--outline.usa-button--hover {
+    color: var(--color-primary-dark) !important;
+    box-shadow: 0 0 0 2px var(--color-primary-dark) !important;
   }
 
   button:hover {
-    @apply bg-blue-700;
+    color: var(--color-primary-dark);
   }
 
   button:disabled {
@@ -153,4 +180,4 @@
     cursor: default;
   }
 
-}
+/* } */
