@@ -110,6 +110,8 @@ public abstract class NorthStarBaseView {
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
             + "</a>");
+    context.setVariable(
+        "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
@@ -233,7 +235,7 @@ public abstract class NorthStarBaseView {
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
-            Optional.of(AlertSettings.getTitleHelpText(messages, AlertType.EMERGENCY, alertTitle)),
+            Optional.of(AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

@@ -11,31 +11,31 @@
       class="usa-alert__heading"
       th:if="${alertSettings.title.isPresent() && headingLevel == 'H2'}"
       th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.helpText.isPresent()}? ${alertSettings.helpText.get()}"
+      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
     ></h2>
     <h3
       class="usa-alert__heading"
       th:if="${alertSettings.title.isPresent() && headingLevel == 'H3'}"
       th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.helpText.isPresent()}? ${alertSettings.helpText.get()}"
+      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
     ></h3>
     <h4
       class="usa-alert__heading"
       th:if="${alertSettings.title.isPresent() && headingLevel == 'H4'}"
       th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.helpText.isPresent()}? ${alertSettings.helpText.get()}"
+      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
     ></h4>
     <h5
       class="usa-alert__heading"
       th:if="${alertSettings.title.isPresent() && headingLevel == 'H5'}"
       th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.helpText.isPresent()}? ${alertSettings.helpText.get()}"
+      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
     ></h5>
     <h6
       class="usa-alert__heading"
       th:if="${alertSettings.title.isPresent() && headingLevel == 'H6'}"
       th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.helpText.isPresent()}? ${alertSettings.helpText.get()}"
+      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
     ></h6>
 
     <div th:if="${alertSettings.unescapedDescription()} == true">

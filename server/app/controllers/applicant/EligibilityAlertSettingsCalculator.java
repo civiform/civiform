@@ -133,9 +133,9 @@ public final class EligibilityAlertSettingsCalculator {
     Optional<String> customMessage =
         eligibilityMsg.isEmpty() ? Optional.empty() : Optional.of(eligibilityMsg);
     Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
-    Optional<String> helpText =
+    Optional<String> ariaLabel =
         title.isPresent()
-            ? Optional.of(AlertSettings.getTitleHelpText(messages, triple.alertType, title.get()))
+            ? Optional.of(AlertSettings.getTitleAriaLabel(messages, triple.alertType, title.get()))
             : Optional.empty();
 
     return new AlertSettings(
@@ -145,7 +145,7 @@ public final class EligibilityAlertSettingsCalculator {
         triple.alertType,
         formattedQuestions,
         customMessage,
-        helpText,
+        ariaLabel,
         /* isSlim= */ false);
   }
 

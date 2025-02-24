@@ -174,7 +174,7 @@
         <p
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
-          th:aria-label="#{heading.informationHelpText(#{banner.guestBannerText(${endSessionLinkHtml})})}"
+          th:attr="aria-label=#{heading.informationAriaLabelPrefix(#{banner.guestBannerText(#{banner.endYourSession})})}"
         ></p>
       </div>
     </div>
@@ -192,6 +192,7 @@
           <span
             class="usa-alert__text"
             th:text="#{banner.viewApplication(${applicantDisplayName})}"
+            th:aria-label="#{heading.informationAriaLabelPrefix(#{banner.viewApplication(${applicantDisplayName})})}"
           ></span>
           <a
             th:href="${tiDashboardHref}"

@@ -220,6 +220,12 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         CardSectionName.MyApplications,
         commonIntakeProgramName,
       )
+      // Validate aria label for accessibility.
+      await expect(
+        page.getByLabel(
+          'For your information: You are applying as a guest. After you finish applying, end your session to protect your data.',
+        ),
+      ).toBeVisible()
       await validateAccessibility(page)
     })
 

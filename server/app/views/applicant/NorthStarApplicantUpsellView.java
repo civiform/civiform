@@ -66,8 +66,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             .messages()
             .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
 
-    String helpText =
-        AlertSettings.getTitleHelpText(params.messages(), AlertType.SUCCESS, alertTitle);
+    String ariaLabel =
+        AlertSettings.getTitleAriaLabel(params.messages(), AlertType.SUCCESS, alertTitle);
     AlertSettings successAlertSettings =
         new AlertSettings(
             /* show= */ true,
@@ -76,8 +76,8 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             AlertType.SUCCESS,
             ImmutableList.of(),
             Optional.empty(),
-            Optional.of(helpText),
-            true);
+            Optional.of(ariaLabel),
+            /* isSlim= */ false);
     context.setVariable("successAlertSettings", successAlertSettings);
 
     String applicantName =

@@ -250,6 +250,12 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
+        // Validate accessibility label
+        await expect(
+          page.getByLabel(
+            'For your information: You are applying for last, first. Are you trying to apply for a different client?',
+          ),
+        ).toBeVisible()
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
