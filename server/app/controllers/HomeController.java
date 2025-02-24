@@ -53,7 +53,9 @@ public class HomeController extends Controller {
     if (optionalProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(
-              controllers.applicant.routes.ApplicantProgramsController.index(ImmutableList.of())));
+                  controllers.applicant.routes.ApplicantProgramsController.index(
+                      ImmutableList.of()))
+              .flashing(request.flash().data()));
     }
     CiviFormProfile profile = optionalProfile.get();
 

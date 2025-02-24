@@ -59,7 +59,8 @@ public final class CiviFormProfileFilter extends Filter {
       return CompletableFuture.completedFuture(
           redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
               .withSession(
-                  requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri())));
+                  requestHeader.session().adding(REDIRECT_TO_SESSION_KEY, requestHeader.uri()))
+              .flashing(requestHeader.flash().data()));
     }
 
     // Do nothing

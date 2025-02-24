@@ -38,6 +38,12 @@ header.menu=Menu
 header.endSession=End session
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Your session has ended.
+# Toast message that tells the user that they are logged out because their session is invalid.
+toast.logoutInvalidSession=Your session is no longer valid. Please log in again.
+# Toast message that tells the user that they are logged out because their session has timed out due to inactivity.
+toast.logoutTimeoutInactivity=Your session has timed out due to inactivity.
+# Toast message that tells the user that they are logged out because their session has expired.
+toast.logoutTimeoutDuration=Your session has expired. Please log in again.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=You''re a guest user.
 # Message with user's name to show who you are logged in as.
