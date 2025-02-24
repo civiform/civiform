@@ -8,7 +8,7 @@
 
     <main>
       <div
-        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programDescription})}"
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
@@ -117,7 +117,7 @@
         </div>
         <div class="section-internal">
           <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection})}"
+            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
           ></div>
         </div>
       </section>

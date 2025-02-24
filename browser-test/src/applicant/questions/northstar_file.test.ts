@@ -1083,10 +1083,14 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     test.describe('review button', () => {
       test('clicking review without file redirects to review page', async ({
         applicantQuestions,
+        applicantProgramOverview,
       }) => {
         await applicantQuestions.clickApplyProgramButton(
           programName,
           /* northStarEnabled= */ true,
+        )
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
         )
 
         // Page through to get the file upload question.
@@ -1103,10 +1107,14 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
 
       test('clicking review with file saves file and redirects to review page', async ({
         applicantQuestions,
+        applicantProgramOverview,
       }) => {
         await applicantQuestions.clickApplyProgramButton(
           programName,
           /* northStarEnabled= */ true,
+        )
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
         )
 
         // Advance past the email question.
@@ -1211,10 +1219,14 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
     test.describe('continue button', () => {
       test('clicking continue without file shows error on same page', async ({
         applicantQuestions,
+        applicantProgramOverview,
       }) => {
         await applicantQuestions.clickApplyProgramButton(
           programName,
           /* northStarEnabled= */ true,
+        )
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
         )
         await applicantQuestions.northstarAnswerQuestionOnReviewPage(
           emailQuestionText,
@@ -1241,10 +1253,14 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
 
       test('clicking continue with file saves file and redirects to next page', async ({
         applicantQuestions,
+        applicantProgramOverview,
       }) => {
         await applicantQuestions.clickApplyProgramButton(
           programName,
           /* northStarEnabled= */ true,
+        )
+        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+          programName,
         )
 
         await applicantQuestions.northstarAnswerQuestionOnReviewPage(

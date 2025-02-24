@@ -136,4 +136,41 @@ public class PhoneValidationUtilsTest {
     assertThat(phoneValidationResult.getPhoneNumber()).isEqualTo(phoneNumber);
     assertThat(phoneValidationResult.getCountryCode()).isEqualTo(expectedCountryCode);
   }
+
+  @Test
+  public void determineCountryCodeForE164PhoneNumber_handlesDisallowedE164Numbers() {
+    // E164 format phone number for GB
+    PhoneValidationResult phoneValidationResult =
+        PhoneValidationUtils.determineCountryCodeForE164PhoneNumber(Optional.of("+447911123456"));
+
+    assertThat(phoneValidationResult.isValid()).isFalse();
+  }
+
+  private Object[] numbersWithAllowedE164FormatOptions() {
+
+    return new Object[] {
+      // E164 format phone number for US
+      new Object[] {Optional.of("+12538675309"), COUNTRY_CODE_US, Optional.of("2538675309")},
+      // E164 format phone number for CA
+      new Object[] {Optional.of("+12503613152"), COUNTRY_CODE_CA, Optional.of("2503613152")},
+      new Object[] {Optional.of("253-867-5309"), COUNTRY_CODE_US, Optional.of("2538675309")},
+      new Object[] {Optional.of("250-361-3152"), COUNTRY_CODE_CA, Optional.of("2503613152")},
+      new Object[] {Optional.of("2538675309"), COUNTRY_CODE_US, Optional.of("2538675309")},
+      new Object[] {Optional.of("2503613152"), COUNTRY_CODE_CA, Optional.of("2503613152")}
+    };
+  }
+
+  @Test
+  @Parameters(method = "numbersWithAllowedE164FormatOptions")
+  public void determineCountryCodeForE164PhoneNumber_handlesAllowedNumbers(
+      Optional<String> phoneNumber,
+      Optional<String> expectedCountryCode,
+      Optional<String> expectedPhoneNumber) {
+    PhoneValidationResult phoneValidationResult =
+        PhoneValidationUtils.determineCountryCodeForE164PhoneNumber(phoneNumber);
+
+    assertThat(phoneValidationResult.isValid()).isTrue();
+    assertThat(phoneValidationResult.getPhoneNumber()).isEqualTo(expectedPhoneNumber);
+    assertThat(phoneValidationResult.getCountryCode()).isEqualTo(expectedCountryCode);
+  }
 }

@@ -113,7 +113,7 @@ public final class VersionRepository {
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       VersionModel draft = getDraftVersionOrCreate();
       VersionModel active = getActiveVersion();
@@ -226,7 +226,7 @@ public final class VersionRepository {
   public void publishNewSynchronizedVersion(String programToPublishAdminName)
       throws CantPublishProgramWithSharedQuestionsException, ProgramNotFoundException {
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       VersionModel existingDraft = getDraftVersionOrCreate();
       VersionModel active = getActiveVersion();
@@ -354,7 +354,7 @@ public final class VersionRepository {
     // in relative terms, but new drafts are very rare.  It is unlikely this will represent a real
     // performance penalty for any applicant - or even any admin, really.
     Transaction transaction =
-        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
       VersionModel newDraftVersion = new VersionModel(LifecycleStage.DRAFT);
       database.insert(newDraftVersion);
@@ -369,6 +369,9 @@ public final class VersionRepository {
       transaction.commit();
       return newDraftVersion;
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
+      // If we are in a nested transaction any serialization exceptions will be thrown when the
+      // outer transaction is committed, so here we only handle the case where this is the only
+      // transaction.
       transaction.rollback(e);
       // We must end the transaction here since we are going to recurse and try again.
       // We cannot have this transaction on the thread-local transaction stack when that
@@ -379,7 +382,8 @@ public final class VersionRepository {
       // This may come after a prior call to `transaction.end` in the event of a
       // precondition failure - this is okay, since it a double-call to `end` on
       // a particular transaction.  Only double calls to database.endTransaction
-      // must be avoided.
+      // must be avoided. Additionally, if we're in a nested transaction, `transaction.end()` is a
+      // no-op.
       transaction.end();
     }
   }

@@ -201,6 +201,12 @@
                 "mode": "HIDDEN",
                 "description": "The OIDC attribute name for the user’s name suffix.",
                 "type": "string"
+              },
+              "APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE": {
+                "mode": "HIDDEN",
+                "description": "The OIDC attribute name for the user’s phone number.",
+                "type": "string",
+                "required": false
               }
             }
           },
@@ -418,6 +424,11 @@
         "description": "The provider to use for sending emails.",
         "type": "string",
         "values": ["aws-ses", "graph-api"]
+      },
+      "GRAPH_API_EMAIL_ACCOUNT": {
+        "mode": "HIDDEN",
+        "description": "The email or account ID that graph API should use to send the email.",
+        "type": "string"
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",

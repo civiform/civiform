@@ -671,6 +671,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
+            /* showProgramOverviewPage= */ false,
           )
           // Expect clicking 'Continue' navigates to the next incomplete block. In this case, it is screen 3
           await expect(page.getByText('Screen 3')).toBeVisible()
@@ -704,6 +705,7 @@ test.describe('applicant program index page', () => {
           await applicantQuestions.applyProgram(
             primaryProgramName,
             /* northStarEnabled= */ true,
+            /* showProgramOverviewPage= */ false,
           )
 
           await expect(page.getByText('Review and submit')).toBeVisible()
@@ -828,6 +830,7 @@ test.describe('applicant program index page', () => {
               primaryProgramName,
               /* northStarEnabled= */ true,
             )
+
             await applicantQuestions.clickContinue()
             await applicantQuestions.gotoApplicantHomePage()
           })
@@ -897,7 +900,11 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-            await applicantQuestions.applyProgram(primaryProgramName, true)
+            await applicantQuestions.applyProgram(
+              primaryProgramName,
+              /* northStarEnabled= */ true,
+              /* showProgramOverviewPage= */ false,
+            )
             await applicantQuestions.answerTextQuestion('second answer')
             await applicantQuestions.clickContinue()
             await applicantQuestions.submitFromReviewPage(true)
@@ -1008,7 +1015,7 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Clear filters and verify checkboxes are unchecked and view reset', async () => {
-            await page.getByRole('button', {name: 'Clear filters'}).click()
+            await page.getByRole('button', {name: 'Clear selections'}).click()
 
             await expect(
               page.getByRole('checkbox', {name: 'General'}),
@@ -1033,6 +1040,120 @@ test.describe('applicant program index page', () => {
               }),
             ).toBeHidden()
           })
+        })
+      })
+
+      test.describe('common intake form', () => {
+        const commonIntakeFormProgramName = 'Benefits finder'
+
+        test.beforeEach(async ({page, adminPrograms}) => {
+          await loginAsAdmin(page)
+
+          await adminPrograms.addProgram(
+            commonIntakeFormProgramName,
+            'program description',
+            'short program description',
+            'https://usa.gov',
+            ProgramVisibility.PUBLIC,
+            'admin description',
+            /* isCommonIntake= */ true,
+          )
+
+          await adminPrograms.addProgramBlockUsingSpec(
+            commonIntakeFormProgramName,
+            {
+              name: 'Screen 2',
+              description: 'first block',
+              questions: [{name: 'first-q'}],
+            },
+          )
+          await adminPrograms.publishAllDrafts()
+          await logout(page)
+        })
+
+        test('shows common intake form card when an application has not been started', async ({
+          page,
+          applicantQuestions,
+        }) => {
+          await validateScreenshot(
+            page.getByLabel('Get Started'),
+            'ns-common-intake-form',
+          )
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [],
+              expectedProgramsInProgramsAndServicesSection: [
+                primaryProgramName,
+                otherProgramName,
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+        })
+
+        test('puts common intake card in My applications section when application is in progress or submitted', async ({
+          applicantQuestions,
+          page,
+        }) => {
+          await test.step('Start applying to the common intake', async () => {
+            await applicantQuestions.applyProgram(
+              commonIntakeFormProgramName,
+              /* northStarEnabled= */ true,
+              /* showProgramOverviewPage= */ false,
+            )
+            await applicantQuestions.answerTextQuestion('answer')
+            await applicantQuestions.clickContinue()
+            await applicantQuestions.gotoApplicantHomePage()
+          })
+
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [
+                commonIntakeFormProgramName,
+              ],
+              expectedProgramsInProgramsAndServicesSection: [
+                primaryProgramName,
+                otherProgramName,
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+
+          await expect(page.getByLabel('Get Started')).toHaveCount(0)
+
+          await test.step('Submit application to the common intake', async () => {
+            await applicantQuestions.applyProgram(
+              commonIntakeFormProgramName,
+              /* northStarEnabled= */ true,
+              /* showProgramOverviewPage= */ false,
+            )
+            await applicantQuestions.clickSubmitApplication()
+            await applicantQuestions.gotoApplicantHomePage()
+          })
+
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [
+                commonIntakeFormProgramName,
+              ],
+              expectedProgramsInProgramsAndServicesSection: [
+                primaryProgramName,
+                otherProgramName,
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+
+          await expect(page.getByLabel('Get Started')).toHaveCount(0)
         })
       })
     },

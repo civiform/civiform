@@ -177,9 +177,15 @@ export class AdminProgramImage {
   async expectProgramPreviewCard(
     programName: string,
     programDescription: string,
+    shortDescription = '',
   ) {
     await expect(this.page.getByText(programName)).toBeVisible()
-    await expect(this.page.getByText(programDescription)).toBeVisible()
+    if (shortDescription !== '') {
+      // In North Star short description is rendered on the program card if we have it
+      await expect(this.page.getByText(shortDescription)).toBeVisible()
+    } else {
+      await expect(this.page.getByText(programDescription)).toBeVisible()
+    }
     await expect(this.page.getByText('View and apply')).toBeVisible()
   }
 

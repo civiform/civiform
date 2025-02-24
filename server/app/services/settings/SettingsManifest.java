@@ -259,6 +259,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE");
   }
 
+  /** The OIDC attribute name for the user’s phone number. */
+  public Optional<String> getApplicantOidcPhoneNumberAttribute() {
+    return getString("APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE");
+  }
+
   /**
    * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
    * authorization servers, specifically communicating with Login.gov. A Civiform instance is always
@@ -505,6 +510,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** The provider to use for sending emails. */
   public Optional<String> getEmailProvider() {
     return getString("EMAIL_PROVIDER");
+  }
+
+  /** The email or account ID that graph API should use to send the email. */
+  public Optional<String> getGraphApiEmailAccount() {
+    return getString("GRAPH_API_EMAIL_ACCOUNT");
   }
 
   /** What static file storage provider to use. */
@@ -1296,6 +1306,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "The OIDC attribute name for the user’s name suffix.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE",
+                                      "The OIDC attribute name for the user’s phone number.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
                                       SettingMode.HIDDEN))),
                           SettingsSection.create(
                               "Login.gov",
@@ -1817,7 +1833,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.HIDDEN,
-                      ImmutableList.of("aws-ses", "graph-api")))),
+                      ImmutableList.of("aws-ses", "graph-api")),
+                  SettingDescription.create(
+                      "GRAPH_API_EMAIL_ACCOUNT",
+                      "The email or account ID that graph API should use to send the email.",
+                      /* isRequired= */ false,
+                      SettingType.STRING,
+                      SettingMode.HIDDEN))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",

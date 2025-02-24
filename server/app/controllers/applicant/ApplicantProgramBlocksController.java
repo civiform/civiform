@@ -10,7 +10,6 @@ import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMo
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_PREVIOUS;
 import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW;
 
-import actions.RouteExtractor;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -36,7 +35,6 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
-import play.mvc.Call;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -385,7 +383,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenApplyAsync(
             (v) -> {
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      request, applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -478,8 +477,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      request, applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -488,7 +490,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               if (block.isPresent()) {
                 ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
-                CiviFormProfile profile = profileUtils.currentUserProfile(request);
                 ApplicationBaseViewParams applicationParams =
                     applicationBaseViewParamsBuilder(
                             request,
@@ -973,8 +974,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             formDataCompletableFuture, applicantProgramServiceCompletableFuture)
         .thenComposeAsync(
             (v) -> {
+              CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, request);
+                  updateApplicationToLatestProgramVersionIfNeeded(
+                      request, applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -982,7 +986,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = formDataCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramService =
                   applicantProgramServiceCompletableFuture.join();
-              CiviFormProfile profile = profileUtils.currentUserProfile(request);
               Optional<Block> optionalBlockBeforeUpdate =
                   readOnlyApplicantProgramService.getActiveBlock(blockId);
               ApplicantRequestedAction applicantRequestedAction =
@@ -1406,15 +1409,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      eligibilityAlertSettings =
-          eligibilityAlertSettingsCalculator.calculate(
-              request,
-              profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-              !roApplicantProgramService.isApplicationNotEligible(),
-              settingsManifest.getNorthStarApplicantUi(request),
-              false,
-              programId,
-              roApplicantProgramService.getIneligibleQuestions());
+      if (settingsManifest.getNorthStarApplicantUi(request)) {
+        eligibilityAlertSettings =
+            getNorthStarEligibilityAlertSettings(
+                roApplicantProgramService, request, programId, blockId);
+      } else {
+        eligibilityAlertSettings =
+            eligibilityAlertSettingsCalculator.calculate(
+                request,
+                profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+                !roApplicantProgramService.isApplicationNotEligible(),
+                settingsManifest.getNorthStarApplicantUi(request),
+                false,
+                programId,
+                roApplicantProgramService.getIneligibleQuestions());
+      }
     }
 
     return ApplicationBaseViewParams.builder()
@@ -1423,6 +1432,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantId(applicantId)
         .setProgramTitle(roApplicantProgramService.getProgramTitle())
         .setProgramDescription(roApplicantProgramService.getProgramDescription())
+        .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
         .setProgramId(programId)
         .setBlock(block)
         .setInReview(inReview)
@@ -1512,34 +1522,49 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     throw new RuntimeException(throwable);
   }
 
+  private AlertSettings getNorthStarEligibilityAlertSettings(
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Request request,
+      long programId,
+      String blockId) {
+    // Only display the eligibility banner if an eligibility question was just answered,
+    // to avoid showing the banner on multiple blocks in a row.
+    ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
+    int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+    if (currentBlockIndex > 0) {
+      String previousBlockId = blocks.get(currentBlockIndex - 1).getId();
+      if (roApplicantProgramService.blockHasEligibilityPredicate(previousBlockId)
+          && roApplicantProgramService.isActiveBlockEligible(previousBlockId)) {
+        return eligibilityAlertSettingsCalculator.calculate(
+            request,
+            profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+            !roApplicantProgramService.isApplicationNotEligible(),
+            settingsManifest.getNorthStarApplicantUi(request),
+            false,
+            programId,
+            roApplicantProgramService.getIneligibleQuestions());
+      }
+    }
+    return AlertSettings.empty();
+  }
+
   /**
    * Check if the application needs to be updated to a newer program version. If it does, update and
    * return a redirect result back to the review page
    *
    * @return {@link Result} if application was updated; empty if not
    */
-  private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      long applicantId, long programId, Request request) {
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      Optional<Long> latestProgramId =
-          applicantService.updateApplicationToLatestProgramVersion(applicantId, programId);
-
-      RouteExtractor routeExtractor = new RouteExtractor(request);
-
-      if (latestProgramId.isPresent()) {
-        Call redirectLocation =
-            routeExtractor.containsKey("applicantId")
-                ? controllers.applicant.routes.ApplicantProgramReviewController
-                    .reviewWithApplicantId(applicantId, latestProgramId.get())
-                : controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    latestProgramId.get());
-
-        return Optional.of(
-            redirect(redirectLocation.url())
-                .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
-      }
+  public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
+      Http.Request request, long applicantId, long programId, CiviFormProfile profile) {
+    if (!settingsManifest.getFastforwardEnabled(request)) {
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    return applicantService
+        .updateApplicationToLatestProgramVersion(applicantId, programId)
+        .map(
+            latestProgramId ->
+                redirect(applicantRoutes.review(profile, applicantId, latestProgramId).url())
+                    .flashing(FlashKey.SHOW_FAST_FORWARDED_MESSAGE, "true"));
   }
 }
