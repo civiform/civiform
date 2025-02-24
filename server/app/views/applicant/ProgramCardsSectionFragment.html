@@ -77,7 +77,7 @@
 
       <!-- In progress tag -->
       <div
-        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT'}"
+        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT' and !card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span
@@ -88,7 +88,7 @@
 
       <!-- Submitted tag -->
       <div
-        th:if="${!card.applicationStatus().isPresent() and card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'ACTIVE'}"
+        th:if="${!card.applicationStatus().isPresent() and card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span
