@@ -66,7 +66,10 @@
         class="display-flex flex-wrap margin-bottom-1 cf-flex-gap"
       >
         <th:block th:each="category : ${card.categories()}">
-          <div th:text="${category}" class="usa-tag"></div>
+          <div
+            th:text="${category}"
+            class="usa-tag usa-prose border border-ink border-radius-sm bg-white text-ink"
+          ></div>
         </th:block>
       </div>
 
