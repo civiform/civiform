@@ -2,21 +2,24 @@
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
   th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
-  th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
   th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
   th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
-  <div class="grid-container">
+  <div th:if="${showHeading}" class="grid-container">
     <div class="grid-row usa-prose">
-      <h3
-        th:if="${showHeading}"
-        th:id="${section.id().get()}"
-        th:text="${section.title().get()}"
-      ></h3>
+      <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
     </div>
   </div>
   <div class="grid-container">
-    <ul class="usa-card-group cf-program-card-group">
+    <div th:if="${section.sectionType().name() == 'COMMON_INTAKE'}">
+      <div
+        th:replace="~{applicant/ProgramCardsSectionFragment :: preScreenerCard(${section.cards().get(0)})}"
+      ></div>
+    </div>
+    <ul
+      th:unless="${section.sectionType().name() == 'COMMON_INTAKE'}"
+      class="usa-card-group cf-program-card-group"
+    >
       <th:block th:each="card : ${section.cards()}">
         <li
           th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
@@ -146,3 +149,38 @@
     </div>
   </div>
 </li>
+
+<div th:fragment="preScreenerCard (card)" class="usa-card cf-application-card">
+  <div
+    class="usa-card__container tablet:flex-row tablet:flex-justify bg-primary-lighter margin-0"
+  >
+    <div>
+      <!-- Title -->
+      <div class="usa-card__header usa-prose">
+        <h3
+          class="usa-card__heading cf-application-card-title cf-prose-h4"
+          th:text="${card.title()}"
+          th:data-program-id="${card.programId()}"
+        ></h3>
+      </div>
+
+      <div class="usa-card__body">
+        <!-- Program description -->
+        <div class="usa-prose">
+          <p th:text="${card.body()}"></p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="usa-card__footer cf-card-footer tablet:flex-align-self-center tablet:padding-y-0"
+    >
+      <a
+        th:href="${card.actionUrl()}"
+        class="usa-button cf-apply-button"
+        th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+      ></a>
+    </div>
+  </div>
+</div>

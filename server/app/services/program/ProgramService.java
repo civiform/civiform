@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import models.AccountModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
@@ -862,19 +863,7 @@ public final class ProgramService {
 
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
-    // Only validate application steps if the program has them and is not a common intake program
-    // We only need to validate the first application step because only one is required
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
-      validateProgramText(
-          errorsBuilder,
-          "application step one title",
-          localizationUpdate.applicationSteps().get(0).localizedTitle());
-      validateProgramText(
-          errorsBuilder,
-          "application step one description",
-          localizationUpdate.applicationSteps().get(0).localizedDescription());
-    }
+    validateApplicationSteps(errorsBuilder, localizationUpdate, programDefinition);
 
     ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
     for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
@@ -963,7 +952,7 @@ public final class ProgramService {
   private void validateProgramText(
       ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
     if (text.isBlank()) {
-      builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
+      builder.add(CiviFormError.of("Program " + fieldName.trim() + " cannot be blank"));
     }
   }
 
@@ -981,19 +970,40 @@ public final class ProgramService {
                 errorsBuilder.add(
                     CiviFormError.of("Found invalid block id " + screenUpdate.blockIdToUpdate()));
               }
-
+              if (screenUpdate.localizedName().isBlank()) {
+                errorsBuilder.add(CiviFormError.of("Screen names cannot be blank"));
+              }
               /*
               //  TODO: Issue 8109, re-enabled after transition period
-              validateProgramText(
-                  errorsBuilder,
-                  ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
-                  screenUpdate.localizedName());
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
                   screenUpdate.localizedDescription());
                */
             });
+  }
+
+  /**
+   * If the program is not a common intake program and has application steps, validate that all the
+   * existing application steps have translations
+   */
+  private void validateApplicationSteps(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      LocalizationUpdate localizationUpdate,
+      ProgramDefinition programDefinition) {
+    if (!programDefinition.isCommonIntakeForm()
+        && !programDefinition.applicationSteps().isEmpty()) {
+      IntStream.range(0, programDefinition.applicationSteps().size())
+          .forEach(
+              i -> {
+                String title = localizationUpdate.applicationSteps().get(i).localizedTitle();
+                String description =
+                    localizationUpdate.applicationSteps().get(i).localizedDescription();
+                if (title.isBlank() || description.isBlank()) {
+                  errorsBuilder.add(CiviFormError.of("Application steps cannot be blank"));
+                }
+              });
+    }
   }
 
   /**
