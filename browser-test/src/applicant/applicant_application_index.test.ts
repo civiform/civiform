@@ -935,27 +935,29 @@ test.describe('applicant program index page', () => {
           })
 
           await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
-            const notStartedSection = page.locator('#not-started-programs')
-            const recommendedSection = notStartedSection
-              .locator('.cf-application-program-section')
-              .first()
-            const othersSection = notStartedSection
-              .locator('.cf-application-program-section')
-              .last()
+            await applicantQuestions.expectProgramsWithFilteringEnabled(
+              {
+                expectedProgramsInMyApplicationsSection: [primaryProgramName],
+                expectedProgramsInProgramsAndServicesSection: [],
+                expectedProgramsInRecommendedSection: [otherProgramName],
+                expectedProgramsInOtherProgramsSection: [
+                  'Minimal Sample Program',
+                  'Comprehensive Sample Program',
+                ],
+              },
+              /* filtersOn= */ true,
+              /* northStarEnabled= */ true,
+            )
 
+            // Check the program count in the section headings
             await expect(
-              recommendedSection.getByRole('heading', {name: otherProgramName}),
-            ).toBeVisible()
-
-            await expect(
-              othersSection.getByRole('heading', {
-                name: 'Minimal Sample Program',
+              page.getByRole('heading', {
+                name: 'Programs based on your selections (1)',
               }),
             ).toBeVisible()
-
             await expect(
-              othersSection.getByRole('heading', {
-                name: 'Comprehensive Sample Program',
+              page.getByRole('heading', {
+                name: 'Other programs and services (2)',
               }),
             ).toBeVisible()
           })
