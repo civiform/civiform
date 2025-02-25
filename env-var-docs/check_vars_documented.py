@@ -78,6 +78,10 @@ def main():
     errors = False
     msg = "CiviForm environment variables are not correctly documented. See https://github.com/civiform/civiform/blob/main/env-var-docs/README.md for information. Issues:\n"
 
+    # This should not be set in application.conf as it is for the JVM, not CiviForm itself,
+    # so ignore checking on this particular variable
+    documented_vars.pop('JAVA_TOOL_OPTIONS', '')
+
     for name, var in documented_vars.items():
         if var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
             try:

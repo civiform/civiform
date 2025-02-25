@@ -705,7 +705,7 @@
   },
   "JAVA_TOOL_OPTIONS": {
     "mode": "ADMIN_READABLE",
-    "description": "Any list of options to pass to the JVM when starting the server. For example, to set the heap size, \"-Xms2G -Xmx2g\"",
+    "description": "Any list of options to pass to the JVM when starting the server. For example, to set the heap size, \"-Xms2G -Xmx2G\"",
     "type": "string"
   },
   "Observability": {
