@@ -1,42 +1,48 @@
 <div
   th:fragment="alert(alertSettings, headingLevel)"
   th:if="${alertSettings.title.isPresent() || alertSettings.isSlim}"
+  th:with="hasTitle=${alertSettings.title.isPresent()}"
   th:class="${'usa-alert usa-alert--' + alertSettings.alertType.name().toLowerCase()}"
   th:classappend="${alertSettings.isSlim ? 'usa-alert--slim' : ''}"
   aria-live="polite"
   th:attr="role=${role != null ? role : 'alert'}"
 >
   <div class="usa-alert__body">
-    <h2
-      class="usa-alert__heading"
-      th:if="${alertSettings.title.isPresent() && headingLevel == 'H2'}"
-      th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
-    ></h2>
-    <h3
-      class="usa-alert__heading"
-      th:if="${alertSettings.title.isPresent() && headingLevel == 'H3'}"
-      th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
-    ></h3>
-    <h4
-      class="usa-alert__heading"
-      th:if="${alertSettings.title.isPresent() && headingLevel == 'H4'}"
-      th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
-    ></h4>
-    <h5
-      class="usa-alert__heading"
-      th:if="${alertSettings.title.isPresent() && headingLevel == 'H5'}"
-      th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
-    ></h5>
-    <h6
-      class="usa-alert__heading"
-      th:if="${alertSettings.title.isPresent() && headingLevel == 'H6'}"
-      th:text="${alertSettings.title.get()}"
-      th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
-    ></h6>
+    <th:block
+      th:if="${hasTitle}"
+      th:with="alertTitle=${alertSettings.title.get()}"
+    >
+      <h2
+        class="usa-alert__heading"
+        th:if="${headingLevel == 'H2'}"
+        th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
+      ></h2>
+      <h3
+        class="usa-alert__heading"
+        th:if="${headingLevel == 'H3'}"
+        th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
+      ></h3>
+      <h4
+        class="usa-alert__heading"
+        th:if="${headingLevel == 'H4'}"
+        th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
+      ></h4>
+      <h5
+        class="usa-alert__heading"
+        th:if="${headingLevel == 'H5'}"
+        th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
+      ></h5>
+      <h6
+        class="usa-alert__heading"
+        th:if="${headingLevel == 'H6'}"
+        th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
+      ></h6>
+    </th:block>
 
     <div th:if="${alertSettings.unescapedDescription()} == true">
       <p

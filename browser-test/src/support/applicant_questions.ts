@@ -1,7 +1,7 @@
 import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
-import {waitForAnyModal, waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad, waitForHtmxReady} from './wait'
 import {BASE_URL} from './config'
 import {
   ApplicantProgramList,
@@ -1199,6 +1199,7 @@ export class ApplicantQuestions {
     await this.page
       .getByRole('button', {name: 'Apply selections', exact: true})
       .click()
+    await waitForHtmxReady(this.page)
   }
 
   // On the North Star application summary page, find the block with the given name

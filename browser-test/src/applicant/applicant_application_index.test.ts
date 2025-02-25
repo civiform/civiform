@@ -925,14 +925,16 @@ test.describe('applicant program index page', () => {
             )
           })
 
-          await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
+          await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
             await applicantQuestions.filterProgramsByCategory('General')
 
             await validateScreenshot(
               page.locator('#programs-list'),
               'north-star-homepage-programs-filtered',
             )
+          })
 
+          await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
             await applicantQuestions.expectProgramsWithFilteringEnabled(
               {
                 expectedProgramsInMyApplicationsSection: [primaryProgramName],
