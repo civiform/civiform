@@ -162,7 +162,7 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
     
     Output only JSON, no explanations.
     """
-    
+    logging.info(f"test commit")
     logging.info(f"LLM processing input txt extracted from PDF...")
 
     try:
