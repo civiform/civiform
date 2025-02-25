@@ -172,9 +172,12 @@
     <div class="usa-alert">
       <div class="usa-alert__body">
         <p
+          class="usa-sr-only"
+          th:utext="#{heading.informationAriaLabelPrefix}"
+        ></p>
+        <p
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
-          th:attr="aria-label=#{heading.informationAriaLabelPrefix(#{banner.guestBannerText(#{banner.endYourSession})})}"
         ></p>
       </div>
     </div>
