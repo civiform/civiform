@@ -128,4 +128,5 @@ services:
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
       - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
+      - JAVA_TOOL_OPTIONS
     entrypoint: /bin/bash

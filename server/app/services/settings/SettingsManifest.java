@@ -823,6 +823,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Any list of options to pass to the JVM when starting the server. For example, to set the heap
+   * size, "-Xms2G -Xmx2g"
+   */
+  public Optional<String> getJavaToolOptions() {
+    return getString("JAVA_TOOL_OPTIONS");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -2297,5 +2305,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " frontend to notify a user when their session is expired.",
                       /* isRequired= */ false,
                       SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "JAVA_TOOL_OPTIONS",
+                      "Any list of options to pass to the JVM when starting the server. For"
+                          + " example, to set the heap size, \"-Xms2G -Xmx2g\"",
+                      /* isRequired= */ false,
+                      SettingType.STRING,
                       SettingMode.ADMIN_READABLE))));
 }

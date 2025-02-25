@@ -703,6 +703,11 @@
     "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
     "type": "int"
   },
+  "JAVA_TOOL_OPTIONS": {
+    "mode": "ADMIN_READABLE",
+    "description": "Any list of options to pass to the JVM when starting the server. For example, to set the heap size, \"-Xms2G -Xmx2g\"",
+    "type": "string"
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
