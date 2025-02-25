@@ -102,6 +102,7 @@ public final class ApplicationEventRepository {
                     Strings.isNullOrEmpty(newStatusEvent.statusText())
                         ? null
                         : newStatusEvent.statusText())
+                .set("status_create_time", event.getCreateTime())
                 .where()
                 .eq("id", application.id)
                 .update();
@@ -152,6 +153,7 @@ public final class ApplicationEventRepository {
               Strings.isNullOrEmpty(newStatusEvent.statusText())
                   ? null
                   : newStatusEvent.statusText())
+          .set("status_create_time", applicationsStatusEvent.get(0).getCreateTime())
           .where()
           .in("id", applicationIds)
           .update();

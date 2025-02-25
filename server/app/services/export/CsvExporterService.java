@@ -229,6 +229,11 @@ public final class CsvExporterService {
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
         Column.builder().setHeader("Admin Note").setColumnType(ColumnType.ADMIN_NOTE).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Status Create Time")
+            .setColumnType(ColumnType.STATUS_CREATE_TIME)
+            .build());
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }
 

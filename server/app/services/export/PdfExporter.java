@@ -120,9 +120,16 @@ public final class PdfExporter {
             application.getApplicant().id,
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
+            getStatusCreateTime(application.getStatusCreateTime()),
             getSubmitTime(application.getSubmitTime()),
             isAdmin);
     return new InMemoryPdf(bytes, filename);
+  }
+
+  private String getStatusCreateTime(Optional<Instant> statusCreateTime) {
+    return statusCreateTime.isEmpty()
+        ? "Application doesn't have a status created time."
+        : dateConverter.renderDateTimeHumanReadable(statusCreateTime.get());
   }
 
   private String getSubmitTime(Instant submitTime) {
@@ -138,6 +145,7 @@ public final class PdfExporter {
       Long applicantId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
+      String statusCreateTime,
       String submitTime,
       boolean isAdmin)
       throws DocumentException, IOException {
@@ -165,6 +173,11 @@ public final class PdfExporter {
               "Status: " + statusValue.orElse("none"),
               FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(status);
+      Paragraph statusTime =
+          new Paragraph(
+              "Status create time: " + statusCreateTime,
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(statusTime);
       Paragraph submitTimeInformation =
           new Paragraph(
               "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));

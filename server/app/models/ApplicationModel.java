@@ -52,6 +52,7 @@ public class ApplicationModel extends BaseModel {
   private String latestStatus;
   private boolean isAdmin;
   private String latestNote;
+  private Instant statusCreateTime;
 
   public ApplicationModel(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
@@ -173,6 +174,15 @@ public class ApplicationModel extends BaseModel {
    */
   public Optional<String> getLatestNote() {
     return Optional.ofNullable(latestNote);
+  }
+
+  /**
+   * Returns the latest application note value associated with the application.
+   *
+   * <p>This value is updated by Program Admins who want to add more details to the application.
+   */
+  public Optional<Instant> getStatusCreateTime() {
+    return Optional.ofNullable(statusCreateTime);
   }
 
   /**
