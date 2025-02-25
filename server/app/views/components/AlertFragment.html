@@ -14,27 +14,27 @@
     >
       <h2
         class="usa-alert__heading"
-        th:if="${hasTitle && headingLevel == 'H2'}"
+        th:if="${headingLevel == 'H2'}"
         th:text="${alertTitle}"
       ></h2>
       <h3
         class="usa-alert__heading"
-        th:if="${hasTitle && headingLevel == 'H3'}"
+        th:if="${headingLevel == 'H3'}"
         th:text="${alertTitle}"
       ></h3>
       <h4
         class="usa-alert__heading"
-        th:if="${hasTitle && headingLevel == 'H4'}"
+        th:if="${headingLevel == 'H4'}"
         th:text="${alertTitle}"
       ></h4>
       <h5
         class="usa-alert__heading"
-        th:if="${hasTitle && headingLevel == 'H5'}"
+        th:if="${headingLevel == 'H5'}"
         th:text="${alertTitle}"
       ></h5>
       <h6
         class="usa-alert__heading"
-        th:if="${hasTitle && headingLevel == 'H6'}"
+        th:if="${headingLevel == 'H6'}"
         th:text="${alertTitle}"
       ></h6>
     </th:block>
