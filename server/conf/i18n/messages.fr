@@ -547,7 +547,7 @@ alert.likelyEligible=D'après les réponses apportées à une autre demande, il 
 # Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
 alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n'êtes peut-être pas éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
-alert.clientLikelyEligible=D'après les réponses apportées à une autre demande, il est probable que votre client soit éligible à ce programme.
+alert.clientLikelyEligible=D''après les réponses apportées à une autre demande, il est probable que votre client soit éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
 alert.clientLikelyIneligible=D'après les réponses apportées à une autre demande, votre client n'est peut-être pas éligible à ce programme.
 
