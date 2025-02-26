@@ -36,10 +36,6 @@ label.languageSr=Elegir un idioma
 header.menu=Menú
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Finalizar sesión
-# Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
-# Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Finalizó la sesión.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -210,12 +206,6 @@ content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solici
 content.homepageIntro=Recibe ayuda para el cuidado infantil, alimento, transporte, servicios públicos y mucho más.
 # The label for the program filter buttons
 label.programFilters=Filtros del programa
-# The label for the program filter checkboxes
-label.programFilters.v2=Filter by category
-# The button to apply program filters
-button.applySelections=Apply selections
-# The button to clear program filter selections
-button.clearSelections=Clear selections
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
 # The same text, read for screen readers.
@@ -544,12 +534,6 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Es posible que haya pregunt
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Es posible que cumplas con los requisitos según las respuestas de una inscripción anterior.
-# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
-alert.likelyIneligible=You may not be eligible for this program based on responses to another application.
-# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
-alert.clientLikelyEligible=Your client is likely eligible for this program based on responses to another application.
-# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
-alert.clientLikelyIneligible=Your client may not be eligible for this program based on responses to another application.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
