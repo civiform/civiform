@@ -13,44 +13,49 @@
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
 
+      <!--/* Toasts */-->
       <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8 usa-prose">
             <div th:replace="~{components/ToastFragment :: upsellToasts}"></div>
+          </div>
+        </div>
+      </div>
 
-            <section class="usa-prose section-external">
-              <h2>
-                <th:block
-                  th:text="${isTrustedIntermediary} ?
+      <!--/* Program cards */-->
+      <section class="usa-prose section-external">
+        <div class="grid-container">
+          <div class="grid-row">
+            <div class="tablet:grid-col-8 usa-prose">
+              <h2
+                th:text="${isTrustedIntermediary} ?
                   #{title.commonIntakeConfirmationTi} :
                   #{title.commonIntakeConfirmation}"
-                ></th:block>
-              </h2>
-
-              <th:block th:if="${showProgramsCardsSection}" class="usa-prose">
+              ></h2>
+              <th:block th:if="${showProgramsCardsSection}">
                 <p
                   th:text="${isTrustedIntermediary} ?
                     #{content.commonIntakeConfirmationTi.v2} :
                     #{content.commonIntakeConfirmation.v2}"
                   class="content"
                 ></p>
-                <!-- NEW STUFF -->
-                <div class="section-internal">
-                  <div
-                  th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
-                ></div>
-                </div>
               </th:block>
-
-              <div th:unless="${showProgramsCardsSection}">
-                <!-- utext is necessary to insert a hyperlink into a localized string. -->
+              <th:block th:unless="${showProgramsCardsSection}">
                 <p
                   th:utext="${isTrustedIntermediary} ?
-                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
+                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :gtm
                   #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
                 ></p>
-              </div>
+              </th:block>
+            </div>
 
+            <div class="section-internal">
+              <div
+                th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+              ></div>
+            </div>
+
+            <div class="tablet:grid-col-8 usa-prose">
               <div class="section-internal">
                 <a
                   th:if="${!isGuest}"
@@ -68,7 +73,6 @@
                   th:text="#{button.applyToPrograms}"
                   data-open-modal
                 ></a>
-
                 <a
                   th:unless="${showProgramsCardsSection}"
                   href="/"
@@ -77,11 +81,17 @@
                   id="go-back"
                   th:text="#{button.editMyResponses}"
                   th:href="${goBackHref}"
-                >
-                </a>
+                ></a>
               </div>
-            </section>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <!--/* Alerts */-->
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8 usa-prose">
             <section class="section-external" th:if="${isGuest}">
               <div
                 th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
@@ -90,6 +100,8 @@
           </div>
         </div>
       </div>
+
+      <div class="page-spacing"></div>
     </main>
 
     <div th:if="${isGuest}">
