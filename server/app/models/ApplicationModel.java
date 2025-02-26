@@ -177,9 +177,10 @@ public class ApplicationModel extends BaseModel {
   }
 
   /**
-   * Returns the latest application note value associated with the application.
+   * Returns the status create time associated with the latest application status.
    *
-   * <p>This value is updated by Program Admins who want to add more details to the application.
+   * <p>This value is updated when program admins updates the status of the application or when a
+   * default status is applied.
    */
   public Optional<Instant> getStatusCreateTime() {
     return Optional.ofNullable(statusCreateTime);

@@ -168,20 +168,22 @@ public final class PdfExporter {
               FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
-      Paragraph status =
-          new Paragraph(
-              "Status: " + statusValue.orElse("none"),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-      document.add(status);
-      Paragraph statusTime =
-          new Paragraph(
-              "Status create time: " + statusCreateTime,
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-      document.add(statusTime);
       Paragraph submitTimeInformation =
           new Paragraph(
               "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
+      if (statusValue.isPresent()) {
+        Paragraph status =
+            new Paragraph(
+                "Status: " + statusValue.orElse("none"),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        document.add(status);
+        Paragraph statusTime =
+            new Paragraph(
+                "Status create time: " + statusCreateTime,
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        document.add(statusTime);
+      }
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answersOnlyActive) {
