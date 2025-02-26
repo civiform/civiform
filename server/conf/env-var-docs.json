@@ -703,15 +703,21 @@
     "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
     "type": "int"
   },
-  "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES": {
+  "SESSION_TIMEOUT_ENABLED": {
     "mode": "ADMIN_READABLE",
-    "description": "How many minutes before the session inactivity timeout a user receives a warning that their session will expire. Default is 5.",
+    "description": "Enable session timeout based on inactivity and maximum duration.",
+    "type": "bool",
+    "required": false
+  },
+  "SESSION_INACTIVITY_WARNING_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The number of minutes of inactivity before we warn the user that their session will expire. Default is 5.",
     "type": "int",
     "required": false
   },
-  "SESSION_DURATION_WARNING_THRESHOLD_MINUTES": {
+  "SESSION_MAX_DURATION_WARNING_MINUTES": {
     "mode": "ADMIN_READABLE",
-    "description": "How many minutes before the maximum session duration timeout a user receives a warning that their session will expire. Default is 10.",
+    "description": "The number of minutes before we hit the maximum session duration that we warn the user that their session will expire. Default is 10.",
     "type": "int",
     "required": false
   },
@@ -903,12 +909,6 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
-      },
-      "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable session timeout based on inactivity and maximum duration.",
-        "type": "bool",
-        "required": false
       }
     }
   }
