@@ -6,18 +6,15 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import java.time.Clock;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import org.apache.pekko.stream.Materializer;
-import org.apache.pekko.util.ByteString;
+import play.i18n.MessagesApi;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
-import play.mvc.Result;
 import play.mvc.Results;
+import services.MessageKey;
 import services.settings.SettingsManifest;
 
 /**
@@ -27,22 +24,39 @@ import services.settings.SettingsManifest;
 public class ValidAccountFilter extends EssentialFilter {
 
   private static final int DEFAULT_INACTIVITY_TIMEOUT_MINUTES = 30;
-  private static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 600;
+  private static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 480;
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
-  private final Materializer materializer;
+  private final MessagesApi messagesApi;
   private final Clock clock;
+
+  public enum LogoutReason {
+    INVALID_PROFILE(MessageKey.TOAST_LOGOUT_INVALID_SESSION.getKeyName()),
+    INVALID_SESSION(MessageKey.TOAST_LOGOUT_INVALID_SESSION.getKeyName()),
+    INACTIVITY_TIMEOUT(MessageKey.TOAST_LOGOUT_TIMEOUT_INACTIVITY.getKeyName()),
+    DURATION_EXCEEDED(MessageKey.TOAST_LOGOUT_TIMEOUT_DURATION.getKeyName());
+
+    private final String messageKey;
+
+    LogoutReason(String messageKey) {
+      this.messageKey = messageKey;
+    }
+
+    public String getMessageKey() {
+      return messageKey;
+    }
+  }
 
   @Inject
   public ValidAccountFilter(
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
-      Materializer materializer,
+      MessagesApi messagesApi,
       Clock clock) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.materializer = checkNotNull(materializer);
+    this.messagesApi = checkNotNull(messagesApi);
     this.clock = checkNotNull(clock);
   }
 
@@ -52,71 +66,53 @@ public class ValidAccountFilter extends EssentialFilter {
         request -> {
           Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
 
-          if (profile.isEmpty() || allowedEndpoint(request)) {
-            return next.apply(request);
+          Optional<LogoutReason> logoutReason = getLogoutReason(profile);
+          if (logoutReason.isPresent() && !allowedEndpoint(request)) {
+            String message = messagesApi.preferred(request).at(logoutReason.get().getMessageKey());
+
+            return Accumulator.done(
+                Results.redirect(org.pac4j.play.routes.LogoutController.logout())
+                    .flashing("error", message));
           }
 
-          CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
-                  .thenApply(
-                      shouldLogout -> {
-                        if (shouldLogout) {
-                          return Accumulator.done(
-                              Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-                        } else {
-                          if (settingsManifest.get().getSessionTimeoutEnabled()) {
-                            profile.get().getProfileData().updateLastActivityTime(clock);
-                          }
-                          return next.apply(request);
-                        }
-                      });
-
-          return Accumulator.flatten(futureAccumulator, materializer);
+          profile.ifPresent(p -> p.getProfileData().updateLastActivityTime(clock));
+          return next.apply(request);
         });
   }
 
-  private CompletableFuture<Boolean> shouldLogoutUser(CiviFormProfile profile) {
+  private Optional<LogoutReason> getLogoutReason(Optional<CiviFormProfile> maybeProfile) {
+    if (maybeProfile.isEmpty()) {
+      return Optional.empty();
+    }
+
+    CiviFormProfile profile = maybeProfile.get();
+
+    // Check basic validity first
     if (!profileUtils.validCiviFormProfile(profile)) {
-      return CompletableFuture.completedFuture(true);
+      return Optional.of(LogoutReason.INVALID_PROFILE);
     }
 
-    return isValidSession(profile)
-        .thenCompose(
-            isValid -> {
-              if (!isValid) {
-                return CompletableFuture.completedFuture(true);
-              }
-
-              if (!settingsManifest.get().getSessionTimeoutEnabled()) {
-                return CompletableFuture.completedFuture(false);
-              }
-
-              return isSessionTimedOut(profile);
-            });
-  }
-
-  private CompletableFuture<Boolean> isValidSession(CiviFormProfile profile) {
-    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
-      return profile
-          .getAccount()
-          .thenApply(
-              account ->
-                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent());
+    if (!isValidSession(profile)) {
+      return Optional.of(LogoutReason.INVALID_SESSION);
     }
-    return CompletableFuture.completedFuture(true);
-  }
 
-  private CompletableFuture<Boolean> isSessionTimedOut(CiviFormProfile profile) {
+    // Only check timeout conditions if the feature is enabled
+    if (!settingsManifest.get().getSessionTimeoutEnabled()) {
+      return Optional.empty();
+    }
+
     long currentTime = clock.millis();
     long lastActivityTime = profile.getProfileData().getLastActivityTime(clock);
+    long sessionStartTime = profile.getSessionStartTime().orElse(currentTime);
 
+    // Get timeout values with defaults
     long inactivityTimeout =
         settingsManifest
                 .get()
                 .getSessionInactivityTimeoutMinutes()
                 .orElse(DEFAULT_INACTIVITY_TIMEOUT_MINUTES)
             * 60L
-            * 1000;
+            * 1000; // Default 30 minutes
 
     long maxSessionDuration =
         settingsManifest
@@ -124,21 +120,29 @@ public class ValidAccountFilter extends EssentialFilter {
                 .getMaximumSessionDurationMinutes()
                 .orElse(DEFAULT_MAX_SESSION_DURATION_MINUTES)
             * 60L
-            * 1000;
+            * 1000; // Default 8 hours
 
-    boolean timedOutDueToInactivity = currentTime - lastActivityTime > inactivityTimeout;
-
-    if (timedOutDueToInactivity) {
-      return CompletableFuture.completedFuture(true);
+    if (currentTime - lastActivityTime > inactivityTimeout) {
+      return Optional.of(LogoutReason.INACTIVITY_TIMEOUT);
     }
 
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            maybeSessionStartTime -> {
-              long sessionStartTime = maybeSessionStartTime.orElse(currentTime);
-              return currentTime - sessionStartTime > maxSessionDuration;
-            });
+    if (currentTime - sessionStartTime > maxSessionDuration) {
+      return Optional.of(LogoutReason.DURATION_EXCEEDED);
+    }
+
+    return Optional.empty();
+  }
+
+  private boolean isValidSession(CiviFormProfile profile) {
+    if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
+      return profile
+          .getAccount()
+          .thenApply(
+              account ->
+                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent())
+          .join();
+    }
+    return true;
   }
 
   /**

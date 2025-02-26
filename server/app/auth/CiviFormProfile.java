@@ -228,20 +228,15 @@ public class CiviFormProfile {
         .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
 
-  /**
-   * Gets the session start time asynchronously.
-   *
-   * @return A CompletableFuture that resolves to an Optional containing the session start time in
-   *     milliseconds, or empty if no active session is found.
-   */
-  public CompletableFuture<Optional<Long>> getSessionStartTime() {
+  public Optional<Long> getSessionStartTime() {
     return getAccount()
         .thenApply(
             account ->
                 account
                     .getActiveSession(getProfileData().getSessionId())
                     .map(SessionDetails::getCreationTime)
-                    .map(Instant::toEpochMilli));
+                    .map(Instant::toEpochMilli))
+        .join();
   }
 
   /** Get the profile data. */
