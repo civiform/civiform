@@ -220,6 +220,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         CardSectionName.MyApplications,
         commonIntakeProgramName,
       )
+      // Validate hidden label for accessibility.
+      await expect(page.getByText('For your information: ')).toBeVisible()
       await validateAccessibility(page)
     })
 

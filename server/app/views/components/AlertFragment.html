@@ -16,26 +16,31 @@
         class="usa-alert__heading"
         th:if="${headingLevel == 'H2'}"
         th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
       ></h2>
       <h3
         class="usa-alert__heading"
         th:if="${headingLevel == 'H3'}"
         th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
       ></h3>
       <h4
         class="usa-alert__heading"
         th:if="${headingLevel == 'H4'}"
         th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
       ></h4>
       <h5
         class="usa-alert__heading"
         th:if="${headingLevel == 'H5'}"
         th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
       ></h5>
       <h6
         class="usa-alert__heading"
         th:if="${headingLevel == 'H6'}"
         th:text="${alertTitle}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent()}? ${alertSettings.ariaLabel.get()}"
       ></h6>
     </th:block>
 
