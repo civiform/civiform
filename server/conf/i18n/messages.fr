@@ -545,7 +545,7 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Il y a peut-être de nouvel
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=D'après les réponses apportées à une autre demande, il est probable que vous soyez éligible à ce programme.
 # Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
-alert.likelyIneligible=D'après les réponses apportées à une autre demande, vous n'êtes peut-être pas éligible à ce programme.
+alert.likelyIneligible=D''après les réponses apportées à une autre demande, vous n'êtes peut-être pas éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
 alert.clientLikelyEligible=D'après les réponses apportées à une autre demande, il est probable que votre client soit éligible à ce programme.
 # Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
