@@ -10,7 +10,6 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  seedProgramsAndCategories,
   selectApplicantLanguageNorthstar,
   normalizeElements,
 } from '../support'
@@ -327,11 +326,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test.describe('program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 

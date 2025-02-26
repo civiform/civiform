@@ -3,14 +3,13 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  seedProgramsAndCategories,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
 
 test.describe('Viewing API docs', () => {
-  test.beforeEach(async ({page}) => {
-    await seedProgramsAndCategories(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedProgramsAndCategories()
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 

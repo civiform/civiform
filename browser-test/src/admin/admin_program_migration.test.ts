@@ -1,10 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  seedProgramsAndCategories,
-  validateScreenshot,
-} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
@@ -107,6 +102,7 @@ test.describe('program migration', () => {
     adminPrograms,
     adminProgramMigration,
     adminTiGroups,
+    seeding,
   }) => {
     test.slow()
 
@@ -177,7 +173,7 @@ test.describe('program migration', () => {
       )
     })
 
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await adminPrograms.goToExportProgramPage(
       'Comprehensive Sample Program',
@@ -296,9 +292,10 @@ test.describe('program migration', () => {
     page,
     adminPrograms,
     adminProgramMigration,
+    seeding,
   }) => {
     await test.step('seed programs', async () => {
-      await seedProgramsAndCategories(page)
+      await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
     })
@@ -477,9 +474,10 @@ test.describe('program migration', () => {
     page,
     adminPrograms,
     adminProgramMigration,
+    seeding,
   }) => {
     await test.step('seed programs', async () => {
-      await seedProgramsAndCategories(page)
+      await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
       await enableFeatureFlag(

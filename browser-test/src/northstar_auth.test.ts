@@ -5,7 +5,6 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  seedProgramsAndCategories,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -43,8 +42,9 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()
