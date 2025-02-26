@@ -903,6 +903,12 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
+      },
+      "SESSION_TIMEOUT_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable session timeout based on inactivity and maximum duration.",
+        "type": "bool",
+        "required": false
       }
     }
   }

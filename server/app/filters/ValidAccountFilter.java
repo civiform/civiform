@@ -26,9 +26,6 @@ import services.settings.SettingsManifest;
  */
 public class ValidAccountFilter extends EssentialFilter {
 
-  private static final int DEFAULT_INACTIVITY_TIMEOUT_MINUTES = 30;
-  private static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 600;
-
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
@@ -114,7 +111,7 @@ public class ValidAccountFilter extends EssentialFilter {
         settingsManifest
                 .get()
                 .getSessionInactivityTimeoutMinutes()
-                .orElse(DEFAULT_INACTIVITY_TIMEOUT_MINUTES)
+                .orElse(SessionTimeoutFilter.DEFAULT_INACTIVITY_TIMEOUT_MINUTES)
             * 60L
             * 1000;
 
@@ -122,7 +119,7 @@ public class ValidAccountFilter extends EssentialFilter {
         settingsManifest
                 .get()
                 .getMaximumSessionDurationMinutes()
-                .orElse(DEFAULT_MAX_SESSION_DURATION_MINUTES)
+                .orElse(SessionTimeoutFilter.DEFAULT_MAX_SESSION_DURATION_MINUTES)
             * 60L
             * 1000;
 
