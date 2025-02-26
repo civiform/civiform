@@ -78,8 +78,8 @@ public class ApplicationModel extends BaseModel {
     return Optional.ofNullable(this.submitterEmail);
   }
 
-  public Optional<EligibilityDetermination> getEligibilityDetermination() {
-    return Optional.ofNullable(this.eligibilityDetermination);
+  public EligibilityDetermination getEligibilityDetermination() {
+    return this.eligibilityDetermination;
   }
 
   /**

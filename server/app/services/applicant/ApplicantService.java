@@ -592,19 +592,14 @@ public final class ApplicantService {
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
 
-          Optional<Boolean> optionalEligibilityStatus =
-              getApplicationEligibilityStatus(application, programDefinition);
-
-          EligibilityDetermination eligibilityDetermination;
-          if (optionalEligibilityStatus.isPresent()) {
-            if (optionalEligibilityStatus.get()) {
-              eligibilityDetermination = EligibilityDetermination.ELIGIBLE;
-            } else {
-              eligibilityDetermination = EligibilityDetermination.INELIGIBLE;
-            }
-          } else {
-            eligibilityDetermination = EligibilityDetermination.NO_ELIGIBILITY_CRITERIA;
-          }
+          EligibilityDetermination eligibilityDetermination =
+              getApplicationEligibilityStatus(application, programDefinition)
+                  .map(
+                      es ->
+                          es
+                              ? EligibilityDetermination.ELIGIBLE
+                              : EligibilityDetermination.INELIGIBLE)
+                  .orElse(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
           applicationRepository.saveEligibilityDetermination(application, eligibilityDetermination);
 
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
