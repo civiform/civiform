@@ -1069,11 +1069,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
-  }
-
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -2200,13 +2195,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "SESSION_TIMEOUT_ENABLED",
-                      "Enable session timeout based on inactivity and maximum duration.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
