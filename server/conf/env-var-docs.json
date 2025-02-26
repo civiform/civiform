@@ -703,6 +703,30 @@
     "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
     "type": "int"
   },
+  "SESSION_TIMEOUT_ENABLED": {
+    "mode": "ADMIN_READABLE",
+    "description": "Enable session timeout based on inactivity and maximum duration.",
+    "type": "bool",
+    "required": false
+  },
+  "SESSION_INACTIVITY_WARNING_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The number of minutes of inactivity before we warn the user that their session will expire. Default is 5.",
+    "type": "int",
+    "required": false
+  },
+  "SESSION_MAX_DURATION_WARNING_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The number of minutes before we hit the maximum session duration that we warn the user that their session will expire. Default is 10.",
+    "type": "int",
+    "required": false
+  },
+  "SESSION_INACTIVITY_TIMEOUT_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The number of minutes of inactivity before a session times out. Default is 30.",
+    "type": "int",
+    "required": false
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {

@@ -822,6 +822,32 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
   }
 
+  /** Enable session timeout based on inactivity and maximum duration. */
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
+  }
+
+  /**
+   * The number of minutes of inactivity before we warn the user that their session will expire.
+   * Default is 5.
+   */
+  public Optional<Integer> getSessionInactivityWarningMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_MINUTES");
+  }
+
+  /**
+   * The number of minutes before we hit the maximum session duration that we warn the user that
+   * their session will expire. Default is 10.
+   */
+  public Optional<Integer> getSessionMaxDurationWarningMinutes() {
+    return getInt("SESSION_MAX_DURATION_WARNING_MINUTES");
+  }
+
+  /** The number of minutes of inactivity before a session times out. Default is 30. */
+  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
+    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
+  }
+
   /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
@@ -2295,6 +2321,33 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The amount of time, in minutes, that a session lasts. The default is 600"
                           + " minutes, or 10 hours. Note that there isn't yet messaging on the"
                           + " frontend to notify a user when their session is expired.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_TIMEOUT_ENABLED",
+                      "Enable session timeout based on inactivity and maximum duration.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_INACTIVITY_WARNING_MINUTES",
+                      "The number of minutes of inactivity before we warn the user that their"
+                          + " session will expire. Default is 5.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_MAX_DURATION_WARNING_MINUTES",
+                      "The number of minutes before we hit the maximum session duration that we"
+                          + " warn the user that their session will expire. Default is 10.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_INACTIVITY_TIMEOUT_MINUTES",
+                      "The number of minutes of inactivity before a session times out. Default is"
+                          + " 30.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE))));
