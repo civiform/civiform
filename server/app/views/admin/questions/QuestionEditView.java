@@ -675,7 +675,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
-        .setLabelText("Question enumerator")
+        .setLabelText("Question enumerator. This value can't be changed later")
         .setOptions(options)
         .setValue(selected)
         .setRequired(true);
