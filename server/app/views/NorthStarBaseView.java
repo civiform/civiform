@@ -107,6 +107,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
+    context.setVariable("primaryColor", "#ffbe2e");
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the guest alert in the header.

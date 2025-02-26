@@ -21,6 +21,29 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+:root {
+  @each $name, $value in $assignments-theme-color {
+     @if $value {
+        --#{$name}: #{color($name)};
+     }
+  }
+}
+
+.usa-button:not(.usa-button--outline) {
+  background-color: var(--base);
+}
+
+.usa-button.usa-button--outline,
+.usa-button.usa-button--unstyled {
+  background-color: transparent;
+  color: var(--base);
+}
+
+.usa-button.usa-modal__close {
+  background-color: transparent;
+  color: var(--base);
+} 
+
 .cf-alert {
   margin: 0 auto;
 }
