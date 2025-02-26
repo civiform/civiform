@@ -207,7 +207,7 @@ heading.homepage=Demandez à vous inscrire à des programmes au même endroit
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
 # Main home page intro text
-content.homepageIntro=Obtenez de l''aide pour la garde d'enfants, l''alimentation, les transports, l''énergie et plus.
+content.homepageIntro=Obtenez de l''aide pour la garde d''enfants, l''alimentation, les transports, l''énergie et plus.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # The label for the program filter checkboxes
