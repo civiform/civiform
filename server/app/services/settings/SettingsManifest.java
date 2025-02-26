@@ -822,20 +822,25 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
   }
 
-  /**
-   * How many minutes before the session inactivity timeout a user receives a warning that their
-   * session will expire. Default is 5.
-   */
-  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
-    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
+  /** Enable session timeout based on inactivity and maximum duration. */
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   /**
-   * How many minutes before the maximum session duration timeout a user receives a warning that
+   * The number of minutes of inactivity before we warn the user that their session will expire.
+   * Default is 5.
+   */
+  public Optional<Integer> getSessionInactivityWarningMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_MINUTES");
+  }
+
+  /**
+   * The number of minutes before we hit the maximum session duration that we warn the user that
    * their session will expire. Default is 10.
    */
-  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
-    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
+  public Optional<Integer> getSessionMaxDurationWarningMinutes() {
+    return getInt("SESSION_MAX_DURATION_WARNING_MINUTES");
   }
 
   /** The number of minutes of inactivity before a session times out. Default is 30. */
@@ -1067,11 +1072,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
-  }
-
-  /** Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2200,13 +2200,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "SESSION_TIMEOUT_ENABLED",
-                      "Enable session timeout based on inactivity and maximum duration.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -2331,16 +2325,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
-                      "How many minutes before the session inactivity timeout a user receives a"
-                          + " warning that their session will expire. Default is 5.",
+                      "SESSION_TIMEOUT_ENABLED",
+                      "Enable session timeout based on inactivity and maximum duration.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_INACTIVITY_WARNING_MINUTES",
+                      "The number of minutes of inactivity before we warn the user that their"
+                          + " session will expire. Default is 5.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
-                      "How many minutes before the maximum session duration timeout a user receives"
-                          + " a warning that their session will expire. Default is 10.",
+                      "SESSION_MAX_DURATION_WARNING_MINUTES",
+                      "The number of minutes before we hit the maximum session duration that we"
+                          + " warn the user that their session will expire. Default is 10.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
