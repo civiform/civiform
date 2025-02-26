@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,7 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
+  public static final String LAST_ACTIVITY_TIME = "lastActivityTime";
 
   // It is crucial that serialization of this class does not change, so that user profiles continue
   // to be honored and in-progress applications are not lost.
@@ -41,8 +43,13 @@ public class CiviFormProfileData extends CommonProfile {
   }
 
   public CiviFormProfileData(Long accountId) {
+    this(accountId, Clock.systemUTC());
+  }
+
+  public CiviFormProfileData(Long accountId, Clock clock) {
     this();
     this.setId(accountId.toString());
+    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
@@ -68,6 +75,20 @@ public class CiviFormProfileData extends CommonProfile {
   /** Returns the session ID for this profile. */
   public String getSessionId() {
     return getAttributeAsString(SESSION_ID);
+  }
+
+  public void updateLastActivityTime(Clock clock) {
+    addAttribute(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
+  }
+
+  /**
+   * Returns the timestamp of the last activity for this session. For backward compatibility with
+   * existing sessions created before session timeout feature, returns current time if the attribute
+   * is not present. This effectively gives legacy sessions a fresh activity timestamp when the
+   * timeout feature is first enabled.
+   */
+  public long getLastActivityTime(Clock clock) {
+    return (Long) getAttributes().getOrDefault(LAST_ACTIVITY_TIME, clock.instant().toEpochMilli());
   }
 
   /**
@@ -110,7 +131,12 @@ public class CiviFormProfileData extends CommonProfile {
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     setId((String) in.readObject());
-    addAttributes((Map<String, Object>) in.readObject());
+    Map<String, Object> attributes = (Map<String, Object>) in.readObject();
+    // Check if LAST_ACTIVITY_TIME is missing and add it if needed
+    if (!attributes.containsKey(LAST_ACTIVITY_TIME)) {
+      attributes.put(LAST_ACTIVITY_TIME, Clock.systemUTC().instant().toEpochMilli());
+    }
+    addAttributes(attributes);
     addAuthenticationAttributes((Map<String, Object>) in.readObject());
     setRemembered(in.readBoolean());
     setRoles((Set<String>) in.readObject());
