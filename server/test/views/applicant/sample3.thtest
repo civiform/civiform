@@ -1,0 +1,25 @@
+%TEMPLATE_MODE HTML
+# ------------ separator comment -----------
+%CONTEXT
+onevar = 'Goodbye,'
+# ------------------------------------------
+%MESSAGES
+one.msg = Crisis
+# ------------------------------------------
+%INPUT
+<!DOCTYPE html>
+<html>
+  <body>
+      <span th:text="${onevar}">Hello,</span>
+      <span th:text="#{one.msg}">World!</span>
+  </body>
+</html>
+# ------------------------------------------
+%OUTPUT
+<!DOCTYPE html>
+<html>
+  <body>
+      <span>Goodbye,</span>
+      <span>Crisis</span>
+  </body>
+</html>

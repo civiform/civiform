@@ -68,6 +68,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
+      "org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.3.RELEASE" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,
@@ -189,7 +190,7 @@ lazy val root = (project in file("."))
     // since running in non-forked mode means we have to pass in javaOptions a bit awkwardly,
     // can only pass in system properties (which is all we're doing right now), and we haven't
     // extensively tested that tests run the same way that they do in forked mode.
-    // Test / fork := false,
+    Test / fork := false,
 
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
