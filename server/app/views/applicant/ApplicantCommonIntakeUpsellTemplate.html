@@ -27,7 +27,22 @@
                 ></th:block>
               </h2>
 
-              <div th:if="${eligiblePrograms.size() eq 0}">
+              <th:block th:if="${showProgramsCardsSection}" class="usa-prose">
+                <p
+                  th:text="${isTrustedIntermediary} ?
+                    #{content.commonIntakeConfirmationTi.v2} :
+                    #{content.commonIntakeConfirmation.v2}"
+                  class="content"
+                ></p>
+                <!-- NEW STUFF -->
+                <div class="section-internal">
+                  <div
+                  th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+                ></div>
+                </div>
+              </th:block>
+
+              <div th:unless="${showProgramsCardsSection}">
                 <!-- utext is necessary to insert a hyperlink into a localized string. -->
                 <p
                   th:utext="${isTrustedIntermediary} ?
@@ -35,27 +50,6 @@
                   #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
                 ></p>
               </div>
-
-              <th:block
-                th:if="${eligiblePrograms.size() neq 0}"
-                class="usa-prose"
-              >
-                <p
-                  th:text="${isTrustedIntermediary} ?
-                    #{content.commonIntakeConfirmationTi.v2} :
-                    #{content.commonIntakeConfirmation.v2}"
-                  class="content"
-                ></p>
-
-                <div th:each="ep : ${eligiblePrograms}">
-                  <!-- We need h4 style for the headings, but accessibility checker doesn't allow skipping from h2 to h4 -->
-                  <h3
-                    th:text="${ep.getTitle()}"
-                    class="cf-prose-h4 cf-applicant-cif-eligible-program-name"
-                  ></h3>
-                  <p th:text="${ep.getShortDescription()}"></p>
-                </div>
-              </th:block>
 
               <div class="section-internal">
                 <a
@@ -76,7 +70,7 @@
                 ></a>
 
                 <a
-                  th:if="${eligiblePrograms.size() eq 0}"
+                  th:unless="${showProgramsCardsSection}"
                   href="/"
                   class="usa-button margin-bottom-1"
                   role="button"
