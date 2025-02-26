@@ -11,12 +11,6 @@ import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -32,7 +26,6 @@ import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
 
-// TODO(dwaterman)
 public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
   protected final ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory;
@@ -107,7 +100,12 @@ public abstract class NorthStarBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
-    context.setVariable("primaryColor", "#ffbe2e");
+
+    Optional<String> primaryColor = settingsManifest.getNorthStarUiPrimaryColor(request);
+    if (primaryColor.isPresent()) {
+      context.setVariable("primaryColor", primaryColor.get());
+    }
+    
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the guest alert in the header.
@@ -128,17 +126,6 @@ public abstract class NorthStarBaseView {
     context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
-
-    // Set Sass variable
-    // probably need to read from sass file
-    Optional<String> primaryColor = settingsManifest.getNorthStarUiPrimaryColor(request);
-    if (primaryColor.isPresent() && !primaryColor.get().isEmpty()) {
-      // TODO(dwaterman): change this; we just need to keep the app from crashing because
-      // of the default string value for the primary color setting.
-      if (!primaryColor.get().equals("CHANGE ME")) {
-        updateScss(primaryColor.get());
-      }
-    }
 
     maybeSetUpNotProductionBanner(context, request, messages);
 
@@ -209,49 +196,6 @@ public abstract class NorthStarBaseView {
         .collect(
             ImmutableMap.toImmutableMap(
                 lang -> lang, lang -> languageUtils.getDisplayString(lang.locale())));
-  }
-
-  private void updateScss(String primaryColor) {
-    System.out.println("updateScss");
-    try {
-      BufferedReader in =
-          Files.newBufferedReader(
-              Paths.get(
-                  System.getProperty("user.dir"),
-                  "app/assets/stylesheets/northstar/_uswds-theme.scss"),
-              Charset.defaultCharset());
-      String output = "";
-      // String newColorVariableSetting = "$primary-color-variable: \"red-cool-60v\";\n";
-      String newColorVariableSetting = "$primary-color-variable: " + primaryColor + ";\n";
-
-      String line = in.readLine();
-      while (line != null) {
-        if (line.contains("$primary-color-variable:")) {
-          System.out.println("Writing new variable");
-          output += newColorVariableSetting;
-        } else {
-          System.out.println("Keeping old line");
-          output += line;
-          output += "\n";
-        }
-        line = in.readLine();
-      }
-      in.close();
-
-      BufferedWriter out =
-          Files.newBufferedWriter(
-              Paths.get(
-                  System.getProperty("user.dir"),
-                  "app/assets/stylesheets/northstar/_uswds-theme.scss"),
-              Charset.defaultCharset());
-      out.write(output, 0, output.length());
-      out.flush();
-      out.close();
-
-    } catch (IOException e) {
-      System.out.println("IOException");
-      e.printStackTrace();
-    }
   }
 
   private String getUpdateLanguageAction(Optional<Long> applicantId) {
