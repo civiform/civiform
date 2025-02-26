@@ -16,6 +16,12 @@
     th:src="${uswdsJsInit}"
     type="text/javascript"
   ></script>
+
+  <style th:inline="css">
+    :root {
+      --primary-color: [(${primaryColor})];
+    }
+  </style>
 </head>
 
 <th:block th:fragment="pageFooterScripts">
