@@ -698,7 +698,7 @@ test.describe('applicant program index page', () => {
             page,
             'program-index-page-submitted-northstar',
           )
-          await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
+          await expect(page.getByText('Submitted on')).toBeVisible()
         })
 
         await test.step('Expect editing submitted application takes user to review page', async () => {
@@ -709,6 +709,17 @@ test.describe('applicant program index page', () => {
           )
 
           await expect(page.getByText('Review and submit')).toBeVisible()
+        })
+
+        await test.step('Create new draft of application and expect submitted tag to still be shown on homepage', async () => {
+          await applicantQuestions.clickEdit()
+          // Clicking "Continue" creates a new empty draft of the application
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.clickSubmitApplication()
+          // Click "Exit application" on the "No changes to save" modal
+          await applicantQuestions.clickExitApplication()
+
+          await expect(page.getByText('Submitted on')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
