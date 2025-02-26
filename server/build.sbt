@@ -68,6 +68,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
+      "org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.3.RELEASE" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.4.6-jre" % Test,
