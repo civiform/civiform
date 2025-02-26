@@ -5,7 +5,8 @@ from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 import os
 import logging
-from convert_to_civiform_json import convert_to_civiform_json 
+from convert_to_civiform_json import convert_to_civiform_json
+from prompts import pdf_extract_v1, post_process_v1, format_json_v1
 import re
 
 # This script extracts text from uploaded PDF files, uses Gemini LLM to 
@@ -80,39 +81,6 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp", api_key_
         exit(1)
 
 
-JSON_EXAMPLE = {
-        "title": "[Extracted Form Title]",
-        "help_text": "[Relevant Instructional Text]",
-
-        "sections": [
-            {
-                "title": "[Section Name]",
-                "fields": [
-                    {"label": "[Field Label]", "type": "[Field Type]",
-                        "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[checkbox]", "options": ["opt 1", "opt 2",
-                                                                                 "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
-                ]
-            },
-            {
-                "title": "[Section Name]",
-                "help_text": "[Relevant Instructional Text]",
-                "type": "repeating_section",
-                "fields": [
-                    {"label": "[Field Label]", "type": "[Field Type]",
-                        "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[checkbox]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
-                ]
-            }
-        ]
-}
-
-
 def extract_text_from_pdf(pdf_path):
     logging.info(f"Extracts text from a given PDF file: {pdf_path}")
     """Extracts text from a given PDF file while maintaining basic layout structure."""
@@ -126,44 +94,8 @@ def extract_text_from_pdf(pdf_path):
 
 def process_pdf_text_with_llm(model, model_name, text, base_name):
     """Sends extracted PDF text to Gemini and asks it to format the content into structured JSON."""
-    prompt = f"""
-    You are an AI that extracts structured form data from government application PDFs.
-    The following text was extracted from a government form:
-    
-    {text}
-    
-    Identify form fields, labels, and instructions, and format the output as JSON.
-    Ensure correct field types (number, radio button, text, checkbox, etc.), group fields into sections,
-    and associate instructions with relevant fields.
-    
-    Additionally, detect repeating sections and mark them accordingly.
-
-    A table is usually a repeating section. 
-
-    make sure to consider the following rules to extract input fields and types:
-    1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street etc are included. Collate them if possible.
-    2. **Currency**: Currency values with decimal separators (e.g., income, debts).
-    3. **Checkbox**: Allows multiple selections (e.g., ethinicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible.
-    4. **Date**: Captures dates (e.g., birth date, graduation date).
-    5. **Dropdown**: Single selection from long lists (>8 items) (e.g., list of products).
-    6. **Email**: email address. Collate domain and username if asked separately.
-    8. **File Upload**: File attachments (e.g., PDFs, images).
-    9. **ID**: Numeric identifiers. Can specify min/max value.
-    10. **Name**: person's name. Collate first name, middle name, and last name into full name if possible.
-    11. **Number**: Integer values (e.g., number of household members etc).
-    12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
-    14. **Text**: Open-ended text field for letters, numbers, or symbols.
-    15. **Phone**: phone numbers.
-
-    If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
-    
-    Output JSON structure should match this example:
-    {json.dumps(JSON_EXAMPLE, indent=4)}
-    
-    Output only JSON, no explanations.
-    """
-    logging.info(f"test commit")
-    logging.info(f"LLM processing input txt extracted from PDF...")
+    prompt = pdf_extract_v1.get_prompt(text)
+    logging.info(f"LLM processing input text extracted from PDF with prompt:{prompt}")
 
     try:
         response = model.generate_content(prompt )
@@ -186,22 +118,8 @@ def post_processing_llm(model, model_name, text, base_name):
     #  TODO: could not reliablely move repeating sections out of sections without LLM creating unnecessary repeating sections.   
     #  If a "repeating_section" is inside a section, move it out to a separate section. Do not create new repeating section for single entries. Do not create new repeating section if the entries are not already in a "repeating_section".
 
-    prompt_post_processing_json = f"""
-    You are an expert in government forms.  Process the following extracted json from a government form to be easier to use:
-    
-    {text}
-    
-    make sure to consider the following rules to process the json: 
-    1. Do NOT create nested sections. 
-    2. Within each section, If you find separate fields for first name, middle name, and last name, collate them into a single 'name' type field if possible. Do not create separate fields for name components. 
-    2. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
-    3. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
-    
-    Output JSON structure should match this example:
-    {json.dumps(JSON_EXAMPLE, indent=4)}
-
-    Output only JSON, no explanations.
-    """
+    prompt_post_processing_json = post_process_v1.get_prompt(text)
+    logging.info(f"post processing prompt:{prompt_post_processing_json}")
     
     try:
   
@@ -227,19 +145,11 @@ def post_processing_llm(model, model_name, text, base_name):
 def format_json(model, model_name, text, base_name, use_llm=True):
 
     """Sends extracted json text to Gemini and asks it to format the atrributes of each field in one line."""
-    prompt_format_json = f"""
-    You are an json expert. Format the following json to be easier to read:
-    
-    {text}
-    
-    put the attributes of each field in one line
-    
-    Output only JSON, no explanations.
-    """
+    prompt_format_json = format_json_v1.get_prompt(text)
     
     try:
         if use_llm:
-            logging.info(f"format_json_with_llm...")
+            logging.info(f"format_json_with_llm with prompt:{prompt_format_json}")
             response = model.generate_content(prompt_format_json)
             logging.debug(f"LLM Response (First 500 chars): {response.text[:500]}...")
             logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
