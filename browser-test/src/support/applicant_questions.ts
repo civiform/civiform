@@ -864,7 +864,7 @@ export class ApplicantQuestions {
     }
 
     const createAccountHeading = this.page.getByRole('heading', {
-      name: 'Create an account to save your application information',
+      name: 'To access your application later, create an account',
     })
     if (wantUpsell) {
       await expect(createAccountHeading).toBeVisible()
