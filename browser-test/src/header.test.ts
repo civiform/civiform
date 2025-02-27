@@ -123,7 +123,7 @@ test.describe('Header', () => {
   )
 
   test(
-    'Header on tablet with north star enabled shows logo',
+    'Header on tablet with north star enabled hides logo',
     {tag: ['@northstar']},
     async ({page}) => {
       await enableFeatureFlag(page, 'north_star_applicant_ui')
@@ -131,7 +131,7 @@ test.describe('Header', () => {
       await page.setViewportSize({width: 800, height: 1024})
 
       const headerLogo = page.locator('.cf-header-logo')
-      await expect(headerLogo).toBeVisible()
+      await expect(headerLogo).toBeHidden()
     },
   )
 
