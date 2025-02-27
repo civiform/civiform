@@ -19,6 +19,8 @@ import models.LifecycleStage;
 import models.Models;
 import models.PersistedDurableJobModel;
 import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.mvc.Controller;
@@ -34,7 +36,7 @@ import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
 public class DevToolsController extends Controller {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(DevToolsController.class);
   private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DevToolsView view;
   private final Database database;
@@ -94,10 +96,24 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedQuestions() {
-    devDatabaseSeedTask.seedQuestions();
+    Result result = redirect(routes.DevToolsController.index().url());
+    return seedQuestionsInternal()
+        ? result.flashing(FlashKey.SUCCESS, "Sample questions seeded")
+        : result.flashing(FlashKey.ERROR, "Failed to seed questions");
+  }
 
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "Sample questions seeded");
+  public Result seedQuestionsHeadless() {
+    return seedQuestionsInternal() ? ok() : internalServerError();
+  }
+
+  private boolean seedQuestionsInternal() {
+    try {
+      devDatabaseSeedTask.seedQuestions();
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to seed questions", ex);
+      return false;
+    }
   }
 
   public Result seedPrograms() {

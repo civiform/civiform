@@ -3,7 +3,6 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  seedQuestions,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -11,9 +10,9 @@ import {
 import {BASE_URL} from '../../support/config'
 
 test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, seeding}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await seedQuestions(page)
+    await seeding.seedQuestions()
     await page.goto(BASE_URL)
   })
 

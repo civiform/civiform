@@ -2,7 +2,6 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
   loginAsAdmin,
-  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -10,8 +9,12 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
-  test('sample question seeding works', async ({page, adminQuestions}) => {
-    await seedQuestions(page)
+  test('sample question seeding works', async ({
+    page,
+    adminQuestions,
+    seeding,
+  }) => {
+    await seeding.seedQuestions()
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)

@@ -5,15 +5,14 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedQuestions,
 } from '../support'
 
 test.describe(
   'Applicant application download test',
   {tag: ['@northstar']},
   () => {
-    test.beforeEach(async ({page}) => {
-      await seedQuestions(page)
+    test.beforeEach(async ({page, seeding}) => {
+      await seeding.seedQuestions()
       await enableFeatureFlag(page, 'north_star_applicant_ui')
     })
 

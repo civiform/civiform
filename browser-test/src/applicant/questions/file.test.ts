@@ -2,15 +2,14 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
-  seedQuestions,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
 import {BASE_URL} from '../../support/config'
 
 test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto(BASE_URL)
   })
 
