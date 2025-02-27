@@ -12,6 +12,7 @@ import {
   validateScreenshot,
   seedProgramsAndCategories,
   selectApplicantLanguage,
+  normalizeElements,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -698,6 +699,7 @@ test.describe('applicant program index page', () => {
             page,
             'program-index-page-submitted-northstar',
           )
+          await normalizeElements(page)
           await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
@@ -709,6 +711,17 @@ test.describe('applicant program index page', () => {
           )
 
           await expect(page.getByText('Review and submit')).toBeVisible()
+        })
+
+        await test.step('Create new draft of application and expect submitted tag to still be shown on homepage', async () => {
+          await applicantQuestions.clickEdit()
+          // Clicking "Continue" creates a new empty draft of the application
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.clickSubmitApplication()
+          // Click "Exit application" on the "No changes to save" modal
+          await applicantQuestions.clickExitApplication()
+          await normalizeElements(page)
+          await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
         await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
@@ -925,14 +938,16 @@ test.describe('applicant program index page', () => {
             )
           })
 
-          await test.step('Select a filter, click the filter submit button and see the Recommended and Other programs sections', async () => {
+          await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
             await applicantQuestions.filterProgramsByCategory('General')
 
             await validateScreenshot(
               page.locator('#programs-list'),
               'north-star-homepage-programs-filtered',
             )
+          })
 
+          await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
             await applicantQuestions.expectProgramsWithFilteringEnabled(
               {
                 expectedProgramsInMyApplicationsSection: [primaryProgramName],
