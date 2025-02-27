@@ -305,7 +305,6 @@ public final class ApplicationRepository {
           .where()
           .eq("id", application.id)
           .update();
-      application.save();
       transaction.commit();
     }
   }
