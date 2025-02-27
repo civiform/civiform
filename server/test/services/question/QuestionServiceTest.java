@@ -2,15 +2,21 @@ package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 import models.LifecycleStage;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -68,6 +74,33 @@ public class QuestionServiceTest extends ResetPostgres {
                     questionDefinition.getName(),
                     Path.create(questionDefinition.getQuestionPathSegment()),
                     householdMemberName.getName())));
+  }
+
+  @Test
+  public void create_handlesSerializationFailure() throws Exception {
+    TransactionManager mockTransactionManager = mock(TransactionManager.class);
+    when(mockTransactionManager.executeInTransaction(any(), any()))
+        .then(
+            invocation -> {
+              Supplier<ErrorAnd<QuestionDefinition, CiviFormError>> onSerializationFailure =
+                  invocation.getArgument(1);
+              return onSerializationFailure.get();
+            });
+
+    QuestionService questionServiceWithFailingTransactionManager =
+        new QuestionService(
+            instanceOf(QuestionRepository.class), () -> versionRepository, mockTransactionManager);
+
+    ErrorAnd<QuestionDefinition, CiviFormError> errorAndResult =
+        questionServiceWithFailingTransactionManager.create(questionDefinition);
+
+    assertThat(errorAndResult.hasResult()).isFalse();
+    assertThat(errorAndResult.isError()).isTrue();
+    assertThat(errorAndResult.getErrors())
+        .containsOnly(
+            CiviFormError.of(
+                "A question with a conflicting admin name was created at the same time. Please try"
+                    + " again"));
   }
 
   @Test

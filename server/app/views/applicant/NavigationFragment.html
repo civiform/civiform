@@ -176,6 +176,10 @@
     <div class="usa-alert">
       <div class="usa-alert__body">
         <p
+          class="usa-sr-only"
+          th:utext="#{heading.informationAriaLabelPrefix('')}"
+        ></p>
+        <p
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
         ></p>
@@ -195,6 +199,7 @@
           <span
             class="usa-alert__text"
             th:text="#{banner.viewApplication(${applicantDisplayName})}"
+            th:aria-label="#{heading.informationAriaLabelPrefix(#{banner.viewApplication(${applicantDisplayName})})}"
           ></span>
           <a
             th:href="${tiDashboardHref}"
