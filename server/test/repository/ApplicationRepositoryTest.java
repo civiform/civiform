@@ -192,7 +192,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_eligibilityDeterminationDefualtNotComputed() {
+  public void submitApplication_eligibilityDeterminationDefaultNotComputed() {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     ApplicationModel application =
