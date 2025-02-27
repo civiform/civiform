@@ -3,46 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to CiviForm JSON Converter</title>
+    <title>PDF Form to CiviForm JSON </title>
+    <style>
+        #output {
+            width: 95%;  /* Increased width */
+            height: 600px; /* Increased height */
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow: auto;
+            resize: both;
+            word-wrap: break-word;
+        }
+        .description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        #charCount {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
     <script>
         async function uploadFile(event) {
             event.preventDefault();
             const fileInput = document.getElementById("pdfFile");
             const file = fileInput.files[0];
             if (!file) {
-                alert("Please select a PDF file containing program form.");
+                alert("Please select a PDF file containing a program form.");
                 return;
             }
 
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("modelName", document.getElementById("LLMModelSelect").value);
 
-            // Get the selected LLM model name
-            const modelName = document.getElementById("LLMModelSelect").value;
-            formData.append("modelName", modelName); // Add modelId to form data
+            const outputTextArea = document.getElementById("output");
+            outputTextArea.value = "Processing...";
+            updateCharacterCount(""); // Initialize count
 
-            document.getElementById("output").innerText = "Processing...";
-            
             try {
                 const response = await fetch("/upload", {
                     method: "POST",
                     body: formData
                 });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-                } else {
-                    document.getElementById("output").innerText = `Error: ${data.error}`;
+
+                if (!response.ok) {
+                    // Handle non-JSON error responses (e.g., plain text, HTML)
+                    const errorText = await response.text(); // Get the response as text
+                    outputTextArea.value = `Error: ${response.status} - ${errorText}`;
+                    updateCharacterCount(errorText);
+                    return;
                 }
+
+                // Get the response as text, regardless of content type
+                const responseText = await response.text();
+                outputTextArea.value = responseText;
+                updateCharacterCount(responseText);
+
+
             } catch (error) {
-                document.getElementById("output").innerText = `Request failed: ${error}`;
+                outputTextArea.value = `Request failed: ${error}`;
+                updateCharacterCount(outputTextArea.value);
             }
         }
+
+        function updateCharacterCount(text) {
+            document.getElementById("charCount").textContent = `Character Count: ${text.length}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+             const outputTextArea = document.getElementById("output");
+             updateCharacterCount(outputTextArea.value);
+            outputTextArea.addEventListener('input', function() {
+                updateCharacterCount(outputTextArea.value);
+            });
+        });
     </script>
 </head>
 <body>
-    <h1>PDF to CiviForm JSON Converter</h1>
+    <h1>PDF Form to CiviForm JSON </h1>
+
+    <p class="description">
+        Convert PDF forms to CiviForm JSON. Select a PDF, choose an LLM, and click "Convert" to generate JSON for CiviForm import.
+    </p>
 
     <p>
         <b>Instructions:</b>
@@ -53,21 +99,21 @@
         
         </ol>
     </p>
-
+    
     <form onsubmit="uploadFile(event)">
         <input type="file" id="pdfFile" accept="application/pdf" required>
-
         <select id="LLMModelSelect">
-            <option value="gemini-2.0-flash-lite-preview-02-05">gemini-2.0-flash-lite-preview-02-05</option>
-            <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05</option>
-            <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
-            <option value="gemini-2.0-flash-thinking-exp-01-21">gemini-2.0-flash-thinking-exp-01-21</option>
-            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-            </select>
-
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+            <option value="gemini-2.0-pro-exp">gemini-2.0-pro-exp</option>
+            <option value="gemini-2.0-flash-thinking">gemini-2.0-flash-thinking</option>
+            <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
+        </select>
         <button type="submit">Convert</button>
     </form>
+
     <h2>Output JSON:</h2>
-    <pre id="output"></pre>
+    <textarea id="output" placeholder="JSON output will appear here"></textarea>
+    <div id="charCount">Character Count: 0</div>
 </body>
 </html>

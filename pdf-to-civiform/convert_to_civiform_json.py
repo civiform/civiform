@@ -5,6 +5,7 @@ import sys
 import os
 import uuid
 import logging
+import re
 
 # TODO
 # * templatize default config values such as "isRequired", "to-be-edited" etc
@@ -78,9 +79,10 @@ def create_question(field, question_id, enumerator_id=None):
 
         if "options" in field:
             for idx, option in enumerate(field.get("options",), start=1):
+                option_admin_name = re.sub(r'[^a-z0-9]+', '_', option.lower())
                 option_entry = {
                     "id": idx,
-                    "adminName": option.lower().replace(" ", "_"),
+                    "adminName": option_admin_name,
                     "localizedOptionText": {
                         "translations": {"en_US": option},
                         "isRequired": True
@@ -88,7 +90,7 @@ def create_question(field, question_id, enumerator_id=None):
                     "displayOrder": idx
                 }
                 question_options.append(option_entry)
-                option_admin_names.append(option.lower().replace(" ", "_"))
+                option_admin_names.append(option_admin_name)
         else:
             logging.warning(f"WARNING: Field '{field.get('id', 'unknown')}' is missing the 'options' key.")
 
@@ -213,7 +215,7 @@ def convert_to_civiform_json(unprocessed_input_json):
                 "isRequired": True
             },
             "localizedShortDescription": {
-                "translations": {"en_US": "program-localizedShortDescriptionTO-BE-EDITED"},
+                "translations": {"en_US": input_json.get("help_text", "program-localizedShortDescriptionTO-BE-EDITED")},
                 "isRequired": True
             },
             "localizedConfirmationMessage": {

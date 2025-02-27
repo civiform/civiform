@@ -5,12 +5,14 @@ from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 import os
 import logging
-from convert_to_civiform_json import convert_to_civiform_json 
 import re
+from convert_to_civiform_json import convert_to_civiform_json
+from LLM_prompts import LLMPrompts
 
-# This script extracts text from uploaded PDF files, uses Gemini LLM to 
+
+# This script extracts text from uploaded PDF files, uses Gemini LLM to
 # convert the text into structured JSON representing a form, formats the JSON
-# for better readability, and then converts it into a CiviForm-compatible 
+# for better readability, and then converts it into a CiviForm-compatible
 # JSON format.  It uses a Flask web server to handle file uploads.
 
 # make sure you have your gemini API key in ~/google_api_key
@@ -18,17 +20,12 @@ import re
 # run this script from command line as: python pdf_to_civiform.py
 # output files are stored in ~/pdf-to-civiform/
 
-# TODOs
-# 1. refactor to use code for formatting json. LLM is not needed for this step and is slow
-
-
-# known iisues/limitations: 
-#    * redio button questions were extracted as checkbox questions: 
+# known iisues/limitations:
+#    * Radio button questions may extracted as checkbox questions:
 #       ex: marital status in  https://www.miamidade.gov/housing/library/forms/condominium-special-assessments-program-application.pdf
-#    * Not reliably identifying number fields. treated as text fields.
-#    * conditional questions are treated as a separate question and not conditionally related to other questions
+#    * Not reliably identifying number fields. Some numeric fields are recognized as text fields.
 #    * not all help text is extracted/assocated with applicable question
-#    * all questions are treated as required
+#    * all questions are marked as required
 
 
 # Configure logging
@@ -42,13 +39,15 @@ os.makedirs(upload_dir, exist_ok=True)
 logging.info("Working directory: %s", work_dir)
 
 # set python cache dir
-default_python_cache_path=os.path.join(work_dir, 'python_cache')
+default_python_cache_path = os.path.join(work_dir, 'python_cache')
 if 'PYTHONPYCACHEPREFIX' not in os.environ:
     os.environ['PYTHONPYCACHEPREFIX'] = default_python_cache_path
 
 logging.info(f"PYTHONPYCACHEPREFIX  set to: {os.environ['PYTHONPYCACHEPREFIX']}")
 
-def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp", api_key_file=os.path.expanduser("~/google_api_key")):
+
+def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp",
+                             api_key_file=os.path.expanduser("~/google_api_key")):
     """
     Initializes and configures the Gemini GenerativeModel.
 
@@ -65,6 +64,10 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp", api_key_
         genai.configure(api_key=GOOGLE_API_KEY)
         logging.info("Google API key loaded successfully.")
 
+        # Print available Gemini models
+        print("\n".join(
+            m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods))
+
         model = genai.GenerativeModel(f"models/{model_name}")
 
         # Print available Gemini models
@@ -80,39 +83,6 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp", api_key_
         exit(1)
 
 
-JSON_EXAMPLE = {
-        "title": "[Extracted Form Title]",
-        "help_text": "[Relevant Instructional Text]",
-
-        "sections": [
-            {
-                "title": "[Section Name]",
-                "fields": [
-                    {"label": "[Field Label]", "type": "[Field Type]",
-                        "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[checkbox]", "options": ["opt 1", "opt 2",
-                                                                                 "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
-                ]
-            },
-            {
-                "title": "[Section Name]",
-                "help_text": "[Relevant Instructional Text]",
-                "type": "repeating_section",
-                "fields": [
-                    {"label": "[Field Label]", "type": "[Field Type]",
-                        "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
-                    {"label": "[Field Label]", "type": "[checkbox]", "options": ["opt 1", "opt 2",
-                                                                              "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
-                ]
-            }
-        ]
-}
-
-
 def extract_text_from_pdf(pdf_path):
     logging.info(f"Extracts text from a given PDF file: {pdf_path}")
     """Extracts text from a given PDF file while maintaining basic layout structure."""
@@ -124,94 +94,38 @@ def extract_text_from_pdf(pdf_path):
                 text_blocks.append(text)
     return "\n\n".join(text_blocks)
 
+
 def process_pdf_text_with_llm(model, model_name, text, base_name):
     """Sends extracted PDF text to Gemini and asks it to format the content into structured JSON."""
-    prompt = f"""
-    You are an AI that extracts structured form data from government application PDFs.
-    The following text was extracted from a government form:
-    
-    {text}
-    
-    Identify form fields, labels, and instructions, and format the output as JSON.
-    Ensure correct field types (number, radio button, text, checkbox, etc.), group fields into sections,
-    and associate instructions with relevant fields.
-    
-    Additionally, detect repeating sections and mark them accordingly.
 
-    A table is usually a repeating section. 
-
-    make sure to consider the following rules to extract input fields and types:
-    1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street etc are included. Collate them if possible.
-    2. **Currency**: Currency values with decimal separators (e.g., income, debts).
-    3. **Checkbox**: Allows multiple selections (e.g., ethinicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible.
-    4. **Date**: Captures dates (e.g., birth date, graduation date).
-    5. **Dropdown**: Single selection from long lists (>8 items) (e.g., list of products).
-    6. **Email**: email address. Collate domain and username if asked separately.
-    8. **File Upload**: File attachments (e.g., PDFs, images).
-    9. **ID**: Numeric identifiers. Can specify min/max value.
-    10. **Name**: person's name. Collate first name, middle name, and last name into full name if possible.
-    11. **Number**: Integer values (e.g., number of household members etc).
-    12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
-    14. **Text**: Open-ended text field for letters, numbers, or symbols.
-    15. **Phone**: phone numbers.
-
-    If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
-    
-    Output JSON structure should match this example:
-    {json.dumps(JSON_EXAMPLE, indent=4)}
-    
-    Output only JSON, no explanations.
-    """
-    
+    prompt = LLMPrompts.pdf_to_json_prompt(text)
     logging.info(f"LLM processing input txt extracted from PDF...")
 
     try:
-        response = model.generate_content(prompt )
-        logging.debug(f"LLM Response (First 500 chars): {response.text[:500]}...")
-        logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
-        response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
+        response = model.generate_content(prompt)
+        response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
 
-        save_response_to_file(response, base_name, f"pdf-extract-{model_name}", work_dir)
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            save_response_to_file(response, base_name, f"pdf-extract-{model_name}", work_dir)
 
         return response  # Return the processed text
- 
+
     except Exception as e:
         logging.error(f"process_pdf_text_with_llm: {e}")
         return None
 
 
 def post_processing_llm(model, model_name, text, base_name):
-
     """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
-    #  TODO: could not reliablely move repeating sections out of sections without LLM creating unnecessary repeating sections.   
-    #  If a "repeating_section" is inside a section, move it out to a separate section. Do not create new repeating section for single entries. Do not create new repeating section if the entries are not already in a "repeating_section".
+    prompt_post_processing_json = LLMPrompts.post_process_json_prompt(text)
 
-    prompt_post_processing_json = f"""
-    You are an expert in government forms.  Process the following extracted json from a government form to be easier to use:
-    
-    {text}
-    
-    make sure to consider the following rules to process the json: 
-    1. Do NOT create nested sections. 
-    2. Within each section, If you find separate fields for first name, middle name, and last name, collate them into a single 'name' type field if possible. Do not create separate fields for name components. 
-    2. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
-    3. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
-    
-    Output JSON structure should match this example:
-    {json.dumps(JSON_EXAMPLE, indent=4)}
-
-    Output only JSON, no explanations.
-    """
-    
     try:
-  
         logging.info(f"post_processing_json_with_llm. collating names, addresses ...")
         response = model.generate_content(prompt_post_processing_json)
-        logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
+        response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
 
-        response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
-
-        save_response_to_file(response, base_name, f"post-processed-{model_name}", work_dir)
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            save_response_to_file(response, base_name, f"post-processed-{model_name}", work_dir)
 
         return response  # Return the processed text
 
@@ -219,57 +133,40 @@ def post_processing_llm(model, model_name, text, base_name):
         logging.error(f"Error during collating fields: {e}")
         return None
 
-# collate names, address, etc
-
-# TODO:
-# 1. LLM is not really needed and too slow for this step. It can be done with a simple python script. 
-
-def format_json(model, model_name, text, base_name, use_llm=True):
-
-    """Sends extracted json text to Gemini and asks it to format the atrributes of each field in one line."""
-    prompt_format_json = f"""
-    You are an json expert. Format the following json to be easier to read:
-    
-    {text}
-    
-    put the attributes of each field in one line
-    
-    Output only JSON, no explanations.
+def format_json_single_line_fields(json_string: str) -> str:
     """
-    
+    formats it to ensure all field attributes
+    (including options) are on a single line, and returns the formatted string.
+    """
     try:
-        if use_llm:
-            logging.info(f"format_json_with_llm...")
-            response = model.generate_content(prompt_format_json)
-            logging.debug(f"LLM Response (First 500 chars): {response.text[:500]}...")
-            logging.debug(f"LLM Response (Last 500 chars): {response.text[-500:]}")
-            response = response.text.strip("`").lstrip("json") # Remove ``` and json if present
+        data = json.loads(json_string)
 
-        else:
-            logging.info(f"Not yet implemented .... ")
+        def custom_dumps(obj, level=0):
+            if isinstance(obj, dict):
+                if "label" in obj and "type" in obj:
+                    return json.dumps(obj, separators=(',', ': '))
+                else:
+                    return "{\n" + "".join(
+                        f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ': '))}: {custom_dumps(v, level + 1)},\n"
+                        for k, v in obj.items()
+                    )[:-2] + "\n" + ("    " * level) + "}"
+            elif isinstance(obj, list):
+                return "[\n" + "".join(
+                    f"{'    ' * (level + 1)}{custom_dumps(item, level + 1)},\n"
+                    for item in obj
+                )[:-2] + "\n" + ("    " * level) + "]"
+            else:
+                return json.dumps(obj, separators=(',', ': '))
 
+        return custom_dumps(data)
 
-        save_response_to_file(response, base_name, f"formated-{model_name}", work_dir)
-
-        return response  # Return the processed text
-
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return ""  # Return empty string on error
     except Exception as e:
-        logging.error(f"Error during formatting json: {e}")
-        return None
+        print(f"An unexpected error occurred: {e}")
+        return ""
 
-def format_json_single_line_fields(input_json: str) -> str:
-    """
-    Formats a JSON string to ensure:
-    - Each field's attributes stay on one line.
-    - Each field appears on a separate line.
-
-    Args:
-        input_json (str): The input JSON string.
-
-    Returns:
-        str: The formatted JSON string.
-    """
-    # TODO: This function is a placeholder and needs to be implemented.
 
 def save_response_to_file(response, base_name, output_suffix, work_dir):
     """
@@ -293,6 +190,7 @@ def save_response_to_file(response, base_name, output_suffix, work_dir):
     except Exception as e:
         logging.error(f"Error saving response to file: {e}")
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -305,48 +203,47 @@ def upload_file():
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-    
+
     filename = secure_filename(file.filename)
     file_full = os.path.join(upload_dir, filename)
     file.save(file_full)
-
 
     # Get LLM model name from the request
     model_name = request.form.get('modelName')
 
     model = initialize_gemini_model(model_name)
 
-    
     # Extract the base filename without extension
     base_name, _ = os.path.splitext(os.path.basename(filename))
-
-    extracted_text = extract_text_from_pdf(file_full)
-    structured_json = process_pdf_text_with_llm(model, model_name, extracted_text, base_name)
-
-    if structured_json is None:
-        return jsonify({"error": "LLM processing failed."}), 500
-
-    formated_json = format_json(model, model_name, structured_json, base_name, use_llm=True)
-    post_processed_json = post_processing_llm(model, model_name, formated_json, base_name)
-    formated_post_processed_json = format_json(model, model_name, post_processed_json, f"{base_name}-formated-post-processed", use_llm=True)
+    base_name = base_name[:15]  # limit to 15 chars to avoid extremely long filenames
 
     try:
+        extracted_text = extract_text_from_pdf(file_full)
+        structured_json = process_pdf_text_with_llm(model, model_name, extracted_text,
+                                                   base_name)
+
+        if structured_json is None:
+            return jsonify({"error": "LLM processing failed."}), 500
+
+        logging.info(f"Formating json  .... ")
+        formated_json = format_json_single_line_fields(structured_json)
+        save_response_to_file(formated_json, base_name, f"formated-{model_name}", work_dir)
+
+        post_processed_json = post_processing_llm(model, model_name, formated_json, base_name)
+        
+        logging.info(f"Formating post processed json  .... ")
+        formated_post_processed_json = format_json_single_line_fields(post_processed_json)
+        save_response_to_file(formated_post_processed_json, f"{base_name}-post-processed", f"formated-{model_name}", work_dir)
+
         parsed_json = json.loads(formated_post_processed_json)
-    
         civiform_json = convert_to_civiform_json(parsed_json)
+        save_response_to_file(civiform_json, base_name, f"civiform-{model_name}", work_dir)
 
-        save_response_to_file(civiform_json, base_name, f"-civiform-{model_name}", work_dir)
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse JSON from LLM response: {e}"}), 500
 
-      #  output_file_full = os.path.join(work_dir, f"{base_name}-{model_name}-civiform.json")
-      #  logging.info(f"Converted JSON saved to {output_file_full}")
-
-
-    except json.JSONDecodeError:
-        return jsonify({"error": "Failed to parse JSON from LLM response."}), 500
-    
-    
     logging.info("Done!")
-    
+
     return jsonify(json.loads(civiform_json))
 
 
