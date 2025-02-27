@@ -17,6 +17,7 @@ import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramMigration} from './admin_program_migration'
 import {ApplicantProgramList} from './applicant_program_list'
 import {ApplicantProgramOverview} from './applicant_program_overview'
+import {Seeding} from './seeding'
 
 type CiviformFixtures = {
   adminApiKeys: AdminApiKeys
@@ -34,6 +35,7 @@ type CiviformFixtures = {
   applicantProgramOverview: ApplicantProgramOverview
   tiDashboard: TIDashboard
   adminTiGroups: AdminTIGroups
+  seeding: Seeding
 }
 
 export const test = base.extend<CiviformFixtures>({
@@ -97,6 +99,10 @@ export const test = base.extend<CiviformFixtures>({
     await use(new AdminTIGroups(page))
   },
 
+  seeding: async ({request}, use) => {
+    await use(new Seeding(request))
+  },
+
   page: async ({page, request}, use) => {
     page.on('console', (msg) => {
       if (msg.text().includes('Content Security Policy')) {
@@ -105,9 +111,7 @@ export const test = base.extend<CiviformFixtures>({
     })
 
     // BeforeEach
-    await test.step('Clear database', async () => {
-      await request.post('/dev/seed/clear')
-    })
+    await new Seeding(request).clearDatabase()
 
     await test.step('Go to home page before test starts', async () => {
       await page.goto('/programs')
