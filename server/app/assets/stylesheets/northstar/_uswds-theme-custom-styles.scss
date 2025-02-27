@@ -246,6 +246,11 @@ it is around the label */
 
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
+  // Hide the logo on mobile and tablet
+  .cf-header-logo {
+    display: none;
+  }
+
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
@@ -258,11 +263,6 @@ it is around the label */
 
 // Styles for mobile
 @media (max-width: 47.9em) {
-  // Hide the logo on mobile
-  .cf-header-logo {
-    display: none;
-  }
-
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;
