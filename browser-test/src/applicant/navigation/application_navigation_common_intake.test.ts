@@ -89,7 +89,7 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-ineligible-signed-in-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -116,7 +116,7 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-eligible-signed-in-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -142,7 +142,7 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-ineligible-guest-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -168,7 +168,7 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-eligible-guest-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -177,7 +177,7 @@ test.describe('Applicant navigation flow', () => {
 
       await page.click('button:has-text("Apply to programs")')
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-submission-guest-login-prompt-modal',
         /* fullPage= */ false,
         /* mobileScreenshot= */ true,
@@ -204,7 +204,7 @@ test.describe('Applicant navigation flow', () => {
       await page.click('button:has-text("Apply to programs")')
       await page.click('button:has-text("Continue without an account")')
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-shows-submitted',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -245,7 +245,7 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-ineligible-ti-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -285,7 +285,7 @@ test.describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms= */ [secondProgramName],
       )
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'cif-eligible-ti-confirmation-page',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,

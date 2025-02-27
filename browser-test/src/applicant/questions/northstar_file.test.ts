@@ -42,7 +42,7 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await validateScreenshot(page, 'file-required')
+      await validateScreenshot(page.locator('main'), 'file-required')
     })
 
     test('form is correctly formatted', async ({page, applicantQuestions}) => {
@@ -112,7 +112,7 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerFileUploadQuestion('some file', 'file.txt')
 
       await applicantFileQuestion.expectFileNameDisplayed('file.txt')
-      await validateScreenshot(page, 'file-uploaded')
+      await validateScreenshot(page.locator('main'), 'file-uploaded')
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6221. */
@@ -266,7 +266,10 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
 
       // Verify the previously uploaded file name is shown on the block page
       await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
-      await validateScreenshot(page, 'file-required-re-answered')
+      await validateScreenshot(
+        page.locator('main'),
+        'file-required-re-answered',
+      )
     })
 
     test('re-answering question shows continue button but no delete button', async ({
@@ -452,7 +455,10 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await validateScreenshot(page, 'file-required-multiple-uploads-enabled')
+      await validateScreenshot(
+        page.locator('main'),
+        'file-required-multiple-uploads-enabled',
+      )
     })
 
     test('form is correctly formatted', async ({page, applicantQuestions}) => {
@@ -541,7 +547,10 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
           'file-upload-second.png',
         )
 
-        await validateScreenshot(page, 'file-uploaded-multiple-files')
+        await validateScreenshot(
+          page.locator('main'),
+          'file-uploaded-multiple-files',
+        )
       })
 
       await test.step('Upload long file name and validate mobile layout', async () => {
@@ -814,7 +823,7 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
-      await validateScreenshot(page, 'file-optional')
+      await validateScreenshot(page.locator('main'), 'file-optional')
     })
 
     test('with missing file can be skipped', async ({applicantQuestions}) => {
@@ -952,7 +961,10 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
 
       // Verify the previously uploaded file name is shown on the block page
       await applicantFileQuestion.expectFileNameDisplayed('testFileName.txt')
-      await validateScreenshot(page, 'file-optional-re-answered')
+      await validateScreenshot(
+        page.locator('main'),
+        'file-optional-re-answered',
+      )
     })
 
     test('re-answering question shows continue and delete buttons', async ({
