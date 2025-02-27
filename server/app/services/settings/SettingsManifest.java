@@ -822,11 +822,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
   }
 
-  /** Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
-  }
-
   /**
    * The number of minutes of inactivity before we warn the user that their session will expire.
    * Default is 5.
@@ -1072,6 +1067,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
+  /** Enable session timeout based on inactivity and maximum duration. */
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2200,7 +2200,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SESSION_TIMEOUT_ENABLED",
+                      "Enable session timeout based on inactivity and maximum duration.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -2323,12 +2329,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " frontend to notify a user when their session is expired.",
                       /* isRequired= */ false,
                       SettingType.INT,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "SESSION_TIMEOUT_ENABLED",
-                      "Enable session timeout based on inactivity and maximum duration.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "SESSION_INACTIVITY_WARNING_MINUTES",
