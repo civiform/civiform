@@ -823,19 +823,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The number of minutes of inactivity before we warn the user that their session will expire.
-   * Default is 5.
+   * How many minutes before the session inactivity timeout a user receives a warning that their
+   * session will expire. Default is 5.
    */
-  public Optional<Integer> getSessionInactivityWarningMinutes() {
-    return getInt("SESSION_INACTIVITY_WARNING_MINUTES");
+  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
   }
 
   /**
-   * The number of minutes before we hit the maximum session duration that we warn the user that
+   * How many minutes before the maximum session duration timeout a user receives a warning that
    * their session will expire. Default is 10.
    */
-  public Optional<Integer> getSessionMaxDurationWarningMinutes() {
-    return getInt("SESSION_MAX_DURATION_WARNING_MINUTES");
+  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
+    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
   }
 
   /** The number of minutes of inactivity before a session times out. Default is 30. */
@@ -2331,16 +2331,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "SESSION_INACTIVITY_WARNING_MINUTES",
-                      "The number of minutes of inactivity before we warn the user that their"
-                          + " session will expire. Default is 5.",
+                      "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
+                      "How many minutes before the session inactivity timeout a user receives a"
+                          + " warning that their session will expire. Default is 5.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
-                      "SESSION_MAX_DURATION_WARNING_MINUTES",
-                      "The number of minutes before we hit the maximum session duration that we"
-                          + " warn the user that their session will expire. Default is 10.",
+                      "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
+                      "How many minutes before the maximum session duration timeout a user receives"
+                          + " a warning that their session will expire. Default is 10.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE),
