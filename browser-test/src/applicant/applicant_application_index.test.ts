@@ -12,6 +12,7 @@ import {
   validateScreenshot,
   seedProgramsAndCategories,
   selectApplicantLanguage,
+  normalizeElements,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -698,6 +699,7 @@ test.describe('applicant program index page', () => {
             page,
             'program-index-page-submitted-northstar',
           )
+          await normalizeElements(page)
           await expect(page.getByText('Submitted on 1/1/30')).toBeVisible()
         })
 
