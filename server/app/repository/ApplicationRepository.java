@@ -298,15 +298,12 @@ public final class ApplicationRepository {
   /** Updates the Applications table */
   public void saveEligibilityDetermination(
       ApplicationModel application, EligibilityDetermination eligibilityDetermination) {
-    try (Transaction transaction = database.beginTransaction()) {
-      database
-          .update(ApplicationModel.class)
-          .set("eligibility_determination", eligibilityDetermination.getValue())
-          .where()
-          .eq("id", application.id)
-          .update();
-      transaction.commit();
-    }
+    database
+        .update(ApplicationModel.class)
+        .set("eligibility_determination", eligibilityDetermination.getValue())
+        .where()
+        .eq("id", application.id)
+        .update();
   }
 
   public List<ApplicationModel> getApplications(ImmutableList<Long> applicationIds) {
