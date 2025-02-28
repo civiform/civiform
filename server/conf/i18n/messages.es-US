@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm te ayuda a encontrar programas en los q
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servicios
 # Main home page heading
-heading.homepage=Aplica a programas desde un solo lugar
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
 # Main home page intro text
-content.homepageIntro=Recibe ayuda para el cuidado infantil, alimento, transporte, servicios públicos y mucho más.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Filtros del programa
 # The label for the program filter checkboxes
-label.programFilters.v2=Filtrar por categoría
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Aplicar selecciones
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Otros programas y servicios ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programas y servicios ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Servicios y programas disponibles
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programas basados en tus elecciones ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
