@@ -85,7 +85,7 @@ content.loginPrompt=Please log in with your {0} account
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=Create an account
 # The text on the button an applicant clicks to log in to their session.
-button.login=Log in
+button.login=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Don''t have an account?
 # The text between creating a new account, and becoming a guest
@@ -560,12 +560,12 @@ title.applicationConfirmation=Application confirmation
 # A confirmation message that shows after an applicant has submitted their application.
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
-title.createAnAccount=Create an account or sign in
+title.createAnAccount=Sign in with an account
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other programs quickly.
+content.generalLoginModalPrompt=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 # A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
 content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 # A button for continuing to apply to other programs without an account.
