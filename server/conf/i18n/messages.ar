@@ -595,7 +595,7 @@ button.downloadPdf=تنزيل ملف PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=معلومات طلبك
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=مُرسِل هذا الطلب
 # Text above the confirmation number of the application
