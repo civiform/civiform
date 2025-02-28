@@ -918,7 +918,7 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=您目前是以訪客身分申請。申請完成後，請{0}來保護您的資料。
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
 
