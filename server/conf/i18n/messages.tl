@@ -202,16 +202,16 @@ content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga pr
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 # Main home page heading
-heading.homepage=Mag-apply sa mga programa sa iisang lugar
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
-content.homepageIntro=Humingi ng tulong sa pag-aalaga ng bata, pagkain, transportasyon, mga utility, at higit pa.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # The label for the program filter checkboxes
-label.programFilters.v2=Mag-filter ayon sa kategorya
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=I-apply ang mga napili
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Mga available na programa at serbisyo
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
