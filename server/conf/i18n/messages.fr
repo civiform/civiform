@@ -611,11 +611,11 @@ heading.nextSteps=Quelles sont les prochaines étapes ?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Vous avez envoyé votre demande d''inscription au {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Créez un compte pour enregistrer les informations de votre demande d''inscription
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Utilisez un compte pour vous reconnecter et vérifier l''état de votre demande d''inscription, et pour gagner du temps lorsque vous souhaitez vous inscrire à d''autres programmes.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Se connecter à un compte existant
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
