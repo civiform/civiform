@@ -11,8 +11,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.net.URI;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,14 +70,12 @@ public class Auth0ProviderTest extends ResetPostgres {
   @Test
   public void testLogout() throws Exception {
     String afterLogoutUri = "https://civiform.dev";
-    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
-
     var logoutAction =
         auth0Provider
             .get()
             .getLogoutAction(
                 new CallContext(webContext, mockSessionStore),
-                new CiviFormProfileData(1L, clock),
+                new CiviFormProfileData(1L, Clock.systemUTC()),
                 afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());

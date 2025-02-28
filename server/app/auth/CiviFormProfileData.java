@@ -42,10 +42,6 @@ public class CiviFormProfileData extends CommonProfile {
     addAttribute(SESSION_ID, UUID.randomUUID().toString());
   }
 
-  public CiviFormProfileData(Long accountId) {
-    this(accountId, Clock.systemUTC());
-  }
-
   public CiviFormProfileData(Long accountId, Clock clock) {
     this();
     this.setId(accountId.toString());
@@ -132,10 +128,6 @@ public class CiviFormProfileData extends CommonProfile {
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     setId((String) in.readObject());
     Map<String, Object> attributes = (Map<String, Object>) in.readObject();
-    // Check if LAST_ACTIVITY_TIME is missing and add it if needed
-    if (!attributes.containsKey(LAST_ACTIVITY_TIME)) {
-      attributes.put(LAST_ACTIVITY_TIME, Clock.systemUTC().instant().toEpochMilli());
-    }
     addAttributes(attributes);
     addAuthenticationAttributes((Map<String, Object>) in.readObject());
     setRemembered(in.readBoolean());
