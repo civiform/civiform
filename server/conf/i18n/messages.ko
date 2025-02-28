@@ -595,7 +595,7 @@ button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=내 제출 정보
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=이 신청서를 제출한 사람
 # Text above the confirmation number of the application
