@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
-heading.homepage=한곳에서 프로그램 신청
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
-content.homepageIntro=육아, 식품, 교통, 공공 서비스 등에 대한 도움을 받으세요.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # The label for the program filter checkboxes
-label.programFilters.v2=카테고리 기준으로 필터링
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=선택사항 적용
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=사용 가능한 프로그램 및 서비스
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
