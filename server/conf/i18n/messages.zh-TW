@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
-heading.homepage=在同一個地方申請各項計畫
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
-content.homepageIntro=取得兒童照護、食物、交通運輸、公用事業和其他領域的相關協助。
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
-label.programFilters.v2=依類別篩選
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=套用所選篩選條件
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=其他計畫和服務 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=可申請的計畫和服務
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
