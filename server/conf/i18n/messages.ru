@@ -595,7 +595,7 @@ button.downloadPdf=Скачать в формате PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Зарегистрироваться в программах
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Сведения о поданной вами заявке
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=Отправитель заявки
 # Text above the confirmation number of the application
