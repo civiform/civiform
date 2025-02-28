@@ -160,7 +160,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
         MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName(),
         previousWithoutSaving(applicationParams));
   }
@@ -172,7 +172,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
         MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
         MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName(),
         reviewWithoutSaving(applicationParams));
   }
