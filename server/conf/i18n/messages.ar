@@ -202,16 +202,16 @@ content.findProgramsDescription=يساعدك CiviForm في العثور على �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
 # Main home page heading
-heading.homepage=إرسال طلبات للانضمام إلى البرامج من مكان واحد
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
-content.homepageIntro=يمكنك الحصول على المساعدة بشأن رعاية الأطفال والطعام والنقل وشركات الطاقة وغير ذلك.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
 # The label for the program filter checkboxes
-label.programFilters.v2=الفلترة حسب الفئة
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=تطبيق الاختيارات
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=البرامج والخدمات ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=البرامج والخدمات المتاحة
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
