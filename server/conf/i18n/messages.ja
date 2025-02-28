@@ -595,7 +595,7 @@ button.downloadPdf=PDF をダウンロード
 # A button prompting users to apply to programs.
 button.applyToPrograms=プログラムに申請
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=送信情報
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=この申請の送信者
 # Text above the confirmation number of the application
