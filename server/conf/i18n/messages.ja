@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm は、{0} で対象となり得るプ�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
 # Main home page heading
-heading.homepage=さまざまなプログラムへの申請を 1 か所で
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
 # Main home page intro text
-content.homepageIntro=育児、食べ物、輸送、ユーティリティなどに関する支援を受けられます。
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # The label for the program filter checkboxes
-label.programFilters.v2=カテゴリでフィルタする
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=選択内容を適用
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=その他のプログラムとサービス（{0}�
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=プログラムとサービス（{0}）
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=利用可能なプログラムとサービス
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=選択内容に一致するプログラム（{0}）
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
