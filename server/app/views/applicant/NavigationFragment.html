@@ -10,56 +10,60 @@
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
-      <div class="usa-navbar">
-        <a
-          href="/"
-          class="usa-logo display-flex flex-align-center text-ink text-no-underline"
-          id="header-return-home"
-        >
-          <img
-            th:src="${smallLogoUrl}"
-            class="width-8 padding-right-2 cf-header-logo"
-            th:attr="alt=${civicEntityFullName + ' Logo'}"
-          />
-          <em class="usa-logo__text">
-            <span th:text="${civicEntityShortName}"></span>
-            <span>CiviForm</span>
-          </em>
-        </a>
-        <button
-          type="button"
-          class="usa-menu-btn"
-          th:text="#{header.menu}"
-        ></button>
-      </div>
-      <nav
-        th:aria-label="#{label.primaryNavigation}"
-        class="usa-nav grid-container"
-        role="navigation"
-      >
-        <button
-          type="button"
-          class="usa-nav__close"
-          th:aria-label="#{button.close}"
-        >
-          <svg
-            th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
-          ></svg>
-        </button>
-        <div class="display-flex grid-col-fill flex-column flex-align-end">
-          <div th:replace="~{this :: userName}"></div>
-          <div class="grid-row grid-gap-1">
-            <button
-              th:if="${showDebugTools}"
-              th:replace="~{this :: showDebugTools}"
-            ></button>
-            <div>
-              <button th:replace="~{this :: loginOrLogout}"></button>
+      <div class="display-flex flex-align-center grid-col-fill">
+        <div class="usa-navbar width-full">
+          <a
+            href="/"
+            class="usa-logo display-flex flex-align-center text-ink text-no-underline"
+            id="header-return-home"
+          >
+            <div class="padding-top-2 padding-bottom-2">
+              <img
+                th:src="${smallLogoUrl}"
+                class="height-8 cf-header-logo padding-right-2"
+                th:attr="alt=${civicEntityFullName + ' Logo'}"
+              />
             </div>
-            <button th:replace="~{this :: languageSelector}"></button>
-          </div>
+            <em class="usa-logo__text">
+              <span th:text="${civicEntityShortName}"></span>
+              <span>CiviForm</span>
+            </em>
+          </a>
+          <button
+            type="button"
+            class="usa-menu-btn"
+            th:text="#{header.menu}"
+          ></button>
         </div>
-      </nav>
+        <nav
+          th:aria-label="#{label.primaryNavigation}"
+          class="usa-nav grid-container"
+          role="navigation"
+        >
+          <button
+            type="button"
+            class="usa-nav__close"
+            th:aria-label="#{button.close}"
+          >
+            <svg
+              th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+            ></svg>
+          </button>
+          <div class="display-flex grid-col-fill flex-column flex-align-end">
+            <div th:replace="~{this :: userName}"></div>
+            <div class="grid-row grid-gap-1">
+              <button
+                th:if="${showDebugTools}"
+                th:replace="~{this :: showDebugTools}"
+              ></button>
+              <div>
+                <button th:replace="~{this :: loginOrLogout}"></button>
+              </div>
+              <button th:replace="~{this :: languageSelector}"></button>
+            </div>
+          </div>
+        </nav>
+      </div>
     </div>
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
