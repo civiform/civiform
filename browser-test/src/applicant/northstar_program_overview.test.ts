@@ -406,7 +406,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
-          name: 'Create an account to save your application information',
+          name: 'To access your application later, create an account',
         }),
       ).toBeVisible()
     })
