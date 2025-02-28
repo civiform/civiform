@@ -1220,6 +1220,6 @@ export class ApplicantQuestions {
 
   async expectLoginModal() {
     const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(`Log in`)
+    expect(await modal.innerText()).toContain(`Sign in`)
   }
 }

@@ -187,7 +187,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
       await applicantQuestions.clickBackToHomepageButton()
-      await expect(page.getByText('Create an account or sign in')).toBeVisible()
+      await expect(page.getByText('Sign in with an account')).toBeVisible()
 
       await validateScreenshot(
         page,
