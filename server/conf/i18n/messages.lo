@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອ
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
 # Main home page heading
-heading.homepage=ນຳໃຊ້ກັບໂປຣແກຣມໃນບ່ອນດຽວ
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 # Main home page intro text
-content.homepageIntro=ຮັບຄວາມຊ່ວຍເຫຼືອດ້ານການເບິ່ງແຍງເດັກນ້ອຍ, ອາຫານ, ການຂົນສົ່ງ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
 # The label for the program filter checkboxes
-label.programFilters.v2=ກັ່ນຕອງຕາມໝວດໝູ່
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=ນຳໃຊ້ລາຍການທີ່ເລືອກ
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການ
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=ໂປຣແກຣມ ແລະ ບໍໍລິການທີ່ມີໃຫ້
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=ໂປຣແກຣມທີ່ອີງຕາມການເລືອກຂອງທ່ານ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
