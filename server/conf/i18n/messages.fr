@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm vous aide à trouver des programmes aux
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
 # Main home page heading
-heading.homepage=Demandez à vous inscrire à des programmes au même endroit
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
 # Main home page intro text
-content.homepageIntro=Obtenez de l''aide pour la garde d''enfants, l''alimentation, les transports, l''énergie et plus.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # The label for the program filter checkboxes
-label.programFilters.v2=Filtrer par catégorie
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Appliquer les sélections
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Autres programmes et services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programmes et services ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programmes et services disponibles
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programmes correspondant à vos choix ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
