@@ -611,11 +611,11 @@ heading.nextSteps=Что мне нужно делать дальше?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Вы отправили заявку на участие в программе "{0}"
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Создайте аккаунт, чтобы сохранить сведения о заявке и свои данные
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Зарегистрировавшись, вы сможете проверять статус отправленной заявки и быстрее заполнять формы для участия в других программах.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Войти в существующий аккаунт
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
