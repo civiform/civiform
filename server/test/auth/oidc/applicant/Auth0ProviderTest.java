@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.net.URI;
+import java.time.Clock;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +75,7 @@ public class Auth0ProviderTest extends ResetPostgres {
             .get()
             .getLogoutAction(
                 new CallContext(webContext, mockSessionStore),
-                new CiviFormProfileData(1L),
+                new CiviFormProfileData(1L, Clock.systemUTC()),
                 afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
