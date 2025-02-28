@@ -53,9 +53,14 @@ public final class ApplicationRepository {
 
   @VisibleForTesting
   public CompletionStage<ApplicationModel> submitApplication(
-      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      ApplicantModel applicant,
+      ProgramModel program,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination) {
     return supplyAsync(
-        () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
+        () ->
+            submitApplicationInternal(
+                applicant, program, tiSubmitterEmail, eligibilityDetermination),
         executionContext.current());
   }
 
@@ -65,16 +70,23 @@ public final class ApplicationRepository {
    * and create a new application in the active state.
    */
   public CompletionStage<Optional<ApplicationModel>> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail) {
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
-            submitApplicationInternal(appArgs.applicant, appArgs.program, tiSubmitterEmail));
+            submitApplicationInternal(
+                appArgs.applicant, appArgs.program, tiSubmitterEmail, eligibilityDetermination));
   }
 
   private ApplicationModel submitApplicationInternal(
-      ApplicantModel applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      ApplicantModel applicant,
+      ProgramModel program,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination) {
     Transaction transaction = database.beginTransaction();
     try {
       List<ApplicationModel> oldApplications =
@@ -148,6 +160,7 @@ public final class ApplicationRepository {
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
         app.save();
       }
+      application.setEligibilityDetermination(eligibilityDetermination);
       application.setApplicantData(applicant.getApplicantData());
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
@@ -293,17 +306,6 @@ public final class ApplicationRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("getApplication"))
                 .findOneOrEmpty(),
         executionContext.current());
-  }
-
-  /** Updates the Applications table */
-  public void saveEligibilityDetermination(
-      ApplicationModel application, EligibilityDetermination eligibilityDetermination) {
-    database
-        .update(ApplicationModel.class)
-        .set("eligibility_determination", eligibilityDetermination.getValue())
-        .where()
-        .eq("id", application.id)
-        .update();
   }
 
   public List<ApplicationModel> getApplications(ImmutableList<Long> applicationIds) {

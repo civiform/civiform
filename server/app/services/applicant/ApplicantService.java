@@ -429,33 +429,69 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
+      long applicantId, long programId, CiviFormProfile submitterProfile, Request request)
+      throws ProgramNotFoundException {
+    ProgramDefinition pd = programService.getFullProgramDefinition(programId);
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(
-              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
-          .thenComposeAsync(
-              tiAccount ->
-                  submitApplication(
-                      applicantId,
-                      programId,
-                      // /* tiSubmitterEmail= */
-                      // If the TI is submitting for themselves, don't set the tiSubmitterEmail. See
-                      // #5325 for more.
-                      tiAccount.ownedApplicantIds().contains(applicantId)
-                          ? Optional.empty()
-                          : Optional.of(tiAccount.getEmailAddress()),
-                      request),
-              classLoaderExecutionContext.current());
+          .thenCompose(
+              ro ->
+                  validateApplicationForSubmission(ro, programId)
+                      .thenComposeAsync(
+                          v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
+                      .thenComposeAsync(
+                          tiAccount -> {
+                            return getReadOnlyApplicantProgramService(applicantId, programId)
+                                .thenCompose(
+                                    ro2 -> {
+                                      EligibilityDetermination eligibilityDetermination =
+                                          Optional.of(pd.hasEligibilityEnabled())
+                                              .filter(enabled -> enabled)
+                                              .map(
+                                                  enabled ->
+                                                      ro2.isApplicationNotEligible()
+                                                          ? EligibilityDetermination.INELIGIBLE
+                                                          : EligibilityDetermination.ELIGIBLE)
+                                              .orElse(
+                                                  EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
+                                      return submitApplication(
+                                          applicantId,
+                                          programId,
+                                          // /* tiSubmitterEmail= */
+                                          // If the TI is submitting for themselves, don't set the
+                                          // tiSubmitterEmail. See #5325 for more.
+                                          tiAccount.ownedApplicantIds().contains(applicantId)
+                                              ? Optional.empty()
+                                              : Optional.of(tiAccount.getEmailAddress()),
+                                          eligibilityDetermination,
+                                          request);
+                                    });
+                          },
+                          classLoaderExecutionContext.current()));
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
         .thenCompose(
-            v ->
-                submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
+            ro ->
+                validateApplicationForSubmission(ro, programId)
+                    .thenCompose(
+                        v -> {
+                          EligibilityDetermination eligibilityDetermination =
+                              Optional.of(pd.hasEligibilityEnabled())
+                                  .filter(enabled -> enabled)
+                                  .map(
+                                      enabled ->
+                                          ro.isApplicationNotEligible()
+                                              ? EligibilityDetermination.INELIGIBLE
+                                              : EligibilityDetermination.ELIGIBLE)
+                                  .orElse(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
+                          return submitApplication(
+                              applicantId,
+                              programId,
+                              /* tiSubmitterEmail= */ Optional.empty(),
+                              eligibilityDetermination,
+                              request);
+                        }));
   }
 
   /**
@@ -565,10 +601,14 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      Request request) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
@@ -591,17 +631,6 @@ public final class ApplicantService {
               applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
-
-          EligibilityDetermination eligibilityDetermination =
-              getApplicationEligibilityStatus(application, programDefinition)
-                  .map(
-                      es ->
-                          es
-                              ? EligibilityDetermination.ELIGIBLE
-                              : EligibilityDetermination.INELIGIBLE)
-                  .orElse(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
-          applicationRepository.saveEligibilityDetermination(application, eligibilityDetermination);
-
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())
