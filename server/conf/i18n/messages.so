@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
 # Main home page heading
-heading.homepage=Codso barnaamijyada isku hal meel ah
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # Main home page intro text
-content.homepageIntro=U hel caawino daryeelka ubadka, cuntada, gaadiidka, adeegyada guriga iyo waxyaabo kale oo badan.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # The label for the program filter checkboxes
-label.programFilters.v2=U kala shandheey qayb ahaan
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Ku dabaq xulashooyinka
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Barnaamijyo iyo adeegyo kale ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Barnaamijyo iyo adeegyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Adeegyada iyo barnaamijyada la heli karo
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Barnaamijyo ku salaysan xulushooyinkaaga({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -595,7 +595,7 @@ button.downloadPdf=Soo.deji.PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Codso barnaamijyada
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Macluumaadka soo gudbintaada
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=Yaa soo gudbiyay arjigan
 # Text above the confirmation number of the application
@@ -611,11 +611,11 @@ heading.nextSteps=Waa maxay tallaabooyinkayga xiga?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Waxaad gudbisay arjigaagii {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Samee akoon si aad u kaydsato macluumaadka arjigaaga
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Isticmaal akoon si aad dib ugu soo gasho si aad u hubiso heerka arjigaaga oo aad u badbaadsato wakhtiga aad ku codsan lahayd barnaamijyada kale.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Ku gal akoon hore u jiray
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -918,7 +918,7 @@ banner.notForProductionBannerLine2=Si aad u codsato barnaamij ama adeeg booqo {0
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Waxaad u codsanaysaa sidii qof marti ah. Markaad dhammayso codsiga, {0} si aad u ilaaliso xogtaada.
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=dhammee kulankaaga
 

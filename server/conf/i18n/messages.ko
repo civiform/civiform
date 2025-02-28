@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
-heading.homepage=한곳에서 프로그램 신청
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
-content.homepageIntro=육아, 식품, 교통, 공공 서비스 등에 대한 도움을 받으세요.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # The label for the program filter checkboxes
-label.programFilters.v2=카테고리 기준으로 필터링
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=선택사항 적용
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=사용 가능한 프로그램 및 서비스
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -595,7 +595,7 @@ button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=내 제출 정보
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=이 신청서를 제출한 사람
 # Text above the confirmation number of the application
@@ -611,11 +611,11 @@ heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} 신청을 제출했습니다.
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=신청 정보를 저장하려면 계정을 만드세요
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=계정을 사용하면 다시 로그인하여 지원 상태를 확인하고 다른 프로그램에 지원하는 시간을 절약할 수 있습니다.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=기존 계정에 로그인
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -918,7 +918,7 @@ banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=비회원으로 신청 중입니다. 신청을 완료한 후에는 {0}하여 데이터를 보호하세요.
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=세션을 종료
 

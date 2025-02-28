@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
-heading.homepage=在同一個地方申請各項計畫
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
-content.homepageIntro=取得兒童照護、食物、交通運輸、公用事業和其他領域的相關協助。
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
-label.programFilters.v2=依類別篩選
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=套用所選篩選條件
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=其他計畫和服務 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=可申請的計畫和服務
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -595,7 +595,7 @@ button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=您提交的資訊
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=此申請書的提交者
 # Text above the confirmation number of the application
@@ -611,11 +611,11 @@ heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=您已提交「{0}」的申請書
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=如要儲存申請書資訊，請建立帳戶
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=使用帳戶重新登入後，即可查看申請書狀態，系統還會儲存相關資訊，幫助您快速申請其他計畫。
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=登入現有帳戶
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -918,7 +918,7 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=您目前是以訪客身分申請。申請完成後，請{0}來保護您的資料。
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
 
