@@ -918,7 +918,7 @@ banner.notForProductionBannerLine2=Чтобы подать заявку на у�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Вы подаете заявку в качестве гостя. После того как вы ее отправите, {0}, чтобы защитить свои данные.
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=завершите сеанс
 
