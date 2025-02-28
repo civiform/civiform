@@ -611,11 +611,11 @@ heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Bạn đã gửi đơn đăng ký {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Tạo tài khoản để lưu thông tin đơn đăng ký của bạn
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Sử dụng một tài khoản để đăng nhập lại nhằm kiểm tra trạng thái đơn đăng ký của bạn và tiết kiệm thời gian khi đăng ký các chương trình khác.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
