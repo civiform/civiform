@@ -595,7 +595,7 @@ button.downloadPdf=ດາວໂຫຼດ PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=ຂໍ້ມູນທີ່ທ່ານສົ່ງ
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=ໃຜເປັນຄົນສົ່ງໃບສະໝັກນີ້
 # Text above the confirmation number of the application
