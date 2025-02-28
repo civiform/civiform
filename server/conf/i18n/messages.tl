@@ -611,11 +611,11 @@ heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Gumawa ng account para i-save ang impormasyon ng iyong aplikasyon
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Gumamit ng account para mag-log in ulit para tingnan ang status ng iyong aplikasyon at makatipid ng oras sa pag-apply sa iba pang programa.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Mag-log in sa kasalukuyang account
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
