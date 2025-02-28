@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የ�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ለፕሮግራሞች እና ለአገልግሎቶች ማመልከቻ ማስገባት ላይ ጊዜ ይቆጥቡ
 # Main home page heading
-heading.homepage=በአንድ ቦታ ባሉ ፕሮግራሞች ላይ ተግብር
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳይ መረጃ እንደገና ሳያስገቡ ለፕሮግራሞች ማመልከቻ ያስገቡ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች መፈተሽ ይችላሉ።
 # Main home page intro text
-content.homepageIntro=በልጅ እንክብካቤ፣ ምግብ፣ መጓጓዣ፣ መገልገያዎች እና ሌሎችም ላይ እገዛ ያግኙ።
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=የፕሮግራም ማጣሪያዎች
 # The label for the program filter checkboxes
-label.programFilters.v2=በምድብ አጣራ
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=ምርጫዎችን ተግብር
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=ሌሎች ፕሮግራሞች እና አገልግ�
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ፕሮግራሞች እና አገልግሎቶች ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=የሚገኙ ፕሮግራሞች እና አገልግሎቶች
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=በእርስዎ ምርጫዎች ላይ የተመሠረቱ ፕሮግራሞች ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
