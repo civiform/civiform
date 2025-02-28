@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
@@ -84,6 +85,8 @@ public class QuestionModel extends BaseModel {
   /** When the question was last modified. */
   @WhenModified private Instant lastModifiedTime;
 
+  private UUID concurrencyToken;
+
   @ManyToMany(mappedBy = "questions")
   @JoinTable(
       name = "versions_questions",
@@ -141,6 +144,7 @@ public class QuestionModel extends BaseModel {
             .setQuestionHelpText(questionHelpText)
             .setValidationPredicatesString(validationPredicates)
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
+            .setConcurrencyToken(Optional.ofNullable(concurrencyToken))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
 
@@ -192,6 +196,11 @@ public class QuestionModel extends BaseModel {
     return this;
   }
 
+  public QuestionModel setConcurrencyToken(UUID concurrencyToken) {
+    this.concurrencyToken = concurrencyToken;
+    return this;
+  }
+
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
   }
@@ -199,6 +208,9 @@ public class QuestionModel extends BaseModel {
   private QuestionModel setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
+    }
+    if (questionDefinition.getConcurrencyToken().isPresent()) {
+      concurrencyToken = questionDefinition.getConcurrencyToken().get();
     }
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
@@ -278,5 +290,9 @@ public class QuestionModel extends BaseModel {
 
   public Optional<Instant> getCreateTime() {
     return Optional.ofNullable(createTime);
+  }
+
+  public UUID getConcurrencyToken() {
+    return this.concurrencyToken;
   }
 }

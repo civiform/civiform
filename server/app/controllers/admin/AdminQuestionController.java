@@ -14,6 +14,7 @@ import forms.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -281,7 +282,17 @@ public final class AdminQuestionController extends CiviFormController {
 
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
+      questionDefinition =
+          getBuilder(maybeExisting, questionForm)
+              .setId(id)
+              .setConcurrencyToken(
+                  Optional.of(
+                      UUID.fromString(
+                          // todo the form should probably save it the right way?
+                          questionForm.getConcurrencyToken())))
+              .build();
+      // questionDefinition = getBuilder(maybeExisting,
+      // questionForm).setId(id).setConcurrencyToken(Optional.of(3L)).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type

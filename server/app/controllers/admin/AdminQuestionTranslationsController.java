@@ -115,6 +115,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     QuestionDefinition toUpdate = getDraftQuestionDefinition(questionName);
 
     try {
+      // todo somewhere in here we need to pull a concurrencyToken off the request and put it
+      // in the question definition, since atm we're just pulling it out of the database
       QuestionDefinition definitionWithUpdates =
           buildFormFromRequest(request, toUpdate.getQuestionType())
               .builderWithUpdates(toUpdate, localeToUpdate)

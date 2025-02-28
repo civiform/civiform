@@ -14,6 +14,7 @@ import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -89,9 +90,23 @@ public final class QuestionRepository {
               .getQuestionByNameForVersion(definition.getName(), draftVersion);
       try {
         if (existingDraft.isPresent()) {
+          // validate that no one else changed the question while the form was open in the admin's
+          // browser
+          if (!existingDraft
+              .get()
+              .getConcurrencyToken()
+              .equals(definition.getConcurrencyToken().get())) {
+            throw new RuntimeException("optimistic lock exception");
+          }
+
+          // todo idk if I like putting the concurrencyToken in the question definition like this
           QuestionModel updatedDraft =
               new QuestionModel(
-                  new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
+                  new QuestionDefinitionBuilder(definition)
+                      .setId(existingDraft.get().id)
+                      // Set a new concurrency token so any concurrent changes fail
+                      .setConcurrencyToken(Optional.of(UUID.randomUUID()))
+                      .build());
           this.updateQuestionSync(updatedDraft);
           transaction.commit();
           return updatedDraft;
@@ -338,6 +353,8 @@ public final class QuestionRepository {
   }
 
   public QuestionModel updateQuestionSync(QuestionModel question) {
+    // todo so where is this called from so that we can make sure it's only updated with a
+    // concurrencyToken?
     database.update(question);
     return question;
   }
