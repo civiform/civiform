@@ -301,7 +301,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
           name: "You've submitted your " + programName + ' application',
         }),
       ).toBeVisible()
-      await expect(page.getByText('Your submission information')).toBeVisible()
+      await applicantQuestions.expectConfirmationPage(
+        /* northStarEnabled= */ true,
+      )
       await expect(page.getByText(customConfirmationText)).toBeVisible()
 
       if (expectRelatedProgram) {
