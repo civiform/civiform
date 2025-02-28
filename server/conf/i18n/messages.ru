@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
-heading.homepage=Подавайте заявки на участие в программах поддержки
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
-content.homepageIntro=Получайте помощь с оплатой расходов на уход за детьми, питание, транспорт, коммунальные услуги и многое другое.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # The label for the program filter checkboxes
-label.programFilters.v2=Фильтр по категориям
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Применить фильтры
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Другие программы и услуги ({
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Программы и услуги ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Доступные программы и услуги
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Программы по фильтрам ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
