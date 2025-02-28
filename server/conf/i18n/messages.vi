@@ -202,16 +202,16 @@ content.findProgramsDescription=CiviForm giúp bạn tìm được những chư�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 # Main home page heading
-heading.homepage=Đăng ký nhiều chương trình tại một nơi
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 # Main home page intro text
-content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
 # The label for the program filter checkboxes
-label.programFilters.v2=Lọc theo danh mục
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Áp dụng các lựa chọn
 # The button to clear program filter selections
@@ -243,7 +243,7 @@ title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Các chương trình và dịch vụ có sẵn
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Các chương trình dựa trên lựa chọn của bạn ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
