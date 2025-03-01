@@ -127,8 +127,7 @@ public class CiviFormProfileData extends CommonProfile {
   @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     setId((String) in.readObject());
-    Map<String, Object> attributes = (Map<String, Object>) in.readObject();
-    addAttributes(attributes);
+    addAttributes((Map<String, Object>) in.readObject());
     addAuthenticationAttributes((Map<String, Object>) in.readObject());
     setRemembered(in.readBoolean());
     setRoles((Set<String>) in.readObject());
