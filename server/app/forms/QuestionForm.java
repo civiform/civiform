@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import models.QuestionModel;
 import models.QuestionTag;
 import services.LocalizedStrings;
@@ -30,6 +31,7 @@ public abstract class QuestionForm {
   private QuestionDefinition qd;
   private String redirectUrl;
   private boolean isUniversal;
+  private String concurrencyToken;
   private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
 
   protected QuestionForm() {
@@ -41,6 +43,9 @@ public abstract class QuestionForm {
     questionExportState = Optional.of("");
     redirectUrl = "";
     isUniversal = false;
+    concurrencyToken =
+        ""; // set to an invalid value so it fails if there's not a concurrency token. would it be
+    // better if this was optional>
     primaryApplicantInfoTags = ImmutableSet.of();
   }
 
@@ -65,6 +70,8 @@ public abstract class QuestionForm {
     }
 
     isUniversal = qd.isUniversal();
+    // todo should the concurrency token on the question definition be optional?
+    concurrencyToken = qd.getConcurrencyToken().map(String::valueOf).orElse(concurrencyToken);
     primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
   }
 
@@ -88,9 +95,17 @@ public abstract class QuestionForm {
     return enumeratorId;
   }
 
+  public final String getConcurrencyToken() {
+    return concurrencyToken;
+  }
+
   public final void setEnumeratorId(String enumeratorId) {
     this.enumeratorId =
         enumeratorId.isEmpty() ? Optional.empty() : Optional.of(Long.valueOf(enumeratorId));
+  }
+
+  public final void setConcurrencyToken(String concurrencyToken) {
+    this.concurrencyToken = concurrencyToken;
   }
 
   public abstract QuestionType getQuestionType();
@@ -136,6 +151,7 @@ public abstract class QuestionForm {
             ? LocalizedStrings.empty()
             : LocalizedStrings.of(Locale.US, questionHelpText);
 
+    // todo catch IllegalArgumentException from UUID.fromString()
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
             .setQuestionType(getQuestionType())
@@ -145,6 +161,10 @@ public abstract class QuestionForm {
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap)
             .setUniversal(isUniversal)
+            .setConcurrencyToken(
+                concurrencyToken.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(UUID.fromString(concurrencyToken)))
             .setPrimaryApplicantInfoTags(primaryApplicantInfoTags);
     return builder;
   }

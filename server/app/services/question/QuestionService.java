@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.QuestionModel;
@@ -72,6 +73,8 @@ public final class QuestionService {
           }
           QuestionModel question = new QuestionModel(questionDefinition);
           question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
+          // todo should the model just create a default if it's not provided?
+          question.setConcurrencyToken(UUID.randomUUID());
           questionRepository.insertQuestionSync(question);
           return ErrorAnd.of(question.getQuestionDefinition());
         },
@@ -183,7 +186,14 @@ public final class QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    question = questionRepository.createOrUpdateDraft(updatedDefinition);
+    try {
+      question = questionRepository.createOrUpdateDraft(updatedDefinition);
+    } catch (RuntimeException e) { // todo make a new exception
+      return ErrorAnd.error(
+          ImmutableSet.of(
+              CiviFormError.of(
+                  "Another user modified the question at the same time, please try again.")));
+    }
     return ErrorAnd.of(questionRepository.getQuestionDefinition(question));
   }
 

@@ -384,6 +384,10 @@ public final class QuestionEditView extends BaseHtmlView {
                     .isHidden()
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
+                input()
+                    .isHidden()
+                    .withName("concurrencyToken")
+                    .withValue(questionForm.getConcurrencyToken()),
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
