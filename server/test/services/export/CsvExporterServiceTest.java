@@ -57,7 +57,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
           "TI Email",
           "TI Organization",
           "Status",
-          "Admin Note");
+          "Admin Note",
+          "Status Create Time");
   private static final ImmutableList<String> demographicMetadataHeaders =
       ImmutableList.of(
           "Opaque ID",
@@ -113,7 +114,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "Admin Note");
+            "Admin Note",
+            "Status Create Time");
 
     assertThat(record.get("Applicant ID")).isEqualTo(applicant.id.toString());
     assertThat(record.get("Application ID")).isEqualTo(application.id.toString());
@@ -125,6 +127,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(record.get("TI Organization")).isEmpty();
     // Status field tested separately.
     assertThat(record.get("Status")).isEmpty();
+    assertThat(record.get("Status Create Time")).isEmpty();
   }
 
   @Test
@@ -193,6 +196,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     // results are in reverse order from submission
     assertThat(records.get(0).get("Status")).isEmpty();
     assertThat(records.get(1).get("Status")).isEqualTo("approved");
+    assertThat(records.get(1).get("Status Create Time")).isNotEmpty();
   }
 
   @Test
@@ -273,7 +277,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (middle_name)",
             "applicant name (last_name)",
             "applicant name (suffix)",
-            "Admin Note");
+            "Admin Note",
+            "Status Create Time");
 
     // Applications should appear most recent first.
     assertThat(records.get(0).get("applicant name (first_name)")).isEqualTo("His name");
@@ -327,7 +332,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "Admin Note");
+            "Admin Note",
+            "Status Create Time");
   }
 
   @Test
@@ -386,7 +392,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Status",
             // Unanswered questions should still have a column
             "applicant id (id)",
-            "Admin Note");
+            "Admin Note",
+            "Status Create Time");
   }
 
   @Test
