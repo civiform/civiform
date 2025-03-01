@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -252,8 +253,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .thenReturn(CompletableFuture.completedFuture(accountWithTiGroup));
     when(trustedIntermediary.getApplicant())
         .thenReturn(CompletableFuture.completedFuture(new ApplicantModel()));
-
-    CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
+    CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L, Clock.systemUTC());
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
     PlayWebContext context = new PlayWebContext(fakeRequest());
