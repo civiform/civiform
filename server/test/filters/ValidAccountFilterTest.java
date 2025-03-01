@@ -13,7 +13,6 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import models.AccountModel;
-import org.apache.pekko.stream.testkit.NoMaterializer$;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.streams.Accumulator;
@@ -36,8 +35,8 @@ public class ValidAccountFilterTest extends WithApplication {
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
-
-    filter = new ValidAccountFilter(profileUtils, () -> settingsManifest, instanceOf(Clock.class));
+    filter =
+        new ValidAccountFilter(profileUtils, () -> settingsManifest, mat, instanceOf(Clock.class));
 
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
@@ -60,8 +59,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     // when session timeout is disabled, we don't update last activity time
     verify(mockProfileData, never()).updateLastActivityTime(any());
@@ -80,14 +78,14 @@ public class ValidAccountFilterTest extends WithApplication {
     long currentTime = System.currentTimeMillis();
     long lastActivityTime = currentTime - (1 * 60 * 1000);
     when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime()).thenReturn(Optional.of(lastActivityTime));
+    when(mockProfile.getSessionStartTime())
+        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
 
     EssentialAction action =
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     verify(mockProfileData).updateLastActivityTime(any());
     assertThat(result.status()).isEqualTo(200);
@@ -104,8 +102,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
@@ -124,14 +121,14 @@ public class ValidAccountFilterTest extends WithApplication {
     long currentTime = System.currentTimeMillis();
     long lastActivityTime = currentTime - (31 * 60 * 1000);
     when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime()).thenReturn(Optional.of(lastActivityTime));
+    when(mockProfile.getSessionStartTime())
+        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
 
     EssentialAction action =
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
@@ -154,14 +151,14 @@ public class ValidAccountFilterTest extends WithApplication {
     long lastActivityTime = currentTime - (5 * 60 * 1000);
 
     when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime()).thenReturn(Optional.of(sessionStartTime));
+    when(mockProfile.getSessionStartTime())
+        .thenReturn(CompletableFuture.completedFuture(Optional.of(sessionStartTime)));
 
     EssentialAction action =
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
@@ -184,8 +181,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(303); // Redirect status
     assertThat(result.redirectLocation()).hasValue("/logout");
@@ -202,8 +198,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(200);
   }
@@ -219,8 +214,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(200);
   }
@@ -235,8 +229,7 @@ public class ValidAccountFilterTest extends WithApplication {
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
 
-    Result result =
-        action.apply(request.build()).run(NoMaterializer$.MODULE$).toCompletableFuture().get();
+    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
 
     assertThat(result.status()).isEqualTo(200);
   }
