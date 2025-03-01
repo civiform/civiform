@@ -474,8 +474,18 @@ public final class ReadOnlyApplicantProgramService {
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
+            Optional<ImmutableList<String>> originalFileNamesOptional =
+                fileUploadQuestion.getOriginalFileNameListValue();
+            ImmutableList<String> storageFileNames;
+            // Only Azure deployments store OriginalFilenames, for all other deployments, the
+            // filename is stored in the
+            // filekey.
+            storageFileNames =
+                originalFileNamesOptional.isPresent() ? originalFileNamesOptional.get() : fileKeys;
             fileNames =
-                fileKeys.stream().map(FileUploadQuestion::getFileName).collect(toImmutableList());
+                storageFileNames.stream()
+                    .map(FileUploadQuestion::getFileName)
+                    .collect(toImmutableList());
             encodedFileKeys =
                 fileKeys.stream()
                     .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
