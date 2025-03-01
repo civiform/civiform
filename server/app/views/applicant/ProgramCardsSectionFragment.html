@@ -5,28 +5,28 @@
   th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
   th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
-  <div th:if="${showHeading}" class="grid-container">
-    <div class="grid-row usa-prose">
-      <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
-    </div>
+  <div th:if="${showHeading}" class="grid-row usa-prose">
+    <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
   </div>
-  <div class="grid-container">
-    <div th:if="${section.sectionType().name() == 'COMMON_INTAKE'}">
-      <div
-        th:replace="~{applicant/ProgramCardsSectionFragment :: preScreenerCard(${section.cards().get(0)})}"
-      ></div>
-    </div>
-    <ul
-      th:unless="${section.sectionType().name() == 'COMMON_INTAKE'}"
-      class="usa-card-group cf-program-card-group"
-    >
-      <th:block th:each="card : ${section.cards()}">
-        <li
-          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
-        ></li>
-      </th:block>
-    </ul>
+
+  <!--* Pre-screener card -->
+  <div th:if="${section.sectionType().name() == 'COMMON_INTAKE'}">
+    <div
+      th:replace="~{applicant/ProgramCardsSectionFragment :: preScreenerCard(${section.cards().get(0)})}"
+    ></div>
   </div>
+
+  <!--* Programs card -->
+  <ul
+    th:unless="${section.sectionType().name() == 'COMMON_INTAKE'}"
+    class="usa-card-group cf-program-card-group"
+  >
+    <th:block th:each="card : ${section.cards()}">
+      <li
+        th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
+      ></li>
+    </th:block>
+  </ul>
 </section>
 
 <li
