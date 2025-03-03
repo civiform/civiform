@@ -69,7 +69,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
             .show(true)
             .title(Optional.of(alertTitle))
             .alertType(AlertType.SUCCESS)
-            .isSlim(true)
+            .isSlim(false)
             .build();
 
     context.setVariable("successAlertSettings", successAlertSettings);
