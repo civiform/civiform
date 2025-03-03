@@ -27,7 +27,7 @@ import services.settings.SettingsManifest;
 public class ValidAccountFilter extends EssentialFilter {
 
   private static final int DEFAULT_INACTIVITY_TIMEOUT_MINUTES = 30;
-  private static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 480;
+  private static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 600;
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
