@@ -1189,7 +1189,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             blockId);
       }
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return supplyAsync(() -> notFound(e.toString()));
     }
 
     Map<String, String> flashingMap = new HashMap<>();
