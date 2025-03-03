@@ -50,7 +50,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ProgramModel program = createDraftProgram("Program");
 
     ApplicationModel appOne =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     Instant initialSubmitTime = appOne.getSubmitTime();
 
     ApplicationModel appTwoDraft =
@@ -67,7 +70,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Submit another application for the same program and applicant, but update the applicantData
     // object so it is not detected as a duplicate.
     applicant.getApplicantData().putString(Path.create("text"), "text");
-    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
 
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
@@ -99,10 +105,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
     ApplicationModel app2 =
-        repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant2, program2, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     Instant appTwoInitialSubmitTime = app2.getSubmitTime();
 
-    repo.submitApplication(applicant1, program1, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant1, program1, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
 
     assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
     assertThat(app2.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -143,7 +155,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThatThrownBy(
             () ->
-                repo.submitApplication(applicant, program, Optional.empty())
+                repo.submitApplication(
+                        applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
                     .toCompletableFuture()
                     .join())
         .isInstanceOf(RuntimeException.class)
@@ -171,7 +184,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     ApplicationModel app =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
   }
@@ -181,10 +197,14 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
 
-    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    repo.submitApplication(
+            applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+        .toCompletableFuture()
+        .join();
     assertThatThrownBy(
             () ->
-                repo.submitApplication(applicant, program, Optional.empty())
+                repo.submitApplication(
+                        applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
                     .toCompletableFuture()
                     .join())
         .cause()
@@ -196,7 +216,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     ApplicantModel applicant = saveApplicant("Alice");
     ProgramModel program = createDraftProgram("Program");
     ApplicationModel application =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
     assertThat(
         application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
   }
