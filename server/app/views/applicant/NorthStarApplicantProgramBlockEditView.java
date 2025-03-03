@@ -77,6 +77,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("reviewUrl", reviewWithoutSaving(applicationParams));
 
     // Progress bar
     ProgressBar progressBar =
@@ -112,7 +113,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
 
       return templateEngine.process(
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
-    } else {
+    }
 
       context.setVariable(
           "previousFormAction",
@@ -135,7 +136,6 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
       return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
-    }
   }
 
   // Helper function to set the modal context
