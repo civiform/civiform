@@ -411,8 +411,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantRoutes,
                         profile);
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  final String programSlug;
+                  try {
+                    programSlug = programService.getFullProgramDefinition(programId).slug();
+                  } catch (ProgramNotFoundException e) {
+                    return notFound(e.toString());
+                  }
                   return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams))
+                          request, applicationParams, programSlug))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
@@ -508,8 +514,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerMessage(successBannerMessage)
                         .build();
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  final String programSlug;
+                  try {
+                    programSlug = programService.getFullProgramDefinition(programId).slug();
+                  } catch (ProgramNotFoundException e) {
+                    return notFound(e.toString());
+                  }
                   return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams))
+                          request, applicationParams, programSlug))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
@@ -1137,7 +1149,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantRoutes,
                     submittingProfile);
             if (settingsManifest.getNorthStarApplicantUi(request)) {
-              return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams))
+              final String programSlug;
+              try {
+                programSlug = programService.getFullProgramDefinition(programId).slug();
+              } catch (ProgramNotFoundException e) {
+                return notFound(e.toString());
+              }
+              return ok(northStarApplicantProgramBlockEditView.render(
+                      request, applicationParams, programSlug))
                   .as(Http.MimeTypes.HTML);
             } else {
               return ok(editView.render(applicationParams));

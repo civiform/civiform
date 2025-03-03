@@ -59,7 +59,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
-  public String render(Request request, ApplicationBaseViewParams applicationParams) {
+  public String render(
+      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -77,7 +78,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
-    context.setVariable("reviewUrl", reviewWithoutSaving(applicationParams));
+    context.setVariable("overviewUrl", overview(applicationParams, programSlug));
 
     // Progress bar
     ProgressBar progressBar =
@@ -115,27 +116,26 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
           "applicant/ApplicantProgramFileUploadBlockEditTemplate", context);
     }
 
-      context.setVariable(
-          "previousFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
-      context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
-      context.setVariable(
-          "reviewFormAction",
-          getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
+    context.setVariable(
+        "previousFormAction",
+        getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK));
+    context.setVariable("previousWithoutSaving", previousWithoutSaving(applicationParams));
+    context.setVariable(
+        "reviewFormAction", getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE));
 
-      if (applicationParams.errorDisplayMode()
-          == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
-        setErrorContextForReview(context, applicationParams);
-      } else {
-        setErrorContextForPrevious(context, applicationParams);
-      }
+    if (applicationParams.errorDisplayMode()
+        == ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS_WITH_MODAL_REVIEW) {
+      setErrorContextForReview(context, applicationParams);
+    } else {
+      setErrorContextForPrevious(context, applicationParams);
+    }
 
-      // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
-      context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
-      context.setVariable("nameSuffixOptions", Suffix.values());
-      context.setVariable(
-          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
-      return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
+    // TODO(#6910): Why am I unable to access static vars directly from Thymeleaf
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("nameSuffixOptions", Suffix.values());
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    return templateEngine.process("applicant/ApplicantProgramBlockEditTemplate", context);
   }
 
   // Helper function to set the modal context
@@ -219,6 +219,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .applicantRoutes()
         .review(params.profile(), params.applicantId(), params.programId())
         .url();
+  }
+
+  private String overview(ApplicationBaseViewParams params, String programSlug) {
+    return params.applicantRoutes().show(programSlug).url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
