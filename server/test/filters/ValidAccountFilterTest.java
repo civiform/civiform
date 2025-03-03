@@ -144,10 +144,10 @@ public class ValidAccountFilterTest extends WithApplication {
     when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
     when(settingsManifest.getSessionInactivityTimeoutMinutes()).thenReturn(Optional.of(30));
-    when(settingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(480));
+    when(settingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(600));
 
     long currentTime = System.currentTimeMillis();
-    long sessionStartTime = currentTime - (481 * 60 * 1000);
+    long sessionStartTime = currentTime - (601 * 60 * 1000);
     long lastActivityTime = currentTime - (5 * 60 * 1000);
 
     when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
