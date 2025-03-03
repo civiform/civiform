@@ -28,14 +28,11 @@ JSON_EXAMPLE = {
 
 class LLMPrompts:
     @staticmethod
-    def pdf_to_json_prompt(text):
+    def pdf_to_json_prompt():
         """Prompt for converting PDF text to intermediary JSON."""
         prompt = f"""
         You are an expert in document analysis and structured form modeling.  
-        The following text was extracted from a  PDF document containing a blank government application form. 
-
-        
-        {text}
+        You are given a PDF document containing a blank government application form.
         
         Instructions:
         

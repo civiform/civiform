@@ -1,5 +1,6 @@
-import pdfplumber
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from pathlib import Path
 import json
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
@@ -61,19 +62,10 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp",
     try:
         with open(api_key_file, "r") as f:
             GOOGLE_API_KEY = f.read().strip()
-        genai.configure(api_key=GOOGLE_API_KEY)
+        client = genai.Client(api_key=GOOGLE_API_KEY)
         logging.info("Google API key loaded successfully.")
 
-        # Print available Gemini models
-        print("\n".join(
-            m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods))
-
-        model = genai.GenerativeModel(f"models/{model_name}")
-
-        # Print available Gemini models
-        logging.info(f"INFO: Gemini model used: Model name: {model_name} version: {genai.__version__};")
-
-        return model
+        return client
 
     except FileNotFoundError:
         logging.error(f"Error: Google API key file not found at {api_key_file}.")
@@ -83,26 +75,15 @@ def initialize_gemini_model(model_name="gemini-2.0-flash-thinking-exp",
         exit(1)
 
 
-def extract_text_from_pdf(pdf_path):
-    logging.info(f"Extracts text from a given PDF file: {pdf_path}")
-    """Extracts text from a given PDF file while maintaining basic layout structure."""
-    text_blocks = []
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            text = page.extract_text()
-            if text:
-                text_blocks.append(text)
-    return "\n\n".join(text_blocks)
-
-
-def process_pdf_text_with_llm(model, model_name, text, base_name):
+def process_pdf_text_with_llm(client, model_name, file, base_name):
     """Sends extracted PDF text to Gemini and asks it to format the content into structured JSON."""
 
-    prompt = LLMPrompts.pdf_to_json_prompt(text)
+    prompt = LLMPrompts.pdf_to_json_prompt()
     logging.info(f"LLM processing input txt extracted from PDF...")
 
     try:
-        response = model.generate_content(prompt)
+        input_file= types.Part.from_bytes(data=file,mime_type='application/pdf',)
+        response = client.models.generate_content(model=model_name, contents=[input_file, prompt])
         response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
@@ -115,13 +96,13 @@ def process_pdf_text_with_llm(model, model_name, text, base_name):
         return None
 
 
-def post_processing_llm(model, model_name, text, base_name):
+def post_processing_llm(client, model_name, text, base_name):
     """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
     prompt_post_processing_json = LLMPrompts.post_process_json_prompt(text)
 
     try:
         logging.info(f"post_processing_json_with_llm. collating names, addresses ...")
-        response = model.generate_content(prompt_post_processing_json)
+        response = client.models.generate_content(model=model_name, contents=[prompt_post_processing_json])
         response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
@@ -211,15 +192,16 @@ def upload_file():
     # Get LLM model name from the request
     model_name = request.form.get('modelName')
 
-    model = initialize_gemini_model(model_name)
+    client = initialize_gemini_model(model_name)
 
     # Extract the base filename without extension
     base_name, _ = os.path.splitext(os.path.basename(filename))
     base_name = base_name[:15]  # limit to 15 chars to avoid extremely long filenames
 
     try:
-        extracted_text = extract_text_from_pdf(file_full)
-        structured_json = process_pdf_text_with_llm(model, model_name, extracted_text,
+        filepath = Path(file_full)
+        file_bytes = filepath.read_bytes()
+        structured_json = process_pdf_text_with_llm(client, model_name, file_bytes,
                                                    base_name)
 
         if structured_json is None:
@@ -229,7 +211,7 @@ def upload_file():
         formated_json = format_json_single_line_fields(structured_json)
         save_response_to_file(formated_json, base_name, f"formated-{model_name}", work_dir)
 
-        post_processed_json = post_processing_llm(model, model_name, formated_json, base_name)
+        post_processed_json = post_processing_llm(client, model_name, formated_json, base_name)
         
         logging.info(f"Formating post processed json  .... ")
         formated_post_processed_json = format_json_single_line_fields(post_processed_json)
