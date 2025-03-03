@@ -795,7 +795,7 @@ export class ApplicantQuestions {
   async expectConfirmationPage(northStarEnabled = false) {
     if (northStarEnabled) {
       await expect(
-        this.page.getByText('Your submission information'),
+        this.page.getByText('Your application details'),
       ).toBeVisible()
     } else {
       expect(await this.page.innerText('h1')).toContain(
@@ -864,7 +864,7 @@ export class ApplicantQuestions {
     }
 
     const createAccountHeading = this.page.getByRole('heading', {
-      name: 'Create an account to save your application information',
+      name: 'To access your application later, create an account',
     })
     if (wantUpsell) {
       await expect(createAccountHeading).toBeVisible()

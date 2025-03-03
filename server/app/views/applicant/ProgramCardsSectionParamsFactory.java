@@ -140,7 +140,7 @@ public final class ProgramCardsSectionParamsFactory {
         getActionUrl(
             applicantRoutes,
             program.id(),
-            program.adminName(),
+            program.slug(),
             program.isCommonIntakeForm(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
