@@ -211,11 +211,11 @@ def convert_to_civiform_json(unprocessed_input_json):
                 "isRequired": True
             },
             "localizedDescription": {
-                "translations": {"en_US": input_json.get("help_text", "program-localizedDescription-TO-BE-EDITED")},
+                "translations": {"en_US": input_json.get("help_text") or "program-localizedDescription-TO-BE-EDITED"},
                 "isRequired": True
             },
             "localizedShortDescription": {
-                "translations": {"en_US": input_json.get("help_text", "program-localizedShortDescriptionTO-BE-EDITED")},
+                "translations": {"en_US": input_json.get("help_text") or "program-localizedShortDescriptionTO-BE-EDITED"},
                 "isRequired": True
             },
             "localizedConfirmationMessage": {
