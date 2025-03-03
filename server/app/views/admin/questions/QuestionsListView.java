@@ -390,7 +390,13 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(
                 div()
                     .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
-                    .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
+                    .withClasses(
+                        ReferenceClasses.ADMIN_QUESTION_TITLE,
+                        "pl-4",
+                        "text-xl",
+                        "break-words",
+                        "max-w-full"));
+
     String questionDescriptionString =
         definition.getQuestionHelpText().isEmpty()
             ? ""
