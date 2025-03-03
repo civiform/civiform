@@ -259,6 +259,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE");
   }
 
+  /** The OIDC attribute name for the user’s phone number. */
+  public Optional<String> getApplicantOidcPhoneNumberAttribute() {
+    return getString("APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE");
+  }
+
   /**
    * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
    * authorization servers, specifically communicating with Login.gov. A Civiform instance is always
@@ -505,6 +510,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** The provider to use for sending emails. */
   public Optional<String> getEmailProvider() {
     return getString("EMAIL_PROVIDER");
+  }
+
+  /** The email or account ID that graph API should use to send the email. */
+  public Optional<String> getGraphApiEmailAccount() {
+    return getString("GRAPH_API_EMAIL_ACCOUNT");
   }
 
   /** What static file storage provider to use. */
@@ -813,6 +823,27 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * How many minutes before the session inactivity timeout a user receives a warning that their
+   * session will expire. Default is 5.
+   */
+  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /**
+   * How many minutes before the maximum session duration timeout a user receives a warning that
+   * their session will expire. Default is 10.
+   */
+  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
+    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /** The number of minutes of inactivity before a session times out. Default is 30. */
+  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
+    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
+  }
+
+  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -1036,6 +1067,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNorthStarApplicantUi(RequestHeader request) {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
+  }
+
+  /** Enable session timeout based on inactivity and maximum duration. */
+  public boolean getSessionTimeoutEnabled() {
+    return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1294,6 +1330,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_NAME_SUFFIX_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s name suffix.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "APPLICANT_OIDC_PHONE_NUMBER_ATTRIBUTE",
+                                      "The OIDC attribute name for the user’s phone number.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
@@ -1817,7 +1859,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.HIDDEN,
-                      ImmutableList.of("aws-ses", "graph-api")))),
+                      ImmutableList.of("aws-ses", "graph-api")),
+                  SettingDescription.create(
+                      "GRAPH_API_EMAIL_ACCOUNT",
+                      "The email or account ID that graph API should use to send the email.",
+                      /* isRequired= */ false,
+                      SettingType.STRING,
+                      SettingMode.HIDDEN))),
           "Email Addresses",
           SettingsSection.create(
               "Email Addresses",
@@ -2152,7 +2200,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " experience in Applicant flows",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "SESSION_TIMEOUT_ENABLED",
+                      "Enable session timeout based on inactivity and maximum duration.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -2273,6 +2327,27 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The amount of time, in minutes, that a session lasts. The default is 600"
                           + " minutes, or 10 hours. Note that there isn't yet messaging on the"
                           + " frontend to notify a user when their session is expired.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
+                      "How many minutes before the session inactivity timeout a user receives a"
+                          + " warning that their session will expire. Default is 5.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
+                      "How many minutes before the maximum session duration timeout a user receives"
+                          + " a warning that their session will expire. Default is 10.",
+                      /* isRequired= */ false,
+                      SettingType.INT,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "SESSION_INACTIVITY_TIMEOUT_MINUTES",
+                      "The number of minutes of inactivity before a session times out. Default is"
+                          + " 30.",
                       /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE))));

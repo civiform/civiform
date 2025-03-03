@@ -192,16 +192,6 @@ export class AdminPrograms {
       confirmationMessage,
     )
 
-    for (let i = 0; i < applicationSteps.length; i++) {
-      const indexPlusOne = i + 1
-      await this.page
-        .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
-        .fill(applicationSteps[i].title)
-      await this.page
-        .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
-        .fill(applicationSteps[i].description)
-    }
-
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
       await this.page.check(`label:has-text("${selectedTI}")`)
@@ -211,10 +201,34 @@ export class AdminPrograms {
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
+    } else {
+      for (let i = 0; i < applicationSteps.length; i++) {
+        const indexPlusOne = i + 1
+        await this.page
+          .getByRole('textbox', {name: `Step ${indexPlusOne} title`})
+          .fill(applicationSteps[i].title)
+        await this.page
+          .getByRole('textbox', {name: `Step ${indexPlusOne} description`})
+          .fill(applicationSteps[i].description)
+      }
     }
 
     if (submitNewProgram) {
       await this.submitProgramDetailsEdits()
+    }
+  }
+
+  async expectApplicationStepsDisabled() {
+    for (let i = 0; i < 5; i++) {
+      const indexPlusOne = i + 1
+      await expect(
+        this.page.getByRole('textbox', {name: `Step ${indexPlusOne} title`}),
+      ).toBeDisabled()
+      await expect(
+        this.page.getByRole('textbox', {
+          name: `Step ${indexPlusOne} description`,
+        }),
+      ).toBeDisabled()
     }
   }
 

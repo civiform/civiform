@@ -172,6 +172,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
       }
     },
     "application_id" : 456,
+    "application_note" : null,
     "create_time" : "2023-05-25T13:46:15-07:00",
     "language" : "en-US",
     "program_name" : "test-program-admin-name",

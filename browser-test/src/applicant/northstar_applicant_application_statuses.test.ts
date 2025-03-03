@@ -17,6 +17,7 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -28,8 +29,8 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
 
       // Submit an application as a test user so that we can navigate back to the applications page.
       await loginAsTestUser(page)
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.applyProgram(programName, true)
+      await applicantQuestions.submitFromReviewPage(true)
       await logout(page)
 
       // Navigate to the submitted application as the program admin and set a status.
@@ -41,8 +42,6 @@ test.describe('with program statuses', {tag: ['@northstar']}, () => {
       await adminPrograms.confirmStatusUpdateModal(modal)
       await page.getByRole('link', {name: 'Back'}).click()
       await logout(page)
-
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
     },
   )
 

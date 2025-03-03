@@ -19,6 +19,15 @@ function docker::compose_dev() {
 }
 
 #######################################
+# Runs docker compose with the local development and the keycloak oidc server settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
+function docker::compose_dev_keycloak() {
+  docker compose -f docker-compose.yml -f docker-compose.keycloak.yml -f docker-compose.dev.yml "$@"
+}
+
+#######################################
 # Runs docker compose with the prod image in a dev-like way.
 # Arguments:
 #   @: arguments for compose

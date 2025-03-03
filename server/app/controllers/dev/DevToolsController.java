@@ -19,6 +19,8 @@ import models.LifecycleStage;
 import models.Models;
 import models.PersistedDurableJobModel;
 import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.mvc.Controller;
@@ -34,6 +36,7 @@ import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
 public class DevToolsController extends Controller {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DevToolsController.class);
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DevToolsView view;
@@ -132,10 +135,28 @@ public class DevToolsController extends Controller {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    clearCacheIfEnabled();
-    resetTables();
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "The database has been cleared");
+    Result result = redirect(routes.DevToolsController.index().url());
+    return clearInternal()
+        ? result.flashing(FlashKey.SUCCESS, "The database has been cleared")
+        : result.flashing(FlashKey.ERROR, "Could not clear database");
+  }
+
+  /** Remove all content from the program and question tables. */
+  public Result clearHeadless() {
+    return clearInternal() ? ok() : internalServerError();
+  }
+
+  /** Remove all content from the program and question tables. */
+  private boolean clearInternal() {
+    try {
+      clearCacheIfEnabled();
+      resetTables();
+
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to clear cache or tables.", ex);
+      return false;
+    }
   }
 
   /** Remove all content from the cache. */

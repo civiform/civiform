@@ -11,6 +11,7 @@
 source bin/lib.sh
 docker::set_project_name_dev
 truth::declare_var_false runprod
+truth::declare_var_false is_keycloak
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
@@ -41,6 +42,9 @@ function set_args() {
       "--prod")
         truth::enable runprod
         ;;
+      "--keycloak")
+        truth::enable is_keycloak
+        ;;
     esac
 
     shift
@@ -64,6 +68,8 @@ fi
 # Start the civiform container and dependencies.
 if truth::is_enabled runprod; then
   docker::compose_dev_with_prod up --wait -d
+elif truth::is_enabled is_keycloak; then
+  docker::compose_dev_keycloak up --wait -d
 else
   docker::compose_dev up --wait -d
 fi
@@ -85,6 +91,9 @@ if truth::is_enabled runprod; then
   # tailing the log. But one of these days we should fix this up
   # to trap the Ctrl+C and stop the containers.
   docker::compose_dev_with_prod stop civiform
+elif truth::is_enabled is_keycloak; then
+  docker::dev_and_test_server_sbt_command "8457" runDevServer
+  docker::compose_dev_keycloak stop civiform
 else
   docker::dev_and_test_server_sbt_command "8457" runDevServer
   docker::compose_dev stop civiform

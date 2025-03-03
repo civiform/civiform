@@ -267,14 +267,13 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains(
             String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
-            "program display name cannot be blank",
-            "program short display description cannot be blank",
+            "Program display name cannot be blank",
+            "Program short display description cannot be blank",
             "new first status text",
             "new first status email",
             "new second status text",
             "new second status email",
-            "program application step one title cannot be blank",
-            "program application step one description cannot be blank");
+            "Application steps cannot be blank");
 
     assertProgramNotChanged(program);
   }
@@ -299,6 +298,8 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                     .put("localized-email-1", "updated spanish second status email")
                     .put("application-step-title-0", "step one title")
                     .put("application-step-description-0", "step one description")
+                    .put("application-step-title-1", "step two title")
+                    .put("application-step-description-1", "step two description")
                     .build());
 
     Result result =

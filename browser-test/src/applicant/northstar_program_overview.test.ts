@@ -306,7 +306,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
-          name: 'Apply to programs in one place',
+          name: 'Apply for government assistance here',
         }),
       ).toBeVisible()
     })
@@ -349,7 +349,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await expect(
       page.getByRole('heading', {
-        name: 'Apply to programs in one place',
+        name: 'Apply for government assistance here',
       }),
     ).toBeAttached()
   })
@@ -406,7 +406,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
-          name: 'Create an account to save your application information',
+          name: 'To access your application later, create an account',
         }),
       ).toBeVisible()
     })

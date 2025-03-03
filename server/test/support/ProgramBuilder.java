@@ -71,28 +71,41 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
-   * draft state.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description and
+   * a default short description, in draft state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
-    return newDraftProgram(name, "", DisplayMode.PUBLIC);
+    return newDraftProgram(name, "", "short description", DisplayMode.PUBLIC);
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
-   * draft state, with disabled visibility.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description and
+   * a default short description, in draft state with disabled visibility.
    */
   public static ProgramBuilder newDisabledDraftProgram(String name) {
-    return newDraftProgram(name, "", DisplayMode.DISABLED);
+    return newDraftProgram(name, "", "short description", DisplayMode.DISABLED);
   }
 
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with a given description and a
+   * default short description, in draft state.
+   */
   public static ProgramBuilder newDraftProgram(String name, String description) {
-    return newDraftProgram(name, description, DisplayMode.PUBLIC);
+    return newDraftProgram(name, description, "short description", DisplayMode.PUBLIC);
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with a given description and a
+   * short description, in draft state.
+   */
+  public static ProgramBuilder newDraftProgram(
+      String name, String description, String shortDescription) {
+    return newDraftProgram(name, description, shortDescription, DisplayMode.PUBLIC);
   }
 
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
   public static ProgramBuilder newDraftProgram(
-      String name, String description, DisplayMode displayMode) {
+      String name, String description, String shortDescription, DisplayMode displayMode) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     ProgramModel program =
         new ProgramModel(
@@ -100,7 +113,7 @@ public class ProgramBuilder {
             description,
             name,
             description,
-            "short description",
+            shortDescription,
             "",
             "https://usa.gov",
             displayMode.getValue(),

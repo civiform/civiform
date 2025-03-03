@@ -112,8 +112,9 @@ const configuration = {
 
         // Include if 'phone' scope is requested
         if (scope.includes('phone')) {
+          // Per OIDC spec the phone number is in E.164 format
           // Using area code 253 so that it passes the phone validation
-          claims.phone_number = '2538675309';
+          claims.phone_number = '+12538675309';
           claims.phone_number_verified = true;
         }
 

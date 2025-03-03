@@ -118,7 +118,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                                 .setHref(programDetailsLink)
                                 .setStyles("ml-2")
                                 .asAnchorText()),
-                    getApplicantVisibleProgramDetailFields(program, updateData)));
+                    getApplicantVisibleProgramDetailFields(program, updateData, request)));
 
     // Add Status Tracking messages.
     String programStatusesLink =
@@ -199,6 +199,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .setFieldName(ProgramTranslationForm.SHORT_DESCRIPTION_FORM_NAME)
                         .setLabelText("Short program description")
                         .setValue(updateData.localizedShortDescription())
+                        .setRequired(true)
                         .getInputTag(),
                     program.localizedShortDescription()));
 
@@ -235,6 +236,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setLabelText("Screen name")
                           .setScreenReaderText("Screen name")
                           .setValue(screenUpdateData.localizedName())
+                          .setRequired(true)
                           .getInputTag(),
                       block.localizedName()))
               .add(
@@ -277,7 +279,7 @@ public final class ProgramTranslationView extends TranslationFormView {
   }
 
   private ImmutableList<DomContent> getApplicantVisibleProgramDetailFields(
-      ProgramDefinition program, LocalizationUpdate updateData) {
+      ProgramDefinition program, LocalizationUpdate updateData, Http.Request request) {
     ImmutableList.Builder<DomContent> applicantVisibleDetails =
         ImmutableList.<DomContent>builder()
             .add(
@@ -286,22 +288,34 @@ public final class ProgramTranslationView extends TranslationFormView {
                         .setFieldName(ProgramTranslationForm.DISPLAY_NAME_FORM_NAME)
                         .setLabelText("Program name")
                         .setValue(updateData.localizedDisplayName())
+                        .setRequired(true)
                         .getInputTag(),
-                    program.localizedName()),
-                fieldWithDefaultLocaleTextHint(
-                    FieldWithLabel.input()
-                        .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
-                        .setLabelText("Program description")
-                        .setValue(updateData.localizedDisplayDescription())
-                        .getInputTag(),
-                    program.localizedDescription()),
-                fieldWithDefaultLocaleTextHint(
-                    FieldWithLabel.input()
-                        .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
-                        .setLabelText("Custom confirmation screen message")
-                        .setValue(updateData.localizedConfirmationMessage())
-                        .getInputTag(),
-                    program.localizedConfirmationMessage()));
+                    program.localizedName()));
+
+    // Always show the long description field if north star is off
+    // If north star is enabled, only show the long description field if the program is not a common
+    // intake program
+    boolean northStarIsOff = !settingsManifest.getNorthStarApplicantUi(request);
+    boolean isNotCommonIntake = !program.isCommonIntakeForm();
+    if (northStarIsOff || isNotCommonIntake) {
+      applicantVisibleDetails.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName(ProgramTranslationForm.DISPLAY_DESCRIPTION_FORM_NAME)
+                  .setLabelText("Program description")
+                  .setValue(updateData.localizedDisplayDescription())
+                  .getInputTag(),
+              program.localizedDescription()));
+    }
+
+    applicantVisibleDetails.add(
+        fieldWithDefaultLocaleTextHint(
+            FieldWithLabel.input()
+                .setFieldName(ProgramTranslationForm.CUSTOM_CONFIRMATION_MESSAGE_FORM_NAME)
+                .setLabelText("Custom confirmation screen message")
+                .setValue(updateData.localizedConfirmationMessage())
+                .getInputTag(),
+            program.localizedConfirmationMessage()));
 
     // Only add the summary image description input to the page if a summary image description is
     // actually set.
@@ -340,6 +354,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                     .setScreenReaderText(
                         String.format("Application step %s title", Integer.toString(i + 1)))
                     .setValue(updatedStep.localizedTitle())
+                    .setRequired(true)
                     .getInputTag(),
                 step.getTitle()));
         newProgramFieldsBuilder.add(
@@ -351,6 +366,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                     .setScreenReaderText(
                         String.format("Application step %s description", Integer.toString(i + 1)))
                     .setValue(updatedStep.localizedDescription())
+                    .setRequired(true)
                     .getInputTag(),
                 step.getDescription()));
       }

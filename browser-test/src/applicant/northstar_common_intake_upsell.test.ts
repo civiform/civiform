@@ -41,7 +41,6 @@ test.describe(
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await test.step('Setup: publish one program', async () => {
         await adminPrograms.addProgram(eligibleProgram1)
@@ -55,10 +54,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
-
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -90,7 +85,6 @@ test.describe(
       page,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await test.step('Setup: publish one program', async () => {
         await adminPrograms.addProgram(eligibleProgram1)
@@ -102,24 +96,25 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
       })
 
-      await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+      await test.step('Validate the sign in link logs the user in and navigates to the home page', async () => {
         await expect(
-          page.getByText(
-            'Create an account to save your application information',
+          page.getByText('To access your application later, create an account'),
+        ).toBeVisible()
+        // Validate help text for accessibility.
+        await expect(
+          page.getByLabel(
+            'For your information: To access your application later, create an account',
           ),
         ).toBeVisible()
 
         await loginAsTestUser(
           page,
-          'a:has-text("Login to an existing account")',
+          'a:has-text("Sign in to an existing account")',
         )
         await applicantQuestions.expectProgramsPage()
       })
@@ -128,7 +123,6 @@ test.describe(
     test('view application submitted page with zero eligible programs', async ({
       page,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await logout(page) // Log out as admin
       await loginAsTestUser(page)
@@ -137,9 +131,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -163,7 +154,6 @@ test.describe(
     test('As a guest, clicking on apply to more programs brings up login dialog', async ({
       page,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await logout(page) // Log out as admin
 
@@ -171,9 +161,6 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -195,7 +182,6 @@ test.describe(
       tiDashboard,
       adminPrograms,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await test.step('Setup: publish one program', async () => {
         await adminPrograms.addProgram(eligibleProgram1)
@@ -223,9 +209,6 @@ test.describe(
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )
@@ -243,7 +226,6 @@ test.describe(
       page,
       tiDashboard,
       applicantQuestions,
-      applicantProgramOverview,
     }) => {
       await logout(page) // Log out as admin
 
@@ -266,10 +248,13 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
+        // Validate accessibility label
+        await expect(
+          page.getByText(
+            'For your information: You are applying for last, first. Are you trying to apply for a different client?',
+          ),
+        ).toBeHidden()
         await applicantQuestions.clickApplyProgramButton(programName)
-        await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-          programName,
-        )
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
         )

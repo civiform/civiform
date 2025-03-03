@@ -1,7 +1,7 @@
 import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
-import {waitForAnyModal, waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad, waitForHtmxReady} from './wait'
 import {BASE_URL} from './config'
 import {
   ApplicantProgramList,
@@ -287,7 +287,7 @@ export class ApplicantQuestions {
   async applyProgram(
     programName: string,
     northStarEnabled = false,
-    isApplicationUnstarted = true,
+    showProgramOverviewPage = true,
   ) {
     await this.clickApplyProgramButton(programName)
 
@@ -295,7 +295,7 @@ export class ApplicantQuestions {
     // If the applicant has already submitted an application, it will take them to the review page.
     // If the applicant has a partially completed application, it will take them to the page with the first unanswered question.
     if (northStarEnabled) {
-      if (isApplicationUnstarted) {
+      if (showProgramOverviewPage) {
         await this.applicantProgramOverview.startApplicationFromProgramOverviewPage(
           programName,
         )
@@ -404,6 +404,48 @@ export class ApplicantQuestions {
     expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
+  }
+  async filterProgramsAndExpectWithFilteringEnabled(
+    {
+      filterCategory,
+      expectedProgramsInMyApplicationsSection,
+      expectedProgramsInProgramsAndServicesSection,
+      expectedProgramsInRecommendedSection,
+      expectedProgramsInOtherProgramsSection,
+    }: {
+      filterCategory: string
+      expectedProgramsInMyApplicationsSection: string[]
+      expectedProgramsInProgramsAndServicesSection: string[]
+      expectedProgramsInRecommendedSection: string[]
+      expectedProgramsInOtherProgramsSection: string[]
+    },
+    /* Toggle whether filters have been selected */ filtersOn = false,
+    northStarEnabled = false,
+  ) {
+    await this.filterProgramsByCategory(filterCategory)
+
+    // Check the program count in the section headings
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Programs based on your selections (${expectedProgramsInRecommendedSection.length})`,
+      }),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {
+        name: `Other programs and services (${expectedProgramsInOtherProgramsSection.length})`,
+      }),
+    ).toBeVisible()
+
+    await this.expectProgramsWithFilteringEnabled(
+      {
+        expectedProgramsInMyApplicationsSection,
+        expectedProgramsInProgramsAndServicesSection,
+        expectedProgramsInRecommendedSection,
+        expectedProgramsInOtherProgramsSection,
+      },
+      filtersOn,
+      northStarEnabled,
+    )
   }
 
   async expectProgramsWithFilteringEnabled(
@@ -753,7 +795,7 @@ export class ApplicantQuestions {
   async expectConfirmationPage(northStarEnabled = false) {
     if (northStarEnabled) {
       await expect(
-        this.page.getByText('Your submission information'),
+        this.page.getByText('Your application details'),
       ).toBeVisible()
     } else {
       expect(await this.page.innerText('h1')).toContain(
@@ -822,7 +864,7 @@ export class ApplicantQuestions {
     }
 
     const createAccountHeading = this.page.getByRole('heading', {
-      name: 'Create an account to save your application information',
+      name: 'To access your application later, create an account',
     })
     if (wantUpsell) {
       await expect(createAccountHeading).toBeVisible()
@@ -1114,6 +1156,12 @@ export class ApplicantQuestions {
     ).not.toBeAttached()
   }
 
+  async expectMayBeEligibileAlertToBeHidden() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
+  }
+
   async expectIneligibleQuestionInReviewPageAlert(questionText: string) {
     await expect(
       this.page
@@ -1148,7 +1196,10 @@ export class ApplicantQuestions {
       .locator('#ns-category-filter-form')
       .getByText(category)
       .check()
-    await this.page.getByRole('button', {name: 'Filter', exact: true}).click()
+    await this.page
+      .getByRole('button', {name: 'Apply selections', exact: true})
+      .click()
+    await waitForHtmxReady(this.page)
   }
 
   // On the North Star application summary page, find the block with the given name

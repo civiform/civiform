@@ -2,7 +2,6 @@ package auth.oidc.applicant;
 
 import auth.oidc.OidcClientProviderParams;
 import auth.oidc.StandardClaimsAttributeNames;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jose.util.Resource;
@@ -30,18 +29,11 @@ import org.slf4j.LoggerFactory;
 public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
   public static final Logger logger = LoggerFactory.getLogger(IdcsApplicantProfileCreator.class);
 
-  private static final String EMAIL_ATTRIBUTE_NAME = "user_emailid";
-  private static final String LOCALE_ATTRIBUTE_NAME = "user_locale";
-  private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
-  private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
-      StandardClaimsAttributeNames.builder()
-          .setEmail(EMAIL_ATTRIBUTE_NAME)
-          .setLocale(Optional.of(LOCALE_ATTRIBUTE_NAME))
-          .setNames(ImmutableList.of(NAME_ATTRIBUTE_NAME))
-          .build();
-
   public IdcsApplicantProfileCreator(
-      OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
+      OidcConfiguration oidcConfiguration,
+      OidcClient client,
+      OidcClientProviderParams params,
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
     super(oidcConfiguration, client, params, standardClaimsAttributeNames);
   }
 

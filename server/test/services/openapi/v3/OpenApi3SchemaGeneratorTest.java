@@ -160,6 +160,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time
@@ -490,6 +493,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time
@@ -883,6 +889,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time

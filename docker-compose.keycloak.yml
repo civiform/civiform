@@ -1,0 +1,49 @@
+# Use postgres/example user/password credentials
+services:
+  # The dev oidc server needs to be visible to the Civiform server and web browsers
+  # on the same host:port. Developers need to add a localhost IP alias for this
+  # container name in their /etc/hosts file for the web brower to load the auth url.
+  # EG: 127.0.0.1 dev-oidc
+  dev-oidc:
+    image: quay.io/keycloak/keycloak:26.1
+    ports:
+      - 3390:3390
+    environment:
+      KC_HOSTNAME: dev-oidc
+      KC_HOSTNAME_PORT: 3390
+      KC_HTTP_PORT: 3390
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_DB: postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: example
+      KC_DB_SCHEMA: public
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_URL_DATABASE: keycloak
+    depends_on:
+      - db
+    command: start --import-realm
+    volumes:
+      - ./test-support/keycloak/auth/import:/opt/keycloak/data/import
+
+  civiform:
+    image: civiform-dev
+    links:
+      - 'db:database'
+      - 'mock-web-services'
+      - 'dev-oidc'
+    depends_on:
+      - dev-oidc
+    expose:
+      - '9000'
+      - '8457'
+    environment:
+      - CIVIFORM_ADMIN_IDP=keycloak-admin
+      - ADMIN_OIDC_ADMIN_GROUP_NAME=/civiform_global_admin_group
+      - CIVIFORM_APPLICANT_IDP=keycloak-applicant
+      - APPLICANT_REGISTER_URI=http://dev-oidc:3390/realms/master/protocol/openid-connect/auth?client_id=applicant-client
+    entrypoint: /bin/bash

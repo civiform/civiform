@@ -240,11 +240,6 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
-export const dropTables = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#clear')
-}
-
 export const seedQuestions = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
   await page.click('#sample-questions')

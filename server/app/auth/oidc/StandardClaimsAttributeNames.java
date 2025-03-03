@@ -21,6 +21,8 @@ public abstract class StandardClaimsAttributeNames {
 
   public abstract ImmutableList<String> names();
 
+  public abstract Optional<String> phoneNumber();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setEmail(String email);
@@ -28,6 +30,8 @@ public abstract class StandardClaimsAttributeNames {
     public abstract Builder setLocale(Optional<String> locale);
 
     public abstract Builder setNames(ImmutableList<String> names);
+
+    public abstract Builder setPhoneNumber(Optional<String> phoneNumber);
 
     public abstract StandardClaimsAttributeNames build();
   }

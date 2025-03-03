@@ -487,7 +487,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void hxFilter_isOk() {
     Result result =
-        controller.hxFilter(fakeRequest(), ImmutableList.of()).toCompletableFuture().join();
+        controller.hxFilter(fakeRequest(), ImmutableList.of(), "").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
   }

@@ -56,7 +56,8 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     addressQuestion = testQuestionBank.addressApplicantAddress().getQuestionDefinition();
     staticQuestion = testQuestionBank.staticContent().getQuestionDefinition();
     programDefinition =
-        ProgramBuilder.newDraftProgram("My Program setup")
+        ProgramBuilder.newDraftProgram(
+                "My Program setup", "My Program long description", "Short description")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withRequiredQuestionDefinition(nameQuestion)
@@ -83,6 +84,24 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
 
     assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
+  }
+
+  @Test
+  public void getProgramDescription_returnsProgramDescription() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+
+    assertThat(subject.getProgramDescription()).isEqualTo("My Program long description");
+  }
+
+  @Test
+  public void getProgramShortDescription_returnsProgramShortDescription() {
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+
+    assertThat(subject.getProgramShortDescription()).isEqualTo("Short description");
   }
 
   @Test

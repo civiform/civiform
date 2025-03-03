@@ -48,7 +48,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
         "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
-    context.setVariable("programDescription", params.programDescription().orElse(""));
+    context.setVariable("programShortDescription", params.programShortDescription().orElse(""));
 
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();
@@ -84,7 +84,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
                           applicantProgramData.program().localizedName().getOrDefault(userLocale),
                           applicantProgramData
                               .program()
-                              .localizedDescription()
+                              .localizedShortDescription()
                               .getOrDefault(userLocale)))
               .collect(ImmutableList.toImmutableList());
 
@@ -98,19 +98,19 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */
   public static final class DisplayProgram {
     private final String title;
-    private final String description;
+    private final String shortDescription;
 
-    public DisplayProgram(String title, String description) {
+    public DisplayProgram(String title, String shortDescription) {
       this.title = title;
-      this.description = description;
+      this.shortDescription = shortDescription;
     }
 
     public String getTitle() {
       return title;
     }
 
-    public String getDescription() {
-      return description;
+    public String getShortDescription() {
+      return shortDescription;
     }
   }
 }

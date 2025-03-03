@@ -24,7 +24,8 @@
   commonIntakeSection: Optional<ProgramSectionParams>
     An optional which contains the common intake section, if there is one.
 
-
+  applicantId: Optional<Long>
+    Id of the applicant whose data is requested to be accessed
 */-->
 <!doctype html>
 <html th:attr="lang=${preferredLanguage.code()}">
@@ -61,7 +62,7 @@
         </div>
         <h2 th:text="#{title.availableProgramsSection}"></h2>
         <div
-          th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions})}"
+          th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
         ></div>
         <div id="not-started-programs">
           <th:block th:if="${unfilteredSection.isPresent()}">

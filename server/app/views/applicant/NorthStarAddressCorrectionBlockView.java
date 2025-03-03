@@ -62,7 +62,7 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
     context.setVariable("pageTitle", pageTitle);
 
     context.setVariable("programTitle", params.programTitle());
-    context.setVariable("programDescription", params.programDescription());
+    context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
     context.setVariable("goBackAction", goBackAction(params));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);

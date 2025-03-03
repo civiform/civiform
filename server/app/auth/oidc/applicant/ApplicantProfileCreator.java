@@ -19,6 +19,10 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import services.PhoneValidationResult;
+import services.PhoneValidationUtils;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -28,6 +32,7 @@ import org.pac4j.oidc.profile.OidcProfile;
  * implementations of the two abstract methods.
  */
 public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProfileCreator.class);
 
   @VisibleForTesting final StandardClaimsAttributeNames standardClaimsAttributeNames;
 
@@ -69,6 +74,35 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
         .filter(s -> !Strings.isNullOrEmpty(s));
   }
 
+  /**
+   * Attempts to pull the phone number from the OIDC profile. If it errors or fails validation
+   * return empty so this does not block anything.
+   */
+  private Optional<String> getPhoneNumber(OidcProfile oidcProfile) {
+    return standardClaimsAttributeNames
+        .phoneNumber()
+        .filter(name -> !name.isBlank())
+        .map(
+            name -> {
+              try {
+                String rawPhoneNumber = oidcProfile.getAttribute(name, String.class);
+                PhoneValidationResult results =
+                    PhoneValidationUtils.determineCountryCodeForE164PhoneNumber(
+                        Optional.of(rawPhoneNumber));
+
+                if (results.isValid() && results.getPhoneNumber().isPresent()) {
+                  return results.getPhoneNumber().get();
+                }
+
+                return "";
+              } catch (RuntimeException ex) {
+                LOGGER.warn("Unable to parse phone number from OIDC profile.");
+                return "";
+              }
+            })
+        .filter(s -> !Strings.isNullOrEmpty(s));
+  }
+
   @Override
   protected final String emailAttributeName() {
     return standardClaimsAttributeNames.email();
@@ -100,8 +134,9 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
+    final Optional<String> maybePhoneNumber = getPhoneNumber(oidcProfile);
 
-    if (maybeLocale.isPresent() || maybeName.isPresent()) {
+    if (maybeLocale.isPresent() || maybeName.isPresent() || maybePhoneNumber.isPresent()) {
       civiformProfile
           .getApplicant()
           .thenApplyAsync(
@@ -113,6 +148,8 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
                             .setPreferredLocale(Locale.forLanguageTag(locale)));
 
                 maybeName.ifPresent(name -> applicant.setUserName(name));
+
+                maybePhoneNumber.ifPresent(applicant::setPhoneNumber);
 
                 applicant.save();
                 return null;

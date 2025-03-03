@@ -106,9 +106,9 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                             div()
                                 .with(
                                     TextFormatter.formatTextWithAriaLabel(
-                                        question.getQuestionText(), /* preserveEmptyLines */
-                                        true, /* addRequiredIndicator */
-                                        false,
+                                        question.getQuestionText(),
+                                        /* preserveEmptyLines= */ true,
+                                        /* addRequiredIndicator= */ false,
                                         messages
                                             .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                             .toLowerCase(Locale.ROOT))))));

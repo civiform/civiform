@@ -61,7 +61,6 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
       ImmutableList<String> selectedCategoriesFromParams) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(request, applicantId, profile, personalInfo, messages);
-
     Locale preferredLocale = messages.lang().toLocale();
 
     // Find all programs that have at least one of the selected categories

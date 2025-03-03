@@ -8,6 +8,7 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
+import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program translations', () => {
   test('page layout screenshot', async ({
@@ -207,6 +208,60 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
+  test('Common intake form translations', async ({
+    page,
+    adminPrograms,
+    adminTranslations,
+  }) => {
+    const programName = 'Common intake program'
+
+    await test.step('Add a common intake program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'short description',
+        'https://www.example.com',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+    })
+
+    await test.step('Update translations', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+
+      await adminTranslations.expectNoApplicationSteps()
+
+      await adminTranslations.editProgramTranslations({
+        name: 'Spanish name',
+        description: 'Spanish description',
+        shortDescription: 'Spanish short description',
+        blockName: 'Spanish block name - bloque uno',
+        blockDescription: 'Spanish block description',
+        statuses: [],
+        programType: 'common intake',
+      })
+    })
+
+    await test.step('Verify translations in translations page', async () => {
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectBlockTranslations(
+        'Spanish block name - bloque uno',
+        'Spanish block description',
+      )
+
+      await adminTranslations.expectProgramTranslation({
+        expectProgramName: 'Spanish name',
+        expectProgramDescription: 'Spanish description',
+        expectProgramShortDescription: 'Spanish short description',
+        programType: 'common intake',
+      })
+    })
+  })
+
   test('creates a program with summary image description and adds translations', async ({
     page,
     adminPrograms,
@@ -334,71 +389,6 @@ test.describe('Admin can manage program translations', () => {
     await adminTranslations.expectNoProgramImageDescription()
   })
 
-  test(
-    'Add translations for block name and description',
-    {tag: ['@northstar']},
-    async ({
-      page,
-      adminPrograms,
-      adminQuestions,
-      adminTranslations,
-      applicantQuestions,
-      applicantProgramOverview,
-    }) => {
-      await loginAsAdmin(page)
-
-      await adminQuestions.addTextQuestion({questionName: 'text-question'})
-
-      const programName = 'Program with blocks'
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.editProgramBlockUsingSpec(programName, {
-        name: 'Screen 1',
-        description: 'first screen',
-        questions: [{name: 'text-question'}],
-      })
-
-      await test.step('Update translations', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-        await adminTranslations.selectLanguage('Spanish')
-        await adminTranslations.editProgramTranslations({
-          name: 'Spanish name',
-          description: 'Spanish description',
-          blockName: 'Spanish block name - bloque uno',
-          blockDescription: 'Spanish block description',
-          statuses: [],
-        })
-      })
-
-      await test.step('Verify translations in translations page', async () => {
-        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-        await adminTranslations.selectLanguage('Spanish')
-        await adminTranslations.expectBlockTranslations(
-          'Spanish block name - bloque uno',
-          'Spanish block description',
-        )
-      })
-
-      await test.step('Publish and verify in the applicant experience', async () => {
-        await adminPrograms.publishProgram(programName)
-
-        await logout(page)
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await selectApplicantLanguage(page, 'Español')
-
-        await applicantQuestions.clickApplyProgramButton('Spanish name')
-        await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
-          'Descripción general del programa', // translated page title
-          'Inscribirse en el programa Spanish name', // translated page header
-          'Comenzar una solicitud', // translated button text
-        )
-
-        await expect(
-          page.getByText('Spanish block name - bloque uno'),
-        ).toBeVisible()
-      })
-    },
-  )
-
   test('Add translation for block name, description and eligibility message', async ({
     page,
     adminPrograms,
@@ -490,6 +480,125 @@ test.describe('Admin can manage program translations', () => {
         page,
         'ineligible-view-with-translated-eligibility-msg',
       )
+    })
+  })
+  test.describe('North Star translations tests', {tag: ['@northstar']}, () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+    })
+
+    test('Add translations for block name and description', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      adminTranslations,
+      applicantQuestions,
+      applicantProgramOverview,
+    }) => {
+      const programName = 'Program with blocks'
+
+      await test.step('Create program with block', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({questionName: 'text-question'})
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlockUsingSpec(programName, {
+          name: 'Screen 1',
+          description: 'first screen',
+          questions: [{name: 'text-question'}],
+        })
+      })
+
+      await test.step('Update translations', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.editProgramTranslations({
+          name: 'Spanish name',
+          description: 'Spanish description',
+          blockName: 'Spanish block name - bloque uno',
+          blockDescription: 'Spanish block description',
+          statuses: [],
+        })
+      })
+
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.expectBlockTranslations(
+          'Spanish block name - bloque uno',
+          'Spanish block description',
+        )
+      })
+
+      await test.step('Publish and verify in the applicant experience', async () => {
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+        await selectApplicantLanguage(page, 'Español')
+        await applicantQuestions.clickApplyProgramButton('Spanish name')
+        await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
+          'Descripción general del programa', // translated page title
+          'Inscribirse en el programa Spanish name', // translated page header
+          'Comenzar una solicitud', // translated button text
+        )
+
+        await expect(
+          page.getByText('Spanish block name - bloque uno'),
+        ).toBeVisible()
+      })
+    })
+
+    test('Common intake form translations - north star', async ({
+      page,
+      adminPrograms,
+      adminTranslations,
+    }) => {
+      const programName = 'Common intake program'
+
+      await test.step('Add a common intake program', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          programName,
+          'description',
+          'short description',
+          'https://www.example.com',
+          ProgramVisibility.PUBLIC,
+          'admin description',
+          /* isCommonIntake= */ true,
+        )
+      })
+
+      await test.step('Update translations', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+
+        await adminTranslations.expectNoLongDescription()
+        await adminTranslations.expectNoApplicationSteps()
+
+        await adminTranslations.editProgramTranslations({
+          name: 'Spanish name',
+          shortDescription: 'Spanish description',
+          blockName: 'Spanish block name - bloque uno',
+          blockDescription: 'Spanish block description',
+          statuses: [],
+          programType: 'common intake',
+          northStar: true,
+        })
+      })
+
+      await test.step('Verify translations in translations page', async () => {
+        await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.expectBlockTranslations(
+          'Spanish block name - bloque uno',
+          'Spanish block description',
+        )
+
+        await adminTranslations.expectProgramTranslation({
+          expectProgramName: 'Spanish name',
+          expectProgramShortDescription: 'Spanish description',
+          programType: 'common intake',
+          northStar: true,
+        })
+      })
     })
   })
 })
