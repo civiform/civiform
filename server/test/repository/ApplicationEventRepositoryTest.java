@@ -141,6 +141,10 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     application1.refresh();
     assertThat(application1.getLatestStatus().get()).isEqualTo("Status");
     assertThat(application2.getLatestStatus().get()).isEqualTo("Status");
+    assertThat(application1.getStatusCreateTime().get()).isEqualTo(insertedEvent1.getCreateTime());
+    // in case of bulk updates, the first event's status update time is set to the rest of the
+    // events
+    assertThat(application2.getStatusCreateTime().get()).isEqualTo(insertedEvent1.getCreateTime());
   }
 
   @Test
@@ -213,8 +217,12 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     application2.refresh();
     application1.refresh();
+
     assertThat(application1.getLatestStatus().get()).isEqualTo("Denied");
+    assertThat(application1.getStatusCreateTime().get())
+        .isEqualTo(insertedEventFor1.get(0).getCreateTime());
     assertThat(application2.getLatestStatus()).isEmpty();
+    assertThat(application2.getStatusCreateTime()).isEmpty();
   }
 
   @Test

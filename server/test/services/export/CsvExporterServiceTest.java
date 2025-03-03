@@ -12,12 +12,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
-import models.AccountModel;
-import models.ApplicantModel;
-import models.ApplicationModel;
-import models.LifecycleStage;
-import models.ProgramModel;
-import models.QuestionTag;
+import models.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -127,7 +122,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(record.get("TI Organization")).isEmpty();
     // Status field tested separately.
     assertThat(record.get("Status")).isEmpty();
-    assertThat(record.get("Status Create Time")).isEmpty();
+    assertThat(record.get("Status Create Time")).isEqualTo("2022/04/09 03:07:02 AM PDT");
   }
 
   @Test
@@ -182,6 +177,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller fakeApplicationFillerA =
         FakeApplicationFiller.newFillerFor(fakeProgram).submit();
     ApplicationModel fakeApplicationA = fakeApplicationFillerA.getApplication();
+
     programAdminApplicationService.setStatus(
         fakeApplicationA.id,
         fakeProgram.getProgramDefinition(),
@@ -192,11 +188,14 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     ImmutableList<CSVRecord> records = getParsedRecords(fakeProgram.id);
-
     // results are in reverse order from submission
     assertThat(records.get(0).get("Status")).isEmpty();
     assertThat(records.get(1).get("Status")).isEqualTo("approved");
+
+    // status create time checks
     assertThat(records.get(1).get("Status Create Time")).isNotEmpty();
+    // the default status create time should be overridden
+    assertThat(records.get(1).get("Status Create Time")).isNotEqualTo("2022/04/09 03:07:02 AM PDT");
   }
 
   @Test

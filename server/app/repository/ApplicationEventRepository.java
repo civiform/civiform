@@ -102,7 +102,11 @@ public final class ApplicationEventRepository {
                     Strings.isNullOrEmpty(newStatusEvent.statusText())
                         ? null
                         : newStatusEvent.statusText())
-                .set("status_create_time", event.getCreateTime())
+                .set(
+                    "status_create_time",
+                    Strings.isNullOrEmpty(newStatusEvent.statusText())
+                        ? null
+                        : event.getCreateTime())
                 .where()
                 .eq("id", application.id)
                 .update();
@@ -153,7 +157,13 @@ public final class ApplicationEventRepository {
               Strings.isNullOrEmpty(newStatusEvent.statusText())
                   ? null
                   : newStatusEvent.statusText())
-          .set("status_create_time", applicationsStatusEvent.get(0).getCreateTime())
+          // in case of bulk updates, the first event's status update time is set to the rest of the
+          // events as the difference in event time will be less than a ms.
+          .set(
+              "status_create_time",
+              Strings.isNullOrEmpty(newStatusEvent.statusText())
+                  ? null
+                  : applicationsStatusEvent.get(0).getCreateTime())
           .where()
           .in("id", applicationIds)
           .update();
