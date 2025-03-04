@@ -7,7 +7,6 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.meta.ServerMetrics;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.StringWriter;
@@ -63,7 +62,9 @@ public final class MetricsController extends CiviFormController {
     }
 
     try {
-      collectMetrics()
+      database
+          .metaInfo()
+          .collectMetrics()
           .queryMetrics()
           .forEach(
               metric -> {
@@ -106,7 +107,8 @@ public final class MetricsController extends CiviFormController {
       // Basically this state can happen when calling `database.metaInfo().collectMetrics()`
       // method and the metrics are either being updated or a lock can't be immediately gotten.
       //
-      // Avoid using synchronize to force a lock on the database object as it may adversely affecting performance.
+      // Avoid using synchronize to force a lock on the database object as it may adversely
+      // affecting performance.
       //
       // Since the `/metrics` endpoint is called very frequently any data from a failed call
       // gets rolled into the next successful call to `/metrics`.
@@ -122,17 +124,5 @@ public final class MetricsController extends CiviFormController {
     }
 
     return internalServerError();
-  }
-
-  /**
-   * Attempt to collect server metrics. Will make one extra attempt in the event of a
-   * ConcurrentModificationException
-   */
-  private ServerMetrics collectMetrics() {
-    try {
-      return database.metaInfo().collectMetrics();
-    } catch (ConcurrentModificationException e) {
-      return database.metaInfo().collectMetrics();
-    }
   }
 }
