@@ -1,29 +1,23 @@
 <th:block th:fragment="breadcrumb(title, homeUrl, programOverviewUrl)">
-  <section class="grid-container">
-    <div class="grid-row">
-      <div class="tablet:grid-col-8 usa-prose">
-        <nav class="usa-breadcrumb" aria-label="Breadcrumbs">
-          <ol class="usa-breadcrumb__list">
-            <li class="usa-breadcrumb__list-item">
-              <a th:href="${homeUrl}" class="usa-breadcrumb__link">
-                <span><th:block th:text="#{content.home}"></th:block></span
-              ></a>
-            </li>
-            <li class="usa-breadcrumb__list-item">
-              <a th:href="${programOverviewUrl}" class="usa-breadcrumb__link">
-                <span><th:block th:text="${title}"></th:block></span>
-              </a>
-            </li>
-            <li class="usa-breadcrumb__list-item">
-              <span>
-                <th:block
-                  th:text="#{content.programNameApplication(${title})}"
-                ></th:block>
-              </span>
-            </li>
-          </ol>
-        </nav>
-      </div>
-    </div>
-  </section>
+  <nav class="usa-breadcrumb cf-no-margin-padding" aria-label="Breadcrumbs">
+    <ol class="usa-breadcrumb__list">
+      <li class="usa-breadcrumb__list-item">
+        <a th:href="${homeUrl}" class="usa-breadcrumb__link">
+          <span><th:block th:text="#{link.home}"></th:block></span
+        ></a>
+      </li>
+      <li class="usa-breadcrumb__list-item">
+        <a th:href="${programOverviewUrl}" class="usa-breadcrumb__link">
+          <span><th:block th:text="${title}"></th:block></span>
+        </a>
+      </li>
+      <li class="usa-breadcrumb__list-item usa-current" aria-current="page">
+        <span>
+          <th:block
+            th:text="#{link.programNameApplication(${title})}"
+          ></th:block>
+        </span>
+      </li>
+    </ol>
+  </nav>
 </th:block>
