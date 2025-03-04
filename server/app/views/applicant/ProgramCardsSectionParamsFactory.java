@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DateConverter;
@@ -24,6 +25,7 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
+import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -134,19 +136,15 @@ public final class ProgramCardsSectionParamsFactory {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
 
-    String actionUrl = applicantRoutes.edit(program.id()).url();
-    if (programDatum.latestApplicationLifecycleStage().isPresent()
-        && programDatum.latestApplicationLifecycleStage().get() == LifecycleStage.ACTIVE) {
-      // ACTIVE lifecycle stage means the application was submitted.
-      // TIs need to specify applicant ID.
-      actionUrl =
-          profile.isPresent() && applicantId.isPresent()
-              ? applicantRoutes.review(profile.get(), applicantId.get(), program.id()).url()
-              : applicantRoutes.review(program.id()).url();
-    } else if (profile.isPresent() && applicantId.isPresent()) {
-      // TIs need to specify applicant ID.
-      actionUrl = applicantRoutes.edit(profile.get(), applicantId.get(), program.id()).url();
-    }
+    String actionUrl =
+        getActionUrl(
+            applicantRoutes,
+            program.id(),
+            program.slug(),
+            program.isCommonIntakeForm(),
+            programDatum.latestApplicationLifecycleStage(),
+            applicantId,
+            profile);
 
     boolean isGuest = personalInfo.getType() == GUEST;
 
@@ -156,9 +154,11 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
+    String description = selectAndFormatDescription(program, preferredLocale);
+
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
-        .setBody(program.localizedDescription().getOrDefault(preferredLocale))
+        .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
         .setIsCommonIntakeForm(program.isCommonIntakeForm())
@@ -184,7 +184,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
     cardBuilder.setLifecycleStage(lifecycleStage);
-    if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
+    if (programDatum.latestSubmittedApplicationTime().isPresent()) {
       // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
       cardBuilder.setDateSubmitted(
           formattedDateString(programDatum.latestSubmittedApplicationTime(), preferredLocale));
@@ -217,6 +217,77 @@ public final class ProgramCardsSectionParamsFactory {
     }
 
     return cardBuilder.build();
+  }
+
+  /**
+   * Use the short description if present, otherwise use the long description with all markdown
+   * removed and truncated to 100 characters.
+   */
+  static String selectAndFormatDescription(ProgramDefinition program, Locale preferredLocale) {
+    String description = program.localizedShortDescription().getOrDefault(preferredLocale);
+
+    if (description.isEmpty()) {
+      description = program.localizedDescription().getOrDefault(preferredLocale);
+      // Add a space before any new line characters so when markdown is stripped off the words
+      // aren't smooshed together
+      description = String.join("&nbsp;\n", description.split("\n"));
+      description = StringUtils.abbreviate(TextFormatter.removeMarkdown(description), 100);
+    }
+
+    return description;
+  }
+
+  /**
+   * Get the url that the button on the card should redirect to. If it's the first time filling out
+   * the application, navigate to the program overview page. If the program is in draft mode,
+   * navigate to where the applicant left off. If the program is submitted, navigate to the review
+   * page.
+   */
+  static String getActionUrl(
+      ApplicantRoutes applicantRoutes,
+      Long programId,
+      String programSlug,
+      boolean isCommonIntakeForm,
+      Optional<LifecycleStage> optionalLifecycleStage,
+      Optional<Long> applicantId,
+      Optional<CiviFormProfile> profile) {
+
+    boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
+
+    // If it is an applicant's first time applying, render the program overview page
+    String actionUrl =
+        haveApplicant // TIs need to specify applicant ID.
+            ? applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url()
+            : applicantRoutes.show(programSlug).url();
+
+    // If the applicant has already started or submitted an application, render the edit or review
+    // page accordingly
+    if (optionalLifecycleStage.isPresent()) {
+      if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
+        // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
+        // page.
+        actionUrl =
+            haveApplicant
+                ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.review(programId).url();
+      } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
+        // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
+        // them to where they left off in the application.
+        actionUrl =
+            haveApplicant
+                ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
+                : applicantRoutes.edit(programId).url();
+      }
+      // If they are completing the common intake form for the first time, skip the program overview
+      // page
+    } else if (isCommonIntakeForm) {
+      actionUrl =
+          haveApplicant
+              ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.edit(programId).url();
+    }
+
+    return actionUrl;
   }
 
   /**

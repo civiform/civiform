@@ -77,6 +77,18 @@ public final class TextFormatter {
     return sanitizeHtml(markdownText);
   }
 
+  /**
+   * Remove all markdown from the string by disallowing all elements and attributes. When calling
+   * this method, be sure to check the whitespace between words in the resulting string and adjust
+   * as neccessary.
+   */
+  public static String removeMarkdown(String text) {
+    String markdownText = formatTextToSanitizedHTML(text, false, false);
+    PolicyFactory customPolicy =
+        new HtmlPolicyBuilder().allowElements().allowAttributes("").globally().toFactory();
+    return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
+  }
+
   /** Used for testing */
   public static void resetAriaLabelToDefault() {
     CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);

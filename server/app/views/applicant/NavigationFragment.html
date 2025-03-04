@@ -10,48 +10,60 @@
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
-      <div class="usa-navbar">
-        <a
-          href="/"
-          class="usa-logo display-flex flex-align-center text-ink text-no-underline"
-          id="header-return-home"
+      <div class="display-flex flex-align-center grid-col-fill">
+        <div class="usa-navbar width-full">
+          <a
+            href="/"
+            class="usa-logo display-flex flex-align-center text-ink text-no-underline"
+            id="header-return-home"
+          >
+            <div class="padding-top-2 padding-bottom-2">
+              <img
+                th:src="${smallLogoUrl}"
+                class="height-8 cf-header-logo padding-right-2"
+                th:attr="alt=${civicEntityFullName + ' Logo'}"
+              />
+            </div>
+            <em class="usa-logo__text">
+              <span th:text="${civicEntityShortName}"></span>
+              <span>CiviForm</span>
+            </em>
+          </a>
+          <button
+            type="button"
+            class="usa-menu-btn"
+            th:text="#{header.menu}"
+          ></button>
+        </div>
+        <nav
+          th:aria-label="#{label.primaryNavigation}"
+          class="usa-nav grid-container"
+          role="navigation"
         >
-          <img
-            th:src="${smallLogoUrl}"
-            class="width-8 padding-right-2 cf-header-logo"
-            th:attr="alt=${civicEntityFullName + ' Logo'}"
-          />
-          <em class="usa-logo__text">
-            <span th:text="${civicEntityShortName}"></span>
-            <span>CiviForm</span>
-          </em>
-        </a>
-        <button
-          type="button"
-          class="usa-menu-btn"
-          th:text="#{header.menu}"
-        ></button>
+          <button
+            type="button"
+            class="usa-nav__close"
+            th:aria-label="#{button.close}"
+          >
+            <svg
+              th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+            ></svg>
+          </button>
+          <div class="display-flex grid-col-fill flex-column flex-align-end">
+            <div th:replace="~{this :: userName}"></div>
+            <div class="grid-row grid-gap-1">
+              <button
+                th:if="${showDebugTools}"
+                th:replace="~{this :: showDebugTools}"
+              ></button>
+              <div>
+                <button th:replace="~{this :: loginOrLogout}"></button>
+              </div>
+              <button th:replace="~{this :: languageSelector}"></button>
+            </div>
+          </div>
+        </nav>
       </div>
-      <nav
-        th:aria-label="#{label.primaryNavigation}"
-        class="usa-nav"
-        role="navigation"
-      >
-        <button
-          type="button"
-          class="usa-nav__close"
-          th:aria-label="#{button.close}"
-        >
-          <svg
-            th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
-          ></svg>
-        </button>
-        <th:block th:if="${showDebugTools}">
-          <button th:replace="~{this :: showDebugTools}"></button>
-        </th:block>
-        <button th:replace="~{this :: loginOrLogout}"></button>
-        <button th:replace="~{this :: languageSelector}"></button>
-      </nav>
     </div>
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
@@ -164,6 +176,10 @@
     <div class="usa-alert">
       <div class="usa-alert__body">
         <p
+          class="usa-sr-only"
+          th:utext="#{heading.informationAriaLabelPrefix('')}"
+        ></p>
+        <p
           class="usa-alert__text"
           th:utext="#{banner.guestBannerText(${endSessionLinkHtml})}"
         ></p>
@@ -183,6 +199,7 @@
           <span
             class="usa-alert__text"
             th:text="#{banner.viewApplication(${applicantDisplayName})}"
+            th:aria-label="#{heading.informationAriaLabelPrefix(#{banner.viewApplication(${applicantDisplayName})})}"
           ></span>
           <a
             th:href="${tiDashboardHref}"
@@ -199,7 +216,7 @@
 <div th:fragment="showDebugTools">
   <a
     type="button"
-    class="usa-button usa-button--outline"
+    class="usa-button usa-button--outline margin-right-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
     data-open-modal
@@ -209,11 +226,20 @@
   <div th:replace="~{applicant/ModalFragment:: devTools}"></div>
 </div>
 
+<th:block th:fragment="userName">
+  <th:block th:if="${!isGuest}">
+    <div
+      th:text="#{header.userName(${loggedInAs})}"
+      class="display-flex flex-align-self-end padding-bottom-2 text-ink"
+    ></div>
+  </th:block>
+</th:block>
+
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.login}"
       id="login-button"
       th:href="${loginLink}"
@@ -221,13 +247,9 @@
   </th:block>
 
   <th:block th:if="${!isGuest}">
-    <span
-      th:text="#{header.userName(${loggedInAs})}"
-      class="padding-right-1"
-    ></span>
     <a
       type="button"
-      class="usa-button usa-button--outline"
+      class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.logout}"
       id="logout-button"
       th:href="${logoutLink}"
@@ -243,7 +265,7 @@
     <select
       name="locale"
       th:aria-label="#{label.languageSr}"
-      class="usa-button"
+      class="usa-button margin-right-0"
       id="select-language"
     >
       <option th:text="#{button.languages}"></option>

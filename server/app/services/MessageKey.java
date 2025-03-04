@@ -78,11 +78,13 @@ public enum MessageKey {
   BUTTON_ADD_NEW_CLIENT("button.addNewClient"),
   BUTTON_APPLY("button.apply"),
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
+  BUTTON_APPLY_SELECTIONS("button.applySelections"), // North Star only
   BUTTON_APPLY_SR("button.applySr"),
   BUTTON_BACK_TO_CLIENT_LIST("button.backToClientList"),
   BUTTON_BACK_TO_EDITING("button.backToEditing"),
   BUTTON_CANCEL("button.cancel"),
   BUTTON_CHOOSE_FILE("button.chooseFile"),
+  BUTTON_CLEAR_SELECTIONS("button.clearSelections"), // North Star only
   BUTTON_CLOSE("button.close"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
@@ -243,10 +245,12 @@ public enum MessageKey {
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
+  HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
+  HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
@@ -258,6 +262,7 @@ public enum MessageKey {
   INPUT_UNLIMITED_FILE_UPLOAD_HINT("input.unlimitedFileUploadHint"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_PROGRAM_FILTERS("label.programFilters"),
+  LABEL_PROGRAM_FILTERS_V2("label.programFilters.v2"), // North Star only
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),

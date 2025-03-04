@@ -29,10 +29,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.18.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.18.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.18.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.3",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.18.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.11",
-      "software.amazon.awssdk" % "ses" % "2.30.11",
+      "software.amazon.awssdk" % "s3" % "2.30.32",
+      "software.amazon.awssdk" % "ses" % "2.30.32",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.15.0",
+      "com.azure" % "azure-identity" % "1.15.3",
       "com.azure" % "azure-storage-blob" % "12.29.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.27.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.30.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.23.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.23.1",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.0",
+      "org.pac4j" % "pac4j-core" % "6.1.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.0",
+      "org.pac4j" % "pac4j-http" % "6.1.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.0",
+      "org.pac4j" % "pac4j-oidc" % "6.1.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.0",
+      "org.pac4j" % "pac4j-saml" % "6.1.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.36.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.48.4",
+      "org.checkerframework" % "dataflow-errorprone" % "3.49.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.13.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.54",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.0",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.16",
+      "ch.qos.logback" % "logback-classic" % "1.5.17",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
@@ -252,7 +252,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 
-jacocoExcludes := Seq("views*", "*Routes*")
+jacocoExcludes := Seq("views*", "*Routes*", "services/settings/SettingsManifest")
 jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Include North Star HTML files when running 'sbt dist' when building the prod image.
@@ -295,9 +295,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.3"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

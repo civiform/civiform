@@ -298,18 +298,18 @@ public final class ApplicantProgramsController extends CiviFormController {
    * displays recommended and other programs based on the selected categories.
    */
   @Secure
-  public CompletionStage<Result> hxFilter(Request request, List<String> categories) {
-    Optional<Long> applicantId = getApplicantId(request);
+  public CompletionStage<Result> hxFilter(
+      Request request, List<String> categories, String applicantId) {
+    Optional<Long> maybeApplicantId = parseApplicantId(request, applicantId);
     CompletableFuture<ApplicationPrograms> programsFuture;
-
-    if (applicantId.isEmpty()) {
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
+    if (maybeApplicantId.isEmpty()) {
       programsFuture =
           applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
     } else {
-      CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
       programsFuture =
           applicantService
-              .relevantProgramsForApplicant(applicantId.get(), requesterProfile, request)
+              .relevantProgramsForApplicant(maybeApplicantId.get(), requesterProfile, request)
               .toCompletableFuture();
     }
 
@@ -319,10 +319,10 @@ public final class ApplicantProgramsController extends CiviFormController {
                         northStarFilteredProgramsViewPartial.render(
                             messagesApi.preferred(request),
                             request,
-                            Optional.empty(),
+                            maybeApplicantId,
                             ApplicantPersonalInfo.ofGuestUser(),
                             programsFuture.join(),
-                            Optional.empty(),
+                            Optional.of(requesterProfile),
                             ImmutableList.copyOf(categories)))
                     .as("text/html"))
         .exceptionally(
@@ -334,5 +334,29 @@ public final class ApplicantProgramsController extends CiviFormController {
                   ex);
               return Results.internalServerError("There was an error in filtering the programs.");
             });
+  }
+
+  /**
+   * Parses the applicant ID from the request or the provided string.
+   *
+   * <p>If the provided `applicantId` string is null or blank, or if it cannot be parsed as a Long,
+   * this method attempts to retrieve the applicant ID from the request using {@link
+   * #getApplicantId(Request)}. If successful, the parsed or retrieved applicant ID is returned as
+   * an `Optional<Long>`.
+   *
+   * @param request Http request
+   * @param applicantId Id of the applicant
+   * @return parsed applicant id
+   */
+  private Optional<Long> parseApplicantId(Request request, String applicantId) {
+    if (applicantId == null || applicantId.isBlank()) {
+      return getApplicantId(request); // Handle null or blank input
+    }
+    try {
+      return Optional.of(Long.parseLong(applicantId));
+    } catch (NumberFormatException e) {
+      LOGGER.warn("Invalid applicantId format: " + applicantId + ": " + e.getMessage());
+      return getApplicantId(request);
+    }
   }
 }

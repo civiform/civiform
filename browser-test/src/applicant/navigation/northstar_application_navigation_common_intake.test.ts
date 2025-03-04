@@ -86,6 +86,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
@@ -109,6 +111,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
@@ -131,6 +135,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
@@ -159,6 +165,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
@@ -184,6 +192,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
@@ -210,6 +220,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         CardSectionName.MyApplications,
         commonIntakeProgramName,
       )
+      // Validate hidden label for accessibility.
+      await expect(page.getByText('For your information: ')).toBeVisible()
       await validateAccessibility(page)
     })
 
@@ -237,6 +249,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
@@ -273,6 +287,8 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.applyProgram(
         commonIntakeProgramName,
         /* northStarEnabled= */ true,
+        // common intake programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()

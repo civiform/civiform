@@ -98,6 +98,13 @@ public final class ReadOnlyApplicantProgramService {
     return programDefinition.localizedDescription().getOrDefault(applicantData.preferredLocale());
   }
 
+  /** Returns the program short description, localized to the applicant's preferred locale. */
+  public String getProgramShortDescription() {
+    return programDefinition
+        .localizedShortDescription()
+        .getOrDefault(applicantData.preferredLocale());
+  }
+
   /** Returns the ID of the program. */
   public Long getProgramId() {
     return this.programDefinition.id();

@@ -65,8 +65,15 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     await logout(page)
   })
 
-  test('validate block edit page title', async ({page, applicantQuestions}) => {
+  test('validate block edit page title', async ({
+    page,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
     await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+      programName,
+    )
 
     await applicantQuestions.expectTitle(
       page,

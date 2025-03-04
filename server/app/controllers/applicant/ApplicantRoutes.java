@@ -63,6 +63,35 @@ public final class ApplicantRoutes {
     return controllers.applicant.routes.ApplicantProgramsController.show(String.valueOf(programId));
   }
 
+  /**
+   * Returns the route corresponding to the applicant show action. In the North Star UI, this
+   * returns the program overview page
+   *
+   * @param programSlug - slug of the program to view
+   * @return Route for the program view action
+   */
+  public Call show(String programSlug) {
+    return controllers.applicant.routes.ApplicantProgramsController.show(programSlug);
+  }
+
+  /**
+   * Returns the route corresponding to the applicant show action. In the North Star UI, this
+   * returns the program overview page
+   *
+   * @param profile - Profile corresponding to the logged-in user (applicant or TI).
+   * @param applicantId - ID of applicant for whom the action should be performed.
+   * @param programSlug - slug of the program to view
+   * @return Route for the program view action
+   */
+  public Call show(CiviFormProfile profile, long applicantId, String programSlug) {
+    if (includeApplicantIdInRoute(profile)) {
+      return controllers.applicant.routes.ApplicantProgramsController.showWithApplicantId(
+          applicantId, programSlug);
+    } else {
+      return routes.ApplicantProgramsController.show(programSlug);
+    }
+  }
+
   public Call edit(long programId) {
     return routes.ApplicantProgramsController.edit(programId);
   }
