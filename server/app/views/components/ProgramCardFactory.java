@@ -17,8 +17,10 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -29,21 +31,29 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
+  public ProgramCardFactory(
+      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public DivTag renderCard(ProgramCardData cardData, boolean showCategories) {
+  public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
+    boolean showCategories = settingsManifest.getProgramFilteringEnabled(request);
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
     String programTitleText = displayProgram.localizedName().getDefault();
-    String programDescriptionText = displayProgram.localizedShortDescription().getDefault();
-    if (programDescriptionText.isBlank()) {
-      programDescriptionText = displayProgram.localizedDescription().getDefault();
+
+    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+    if (northStarEnabled) {
+      programDescriptionText =
+          TextFormatter.removeMarkdown(displayProgram.localizedShortDescription().getDefault());
     }
+
     String adminNoteText = displayProgram.adminDescription();
     ImmutableList<String> programCategoryNames =
         displayProgram.categories().stream()
