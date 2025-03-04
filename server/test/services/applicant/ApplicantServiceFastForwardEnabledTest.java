@@ -906,7 +906,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_returnsSavedApplication() throws ProgramNotFoundException {
+  public void submitApplication_returnsSavedApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -931,7 +931,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesTiEmailAsSubmitterEmail() throws ProgramNotFoundException {
+  public void submitApplication_savesTiEmailAsSubmitterEmail() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -954,8 +954,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_whenTiIsSubmittingForThemsleves_doesNotSaveTiEmailAsSubmitterEmail()
-      throws ProgramNotFoundException {
+  public void
+      submitApplication_whenTiIsSubmittingForThemsleves_doesNotSaveTiEmailAsSubmitterEmail() {
     subject
         .stageAndUpdateIfValid(
             tiApplicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
@@ -973,7 +973,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesPrimaryApplicantInfoAnswers() throws ProgramNotFoundException {
+  public void submitApplication_savesPrimaryApplicantInfoAnswers() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1087,7 +1087,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_addsProgramToStoredFileAcls() throws ProgramNotFoundException {
+  public void submitApplication_addsProgramToStoredFileAcls() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1164,7 +1164,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_obsoletesOldApplication() throws ProgramNotFoundException {
+  public void submitApplication_obsoletesOldApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1213,7 +1213,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_setsStatusToDefault() throws ProgramNotFoundException {
+  public void submitApplication_setsStatusToDefault() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1245,7 +1245,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsEmailsWithoutDefaultStatus() throws ProgramNotFoundException {
+  public void submitApplication_sendsEmailsWithoutDefaultStatus() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(
@@ -1330,7 +1330,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsEmailsWithDefaultStatus() throws ProgramNotFoundException {
+  public void submitApplication_sendsEmailsWithDefaultStatus() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(
@@ -1409,7 +1409,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsLocalizedTIEmail() throws ProgramNotFoundException {
+  public void submitApplication_sendsLocalizedTIEmail() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1471,7 +1471,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsLocalizedDefaultStatusEmail() throws ProgramNotFoundException {
+  public void submitApplication_sendsLocalizedDefaultStatusEmail() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1514,8 +1514,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_doesNotSendProgramAdminEmailsWhenPreferenceIsNotSet()
-      throws ProgramNotFoundException {
+  public void submitApplication_doesNotSendProgramAdminEmailsWhenPreferenceIsNotSet() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(ImmutableList.of())
@@ -1552,8 +1551,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_doesNotChangeStatusWhenNoDefaultStatus()
-      throws ProgramNotFoundException {
+  public void submitApplication_doesNotChangeStatusWhenNoDefaultStatus() {
     StatusDefinitions.Status status =
         StatusDefinitions.Status.builder()
             .setStatusText("Waiting")
@@ -1638,8 +1636,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating()
-      throws ProgramNotFoundException {
+  public void
+      submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
     createProgramWithNongatingEligibility(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -4239,7 +4237,7 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
   }
 
   @Test
-  public void getApplicationEligibilityStatus() throws ProgramNotFoundException {
+  public void getApplicationEligibilityStatus() {
     createProgramWithNongatingEligibility(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());

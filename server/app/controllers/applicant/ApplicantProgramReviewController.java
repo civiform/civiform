@@ -329,11 +329,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
+
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
             .submitApplication(applicantId, programId, submittingProfile, request)
             .toCompletableFuture();
-
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)

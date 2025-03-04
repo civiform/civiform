@@ -883,7 +883,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_returnsSavedApplication() throws ProgramNotFoundException {
+  public void submitApplication_returnsSavedApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -908,7 +908,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesTiEmailAsSubmitterEmail() throws ProgramNotFoundException {
+  public void submitApplication_savesTiEmailAsSubmitterEmail() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -931,8 +931,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_whenTiIsSubmittingForThemsleves_doesNotSaveTiEmailAsSubmitterEmail()
-      throws ProgramNotFoundException {
+  public void
+      submitApplication_whenTiIsSubmittingForThemsleves_doesNotSaveTiEmailAsSubmitterEmail() {
     subject
         .stageAndUpdateIfValid(
             tiApplicant.id, programDefinition.id(), "1", applicationUpdates(), false, false)
@@ -950,8 +950,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_emailSentToGuestApplicantWhoAnsweredPaiEmailQuestion()
-      throws ProgramNotFoundException {
+  public void submitApplication_emailSentToGuestApplicantWhoAnsweredPaiEmailQuestion() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1012,8 +1011,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_savesCompletedOrBlankPrimaryApplicantInfoAnswers()
-      throws ProgramNotFoundException {
+  public void submitApplication_savesCompletedOrBlankPrimaryApplicantInfoAnswers() {
 
     // Add PAI questions
     NameQuestionDefinition nameQuestion =
@@ -1172,7 +1170,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_addsProgramToStoredFileAcls() throws ProgramNotFoundException {
+  public void submitApplication_addsProgramToStoredFileAcls() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1249,7 +1247,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_obsoletesOldApplication() throws ProgramNotFoundException {
+  public void submitApplication_obsoletesOldApplication() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -1299,7 +1297,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_setsStatusToDefault() throws ProgramNotFoundException {
+  public void submitApplication_setsStatusToDefault() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1331,7 +1329,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsEmailsWithoutDefaultStatus() throws ProgramNotFoundException {
+  public void submitApplication_sendsEmailsWithoutDefaultStatus() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(
@@ -1416,7 +1414,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsEmailsWithDefaultStatus() throws ProgramNotFoundException {
+  public void submitApplication_sendsEmailsWithDefaultStatus() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(
@@ -1495,7 +1493,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsLocalizedTIEmail() throws ProgramNotFoundException {
+  public void submitApplication_sendsLocalizedTIEmail() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1557,7 +1555,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_sendsLocalizedDefaultStatusEmail() throws ProgramNotFoundException {
+  public void submitApplication_sendsLocalizedDefaultStatusEmail() {
     StatusDefinitions.Status status =
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
@@ -1600,8 +1598,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_doesNotSendProgramAdminEmailsWhenPreferenceIsNotSet()
-      throws ProgramNotFoundException {
+  public void submitApplication_doesNotSendProgramAdminEmailsWhenPreferenceIsNotSet() {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .setNotificationPreferences(ImmutableList.of())
@@ -1638,8 +1635,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_doesNotChangeStatusWhenNoDefaultStatus()
-      throws ProgramNotFoundException {
+  public void submitApplication_doesNotChangeStatusWhenNoDefaultStatus() {
     StatusDefinitions.Status status =
         StatusDefinitions.Status.builder()
             .setStatusText("Waiting")
@@ -1709,6 +1705,15 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
@@ -1725,8 +1730,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating()
-      throws ProgramNotFoundException {
+  public void
+      submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
     createProgramWithNongatingEligibility(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -1752,6 +1757,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.ELIGIBLE);
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -4342,7 +4349,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getApplicationEligibilityStatus() throws ProgramNotFoundException {
+  public void getApplicationEligibilityStatus() {
     createProgramWithNongatingEligibility(questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
@@ -4390,9 +4397,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
         .isFalse();
+    assertThat(ineligibleApplication.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
     // Re-submission evaluates to eligible.
     assertThat(
             subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
         .isTrue();
+    assertThat(eligibleApplication.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.ELIGIBLE);
   }
 }
