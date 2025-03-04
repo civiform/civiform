@@ -117,13 +117,13 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     await expect(headerLogo).toBeVisible()
   })
 
-  test('Header on tablet with north star enabled shows logo', async ({
+  test('Header on tablet with north star enabled hides logo', async ({
     page,
   }) => {
     await page.setViewportSize({width: 800, height: 1024})
 
     const headerLogo = page.locator('.cf-header-logo')
-    await expect(headerLogo).toBeVisible()
+    await expect(headerLogo).toBeHidden()
   })
 
   test('Header on mobile with north star enabled hides logo', async ({

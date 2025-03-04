@@ -17,9 +17,11 @@ import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
 import auth.oidc.admin.AdfsClientProvider;
+import auth.oidc.admin.KeycloakAdminClientProvider;
 import auth.oidc.applicant.Auth0ClientProvider;
 import auth.oidc.applicant.GenericOidcClientProvider;
 import auth.oidc.applicant.IdcsClientProvider;
+import auth.oidc.applicant.KeycloakApplicantClientProvider;
 import auth.oidc.applicant.LoginGovClientProvider;
 import auth.saml.LoginRadiusClientProvider;
 import com.google.common.collect.ImmutableMap;
@@ -111,6 +113,12 @@ public class SecurityModule extends AbstractModule {
             .toProvider(auth.oidc.admin.GenericOidcClientProvider.class);
         logger.info("Using Generic OIDC for admin auth provider");
         break;
+      case KEYCLOAK_ADMIN:
+        bind(IndirectClient.class)
+            .annotatedWith(AdminAuthClient.class)
+            .toProvider(KeycloakAdminClientProvider.class);
+        logger.info("Using Keycloak for admin auth provider");
+        break;
       default:
         throw new ConfigurationException("Unable to create admin identity provider: " + idpName);
     }
@@ -156,6 +164,12 @@ public class SecurityModule extends AbstractModule {
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(Auth0ClientProvider.class);
         logger.info("Using Auth0 for applicant auth provider");
+        break;
+      case KEYCLOAK_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(KeycloakApplicantClientProvider.class);
+        logger.info("Using Keycloak for applicant auth provider");
         break;
       default:
         logger.info("No provider specified for for applicants");

@@ -1,7 +1,7 @@
 import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
-import {waitForAnyModal, waitForPageJsLoad} from './wait'
+import {waitForAnyModal, waitForPageJsLoad, waitForHtmxReady} from './wait'
 import {BASE_URL} from './config'
 import {
   ApplicantProgramList,
@@ -795,7 +795,7 @@ export class ApplicantQuestions {
   async expectConfirmationPage(northStarEnabled = false) {
     if (northStarEnabled) {
       await expect(
-        this.page.getByText('Your submission information'),
+        this.page.getByText('Your application details'),
       ).toBeVisible()
     } else {
       expect(await this.page.innerText('h1')).toContain(
@@ -864,7 +864,7 @@ export class ApplicantQuestions {
     }
 
     const createAccountHeading = this.page.getByRole('heading', {
-      name: 'Create an account to save your application information',
+      name: 'To access your application later, create an account',
     })
     if (wantUpsell) {
       await expect(createAccountHeading).toBeVisible()
@@ -1156,6 +1156,12 @@ export class ApplicantQuestions {
     ).not.toBeAttached()
   }
 
+  async expectMayBeEligibileAlertToBeHidden() {
+    await expect(
+      this.page.getByRole('heading', {name: 'may be eligible'}),
+    ).not.toBeAttached()
+  }
+
   async expectIneligibleQuestionInReviewPageAlert(questionText: string) {
     await expect(
       this.page
@@ -1193,6 +1199,7 @@ export class ApplicantQuestions {
     await this.page
       .getByRole('button', {name: 'Apply selections', exact: true})
       .click()
+    await waitForHtmxReady(this.page)
   }
 
   // On the North Star application summary page, find the block with the given name

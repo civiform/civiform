@@ -140,7 +140,7 @@ public final class ProgramCardsSectionParamsFactory {
         getActionUrl(
             applicantRoutes,
             program.id(),
-            program.adminName(),
+            program.slug(),
             program.isCommonIntakeForm(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
@@ -184,7 +184,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
     cardBuilder.setLifecycleStage(lifecycleStage);
-    if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
+    if (programDatum.latestSubmittedApplicationTime().isPresent()) {
       // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
       cardBuilder.setDateSubmitted(
           formattedDateString(programDatum.latestSubmittedApplicationTime(), preferredLocale));

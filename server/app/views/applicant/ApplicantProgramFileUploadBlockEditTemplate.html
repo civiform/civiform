@@ -16,7 +16,7 @@
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
-          ${applicationParams.programDescription()})}"
+          ${applicationParams.programShortDescription()})}"
       ></div>
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"

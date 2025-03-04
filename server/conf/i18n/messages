@@ -36,6 +36,10 @@ label.languageSr=Choose a language
 header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=End session
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=For your information: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Success: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Your session has ended.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -198,16 +202,16 @@ content.findProgramsDescription=CiviForm helps you find programs you may be elig
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Save time applying for programs and services
 # Main home page heading
-heading.homepage=Apply to programs in one place
+heading.homepage=Apply for government assistance here
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 # Main home page intro text
-content.homepageIntro=Get help with child care, food, transportation, utilities and more.
+content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
 # The label for the program filter buttons
 label.programFilters=Program filters
 # The label for the program filter checkboxes
-label.programFilters.v2=Filter by category
+label.programFilters.v2=What do you want help with?
 # The button to apply program filters
 button.applySelections=Apply selections
 # The button to clear program filter selections
@@ -239,7 +243,7 @@ title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programs and services ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Available programs and services
+title.availableProgramsSection=Programs and services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programs based on your selections ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -591,7 +595,7 @@ button.downloadPdf=Download PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Apply to programs
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your submission information
+heading.yourSubmissionInformation=Your application details
 # Text above the name of the person who submitted this application
 heading.applicantName=Who submitted this application
 # Text above the confirmation number of the application
@@ -607,11 +611,11 @@ heading.nextSteps=What are my next steps?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=You''ve submitted your {0} application
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Create an account to save your application information
+alert.createAccount=To access your application later, create an account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Login to an existing account
+content.loginToExistingAccount=Sign in to an existing account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -914,7 +918,7 @@ banner.notForProductionBannerLine2=To apply to a program or service go to {0}.
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=You are applying as a guest. After you finish applying, {0} to protect your data.
+banner.guestBannerText=After you apply, {0} to protect your data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=end your session
 
