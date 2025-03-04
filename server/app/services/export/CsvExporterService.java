@@ -231,8 +231,8 @@ public final class CsvExporterService {
         Column.builder().setHeader("Admin Note").setColumnType(ColumnType.ADMIN_NOTE).build());
     columnsBuilder.add(
         Column.builder()
-            .setHeader("Status Create Time")
-            .setColumnType(ColumnType.STATUS_CREATE_TIME)
+            .setHeader("Status Last Modified Time")
+            .setColumnType(ColumnType.STATUS_LAST_MODIFIED_TIME)
             .build());
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }

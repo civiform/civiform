@@ -57,7 +57,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   // and the creation time to a PST time to test both cases.
   public static final Instant FAKE_CREATE_TIME = Instant.parse("2022-04-09T10:07:02.00Z");
   public static final Instant FAKE_SUBMIT_TIME = Instant.parse("2022-12-09T10:30:30.00Z");
-  public static final Instant FAKE_STATUS_CREATE_TIME = Instant.parse("2022-12-10T10:30:30.00Z");
+  public static final Instant FAKE_STATUS_MODIFIED_TIME = Instant.parse("2022-12-10T10:30:30.00Z");
 
   protected ProgramAdminApplicationService programAdminApplicationService;
   private static ProgramService programService;
@@ -236,7 +236,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     application.save();
     application.refresh();
 
-    application.setStatusCreateTimeForTest(FAKE_STATUS_CREATE_TIME);
+    application.setStatusLastModifiedTimeForTest(FAKE_STATUS_MODIFIED_TIME);
     application.save();
 
     application.refresh();
@@ -1231,7 +1231,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       // the value, manually set createTime and save and refresh the application.
       application.setCreateTimeForTest(this.createTime);
       application.setSubmitTimeForTest(this.submitTime);
-      application.setStatusCreateTimeForTest(this.createTime);
+      application.setStatusLastModifiedTimeForTest(this.createTime);
       application.save();
 
       return this;

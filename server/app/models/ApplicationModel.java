@@ -52,7 +52,7 @@ public class ApplicationModel extends BaseModel {
   private String latestStatus;
   private boolean isAdmin;
   private String latestNote;
-  private Instant statusCreateTime;
+  private Instant statusLastModifiedTime;
 
   public ApplicationModel(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
@@ -155,8 +155,8 @@ public class ApplicationModel extends BaseModel {
   }
 
   @VisibleForTesting
-  public ApplicationModel setStatusCreateTimeForTest(Instant v) {
-    this.statusCreateTime = v;
+  public ApplicationModel setStatusLastModifiedTimeForTest(Instant v) {
+    this.statusLastModifiedTime = v;
     return this;
   }
 
@@ -183,13 +183,13 @@ public class ApplicationModel extends BaseModel {
   }
 
   /**
-   * Returns the status create time associated with the latest application status.
+   * Returns the status modified time associated with the latest application status.
    *
    * <p>This value is updated when program admins updates the status of the application or when a
    * default status is applied.
    */
-  public Optional<Instant> getStatusCreateTime() {
-    return Optional.ofNullable(statusCreateTime);
+  public Optional<Instant> getStatusLastModifiedTime() {
+    return Optional.ofNullable(statusLastModifiedTime);
   }
 
   /**

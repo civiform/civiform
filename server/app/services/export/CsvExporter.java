@@ -168,12 +168,13 @@ public final class CsvExporter implements AutoCloseable {
         case ADMIN_NOTE:
           printer.print(application.getLatestNote().orElse(EMPTY_VALUE));
           break;
-        case STATUS_CREATE_TIME:
-          if (application.getStatusCreateTime().isEmpty()) {
+        case STATUS_LAST_MODIFIED_TIME:
+          if (application.getStatusLastModifiedTime().isEmpty()) {
             printer.print(EMPTY_VALUE);
           } else {
             printer.print(
-                dateConverter.renderDateTimeDataOnly(application.getStatusCreateTime().get()));
+                dateConverter.renderDateTimeDataOnly(
+                    application.getStatusLastModifiedTime().get()));
           }
           break;
       }

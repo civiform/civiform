@@ -103,7 +103,7 @@ public final class ApplicationEventRepository {
                         ? null
                         : newStatusEvent.statusText())
                 .set(
-                    "status_create_time",
+                    "status_last_modified_time",
                     Strings.isNullOrEmpty(newStatusEvent.statusText())
                         ? null
                         : event.getCreateTime())
@@ -160,7 +160,7 @@ public final class ApplicationEventRepository {
           // in case of bulk updates, the first event's status update time is set to the rest of the
           // events as the difference in event time will be less than a ms.
           .set(
-              "status_create_time",
+              "status_last_modified_time",
               Strings.isNullOrEmpty(newStatusEvent.statusText())
                   ? null
                   : applicationsStatusEvent.get(0).getCreateTime())

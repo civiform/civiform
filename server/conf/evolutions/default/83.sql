@@ -1,10 +1,10 @@
 # --- !Ups
 
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_create_time TIMESTAMP;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS status_last_modified_time TIMESTAMP;
 
 -- Update historical data from application events table
 UPDATE applications
-SET status_create_time = match_applications.create_time
+SET status_last_modified_time = match_applications.create_time
   FROM (
 SELECT
     latest_status_event.application_id,
@@ -27,5 +27,5 @@ WHERE
 
 # --- !Downs
 
-ALTER TABLE applications DROP COLUMN IF EXISTS status_create_time;
+ALTER TABLE applications DROP COLUMN IF EXISTS status_last_modified_time;
 

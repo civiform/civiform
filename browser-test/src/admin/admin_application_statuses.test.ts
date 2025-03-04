@@ -677,10 +677,10 @@ test.describe('view program statuses', () => {
       expect(applicationText).toContain('Guest')
       expect(applicationText).toContain(favoriteColorAnswer)
 
-      await test.step('allow status create time to be exported', async () => {
+      await test.step('allow status last modified time to be exported', async () => {
         await page.getByRole('link', {name: 'Back'}).click()
         const csvContent = await adminPrograms.getCsv(false)
-        expect(csvContent).toContain('Status Create Time')
+        expect(csvContent).toContain('Status Last Modified Time')
       })
     })
   })
