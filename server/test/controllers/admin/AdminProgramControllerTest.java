@@ -137,8 +137,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboardResult = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboardResult)).contains("External program name");
-    assertThat(contentAsString(programDashboardResult))
-        .contains("External short program description");
+    assertThat(contentAsString(programDashboardResult)).contains("External program description");
   }
 
   @Test
@@ -223,7 +222,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("External program name with acls");
     assertThat(contentAsString(programDashboard))
-        .contains("External short program description with acls");
+        .contains("External program description with acls");
   }
 
   @Test
@@ -352,7 +351,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("Existing One");
     assertThat(contentAsString(programDashboard)).contains("External program name");
-    assertThat(contentAsString(programDashboard)).contains("External short program description");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
   }
 
   @Test
@@ -468,7 +467,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains("External program name");
-    assertThat(contentAsString(programDashboard)).contains("External short program description");
+    assertThat(contentAsString(programDashboard)).contains("External program description");
   }
 
   @Test
@@ -667,9 +666,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result indexResult = controller.index(fakeRequest());
     assertThat(contentAsString(indexResult))
         .contains(
-            "Create new program",
-            "New external program name",
-            "New external short program description");
+            "Create new program", "New external program name", "New external program description");
     assertThat(contentAsString(indexResult)).doesNotContain("Existing one", "short description");
   }
 
@@ -919,7 +916,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";
-    String newProgramShortDescription = "External program short description";
+    String newProgramDescription = "New external program description";
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -931,7 +928,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "localizedDisplayDescription",
                     "New external program description",
                     "localizedShortDescription",
-                    newProgramShortDescription,
+                    "External program short description",
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
@@ -958,7 +955,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result redirectResult = controller.index(fakeRequest());
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
-    assertThat(contentAsString(redirectResult)).contains(newProgramShortDescription);
+    assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }
 
   @Test
