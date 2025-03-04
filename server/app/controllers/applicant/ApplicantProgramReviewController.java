@@ -329,90 +329,85 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
+    CompletableFuture<ApplicationModel> submitAppFuture =
+        applicantService
+            .submitApplication(applicantId, programId, submittingProfile, request)
+            .toCompletableFuture();
 
-    try {
-      CompletableFuture<ApplicationModel> submitAppFuture =
-          applicantService
-              .submitApplication(applicantId, programId, submittingProfile, request)
-              .toCompletableFuture();
+    CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
+        applicantService
+            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+    return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
+        .thenApplyAsync(
+            (v) -> {
+              ApplicationModel application = submitAppFuture.join();
+              Long applicationId = application.id;
 
-      CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
-          applicantService
-              .getReadOnlyApplicantProgramService(applicantId, programId)
-              .toCompletableFuture();
-      CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-          applicantService.getPersonalInfo(applicantId).toCompletableFuture();
-      return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
-          .thenApplyAsync(
-              (v) -> {
-                ApplicationModel application = submitAppFuture.join();
-                Long applicationId = application.id;
+              Call endOfProgramSubmission =
+                  routes.UpsellController.considerRegister(
+                      applicantId,
+                      programId,
+                      applicationId,
+                      applicantRoutes.index(submittingProfile, applicantId).url(),
+                      application.getSubmitTime().toString());
+              return found(endOfProgramSubmission);
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ApplicationSubmissionException) {
+                  Call reviewPage =
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                  return found(reviewPage).flashing(FlashKey.BANNER, errorMsg);
+                }
+                if (cause instanceof ApplicationOutOfDateException) {
+                  String errorMsg =
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                  Call reviewPage =
+                      applicantRoutes.review(submittingProfile, applicantId, programId);
+                  return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
+                }
+                if (cause instanceof ApplicationNotEligibleException) {
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
+                      readOnlyApplicantProgramServiceFuture.join();
 
-                Call endOfProgramSubmission =
-                    routes.UpsellController.considerRegister(
-                        applicantId,
-                        programId,
-                        applicationId,
-                        applicantRoutes.index(submittingProfile, applicantId).url(),
-                        application.getSubmitTime().toString());
-                return found(endOfProgramSubmission);
-              },
-              classLoaderExecutionContext.current())
-          .exceptionally(
-              ex -> {
-                if (ex instanceof CompletionException) {
-                  Throwable cause = ex.getCause();
-                  if (cause instanceof ApplicationSubmissionException) {
-                    Call reviewPage =
-                        applicantRoutes.review(submittingProfile, applicantId, programId);
-                    String errorMsg =
-                        messagesApi
-                            .preferred(request)
-                            .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
-                    return found(reviewPage).flashing(FlashKey.BANNER, errorMsg);
-                  }
-                  if (cause instanceof ApplicationOutOfDateException) {
-                    String errorMsg =
-                        messagesApi
-                            .preferred(request)
-                            .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
-                    Call reviewPage =
-                        applicantRoutes.review(submittingProfile, applicantId, programId);
-                    return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
-                  }
-                  if (cause instanceof ApplicationNotEligibleException) {
-                    ReadOnlyApplicantProgramService roApplicantProgramService =
-                        readOnlyApplicantProgramServiceFuture.join();
-
-                    try {
-                      ProgramDefinition programDefinition =
-                          programService.getFullProgramDefinition(programId);
-                      return renderIneligiblePage(
-                          request,
-                          submittingProfile,
-                          applicantId,
-                          applicantPersonalInfo.join(),
-                          roApplicantProgramService,
-                          programDefinition);
-                    } catch (ProgramNotFoundException e) {
-                      notFound(e.toString());
-                    }
-                  }
-                  if (cause instanceof DuplicateApplicationException) {
-                    return renderPreventDuplicateSubmissionPage(
+                  try {
+                    ProgramDefinition programDefinition =
+                        programService.getFullProgramDefinition(programId);
+                    return renderIneligiblePage(
                         request,
                         submittingProfile,
                         applicantId,
-                        readOnlyApplicantProgramServiceFuture.join(),
-                        programId);
+                        applicantPersonalInfo.join(),
+                        roApplicantProgramService,
+                        programDefinition);
+                  } catch (ProgramNotFoundException e) {
+                    notFound(e.toString());
                   }
-                  throw new RuntimeException(cause);
                 }
-                throw new RuntimeException(ex);
-              });
-    } catch (ProgramNotFoundException e) {
-      throw new RuntimeException("Could not find program.", e);
-    }
+                if (cause instanceof DuplicateApplicationException) {
+                  return renderPreventDuplicateSubmissionPage(
+                      request,
+                      submittingProfile,
+                      applicantId,
+                      readOnlyApplicantProgramServiceFuture.join(),
+                      programId);
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   // TODO(#7266): Delete the old codepath and inline the North Star path
