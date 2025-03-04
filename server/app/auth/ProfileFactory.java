@@ -136,11 +136,11 @@ public final class ProfileFactory {
 
   @VisibleForTesting
   public CiviFormProfile wrap(AccountModel account) {
-    return wrapProfileData(new CiviFormProfileData(account.id));
+    return wrapProfileData(new CiviFormProfileData(account.id, clock));
   }
 
   public CiviFormProfile wrap(ApplicantModel applicant) {
-    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id);
+    CiviFormProfileData profileData = new CiviFormProfileData(applicant.getAccount().id, clock);
     CiviFormProfile profile = wrapProfileData(profileData);
     profile.getAccount().thenAccept(account -> profile.storeApplicantIdInProfile(account)).join();
     return profile;
