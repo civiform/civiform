@@ -100,14 +100,13 @@ public final class MetricsController extends CiviFormController {
       TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
       return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
     } catch (ConcurrentModificationException e) {
-      // This exception can often be reproduced if you start running the full browser test
-      // suite and then spam calling `/metrics` until it sometimes will throw.
+      // This exception can often be triggered if you start running the full browser test
+      // suite and then spam calling `/metrics`.
       //
       // Basically this state can happen when calling `database.metaInfo().collectMetrics()`
       // method and the metrics are either being updated or a lock can't be immediately gotten.
       //
-      // I'm trying to avoid using synchronize to force a lock on the database object as I'm
-      // concerned about adversely affecting performance.
+      // Avoid using synchronize to force a lock on the database object as it may adversely affecting performance.
       //
       // Since the `/metrics` endpoint is called very frequently any data from a failed call
       // gets rolled into the next successful call to `/metrics`.
