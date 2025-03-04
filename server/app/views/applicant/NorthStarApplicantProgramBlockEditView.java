@@ -78,7 +78,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
-    context.setVariable("overviewUrl", overview(applicationParams, programSlug));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
+    context.setVariable("homeUrl", index(applicationParams));
 
     // Progress bar
     ProgressBar progressBar =
@@ -223,7 +224,18 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .url();
   }
 
-  private String overview(ApplicationBaseViewParams params, String programSlug) {
+  private String index(ApplicationBaseViewParams params) {
+    // index() does the TI check.
+    return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
+  }
+
+  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+    if (params.profile().isTrustedIntermediary()) {
+      return params
+          .applicantRoutes()
+          .show(params.profile(), params.applicantId(), programSlug)
+          .url();
+    }
     return params.applicantRoutes().show(programSlug).url();
   }
 

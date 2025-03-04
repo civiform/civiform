@@ -56,6 +56,10 @@ content.requiredFieldsNoteNorthStar=Required fields are marked with an asterisk 
 content.optional=(optional)
 # Message displayed below "Choose File" button to say that on the phone users can use their camera.
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+content.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+content.programNameApplication={0} application
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
 button.close=Close
