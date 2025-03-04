@@ -1,8 +1,8 @@
 {
   "name": "civiform-formatter",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "8.25.0",
-    "@typescript-eslint/parser": "8.25.0",
+    "@typescript-eslint/eslint-plugin": "8.26.0",
+    "@typescript-eslint/parser": "8.26.0",
     "eslint": "8.57.1",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.0.2",
