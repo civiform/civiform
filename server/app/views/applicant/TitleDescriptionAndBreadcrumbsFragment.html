@@ -1,0 +1,24 @@
+<th:block
+  th:fragment="titleDescriptionAndBreadcrumbsFragment(title, description, homeUrl, programOverviewUrl)"
+>
+  <section class="grid-container section">
+    <div class="grid-row">
+      <div class="tablet:grid-col-8 usa-prose">
+        <div
+          th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+            ${applicationParams.programTitle()},
+            ${homeUrl},
+            ${programOverviewUrl})}"
+        ></div>
+      </div>
+    </div>
+    <div class="grid-row content-top">
+      <div class="tablet:grid-col-8 usa-prose">
+        <h1 th:text="${title}"></h1>
+        <div class="tablet:text-medium-spacing content-top usa-intro">
+          <span th:utext="${description}"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</th:block>
