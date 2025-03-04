@@ -326,6 +326,14 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickBreadcrumbHomeLink() {
+    await this.page.click('text="Home"')
+  }
+
+  async clickBreadcrumbProgramLink(programName: string) {
+    await this.page.click(`text="${programName}"`)
+  }
+
   async clickApplyToAnotherProgramButton() {
     await this.page.click('text="Apply to another program"')
   }
