@@ -86,6 +86,8 @@ content.loginPrompt=يُرجى تسجيل الدخول باستخدام حساب
 button.createAnAccount=إنشاء حساب
 # The text on the button an applicant clicks to log in to their session.
 button.login=تسجيل الدخول
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=أليس لديك حساب؟
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=تأكيد إرسال الطلب
 content.confirmed=نشكرك على طلب الانضمام إلى "{0}".  لقد تلقّينا طلبك الذي يحمل المعرّف {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=إنشاء حساب أو تسجيل الدخول
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد لحفظ معلوماتك. سيكون بإمكانك العودة في أي وقت لإكمال الطلبات المستقبلية. وإذا لم يسبق لك إنشاء حساب، تتيح لك صفحة "تسجيل الدخول" الاشتراك للحفاظ على أي بيانات تم إدخالها.
