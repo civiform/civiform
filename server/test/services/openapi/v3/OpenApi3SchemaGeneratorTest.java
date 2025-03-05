@@ -514,6 +514,10 @@ components:
               status:
                 type: string
                 nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
+                nullable: true
               submit_time:
                 type: string
                 format: date-time
