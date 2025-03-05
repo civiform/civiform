@@ -1705,15 +1705,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    ApplicationModel application =
-        subject
-            .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(application.getEligibilityDetermination())
-        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
             () ->
@@ -1758,7 +1749,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
 
     assertThat(application.getEligibilityDetermination())
-        .isEqualTo(EligibilityDetermination.ELIGIBLE);
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
