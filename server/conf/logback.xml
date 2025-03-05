@@ -6,11 +6,18 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
+  <import class="ch.qos.logback.classic.encoder.JsonEncoder" />
 
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
     <encoder class="PatternLayoutEncoder">
       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="JSON" class="ConsoleAppender">
+    <encoder class="JsonEncoder">
+      <withFormattedMessage>true</withFormattedMessage>
     </encoder>
   </appender>
 
@@ -22,6 +29,10 @@
 
   <appender name="ASYNCFILE" class="AsyncAppender">
     <appender-ref ref="FILE" />
+  </appender>
+
+  <appender name="ASYNCJSON" class="AsyncAppender">
+    <appender-ref ref="JSON" />
   </appender>
 
   <appender name="ASYNCSTDOUT" class="AsyncAppender">
@@ -59,6 +70,6 @@
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="ASYNCSTDOUT" />
+    <appender-ref ref="${LOGBACK_CONSOLE_APPENDER:-ASYNCSTDOUT}" />
   </root>
 </configuration>
