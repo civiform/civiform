@@ -86,6 +86,8 @@ content.loginPrompt={0} アカウントでログインしてください
 button.createAnAccount=アカウントを作成する
 # The text on the button an applicant clicks to log in to their session.
 button.login=ログイン
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=アカウントをお持ちでない場合
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=申請の確認
 content.confirmed={0} への申請ありがとうございます。申請を受け付けました。お客様の申請 ID は {1} です。
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=アカウントを作成またはログイン
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=情報を保存するには、{0} アカウントにログインするか、アカウントを作成します。今後の申請のためにいつでも戻ることができます。まだアカウントをお持ちでない場合は、ログインページから登録すると、一度入力したデータを保持できるようになります。
