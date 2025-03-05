@@ -118,6 +118,10 @@ it is around the label */
   @include u-margin-y('105');
 }
 
+.content-top {
+  @include u-margin-top('105');
+}
+
 .content-spacing {
   @include u-height('105');
 }
