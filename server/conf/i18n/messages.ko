@@ -86,6 +86,8 @@ content.loginPrompt={0} 계정으로 로그인하세요.
 button.createAnAccount=계정 만들기
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=계정이 없나요?
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=애플리케이션 확인
 content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=계정 만들기 또는 로그인
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
