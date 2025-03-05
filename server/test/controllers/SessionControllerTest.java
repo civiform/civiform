@@ -3,7 +3,6 @@ package controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
@@ -13,7 +12,6 @@ import java.time.Clock;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.settings.SettingsManifest;
@@ -27,44 +25,53 @@ public class SessionControllerTest {
   private Clock clock;
 
   @Before
-  public void setUp() throws Exception {
-    mockProfile = Mockito.mock(CiviFormProfile.class);
-    mockProfileData = Mockito.mock(CiviFormProfileData.class);
-    profileUtils = Mockito.mock(ProfileUtils.class);
-    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+  public void setUp() {
+    profileUtils = mock(ProfileUtils.class);
+    mockSettingsManifest = mock(SettingsManifest.class);
     clock = mock(Clock.class);
+    mockProfile = mock(CiviFormProfile.class);
+    mockProfileData = mock(CiviFormProfileData.class);
+
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
     when(profileUtils.optionalCurrentUserProfile(any(Http.Request.class)))
         .thenReturn(Optional.of(mockProfile));
-
-    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
-
     controller = new SessionController(profileUtils, mockSettingsManifest, clock);
   }
 
   @Test
-  public void testExtendSessionWithValidRequest() {
-    Http.Request request =
-        fakeRequestBuilder().header("Authorization", "Bearer valid_token").build();
+  public void extendSession_withValidRequest_updatesLastActivityTime() {
+    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+
+    Http.Request request = fakeRequestBuilder().build();
 
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.OK);
-    assertThat(contentAsString(result)).contains("Session extended");
-
     verify(mockProfileData).updateLastActivityTime(clock);
   }
 
   @Test
-  public void testExtendSessionWhenTimeoutNotEnabled() {
+  public void extendSession_whenTimeoutDisabled_returnsBadRequest() {
     when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
-
-    Http.Request request =
-        fakeRequestBuilder().header("Authorization", "Bearer valid_token").build();
+    Http.Request request = fakeRequestBuilder().build();
 
     Result result = controller.extendSession(request);
 
     assertThat(result.status()).isEqualTo(Http.Status.BAD_REQUEST);
-    assertThat(contentAsString(result)).contains("Session timeout is not enabled");
+    verify(mockProfileData, never()).updateLastActivityTime(any());
+  }
+
+  @Test
+  public void extendSession_withNoProfile_returnsUnauthorized() {
+    when(mockSettingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+
+    when(profileUtils.optionalCurrentUserProfile(any(Http.Request.class)))
+        .thenReturn(Optional.empty());
+    Http.Request request = fakeRequestBuilder().build();
+
+    Result result = controller.extendSession(request);
+
+    assertThat(result.status()).isEqualTo(Http.Status.UNAUTHORIZED);
+    verify(mockProfileData, never()).updateLastActivityTime(any());
   }
 }

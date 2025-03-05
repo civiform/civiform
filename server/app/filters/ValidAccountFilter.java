@@ -18,6 +18,7 @@ import play.mvc.EssentialFilter;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
@@ -30,17 +31,20 @@ public class ValidAccountFilter extends EssentialFilter {
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
   private final Clock clock;
+  private final Provider<SessionTimeoutService> sessionTimeoutService;
 
   @Inject
   public ValidAccountFilter(
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
-      Clock clock) {
+      Clock clock,
+      Provider<SessionTimeoutService> sessionTimeoutService) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
+    this.sessionTimeoutService = sessionTimeoutService;
   }
 
   @Override
@@ -88,7 +92,7 @@ public class ValidAccountFilter extends EssentialFilter {
                 return CompletableFuture.completedFuture(false);
               }
 
-              return isSessionTimedOut(profile);
+              return sessionTimeoutService.get().isSessionTimedOut(profile);
             });
   }
 
@@ -101,41 +105,6 @@ public class ValidAccountFilter extends EssentialFilter {
                   account.getActiveSession(profile.getProfileData().getSessionId()).isPresent());
     }
     return CompletableFuture.completedFuture(true);
-  }
-
-  private CompletableFuture<Boolean> isSessionTimedOut(CiviFormProfile profile) {
-    long currentTime = clock.millis();
-    long lastActivityTime = profile.getProfileData().getLastActivityTime(clock);
-
-    long inactivityTimeout =
-        settingsManifest
-                .get()
-                .getSessionInactivityTimeoutMinutes()
-                .orElse(SessionTimeoutFilter.DEFAULT_INACTIVITY_TIMEOUT_MINUTES)
-            * 60L
-            * 1000;
-
-    long maxSessionDuration =
-        settingsManifest
-                .get()
-                .getMaximumSessionDurationMinutes()
-                .orElse(SessionTimeoutFilter.DEFAULT_MAX_SESSION_DURATION_MINUTES)
-            * 60L
-            * 1000;
-
-    boolean timedOutDueToInactivity = currentTime - lastActivityTime > inactivityTimeout;
-
-    if (timedOutDueToInactivity) {
-      return CompletableFuture.completedFuture(true);
-    }
-
-    return profile
-        .getSessionStartTime()
-        .thenApply(
-            maybeSessionStartTime -> {
-              long sessionStartTime = maybeSessionStartTime.orElse(currentTime);
-              return currentTime - sessionStartTime > maxSessionDuration;
-            });
   }
 
   /**
