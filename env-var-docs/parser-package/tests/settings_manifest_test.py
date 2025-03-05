@@ -21,15 +21,17 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                         "Fake subsection for testing",
                         [],
                         {
-                            "SUBSECTION_VARIABLE": Variable(
-                                description="Fake subsection variable for testing",
-                                type="string",
-                                required=True,
-                                values=None,
-                                regex=None,
-                                regex_tests=None,
-                                mode=Mode.HIDDEN,
-                            )
+                            "SUBSECTION_VARIABLE":
+                                Variable(
+                                    description=
+                                    "Fake subsection variable for testing",
+                                    type="string",
+                                    required=True,
+                                    values=None,
+                                    regex=None,
+                                    regex_tests=None,
+                                    mode=Mode.HIDDEN,
+                                )
                         },
                     )
                 ],
@@ -40,33 +42,36 @@ class TestGenerateSettingsManifest(unittest.TestCase):
             "Miscellaneous",
             sub_groups,
             {
-                "STRING_VARIABLE": Variable(
-                    description="Fake string variable for testing",
-                    type="string",
-                    required=True,
-                    values=None,
-                    regex=None,
-                    regex_tests=None,
-                    mode=Mode.ADMIN_READABLE,
-                ),
-                "ENUM_VARIABLE": Variable(
-                    description="Fake string variable for testing",
-                    type="string",
-                    required=True,
-                    values=["one", "two"],
-                    regex=None,
-                    regex_tests=None,
-                    mode=Mode.ADMIN_READABLE,
-                ),
-                "REGEX_VARIABLE": Variable(
-                    description="Fake string variable for testing",
-                    type="string",
-                    required=False,
-                    values=None,
-                    regex="^regex$",
-                    regex_tests=None,
-                    mode=Mode.ADMIN_READABLE,
-                ),
+                "STRING_VARIABLE":
+                    Variable(
+                        description="Fake string variable for testing",
+                        type="string",
+                        required=True,
+                        values=None,
+                        regex=None,
+                        regex_tests=None,
+                        mode=Mode.ADMIN_READABLE,
+                    ),
+                "ENUM_VARIABLE":
+                    Variable(
+                        description="Fake string variable for testing",
+                        type="string",
+                        required=True,
+                        values=["one", "two"],
+                        regex=None,
+                        regex_tests=None,
+                        mode=Mode.ADMIN_READABLE,
+                    ),
+                "REGEX_VARIABLE":
+                    Variable(
+                        description="Fake string variable for testing",
+                        type="string",
+                        required=False,
+                        values=None,
+                        regex="^regex$",
+                        regex_tests=None,
+                        mode=Mode.ADMIN_READABLE,
+                    ),
             },
         )
 
