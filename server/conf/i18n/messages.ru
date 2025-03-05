@@ -86,6 +86,8 @@ content.loginPrompt=Войдите в свой аккаунт, зарегист�
 button.createAnAccount=Создать аккаунт
 # The text on the button an applicant clicks to log in to their session.
 button.login=Войти
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Нет аккаунта?
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=Подтверждение заявки
 content.confirmed=Благодарим вас! Мы получили вашу заявку на участие в программе "{0}"  и присвоили ей идентификатор {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Зарегистрируйтесь или войдите в аккаунт
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Чтобы вся указанная вами информация сохранилась и вы могли в любое время использовать ее для подачи будущих заявок, войдите в ваш аккаунт, зарегистрированный в сервисе "{0}". Если у вас нет аккаунта, вы можете создать его на странице входа.
