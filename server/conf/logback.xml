@@ -6,7 +6,7 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
-  <import class="ch.qos.logback.classic.encoder.JsonEncoder" />
+  <import class="com.google.cloud.logging.logback.LoggingAppender" />
 
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
@@ -15,11 +15,7 @@
     </encoder>
   </appender>
 
-  <appender name="JSON" class="ConsoleAppender">
-    <encoder class="JsonEncoder">
-      <withFormattedMessage>true</withFormattedMessage>
-    </encoder>
-  </appender>
+  <appender name="GOOGLECLOUD" class="LoggingAppender" />
 
   <appender name="STDOUT" class="ConsoleAppender">
     <encoder class="PatternLayoutEncoder">
@@ -31,8 +27,8 @@
     <appender-ref ref="FILE" />
   </appender>
 
-  <appender name="ASYNCJSON" class="AsyncAppender">
-    <appender-ref ref="JSON" />
+  <appender name="ASYNCGOOGLECLOUD" class="AsyncAppender">
+    <appender-ref ref="GOOGLECLOUD" />
   </appender>
 
   <appender name="ASYNCSTDOUT" class="AsyncAppender">
@@ -70,6 +66,6 @@
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="${LOGBACK_CONSOLE_APPENDER:-ASYNCSTDOUT}" />
+    <appender-ref ref="${LOGBACK_APPENDER:-ASYNCSTDOUT}" />
   </root>
 </configuration>
