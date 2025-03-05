@@ -36,14 +36,17 @@ test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
     applicantQuestions,
     applicantProgramOverview,
   }) => {
+    // Setup
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantProgramOverview.startApplicationFromProgramOverviewPage(
       programName,
     )
+
+    // Test
     await applicantQuestions.clickBreadcrumbHomeLink()
 
+    // Verify
     await applicantQuestions.expectProgramsPage()
-
     await validateAccessibility(page)
   })
 
@@ -52,14 +55,17 @@ test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
     applicantQuestions,
     applicantProgramOverview,
   }) => {
+    // Setup
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantProgramOverview.startApplicationFromProgramOverviewPage(
       programName,
     )
+
+    // Test
     await applicantQuestions.clickBreadcrumbProgramLink(programName)
 
+    // Verify
     await applicantProgramOverview.expectProgramOverviewPage(programName)
-
     await validateAccessibility(page)
   })
 })

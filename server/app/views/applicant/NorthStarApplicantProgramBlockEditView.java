@@ -78,8 +78,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
-    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
     context.setVariable("homeUrl", index(applicationParams));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
 
     // Progress bar
     ProgressBar progressBar =
@@ -225,7 +225,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   }
 
   private String index(ApplicationBaseViewParams params) {
-    // index() does the TI check.
+    // index() does the TI evaluation.
     return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
   }
 
