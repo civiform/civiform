@@ -141,6 +141,41 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_northStar_showsNewProgramInListWithShortDescription() {
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "adminName",
+                    "internal-program-name",
+                    "adminDescription",
+                    "Internal program description",
+                    "localizedDisplayName",
+                    "External program name",
+                    "localizedDisplayDescription",
+                    "External program description",
+                    "localizedShortDescription",
+                    "External short program description",
+                    "externalLink",
+                    "https://external.program.link",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue(),
+                    "applicationSteps[0][title]",
+                    "step one title",
+                    "applicationSteps[0][description]",
+                    "step one description"));
+
+    controller.create(requestBuilder.build());
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+    Result programDashboardResult = controller.index(request);
+    assertThat(contentAsString(programDashboardResult)).contains("External program name");
+    assertThat(contentAsString(programDashboardResult))
+        .contains("External short program description");
+  }
+
+  @Test
   public void create_redirectsToProgramImage() {
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
