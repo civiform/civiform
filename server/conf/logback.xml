@@ -66,6 +66,6 @@
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="${LOGBACK_APPENDER:-ASYNCSTDOUT}" />
+    <appender-ref ref="GOOGLECLOUD" />
   </root>
 </configuration>
