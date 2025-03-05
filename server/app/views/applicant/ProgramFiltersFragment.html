@@ -2,7 +2,6 @@
   <form
     th:if="${!categoryOptions.isEmpty()}"
     id="ns-category-filter-form"
-    class="grid-container"
     hx-get="/programs/hx/filter"
     hx-target="#not-started-programs"
     hx-swap="innerHTML show:top"
