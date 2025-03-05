@@ -251,6 +251,11 @@ it is around the label */
     @include u-padding-top(4);
     @include u-padding-bottom(2);
   }
+
+  // Hide the government name on desktop (if set to hidden)
+  .cf-hidden-gov-name {
+    display: none;
+  }
 }
 
 // Styles common to tablet and mobile
@@ -258,6 +263,11 @@ it is around the label */
   // Hide the logo on mobile and tablet
   .cf-header-logo {
     display: none;
+  }
+
+  // Show the government name when the logo is hidden
+  .cf-hidden-gov-name {
+    display: block;
   }
 
   .usa-nav .usa-button,
