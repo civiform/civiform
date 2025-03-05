@@ -7,7 +7,6 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main>
       <div
-        th:if="${userIsAdmin}"
         th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
       ></div>
       <div
