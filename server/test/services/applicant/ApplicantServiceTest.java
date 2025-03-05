@@ -993,11 +993,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    subject
-        .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
-        .toCompletableFuture()
-        .join();
-
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+            .toCompletableFuture()
+            .join();
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
     Messages messages = getMessages(Locale.US);
     String programName = progDef.adminName();
     Mockito.verify(emailSendClient)
