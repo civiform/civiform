@@ -481,7 +481,7 @@ public final class ApplicantService {
 
   private EligibilityDetermination calculateEligibilityDetermination(
       ProgramDefinition programDefinition,
-      ReadOnlyApplicantProgramService reahOnlyApplicantProgramService) {
+      ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
     if (programDefinition.hasEligibilityEnabled()) {
       if (reahOnlyApplicantProgramService.isApplicationNotEligible()) {
         return EligibilityDetermination.INELIGIBLE;
