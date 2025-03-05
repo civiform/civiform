@@ -483,7 +483,7 @@ public final class ApplicantService {
       ProgramDefinition programDefinition,
       ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
     if (programDefinition.hasEligibilityEnabled()) {
-      if (reahOnlyApplicantProgramService.isApplicationNotEligible()) {
+      if (readOnlyApplicantProgramService.isApplicationNotEligible()) {
         return EligibilityDetermination.INELIGIBLE;
       } else {
         return EligibilityDetermination.ELIGIBLE;
