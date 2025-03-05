@@ -367,3 +367,29 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 </footer>
+
+<a
+  th:fragment="technicalSupportLink"
+  class="usa-link"
+  href="mailto:civiform-dev@exygy.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  >civiform-dev@exygy.com</a
+>
+
+<section
+  th:fragment="adminPreviewBackButton(goBackHref)"
+  class="grid-container section"
+  th:if="${showAdminBackButton}"
+>
+  <div class="grid-row">
+    <div class="tablet:grid-col-8 usa-prose">
+      <a th:href="${goBackHref}">
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
+        ></svg>
+        Back to admin view
+      </a>
+    </div>
+  </div>
+</section>
