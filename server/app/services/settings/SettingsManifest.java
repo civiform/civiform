@@ -52,8 +52,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header, if the
-   * name is included in the logo.
+   * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
+   * may be desired if the government name is included in the logo.
    */
   public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
     return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
@@ -1105,7 +1105,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
                       "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
-                          + " CiviForm header, if the name is included in the logo.",
+                          + " CiviForm header. This may be desired if the government name is"
+                          + " included in the logo.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
