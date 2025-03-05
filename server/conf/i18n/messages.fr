@@ -86,6 +86,8 @@ content.loginPrompt=Veuillez vous connecter avec votre compte {0}.
 button.createAnAccount=Créer un compte
 # The text on the button an applicant clicks to log in to their session.
 button.login=Se connecter
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Vous n''avez pas de compte ?
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=Confirmation de la demande d''inscription
 content.confirmed=Merci pour votre demande d''inscription au {0}.  Nous l''avons bien reçue. Voici l''identifiant de votre demande : {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Créez un compte ou connectez-vous
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Connectez-vous à votre compte {0} ou créez-en un pour pouvoir enregistrer vos informations. Vous pourrez revenir à tout moment pour terminer vos futures demandes d''inscription. Si vous n''avez pas encore de compte, vous pourrez en créer un à la page de connexion pour ne pas perdre les données que vous avez déjà saisies.
