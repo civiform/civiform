@@ -119,6 +119,7 @@ public enum MessageKey {
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
   BUTTON_SELECT("button.select"),
+  BUTTON_SIGNIN("button.signIn"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
@@ -182,6 +183,7 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  CONTENT_SIGNIN_MODAL("content.signInModal"), // North Star only
   CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
@@ -394,6 +396,7 @@ public enum MessageKey {
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
   TITLE_RECOMMENDED_PROGRAMS_SECTION_V2("title.recommendedSection.v2"),
+  TITLE_SIGNIN_MODAL("title.signInModal"), // North Star only
   TITLE_STATUS("title.status"),
   TITLE_TI_ACCOUNT_SETTINGS("title.tiAccountSettings"),
   TITLE_TI_DASHBOARD("title.tiDashboard"),
