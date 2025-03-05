@@ -181,6 +181,10 @@ definitions:
             status:
               type: "string"
               x-nullable: true
+            status_last_modified_time:
+              type: "string"
+              format: "date-time"
+              x-nullable: true
             submit_time:
               type: "string"
               format: "date-time"
@@ -901,6 +905,10 @@ definitions:
               type: "string"
             status:
               type: "string"
+              x-nullable: true
+            status_last_modified_time:
+              type: "string"
+              format: "date-time"
               x-nullable: true
             submit_time:
               type: "string"
