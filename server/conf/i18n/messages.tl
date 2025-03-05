@@ -86,6 +86,8 @@ content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod n
 button.createAnAccount=Gumawa ng account
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Walang account?
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=Pagkumpirma ng aplikasyon
 content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natanggap na, at ang ID ng application ninyo ay {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Gumawa ng account o magsign-in
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
