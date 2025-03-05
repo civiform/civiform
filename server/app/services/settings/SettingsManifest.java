@@ -51,6 +51,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
   }
 
+  /**
+   * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header, if the
+   * name is included in the logo.
+   */
+  public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
+    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
+  }
+
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
@@ -1093,6 +1101,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
                       /* isRequired= */ true,
                       SettingType.STRING,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
+                      "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
+                          + " CiviForm header, if the name is included in the logo.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
