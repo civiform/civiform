@@ -32,6 +32,7 @@ import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -1588,7 +1589,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), fakeRequest())
+                        9999L,
+                        9999L,
+                        /* tiSubmitterEmail= */ Optional.empty(),
+                        /* eligibilityDetermination= */ EligibilityDetermination.NOT_COMPUTED,
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -2021,7 +2026,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2081,7 +2090,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2166,7 +2179,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     // CIF application submitted.
     applicationRepository
-        .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            commonIntakeForm.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     result =
@@ -2206,7 +2223,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2269,7 +2290,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2345,7 +2370,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms result =
@@ -2372,7 +2401,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .join();
 
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms secondResult =
@@ -2411,7 +2444,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(primaryApplicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            primaryApplicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2459,7 +2496,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmit.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmit.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2518,7 +2559,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2593,7 +2638,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     // Create a new program version.
@@ -2671,7 +2720,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     HashSet<Long> tiAcls = new HashSet<>();
@@ -2753,7 +2806,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
             .build();
     Optional<ApplicationModel> firstApp =
         applicationRepository
-            .submitApplication(applicant.id, programForDraftApp.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForDraftApp.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join();
     Instant firstAppSubmitTime = firstApp.orElseThrow().getSubmitTime();
@@ -2763,7 +2820,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
         .join();
     Optional<ApplicationModel> secondApp =
         applicationRepository
-            .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForSubmittedApp.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join();
     Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
@@ -2821,7 +2882,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // version's timestamp is chosen.
     ApplicationModel firstSubmitted =
         applicationRepository
-            .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForSubmitted.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -2830,7 +2895,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     applicant.getApplicantData().putString(Path.create("text"), "text");
     applicant.save();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     // We want to ensure ordering is occurring by submit time, NOT by application ID.
@@ -2851,7 +2920,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     // creation time.
     ApplicationModel firstDraft =
         applicationRepository
-            .submitApplication(applicant.id, programForDraft.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForDraft.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -2911,7 +2984,8 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
-            .submitApplication(applicant.id, program.id, Optional.empty())
+            .submitApplication(
+                applicant.id, program.id, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -2974,7 +3048,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
-            .submitApplication(applicant.id, originalProgram.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                originalProgram.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -3094,7 +3172,11 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     // Submit an application.
     applicationRepository
-        .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -3255,7 +3337,10 @@ public class ApplicantServiceFastForwardEnabledTest extends ResetPostgres {
 
     applicationRepository
         .submitApplication(
-            applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
+            applicant.id,
+            programWithEligibleAndIneligibleAnswers.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
