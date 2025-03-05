@@ -1009,7 +1009,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * When enabled, existing draft applications will be automatically be updated to use the latest
+   * When enabled, existing draft applications will automatically be updated to use the latest
    * version of a program when a newer version has been published.
    */
   public boolean getFastforwardEnabled(RequestHeader request) {
@@ -2163,9 +2163,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "FASTFORWARD_ENABLED",
-                          "When enabled, existing draft applications will be automatically be"
-                              + " updated to use the latest version of a program when a newer"
-                              + " version has been published.",
+                          "When enabled, existing draft applications will automatically be updated"
+                              + " to use the latest version of a program when a newer version has"
+                              + " been published.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

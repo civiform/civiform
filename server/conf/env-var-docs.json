@@ -856,7 +856,7 @@
       },
       "FASTFORWARD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
+        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
       "PROGRAM_MIGRATION_ENABLED": {
