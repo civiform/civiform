@@ -15,7 +15,9 @@
     </encoder>
   </appender>
 
-  <appender name="GOOGLECLOUD" class="LoggingAppender" />
+  <appender name="GOOGLECLOUD" class="LoggingAppender">
+    <logName>civiform-logs</logName>
+  </appender>
 
   <appender name="STDOUT" class="ConsoleAppender">
     <encoder class="PatternLayoutEncoder">
@@ -64,7 +66,6 @@
   <logger name="io.ebean.TXN" level="OFF" />
 
   <root level="INFO">
-    <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="GOOGLECLOUD" />
   </root>
 </configuration>
