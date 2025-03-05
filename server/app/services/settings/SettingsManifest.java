@@ -1085,6 +1085,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
+              "Branding",
+              SettingsSection.create(
                   "Branding",
                   "Configuration options for CiviForm branding.",
                   ImmutableList.of(),
