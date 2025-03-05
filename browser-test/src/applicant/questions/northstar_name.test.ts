@@ -105,7 +105,21 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickContinue()
 
-      await expectQuestionHasErrors(page)
+      await expectQuestionHasGroupError(page)
+    })
+
+    test('with missing last name does not submit and shows individual field error', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
+      await applicantQuestions.answerNameQuestion('Frida', '', '')
+      await applicantQuestions.clickContinue()
+
+      await expectQuestionHasLastNameFieldError(page)
     })
   })
 
@@ -168,7 +182,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickContinue()
 
       // First question has errors.
-      await expectQuestionHasErrors(page, 0)
+      await expectQuestionHasGroupError(page, 0)
 
       // Second question has no errors.
       await expectQuestionHasNoErrors(page, 1)
@@ -190,7 +204,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await expectQuestionHasNoErrors(page, 0)
 
       // Second question has errors.
-      await expectQuestionHasErrors(page, 1)
+      await expectQuestionHasGroupError(page, 1)
     })
 
     test('has no accessiblity violations', async ({
@@ -280,7 +294,7 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
       await expectQuestionHasNoErrors(page, 0)
 
       // Second (required) question has errors
-      await expectQuestionHasErrors(page, 1)
+      await expectQuestionHasGroupError(page, 1)
     })
   })
 
@@ -386,17 +400,31 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
     await logout(page)
   }
 
-  async function expectQuestionHasErrors(page: Page, index = 0) {
+  async function expectQuestionHasGroupError(page: Page, index = 0) {
     const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
     await expect(
       questionRoot.getByText('Error: This question is required.'),
     ).toBeVisible()
+    // When all fields are missing, individual field errors should not be shown.
     await expect(
       questionRoot.getByText('Error: Please enter your first name.'),
-    ).toBeVisible()
+    ).toBeHidden()
+    await expect(
+      questionRoot.getByText('Error: Please enter your last name.'),
+    ).toBeHidden()
+  }
+
+  async function expectQuestionHasLastNameFieldError(page: Page, index = 0) {
+    const questionRoot = page.locator('[data-testid="questionRoot"]').nth(index)
     await expect(
       questionRoot.getByText('Error: Please enter your last name.'),
     ).toBeVisible()
+    await expect(questionRoot.locator('.cf-name-last')).toHaveClass(
+      'cf-name-last cf-applicant-question-field cf-question-field-with-error',
+    )
+    await expect(questionRoot.locator('.cf-name-last input')).toHaveClass(
+      'usa-input cf-input-large usa-input--error',
+    )
   }
 
   async function expectQuestionHasNoErrors(page: Page, index = 0) {
