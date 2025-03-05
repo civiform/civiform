@@ -100,7 +100,7 @@
     th:replace="~{this :: loginPromptModal('login-dialog-upsell',
                                    ${upsellBypassUrl},
                                    ${upsellLoginUrl},
-                                   #{content.generalLoginModalPrompt},
+                                   #{content.signInModal},
                                    #{button.continueWithoutAnAccount},
                                    null,
                                    false)}"
@@ -123,7 +123,7 @@
       <h2
         class="usa-modal__heading"
         th:id="${dialogId + '-heading'}"
-        th:text="#{title.createAnAccount}"
+        th:text="#{title.signInModal}"
       ></h2>
       <div class="usa-prose">
         <p
@@ -146,7 +146,7 @@
             <a
               class="usa-button usa-button--outline padding-105 text-center"
               data-close-modal
-              th:text="#{button.login}"
+              th:text="#{button.signIn}"
               th:href="${loginLink}"
             ></a>
           </li>
