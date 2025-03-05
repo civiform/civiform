@@ -909,6 +909,12 @@
         "description": "Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
+      },
+      "CUSTOM_THEME_COLORS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable using custom theme colors on North Star applicant UI.",
+        "type": "bool",
+        "required": false
       }
     }
   }
