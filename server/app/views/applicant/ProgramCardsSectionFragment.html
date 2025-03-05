@@ -66,7 +66,10 @@
         class="display-flex flex-wrap margin-bottom-1 cf-flex-gap"
       >
         <th:block th:each="category : ${card.categories()}">
-          <div th:text="${category}" class="usa-tag"></div>
+          <div
+            th:text="${category}"
+            class="usa-tag usa-prose border border-ink radius-sm bg-white text-ink text-no-uppercase"
+          ></div>
         </th:block>
       </div>
 
@@ -77,7 +80,7 @@
 
       <!-- In progress tag -->
       <div
-        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT'}"
+        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT' and !card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span
@@ -88,7 +91,7 @@
 
       <!-- Submitted tag -->
       <div
-        th:if="${!card.applicationStatus().isPresent() and card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'ACTIVE'}"
+        th:if="${!card.applicationStatus().isPresent() and card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span

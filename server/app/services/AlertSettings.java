@@ -2,6 +2,7 @@ package services;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import play.i18n.Messages;
 import views.components.TextFormatter;
 
 /**
@@ -14,6 +15,7 @@ import views.components.TextFormatter;
  * @param alertType {@link AlertType}
  * @param additionalText Additional text to be displayed as a list
  * @param customText Customized text added by the admin, if any
+ * @param ariaLabel Optional help text for screen readers
  * @param isSlim Determines whether the alert should have slim layout
  */
 public record AlertSettings(
@@ -24,6 +26,7 @@ public record AlertSettings(
     AlertType alertType,
     ImmutableList<String> additionalText,
     Optional<String> customText,
+    Optional<String> ariaLabel,
     Boolean isSlim) {
 
   public static AlertSettings empty() {
@@ -49,6 +52,7 @@ public record AlertSettings(
         alertType,
         additionalText,
         /* customText= */ Optional.empty(),
+        /* ariaLabel= */ Optional.empty(),
         isSlim);
   }
 
@@ -59,6 +63,7 @@ public record AlertSettings(
       AlertType alertType,
       ImmutableList<String> additionalText,
       Optional<String> customText,
+      Optional<String> ariaLabel,
       Boolean isSlim) {
     this(
         show,
@@ -68,6 +73,7 @@ public record AlertSettings(
         alertType,
         additionalText,
         customText,
+        ariaLabel,
         isSlim);
   }
 
@@ -75,5 +81,17 @@ public record AlertSettings(
   public String getFormattedAlertText(String text) {
     return TextFormatter.formatTextToSanitizedHTML(
         text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+  }
+
+  public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {
+    switch (alertType) {
+      case SUCCESS:
+        return messages.at(MessageKey.HEADING_SUCCESS_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      case INFO:
+        return messages.at(
+            MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      default:
+        return titleText;
+    }
   }
 }

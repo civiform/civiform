@@ -9,10 +9,11 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
-import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
+import java.util.ConcurrentModificationException;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.monitoring.MonitoringMetricCounters;
@@ -23,6 +24,7 @@ import services.monitoring.MonitoringMetricCounters;
  * customized to allow disabling via configuration flag.
  */
 public final class MetricsController extends CiviFormController {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MetricsController.class);
 
   private final boolean metricsEnabled;
   private final CollectorRegistry collectorRegistry;
@@ -58,8 +60,6 @@ public final class MetricsController extends CiviFormController {
     if (!metricsEnabled) {
       return notFound();
     }
-
-    var writer = new StringWriter();
 
     try {
       database
@@ -97,11 +97,32 @@ public final class MetricsController extends CiviFormController {
                     .inc((double) metric.total());
               });
 
+      var writer = new StringWriter();
       TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
+    } catch (ConcurrentModificationException e) {
+      // This exception can often be triggered if you start running the full browser test
+      // suite and then spam calling `/metrics`.
+      //
+      // Basically this state can happen when calling `database.metaInfo().collectMetrics()`
+      // method and the metrics are either being updated or a lock can't be immediately gotten.
+      //
+      // Avoid using synchronize to force a lock on the database object as it may adversely
+      // affecting performance.
+      //
+      // Since the `/metrics` endpoint is called very frequently any data from a failed call
+      // gets rolled into the next successful call to `/metrics`.
+      var errorMsg =
+          """
+          Attempted to collect database metrics for Prometheus, but could not get a lock at this
+          time. This is safe to ignore. The metrics will be included on the next successful call.
+          """;
+
+      LOGGER.info(errorMsg.stripIndent(), e);
+    } catch (Exception e) {
+      LOGGER.error(e.getMessage());
     }
 
-    return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
+    return internalServerError();
   }
 }

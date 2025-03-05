@@ -84,8 +84,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     // for the program.  We only want to show the eligibility alert for unstarted programs.
     boolean showEligibilityAlert =
         optionalProgramData.isPresent()
-            ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
-            : false;
+            && ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get());
 
     if (showEligibilityAlert) {
       boolean isTrustedIntermediary = profile.isTrustedIntermediary();
@@ -127,8 +126,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
 
   private AlertSettings createEligibilityAlertSettings(
       Messages messages, boolean isTrustedIntermediary, boolean isEligible) {
-    String alertText;
-    AlertType alertType;
+    final String alertText;
+    final AlertType alertType;
 
     if (isEligible) {
       alertText =
@@ -144,15 +143,13 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       alertType = AlertType.WARNING;
     }
 
-    AlertSettings eligibilityAlertSettings =
-        new AlertSettings(
-            /* show= */ true,
-            Optional.empty(),
-            alertText,
-            alertType,
-            ImmutableList.of(),
-            /* isSlim= */ true);
-    return eligibilityAlertSettings;
+    return new AlertSettings(
+        /* show= */ true,
+        /* title= */ Optional.empty(),
+        alertText,
+        alertType,
+        ImmutableList.of(),
+        /* isSlim= */ true);
   }
 
   private ImmutableMap<String, String> getStepsMap(
@@ -169,7 +166,6 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
                       /* preserveEmptyLines= */ true,
                       /* addRequiredIndicator= */ false));
             });
-    ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
-    return applicationStepsMap;
+    return applicationStepsBuilder.build();
   }
 }

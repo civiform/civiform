@@ -79,7 +79,7 @@ test.describe(
           /* northStarEnabled= */ true,
         )
 
-        await validateScreenshot(page, 'checkbox-north-star')
+        await validateScreenshot(page.locator('main'), 'checkbox-north-star')
       })
 
       test('validate screenshot with errors', async ({
@@ -92,7 +92,10 @@ test.describe(
         )
         await applicantQuestions.clickContinue()
 
-        await validateScreenshot(page, 'checkbox-errors-north-star')
+        await validateScreenshot(
+          page.locator('main'),
+          'checkbox-errors-north-star',
+        )
       })
 
       test('with single checked box submits successfully', async ({
@@ -188,7 +191,7 @@ test.describe(
           '<p><a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="https://www.blue.com">https://www.blue.com</a></p>\n',
         ])
         await validateScreenshot(
-          page,
+          page.locator('main'),
           'checkbox-options-with-markdown-north-star',
         )
       })
@@ -219,7 +222,7 @@ test.describe(
             /* clickSubmit= */ false,
           )
           await validateScreenshot(
-            page,
+            page.locator('main'),
             'checkbox-options-long-text-preview-north-star',
           )
           await adminQuestions.clickSubmitButtonAndNavigate('Create')
@@ -235,7 +238,7 @@ test.describe(
           /* northStarEnabled= */ true,
         )
         await validateScreenshot(
-          page,
+          page.locator('main'),
           'checkbox-options-long-text-applicant-north-star',
         )
       })

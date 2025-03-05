@@ -101,16 +101,20 @@ test.describe(
         )
       })
 
-      await test.step('Validate the login link logs the user in and navigates to the home page', async () => {
+      await test.step('Validate the sign in link logs the user in and navigates to the home page', async () => {
         await expect(
-          page.getByText(
-            'Create an account to save your application information',
+          page.getByText('To access your application later, create an account'),
+        ).toBeVisible()
+        // Validate help text for accessibility.
+        await expect(
+          page.getByLabel(
+            'For your information: To access your application later, create an account',
           ),
         ).toBeVisible()
 
         await loginAsTestUser(
           page,
-          'a:has-text("Login to an existing account")',
+          'a:has-text("Sign in to an existing account")',
         )
         await applicantQuestions.expectProgramsPage()
       })
@@ -244,6 +248,12 @@ test.describe(
 
       await test.step('Setup: submit application', async () => {
         await tiDashboard.clickOnViewApplications()
+        // Validate accessibility label
+        await expect(
+          page.getByText(
+            'For your information: You are applying for last, first. Are you trying to apply for a different client?',
+          ),
+        ).toBeHidden()
         await applicantQuestions.clickApplyProgramButton(programName)
         await applicantQuestions.submitFromReviewPage(
           /* northStarEnabled= */ true,
