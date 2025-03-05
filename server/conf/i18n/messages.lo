@@ -86,6 +86,8 @@ content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ
 button.createAnAccount=ສ້າງບັນຊີ
 # The text on the button an applicant clicks to log in to their session.
 button.login=ເຂົ້າສູ່ລະບົບ
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=ບໍ່ມີບັນຊີບໍ?
 # The text between creating a new account, and becoming a guest
@@ -561,6 +563,10 @@ title.applicationConfirmation=ການຢືນຢັນການສະໝັ�
 content.confirmed=ຂໍຂອບໃຈສຳລັບການສະໝັກເຂົ້າຮ່ວມ {0}.  ໄດ້ຮັບໃບສະໝັກຂອງທ່ານແລ້ວ ແລະ ລະຫັດການສະໝັກຂອງທ່ານແມ່ນ {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີເພື່ອບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້. ທ່ານຈະສາມາດກັບຄືນມາໄດ້ທຸກເວລາເພື່ອຕື່ມໃບສະໝັກໃຫ້ຄົບຖ້ວນໃນອະນາຄົດ. ຫາກທ່ານຍັງບໍ່ມີບັນຊີ, ໜ້າເຂົ້າສູ່ລະບົບຈະອະນຸຍາດໃຫ້ທ່ານລົງທະບຽນ ແລະ ທ່ານຈະບໍ່ສູນເສຍຂໍ້ມູນໃດກໍຕາມທີ່ທ່ານເຄີຍປ້ອນໄປແລ້ວ.
