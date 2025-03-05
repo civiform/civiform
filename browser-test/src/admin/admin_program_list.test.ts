@@ -49,7 +49,11 @@ test.describe('Program list page.', () => {
     const programName = 'Program With Short Description'
     const programLongDescription =
       'A very very very very very very long description'
-    const programShortDescription = 'A very short description'
+    const programShortDescription =
+      'A short description with some __markdown__ and a [link](https://www.example.com)'
+    const programShortDescriptionWithoutMarkdown =
+      'A short description with some markdown and a link'
+
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
@@ -59,12 +63,28 @@ test.describe('Program list page.', () => {
       )
     })
 
-    await test.step('check that short description is shown', async () => {
+    await test.step('check that long description is shown when North Star flag is off', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgram = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgram.locator('.cf-program-description')
       await expect(
-        firstProgramDesc.getByText(programShortDescription),
+        firstProgramDesc.getByText(programLongDescription),
+      ).toBeVisible()
+      await expect(
+        firstProgramDesc.locator(
+          `text=${programShortDescriptionWithoutMarkdown}`,
+        ),
+      ).toHaveCount(0) // short description should not be shown
+    })
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('check that short description stripped of markdown is shown when North Star flag is on', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const firstProgram = page.locator('.cf-admin-program-card').first()
+      const firstProgramDesc = firstProgram.locator('.cf-program-description')
+      await expect(
+        firstProgramDesc.getByText(programShortDescriptionWithoutMarkdown),
       ).toBeVisible()
       await expect(
         firstProgramDesc.locator(`text=${programLongDescription}`),

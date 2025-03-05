@@ -37,6 +37,7 @@ import models.ApplicantModel;
 import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -429,32 +430,67 @@ public final class ApplicantService {
    */
   public CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
-    if (submitterProfile.isTrustedIntermediary()) {
-      return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(
-              v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
-          .thenComposeAsync(
-              tiAccount ->
-                  submitApplication(
-                      applicantId,
-                      programId,
-                      // /* tiSubmitterEmail= */
-                      // If the TI is submitting for themselves, don't set the tiSubmitterEmail. See
-                      // #5325 for more.
-                      tiAccount.ownedApplicantIds().contains(applicantId)
-                          ? Optional.empty()
-                          : Optional.of(tiAccount.getEmailAddress()),
-                      request),
-              classLoaderExecutionContext.current());
-    }
+    try {
+      ProgramDefinition pd = programService.getFullProgramDefinition(programId);
+      if (submitterProfile.isTrustedIntermediary()) {
+        return getReadOnlyApplicantProgramService(applicantId, programId)
+            .thenCompose(
+                ro ->
+                    validateApplicationForSubmission(ro, programId)
+                        .thenComposeAsync(
+                            v -> submitterProfile.getAccount(),
+                            classLoaderExecutionContext.current())
+                        .thenComposeAsync(
+                            tiAccount -> {
+                              EligibilityDetermination eligibilityDetermination =
+                                  calculateEligibilityDetermination(pd, ro);
+                              return submitApplication(
+                                  applicantId,
+                                  programId,
+                                  // /* tiSubmitterEmail= */
+                                  // If the TI is submitting for themselves, don't set the
+                                  // tiSubmitterEmail. See #5325 for more.
+                                  tiAccount.ownedApplicantIds().contains(applicantId)
+                                      ? Optional.empty()
+                                      : Optional.of(tiAccount.getEmailAddress()),
+                                  eligibilityDetermination,
+                                  request);
+                            },
+                            classLoaderExecutionContext.current()));
+      }
 
-    return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-        .thenCompose(
-            v ->
-                submitApplication(
-                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty(), request));
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(
+              ro ->
+                  validateApplicationForSubmission(ro, programId)
+                      .thenCompose(
+                          v -> {
+                            EligibilityDetermination eligibilityDetermination =
+                                calculateEligibilityDetermination(pd, ro);
+                            return submitApplication(
+                                applicantId,
+                                programId,
+                                /* tiSubmitterEmail= */ Optional.empty(),
+                                eligibilityDetermination,
+                                request);
+                          }));
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException("Could not find program.", e);
+    }
+  }
+
+  private EligibilityDetermination calculateEligibilityDetermination(
+      ProgramDefinition programDefinition,
+      ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
+    if (programDefinition.hasEligibilityEnabled()) {
+      if (readOnlyApplicantProgramService.isApplicationNotEligible()) {
+        return EligibilityDetermination.INELIGIBLE;
+      } else {
+        return EligibilityDetermination.ELIGIBLE;
+      }
+    } else {
+      return EligibilityDetermination.NO_ELIGIBILITY_CRITERIA;
+    }
   }
 
   /**
@@ -564,10 +600,14 @@ public final class ApplicantService {
 
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, Optional<String> tiSubmitterEmail, Request request) {
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      Request request) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
@@ -590,7 +630,6 @@ public final class ApplicantService {
               applicationStatusesRepository.lookupActiveStatusDefinitions(programName);
           Optional<StatusDefinitions.Status> maybeDefaultStatus =
               activeStatusDefinitions.getDefaultStatus();
-
           CompletableFuture<ApplicationEventModel> updateStatusFuture =
               maybeDefaultStatus
                   .map(status -> setApplicationStatus(application, status).toCompletableFuture())

@@ -22,13 +22,13 @@ Resources:
 ## Release
 
 - [ ] Choose a new version number in the format `vX.Y.Z`. If this is an unscheduled release in order to fix a bug, increment Z. Otherwise, increment Y and set Z to 0. Do not increment X without a discussion with the rest of the engineering team.
-- [ ] If the release is going to be late, email civiform-announce@googlegroups.com and civiform-technical@googlegroups.com to let admins know when to expect the next release.
 - [ ] Create a Draft Release by 12 PT on Tuesday
   - Ensure both the `civiform` and `cloud-deploy-infra` repos are tagged appropriately after running the `Create Release` action.
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release
-- [ ] Email release notes
+- [ ] If the release is going to be published later than Wednesday EOD, email civiform-announce@googlegroups.com and civiform-technical@googlegroups.com to let admins know when to expect the next release.
+- [ ] After publishing, email release notes
   - The email should include both a link to the release notes on GitHub, and a sentence or two summarizing what is in the release. It should be friendly to non-technical readers (think CiviForm and Program Admins). Feel free to use phrases like "small usability improvements" rather than listing each improvement. Edit the GitHub release notes and add this small summary to the top of it as well.
 - [ ] Upgrade the demo site config files to the latest version by running [this action](https://github.com/civiform/civiform-staging-deploy/actions/workflows/update_demo_versions.yaml) then approving and merging the generated PR.
 
