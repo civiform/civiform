@@ -237,7 +237,7 @@ def process_directory(directory, model_name, client):
         client: The initialized Gemini client.
 
     Returns:
-        tuple: success_count, fail_count, total_files
+        dict: Dictionary containing success and failure details.
     """
     success_count = 0
     fail_count = 0
@@ -245,18 +245,28 @@ def process_directory(directory, model_name, client):
     # Check if the directory is outside the allowed working directory
     if not os.path.abspath(directory).startswith(os.path.abspath(work_dir)):
       logging.error(f"Attempted access outside working directory: {directory}")
-      return 0,0,0
+      return {"total_files": 0, "success_count": 0, "fail_count": 0, "file_results": {}}
+
+    file_results = {}
 
     for filename in os.listdir(directory):
         if filename.lower().endswith(".pdf"):
             total_files+=1
             file_full = os.path.join(directory, filename)
             civiform_json = process_file(file_full, model_name, client)
+            file_results[filename] = {
+                "success": False,
+                "error_message": ""
+            }
             if civiform_json:
                 success_count+=1
+                file_results[filename]["success"] = True
             else:
                 fail_count+=1
-    return success_count, fail_count, total_files
+                file_results[filename]["success"] = False
+                file_results[filename]["error_message"] = "Failed to process file."
+    return {"total_files": total_files, "success_count": success_count, "fail_count": fail_count, "file_results": file_results}
+ 
 
 @app.route('/')
 def index():
@@ -313,30 +323,33 @@ def upload_directory():
 
     client = initialize_gemini_model(model_name)
     
-    success_count, fail_count, total_files = process_directory(directory_path, model_name, client)
-    if total_files == 0:
+    directory_result = process_directory(directory_path, model_name, client)
+    if directory_result["total_files"] == 0:
       return jsonify({
         "summary": {
-            "total_files": total_files,
-            "success_count": success_count,
-            "fail_count": fail_count
+            "total_files": directory_result["total_files"],
+            "success_count": directory_result["success_count"],
+            "fail_count": directory_result["fail_count"],
+            "file_results": directory_result["file_results"]
         }
       })
-    if success_count == 0 and fail_count > 0:
+    if directory_result["success_count"] == 0 and directory_result["fail_count"] > 0:
       return jsonify({
             "error": "No files processed successfully.",
             "summary": {
-                "total_files": total_files,
-                "success_count": success_count,
-                "fail_count": fail_count
+                 "total_files": directory_result["total_files"],
+                 "success_count": directory_result["success_count"],
+                 "fail_count": directory_result["fail_count"],
+                 "file_results": directory_result["file_results"]
             }
         }), 500
     
     return jsonify({
         "summary": {
-            "total_files": total_files,
-            "success_count": success_count,
-            "fail_count": fail_count
+            "total_files": directory_result["total_files"],
+            "success_count": directory_result["success_count"],
+            "fail_count": directory_result["fail_count"],
+            "file_results": directory_result["file_results"]
         }
     })
     
