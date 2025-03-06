@@ -6,7 +6,6 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
-  <import class="ch.qos.logback.classic.encoder.JsonEncoder" />
   <import class="net.logstash.logback.encoder.LogstashEncoder" />
 
   <appender name="FILE" class="FileAppender">
@@ -21,7 +20,10 @@
       <fieldNames>
         <timestamp>timestamp</timestamp>
         <level>severity</level>
+        <version>[ignore]</version>
+        <levelValue>[ignore]</levelValue>
       </fieldNames>
+      <includeContext>false</includeContext>
     </encoder>
   </appender>
 
@@ -35,8 +37,8 @@
     <appender-ref ref="FILE" />
   </appender>
 
-  <appender name="ASYNCGOOGLECLOUD" class="AsyncAppender">
-    <appender-ref ref="GOOGLECLOUD" />
+  <appender name="ASYNCJSON" class="AsyncAppender">
+    <appender-ref ref="JSON" />
   </appender>
 
   <appender name="ASYNCSTDOUT" class="AsyncAppender">
@@ -71,7 +73,8 @@
   <logger name="io.ebean.SQL" level="OFF" />
   <logger name="io.ebean.TXN" level="OFF" />
 
-  <root level="INFO">
-    <appender-ref ref="JSON" />
+  <root level="WARN">
+    <appender-ref ref="ASYNCFILE" />
+    <appender-ref ref="${LOGBACK_CONSOLE_APPENDER:-ASYNCSTDOUT}" />
   </root>
 </configuration>

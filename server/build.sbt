@@ -129,9 +129,6 @@ lazy val root = (project in file("."))
       "io.swagger.core.v3" % "swagger-core" % "2.2.28",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
 
-      // GCP logback encoder
-      "com.google.cloud" % "google-cloud-logging-logback" % "0.131.11-alpha",
-
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "7.4"
     ),
