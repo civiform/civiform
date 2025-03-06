@@ -1,13 +1,13 @@
-import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import { test } from '../support/civiform_fixtures'
+import { enableFeatureFlag, loginAsAdmin, validateScreenshot, waitForPageJsLoad } from '../support'
 
-test.describe('admin program preview', () => {
+test.describe('admin program preview', 
+  {tag: ['@northstar']}, 
+  () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
-  
-  
   test('preview program and use back button', async ({
     page,
     adminPrograms,
