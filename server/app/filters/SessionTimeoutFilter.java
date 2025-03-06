@@ -30,9 +30,6 @@ import services.settings.SettingsManifest;
  * is about to expire.
  */
 public class SessionTimeoutFilter extends Filter {
-  public static final int DEFAULT_INACTIVITY_TIMEOUT_MINUTES = 30;
-  public static final int DEFAULT_MAX_SESSION_DURATION_MINUTES = 600;
-
   private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
   private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 
@@ -69,6 +66,18 @@ public class SessionTimeoutFilter extends Filter {
                 createSessionTimestampCookie(optionalProfile.get()).thenApply(result::withCookies));
   }
 
+  /**
+   * Creates a cookie containing the current session's timeout data.
+   *
+   * <p>This cookie is intended for use by client-side JavaScript. It is not encrypted because the
+   * data it contains is not sensitive, and the client needs to be able to read it. To mitigate
+   * potential security risks, this cookie should not contain values that are also transmitted in
+   * client requests. If it becomes necessary to use this cookie's data on the server, additional
+   * validation measures must be implemented.
+   *
+   * @param profile Profile corresponding to the logged-in user (applicant or TI).
+   * @return A future that completes with the cookie containing the session's timeout data.
+   */
   private CompletableFuture<Http.Cookie> createSessionTimestampCookie(CiviFormProfile profile) {
     return sessionTimeoutService
         .get()
