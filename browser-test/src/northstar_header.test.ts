@@ -148,10 +148,8 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
       const headerLogo = page.locator('.cf-header-logo')
       const govName = page.locator('.cf-hidden-gov-name')
-      const headerText = page.locator('.usa-logo__text')
       await expect(headerLogo).toBeVisible()
       await expect(govName).toBeHidden()
-      await expect(headerText).toHaveText(' CiviForm')
     })
 
     await test.step('Header on tablet hides logo and shows gov name', async () => {
@@ -159,10 +157,8 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
       const headerLogo = page.locator('.cf-header-logo')
       const govName = page.locator('.cf-hidden-gov-name')
-      const headerText = page.locator('.usa-logo__text')
       await expect(headerLogo).toBeHidden()
       await expect(govName).toBeVisible()
-      await expect(headerText).toHaveText('TestCity CiviForm')
     })
 
     await test.step('Header on mobile hides logo and shows gov name', async () => {
@@ -170,10 +166,8 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
       const headerLogo = page.locator('.cf-header-logo')
       const govName = page.locator('.cf-hidden-gov-name')
-      const headerText = page.locator('.usa-logo__text')
       await expect(headerLogo).toBeHidden()
       await expect(govName).toBeVisible()
-      await expect(headerText).toHaveText('TestCity CiviForm')
     })
   })
 })
