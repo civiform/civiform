@@ -540,10 +540,16 @@ public final class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale,
       HtmlBundle bundle,
       Optional<CiviFormProfile> profile) {
+    boolean northStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
+    MessageKey buttonText =
+        northStarEnabled ? MessageKey.BUTTON_START_SURVEY : MessageKey.BUTTON_START_HERE;
+    MessageKey buttonScreenReaderText =
+        northStarEnabled
+            ? MessageKey.BUTTON_START_SURVEY_SR
+            : MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
+
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
-    MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
     if (commonIntakeFormApplicationStatus.isPresent()) {
       switch (commonIntakeFormApplicationStatus.get()) {
         case ACTIVE:
