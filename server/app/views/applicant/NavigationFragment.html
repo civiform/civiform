@@ -378,13 +378,13 @@
 >
 
 <section
-  th:fragment="adminPreviewBackButton(goBackUrl)"
+  th:fragment="adminPreviewBackButton(goBackToAdminUrl)"
   class="grid-container section"
   th:if="${userIsAdmin}"
 >
   <div class="grid-row">
     <div class="tablet:grid-col-8 usa-prose">
-      <a th:href="${goBackUrl}">
+      <a th:href="${goBackToAdminUrl}">
         <svg
           th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
         ></svg>
