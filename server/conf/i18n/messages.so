@@ -195,6 +195,8 @@ button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
 button.continueSr=U sii wad codsiga ila {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Halkan ka bilow.
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey= Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Eeg oo codso
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
