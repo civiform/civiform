@@ -124,7 +124,6 @@ public enum MessageKey {
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
   BUTTON_START_SURVEY("button.startSurvey"),
-  BUTTON_START_SURVEY_SR("button.startSurveySr"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
