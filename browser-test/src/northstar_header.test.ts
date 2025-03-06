@@ -147,7 +147,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await page.setViewportSize({width: 1280, height: 720})
 
       const headerLogo = page.locator('.cf-header-logo')
-      const govName = page.locator('.cf-hidden-gov-name')
+      const govName = page.locator('.cf-gov-name')
       await expect(headerLogo).toBeVisible()
       await expect(govName).toBeHidden()
     })
@@ -156,7 +156,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await page.setViewportSize({width: 800, height: 1024})
 
       const headerLogo = page.locator('.cf-header-logo')
-      const govName = page.locator('.cf-hidden-gov-name')
+      const govName = page.locator('.cf-gov-name')
       await expect(headerLogo).toBeHidden()
       await expect(govName).toBeVisible()
     })
@@ -165,7 +165,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await page.setViewportSize({width: 360, height: 800})
 
       const headerLogo = page.locator('.cf-header-logo')
-      const govName = page.locator('.cf-hidden-gov-name')
+      const govName = page.locator('.cf-gov-name')
       await expect(headerLogo).toBeHidden()
       await expect(govName).toBeVisible()
     })
