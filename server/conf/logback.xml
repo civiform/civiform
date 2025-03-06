@@ -6,7 +6,8 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
-  <import class="com.google.cloud.logging.logback.LoggingAppender" />
+  <import class="ch.qos.logback.classic.encoder.JsonEncoder" />
+  <import class="net.logstash.logback.encoder.LogstashEncoder" />
 
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
@@ -15,8 +16,13 @@
     </encoder>
   </appender>
 
-  <appender name="GOOGLECLOUD" class="LoggingAppender">
-    <logName>civiform-logs</logName>
+  <appender name="JSON" class="ConsoleAppender">
+    <encoder class="LogstashEncoder">
+      <fieldNames>
+        <timestamp>timestamp</timestamp>
+        <level>severity</level>
+      </fieldNames>
+    </encoder>
   </appender>
 
   <appender name="STDOUT" class="ConsoleAppender">
@@ -66,6 +72,6 @@
   <logger name="io.ebean.TXN" level="OFF" />
 
   <root level="INFO">
-    <appender-ref ref="GOOGLECLOUD" />
+    <appender-ref ref="JSON" />
   </root>
 </configuration>
