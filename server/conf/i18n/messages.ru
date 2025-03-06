@@ -195,6 +195,8 @@ button.editSr=Изменить отправленную заявку на уча
 button.continueSr=Продолжить заполнять заявку на участие в программе "{0}"
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Начать
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey= Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
