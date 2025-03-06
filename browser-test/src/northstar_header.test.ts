@@ -143,7 +143,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
   test('Government name hidden', async ({page}) => {
     await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
 
-    test('Header on desktop shows logo and hides gov name', async ({page}) => {
+    await test.step('Header on desktop shows logo and hides gov name', async () => {
       await page.setViewportSize({width: 1280, height: 720})
 
       const headerLogo = page.locator('.cf-header-logo')
@@ -154,7 +154,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await expect(headerText).toHaveText(' CiviForm')
     })
 
-    test('Header on tablet hides logo and shows gov name', async ({page}) => {
+    await test.step('Header on tablet hides logo and shows gov name', async () => {
       await page.setViewportSize({width: 800, height: 1024})
 
       const headerLogo = page.locator('.cf-header-logo')
@@ -165,7 +165,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
       await expect(headerText).toHaveText('TestCity CiviForm')
     })
 
-    test('Header on mobile hides logo and shows gov name', async ({page}) => {
+    await test.step('Header on mobile hides logo and shows gov name', async () => {
       await page.setViewportSize({width: 360, height: 800})
 
       const headerLogo = page.locator('.cf-header-logo')
