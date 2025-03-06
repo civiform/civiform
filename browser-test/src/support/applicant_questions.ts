@@ -1051,83 +1051,86 @@ export class ApplicantQuestions {
     )
   }
   async expectErrorOnReviewModal(northStarEnabled = false) {
-    const modalTitle =
-      'Questions on this page are not complete. Would you still like to leave and begin reviewing?'
-    const modalContent =
-      "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?"
-    const buttonReviewText = 'Continue to review page without saving'
-    const buttonStayText = 'Stay and fix your answers'
-
     if (northStarEnabled) {
-      const modal = this.page.getByRole('dialog', {state: 'visible'})
+      const modalTitle = 'Some answers on this page need to be fixed'
+      const modalContent =
+        'This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.'
+      const modalContinueButton = 'Go to the review page without saving'
+      const modalFixButton = 'Stay here and fix your answers'
 
+      const modal = this.page.getByRole('dialog', {state: 'visible'})
       await expect(modal.getByText(modalTitle)).toBeVisible()
       await expect(modal.getByText(modalContent)).toBeVisible()
       await expect(
-        modal.getByRole('button').getByText(buttonReviewText),
+        modal.getByRole('button').getByText(modalContinueButton),
       ).toBeVisible()
       await expect(
-        modal.getByRole('button').getByText(buttonStayText),
+        modal.getByRole('button').getByText(modalFixButton),
       ).toBeVisible()
     } else {
+      const modalContent =
+        "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?"
+      const modalContinueButton = 'Continue to review page without saving'
+      const modalFixButton = 'Stay and fix your answers'
+
       const modal = await waitForAnyModal(this.page)
       const modalText = await modal.innerText()
-
       expect(modalText).toContain(modalContent)
-      expect(modalText).toContain(buttonReviewText)
-      expect(modalText).toContain(buttonStayText)
+      expect(modalText).toContain(modalContinueButton)
+      expect(modalText).toContain(modalFixButton)
     }
   }
 
-  async clickReviewWithoutSaving() {
-    await this.page.click(
-      'button:has-text("Continue to review page without saving")',
-    )
+  async clickReviewWithoutSaving(northStarEnabled = false) {
+    const buttonText = northStarEnabled
+      ? 'Go to the review page without saving'
+      : 'Continue to review page without saving'
+    await this.page.click(`button:has-text("${buttonText}")`)
   }
 
   async expectErrorOnPreviousModal(northStarEnabled = false) {
     if (northStarEnabled) {
-      const modal = this.page.getByRole('dialog', {state: 'visible'})
+      const modalTitle = 'Some answers on this page need to be fixed'
+      const modalContent =
+        'This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.'
+      const modalContinueButton = 'Go to the previous page without saving'
+      const modalFixButton = 'Stay here and fix your answers'
 
+      const modal = this.page.getByRole('dialog', {state: 'visible'})
+      await expect(modal.getByText(modalTitle)).toBeVisible()
+      await expect(modal.getByText(modalContent)).toBeVisible()
       await expect(
-        modal.getByText(
-          'Questions on this page are not complete. Would you still like to leave and go to the previous page?',
-        ),
+        modal.getByRole('button').getByText(modalContinueButton),
       ).toBeVisible()
       await expect(
-        modal.getByText(
-          "There are some errors with the information you've filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?",
-        ),
-      ).toBeVisible()
-      await expect(
-        modal
-          .getByRole('button')
-          .getByText('Continue to previous questions without saving'),
-      ).toBeVisible()
-      await expect(
-        modal.getByRole('button').getByText('Stay and fix your answers'),
+        modal.getByRole('button').getByText(modalFixButton),
       ).toBeVisible()
     } else {
-      const modal = await waitForAnyModal(this.page)
+      const modalTitle = 'Questions on this page are not complete.'
+      const modalContinueButton =
+        'Continue to previous questions without saving'
+      const modalFixButton = 'Stay and fix your answers'
 
-      expect(await modal.innerText()).toContain(
-        `Questions on this page are not complete`,
-      )
-      expect(await modal.innerText()).toContain(
-        `Continue to previous questions without saving`,
-      )
-      expect(await modal.innerText()).toContain(`Stay and fix your answers`)
+      const modal = await waitForAnyModal(this.page)
+      const modalText = await modal.innerText()
+      expect(modalText).toContain(modalTitle)
+      expect(modalText).toContain(modalContinueButton)
+      expect(modalText).toContain(modalFixButton)
     }
   }
 
-  async clickPreviousWithoutSaving() {
-    await this.page.click(
-      'button:has-text("Continue to previous questions without saving")',
-    )
+  async clickPreviousWithoutSaving(northStarEnabled = false) {
+    const buttonText = northStarEnabled
+      ? 'Go to the previous page without saving'
+      : 'Continue to previous questions without saving'
+    await this.page.click(`button:has-text("${buttonText}")`)
   }
 
-  async clickStayAndFixAnswers() {
-    await this.page.click('button:has-text("Stay and fix your answers")')
+  async clickStayAndFixAnswers(northStarEnabled = false) {
+    const buttonText = northStarEnabled
+      ? 'Stay here and fix your answers'
+      : 'Stay and fix your answers'
+    await this.page.click(`button:has-text("${buttonText}")`)
   }
 
   async completeApplicationWithPaiQuestions(
