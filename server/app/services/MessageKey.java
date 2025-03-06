@@ -123,6 +123,7 @@ public enum MessageKey {
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
+  BUTTON_START_SURVEY("button.startSurvey"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
