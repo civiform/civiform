@@ -36,18 +36,20 @@ test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
     applicantQuestions,
     applicantProgramOverview,
   }) => {
-    // Setup
-    await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-      programName,
-    )
+    await test.step('Start applying to the program', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
+    })
+    await test.step('verify accessibility', async () => {
+      await validateAccessibility(page)
+    })
 
-    // Test
-    await applicantQuestions.clickBreadcrumbHomeLink()
-
-    // Verify
-    await applicantQuestions.expectProgramsPage()
-    await validateAccessibility(page)
+    await test.step('Select Home breadcrumb and verify navigation', async () => {
+      await applicantQuestions.clickBreadcrumbHomeLink()
+      await applicantQuestions.expectProgramsPage()
+    })
   })
 
   test('validate breadcrumb program overview navigation', async ({
@@ -55,17 +57,20 @@ test.describe('Applicant breadcrumb navigation', {tag: ['@northstar']}, () => {
     applicantQuestions,
     applicantProgramOverview,
   }) => {
-    // Setup
-    await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-      programName,
-    )
+    await test.step('Start applying to the program', async () => {
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+        programName,
+      )
+    })
+    await test.step('verify accessibility', async () => {
+      await validateAccessibility(page)
+    })
 
-    // Test
-    await applicantQuestions.clickBreadcrumbProgramLink(programName)
+    await test.step('Select program breadcrumb and verify navigation', async () => {
+      await applicantQuestions.clickBreadcrumbProgramLink(programName)
 
-    // Verify
-    await applicantProgramOverview.expectProgramOverviewPage(programName)
-    await validateAccessibility(page)
+      await applicantProgramOverview.expectProgramOverviewPage(programName)
+    })
   })
 })

@@ -327,11 +327,11 @@ export class ApplicantQuestions {
   }
 
   async clickBreadcrumbHomeLink() {
-    await this.page.click('text="Home"')
+    await this.page.getByRole('link', {name: 'Home'}).click()
   }
 
   async clickBreadcrumbProgramLink(programName: string) {
-    await this.page.click(`text="${programName}"`)
+    await this.page.getByRole('link', {name: `${programName}`}).click()
   }
 
   async clickApplyToAnotherProgramButton() {
