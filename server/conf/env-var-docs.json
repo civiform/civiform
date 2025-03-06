@@ -31,7 +31,7 @@
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
       },
-      "COLOR_PRIMARY": {
+      "THEME_COLOR_PRIMARY": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The hex code value of the color to use as the primary branding color of the website. Not ready for production use.",
         "type": "string",
@@ -42,7 +42,7 @@
           {"val": "cccccc", "should_match": false}
         ]
       },
-      "COLOR_PRIMARY_DARK": {
+      "THEME_COLOR_PRIMARY_DARK": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The hex code value of the color to use as the primary-dark branding color of the website. Not ready for production use.",
         "type": "string",

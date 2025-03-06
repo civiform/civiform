@@ -74,16 +74,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The hex code value of the color to use as the primary branding color of the website. Not ready
    * for production use.
    */
-  public Optional<String> getColorPrimary(RequestHeader request) {
-    return getString("COLOR_PRIMARY", request);
+  public Optional<String> getThemeColorPrimary(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY", request);
   }
 
   /**
    * The hex code value of the color to use as the primary-dark branding color of the website. Not
    * ready for production use.
    */
-  public Optional<String> getColorPrimaryDark(RequestHeader request) {
-    return getString("COLOR_PRIMARY_DARK", request);
+  public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY_DARK", request);
   }
 
   /** What identity provider to use for applicants. */
@@ -1134,7 +1134,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
-                          "COLOR_PRIMARY",
+                          "THEME_COLOR_PRIMARY",
                           "The hex code value of the color to use as the primary branding color of"
                               + " the website. Not ready for production use.",
                           /* isRequired= */ false,
@@ -1142,7 +1142,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE,
                           Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")),
                       SettingDescription.create(
-                          "COLOR_PRIMARY_DARK",
+                          "THEME_COLOR_PRIMARY_DARK",
                           "The hex code value of the color to use as the primary-dark branding"
                               + " color of the website. Not ready for production use.",
                           /* isRequired= */ false,
