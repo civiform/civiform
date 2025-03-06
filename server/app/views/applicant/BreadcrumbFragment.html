@@ -5,7 +5,7 @@
     <ol class="usa-breadcrumb__list">
       <li class="usa-breadcrumb__list-item">
         <a th:href="${homeUrl}" class="usa-breadcrumb__link">
-          <span><th:block th:text="#{link.home}"></th:block></span
+          <span th:text="#{link.home}"></span
         ></a>
       </li>
       <li class="usa-breadcrumb__list-item">
@@ -14,11 +14,7 @@
         </a>
       </li>
       <li class="usa-breadcrumb__list-item usa-current" aria-current="page">
-        <span>
-          <th:block
-            th:text="#{link.programNameApplication(${title})}"
-          ></th:block>
-        </span>
+        <span th:text="#{link.programNameApplication(${title})}"></span>
       </li>
     </ol>
   </nav>
