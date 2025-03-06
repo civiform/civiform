@@ -911,8 +911,8 @@
         "required": false
       },
       "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable using custom theme colors on North Star applicant UI.",
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI.",
         "type": "bool",
         "required": false
       }

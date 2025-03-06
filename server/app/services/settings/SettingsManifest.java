@@ -1074,9 +1074,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
-  /** Enable using custom theme colors on North Star applicant UI. */
-  public boolean getCustomThemeColorsEnabled() {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED");
+  /** (NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI. */
+  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2248,10 +2248,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
-                          "Enable using custom theme colors on North Star applicant UI.",
+                          "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
+                              + " applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
