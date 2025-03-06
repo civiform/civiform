@@ -814,36 +814,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
-   * Note that there isn't yet messaging on the frontend to notify a user when their session is
-   * expired.
-   */
-  public Optional<Integer> getMaximumSessionDurationMinutes() {
-    return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
-  }
-
-  /**
-   * How many minutes before the session inactivity timeout a user receives a warning that their
-   * session will expire. Default is 5.
-   */
-  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
-    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
-  }
-
-  /**
-   * How many minutes before the maximum session duration timeout a user receives a warning that
-   * their session will expire. Default is 10.
-   */
-  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
-    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
-  }
-
-  /** The number of minutes of inactivity before a session times out. Default is 30. */
-  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
-    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
-  }
-
-  /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
@@ -909,6 +879,36 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<Integer> getDurableJobsThreadPoolSize() {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
+  }
+
+  /**
+   * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
+   * Note that there isn't yet messaging on the frontend to notify a user when their session is
+   * expired.
+   */
+  public Optional<Integer> getMaximumSessionDurationMinutes() {
+    return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
+  }
+
+  /**
+   * How many minutes before the session inactivity timeout a user receives a warning that their
+   * session will expire. Default is 5.
+   */
+  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /**
+   * How many minutes before the maximum session duration timeout a user receives a warning that
+   * their session will expire. Default is 10.
+   */
+  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
+    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /** The number of minutes of inactivity before a session times out. Default is 30. */
+  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
+    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
   /** Enables the feature that allows completed applications to be downloadable by PDF. */
@@ -1069,7 +1069,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** Enable session timeout based on inactivity and maximum duration. */
+  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled() {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
@@ -2047,6 +2047,43 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.INT,
                           SettingMode.HIDDEN))))
           .put(
+              "Session Management",
+              SettingsSection.create(
+                  "Session Management",
+                  "Configuration options for session management",
+                  ImmutableList.of(),
+                  ImmutableList.of(
+                      SettingDescription.create(
+                          "MAXIMUM_SESSION_DURATION_MINUTES",
+                          "The amount of time, in minutes, that a session lasts. The default is 600"
+                              + " minutes, or 10 hours. Note that there isn't yet messaging on the"
+                              + " frontend to notify a user when their session is expired.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
+                          "How many minutes before the session inactivity timeout a user receives a"
+                              + " warning that their session will expire. Default is 5.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
+                          "How many minutes before the maximum session duration timeout a user"
+                              + " receives a warning that their session will expire. Default is"
+                              + " 10.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_INACTIVITY_TIMEOUT_MINUTES",
+                          "The number of minutes of inactivity before a session times out. Default"
+                              + " is 30.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE))))
+          .put(
               "Feature Flags",
               SettingsSection.create(
                   "Feature Flags",
@@ -2237,7 +2274,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
-                          "Enable session timeout based on inactivity and maximum duration.",
+                          "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
+                              + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))
@@ -2357,36 +2395,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "MAXIMUM_SESSION_DURATION_MINUTES",
-                          "The amount of time, in minutes, that a session lasts. The default is 600"
-                              + " minutes, or 10 hours. Note that there isn't yet messaging on the"
-                              + " frontend to notify a user when their session is expired.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
-                          "How many minutes before the session inactivity timeout a user receives a"
-                              + " warning that their session will expire. Default is 5.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
-                          "How many minutes before the maximum session duration timeout a user"
-                              + " receives a warning that their session will expire. Default is"
-                              + " 10.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_INACTIVITY_TIMEOUT_MINUTES",
-                          "The number of minutes of inactivity before a session times out. Default"
-                              + " is 30.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .build();
 }
