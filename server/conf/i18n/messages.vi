@@ -195,6 +195,8 @@ button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
 button.continueSr=Tiếp tục đăng ký {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Bắt đầu tại đây
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey= Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Xem và đăng ký
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
