@@ -26,6 +26,7 @@ COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
     npm install -g npm && \
     npm install && \
+    sbt addCustomAssets && \
     sbt update && \
     sbt dist && \
     unzip "${PROJECT_LOC}/target/universal/civiform-server-0.0.1.zip" -d / && \

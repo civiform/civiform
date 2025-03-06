@@ -698,29 +698,7 @@
     "description": "Specifies the allowed file types that can be uploaded. Uses any valid [file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers). Multiple are separated by commas. Default: \"image/*,.pdf\"",
     "type": "string"
   },
-  "MAXIMUM_SESSION_DURATION_MINUTES": {
-    "mode": "ADMIN_READABLE",
-    "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
-    "type": "int"
-  },
-  "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES": {
-    "mode": "ADMIN_READABLE",
-    "description": "How many minutes before the session inactivity timeout a user receives a warning that their session will expire. Default is 5.",
-    "type": "int",
-    "required": false
-  },
-  "SESSION_DURATION_WARNING_THRESHOLD_MINUTES": {
-    "mode": "ADMIN_READABLE",
-    "description": "How many minutes before the maximum session duration timeout a user receives a warning that their session will expire. Default is 10.",
-    "type": "int",
-    "required": false
-  },
-  "SESSION_INACTIVITY_TIMEOUT_MINUTES": {
-    "mode": "ADMIN_READABLE",
-    "description": "The number of minutes of inactivity before a session times out. Default is 30.",
-    "type": "int",
-    "required": false
-  },
+
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -773,6 +751,34 @@
         "mode": "HIDDEN",
         "description": "The number of server threads available for the durable job runner. More than a single thread will the server execute multiple jobs in parallel. Default value is 1.",
         "type": "int"
+      }
+    }
+  },
+  "Session Management": {
+    "group_description": "Configuration options for session management",
+    "members": {
+      "MAXIMUM_SESSION_DURATION_MINUTES": {
+        "mode": "ADMIN_READABLE",
+        "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
+        "type": "int"
+      },
+      "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES": {
+        "mode": "ADMIN_READABLE",
+        "description": "How many minutes before the session inactivity timeout a user receives a warning that their session will expire. Default is 5.",
+        "type": "int",
+        "required": false
+      },
+      "SESSION_DURATION_WARNING_THRESHOLD_MINUTES": {
+        "mode": "ADMIN_READABLE",
+        "description": "How many minutes before the maximum session duration timeout a user receives a warning that their session will expire. Default is 10.",
+        "type": "int",
+        "required": false
+      },
+      "SESSION_INACTIVITY_TIMEOUT_MINUTES": {
+        "mode": "ADMIN_READABLE",
+        "description": "The number of minutes of inactivity before a session times out. Default is 30.",
+        "type": "int",
+        "required": false
       }
     }
   },
@@ -856,7 +862,7 @@
       },
       "FASTFORWARD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
+        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
       "PROGRAM_MIGRATION_ENABLED": {
@@ -906,7 +912,7 @@
       },
       "SESSION_TIMEOUT_ENABLED": {
         "mode": "ADMIN_READABLE",
-        "description": "Enable session timeout based on inactivity and maximum duration.",
+        "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
       },
