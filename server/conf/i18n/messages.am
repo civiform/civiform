@@ -195,6 +195,8 @@ button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
 button.continueSr=ወደ {0} ማመልከትን ቀጥል
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=እዚህ ይጀምሩ
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey= Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=አሳይ እና ተግብር
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
