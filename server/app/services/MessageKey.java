@@ -123,6 +123,7 @@ public enum MessageKey {
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
+  BUTTON_START_SURVEY("button.startSurvey"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
@@ -296,6 +297,14 @@ public enum MessageKey {
   MODAL_ERROR_SAVING_REVIEW_CONTENT("modal.errorSaving.review.content"),
   MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON("modal.errorSaving.review.noSaveButton"),
   MODAL_ERROR_SAVING_REVIEW_TITLE("modal.errorSaving.review.title"),
+  MODAL_ERROR_SAVING_TITLE("modal.errorSaving.title"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_PREVIOUS("modal.errorSaving.content.previous"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW(
+      "modal.errorSaving.continueButton.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS(
+      "modal.errorSaving.continueButton.previous"), // North Star only
+  MODAL_ERROR_SAVING_FIX_BUTTON("modal.errorSaving.fixButton"), // North Star only
   MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
   MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),

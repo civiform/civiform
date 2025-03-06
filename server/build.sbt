@@ -127,7 +127,10 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.28",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25"
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
+
+      // Logstash to write JSON formatted log lines with logback
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.0"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -315,6 +318,32 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// Define a custom command to add custom asset files. These are files that need to be
+// added to the `public` folder prior to the asset jar generation which occurs early
+// in the dist pipeline.
+//
+// During development webpack manages the files, but webpack doesn't run early
+// enough during the dist pipeline.
+val addCustomAssets = taskKey[Unit]("Add custom assets")
+addCustomAssets := {
+
+  // The swagger-ui-dist files already come minified. These are getting
+  // manually copied to the `public` folder instead of running through
+  // the webpack minifier/bundler because they cause webpack to fail with
+  // multiple errors. Doing it this way the files get put into `public`
+  // then the asset builder adds them to the internal assets jar file
+  // so they still get the url versioned hash prepended.
+  val sourceDir = baseDirectory.value / "node_modules" / "swagger-ui-dist"
+  val targetDir = baseDirectory.value / "public" / "swagger-ui"
+
+  if (!sourceDir.exists) {
+    throw new IllegalStateException(s"Source directory not found: $sourceDir")
+  }
+
+  IO.createDirectory(targetDir) // Create target directory if it doesn't exist
+  IO.copyDirectory(sourceDir, targetDir)
+}
 
 // scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
 // removes the .z component and returns the path to the generated source file directory.

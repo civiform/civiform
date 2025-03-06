@@ -6,11 +6,24 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
+  <import class="net.logstash.logback.encoder.LogstashEncoder" />
 
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
     <encoder class="PatternLayoutEncoder">
       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="JSON" class="ConsoleAppender">
+    <encoder class="LogstashEncoder">
+      <fieldNames>
+        <timestamp>timestamp</timestamp>
+        <level>severity</level>
+        <version>[ignore]</version>
+        <levelValue>[ignore]</levelValue>
+      </fieldNames>
+      <includeContext>false</includeContext>
     </encoder>
   </appender>
 
@@ -22,6 +35,10 @@
 
   <appender name="ASYNCFILE" class="AsyncAppender">
     <appender-ref ref="FILE" />
+  </appender>
+
+  <appender name="ASYNCJSON" class="AsyncAppender">
+    <appender-ref ref="JSON" />
   </appender>
 
   <appender name="ASYNCSTDOUT" class="AsyncAppender">
@@ -56,9 +73,15 @@
   <logger name="io.ebean.SQL" level="OFF" />
   <logger name="io.ebean.TXN" level="OFF" />
 
+  <!--
+    If the environment variable LOGBACK_CONSOLE_APPENDER is set, then it will used as the
+    appender for console logging.  If the environment variable is not set, then the ASYNCSTDOUT
+    appender wil be used.
 
+    This environment variable is used in GCP deployemnts to reference ASYNCJSON appender.
+  -->
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="ASYNCSTDOUT" />
+    <appender-ref ref="${LOGBACK_CONSOLE_APPENDER:-ASYNCSTDOUT}" />
   </root>
 </configuration>
