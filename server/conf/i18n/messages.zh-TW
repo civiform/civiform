@@ -195,6 +195,8 @@ button.editSr=編輯已提交的「{0}」申請資料
 button.continueSr=繼續申請「{0}」
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey= Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=查看及申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
