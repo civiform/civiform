@@ -53,7 +53,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
-   * may be desired if the government name is included in the logo.
+   * may be desired if the government name is included in the logo. Since northstar hides the logo
+   * on smaller screens, this will only hide the name if the logo is showing.
    */
   public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
     return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
@@ -1108,7 +1109,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
                           "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
                               + " CiviForm header. This may be desired if the government name is"
-                              + " included in the logo.",
+                              + " included in the logo. Since northstar hides the logo on smaller"
+                              + " screens, this will only hide the name if the logo is showing.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
