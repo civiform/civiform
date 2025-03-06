@@ -140,7 +140,8 @@ public final class ProgramCardsSectionParamsFactory {
         getActionUrl(
             applicantRoutes,
             program.id(),
-            program.adminName(),
+            program.slug(),
+            program.isCommonIntakeForm(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
             profile);
@@ -183,7 +184,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     Optional<LifecycleStage> lifecycleStage = programDatum.latestApplicationLifecycleStage();
     cardBuilder.setLifecycleStage(lifecycleStage);
-    if (lifecycleStage.isPresent() && lifecycleStage.get() == LifecycleStage.ACTIVE) {
+    if (programDatum.latestSubmittedApplicationTime().isPresent()) {
       // Submitted tag says "Submitted on <DATE>" or "Submitted" if no date is found
       cardBuilder.setDateSubmitted(
           formattedDateString(programDatum.latestSubmittedApplicationTime(), preferredLocale));
@@ -246,33 +247,44 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantRoutes applicantRoutes,
       Long programId,
       String programSlug,
+      boolean isCommonIntakeForm,
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile) {
-    // Render the program overview page
-    String actionUrl = applicantRoutes.show(programSlug).url();
 
     boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
 
-    if (!optionalLifecycleStage.isPresent() && haveApplicant) {
-      // Render the program overview page with applicant ID when applying as TI.
-      actionUrl = applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url();
-    } else if (optionalLifecycleStage.isPresent()) {
+    // If it is an applicant's first time applying, render the program overview page
+    String actionUrl =
+        haveApplicant // TIs need to specify applicant ID.
+            ? applicantRoutes.show(profile.get(), applicantId.get(), programSlug).url()
+            : applicantRoutes.show(programSlug).url();
+
+    // If the applicant has already started or submitted an application, render the edit or review
+    // page accordingly
+    if (optionalLifecycleStage.isPresent()) {
       if (optionalLifecycleStage.get() == LifecycleStage.ACTIVE) {
         // ACTIVE lifecycle stage means the application was submitted. Redirect them to the review
-        // page. TIs need to specify applicant ID.
+        // page.
         actionUrl =
             haveApplicant
                 ? applicantRoutes.review(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.review(programId).url();
       } else if (optionalLifecycleStage.get() == LifecycleStage.DRAFT) {
         // DRAFT lifecycle stage means they have started but not submitted an application. Redirect
-        // them to where they left off in the application. TIs need to specify applicant ID.
+        // them to where they left off in the application.
         actionUrl =
             haveApplicant
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
       }
+      // If they are completing the common intake form for the first time, skip the program overview
+      // page
+    } else if (isCommonIntakeForm) {
+      actionUrl =
+          haveApplicant
+              ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
+              : applicantRoutes.edit(programId).url();
     }
 
     return actionUrl;

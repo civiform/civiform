@@ -1,16 +1,16 @@
 <div
   th:fragment="address (question, questionRendererParams, stateAbbreviations)"
-  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)}"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+           addressQuestion=${question.createAddressQuestion()},
+           firstPathWithError=${addressQuestion.getFirstPathWithError()},
+           hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
   th:id="${questionId}"
   class="cf-question-address"
+  th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
   data-load-question="true"
 >
-  <fieldset
-    class="usa-fieldset"
-    th:with="addressQuestion=${question.createAddressQuestion()},
-             firstPathWithError=${addressQuestion.getFirstPathWithError()}"
-  >
+  <fieldset class="usa-fieldset">
     <div class="cf-question-header">
       <!--/* Title and Help Text */-->
       <div
@@ -28,13 +28,16 @@
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
                streetPath=${addressQuestion.getStreetPath()},
                fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
-               hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
       class="cf-address-street-1 cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-street-1-error' : ''}"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.street}"></span>
         <span th:if="${!question.isOptional()}" class="usa-hint--required">
@@ -43,7 +46,7 @@
       </label>
       <input
         class="usa-input cf-input-large"
-        th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${streetPath}"
         th:value="${addressQuestion.getStreetValue().orElse('')}"
@@ -59,13 +62,16 @@
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
                line2Path=${addressQuestion.getLine2Path()},
                fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
-               hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
       class="cf-address-street-2 cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-street-2-error' : ''}"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
       <label
         class="usa-label"
         th:for="${inputId}"
@@ -73,7 +79,7 @@
       ></label>
       <input
         class="usa-input cf-input-large"
-        th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${line2Path}"
         th:value="${addressQuestion.getLine2Value().orElse('')}"
@@ -88,13 +94,16 @@
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
                cityPath=${addressQuestion.getCityPath()},
                fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
-               hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
       class="cf-address-city cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-city-error' : ''}"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.city}"></span>
         <span th:if="${!question.isOptional()}" class="usa-hint--required">
@@ -103,7 +112,7 @@
       </label>
       <input
         class="usa-input cf-input-large"
-        th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${cityPath}"
         th:value="${addressQuestion.getCityValue().orElse('')}"
@@ -119,13 +128,16 @@
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
                statePath=${addressQuestion.getStatePath()},
                fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
-               hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
       class="cf-address-state cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-state-error' : ''}"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.state}"></span>
         <span th:if="${!question.isOptional()}" class="usa-hint--required">
@@ -134,7 +146,7 @@
       </label>
       <select
         class="usa-select usa-input--medium"
-        th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${statePath}"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
@@ -157,13 +169,16 @@
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
                zipPath=${addressQuestion.getZipPath()},
                fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
-               hasErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()}"
+               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
       class="cf-address-zip cf-applicant-question-field"
-      th:classappend="${hasErrors ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
+      th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
     >
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
-      ></div>
+      <th:block th:if="${showFieldErrorMessages}">
+        <div
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+        ></div>
+      </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.zipcode}"></span>
         <span th:if="${!question.isOptional()}" class="usa-hint--required">
@@ -172,7 +187,7 @@
       </label>
       <input
         class="usa-input usa-input--medium"
-        th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+        th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${zipPath}"
         th:value="${addressQuestion.getZipValue().orElse('')}"

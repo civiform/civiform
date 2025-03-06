@@ -23,26 +23,30 @@ See the radio-option below as an example.
 
 :root {
   @each $name, $value in $assignments-theme-color {
-     @if $value {
-        --#{$name}: #{color($name)};
-     }
+    @if $value {
+      --#{$name}: #{color($name)};
+    }
   }
 }
 
 .usa-button:not(.usa-button--outline) {
-  background-color: var(--base);
+  background-color: var(--primary);
 }
 
 .usa-button.usa-button--outline,
 .usa-button.usa-button--unstyled {
   background-color: transparent;
-  color: var(--base);
+  color: var(--primary);
+}
+
+.usa-button.usa-button--outline {
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .usa-button.usa-modal__close {
   background-color: transparent;
-  color: var(--base);
-} 
+  color: var(--primary);
+}
 
 .cf-alert {
   margin: 0 auto;
@@ -99,7 +103,16 @@ it is around the label */
 }
 
 /*
- * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ * Add padding to the left of the group question when there is an error
+ * to make room for the error border.
+ */
+[class^='cf-question'].cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/*
+ * Less padding when there is a field-level error, since we add a border and
+ * still want the inputs to line up.
  */
 .cf-applicant-question-field.cf-question-field-with-error {
   @include u-padding-left('105');
@@ -269,6 +282,11 @@ it is around the label */
 
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
+  // Hide the logo on mobile and tablet
+  .cf-header-logo {
+    display: none;
+  }
+
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
@@ -281,11 +299,6 @@ it is around the label */
 
 // Styles for mobile
 @media (max-width: 47.9em) {
-  // Hide the logo on mobile
-  .cf-header-logo {
-    display: none;
-  }
-
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;

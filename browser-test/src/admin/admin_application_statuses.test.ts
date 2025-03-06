@@ -351,6 +351,7 @@ test.describe('view program statuses', () => {
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
     })
+
     test('allow notes to be exported', async ({page, adminPrograms}) => {
       await adminPrograms.editNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
@@ -675,6 +676,12 @@ test.describe('view program statuses', () => {
         .innerText()
       expect(applicationText).toContain('Guest')
       expect(applicationText).toContain(favoriteColorAnswer)
+
+      await test.step('allow status last modified time to be exported', async () => {
+        await page.getByRole('link', {name: 'Back'}).click()
+        const csvContent = await adminPrograms.getCsv(false)
+        expect(csvContent).toContain('Status Last Modified Time')
+      })
     })
   })
 

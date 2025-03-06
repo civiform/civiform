@@ -101,11 +101,13 @@ public abstract class NorthStarBaseView {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
 
-    Optional<String> primaryColor = settingsManifest.getNorthStarUiPrimaryColor(request);
+    Optional<String> primaryColor = settingsManifest.getThemeColorPrimary(request);
     if (primaryColor.isPresent()) {
       context.setVariable("primaryColor", primaryColor.get());
+    } else {
+      context.setVariable("primaryColor", "#005ea2");
     }
-    
+
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the guest alert in the header.
@@ -116,6 +118,8 @@ public abstract class NorthStarBaseView {
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
             + "</a>");
+    context.setVariable(
+        "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
@@ -229,16 +233,17 @@ public abstract class NorthStarBaseView {
       String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
       unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
     }
-
+    String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
     AlertSettings notProductionAlertSettings =
         new AlertSettings(
             true,
-            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            Optional.of(alertTitle),
             unescapedDescription.orElse(""),
             unescapedDescription.isPresent(),
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
+            Optional.of(AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

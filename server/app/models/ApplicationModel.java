@@ -44,6 +44,8 @@ public class ApplicationModel extends BaseModel {
 
   @WhenCreated private Instant createTime;
 
+  @Constraints.Required private EligibilityDetermination eligibilityDetermination;
+
   @Constraints.Required @DbJson private String object;
 
   private Instant submitTime;
@@ -52,6 +54,7 @@ public class ApplicationModel extends BaseModel {
   private String latestStatus;
   private boolean isAdmin;
   private String latestNote;
+  private Instant statusLastModifiedTime;
 
   public ApplicationModel(
       ApplicantModel applicant, ProgramModel program, LifecycleStage lifecycleStage) {
@@ -59,6 +62,7 @@ public class ApplicationModel extends BaseModel {
     this.program = program;
     this.object = "{}";
     this.lifecycleStage = lifecycleStage;
+    this.eligibilityDetermination = EligibilityDetermination.NOT_COMPUTED;
     this.isAdmin =
         applicant.getAccount().getGlobalAdmin()
             || !applicant.getAccount().getAdministeredProgramNames().isEmpty();
@@ -75,6 +79,10 @@ public class ApplicationModel extends BaseModel {
     return Optional.ofNullable(this.submitterEmail);
   }
 
+  public EligibilityDetermination getEligibilityDetermination() {
+    return this.eligibilityDetermination;
+  }
+
   /**
    * Set the email address of the TI that submitted the application. TODO(#5325): Rename this field
    * to reduce confusion.
@@ -84,6 +92,12 @@ public class ApplicationModel extends BaseModel {
    */
   public ApplicationModel setSubmitterEmail(String submitterEmail) {
     this.submitterEmail = submitterEmail;
+    return this;
+  }
+
+  public ApplicationModel setEligibilityDetermination(
+      EligibilityDetermination eligibilityDetermination) {
+    this.eligibilityDetermination = eligibilityDetermination;
     return this;
   }
 
@@ -153,6 +167,12 @@ public class ApplicationModel extends BaseModel {
     return this;
   }
 
+  @VisibleForTesting
+  public ApplicationModel setStatusLastModifiedTimeForTest(Instant v) {
+    this.statusLastModifiedTime = v;
+    return this;
+  }
+
   /**
    * Returns the latest application status text value associated with the application.
    *
@@ -173,6 +193,16 @@ public class ApplicationModel extends BaseModel {
    */
   public Optional<String> getLatestNote() {
     return Optional.ofNullable(latestNote);
+  }
+
+  /**
+   * Returns the status modified time associated with the latest application status.
+   *
+   * <p>This value is updated when program admins updates the status of the application or when a
+   * default status is applied.
+   */
+  public Optional<Instant> getStatusLastModifiedTime() {
+    return Optional.ofNullable(statusLastModifiedTime);
   }
 
   /**

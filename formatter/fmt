@@ -189,7 +189,7 @@ else
     --in-place \
     --exclude env-var-docs/venv \
     --exclude mock-web-services/.venv \
-    "${modified_py[@]}"
+    ${modified_py[@]}
 fi
 
 echo "Done formatting"

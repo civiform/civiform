@@ -31,7 +31,7 @@
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
       },
-      "NORTH_STAR_UI_PRIMARY_COLOR": {
+      "THEME_COLOR_PRIMARY": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Primary color in North Star UI. Must be a valid USWDS color token.",
         "type": "string"
@@ -708,6 +708,24 @@
     "description": "The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours. Note that there isn't yet messaging on the frontend to notify a user when their session is expired.",
     "type": "int"
   },
+  "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "How many minutes before the session inactivity timeout a user receives a warning that their session will expire. Default is 5.",
+    "type": "int",
+    "required": false
+  },
+  "SESSION_DURATION_WARNING_THRESHOLD_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "How many minutes before the maximum session duration timeout a user receives a warning that their session will expire. Default is 10.",
+    "type": "int",
+    "required": false
+  },
+  "SESSION_INACTIVITY_TIMEOUT_MINUTES": {
+    "mode": "ADMIN_READABLE",
+    "description": "The number of minutes of inactivity before a session times out. Default is 30.",
+    "type": "int",
+    "required": false
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -843,7 +861,7 @@
       },
       "FASTFORWARD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will be automatically be updated to use the latest version of a program when a newer version has been published.",
+        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
       "PROGRAM_MIGRATION_ENABLED": {
@@ -890,6 +908,12 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enables showing new UI with an updated user experience in Applicant flows",
         "type": "bool"
+      },
+      "SESSION_TIMEOUT_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enable session timeout based on inactivity and maximum duration.",
+        "type": "bool",
+        "required": false
       }
     }
   }

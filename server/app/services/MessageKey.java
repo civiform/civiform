@@ -119,6 +119,7 @@ public enum MessageKey {
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
   BUTTON_SELECT("button.select"),
+  BUTTON_SIGNIN("button.signIn"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
@@ -182,6 +183,7 @@ public enum MessageKey {
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_PREVIOUSLY_ANSWERED_ON("content.previouslyAnsweredOn"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  CONTENT_SIGNIN_MODAL("content.signInModal"), // North Star only
   CONTENT_YOU_CAN_PRINT("content.youCanPrint"), // North Star only
   ERROR_ANNOUNCEMENT_SR("validation.errorAnnouncementSr"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
@@ -245,10 +247,12 @@ public enum MessageKey {
   HEADING_DATE_SUBMITTED("heading.dateSubmitted"), // NorthStar Only
   HEADING_ELIGIBILITY_CRITERIA("heading.eligibilityCriteria"), // North Star only
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
+  HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
+  HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   HEADING_YOUR_SUBMISSION_INFORMATION("heading.yourSubmissionInformation"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
@@ -292,6 +296,14 @@ public enum MessageKey {
   MODAL_ERROR_SAVING_REVIEW_CONTENT("modal.errorSaving.review.content"),
   MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON("modal.errorSaving.review.noSaveButton"),
   MODAL_ERROR_SAVING_REVIEW_TITLE("modal.errorSaving.review.title"),
+  MODAL_ERROR_SAVING_TITLE("modal.errorSaving.title"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_PREVIOUS("modal.errorSaving.content.previous"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW(
+      "modal.errorSaving.continueButton.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS(
+      "modal.errorSaving.continueButton.previous"), // North Star only
+  MODAL_ERROR_SAVING_FIX_BUTTON("modal.errorSaving.fixButton"), // North Star only
   MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
   MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
@@ -390,6 +402,7 @@ public enum MessageKey {
   TITLE_PROGRAM_SUMMARY("title.programSummary"),
   TITLE_PROGRAMS_SUBMITTED("title.submittedPrograms"),
   TITLE_RECOMMENDED_PROGRAMS_SECTION_V2("title.recommendedSection.v2"),
+  TITLE_SIGNIN_MODAL("title.signInModal"), // North Star only
   TITLE_STATUS("title.status"),
   TITLE_TI_ACCOUNT_SETTINGS("title.tiAccountSettings"),
   TITLE_TI_DASHBOARD("title.tiDashboard"),

@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
@@ -56,7 +57,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         "pageTitle", params.messages().at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName()));
 
     context.setVariable("programTitle", params.programTitle().orElse(""));
-    context.setVariable("programDescription", params.programDescription().orElse(""));
+    context.setVariable("programShortDescription", params.programShortDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
     context.setVariable("bannerMessage", params.bannerMessage());
 
@@ -64,8 +65,19 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
         params
             .messages()
             .at(MessageKey.ALERT_SUBMITTED.getKeyName(), params.programTitle().orElse(""));
+
+    String ariaLabel =
+        AlertSettings.getTitleAriaLabel(params.messages(), AlertType.SUCCESS, alertTitle);
     AlertSettings successAlertSettings =
-        new AlertSettings(/* show= */ true, Optional.of(alertTitle), "", AlertType.SUCCESS);
+        new AlertSettings(
+            /* show= */ true,
+            Optional.of(alertTitle),
+            "",
+            AlertType.SUCCESS,
+            ImmutableList.of(),
+            Optional.empty(),
+            Optional.of(ariaLabel),
+            /* isSlim= */ false);
     context.setVariable("successAlertSettings", successAlertSettings);
 
     String applicantName =

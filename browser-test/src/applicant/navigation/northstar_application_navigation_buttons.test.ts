@@ -265,7 +265,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.clickStayAndFixAnswers()
+        await applicantQuestions.clickStayAndFixAnswers(
+          /* northStarEnabled= */ true,
+        )
 
         // Verify the previously filled in answers are present
         // await applicantQuestions.checkDateQuestionValue('')
@@ -315,7 +317,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
         // Proceed to the previous page (which will be the review page,
         // since this is the first block), acknowledging that answers won't be saved
-        await applicantQuestions.clickPreviousWithoutSaving()
+        await applicantQuestions.clickPreviousWithoutSaving(
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -357,7 +361,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
 
         // Proceed to the previous page and verify the first block answers are present
-        await applicantQuestions.clickPreviousWithoutSaving()
+        await applicantQuestions.clickPreviousWithoutSaving(
+          /* northStarEnabled= */ true,
+        )
         // This is the static question block, so continue to the previous block
         await applicantQuestions.clickBack()
 
@@ -851,7 +857,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           /* northStarEnabled= */ true,
         )
 
-        await applicantQuestions.clickStayAndFixAnswers()
+        await applicantQuestions.clickStayAndFixAnswers(
+          /* northStarEnabled= */ true,
+        )
 
         // Verify the previously filled in answers are present
         await applicantQuestions.checkMemorableDateQuestionValue('', '', '')
@@ -897,7 +905,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
 
         // Proceed to the Review page, acknowledging that answers won't be saved
-        await applicantQuestions.clickReviewWithoutSaving()
+        await applicantQuestions.clickReviewWithoutSaving(
+          /* northStarEnabled= */ true,
+        )
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
         await applicantQuestions.validateNoPreviouslyAnsweredText(
@@ -1082,7 +1092,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await applicantQuestions.applyProgram(
           programName,
           /* northStarEnabled= */ true,
-          /* isApplicationUnstarted= */ false,
+          /* showProgramOverviewPage= */ false,
         )
         await expect(page.getByText('2 of 3', {exact: true})).toBeVisible()
       })

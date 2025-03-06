@@ -179,6 +179,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     "program_version_id" : 789,
     "revision_state" : "CURRENT",
     "status" : "Pending Review",
+    "status_last_modified_time" : null,
     "submit_time" : "2023-05-26T13:46:15-07:00",
     "submitter_type" : "APPLICANT",
     "ti_email" : null,

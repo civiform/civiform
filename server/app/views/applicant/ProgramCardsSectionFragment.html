@@ -2,28 +2,31 @@
   th:fragment="cardsSection (section)"
   class="cf-application-program-section"
   th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
-  th:attrappend="aria-labelledby=${section.id().isPresent()} ? ${section.id().get()}"
   th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
   th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
-  <div class="grid-container">
-    <div class="grid-row usa-prose">
-      <h3
-        th:if="${showHeading}"
-        th:id="${section.id().get()}"
-        th:text="${section.title().get()}"
-      ></h3>
-    </div>
+  <div th:if="${showHeading}" class="grid-row usa-prose">
+    <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
   </div>
-  <div class="grid-container">
-    <ul class="usa-card-group cf-program-card-group">
-      <th:block th:each="card : ${section.cards()}">
-        <li
-          th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
-        ></li>
-      </th:block>
-    </ul>
+
+  <!--/* Pre-screener card */-->
+  <div th:if="${section.sectionType().name() == 'COMMON_INTAKE'}">
+    <div
+      th:replace="~{applicant/ProgramCardsSectionFragment :: preScreenerCard(${section.cards().get(0)})}"
+    ></div>
   </div>
+
+  <!--/* Programs card section */-->
+  <ul
+    th:unless="${section.sectionType().name() == 'COMMON_INTAKE'}"
+    class="usa-card-group cf-program-card-group"
+  >
+    <th:block th:each="card : ${section.cards()}">
+      <li
+        th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
+      ></li>
+    </th:block>
+  </ul>
 </section>
 
 <li
@@ -36,7 +39,7 @@
     class="usa-card__container"
     th:classappend="${card.isCommonIntakeForm} ? bg-primary-lighter : '' "
   >
-    <!-- Title -->
+    <!--/* Title */-->
     <div class="usa-card__header usa-prose">
       <h3
         class="usa-card__heading cf-application-card-title cf-prose-h4"
@@ -45,7 +48,7 @@
       ></h3>
     </div>
 
-    <!-- Optional image -->
+    <!--*/ Optional image */-->
     <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
       <div class="usa-card__img">
         <img
@@ -56,25 +59,28 @@
       </div>
     </div>
 
-    <!-- Program categories -->
+    <!--*/ Program categories */-->
     <div class="usa-card__body">
       <div
         th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
         class="display-flex flex-wrap margin-bottom-1 cf-flex-gap"
       >
         <th:block th:each="category : ${card.categories()}">
-          <div th:text="${category}" class="usa-tag"></div>
+          <div
+            th:text="${category}"
+            class="usa-tag usa-prose border border-ink radius-sm bg-white text-ink text-no-uppercase"
+          ></div>
         </th:block>
       </div>
 
-      <!-- Program description -->
+      <!--*/Program description */-->
       <div class="usa-prose">
         <p th:text="${card.body()}"></p>
       </div>
 
-      <!-- In progress tag -->
+      <!--*/In progress tag */-->
       <div
-        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT'}"
+        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT' and !card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span
@@ -83,9 +89,9 @@
         ></span>
       </div>
 
-      <!-- Submitted tag -->
+      <!--*/Submitted tag */-->
       <div
-        th:if="${!card.applicationStatus().isPresent() and card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'ACTIVE'}"
+        th:if="${!card.applicationStatus().isPresent() and card.dateSubmitted.isPresent()}"
         class="text-medium-margin-top"
       >
         <span
@@ -100,7 +106,7 @@
         ></span>
       </div>
 
-      <!-- Application status (set by admin) -->
+      <!--*/Application status (set by admin) */-->
       <div
         th:if="${card.applicationStatus().isPresent()}"
         class="text-medium-margin-top"
@@ -117,7 +123,7 @@
         ></span>
       </div>
 
-      <!-- Eligibility tag -->
+      <!--*/Eligibility tag */-->
       <div
         th:if="${card.eligible().isPresent()}"
         class="text-medium-margin-top"
@@ -135,7 +141,7 @@
       </div>
     </div>
 
-    <!-- Action button (usually "View and apply") -->
+    <!--*/Action button (usually "View and apply") */-->
     <div class="usa-card__footer cf-card-footer">
       <a
         th:href="${card.actionUrl()}"
@@ -146,3 +152,38 @@
     </div>
   </div>
 </li>
+
+<div th:fragment="preScreenerCard (card)" class="usa-card cf-application-card">
+  <div
+    class="usa-card__container tablet:flex-row tablet:flex-justify bg-primary-lighter margin-0"
+  >
+    <div>
+      <!--*/Title */-->
+      <div class="usa-card__header usa-prose">
+        <h3
+          class="usa-card__heading cf-application-card-title cf-prose-h4"
+          th:text="${card.title()}"
+          th:data-program-id="${card.programId()}"
+        ></h3>
+      </div>
+
+      <div class="usa-card__body">
+        <!--*/Program description */-->
+        <div class="usa-prose">
+          <p th:text="${card.body()}"></p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="usa-card__footer cf-card-footer tablet:flex-align-self-center tablet:padding-y-0"
+    >
+      <a
+        th:href="${card.actionUrl()}"
+        class="usa-button cf-apply-button"
+        th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+      ></a>
+    </div>
+  </div>
+</div>

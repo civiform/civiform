@@ -162,8 +162,10 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         Optional.empty(),
         StatusEvent.builder().setEmailSent(false).setStatusText(status).build(),
         admin);
-
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
+
+    fakeApplication0.setStatusLastModifiedTimeForTest(Instant.parse("2022-12-10T10:30:30.00Z"));
+    fakeApplication0.save();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
 
@@ -177,6 +179,7 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
     // results are in reverse order from submission
     resultAsserter.assertNullValueAtPath(0, "status");
     resultAsserter.assertValueAtPath(1, "status", "approved");
+    resultAsserter.assertValueAtPath(1, "status_last_modified_time", "2022-12-10T02:30:30-08:00");
   }
 
   @Test
