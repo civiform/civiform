@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -45,6 +46,18 @@ test.describe('Header', () => {
     await test.step('Passes accessibility test', async () => {
       await validateAccessibility(page)
     })
+  })
+
+  test('Government name shown', async ({page}) => {
+    const headerText = page.locator('#brand-id')
+    await expect(headerText).toHaveText('TestCity CiviForm')
+  })
+
+  test('Government name hidden', async ({page}) => {
+    await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+
+    const headerText = page.locator('#brand-id')
+    await expect(headerText).toHaveText(' CiviForm')
   })
 
   test('Government banner', async ({page}) => {
