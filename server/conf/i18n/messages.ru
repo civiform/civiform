@@ -129,7 +129,7 @@ button.previousScreen=Перейти к предыдущему экрану
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Назад
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Проверить и закрыть форму заявки
+button.reviewAndExit=Review and submit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Пропустить
 # The current screen the user is on ({0}) out of the number of total screens in the application.
