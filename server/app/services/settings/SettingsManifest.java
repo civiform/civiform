@@ -522,6 +522,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("STORAGE_SERVICE_NAME");
   }
 
+  /** Override the endpoint URI for AWS S3 with this value. (For use with GCP) */
+  public Optional<String> getAwsS3EndpointOverride() {
+    return getString("AWS_S3_ENDPOINT_OVERRIDE");
+  }
+
   /** s3 bucket to store files in. */
   public Optional<String> getAwsS3BucketName() {
     return getString("AWS_S3_BUCKET_NAME");
@@ -1682,6 +1687,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingType.ENUM,
                                   SettingMode.HIDDEN,
                                   ImmutableList.of("s3", "azure-blob")),
+                              SettingDescription.create(
+                                  "AWS_S3_ENDPOINT_OVERRIDE",
+                                  "Override the endpoint URI for AWS S3 with this value. (For use"
+                                      + " with GCP)",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
                               SettingDescription.create(
                                   "AWS_S3_BUCKET_NAME",
                                   "s3 bucket to store files in.",

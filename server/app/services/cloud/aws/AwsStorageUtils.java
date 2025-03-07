@@ -28,6 +28,9 @@ public final class AwsStorageUtils {
    */
   public static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
 
+  /** The path to the config variable containing the endpoint override for production AWS S3. */
+  public static final String AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH = "aws.s3.endpoint_override";
+
   private static final Logger logger = LoggerFactory.getLogger(AwsStorageUtils.class);
 
   /**
@@ -71,11 +74,28 @@ public final class AwsStorageUtils {
 
   /** Returns the endpoint to a production AWS instance. */
   public URI prodAwsEndpoint(Region region) {
+    String endpointOverride = checkNotNull(config).getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+    if (!endpointOverride.isEmpty()) {
+      return URI.create(endpointOverride);
+    }
+
     return URI.create(String.format("https://s3.%s.amazonaws.com/", region.id()));
   }
 
   /** Returns the action link to use when uploading or downloading to a production AWS instance. */
   public String prodAwsActionLink(String bucketName, Region region) {
+    String endpointOverride = checkNotNull(config).getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+    if (!endpointOverride.isEmpty()) {
+      String url =
+          S3EndpointProvider.defaultProvider()
+              .resolveEndpoint((builder) -> builder.endpoint(endpointOverride).bucket(bucketName))
+              .get()
+              .url()
+              .toString();
+      // AWS actions end with '/'
+      return url + "/";
+    }
+
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
 
