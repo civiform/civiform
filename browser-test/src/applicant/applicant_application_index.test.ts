@@ -840,6 +840,8 @@ test.describe('applicant program index page', () => {
             await validateScreenshot(
               page.locator('#ns-category-filter-form'),
               'north-star-homepage-programs-filters',
+              /* fullPage= */ false,
+              /* mobileScreenshot= */ true,
             )
           })
 
