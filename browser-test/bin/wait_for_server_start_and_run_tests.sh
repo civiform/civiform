@@ -7,8 +7,14 @@ DEADLINE=$(($START_TIME + 500))
 
 # Allow callers to override BASE_URL if they want (e.g. for run-browser-tests-local).
 # Defaults civiform:9000 when running from within docker.
-export BASE_URL="${BASE_URL:-http://civiform:9000}"
 
+# Check if base-url argument is passed
+if [[ "$1" == "--base-url" ]]; then
+  export BASE_URL="$2"
+  shift 2
+fi
+
+export BASE_URL="${BASE_URL:-http://civiform:9000}"
 export TEST_USER_AUTH_STRATEGY="${TEST_USER_AUTH_STRATEGY:-fake-oidc}"
 export TEST_USER_LOGIN="${TEST_USER_LOGIN:-testuser}"
 export TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-anotsecretpassword}"
