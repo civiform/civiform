@@ -48,7 +48,7 @@ lazy val root = (project in file("."))
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.3",
-      "com.azure" % "azure-storage-blob" % "12.29.0",
+      "com.azure" % "azure-storage-blob" % "12.29.1",
 
       // Graph API
       "com.microsoft.graph" % "microsoft-graph" % "6.31.0",
