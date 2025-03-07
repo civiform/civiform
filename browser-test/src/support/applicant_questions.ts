@@ -591,7 +591,7 @@ export class ApplicantQuestions {
 
   async clickReview(northStarEnabled = false) {
     const reviewButton = northStarEnabled
-      ? 'text="Review and exit"'
+      ? 'text="Review and submit"'
       : 'text="Review"'
     await this.page.click(reviewButton)
     await waitForPageJsLoad(this.page)
