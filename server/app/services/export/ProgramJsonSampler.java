@@ -61,6 +61,7 @@ public final class ProgramJsonSampler {
                     .stream()
                     .findFirst()
                     .map(Status::statusText))
+            .setStatusLastModifiedTime(Optional.empty())
             .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
             // Fields with arbitrary data.
             .setApplicantId(123L)

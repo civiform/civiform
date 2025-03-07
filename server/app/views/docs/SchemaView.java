@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SwaggerUIBundle({
         url: '%s',
         dom_id: '#%s',
+        validatorUrl: null,
         presets: [
             SwaggerUIBundle.presets.apis,
             SwaggerUIStandalonePreset
