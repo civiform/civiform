@@ -73,9 +73,10 @@ public final class AwsStorageUtils {
   }
 
   /** Returns the endpoint to a production AWS instance. */
-  public URI prodAwsEndpoint(Region region) {
-    String endpointOverride = checkNotNull(config).getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
-    if (!endpointOverride.isEmpty()) {
+  public URI prodAwsEndpoint(Config config, Region region) {
+    boolean hasEndpointOverride = checkNotNull(config).hasPath(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+    if (hasEndpointOverride) {
+      String endpointOverride = config.getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
       return URI.create(endpointOverride);
     }
 
@@ -83,17 +84,23 @@ public final class AwsStorageUtils {
   }
 
   /** Returns the action link to use when uploading or downloading to a production AWS instance. */
-  public String prodAwsActionLink(String bucketName, Region region) {
-    String endpointOverride = checkNotNull(config).getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
-    if (!endpointOverride.isEmpty()) {
-      String url =
-          S3EndpointProvider.defaultProvider()
-              .resolveEndpoint((builder) -> builder.endpoint(endpointOverride).bucket(bucketName))
-              .get()
-              .url()
-              .toString();
-      // AWS actions end with '/'
-      return url + "/";
+  public String prodAwsActionLink(Config config, String bucketName, Region region) {
+    boolean hasEndpointOverride = checkNotNull(config).hasPath(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+    if (hasEndpointOverride) {
+      String endpointOverride = checkNotNull(config).getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+      try {
+        String url =
+            S3EndpointProvider.defaultProvider()
+                .resolveEndpoint((builder) -> builder.endpoint(endpointOverride).bucket(bucketName))
+                .get()
+                .url()
+                .toString();
+        // AWS actions end with '/'
+        return url + "/";
+      } catch (ExecutionException | InterruptedException e) {
+        logger.warn("Unable to create a Localstack action link. Returning empty string");
+        return "";
+      }
     }
 
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
