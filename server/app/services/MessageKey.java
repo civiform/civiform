@@ -287,7 +287,8 @@ public enum MessageKey {
   LINK_REMOVE_FILE("link.removeFile"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
   LINK_HOME("link.home"), // North Star only
-  LINK_PROGRAM_NAME_APPLICATION("link.programNameApplication"), // North Star Only
+  LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
+  // Only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
