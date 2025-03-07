@@ -14,11 +14,16 @@
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
       <div
-        th:replace="~{applicant/TitleDescriptionAndBreadcrumbsFragment :: titleDescriptionAndBreadcrumbsFragment(
+        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
           ${applicationParams.programTitle()},
-          ${applicationParams.programShortDescription()},
           ${homeUrl},
           ${programOverviewUrl})}"
+      ></div>
+      <div
+        th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescription(
+          ${applicationParams.programTitle()},
+          ${applicationParams.programShortDescription()}
+          )}"
       ></div>
 
       <div
