@@ -1,8 +1,10 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
@@ -12,10 +14,15 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import play.mvc.Http;
+import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
+import views.HtmlBundle;
 import views.ViewUtils;
 
 public class AdminLayoutTest extends ResetPostgres {
@@ -39,7 +46,8 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(AssetsFinder.class),
+            instanceOf(MessagesApi.class));
   }
 
   @Test
@@ -95,5 +103,74 @@ public class AdminLayoutTest extends ResetPostgres {
 
     assertThat(button).isPresent();
     assertThat(button.get().render()).contains("id=\"testProgramId\"");
+  }
+
+  @Test
+  public void render_includesSessionTimeoutModals_whenEnabled() {
+    // Mock session timeout setting
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+
+    // Mock Messages
+    Messages messages = mock(Messages.class);
+    when(messages.at("session.inactivity.warning.title")).thenReturn("Warning");
+    when(messages.at("session.inactivity.warning.message")).thenReturn("Session inactive");
+    when(messages.at("session.length.warning.title")).thenReturn("Session Length");
+    when(messages.at("session.length.warning.message")).thenReturn("Session too long");
+    when(messages.at("session.extend.button")).thenReturn("Extend");
+    when(messages.at("button.logout")).thenReturn("Logout");
+    when(messages.at("button.cancel")).thenReturn("Cancel");
+    when(messages.at("session.extended.success")).thenReturn("Session extended");
+    when(messages.at("session.extended.error")).thenReturn("Failed to extend");
+
+    // Mock MessagesApi to return our mocked Messages
+    MessagesApi messagesApi = mock(MessagesApi.class);
+    when(messagesApi.preferred(any(Http.RequestHeader.class))).thenReturn(messages);
+
+    // Create adminLayout with mocked MessagesApi
+    adminLayout =
+        new AdminLayout(
+            instanceOf(ViewUtils.class),
+            AdminLayout.NavPage.PROGRAMS,
+            settingsManifest,
+            translationLocales,
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class),
+            messagesApi);
+
+    // Create bundle with the request
+    Http.Request request = fakeRequestBuilder().build();
+    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+
+    // Render the admin layout
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    // Verify session timeout modals are included with correct messages
+    assertThat(html).contains("session-timeout-container");
+    assertThat(html).contains("Warning");
+    assertThat(html).contains("Session inactive");
+    assertThat(html).contains("Session Length");
+    assertThat(html).contains("Session too long");
+    assertThat(html).contains("Extend");
+    assertThat(html).contains("Logout");
+    assertThat(html).contains("Cancel");
+  }
+
+  @Test
+  public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
+    // Mock session timeout setting as disabled
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+
+    // Create bundle with request
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().build(), instanceOf(ViewUtils.class));
+
+    // Render the admin layout
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    // Verify session timeout modals are not included
+    assertThat(html).doesNotContain("session-timeout-container");
+    assertThat(html).doesNotContain("session-inactivity-warning-modal");
+    assertThat(html).doesNotContain("session-length-warning-modal");
   }
 }

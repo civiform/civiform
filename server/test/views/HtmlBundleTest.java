@@ -1,10 +1,13 @@
 package views;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import j2html.tags.specialized.DivTag;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
@@ -71,5 +74,68 @@ public class HtmlBundleTest extends ResetPostgres {
 
     Content content = bundle.render();
     assertThat(content.body()).contains("<main><div>One</div><div>Two</div></main>");
+  }
+
+  @Test
+  public void testUSWDSModals() {
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+
+    DivTag modal =
+        div()
+            .withClass("usa-modal")
+            .withId("test-modal")
+            .with(
+                div()
+                    .withClass("usa-modal__content")
+                    .with(
+                        div()
+                            .withClass("usa-modal__main")
+                            .with(
+                                h2("Test Modal").withClass("usa-modal__heading"),
+                                p("Modal content"))));
+
+    bundle.addUswdsModals(modal).setJsBundle(JsBundle.APPLICANT);
+
+    Content content = bundle.render();
+    String html = content.body();
+
+    assertThat(html).contains("<div id=\"uswds-modal-container\">");
+    assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal\">");
+    assertThat(html).contains("<div class=\"usa-modal__content\">");
+    assertThat(html).contains("<div class=\"usa-modal__main\">");
+    assertThat(html).contains("<h2 class=\"usa-modal__heading\">Test Modal</h2>");
+    assertThat(html).contains("<p>Modal content</p>");
+  }
+
+  @Test
+  public void testMultipleUSWDSModals() {
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+
+    DivTag modal1 = div().withClass("usa-modal").withId("test-modal-1").with(p("First modal"));
+
+    DivTag modal2 = div().withClass("usa-modal").withId("test-modal-2").with(p("Second modal"));
+
+    bundle.addUswdsModals(modal1, modal2).setJsBundle(JsBundle.APPLICANT);
+
+    Content content = bundle.render();
+    String html = content.body();
+
+    assertThat(html).contains("<div id=\"uswds-modal-container\">");
+    assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal-1\">");
+    assertThat(html).contains("<div class=\"usa-modal\" id=\"test-modal-2\">");
+    assertThat(html).contains("<p>First modal</p>");
+    assertThat(html).contains("<p>Second modal</p>");
+  }
+
+  @Test
+  public void testEmptyUSWDSModalsContainer() {
+    HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
+    bundle.setJsBundle(JsBundle.APPLICANT);
+
+    Content content = bundle.render();
+    String html = content.body();
+
+    // Container should still be rendered even when empty
+    assertThat(html).contains("<div id=\"uswds-modal-container\"></div>");
   }
 }
