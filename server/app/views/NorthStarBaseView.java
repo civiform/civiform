@@ -102,7 +102,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("logoutLink", logoutLink);
 
     Optional<String> primaryColor = settingsManifest.getThemeColorPrimary(request);
-    if (primaryColor.isPresent()) {
+    if (primaryColor.isPresent() && !primaryColor.get().isEmpty()) {
       context.setVariable("primaryColor", primaryColor.get());
     } else {
       context.setVariable("primaryColor", "#005ea2");
