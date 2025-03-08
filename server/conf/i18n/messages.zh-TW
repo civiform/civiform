@@ -196,7 +196,7 @@ button.continueSr=繼續申請「{0}」
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=查看及申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=申請者「{0}」的「{1}」計畫申請書狀�
 #------------------------------------------------------------------------------#
 
 banner.title=這是官方政府網站。
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=美國政府官方網站
 banner.link=以下說明判斷方式
 banner.govWebsiteSectionHeader=官方網站的網址會有 .gov
 banner.govWebsiteSectionContent=結尾是 .gov 的網址為美國的官方政府機關所有。
