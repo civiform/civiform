@@ -154,6 +154,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages, applicantId));
 
+    Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
+    // Add the session timeout modals to the bundle
+    if (profile.isPresent()) {
+      addSessionTimeoutModals(bundle, messages);
+    }
+
     ATag emailAction =
         new LinkElement()
             .setText(supportEmail)
@@ -367,6 +373,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return link.asAnchorText();
   }
 
+  private boolean isTi(Optional<CiviFormProfile> profile) {
+    return profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
+  }
+
+  private boolean isGuest(ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile) {
+    return personalInfo.getType() == GUEST && !isTi(profile);
+  }
+
   /**
    * Shows authentication status and a button to take actions.
    *
@@ -378,10 +392,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
-    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
-    boolean isGuest = personalInfo.getType() == GUEST && !isTi;
-
-    if (isGuest) {
+    if (isGuest(personalInfo, profile)) {
       String loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
       String endSessionMessage = messages.at(MessageKey.END_SESSION.getKeyName());
       // Ending a guest session is equivalent to "logging out" the guest.
@@ -416,7 +427,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     // TIs usually do not have the latter data available, but will always have
     // an email address because they are authenticated.
     String accountIdentifier =
-        isTi ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
+        isTi(profile) ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
 
     String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), accountIdentifier);
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();

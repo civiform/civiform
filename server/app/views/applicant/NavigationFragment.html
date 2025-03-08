@@ -78,6 +78,7 @@
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
   <div th:replace="~{this :: tiAlert}"></div>
+  <div th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"></div>
 </th:block>
 
 <section
@@ -194,7 +195,6 @@
     </div>
   </div>
 </section>
-
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
