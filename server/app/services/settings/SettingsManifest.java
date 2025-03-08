@@ -70,6 +70,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("FAVICON_URL");
   }
 
+  /**
+   * The hex code value of the color to use as the primary branding color of the website. Not ready
+   * for production use.
+   */
+  public Optional<String> getThemeColorPrimary(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY", request);
+  }
+
+  /**
+   * The hex code value of the color to use as the primary-dark branding color of the website. Not
+   * ready for production use.
+   */
+  public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY_DARK", request);
+  }
+
   /** What identity provider to use for applicants. */
   public Optional<String> getCiviformApplicantIdp() {
     return getString("CIVIFORM_APPLICANT_IDP");
@@ -1121,7 +1137,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " image, in GIF, PNG, or ICO format.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "THEME_COLOR_PRIMARY",
+                          "The hex code value of the color to use as the primary branding color of"
+                              + " the website. Not ready for production use.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE,
+                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")),
+                      SettingDescription.create(
+                          "THEME_COLOR_PRIMARY_DARK",
+                          "The hex code value of the color to use as the primary-dark branding"
+                              + " color of the website. Not ready for production use.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE,
+                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")))))
           .put(
               "External Services",
               SettingsSection.create(
