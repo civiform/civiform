@@ -77,6 +77,7 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(applicationParams));
 
     // Progress bar
     ProgressBar progressBar =
@@ -254,6 +255,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
                   }
                   return paramsBuilder.build();
                 }));
+  }
+
+  private String getGoBackToAdminUrl(ApplicationBaseViewParams params) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(params.programId()).url();
   }
 
   // One field at most should be autofocused on the page. If there are errors, it

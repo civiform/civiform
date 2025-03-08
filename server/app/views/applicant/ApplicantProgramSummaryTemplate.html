@@ -7,6 +7,9 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main>
       <div
+        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+      ></div>
+      <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle},${programShortDescription})}"
       ></div>
       <div
