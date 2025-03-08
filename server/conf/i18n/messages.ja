@@ -196,7 +196,7 @@ button.continueSr={0} への申請を続行
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ここから開始
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=プログラム {1} の申請者 {0} のステー�
 #------------------------------------------------------------------------------#
 
 banner.title=これは政府の公式ウェブサイトです。
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=米国政府の公式ウェブサイト
 banner.link=見分け方はこちら
 banner.govWebsiteSectionHeader=公式ウェブサイトは .gov を使用しています
 banner.govWebsiteSectionContent=ウェブサイト アドレスの末尾が .gov の場合、米国の公的政府機関のサイトです。
