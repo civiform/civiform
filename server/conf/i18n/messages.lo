@@ -196,7 +196,7 @@ button.continueSr=ສືບຕໍ່ສະໝັກ {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ເລີ່ມຕົ້ນບ່ອນນີ້
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=ເບິ່ງ ແລະ ນຳໃຊ້
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັ�
 #------------------------------------------------------------------------------#
 
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=ເວັບໄຊຢ່າງເປັນທາງການຂອງລັດຖະບານສະຫະລັດອາເມລິກາ
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.
