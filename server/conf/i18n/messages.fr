@@ -196,7 +196,7 @@ button.continueSr=Continuer la demande d'inscription au {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Commencer
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Afficher et faire une demande
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=L''état de la demande d''inscription au programme
 #------------------------------------------------------------------------------#
 
 banner.title=Ce site est un site Web gouvernemental officiel.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Un site Web officiel du gouvernement des États-Unis
 banner.link=Voici comment vous en assurer
 banner.govWebsiteSectionHeader=L''adresse des sites Web officiels se termine par .gov
 banner.govWebsiteSectionContent=Les sites Web dont l''adresse se termine par .gov appartiennent à des organismes officiels du gouvernement américain.
