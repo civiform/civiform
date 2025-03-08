@@ -196,7 +196,7 @@ button.continueSr=Продолжить заполнять заявку на уч
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Начать
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=Статус заявки, отправленно�
 #------------------------------------------------------------------------------#
 
 banner.title=Официальный правительственный сайт.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Официальный сайт правительства США.
 banner.link=Вот как это проверить
 banner.govWebsiteSectionHeader=Официальные сайты используют домен ".gov"
 banner.govWebsiteSectionContent=Адреса сайтов, заканчивающиеся на ".gov", принадлежат правительственным организациям США.
