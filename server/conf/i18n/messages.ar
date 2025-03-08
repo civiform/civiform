@@ -196,7 +196,7 @@ button.continueSr=متابعة إرسال طلب للانضمام إلى "{0}"
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=البدء هنا
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=عرض طلب الانضمام وإرساله
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=لقد تغيّرت حالة طلب "{0}" بالا
 #------------------------------------------------------------------------------#
 
 banner.title=هذا موقع إلكتروني رسمي تابع لجهة حكومية.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=موقع إلكتروني رسمي تابع لحكومة الولايات المتحدة
 banner.link=في ما يلي كيفية معرفة ذلك
 banner.govWebsiteSectionHeader=تستخدم المواقع الإلكترونية التابعة لجهة حكومية النطاق "‎.gov"
 banner.govWebsiteSectionContent=تعود عناوين المواقع الإلكترونية التي تنتهي بـ "‎.gov" إلى مؤسسات حكومية رسمية في الولايات المتحدة.
