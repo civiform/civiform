@@ -70,6 +70,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("FAVICON_URL");
   }
 
+  /** (NOT FOR PRODUCTION USE) Primary color in North Star UI. Must be a valid USWDS color token. */
+  public Optional<String> getThemeColorPrimary(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY", request);
+  }
+
   /** What identity provider to use for applicants. */
   public Optional<String> getCiviformApplicantIdp() {
     return getString("CIVIFORM_APPLICANT_IDP");
@@ -1121,7 +1126,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " image, in GIF, PNG, or ICO format.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "THEME_COLOR_PRIMARY",
+                          "(NOT FOR PRODUCTION USE) Primary color in North Star UI. Must be a valid"
+                              + " USWDS color token.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "External Services",
               SettingsSection.create(
