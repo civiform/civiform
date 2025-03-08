@@ -21,6 +21,14 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+// :root {
+//   --primary-color: #e21212;
+// }
+
+.usa-button:not(.usa-button--outline) {
+  background-color: var(--primary-color);
+}
+
 .cf-alert {
   margin: 0 auto;
 }
