@@ -1,0 +1,14 @@
+%TEMPLATE_MODE HTML
+# ------------------------------------------
+%NAME First Test
+# ------------------------------------------
+%CONTEXT
+text = 'text123'
+# ------------------------------------------
+%INPUT (file:app/views/applicant/TesterFragment.html)
+# ------------------------------------------
+%FRAGMENT tester-fragment
+# ------------------------------------------
+%OUTPUT
+<div>text123</div>
+
