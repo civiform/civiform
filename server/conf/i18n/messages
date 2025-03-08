@@ -129,7 +129,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Review and submit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -196,7 +196,7 @@ button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey= Start survey
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -917,8 +917,6 @@ email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has ch
 #------------------------------------------------------------------------------#
 
 banner.title=This is an official government website.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
 banner.link=Here''s how you know
 banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
