@@ -66,7 +66,9 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
-      await expect(usaBannerLocator).toContainText('An official website')
+      await expect(usaBannerLocator).toContainText(
+        'This is an official government website',
+      )
       await expect(usaBannerContentLocator).toBeHidden()
     })
 
@@ -92,7 +94,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
       await expect(usaBannerLocator).toContainText(
-        'An official website of the United States government',
+        'This is an official government website',
       )
       await expect(usaBannerContentLocator).toBeHidden()
     })

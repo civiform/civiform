@@ -897,8 +897,6 @@ email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} c
 #------------------------------------------------------------------------------#
 
 banner.title=Este es un sitio web oficial del gobierno
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Un sitio web oficial del Gobierno de Estados Unidos
 banner.link=Así es como puedes verificarlo
 banner.govWebsiteSectionHeader=Los sitios web oficiales usan .gov
 banner.govWebsiteSectionContent=Las direcciones de sitios web que terminan en .gov pertenecen a organizaciones gubernamentales oficiales de Estados Unidos.

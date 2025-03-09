@@ -897,8 +897,6 @@ email.tiApplicationUpdateBody=لقد تغيّرت حالة طلب "{0}" بالا
 #------------------------------------------------------------------------------#
 
 banner.title=هذا موقع إلكتروني رسمي تابع لجهة حكومية.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=موقع إلكتروني رسمي تابع لحكومة الولايات المتحدة
 banner.link=في ما يلي كيفية معرفة ذلك
 banner.govWebsiteSectionHeader=تستخدم المواقع الإلكترونية التابعة لجهة حكومية النطاق "‎.gov"
 banner.govWebsiteSectionContent=تعود عناوين المواقع الإلكترونية التي تنتهي بـ "‎.gov" إلى مؤسسات حكومية رسمية في الولايات المتحدة.

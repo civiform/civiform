@@ -897,8 +897,6 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 #------------------------------------------------------------------------------#
 
 banner.title=Tani waa websaydka rasmiga ah ee dowladda.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Mareegaha rasmiga ah ee dawladda Mareykanka
 banner.link=Halkan waxaa ah sida aad u garanayso
 banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.

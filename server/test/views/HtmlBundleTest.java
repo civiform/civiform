@@ -60,7 +60,7 @@ public class HtmlBundleTest extends ResetPostgres {
         .containsPattern(
             "<body><header></header><main></main><div id=\"modal-container\" class=\"hidden fixed"
                 + " h-screen w-screen z-20\"><div id=\"modal-glass-pane\" class=\"fixed h-screen"
-                + " w-screen bg-gray-400 opacity-75\"></div></div><footer><script"
+                + " w-screen bg-gray-400 opacity-75\"></div></div><div id=\"uswds-modal-container\"></div><footer><script"
                 + " src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\" type=\"text/javascript\""
                 + " nonce=\"my-nonce\"></script><script"
                 + " src=\"/assets/dist/[a-z0-9]+-uswds.bundle.js\" type=\"text/javascript\""
