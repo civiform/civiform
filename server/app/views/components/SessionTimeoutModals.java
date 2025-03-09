@@ -8,6 +8,7 @@ import static j2html.TagCreator.span;
 
 import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
+import services.MessageKey;
 import views.ViewUtils;
 
 public final class SessionTimeoutModals {
@@ -24,10 +25,10 @@ public final class SessionTimeoutModals {
             .with(
                 span()
                     .withId("session-extended-success-text")
-                    .withText(messages.at("session.extended.success")),
+                    .withText(messages.at(MessageKey.SESSION_EXTENDED_SUCCESS.getKeyName())),
                 span()
                     .withId("session-extended-error-text")
-                    .withText(messages.at("session.extended.error")));
+                    .withText(messages.at(MessageKey.SESSION_EXTENDED_ERROR.getKeyName())));
 
     // Inactivity warning modal
     DivTag inactivityModal = createInactivityWarningModal(messages, csrfToken);
@@ -48,7 +49,7 @@ public final class SessionTimeoutModals {
         div()
             .withId("session-inactivity-description")
             .with(
-                p(messages.at("session.inactivity.warning.message")),
+                p(messages.at(MessageKey.SESSION_INACTIVITY_WARNING_MESSAGE.getKeyName())),
                 form()
                     .withId("extend-session-form")
                     .attr("hx-post", "/extend-session")
@@ -60,11 +61,11 @@ public final class SessionTimeoutModals {
     return ViewUtils.makeUSWDSModal(
             modalBody,
             "session-inactivity-warning",
-            messages.at("session.inactivity.warning.title"),
-            messages.at("session.extend.button"),
+            messages.at(MessageKey.SESSION_INACTIVITY_WARNING_TITLE.getKeyName()),
+            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
             true,
-            messages.at("session.extend.button"),
-            messages.at("button.cancel"))
+            messages.at(MessageKey.SESSION_EXTEND_BUTTON.getKeyName()),
+            messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");
   }
 
@@ -73,17 +74,17 @@ public final class SessionTimeoutModals {
     DivTag modalBody =
         div()
             .withId("session-length-description")
-            .with(p(messages.at("session.length.warning.message")));
+            .with(p(messages.at(MessageKey.SESSION_LENGTH_WARNING_MESSAGE.getKeyName())));
 
     // Create the session length warning modal
     return ViewUtils.makeUSWDSModal(
             modalBody,
             "session-length-warning",
-            messages.at("session.length.warning.title"),
-            messages.at("button.logout"),
+            messages.at(MessageKey.SESSION_LENGTH_WARNING_TITLE.getKeyName()),
+            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
             true,
-            messages.at("button.logout"),
-            messages.at("button.cancel"))
+            messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()),
+            messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
         .withClasses("hidden");
   }
 }
