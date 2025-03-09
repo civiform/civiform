@@ -8,6 +8,21 @@
   <import class="ch.qos.logback.core.ConsoleAppender" />
   <import class="net.logstash.logback.encoder.LogstashEncoder" />
 
+  <!--
+      The `LogstashEncoder` has made Logback extremely noise on startup. Setting
+      debug="false" to the configuration element has no effect because that does
+      not take effect until after.
+
+      This `NopStatusListener` only affects logging statements coming from Logback
+      itself. Logging coming from out application remains unaffected.
+
+      If this were a one time thing at startup of the container it wouldn't be so
+      bad, but every time the hot reload occurs around 50-100 lines from Logback
+      restarting are dumped to the console. This makes it much more difficult to
+      view the logs for issues during development.
+  -->
+  <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
     <encoder class="PatternLayoutEncoder">
