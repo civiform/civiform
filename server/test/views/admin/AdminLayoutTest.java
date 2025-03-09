@@ -23,6 +23,7 @@ import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
 import views.HtmlBundle;
+import views.JsBundle;
 import views.ViewUtils;
 
 public class AdminLayoutTest extends ResetPostgres {
@@ -107,10 +108,8 @@ public class AdminLayoutTest extends ResetPostgres {
 
   @Test
   public void render_includesSessionTimeoutModals_whenEnabled() {
-    // Mock session timeout setting
     when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
-    // Mock Messages
     Messages messages = mock(Messages.class);
     when(messages.at("session.inactivity.warning.title")).thenReturn("Warning");
     when(messages.at("session.inactivity.warning.message")).thenReturn("Session inactive");
@@ -122,11 +121,9 @@ public class AdminLayoutTest extends ResetPostgres {
     when(messages.at("session.extended.success")).thenReturn("Session extended");
     when(messages.at("session.extended.error")).thenReturn("Failed to extend");
 
-    // Mock MessagesApi to return our mocked Messages
     MessagesApi messagesApi = mock(MessagesApi.class);
     when(messagesApi.preferred(any(Http.RequestHeader.class))).thenReturn(messages);
 
-    // Create adminLayout with mocked MessagesApi
     adminLayout =
         new AdminLayout(
             instanceOf(ViewUtils.class),
@@ -140,6 +137,7 @@ public class AdminLayoutTest extends ResetPostgres {
     // Create bundle with the request
     Http.Request request = fakeRequestBuilder().build();
     HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    bundle.setJsBundle(JsBundle.ADMIN);
 
     // Render the admin layout
     Content content = adminLayout.render(bundle);
@@ -158,17 +156,14 @@ public class AdminLayoutTest extends ResetPostgres {
 
   @Test
   public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
-    // Mock session timeout setting as disabled
     when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
 
-    // Create bundle with request
     HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().build(), instanceOf(ViewUtils.class));
+    bundle.setJsBundle(JsBundle.APPLICANT);
 
-    // Render the admin layout
     Content content = adminLayout.render(bundle);
     String html = content.body();
 
-    // Verify session timeout modals are not included
     assertThat(html).doesNotContain("session-timeout-container");
     assertThat(html).doesNotContain("session-inactivity-warning-modal");
     assertThat(html).doesNotContain("session-length-warning-modal");
