@@ -994,5 +994,3 @@ session.length.warning.message=Your session will expire soon due to length. Plea
 session.extend.button=Extend Session
 session.extended.success=Session successfully extended
 session.extended.error=Failed to extend session
-button.logout=Logout
-button.cancel=Cancel
