@@ -15,7 +15,6 @@ import play.routing.Router;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 
 /**
  * Action that ensures the program the user is trying to access is not disabled.
@@ -26,12 +25,10 @@ import services.settings.SettingsManifest;
  */
 public class ProgramDisabledAction extends Action.Simple {
   private final ProgramService programService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramDisabledAction(ProgramService programService, SettingsManifest settingsManifest) {
+  public ProgramDisabledAction(ProgramService programService) {
     this.programService = checkNotNull(programService);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   private boolean programIsDisabled(String programSlug) {
@@ -83,8 +80,7 @@ public class ProgramDisabledAction extends Action.Simple {
       return programSlugOptional;
     }
 
-    if (!settingsManifest.getFastforwardEnabled(request)
-        || !request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+    if (!request.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
       return Optional.empty();
     }
 

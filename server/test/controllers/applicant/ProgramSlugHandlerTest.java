@@ -44,44 +44,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      programBySlug_redirectsToPreviousProgramVersionForExistingApplications_fastForwardDisabled() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    VersionRepository versionRepository = instanceOf(VersionRepository.class);
-
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
-    applicant.save();
-
-    ApplicationModel app =
-        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
-    app.save();
-
-    resourceCreator().insertDraftProgram(programDefinition.adminName());
-    versionRepository.publishNewSynchronizedVersion();
-
-    CiviFormController controller = instanceOf(CiviFormController.class);
-
-    Result result =
-        instanceOf(ProgramSlugHandler.class)
-            .showProgram(
-                controller,
-                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build(),
-                programDefinition.slug())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
-                .url());
-  }
-
-  @Test
-  public void
-      programBySlug_redirectsToActiveProgramVersionForExistingApplications_fastForwardEnabled() {
+  public void programBySlug_redirectsToActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -102,10 +65,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .showProgram(
-                controller,
-                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build(),
-                programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
