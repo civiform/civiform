@@ -472,10 +472,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
       Http.Request request, long applicantId, long programId, CiviFormProfile profile) {
-    if (!settingsManifest.getFastforwardEnabled(request)) {
-      return Optional.empty();
-    }
-
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(
