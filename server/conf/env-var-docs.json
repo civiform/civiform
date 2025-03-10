@@ -14,6 +14,11 @@
         "type": "string",
         "required": true
       },
+      "HIDE_CIVIC_ENTITY_NAME_IN_HEADER": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This may be desired if the government name is included in the logo. Since northstar hides the logo on smaller screens, this will only hide the name if the logo is showing.",
+        "type": "bool"
+      },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",

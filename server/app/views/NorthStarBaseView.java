@@ -75,6 +75,8 @@ public abstract class NorthStarBaseView {
             .getCivicEntitySmallLogoUrl()
             .orElse(assetsFinder.path("Images/civiform-staging.png")));
     context.setVariable(
+        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
+    context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());

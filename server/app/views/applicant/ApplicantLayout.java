@@ -7,6 +7,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
@@ -310,7 +311,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .with(
                     p(
-                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        iff(
+                            !settingsManifest.getHideCivicEntityNameInHeader(request),
+                            b(settingsManifest.getWhitelabelCivicEntityShortName(request).get())),
                         span(text(" CiviForm")))));
   }
 
