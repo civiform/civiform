@@ -45,6 +45,7 @@
             const formData = new FormData();
             formData.append("file", file);
             formData.append("modelName", document.getElementById("LLMModelSelect").value);
+            formData.append("logLevel", getLogLevel());
 
             const outputTextArea = document.getElementById("output");
             const outputContainer = document.querySelector('.output-container');
@@ -97,6 +98,8 @@
 
             const formData = new FormData();
             formData.append("modelName", document.getElementById("LLMModelSelect").value);
+            formData.append("logLevel", getLogLevel());
+
             // Get the directory path from the input field
             formData.append("directoryPath", document.getElementById("directoryPath").value);
 
@@ -152,6 +155,13 @@
         });
 
     </script>
+    <script>
+        function getLogLevel() {
+            const logLevelSelect = document.getElementById("logLevelSelect");
+            const selectedLogLevel = logLevelSelect.value;
+            return selectedLogLevel;
+        }
+    </script>
 </head>
 <body>
     <h1>PDF Form to CiviForm JSON</h1>
@@ -178,18 +188,26 @@
         </ol>
     </p>
 
-    <div class="form-group">
-        <label for="LLMModelSelect">LLM Model:</label>
-        <select id="LLMModelSelect">
-            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-            <option value="gemini-2.0-pro">gemini-2.0-pro</option>
-            <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
-            <option value="gemini-2.0-pro-exp">gemini-2.0-pro-exp</option>
-            <option value="gemini-2.0-flash-thinking">gemini-2.0-flash-thinking</option>
-            <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
-        </select>
+    <div class="inline-form-group">
+        <div class="form-group">
+            <label for="LLMModelSelect">LLM Model:</label>
+            <select id="LLMModelSelect">
+                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+                <option value="gemini-2.0-pro-exp">gemini-2.0-pro-exp</option>
+                <option value="gemini-2.0-flash-thinking">gemini-2.0-flash-thinking</option>
+                <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="logLevelSelect">Log Level:</label>
+            <select id="logLevelSelect">
+                <option value="INFO">INFO</option>
+                <option value="DEBUG">DEBUG</option>
+            </select>
+       </div>
     </div>
-
+    
     <h2>Single File:</h2>
     <form onsubmit="uploadFile(event)" class="form-group">
         <input type="file" id="pdfFile" accept="application/pdf" required>

@@ -80,6 +80,12 @@ def create_question(field, question_id, enumerator_id=None):
         if "options" in field:
             for idx, option in enumerate(field.get("options",), start=1):
                 option_admin_name = re.sub(r'[^a-z0-9]+', '_', option.lower())
+   
+                # check if option name is invalid (empty)
+                if not option_admin_name:
+                    logging.error(f"ERROR: Option name cannot be empty. Invalid option: '{option}' found in question : {field}")
+                    raise ValueError(f"ERROR: Option name cannot be empty. Invalid option: '{option}' found in question : {field}")
+
                 option_entry = {
                     "id": idx,
                     "adminName": option_admin_name,
@@ -94,6 +100,15 @@ def create_question(field, question_id, enumerator_id=None):
         else:
             logging.warning(f"WARNING: Field '{field.get('id', 'unknown')}' is missing the 'options' key.")
 
+        # Check the number of options for radio buttons
+        if field["type"] == "radio" and len(question_options) < 2:
+            logging.error(f"ERROR: Radio button question '{field['label']}' must have at least two options.")
+            raise ValueError(f"ERROR: Radio button question '{field['label']}' must have at least two options.")
+    
+        # Check the number of options for multioption field (checkbox)
+        if field["type"] == "checkbox" and len(question_options) < 1:
+            logging.error(f"ERROR: Multioption field '{field['label']}' must have at least one option.")
+            raise ValueError(f"ERROR: Multioption field '{field['label']}' must have at least one option.")
 
         question["questionOptions"] = question_options
         question["multiOptionQuestionType"] = "RADIO_BUTTON" if field["type"] == "radio" else "CHECKBOX"

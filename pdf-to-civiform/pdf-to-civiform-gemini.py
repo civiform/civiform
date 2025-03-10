@@ -119,37 +119,51 @@ def post_processing_llm(client, model_name, text, base_name):
 
 def format_json_single_line_fields(json_string: str) -> str:
     """
-    formats it to ensure all field attributes
-    (including options) are on a single line, and returns the formatted string.
+    Formats a JSON string to ensure all field attributes (including options) 
+    are on a single line, while maintaining readability for nested structures.
+
+    Args:
+        json_string (str): The JSON string to format.
+
+    Returns:
+        str: The formatted JSON string.
+
+    Raises:
+        json.JSONDecodeError: If the input string is not valid JSON.
+        ValueError: If an unexpected error occurs during formatting.
     """
     try:
         data = json.loads(json_string)
 
         def custom_dumps(obj, level=0):
             if isinstance(obj, dict):
-                if "label" in obj and "type" in obj:
-                    return json.dumps(obj, separators=(',', ': '))
+                if "label" in obj and "type" in obj and "id" in obj:
+                    # Format field objects on a single line
+                    return json.dumps(obj, separators=(',', ':'))
                 else:
+                    # Format other dictionaries with indentation
                     return "{\n" + "".join(
-                        f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ': '))}: {custom_dumps(v, level + 1)},\n"
+                        f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ':'))}: {custom_dumps(v, level + 1)},\n"
                         for k, v in obj.items()
                     )[:-2] + "\n" + ("    " * level) + "}"
             elif isinstance(obj, list):
+                # Format lists with indentation and single-line fields
                 return "[\n" + "".join(
                     f"{'    ' * (level + 1)}{custom_dumps(item, level + 1)},\n"
                     for item in obj
                 )[:-2] + "\n" + ("    " * level) + "]"
             else:
-                return json.dumps(obj, separators=(',', ': '))
+                return json.dumps(obj, separators=(',', ':'))
 
         return custom_dumps(data)
 
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return ""  # Return empty string on error
+        logging.error(f"Error decoding JSON: {e}")
+        raise  # Re-raise the exception to be handled by the caller
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return ""
+        logging.error(f"An unexpected error occurred: {e}")
+        raise ValueError(f"An unexpected error occurred during JSON formatting: {e}") from e  # Raise a ValueError
+
 
 
 def save_response_to_file(response, base_name, output_suffix, work_dir):
@@ -207,14 +221,10 @@ def process_file(file_full, model_name, client):
         formated_json = format_json_single_line_fields(structured_json)
         save_response_to_file(formated_json, base_name, f"formated-{model_name}", work_dir)
 
-        if "2.0-pro" not in model_name:
-            post_processed_json = post_processing_llm(client, model_name, formated_json, base_name)
-            logging.info(f"Formating post processed json  .... ")
-            formated_post_processed_json = format_json_single_line_fields(post_processed_json)
-            save_response_to_file(formated_post_processed_json, f"{base_name}-post-processed", f"formated-{model_name}", work_dir)
-        else:
-            formated_post_processed_json = formated_json
-            logging.info(f"Skipping post processing for model {model_name}")
+        post_processed_json = post_processing_llm(client, model_name, formated_json, base_name)
+        logging.info(f"Formating post processed json  .... ")
+        formated_post_processed_json = format_json_single_line_fields(post_processed_json)
+        save_response_to_file(formated_post_processed_json, f"{base_name}-post-processed", f"formated-{model_name}", work_dir)
 
 
         parsed_json = json.loads(formated_post_processed_json)
@@ -285,8 +295,11 @@ def upload_file():
     file_full = os.path.join(default_upload_dir, filename)
     file.save(file_full)
 
-    # Get LLM model name from the request
+    # Get LLM model name and log level from the request
     model_name = request.form.get('modelName')
+    logging.getLogger().setLevel(getattr(logging, request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+    logging.info(f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}")
+    logging.debug(f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}")
 
     client = initialize_gemini_model(model_name)
 
@@ -303,8 +316,10 @@ def upload_directory():
     """
     Endpoint to upload a directory of files and process each one.
     """
-    #Get LLM model name from the request
+        # Get LLM model name and log level from the request
     model_name = request.form.get('modelName')
+    logging.getLogger().setLevel(getattr(logging, request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+
     directory_path = request.form.get('directoryPath', default_upload_dir)  # Get path or default
 
     # Sanitize the directory path
