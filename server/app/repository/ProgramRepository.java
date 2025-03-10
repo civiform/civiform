@@ -183,26 +183,27 @@ public final class ProgramRepository {
         programDefinition.blockDefinitions().stream()
             .filter(BlockDefinition::hasNullQuestion)
             .collect(ImmutableList.toImmutableList());
-    if (blocksWithNullQuestion.isEmpty()) {
-      programDefCache.set(String.valueOf(programId), programDefinition);
+    if (!blocksWithNullQuestion.isEmpty()) {
+      String nullQuestionIds =
+          blocksWithNullQuestion.stream()
+              .flatMap(block -> block.programQuestionDefinitions().stream())
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
+              .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+              .map(QuestionDefinition::getId)
+              .map(String::valueOf)
+              .collect(Collectors.joining(", "));
+      logger.warn(
+          "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
+              + " into the cache. This is an issue in {} / {} blocks.",
+          programDefinition.slug(),
+          programDefinition.id(),
+          nullQuestionIds,
+          blocksWithNullQuestion.size(),
+          programDefinition.blockDefinitions().size());
       return;
     }
-    String nullQuestionIds =
-        blocksWithNullQuestion.stream()
-            .flatMap(block -> block.programQuestionDefinitions().stream())
-            .map(ProgramQuestionDefinition::getQuestionDefinition)
-            .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
-            .map(QuestionDefinition::getId)
-            .map(String::valueOf)
-            .collect(Collectors.joining(", "));
-    logger.warn(
-        "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
-            + " into the cache. This is an issue in {} / {} blocks.",
-        programDefinition.slug(),
-        programDefinition.id(),
-        nullQuestionIds,
-        blocksWithNullQuestion.size(),
-        programDefinition.blockDefinitions().size());
+
+    programDefCache.set(String.valueOf(programId), programDefinition);
   }
 
   /**
