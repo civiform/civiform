@@ -131,19 +131,19 @@
 
   /* Re-style USWDS file input hint since it has contrast issues with the non-northstar background.
      This can be removed once we switch to North Star. */
-  .cf-question-fileupload .usa-hint { 
+  .cf-question-fileupload .usa-hint {
     color: #1b1b1b;
   }
 
   .cf-file-uploading-tag {
     background-color: #fff7bf;
     color: #594d00;
-    visibility: hidden;
+    display: none;
   }
 
   /* If a file is being uploaded, show the file uploading tag... */
   .cf-file-uploading .cf-file-uploading-tag {
-    visibility: visible;
+    display: inline-block;
   }
 
   /* ... and apply disabled styling to any interactive elements. */
