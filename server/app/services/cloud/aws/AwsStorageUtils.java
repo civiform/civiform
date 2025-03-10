@@ -98,7 +98,7 @@ public final class AwsStorageUtils {
         // AWS actions end with '/'
         return url + "/";
       } catch (ExecutionException | InterruptedException e) {
-        logger.warn("Unable to create a Localstack action link. Returning empty string");
+        logger.warn("Unable to create a Localstack action link. Returning empty string", e);
         return "";
       }
     }
