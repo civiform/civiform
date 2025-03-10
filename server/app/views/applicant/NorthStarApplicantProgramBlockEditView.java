@@ -59,7 +59,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
-  public String render(Request request, ApplicationBaseViewParams applicationParams) {
+  public String render(
+      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -77,6 +78,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("homeUrl", index(applicationParams));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
 
     // Progress bar
     ProgressBar progressBar =
@@ -215,6 +218,21 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .applicantRoutes()
         .review(params.profile(), params.applicantId(), params.programId())
         .url();
+  }
+
+  private String index(ApplicationBaseViewParams params) {
+    // index() does the TI evaluation.
+    return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
+  }
+
+  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+    if (params.profile().isTrustedIntermediary()) {
+      return params
+          .applicantRoutes()
+          .show(params.profile(), params.applicantId(), programSlug)
+          .url();
+    }
+    return params.applicantRoutes().show(programSlug).url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {
