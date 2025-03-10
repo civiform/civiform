@@ -145,12 +145,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private void setErrorContextForFormModal(
       ThymeleafModule.PlayThymeleafContext context,
       String formAction,
-      String title,
       String content,
       String buttonText,
       String redirectTo) {
     context.setVariable("errorModalFormAction", formAction);
-    context.setVariable("errorModalTitle", title);
     context.setVariable("errorModalContent", content);
     context.setVariable("errorModalButtonText", buttonText);
     context.setVariable("errorModalDataRedirectTo", redirectTo);
@@ -162,9 +160,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
         previousWithoutSaving(applicationParams));
   }
 
@@ -174,9 +171,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
         reviewWithoutSaving(applicationParams));
   }
 
