@@ -18,9 +18,7 @@ import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
-test.describe('applicant program index page',
-  {tag: ['@northstar']},
-  () => {
+test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   const primaryProgramName = 'Application index primary program'
   const otherProgramName = 'Application index other program'
 
@@ -78,11 +76,7 @@ test.describe('applicant program index page',
     await adminSettings.saveChanges()
     await logout(page)
 
-    expect(
-      await page
-        .getByText(/To get help with/)
-        .textContent(),
-    ).toBeTruthy()
+    expect(await page.getByText(/To get help with/).textContent()).toBeTruthy()
   })
 
   test('shows log in button for guest users', async ({
