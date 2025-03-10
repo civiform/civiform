@@ -413,7 +413,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
                   final String programSlug;
                   try {
-                    programSlug = programService.getFullProgramDefinition(programId).slug();
+                    programSlug = programService.getSlug(programId);
                   } catch (ProgramNotFoundException e) {
                     return notFound(e.toString());
                   }
@@ -516,7 +516,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
                   final String programSlug;
                   try {
-                    programSlug = programService.getFullProgramDefinition(programId).slug();
+                    programSlug = programService.getSlug(programId);
                   } catch (ProgramNotFoundException e) {
                     return notFound(e.toString());
                   }
@@ -1151,7 +1151,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             if (settingsManifest.getNorthStarApplicantUi(request)) {
               final String programSlug;
               try {
-                programSlug = programService.getFullProgramDefinition(programId).slug();
+                programSlug = programService.getSlug(programId);
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
               }
