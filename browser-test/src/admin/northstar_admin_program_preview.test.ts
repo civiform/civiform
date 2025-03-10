@@ -1,9 +1,12 @@
-import { test } from '../support/civiform_fixtures'
-import { enableFeatureFlag, loginAsAdmin, validateScreenshot, waitForPageJsLoad } from '../support'
+import {test} from '../support/civiform_fixtures'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from '../support'
 
-test.describe('admin program preview', 
-  {tag: ['@northstar']}, 
-  () => {
+test.describe('admin program preview', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
@@ -29,15 +32,20 @@ test.describe('admin program preview',
     await page.click('button:has-text("Preview as applicant")')
     await waitForPageJsLoad(page)
 
-    await validateScreenshot(page, 'northstar-admin-program-preview-application-review-page')
+    await validateScreenshot(
+      page,
+      'northstar-admin-program-preview-application-review-page',
+    )
     await page.isVisible('a:has-text("Back to admin view")')
 
     await applicantQuestions.clickContinue()
 
-    await validateScreenshot(page, 'northstar-admin-program-preview-application-block-edit-page')
+    await validateScreenshot(
+      page,
+      'northstar-admin-program-preview-application-block-edit-page',
+    )
     await page.click('a:has-text("Back to admin view")')
 
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
-
 })
