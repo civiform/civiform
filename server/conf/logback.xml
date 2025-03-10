@@ -14,7 +14,7 @@
       not take effect until after.
 
       This `NopStatusListener` only affects logging statements coming from Logback
-      itself. Logging coming from out application remains unaffected.
+      itself. Logging coming from our application remains unaffected.
 
       If this were a one time thing at startup of the container it wouldn't be so
       bad, but every time the hot reload occurs around 50-100 lines from Logback
