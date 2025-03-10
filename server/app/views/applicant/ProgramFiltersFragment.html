@@ -11,53 +11,59 @@
       name="applicantId"
       th:value="${applicantId.orElse('')}"
     />
-    <fieldset class="usa-fieldset grid-row grid-gap border-0 margin-y-3">
-      <legend
-        class="usa-legend margin-bottom-105 cf-prose-h4"
-        th:text="#{label.programFilters.v2}"
-      ></legend>
-      <th:block th:each="categoryOption : ${categoryOptions}">
-        <div
-          class="usa-checkbox desktop:grid-col-4 tablet:grid-col-6 grid-col-12"
+    <fieldset class="usa-fieldset margin-y-3">
+      <div class="grid-row">
+        <legend
+          class="usa-legend margin-bottom-105 cf-prose-h4"
+          th:text="#{label.programFilters.v2}"
+        ></legend>
+      </div>
+
+      <div class="grid-row grid-gap">
+        <th:block th:each="categoryOption : ${categoryOptions}">
+          <div
+            class="usa-checkbox desktop:grid-col-4 tablet:grid-col-6 grid-col-12"
+          >
+            <input
+              th:id="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+              type="checkbox"
+              name="categories"
+              th:value="${categoryOption}"
+              class="usa-checkbox__input"
+            />
+            <label
+              th:for="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
+              th:text="${categoryOption}"
+              class="usa-checkbox__label usa-prose"
+            ></label>
+          </div>
+        </th:block>
+      </div>
+
+      <div class="grid-row">
+        <ul
+          class="usa-button-group margin-top-105 tablet:flex-row flex-column width-full"
         >
-          <input
-            th:id="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
-            type="checkbox"
-            name="categories"
-            th:value="${categoryOption}"
-            class="usa-checkbox__input"
-          />
-          <label
-            th:for="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
-            th:text="${categoryOption}"
-            class="usa-checkbox__label usa-prose"
-          ></label>
-        </div>
-      </th:block>
-      <ul class="usa-button-group margin-top-105">
-        <li class="usa-button-group__item">
-          <button
-            th:text="#{button.applySelections}"
-            id="filter-submit"
-            type="submit"
-            class="usa-button"
-          >
-            Apply selections
-          </button>
-        </li>
-        <li class="usa-button-group__item">
-          <button
-            th:text="#{button.clearSelections}"
-            id="clear-filters"
-            th:attr="hx-get=${refreshUrl}"
-            hx-select="#unfiltered-programs"
-            hx-target="#not-started-programs"
-            class="usa-button usa-button--outline"
-          >
-            Clear selections
-          </button>
-        </li>
-      </ul>
+          <li class="usa-button-group__item width-full tablet:width-auto">
+            <button
+              th:text="#{button.applySelections}"
+              id="filter-submit"
+              type="submit"
+              class="usa-button width-full"
+            ></button>
+          </li>
+          <li class="usa-button-group__item width-full tablet:width-auto">
+            <button
+              th:text="#{button.clearSelections}"
+              id="clear-filters"
+              th:attr="hx-get=${refreshUrl}"
+              hx-select="#unfiltered-programs"
+              hx-target="#not-started-programs"
+              class="usa-button usa-button--outline width-full"
+            ></button>
+          </li>
+        </ul>
+      </div>
     </fieldset>
   </form>
 </th:block>
