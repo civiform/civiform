@@ -120,6 +120,11 @@ public final class ProgramService {
     return programRepository.getAllProgramNames();
   }
 
+  /** Get the slug of {@code} programId. */
+  public String getSlug(long programId) throws ProgramNotFoundException {
+    return programRepository.getSlug(programId);
+  }
+
   /** Get the slugs for all programs. */
   public ImmutableSet<String> getAllProgramSlugs() {
     return getAllProgramNames().stream()

@@ -1632,6 +1632,21 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getSlug() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+    String foundSlug = ps.getSlug(programDefinition.id());
+
+    assertThat(foundSlug).isEqualTo(programDefinition.slug());
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L))
         .isInstanceOf(ProgramNotFoundException.class)
