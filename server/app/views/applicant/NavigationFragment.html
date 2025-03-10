@@ -25,9 +25,9 @@
               />
             </div>
             <em class="usa-logo__text">
-              <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name when the logo appears */-->
+              <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name on destop (when the logo appears) */-->
               <span
-                class="cf-gov-name"
+                class="cf-gov-name desktop:display-none"
                 th:if="${hideCivicEntityName}"
                 th:text="${civicEntityShortName}"
               ></span>

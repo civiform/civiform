@@ -251,11 +251,6 @@ it is around the label */
     @include u-padding-top(4);
     @include u-padding-bottom(2);
   }
-
-  // Hide the government name on desktop (if set to hidden). This class is only applied when the HIDE_CIVIC_ENTITY_NAME_IN_HEADER flag is enabled
-  .cf-gov-name {
-    display: none;
-  }
 }
 
 // Styles common to tablet and mobile
