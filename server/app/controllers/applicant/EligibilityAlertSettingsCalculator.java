@@ -32,7 +32,7 @@ public final class EligibilityAlertSettingsCalculator {
    * representing eligibility message.
    *
    * @param request The HTTP request.
-   * @param isTI True if the request is from a tax advisor.
+   * @param isTI True if the request is from a trusted intermediary
    * @param isApplicationEligible True if the application is eligible for the program.
    * @param isNorthStarEnabled True if NorthStar is enabled.
    * @param pageHasSupplementalInformation True if the page has supplemental information.
@@ -125,28 +125,23 @@ public final class EligibilityAlertSettingsCalculator {
                 isNorthStarEnabled,
                 pageHasSupplementalInformation);
 
-    String text = messages.at(triple.textKey.getKeyName());
     ImmutableList<String> formattedQuestions =
         questions.stream()
             .map(ApplicantQuestion::getQuestionText)
             .collect(ImmutableList.toImmutableList());
-    Optional<String> customMessage =
-        eligibilityMsg.isEmpty() ? Optional.empty() : Optional.of(eligibilityMsg);
-    Optional<String> title = Optional.of(messages.at(triple.titleKey.getKeyName()));
-    Optional<String> ariaLabel =
-        title.isPresent()
-            ? Optional.of(AlertSettings.getTitleAriaLabel(messages, triple.alertType, title.get()))
-            : Optional.empty();
 
-    return new AlertSettings(
-        true,
-        Optional.of(messages.at(triple.titleKey.getKeyName())),
-        text,
-        triple.alertType,
-        formattedQuestions,
-        customMessage,
-        ariaLabel,
-        /* isSlim= */ false);
+    String msg =
+        messages.at(triple.textKey.getKeyName())
+            + (eligibilityMsg.isEmpty() ? "" : "\n" + eligibilityMsg);
+
+    return AlertSettings.builder()
+        .show(true)
+        .title(Optional.of(messages.at(triple.titleKey.getKeyName())))
+        .text(msg)
+        .alertType(triple.alertType)
+        .additionalText(formattedQuestions)
+        .isSlim(false)
+        .build();
   }
 
   private Triple getTi(
@@ -182,7 +177,8 @@ public final class EligibilityAlertSettingsCalculator {
           MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TEXT_SHORT);
     }
 
-    // The default case: isApplicationFastForwarded == false && isApplicationEligible == false
+    // The default case: isApplicationFastForwarded == false &&
+    // isApplicationEligible == false
     return new Triple(
         AlertType.WARNING,
         MessageKey.ALERT_ELIGIBILITY_TI_NOT_ELIGIBLE_TITLE,
@@ -222,7 +218,8 @@ public final class EligibilityAlertSettingsCalculator {
           MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TEXT_SHORT);
     }
 
-    // The default case: isApplicationFastForwarded == false && isApplicationEligible == false
+    // The default case: isApplicationFastForwarded == false &&
+    // isApplicationEligible == false
     return new Triple(
         AlertType.WARNING,
         MessageKey.ALERT_ELIGIBILITY_APPLICANT_NOT_ELIGIBLE_TITLE,
@@ -241,8 +238,9 @@ public final class EligibilityAlertSettingsCalculator {
 
       return !programDefinition.isCommonIntakeForm() && programDefinition.hasEligibilityEnabled();
     } catch (ProgramNotFoundException ex) {
-      // Checked exceptions are the devil and we've already determined that this program exists by
-      // this point
+      // Checked exceptions are the devil and we've already determined that this
+      // program exists by this point
+
       throw new RuntimeException("Could not find program.", ex);
     }
   }
