@@ -277,6 +277,25 @@ public final class ProgramRepository {
     }
   }
 
+  /** Returns the slug of {@code} programId. */
+  public String getSlug(long programId) throws ProgramNotFoundException {
+    // Check the cache first
+    Optional<ProgramDefinition> cachedProgram = getFullProgramDefinitionFromCache(programId);
+    if (cachedProgram.isPresent()) {
+      return cachedProgram.get().slug();
+    }
+
+    // Lookup the slug
+    Optional<SqlRow> maybeRow =
+        database
+            .sqlQuery(String.format("SELECT slug FROM programs WHERE id = %d", programId))
+            .findOneOrEmpty();
+
+    return maybeRow
+        .map(row -> row.getString("slug"))
+        .orElseThrow(() -> new ProgramNotFoundException(programId));
+  }
+
   /** Get the current active program with the provided slug. */
   public CompletableFuture<ProgramModel> getActiveProgramFromSlug(String slug) {
     return supplyAsync(
