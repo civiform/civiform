@@ -22,9 +22,11 @@ import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
+import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.components.SessionTimeoutModalsTest;
 
 public class AdminLayoutTest extends ResetPostgres {
   private SettingsManifest settingsManifest;
@@ -111,15 +113,7 @@ public class AdminLayoutTest extends ResetPostgres {
     when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
 
     Messages messages = mock(Messages.class);
-    when(messages.at("session.inactivity.warning.title")).thenReturn("Warning");
-    when(messages.at("session.inactivity.warning.message")).thenReturn("Session inactive");
-    when(messages.at("session.length.warning.title")).thenReturn("Session Length");
-    when(messages.at("session.length.warning.message")).thenReturn("Session too long");
-    when(messages.at("session.extend.button")).thenReturn("Extend");
-    when(messages.at("button.logout")).thenReturn("Logout");
-    when(messages.at("button.cancel")).thenReturn("Cancel");
-    when(messages.at("session.extended.success")).thenReturn("Session extended");
-    when(messages.at("session.extended.error")).thenReturn("Failed to extend");
+    SessionTimeoutModalsTest.mockMessages(messages);
 
     MessagesApi messagesApi = mock(MessagesApi.class);
     when(messagesApi.preferred(any(Http.RequestHeader.class))).thenReturn(messages);
@@ -142,16 +136,8 @@ public class AdminLayoutTest extends ResetPostgres {
     // Render the admin layout
     Content content = adminLayout.render(bundle);
     String html = content.body();
-
-    // Verify session timeout modals are included with correct messages
-    assertThat(html).contains("session-timeout-container");
-    assertThat(html).contains("Warning");
-    assertThat(html).contains("Session inactive");
-    assertThat(html).contains("Session Length");
-    assertThat(html).contains("Session too long");
-    assertThat(html).contains("Extend");
-    assertThat(html).contains("Logout");
-    assertThat(html).contains("Cancel");
+    SessionTimeoutModalsTest.assertSessionTimeoutModalStructure(
+        html, BaseHtmlView.getCsrfToken(request));
   }
 
   @Test

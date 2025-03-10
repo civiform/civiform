@@ -78,7 +78,10 @@
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
   <div th:replace="~{this :: tiAlert}"></div>
-  <div th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"></div>
+  <div
+    th:if="${sessionTimeoutEnabled}"
+    th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"
+  ></div>
 </th:block>
 
 <section

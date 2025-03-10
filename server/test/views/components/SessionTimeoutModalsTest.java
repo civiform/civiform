@@ -14,20 +14,28 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
   @Test
   public void render_createsCorrectStructure() {
     Messages messages = mock(Messages.class);
-    when(messages.at("session.inactivity.warning.title")).thenReturn("Inactivity Warning");
-    when(messages.at("session.inactivity.warning.message")).thenReturn("You have been inactive");
-    when(messages.at("session.length.warning.title")).thenReturn("Session Length Warning");
-    when(messages.at("session.length.warning.message")).thenReturn("Session too long");
-    when(messages.at("session.extend.button")).thenReturn("Extend Session");
-    when(messages.at("button.logout")).thenReturn("Logout");
-    when(messages.at("button.cancel")).thenReturn("Cancel");
-    when(messages.at("session.extended.success")).thenReturn("Session extended successfully");
-    when(messages.at("session.extended.error")).thenReturn("Failed to extend session");
-
+    mockMessages(messages);
     String csrfToken = "test-csrf-token";
     DivTag result = SessionTimeoutModals.render(messages, csrfToken);
     String html = result.render();
+    assertSessionTimeoutModalStructure(html, csrfToken);
+  }
 
+  @Test
+  public void render_modalsAreHiddenByDefault() {
+    Messages messages = mock(Messages.class);
+    mockMessages(messages);
+
+    DivTag result = SessionTimeoutModals.render(messages, "test-csrf-token");
+    String html = result.render();
+
+    assertThat(html).contains("class=\"hidden\"");
+    assertThat(html).contains("session-timeout-messages");
+    assertThat(html).contains("session-inactivity-warning-modal");
+    assertThat(html).contains("session-length-warning-modal");
+  }
+
+  public static void assertSessionTimeoutModalStructure(String html, String csrfTokenValue) {
     // verify container structure
     assertThat(html).contains("id=\"session-timeout-container\"");
     assertThat(html).contains("id=\"session-timeout-modals\"");
@@ -47,7 +55,7 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
     // verify form and CSRF token
     assertThat(html).contains("id=\"extend-session-form\"");
     assertThat(html).contains("name=\"csrfToken\"");
-    assertThat(html).contains("value=\"test-csrf-token\"");
+    assertThat(html).contains(String.format("value=\"%s\"", csrfTokenValue));
     assertThat(html).contains("hx-post=\"/extend-session\"");
 
     // verify localized messages container
@@ -64,21 +72,7 @@ public class SessionTimeoutModalsTest extends ResetPostgres {
     assertThat(html).contains("data-modal-type=\"session-length-warning\"");
   }
 
-  @Test
-  public void render_modalsAreHiddenByDefault() {
-    Messages messages = mock(Messages.class);
-    mockMessages(messages);
-
-    DivTag result = SessionTimeoutModals.render(messages, "test-csrf-token");
-    String html = result.render();
-
-    assertThat(html).contains("class=\"hidden\"");
-    assertThat(html).contains("session-timeout-messages");
-    assertThat(html).contains("session-inactivity-warning-modal");
-    assertThat(html).contains("session-length-warning-modal");
-  }
-
-  private void mockMessages(Messages messages) {
+  public static void mockMessages(Messages messages) {
     when(messages.at("session.inactivity.warning.title")).thenReturn("Inactivity Warning");
     when(messages.at("session.inactivity.warning.message")).thenReturn("You have been inactive");
     when(messages.at("session.length.warning.title")).thenReturn("Session Length Warning");
