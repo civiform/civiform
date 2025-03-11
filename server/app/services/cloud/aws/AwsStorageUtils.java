@@ -91,14 +91,17 @@ public final class AwsStorageUtils {
       try {
         String url =
             S3EndpointProvider.defaultProvider()
-                .resolveEndpoint((builder) -> builder.endpoint(endpointOverride).bucket(bucketName))
+                .resolveEndpoint(
+                    (builder) ->
+                        builder.endpoint(endpointOverride).bucket(bucketName).region(region))
                 .get()
                 .url()
                 .toString();
         // AWS actions end with '/'
         return url + "/";
       } catch (ExecutionException | InterruptedException e) {
-        logger.warn("Unable to create a Localstack action link. Returning empty string.  Error: {}", e.toString());
+        logger.warn(
+            "Unable to create an action link. Returning empty string.  Error: {}", e.toString());
         return "";
       }
     }
