@@ -346,46 +346,47 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await logout(page)
       })
 
-      const filterChips = page.locator('#category-filter-form')
+      const filterChips = page.locator('#ns-category-filter-form')
 
-      // await test.step('check that filter chips appear on homepage', async () => {
-      //   await expect(filterChips.getByText('Education')).toBeVisible()
-      //   await expect(filterChips.getByText('Healthcare')).toBeVisible()
-      //   await expect(filterChips.getByText('General')).toBeVisible()
-      //   await expect(filterChips.getByText('Utilities')).toBeVisible()
-      // })
+      await test.step('check that filter chips appear on homepage', async () => {
+        await expect(filterChips.getByText('Education')).toBeVisible()
+        await expect(filterChips.getByText('Healthcare')).toBeVisible()
+        await expect(filterChips.getByText('General')).toBeVisible()
+        await expect(filterChips.getByText('Utilities')).toBeVisible()
+      })
 
-      // await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
-      //   await filterChips.getByText('Education').check()
-      //   await filterChips.getByText('General').check()
-      //   expect(await page.textContent('html')).not.toContain('End session')
-      //   expect(await page.textContent('html')).not.toContain(
-      //     "You're a guest user",
-      //   )
-      //   // Check that the URL does not have an applicant ID
-      //   expect(page.url()).toContain('/applicants/programs')
+      await test.step('select some filter chips, ensure a guest account has not been created and url does not have applicant id, then take screenshot', async () => {
+        await filterChips.getByText('Education').check()
+        await filterChips.getByText('General').check()
+        expect(await page.textContent('html')).not.toContain('End session')
+        expect(await page.textContent('html')).not.toContain(
+          "You're a guest user",
+        )
+        // Check that the URL does not have an applicant ID
+        await page.pause()
+        expect(page.url()).toContain('/programs')
 
-      //   await validateScreenshot(
-      //     page.locator('#main-content'),
-      //     'category-filter-chips',
-      //   )
-      // })
+        await validateScreenshot(
+          page.locator('#main-content'),
+          'ns-category-filter-chips',
+        )
+      })
 
-      // await test.step('start applying to a program', async () => {
-      //   await applicantQuestions.applyProgram(primaryProgramName)
-      //   await applicantQuestions.answerTextQuestion('first answer')
-      //   await applicantQuestions.clickContinue()
-      //   await applicantQuestions.gotoApplicantHomePage()
-      // })
+      await test.step('start applying to a program', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName, true)
+        await applicantQuestions.answerTextQuestion('first answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
 
-      // await test.step('check that categories only on started program are removed from filters', async () => {
-      //   await expect(filterChips.getByText('Education')).toBeHidden()
-      //   await expect(filterChips.getByText('Healthcare')).toBeHidden()
-      //   await expect(filterChips.getByText('General')).toBeVisible()
-      //   await expect(filterChips.getByText('Utilities')).toBeVisible()
-      // })
+      await test.step('check that categories only on started program are removed from filters', async () => {
+        await expect(filterChips.getByText('Education')).toBeHidden()
+        await expect(filterChips.getByText('Healthcare')).toBeHidden()
+        await expect(filterChips.getByText('General')).toBeVisible()
+        await expect(filterChips.getByText('Utilities')).toBeVisible()
+      })
 
-      // await validateAccessibility(page)
+      await validateAccessibility(page)
     })
 
     // test('with program filters enabled, categorizes programs correctly', async ({
