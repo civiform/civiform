@@ -19,14 +19,12 @@ public final class ApiDocsController {
 
   private final ApiDocsView docsView;
   private final ProgramService programService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApiDocsController(
       ApiDocsView docsView, ProgramService programService, SettingsManifest settingsManifest) {
     this.docsView = docsView;
     this.programService = programService;
-    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -52,10 +50,6 @@ public final class ApiDocsController {
 
   private Result docsForSlug(
       Http.Request request, String selectedProgramSlug, boolean useActiveVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
-
     ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
     Optional<ProgramDefinition> programDefinition =
         getProgramDefinition(selectedProgramSlug, useActiveVersion);

@@ -51,10 +51,6 @@ public final class OpenApiSchemaController {
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
-
     LifecycleStage lifecycleStage =
         stage
             .map(x -> LifecycleStage.valueOf(x.toUpperCase(Locale.ROOT)))
@@ -134,10 +130,6 @@ public final class OpenApiSchemaController {
       String programSlug,
       Optional<String> stage,
       Optional<String> openApiVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
-
     if (programSlug.isEmpty()) {
       programSlug = programService.getAllProgramSlugs().stream().findFirst().orElse("");
     }
