@@ -237,7 +237,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test.only('shows previously answered on text for questions that had been answered', async ({
+  test('shows previously answered on text for questions that had been answered', async ({
     page,
     applicantQuestions,
   }) => {
