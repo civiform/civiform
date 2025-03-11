@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
-import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
@@ -80,7 +79,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (applicationPrograms.commonIntakeForm().isPresent()) {
+    if (isUnstartedCommonIntakeForm(applicationPrograms.commonIntakeForm())) {
       intakeSection =
           Optional.of(
               getCommonIntakeFormSection(
@@ -92,7 +91,8 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   personalInfo));
     }
 
-    if (!applicationPrograms.inProgress().isEmpty() || !applicationPrograms.submitted().isEmpty()) {
+    if (!applicationPrograms.inProgressIncludingCommonIntake().isEmpty()
+        || !applicationPrograms.submitted().isEmpty()) {
       myApplicationsSection =
           Optional.of(
               programCardsSectionParamsFactory.getSection(
@@ -101,7 +101,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
-                          applicationPrograms.inProgress().stream(),
+                          applicationPrograms.inProgressIncludingCommonIntake().stream(),
                           applicationPrograms.submitted().stream())
                       .collect(ImmutableList.toImmutableList()),
                   /* preferredLocale= */ messages.lang().toLocale(),
@@ -149,6 +149,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
     context.setVariable("refreshUrl", refreshUrl);
+    context.setVariable("applicantId", applicantId);
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);
@@ -163,33 +164,27 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
-    Optional<LifecycleStage> commonIntakeFormApplicationStatus =
-        commonIntakeForm.latestApplicationLifecycleStage();
-
-    MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-    if (commonIntakeFormApplicationStatus.isPresent()) {
-      switch (commonIntakeFormApplicationStatus.get()) {
-        case ACTIVE:
-          buttonText = MessageKey.BUTTON_EDIT;
-          break;
-        case DRAFT:
-          buttonText = MessageKey.BUTTON_CONTINUE;
-          break;
-        default:
-          // Leave button text as is.
-      }
-    }
 
     return programCardsSectionParamsFactory.getSection(
         request,
         messages,
         Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
-        buttonText,
+        MessageKey.BUTTON_START_SURVEY,
         ImmutableList.of(commonIntakeForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
         applicantId,
         personalInfo,
         ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
+  }
+
+  private boolean isUnstartedCommonIntakeForm(
+      Optional<ApplicantProgramData> commonIntakeFormOptional) {
+    if (commonIntakeFormOptional.isEmpty()) {
+      return false;
+    }
+    return commonIntakeFormOptional
+        .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
+        .isEmpty();
   }
 }

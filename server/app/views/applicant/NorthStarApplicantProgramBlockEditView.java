@@ -59,7 +59,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
-  public String render(Request request, ApplicationBaseViewParams applicationParams) {
+  public String render(
+      Request request, ApplicationBaseViewParams applicationParams, String programSlug) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
             request,
@@ -77,6 +78,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
             applicationParams.blockList().size(),
             applicationParams.messages());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("homeUrl", index(applicationParams));
+    context.setVariable("programOverviewUrl", programOverview(applicationParams, programSlug));
 
     // Progress bar
     ProgressBar progressBar =
@@ -142,12 +145,10 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
   private void setErrorContextForFormModal(
       ThymeleafModule.PlayThymeleafContext context,
       String formAction,
-      String title,
       String content,
       String buttonText,
       String redirectTo) {
     context.setVariable("errorModalFormAction", formAction);
-    context.setVariable("errorModalTitle", title);
     context.setVariable("errorModalContent", content);
     context.setVariable("errorModalButtonText", buttonText);
     context.setVariable("errorModalDataRedirectTo", redirectTo);
@@ -159,9 +160,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.PREVIOUS_BLOCK),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_PREVIOUS_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_PREVIOUS.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS.getKeyName(),
         previousWithoutSaving(applicationParams));
   }
 
@@ -171,9 +171,8 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
     setErrorContextForFormModal(
         context,
         getFormAction(applicationParams, ApplicantRequestedAction.REVIEW_PAGE),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_TITLE.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_CONTENT.getKeyName(),
-        MessageKey.MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTENT_REVIEW.getKeyName(),
+        MessageKey.MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW.getKeyName(),
         reviewWithoutSaving(applicationParams));
   }
 
@@ -219,6 +218,21 @@ public final class NorthStarApplicantProgramBlockEditView extends NorthStarBaseV
         .applicantRoutes()
         .review(params.profile(), params.applicantId(), params.programId())
         .url();
+  }
+
+  private String index(ApplicationBaseViewParams params) {
+    // index() does the TI evaluation.
+    return params.applicantRoutes().index(params.profile(), params.applicantId()).url();
+  }
+
+  private String programOverview(ApplicationBaseViewParams params, String programSlug) {
+    if (params.profile().isTrustedIntermediary()) {
+      return params
+          .applicantRoutes()
+          .show(params.profile(), params.applicantId(), programSlug)
+          .url();
+    }
+    return params.applicantRoutes().show(programSlug).url();
   }
 
   private String getFileUploadSignedRequestKey(ApplicationBaseViewParams params) {

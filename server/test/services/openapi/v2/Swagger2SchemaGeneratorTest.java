@@ -163,6 +163,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"
@@ -177,6 +180,10 @@ definitions:
               type: "string"
             status:
               type: "string"
+              x-nullable: true
+            status_last_modified_time:
+              type: "string"
+              format: "date-time"
               x-nullable: true
             submit_time:
               type: "string"
@@ -489,6 +496,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"
@@ -503,6 +513,10 @@ definitions:
               type: "string"
             status:
               type: "string"
+              x-nullable: true
+            status_last_modified_time:
+              type: "string"
+              format: "date-time"
               x-nullable: true
             submit_time:
               type: "string"
@@ -878,6 +892,9 @@ definitions:
             application_id:
               type: "integer"
               format: "int32"
+            application_note:
+              type: "string"
+              x-nullable: true
             create_time:
               type: "string"
               format: "date-time"
@@ -892,6 +909,10 @@ definitions:
               type: "string"
             status:
               type: "string"
+              x-nullable: true
+            status_last_modified_time:
+              type: "string"
+              format: "date-time"
               x-nullable: true
             submit_time:
               type: "string"

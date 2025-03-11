@@ -411,8 +411,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantRoutes,
                         profile);
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  final String programSlug;
+                  try {
+                    programSlug = programService.getSlug(programId);
+                  } catch (ProgramNotFoundException e) {
+                    return notFound(e.toString());
+                  }
                   return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams))
+                          request, applicationParams, programSlug))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
@@ -508,8 +514,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         .setBannerMessage(successBannerMessage)
                         .build();
                 if (settingsManifest.getNorthStarApplicantUi(request)) {
+                  final String programSlug;
+                  try {
+                    programSlug = programService.getSlug(programId);
+                  } catch (ProgramNotFoundException e) {
+                    return notFound(e.toString());
+                  }
                   return ok(northStarApplicantProgramBlockEditView.render(
-                          request, applicationParams))
+                          request, applicationParams, programSlug))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   return ok(editView.render(applicationParams));
@@ -1137,7 +1149,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantRoutes,
                     submittingProfile);
             if (settingsManifest.getNorthStarApplicantUi(request)) {
-              return ok(northStarApplicantProgramBlockEditView.render(request, applicationParams))
+              final String programSlug;
+              try {
+                programSlug = programService.getSlug(programId);
+              } catch (ProgramNotFoundException e) {
+                return notFound(e.toString());
+              }
+              return ok(northStarApplicantProgramBlockEditView.render(
+                      request, applicationParams, programSlug))
                   .as(Http.MimeTypes.HTML);
             } else {
               return ok(editView.render(applicationParams));
@@ -1189,7 +1208,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             blockId);
       }
     } catch (ProgramNotFoundException e) {
-      notFound(e.toString());
+      return supplyAsync(() -> notFound(e.toString()));
     }
 
     Map<String, String> flashingMap = new HashMap<>();
@@ -1409,15 +1428,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     AlertSettings eligibilityAlertSettings = AlertSettings.empty();
 
     if (roApplicantProgramService.shouldDisplayEligibilityMessage()) {
-      eligibilityAlertSettings =
-          eligibilityAlertSettingsCalculator.calculate(
-              request,
-              profileUtils.currentUserProfile(request).isTrustedIntermediary(),
-              !roApplicantProgramService.isApplicationNotEligible(),
-              settingsManifest.getNorthStarApplicantUi(request),
-              false,
-              programId,
-              roApplicantProgramService.getIneligibleQuestions());
+      if (settingsManifest.getNorthStarApplicantUi(request)) {
+        eligibilityAlertSettings =
+            getNorthStarEligibilityAlertSettings(
+                roApplicantProgramService, request, programId, blockId);
+      } else {
+        eligibilityAlertSettings =
+            eligibilityAlertSettingsCalculator.calculate(
+                request,
+                profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+                !roApplicantProgramService.isApplicationNotEligible(),
+                settingsManifest.getNorthStarApplicantUi(request),
+                false,
+                programId,
+                roApplicantProgramService.getIneligibleQuestions());
+      }
     }
 
     return ApplicationBaseViewParams.builder()
@@ -1426,6 +1451,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setApplicantId(applicantId)
         .setProgramTitle(roApplicantProgramService.getProgramTitle())
         .setProgramDescription(roApplicantProgramService.getProgramDescription())
+        .setProgramShortDescription(roApplicantProgramService.getProgramShortDescription())
         .setProgramId(programId)
         .setBlock(block)
         .setInReview(inReview)
@@ -1513,6 +1539,32 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       throw new RuntimeException(cause);
     }
     throw new RuntimeException(throwable);
+  }
+
+  private AlertSettings getNorthStarEligibilityAlertSettings(
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Request request,
+      long programId,
+      String blockId) {
+    // Only display the eligibility banner if an eligibility question was just answered,
+    // to avoid showing the banner on multiple blocks in a row.
+    ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
+    int currentBlockIndex = roApplicantProgramService.getBlockIndex(blockId);
+    if (currentBlockIndex > 0) {
+      String previousBlockId = blocks.get(currentBlockIndex - 1).getId();
+      if (roApplicantProgramService.blockHasEligibilityPredicate(previousBlockId)
+          && roApplicantProgramService.isActiveBlockEligible(previousBlockId)) {
+        return eligibilityAlertSettingsCalculator.calculate(
+            request,
+            profileUtils.currentUserProfile(request).isTrustedIntermediary(),
+            !roApplicantProgramService.isApplicationNotEligible(),
+            settingsManifest.getNorthStarApplicantUi(request),
+            false,
+            programId,
+            roApplicantProgramService.getIneligibleQuestions());
+      }
+    }
+    return AlertSettings.empty();
   }
 
   /**

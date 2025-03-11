@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.6
+    image: postgres:16.8
     stdin_open: true
     tty: true
     volumes:
@@ -58,7 +58,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4:9.0
+    image: dpage/pgadmin4:9.1
     restart: always
     depends_on:
       - db

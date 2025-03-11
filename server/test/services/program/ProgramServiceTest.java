@@ -642,7 +642,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of("invalid notification preference"),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactlyInAnyOrder(
@@ -669,7 +670,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(validCategoryId + 1), // This category doesn't exist in the database
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactlyInAnyOrder(CiviFormError.of("Only existing category ids are allowed"));
@@ -692,7 +694,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(validCategoryId),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -710,7 +713,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -732,7 +736,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL must contain at least one letter"));
@@ -752,7 +757,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -769,7 +775,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -787,7 +794,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result)
         .containsExactly(
@@ -834,7 +842,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
   }
@@ -852,7 +861,8 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             ImmutableList.of(),
             ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
 
     assertThat(result).isEmpty();
   }
@@ -872,7 +882,27 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             ImmutableList.of(),
             ImmutableList.copyOf(tiGroups),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ProgramType.DEFAULT);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void
+      validateProgramDataForCreate_noErrorForWhenMissingApplicationStepsForCommonIntakeForm() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name-two",
+            "display name",
+            "display description",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ImmutableList.of(),
+            ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(result).isEmpty();
   }
@@ -1599,6 +1629,21 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> ps.getDraftFullProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
         .hasMessageContaining("Program draft not found for slug: non-existent-program");
+  }
+
+  @Test
+  public void getSlug() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+    String foundSlug = ps.getSlug(programDefinition.id());
+
+    assertThat(foundSlug).isEqualTo(programDefinition.slug());
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -2654,54 +2699,53 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.getErrors()).containsExactly(CiviFormError.of("Found invalid block id 3"));
   }
 
-  //  TODO: Issue 8109, re-enabled after transition period
-  //  @Test
-  //  public void updateLocalizations_blockTranslationsEmpty() throws Exception {
-  //    ProgramModel program =
-  //        ProgramBuilder.newDraftProgram("English name", "English description")
-  //            .withLocalizedName(Locale.FRENCH, "existing French name")
-  //            .withLocalizedDescription(Locale.FRENCH, "existing French description")
-  //            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
-  //            .setLocalizedSummaryImageDescription(
-  //                LocalizedStrings.of(
-  //                    Locale.US,
-  //                    "English image description",
-  //                    Locale.FRENCH,
-  //                    "existing French image description"))
-  //            .withBlock("first block", "a description")
-  //            .build();
-  //
-  //    LocalizationUpdate updateData =
-  //        LocalizationUpdate.builder()
-  //            .setLocalizedDisplayName("new French name")
-  //            .setLocalizedDisplayDescription("new French description")
-  //            .setLocalizedShortDescription("new short French desc")
-  //            .setLocalizedSummaryImageDescription("new French image description")
-  //            .setLocalizedConfirmationMessage("")
-  //            .setStatuses(ImmutableList.of())
-  //            .setApplicationSteps(
-  //                ImmutableList.of(
-  //                    LocalizationUpdate.ApplicationStepUpdate.builder()
-  //                        .setLocalizedTitle("title")
-  //                        .setLocalizedDescription("description")
-  //                        .build()))
-  //            .setScreens(
-  //                ImmutableList.of(
-  //                    LocalizationUpdate.ScreenUpdate.builder()
-  //                        .setBlockIdToUpdate(1L)
-  //                        .setLocalizedName("")
-  //                        .setLocalizedDescription("")
-  //                        .build()))
-  //            .build();
-  //    ErrorAnd<ProgramDefinition, CiviFormError> result =
-  //        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
-  //
-  //    assertThat(result.isError()).isTrue();
-  //    assertThat(result.getErrors())
-  //        .containsExactly(
-  //            CiviFormError.of("program screen-name-1 cannot be blank"),
-  //            CiviFormError.of("program screen-description-1 cannot be blank"));
-  //  }
+  @Test
+  public void updateLocalizations_blockTranslationsEmpty() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("English name", "English description")
+            .withLocalizedName(Locale.FRENCH, "existing French name")
+            .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
+            .setLocalizedSummaryImageDescription(
+                LocalizedStrings.of(
+                    Locale.US,
+                    "English image description",
+                    Locale.FRENCH,
+                    "existing French image description"))
+            .withBlock("first block", "a description")
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("new French name")
+            .setLocalizedDisplayDescription("new French description")
+            .setLocalizedShortDescription("new short French desc")
+            .setLocalizedSummaryImageDescription("new French image description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("title")
+                        .setLocalizedDescription("description")
+                        .build()))
+            .setScreens(
+                ImmutableList.of(
+                    LocalizationUpdate.ScreenUpdate.builder()
+                        .setBlockIdToUpdate(1L)
+                        .setLocalizedName("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("Screen names cannot be blank"));
+
+    //  TODO: Issue 8109, add test for screen description once enabled
+  }
 
   @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
@@ -2728,10 +2772,47 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program short display description cannot be blank"),
-            CiviFormError.of("program application step one title cannot be blank"),
-            CiviFormError.of("program application step one description cannot be blank"));
+            CiviFormError.of("Program display name cannot be blank"),
+            CiviFormError.of("Program short display description cannot be blank"),
+            CiviFormError.of("Application steps cannot be blank"));
+  }
+
+  @Test
+  public void updateLocalizations_returnsErrorIfAnyApplicationStepsAreMissingTranslations()
+      throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep("step 1 title", "step 1 description"),
+                    new ApplicationStep("step 2 title", "step 2 description")))
+            .build();
+
+    LocalizationUpdate updateData =
+        LocalizationUpdate.builder()
+            .setLocalizedDisplayName("program name")
+            .setLocalizedDisplayDescription("")
+            .setLocalizedShortDescription("short description")
+            .setLocalizedConfirmationMessage("")
+            .setStatuses(ImmutableList.of())
+            .setApplicationSteps(
+                ImmutableList.of(
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("translated title 1")
+                        .setLocalizedDescription("translated description 2")
+                        .build(),
+                    LocalizationUpdate.ApplicationStepUpdate.builder()
+                        .setLocalizedTitle("")
+                        .setLocalizedDescription("")
+                        .build()))
+            .setScreens(ImmutableList.of())
+            .build();
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("Application steps cannot be blank"));
   }
 
   @Test
@@ -2762,8 +2843,8 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program short display description cannot be blank"));
+            CiviFormError.of("Program display name cannot be blank"),
+            CiviFormError.of("Program short display description cannot be blank"));
   }
 
   @Test

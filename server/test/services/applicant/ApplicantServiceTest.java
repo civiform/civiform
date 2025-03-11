@@ -31,6 +31,7 @@ import models.ApplicationEventModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
 import models.DisplayMode;
+import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -992,11 +993,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    subject
-        .submitApplication(applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
-        .toCompletableFuture()
-        .join();
-
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+            .toCompletableFuture()
+            .join();
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
     Messages messages = getMessages(Locale.US);
     String programName = progDef.adminName();
     Mockito.verify(emailSendClient)
@@ -1673,7 +1677,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty(), fakeRequest())
+                        9999L,
+                        9999L,
+                        /* tiSubmitterEmail= */ Optional.empty(),
+                        /* eligibilityDetermination= */ EligibilityDetermination.NOT_COMPUTED,
+                        fakeRequest())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -1743,6 +1751,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -2105,11 +2115,19 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
 
     applicationRepository
+        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraft.id)
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2146,6 +2164,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().get(0),
             result.unapplied().get(0),
             result.unapplied().get(1));
+    assertThat(result.inProgressIncludingCommonIntake().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(commonIntakeForm.id, programForDraft.id);
   }
 
   @Test
@@ -2210,7 +2230,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2295,7 +2319,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // CIF application submitted.
     applicationRepository
-        .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            commonIntakeForm.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     result =
@@ -2335,7 +2363,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2398,7 +2430,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2474,7 +2510,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms result =
@@ -2501,7 +2541,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms secondResult =
@@ -2540,7 +2584,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(primaryApplicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            primaryApplicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2588,7 +2636,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.nameApplicantName())
             .build();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmit.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmit.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2649,7 +2701,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -2724,7 +2780,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     // Create a new program version.
@@ -2802,7 +2862,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     applicationRepository
-        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            originalProgramForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     HashSet<Long> tiAcls = new HashSet<>();
@@ -2884,7 +2948,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     Optional<ApplicationModel> firstApp =
         applicationRepository
-            .submitApplication(applicant.id, programForDraftApp.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForDraftApp.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join();
     Instant firstAppSubmitTime = firstApp.orElseThrow().getSubmitTime();
@@ -2894,7 +2962,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     Optional<ApplicationModel> secondApp =
         applicationRepository
-            .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForSubmittedApp.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join();
     Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
@@ -2952,7 +3024,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     // version's timestamp is chosen.
     ApplicationModel firstSubmitted =
         applicationRepository
-            .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForSubmitted.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -2961,7 +3037,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.getApplicantData().putString(Path.create("text"), "text");
     applicant.save();
     applicationRepository
-        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmitted.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
     // We want to ensure ordering is occurring by submit time, NOT by application ID.
@@ -2982,7 +3062,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     // creation time.
     ApplicationModel firstDraft =
         applicationRepository
-            .submitApplication(applicant.id, programForDraft.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                programForDraft.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -3041,7 +3125,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
-            .submitApplication(applicant.id, program.id, Optional.empty())
+            .submitApplication(
+                applicant.id, program.id, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -3083,7 +3168,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     ApplicationModel submittedApplication =
         applicationRepository
-            .submitApplication(applicant.id, originalProgram.id, Optional.empty())
+            .submitApplication(
+                applicant.id,
+                originalProgram.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join()
             .get();
@@ -3203,7 +3292,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Submit an application.
     applicationRepository
-        .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+        .submitApplication(
+            applicant.id,
+            programForSubmittedApp.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -3368,7 +3461,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     applicationRepository
         .submitApplication(
-            applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
+            applicant.id,
+            programWithEligibleAndIneligibleAnswers.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED)
         .toCompletableFuture()
         .join();
 
@@ -4301,9 +4397,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
         .isFalse();
+    assertThat(ineligibleApplication.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
     // Re-submission evaluates to eligible.
     assertThat(
             subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
         .isTrue();
+    assertThat(eligibleApplication.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.ELIGIBLE);
   }
 }

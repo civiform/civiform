@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import models.AccountModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
@@ -117,6 +118,11 @@ public final class ProgramService {
   /** Get the names for all programs. */
   public ImmutableSet<String> getAllProgramNames() {
     return programRepository.getAllProgramNames();
+  }
+
+  /** Get the slug of {@code} programId. */
+  public String getSlug(long programId) throws ProgramNotFoundException {
+    return programRepository.getSlug(programId);
   }
 
   /** Get the slugs for all programs. */
@@ -369,7 +375,8 @@ public final class ProgramService {
             notificationPreferences,
             categoryIds,
             tiGroups,
-            applicationSteps);
+            applicationSteps,
+            programType);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -430,7 +437,13 @@ public final class ProgramService {
    * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param notificationPreferences The {@link models.ProgramNotificationPreference}s for the
+   *     program
+   * @param categoryIds Ids of program categories (eg. Housing, Childcare) that may be applied to
+   *     the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
+   * @param applicationSteps The list of steps needed to apply to the program
+   * @param programType ProgramType for this program
    * @return a set of errors representing any issues with the provided data.
    */
   public ImmutableSet<CiviFormError> validateProgramDataForCreate(
@@ -442,7 +455,8 @@ public final class ProgramService {
       ImmutableList<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups,
-      ImmutableList<ApplicationStep> applicationSteps) {
+      ImmutableList<ApplicationStep> applicationSteps,
+      ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
@@ -453,7 +467,8 @@ public final class ProgramService {
             notificationPreferences,
             categoryIds,
             tiGroups,
-            applicationSteps));
+            applicationSteps,
+            programType));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -532,7 +547,8 @@ public final class ProgramService {
             notificationPreferences,
             categoryIds,
             tiGroups,
-            applicationSteps);
+            applicationSteps,
+            programType);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -681,7 +697,14 @@ public final class ProgramService {
    * @param shortDescription a short description (<100 characters) of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param notificationPreferences The {@link models.ProgramNotificationPreference}s for the
+   *     program
+   * @param categoryIds Ids of program categories (eg. Housing, Childcare) that may be applied to
+   *     the program
    * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
+   * @param applicationSteps The list of steps needed to apply to the program
+   * @param programType ProgramType for this program
+   * @return a set of errors representing any issues with the provided data.
    */
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
       String displayName,
@@ -691,7 +714,8 @@ public final class ProgramService {
       List<String> notificationPreferences,
       ImmutableList<Long> categoryIds,
       ImmutableList<Long> tiGroups,
-      ImmutableList<ApplicationStep> applicationSteps) {
+      ImmutableList<ApplicationStep> applicationSteps,
+      ProgramType programType) {
     return validateProgramData(
         displayName,
         shortDescription,
@@ -700,7 +724,8 @@ public final class ProgramService {
         notificationPreferences,
         categoryIds,
         tiGroups,
-        applicationSteps);
+        applicationSteps,
+        programType);
   }
 
   /** Create a new draft starting from the program specified by `id`. */
@@ -720,7 +745,8 @@ public final class ProgramService {
       List<String> notificationPreferences,
       List<Long> categoryIds,
       List<Long> tiGroups,
-      ImmutableList<ApplicationStep> applicationSteps) {
+      ImmutableList<ApplicationStep> applicationSteps,
+      ProgramType programType) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
@@ -749,7 +775,9 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
-    checkApplicationStepErrors(errorsBuilder, applicationSteps);
+    if (!programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+      checkApplicationStepErrors(errorsBuilder, applicationSteps);
+    }
 
     return errorsBuilder.build();
   }
@@ -770,6 +798,16 @@ public final class ProgramService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Check for validation errors on application steps. An error will be shown if: - no application
+   * step is filled in - any application step is partially filled in (missing title or description)
+   *
+   * <p>Prescreener programs do not require application steps so validation is not checked for those
+   * programs.
+   *
+   * @param errorsBuilder set of program validation errors
+   * @param applicationSteps the {@link Locale} to update
+   */
   ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
@@ -830,19 +868,7 @@ public final class ProgramService {
 
     validateBlockLocalizations(errorsBuilder, localizationUpdate, programDefinition);
 
-    // Only validate application steps if the program has them and is not a common intake program
-    // We only need to validate the first application step because only one is required
-    if (!programDefinition.isCommonIntakeForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
-      validateProgramText(
-          errorsBuilder,
-          "application step one title",
-          localizationUpdate.applicationSteps().get(0).localizedTitle());
-      validateProgramText(
-          errorsBuilder,
-          "application step one description",
-          localizationUpdate.applicationSteps().get(0).localizedDescription());
-    }
+    validateApplicationSteps(errorsBuilder, localizationUpdate, programDefinition);
 
     ImmutableList.Builder<BlockDefinition> toUpdateBlockBuilder = ImmutableList.builder();
     for (int i = 0; i < programDefinition.blockDefinitions().size(); i++) {
@@ -931,7 +957,7 @@ public final class ProgramService {
   private void validateProgramText(
       ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
     if (text.isBlank()) {
-      builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
+      builder.add(CiviFormError.of("Program " + fieldName.trim() + " cannot be blank"));
     }
   }
 
@@ -949,19 +975,40 @@ public final class ProgramService {
                 errorsBuilder.add(
                     CiviFormError.of("Found invalid block id " + screenUpdate.blockIdToUpdate()));
               }
-
+              if (screenUpdate.localizedName().isBlank()) {
+                errorsBuilder.add(CiviFormError.of("Screen names cannot be blank"));
+              }
               /*
               //  TODO: Issue 8109, re-enabled after transition period
-              validateProgramText(
-                  errorsBuilder,
-                  ProgramTranslationForm.localizedScreenName(screenUpdate.blockIdToUpdate()),
-                  screenUpdate.localizedName());
               validateProgramText(
                   errorsBuilder,
                   ProgramTranslationForm.localizedScreenDescription(screenUpdate.blockIdToUpdate()),
                   screenUpdate.localizedDescription());
                */
             });
+  }
+
+  /**
+   * If the program is not a common intake program and has application steps, validate that all the
+   * existing application steps have translations
+   */
+  private void validateApplicationSteps(
+      ImmutableSet.Builder<CiviFormError> errorsBuilder,
+      LocalizationUpdate localizationUpdate,
+      ProgramDefinition programDefinition) {
+    if (!programDefinition.isCommonIntakeForm()
+        && !programDefinition.applicationSteps().isEmpty()) {
+      IntStream.range(0, programDefinition.applicationSteps().size())
+          .forEach(
+              i -> {
+                String title = localizationUpdate.applicationSteps().get(i).localizedTitle();
+                String description =
+                    localizationUpdate.applicationSteps().get(i).localizedDescription();
+                if (title.isBlank() || description.isBlank()) {
+                  errorsBuilder.add(CiviFormError.of("Application steps cannot be blank"));
+                }
+              });
+    }
   }
 
   /**

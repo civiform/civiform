@@ -62,6 +62,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           "Data Export API",
           "Observability",
           "External Services",
+          "Session Management",
           "Miscellaneous",
           "Experimental");
 

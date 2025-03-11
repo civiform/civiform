@@ -144,6 +144,9 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                           .property("applicant_id", new IntegerProperty())
                           .property("application", buildApplicationDefinitions(programDefinition))
                           .property("application_id", new IntegerProperty())
+                          .property(
+                              "application_note",
+                              new StringProperty().vendorExtension("x-nullable", true))
                           .property("create_time", new DateTimeProperty())
                           .property("language", new StringProperty())
                           .property("program_name", new StringProperty())
@@ -151,6 +154,9 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                           .property("revision_state", new StringProperty())
                           .property(
                               "status", new StringProperty().vendorExtension("x-nullable", true))
+                          .property(
+                              "status_last_modified_time",
+                              new DateTimeProperty().vendorExtension("x-nullable", true))
                           .property("submit_time", new DateTimeProperty())
                           .property("submitter_type", new StringProperty())
                           .property(

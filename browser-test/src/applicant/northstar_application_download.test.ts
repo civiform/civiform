@@ -23,7 +23,6 @@ test.describe(
       applicantQuestions,
     }) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_exportable')
 
       const programName = 'Test program'
       await adminPrograms.addAndPublishProgramWithQuestions(

@@ -19,6 +19,9 @@ import com.typesafe.config.ConfigFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import models.AccountModel;
@@ -58,7 +61,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
   @Before
   public void setup() {
     oidcConfig = CfTestHelpers.getOidcConfiguration(oidcHost, oidcPort);
-    civiFormProfileData = new CiviFormProfileData(accountId);
+    Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
+    civiFormProfileData = new CiviFormProfileData(accountId, clock);
 
     // Build and serialize a minimal JWT as an id token.
     JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().build();

@@ -8,6 +8,7 @@ import auth.ProfileFactory;
 import auth.Role;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.CollectorRegistry;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
@@ -28,6 +29,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   private static String PROGRAM_SLUG = "test-program";
   private static String BLOCK_ID = "test_block";
   private static final int CURRENT_BLOCK_INDEX = 7;
+  private Clock clock;
 
   // Class to hold counter values.
   static class Counts {
@@ -59,13 +61,14 @@ public class ApplicantRoutesTest extends ResetPostgres {
   @Before
   public void setup() {
     profileFactory = instanceOf(ProfileFactory.class);
+    clock = Clock.systemUTC();
   }
 
   @Test
   public void testIndexRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -83,7 +86,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testIndexRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -101,7 +104,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testIndexRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -142,7 +145,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testShowRoute_forTrustedIntermediaryWithProgramSlug() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -160,7 +163,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -179,7 +182,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testEditRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -198,7 +201,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testEditRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -216,7 +219,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -235,7 +238,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testReviewRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -254,7 +257,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testReviewRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -284,7 +287,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testSubmitRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -303,7 +306,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testSubmitRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -322,7 +325,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testSubmitRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -340,7 +343,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockEditRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -363,7 +366,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockEditRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -386,7 +389,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockEditRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -408,7 +411,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forApplicantWithIdInProfile_newSchemaEnabled() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -431,7 +434,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forApplicantWithoutIdInProfile() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -454,7 +457,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forTrustedIntermediary() {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -478,7 +481,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -505,7 +508,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockEditOrBlockReviewRoute_forApplicantWithoutIdInProfile(String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -532,7 +535,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testBlockReviewRoute_forTrustedIntermediary(String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -564,7 +567,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -602,7 +605,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -639,7 +642,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -670,7 +673,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -700,7 +703,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testPreviousOrReviewRoute_forApplicantWithoutIdInProfile(String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -730,7 +733,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
   public void testPreviousOrReviewRoute_forTrustedIntermediary(String inReview) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -756,7 +759,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexOne_returnsPreviousBlock() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -778,7 +781,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexZero_returnsReviewUrl() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -800,7 +803,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testPreviousOrReviewRoute_currentBlockIndexNegativeOne_returnsReviewUrl() {
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -831,7 +834,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -869,7 +872,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -906,7 +909,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 
@@ -937,7 +940,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
@@ -970,7 +973,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_APPLICANT.toString());
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -1002,7 +1005,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
       String inReview, String applicantRequestedAction) {
     Counts before = getApplicantIdInProfileCounts();
 
-    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID);
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);
 

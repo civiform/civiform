@@ -79,6 +79,9 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                   buildApplicationDefinitions(programDefinition))
                                               .addProperty("application_id", new IntegerSchema())
                                               .addProperty(
+                                                  "application_note",
+                                                  new StringSchema().nullable(true))
+                                              .addProperty(
                                                   "create_time",
                                                   new StringSchema().format("date-time"))
                                               .addProperty(
@@ -93,6 +96,11 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                                   new StringSchema().example("CURRENT"))
                                               .addProperty(
                                                   "status", new StringSchema().nullable(true))
+                                              .addProperty(
+                                                  "status_last_modified_time",
+                                                  new StringSchema()
+                                                      .format("date-time")
+                                                      .nullable(true))
                                               .addProperty(
                                                   "submit_time",
                                                   new StringSchema().format("date-time"))

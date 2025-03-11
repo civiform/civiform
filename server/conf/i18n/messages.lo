@@ -36,6 +36,10 @@ label.languageSr=ເລືອກພາສາ
 header.menu=ເມນູ
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=ສິ້ນສຸດເຊດຊັນ
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=For your information: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Success: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -206,6 +210,12 @@ content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ 
 content.homepageIntro=ຮັບຄວາມຊ່ວຍເຫຼືອດ້ານການເບິ່ງແຍງເດັກນ້ອຍ, ອາຫານ, ການຂົນສົ່ງ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
+# The label for the program filter checkboxes
+label.programFilters.v2=ກັ່ນຕອງຕາມໝວດໝູ່
+# The button to apply program filters
+button.applySelections=ນຳໃຊ້ລາຍການທີ່ເລືອກ
+# The button to clear program filter selections
+button.clearSelections=ລຶບລ້າງລາຍການທີ່ເລືອກ
 # Link text to read more about a program.
 link.programDetails=ລາຍລະອຽດໂຄງການ
 # The same text, read for screen readers.
@@ -534,6 +544,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=ອາດມີຄຳຖາ
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=ທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=ທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=ລູກຂ່າຍຂອງທ່ານມີແນວໂນ້ມທີ່ຈະມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=ລູກຂ່າຍຂອງທ່ານອາດບໍ່ມີສິດເຂົ້າຮ່ວມໂຄງການນີ້ໂດຍອີງຕາມຄຳຕອບຈາກໃບສະໝັກອື່ນ.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -881,8 +897,6 @@ email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັ�
 #------------------------------------------------------------------------------#
 
 banner.title=ນີ້ແມ່ນເວັບໄຊຢ່າງເປັນທາງການຂອງພາກລັດ.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=ເວັບໄຊຢ່າງເປັນທາງການຂອງລັດຖະບານສະຫະລັດອາເມລິກາ
 banner.link=ໂດຍທ່ານສາມາດຮູ້ໄດ້ດັ່ງນີ້
 banner.govWebsiteSectionHeader=ເວັບໄຊຢ່າງເປັນທາງການໃຊ້ .gov
 banner.govWebsiteSectionContent=ທີ່ຢູ່ເວັບໄຊທີ່ລົງທ້າຍດ້ວຍ .gov ເປັນຂອງໜ່ວຍງານພາກລັດຢ່າງເປັນທາງການໃນສະຫະລັດອາເມລິກາ.

@@ -36,6 +36,10 @@ label.languageSr=Dooro luqad
 header.menu=Liis
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Dhammee kullanka
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=For your information: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Success: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Kullankaagii wuu dhammaaday.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -206,6 +210,12 @@ content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijya
 content.homepageIntro=U hel caawino daryeelka ubadka, cuntada, gaadiidka, adeegyada guriga iyo waxyaabo kale oo badan.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
+# The label for the program filter checkboxes
+label.programFilters.v2=U kala shandheey qayb ahaan
+# The button to apply program filters
+button.applySelections=Ku dabaq xulashooyinka
+# The button to clear program filter selections
+button.clearSelections=Tirtir xulashooyinka
 # Link text to read more about a program.
 link.programDetails=Faahfaahinta barnaamijka
 # The same text, read for screen readers.
@@ -534,6 +544,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Waxaa jiri kara su'aalo cus
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Waxay u badan tahay inaad u qalanto barnaamijkan iyadoo lagu saleynayo jawaabaha aad ku bixisay codsi kale.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Waxaa laga yabaa inaadan u qalmin barnaamijkan iyadoo lagu salaynayo jawaabaha aad ku bixisay codsi kale
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Macmiilkaaga waxay u badan tahay inuu u qalmo barnaamijkan iyadoo lagu salaynayo jawaabaha uu ku bixiyay codsi kale.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Macmiilkaaga waxaa laga yabaa inuusan u qalmin barnaamijkan iyadoo lagu salaynayo jawaabaha uu ku bixiyay codsi kale.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -881,8 +897,6 @@ email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u bed
 #------------------------------------------------------------------------------#
 
 banner.title=Tani waa websaydka rasmiga ah ee dowladda.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Mareegaha rasmiga ah ee dawladda Mareykanka
 banner.link=Halkan waxaa ah sida aad u garanayso
 banner.govWebsiteSectionHeader=Websaydyada rasmiga ah waxay isticmaalaan .gov
 banner.govWebsiteSectionContent=Cinwaanada websaydka ku dhammaanaya gov waxaa leh ururada dowladda rasmiga ah gudaha Maraykanka.

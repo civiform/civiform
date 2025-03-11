@@ -75,6 +75,8 @@ public abstract class NorthStarBaseView {
             .getCivicEntitySmallLogoUrl()
             .orElse(assetsFinder.path("Images/civiform-staging.png")));
     context.setVariable(
+        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
+    context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
@@ -82,6 +84,7 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
@@ -110,6 +113,8 @@ public abstract class NorthStarBaseView {
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
             + "</a>");
+    context.setVariable(
+        "endSessionLinkAriaLabel", messages.at(MessageKey.END_YOUR_SESSION.getKeyName()));
     context.setVariable("loginLink", routes.LoginController.applicantLogin(Optional.empty()).url());
     if (!isGuest) {
       context.setVariable(
@@ -150,10 +155,6 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
-
-    // Other options
-    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
-    context.setVariable("isApplicationExportable", isApplicationExportable);
 
     return context;
   }
@@ -223,16 +224,17 @@ public abstract class NorthStarBaseView {
       String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
       unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
     }
-
+    String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
     AlertSettings notProductionAlertSettings =
         new AlertSettings(
             true,
-            Optional.of(messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName())),
+            Optional.of(alertTitle),
             unescapedDescription.orElse(""),
             unescapedDescription.isPresent(),
             AlertType.EMERGENCY,
             ImmutableList.of(),
             /* customText= */ Optional.empty(),
+            Optional.of(AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
             /* isSlim= */ false);
     context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }

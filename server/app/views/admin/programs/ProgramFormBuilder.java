@@ -314,6 +314,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Long program description (optional)")
             .setMarkdownSupported(true)
             .setValue(displayDescription)
+            .setAttribute(
+                "data-northstar-enabled",
+                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
+            .setDisabled(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
+            .setReadOnly(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         FieldWithLabel.input()
@@ -331,11 +336,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "my-2"),
         div()
             .with(
-                buildApplicationStepDiv(0, applicationSteps),
-                buildApplicationStepDiv(1, applicationSteps),
-                buildApplicationStepDiv(2, applicationSteps),
-                buildApplicationStepDiv(3, applicationSteps),
-                buildApplicationStepDiv(4, applicationSteps)),
+                buildApplicationStepDiv(0, applicationSteps, isCommonIntakeForm),
+                buildApplicationStepDiv(1, applicationSteps, isCommonIntakeForm),
+                buildApplicationStepDiv(2, applicationSteps, isCommonIntakeForm),
+                buildApplicationStepDiv(3, applicationSteps, isCommonIntakeForm),
+                buildApplicationStepDiv(4, applicationSteps, isCommonIntakeForm)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
@@ -354,7 +359,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   static DivTag buildApplicationStepDiv(
-      int i, ImmutableList<Map<String, String>> applicationSteps) {
+      int i, ImmutableList<Map<String, String>> applicationSteps, boolean isCommonIntakeForm) {
 
     // Fill in the existing application steps
     String titleValue = "";
@@ -371,12 +376,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("apply-step-" + indexPlusOne + "-title")
             .setFieldName("applicationSteps[" + index + "][title]")
+            .setDisabled(isCommonIntakeForm)
+            .setReadOnly(isCommonIntakeForm)
             .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
             .setId("apply-step-" + indexPlusOne + "-description")
             .setFieldName("applicationSteps[" + index + "][description]")
+            .setDisabled(isCommonIntakeForm)
+            .setReadOnly(isCommonIntakeForm)
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 

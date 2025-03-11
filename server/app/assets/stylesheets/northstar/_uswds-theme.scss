@@ -24,5 +24,9 @@ https://designsystem.digital.gov/utilities/.
   $theme-focus-offset: 0.5,
   $theme-heading-line-height: 2,
   // "Normal" text should use "wide" width
-  $theme-text-measure: 6
+  $theme-text-measure: 6,
+  $flex-settings: (responsive: true),
+  $flex-direction-settings: (responsive: true),
+  $align-self-settings: (responsive: true),
+  $justify-content-settings: (responsive: true)
 );

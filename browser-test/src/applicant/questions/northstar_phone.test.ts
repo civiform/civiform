@@ -77,7 +77,7 @@ test.describe(
           /* northStarEnabled= */ true,
         )
         await applicantQuestions.answerPhoneQuestion('4256373270')
-        await validateScreenshot(page, 'phone-format-usa')
+        await validateScreenshot(page.locator('main'), 'phone-format-usa')
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
@@ -93,7 +93,7 @@ test.describe(
         )
         await applicantQuestions.answerPhoneQuestion('2507274212')
 
-        await validateScreenshot(page, 'phone-format-ca')
+        await validateScreenshot(page.locator('main'), 'phone-format-ca')
 
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
@@ -222,7 +222,7 @@ test.describe(
         // Go back to question and ensure that "Review" button is also clickable
         // via Enter.
         await applicantQuestions.clickEdit()
-        await page.focus('text="Review and exit"')
+        await page.focus('text="Review and submit"')
         await page.keyboard.press('Enter')
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
       })

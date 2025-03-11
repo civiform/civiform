@@ -160,6 +160,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time
@@ -177,6 +180,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string
@@ -490,6 +497,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time
@@ -507,6 +517,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string
@@ -883,6 +897,9 @@ components:
               application_id:
                 type: integer
                 format: int32
+              application_note:
+                type: string
+                nullable: true
               create_time:
                 type: string
                 format: date-time
@@ -900,6 +917,10 @@ components:
                 example: CURRENT
               status:
                 type: string
+                nullable: true
+              status_last_modified_time:
+                type: string
+                format: date-time
                 nullable: true
               submit_time:
                 type: string

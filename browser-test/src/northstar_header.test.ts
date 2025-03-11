@@ -10,45 +10,47 @@ import {
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, adminPrograms}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    // Since a guest account is not created until you start applying for something,
+    // we have to make a program.
+    await seedProgramsAndCategories(page)
+    await page.goto('/')
+    await loginAsAdmin(page)
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
   })
-  /**
-   * @todo (#4360) add a "Not logged in, guest mode disabled" test once we can get to the programs page without logging in, for an entity without guest mode.
-   */
-  test('Check screenshots and validate accessibility', async ({
+
+  test('Check screenshots and validate accessibility on desktop', async ({
     page,
-    adminPrograms,
-    applicantQuestions,
   }) => {
-    await test.step('Take a screenshot with no profile/account', async () => {
-      await validateScreenshot(page.getByRole('main'), 'not-logged-in')
-    })
-    await test.step('Take a screenshot as a guest', async () => {
-      // Since a guest account is not created until you start applying for something,
-      // we have to make a program.
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await seedProgramsAndCategories(page)
-      await page.goto('/')
-      await loginAsAdmin(page)
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-      await applicantQuestions.applyProgram(
-        'Minimal Sample Program',
-        /* northStarEnabled= */ true,
-      )
-      await validateScreenshot(
-        page.getByRole('main'),
-        'not-logged-in-guest-mode-enabled',
-      )
-    })
-
-    await test.step('Take a screenshot as the test user', async () => {
+    await test.step('Take a screenshot as the test user on desktop', async () => {
       await loginAsTestUser(page)
-      await validateScreenshot(page.getByRole('main'), 'logged-in')
+      await validateScreenshot(page.getByRole('banner'), 'logged-in')
     })
 
-    await test.step('Passes accessibility test', async () => {
+    await test.step('Passes accessibility test on desktop', async () => {
+      await validateAccessibility(page)
+    })
+  })
+
+  test('Check screenshots and validate accessibility on mobile', async ({
+    page,
+  }) => {
+    await page.setViewportSize({width: 360, height: 800})
+
+    await test.step('Take a screenshot as the test user on mobile', async () => {
+      await page.click('button:has-text("MENU")')
+      await loginAsTestUser(page)
+      await page.click('button:has-text("MENU")')
+      await validateScreenshot(
+        page.getByLabel('Primary navigation'),
+        'logged-in-mobile',
+      )
+    })
+
+    await test.step('Passes accessibility test on mobile', async () => {
       await validateAccessibility(page)
     })
   })
@@ -64,14 +66,15 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
-      await expect(usaBannerLocator).toContainText('An official website')
+      await expect(usaBannerLocator).toContainText(
+        'This is an official government website',
+      )
       await expect(usaBannerContentLocator).toBeHidden()
     })
 
     await test.step('Clicking the button expands the banner', async () => {
       await usaBannerButtonLocator.click()
       await expect(usaBannerContentLocator).toBeVisible()
-      await validateScreenshot(page.getByRole('main'), 'banner-expanded')
     })
 
     await test.step('Clicking the button again collapses the banner', async () => {
@@ -91,7 +94,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
       await expect(usaBannerLocator).toContainText(
-        'An official website of the United States government',
+        'This is an official government website',
       )
       await expect(usaBannerContentLocator).toBeHidden()
     })
@@ -99,7 +102,6 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     await test.step('Clicking the button expands the banner', async () => {
       await usaBannerButtonLocator.click()
       await expect(usaBannerContentLocator).toBeVisible()
-      await validateScreenshot(usaBannerLocator, 'banner-expanded-north-star')
     })
 
     await test.step('Clicking the button again collapses the banner', async () => {
@@ -117,13 +119,13 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     await expect(headerLogo).toBeVisible()
   })
 
-  test('Header on tablet with north star enabled shows logo', async ({
+  test('Header on tablet with north star enabled hides logo', async ({
     page,
   }) => {
     await page.setViewportSize({width: 800, height: 1024})
 
     const headerLogo = page.locator('.cf-header-logo')
-    await expect(headerLogo).toBeVisible()
+    await expect(headerLogo).toBeHidden()
   })
 
   test('Header on mobile with north star enabled hides logo', async ({
@@ -133,5 +135,41 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     const headerLogo = page.locator('.cf-header-logo')
     await expect(headerLogo).toBeHidden()
+  })
+
+  test('Government name shown', async ({page}) => {
+    const headerText = page.locator('.usa-logo__text')
+    await expect(headerText).toHaveText('TestCity CiviForm')
+  })
+
+  test('Government name hidden', async ({page}) => {
+    await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+
+    await test.step('Header on desktop shows logo and hides gov name', async () => {
+      await page.setViewportSize({width: 1280, height: 720})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeVisible()
+      await expect(govName).toBeHidden()
+    })
+
+    await test.step('Header on tablet hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 800, height: 1024})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
+
+    await test.step('Header on mobile hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
   })
 })

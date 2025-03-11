@@ -36,6 +36,10 @@ label.languageSr=Pumili ng wika
 header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Tapusin ang session
+# Message for screen readers as part of aria label to let user know about an informational alert.
+heading.informationAriaLabelPrefix=For your information: {0}
+# Message for screen readers as part of the aria label to let user know they completed an action successfully.
+heading.successAriaLabelPrefix=Success: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Natapos na ang iyong session.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -206,6 +210,12 @@ content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at 
 content.homepageIntro=Humingi ng tulong sa pag-aalaga ng bata, pagkain, transportasyon, mga utility, at higit pa.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
+# The label for the program filter checkboxes
+label.programFilters.v2=Mag-filter ayon sa kategorya
+# The button to apply program filters
+button.applySelections=I-apply ang mga napili
+# The button to clear program filter selections
+button.clearSelections=I-clear ang mga napili
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
 # The same text, read for screen readers.
@@ -534,6 +544,12 @@ alert.eligibility_ti_fastforwarded_not_eligible_text=Posibleng may mga bago o na
 
 # Alert on the program overview page letting the user know that they will likely be eligible for the program.
 alert.likelyEligible=Malamang na kwalipikado ka sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting the user know that they will likely NOT be eligible for the program.
+alert.likelyIneligible=Posibleng hindi ka maging kwalipikado para sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely be eligible for the program.
+alert.clientLikelyEligible=Malamang na kwalipikado ang kliyente mo sa programang ito batay sa mga sagot sa ibang pag-apply.
+# Alert on the program overview page letting a trusted intermediary know that their client will likely NOT be eligible for the program.
+alert.clientLikelyIneligible=Posibleng hindi maging kwalipikado ang kliyente mo para sa programang ito batay sa mga sagot sa ibang pag-apply.
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -881,8 +897,6 @@ email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programan
 #------------------------------------------------------------------------------#
 
 banner.title=Isa itong opisyal na website ng pamahalaan.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Opisyal na website ng pamahalaan ng United States
 banner.link=Ganito mo malalaman
 banner.govWebsiteSectionHeader=Gumagamit ang mga opisyal na website ng .gov
 banner.govWebsiteSectionContent=Ang mga address ng website na nagtatapos sa .gov ay pagmamay-ari ng mga opisyal na organisasyon ng pamahalaan sa United States.

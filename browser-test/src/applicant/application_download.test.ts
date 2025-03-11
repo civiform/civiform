@@ -446,7 +446,6 @@ test.describe('normal application flow', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
     await adminPrograms.addAndPublishProgramWithQuestions(
