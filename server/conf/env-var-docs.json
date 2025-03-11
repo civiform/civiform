@@ -696,12 +696,12 @@
   },
   "CIVIFORM_IMAGE_TAG": {
     "mode": "ADMIN_READABLE",
-    "description": "The tag of the docker image this server is running inside. Is added as a HTML meta tag with name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.",
+    "description": "The tag of the docker image this server is running inside. Is added as a HTML meta tag with name 'civiform-build-tag'.",
     "type": "string"
   },
   "CIVIFORM_VERSION": {
     "mode": "ADMIN_READABLE",
-    "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
+    "description": "The release version of CiviForm. For example: v1.18.0.",
     "type": "string"
   },
   "ALLOWED_IP_ADDRESSES_FOR_LOGOUT": {
@@ -830,11 +830,6 @@
       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by default.",
-        "type": "bool"
-      },
-      "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
       "STAGING_ADD_NOINDEX_META_TAG": {

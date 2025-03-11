@@ -787,18 +787,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * The tag of the docker image this server is running inside. Is added as a HTML meta tag with
-   * name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also
-   * shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.
+   * name 'civiform-build-tag'.
    */
   public Optional<String> getCiviformImageTag() {
     return getString("CIVIFORM_IMAGE_TAG");
   }
 
-  /**
-   * The release version of CiviForm. For example: v1.18.0. If
-   * SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a
-   * value other than the empty string or 'latest'.
-   */
+  /** The release version of CiviForm. For example: v1.18.0. */
   public Optional<String> getCiviformVersion() {
     return getString("CIVIFORM_VERSION");
   }
@@ -957,14 +952,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
     return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
-  }
-
-  /**
-   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
-   * default.
-   */
-  public boolean getShowCiviformImageTagOnLandingPage(RequestHeader request) {
-    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
   /**
@@ -2173,13 +2160,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
-                          "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
-                              + " screen. Is disabled by default.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "STAGING_ADD_NOINDEX_META_TAG",
                           "If this is a staging deployment and this variable is set to true, a"
                               + " [robots"
@@ -2406,19 +2386,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "CIVIFORM_IMAGE_TAG",
                           "The tag of the docker image this server is running inside. Is added as a"
-                              + " HTML meta tag with name 'civiform-build-tag'. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if CIVIFORM_VERSION is the empty string"
-                              + " or set to 'latest'.",
+                              + " HTML meta tag with name 'civiform-build-tag'.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CIVIFORM_VERSION",
-                          "The release version of CiviForm. For example: v1.18.0. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if it a value other than the empty string"
-                              + " or 'latest'.",
+                          "The release version of CiviForm. For example: v1.18.0.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
