@@ -1,8 +1,10 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import controllers.AssetsFinder;
@@ -12,11 +14,19 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import play.mvc.Http;
+import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
 import services.TranslationLocales;
 import services.settings.SettingsManifest;
+import views.BaseHtmlView;
+import views.HtmlBundle;
+import views.JsBundle;
 import views.ViewUtils;
+import views.components.SessionTimeoutModalsTest;
 
 public class AdminLayoutTest extends ResetPostgres {
   private SettingsManifest settingsManifest;
@@ -39,7 +49,8 @@ public class AdminLayoutTest extends ResetPostgres {
             settingsManifest,
             translationLocales,
             instanceOf(DeploymentType.class),
-            instanceOf(AssetsFinder.class));
+            instanceOf(AssetsFinder.class),
+            instanceOf(MessagesApi.class));
   }
 
   @Test
@@ -95,5 +106,52 @@ public class AdminLayoutTest extends ResetPostgres {
 
     assertThat(button).isPresent();
     assertThat(button.get().render()).contains("id=\"testProgramId\"");
+  }
+
+  @Test
+  public void render_includesSessionTimeoutModals_whenEnabled() {
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+
+    Messages messages = mock(Messages.class);
+    SessionTimeoutModalsTest.mockMessages(messages);
+
+    MessagesApi messagesApi = mock(MessagesApi.class);
+    when(messagesApi.preferred(any(Http.RequestHeader.class))).thenReturn(messages);
+
+    adminLayout =
+        new AdminLayout(
+            instanceOf(ViewUtils.class),
+            AdminLayout.NavPage.PROGRAMS,
+            settingsManifest,
+            translationLocales,
+            instanceOf(DeploymentType.class),
+            instanceOf(AssetsFinder.class),
+            messagesApi);
+
+    // Create bundle with the request
+    Http.Request request = fakeRequestBuilder().build();
+    HtmlBundle bundle = new HtmlBundle(request, instanceOf(ViewUtils.class));
+    bundle.setJsBundle(JsBundle.ADMIN);
+
+    // Render the admin layout
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+    SessionTimeoutModalsTest.assertSessionTimeoutModalStructure(
+        html, BaseHtmlView.getCsrfToken(request));
+  }
+
+  @Test
+  public void render_doesNotIncludeSessionTimeoutModals_whenDisabled() {
+    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+
+    HtmlBundle bundle = new HtmlBundle(fakeRequestBuilder().build(), instanceOf(ViewUtils.class));
+    bundle.setJsBundle(JsBundle.APPLICANT);
+
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).doesNotContain("session-timeout-container");
+    assertThat(html).doesNotContain("session-inactivity-warning-modal");
+    assertThat(html).doesNotContain("session-length-warning-modal");
   }
 }

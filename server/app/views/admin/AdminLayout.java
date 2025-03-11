@@ -17,6 +17,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import java.util.Optional;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
@@ -51,6 +52,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private final NavPage activeNavPage;
   private final TranslationLocales translationLocales;
+  private final MessagesApi messagesApi;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
@@ -60,10 +62,12 @@ public final class AdminLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder) {
+      AssetsFinder assetsFinder,
+      MessagesApi messagesApi) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.activeNavPage = activeNavPage;
     this.translationLocales = checkNotNull(translationLocales);
+    this.messagesApi = messagesApi;
   }
 
   /**
@@ -89,6 +93,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
+    addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
 
     return super.render(bundle);
   }
