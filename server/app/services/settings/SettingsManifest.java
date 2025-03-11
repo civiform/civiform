@@ -51,6 +51,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
   }
 
+  /**
+   * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
+   * may be desired if the government name is included in the logo. Since northstar hides the logo
+   * on smaller screens, this will only hide the name if the logo is showing.
+   */
+  public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
+    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
+  }
+
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
@@ -68,6 +77,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getFaviconUrl() {
     return getString("FAVICON_URL");
+  }
+
+  /**
+   * The hex code value of the color to use as the primary branding color of the website. Not ready
+   * for production use.
+   */
+  public Optional<String> getThemeColorPrimary(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY", request);
+  }
+
+  /**
+   * The hex code value of the color to use as the primary-dark branding color of the website. Not
+   * ready for production use.
+   */
+  public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
+    return getString("THEME_COLOR_PRIMARY_DARK", request);
   }
 
   /** What identity provider to use for applicants. */
@@ -762,18 +787,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * The tag of the docker image this server is running inside. Is added as a HTML meta tag with
-   * name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also
-   * shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.
+   * name 'civiform-build-tag'.
    */
   public Optional<String> getCiviformImageTag() {
     return getString("CIVIFORM_IMAGE_TAG");
   }
 
-  /**
-   * The release version of CiviForm. For example: v1.18.0. If
-   * SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a
-   * value other than the empty string or 'latest'.
-   */
+  /** The release version of CiviForm. For example: v1.18.0. */
   public Optional<String> getCiviformVersion() {
     return getString("CIVIFORM_VERSION");
   }
@@ -811,36 +831,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getFileUploadAllowedFileTypeSpecifiers() {
     return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
-  }
-
-  /**
-   * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
-   * Note that there isn't yet messaging on the frontend to notify a user when their session is
-   * expired.
-   */
-  public Optional<Integer> getMaximumSessionDurationMinutes() {
-    return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
-  }
-
-  /**
-   * How many minutes before the session inactivity timeout a user receives a warning that their
-   * session will expire. Default is 5.
-   */
-  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
-    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
-  }
-
-  /**
-   * How many minutes before the maximum session duration timeout a user receives a warning that
-   * their session will expire. Default is 10.
-   */
-  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
-    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
-  }
-
-  /** The number of minutes of inactivity before a session times out. Default is 30. */
-  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
-    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
   /**
@@ -911,9 +901,34 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
-  /** Enables the feature that allows completed applications to be downloadable by PDF. */
-  public boolean getApplicationExportable(RequestHeader request) {
-    return getBool("APPLICATION_EXPORTABLE", request);
+  /**
+   * The amount of time, in minutes, that a session lasts. The default is 600 minutes, or 10 hours.
+   * Note that there isn't yet messaging on the frontend to notify a user when their session is
+   * expired.
+   */
+  public Optional<Integer> getMaximumSessionDurationMinutes() {
+    return getInt("MAXIMUM_SESSION_DURATION_MINUTES");
+  }
+
+  /**
+   * How many minutes before the session inactivity timeout a user receives a warning that their
+   * session will expire. Default is 5.
+   */
+  public Optional<Integer> getSessionInactivityWarningThresholdMinutes() {
+    return getInt("SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /**
+   * How many minutes before the maximum session duration timeout a user receives a warning that
+   * their session will expire. Default is 10.
+   */
+  public Optional<Integer> getSessionDurationWarningThresholdMinutes() {
+    return getInt("SESSION_DURATION_WARNING_THRESHOLD_MINUTES");
+  }
+
+  /** The number of minutes of inactivity before a session times out. Default is 30. */
+  public Optional<Integer> getSessionInactivityTimeoutMinutes() {
+    return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
   /** Enables the feature that allows programs to be disabled from CiviForm */
@@ -932,14 +947,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
     return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
-  }
-
-  /**
-   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
-   * default.
-   */
-  public boolean getShowCiviformImageTagOnLandingPage(RequestHeader request) {
-    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
   /**
@@ -1069,9 +1076,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NORTH_STAR_APPLICANT_UI", request);
   }
 
-  /** Enable session timeout based on inactivity and maximum duration. */
+  /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
   public boolean getSessionTimeoutEnabled() {
     return getBool("SESSION_TIMEOUT_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI. */
+  public boolean getCustomThemeColorsEnabled(RequestHeader request) {
+    return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1097,6 +1109,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
+                          "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
+                          "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
+                              + " CiviForm header. This may be desired if the government name is"
+                              + " included in the logo. Since northstar hides the logo on smaller"
+                              + " screens, this will only hide the name if the logo is showing.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
                           "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                           "The full display name of the civic entity, will use 'City of TestCity'"
                               + " if not set.",
@@ -1116,7 +1137,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " image, in GIF, PNG, or ICO format.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "THEME_COLOR_PRIMARY",
+                          "The hex code value of the color to use as the primary branding color of"
+                              + " the website. Not ready for production use.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE,
+                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")),
+                      SettingDescription.create(
+                          "THEME_COLOR_PRIMARY_DARK",
+                          "The hex code value of the color to use as the primary-dark branding"
+                              + " color of the website. Not ready for production use.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE,
+                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")))))
           .put(
               "External Services",
               SettingsSection.create(
@@ -2047,19 +2084,49 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.INT,
                           SettingMode.HIDDEN))))
           .put(
+              "Session Management",
+              SettingsSection.create(
+                  "Session Management",
+                  "Configuration options for session management",
+                  ImmutableList.of(),
+                  ImmutableList.of(
+                      SettingDescription.create(
+                          "MAXIMUM_SESSION_DURATION_MINUTES",
+                          "The amount of time, in minutes, that a session lasts. The default is 600"
+                              + " minutes, or 10 hours. Note that there isn't yet messaging on the"
+                              + " frontend to notify a user when their session is expired.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
+                          "How many minutes before the session inactivity timeout a user receives a"
+                              + " warning that their session will expire. Default is 5.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
+                          "How many minutes before the maximum session duration timeout a user"
+                              + " receives a warning that their session will expire. Default is"
+                              + " 10.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "SESSION_INACTIVITY_TIMEOUT_MINUTES",
+                          "The number of minutes of inactivity before a session times out. Default"
+                              + " is 30.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
+                          SettingMode.ADMIN_READABLE))))
+          .put(
               "Feature Flags",
               SettingsSection.create(
                   "Feature Flags",
                   "Configuration options to enable or disable optional features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "APPLICATION_EXPORTABLE",
-                          "Enables the feature that allows completed applications to be"
-                              + " downloadable by PDF.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "DISABLED_VISIBILITY_CONDITION_ENABLED",
                           "Enables the feature that allows programs to be disabled from CiviForm",
@@ -2077,13 +2144,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS",
                           "If enabled, CiviForm Admins are able to see all applications for all"
                               + " programs. Is disabled by default.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
-                          "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
-                              + " screen. Is disabled by default.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2237,10 +2297,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
-                          "Enable session timeout based on inactivity and maximum duration.",
+                          "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and"
+                              + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "CUSTOM_THEME_COLORS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
+                              + " applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
@@ -2306,19 +2374,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "CIVIFORM_IMAGE_TAG",
                           "The tag of the docker image this server is running inside. Is added as a"
-                              + " HTML meta tag with name 'civiform-build-tag'. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if CIVIFORM_VERSION is the empty string"
-                              + " or set to 'latest'.",
+                              + " HTML meta tag with name 'civiform-build-tag'.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CIVIFORM_VERSION",
-                          "The release version of CiviForm. For example: v1.18.0. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if it a value other than the empty string"
-                              + " or 'latest'.",
+                          "The release version of CiviForm. For example: v1.18.0.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
@@ -2357,36 +2419,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "MAXIMUM_SESSION_DURATION_MINUTES",
-                          "The amount of time, in minutes, that a session lasts. The default is 600"
-                              + " minutes, or 10 hours. Note that there isn't yet messaging on the"
-                              + " frontend to notify a user when their session is expired.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_INACTIVITY_WARNING_THRESHOLD_MINUTES",
-                          "How many minutes before the session inactivity timeout a user receives a"
-                              + " warning that their session will expire. Default is 5.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_DURATION_WARNING_THRESHOLD_MINUTES",
-                          "How many minutes before the maximum session duration timeout a user"
-                              + " receives a warning that their session will expire. Default is"
-                              + " 10.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "SESSION_INACTIVITY_TIMEOUT_MINUTES",
-                          "The number of minutes of inactivity before a session times out. Default"
-                              + " is 30.",
-                          /* isRequired= */ false,
-                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .build();
 }

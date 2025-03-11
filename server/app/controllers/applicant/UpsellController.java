@@ -246,9 +246,6 @@ public final class UpsellController extends CiviFormController {
   @Secure
   public CompletionStage<Result> download(
       Http.Request request, long applicationId, long applicantId) throws ProgramNotFoundException {
-    if (!settingsManifest.getApplicationExportable(request)) {
-      return CompletableFuture.completedFuture(forbidden());
-    }
     CompletableFuture<Void> authorization = checkApplicantAuthorization(request, applicantId);
     CompletableFuture<Optional<ApplicationModel>> applicationMaybe =
         applicationService.getApplicationAsync(applicationId).toCompletableFuture();

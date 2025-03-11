@@ -15,51 +15,61 @@
           #{heading.programOverview(${programName})},
           ${programDescription})}"
       ></div>
+
       <div class="grid-container">
-        <a
-          th:href="${actionUrl}"
-          class="usa-button"
-          th:text="#{button.startApp}"
-        ></a>
-        <div class="usa-prose section" data-testId="steps-and-alerts">
-          <h2 th:text="#{heading.applicationSteps}"></h2>
-          <ol class="usa-process-list">
-            <li
-              th:each="applicationStep : ${applicationSteps}"
-              class="usa-process-list__item"
-            >
-              <h3
-                th:text="${applicationStep.getKey()}"
-                class="usa-process-list__heading"
-              ></h3>
-              <p th:utext="${applicationStep.getValue()}"></p>
-            </li>
-          </ol>
-          <div th:if="${showEligibilityAlert}" data-testid="eligibility-alert">
-            <div th:if="${isEligible}">
-              <div
-                th:replace="~{components/AlertFragment ::
-            alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H6')}"
-              ></div>
-            </div>
-            <div th:if="${!isEligible}">
-              <div
-                th:replace="~{components/AlertFragment ::
-            alert(alertSettings=${nonEligibilityAlertSettings}, headingLevel='H6')}"
-              ></div>
-            </div>
-          </div>
-          <div th:if="${isGuest}" class="section-internal">
-            <div
-              th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
-            ></div>
-          </div>
-          <div th:if="${!isGuest}" class="section-internal">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8">
             <a
               th:href="${actionUrl}"
               class="usa-button"
               th:text="#{button.startApp}"
             ></a>
+
+            <!--*/ Application steps */-->
+            <div class="usa-prose section" data-testId="steps-and-alerts">
+              <h2 th:text="#{heading.applicationSteps}"></h2>
+              <ol class="usa-process-list">
+                <li
+                  th:each="applicationStep : ${applicationSteps}"
+                  class="usa-process-list__item"
+                >
+                  <h3
+                    th:text="${applicationStep.getKey()}"
+                    class="usa-process-list__heading"
+                  ></h3>
+                  <p th:utext="${applicationStep.getValue()}"></p>
+                </li>
+              </ol>
+              <div
+                th:if="${showEligibilityAlert}"
+                data-testid="eligibility-alert"
+              >
+                <div th:if="${isEligible}">
+                  <div
+                    th:replace="~{components/AlertFragment ::
+                alert(alertSettings=${eligibilityAlertSettings}, headingLevel='H6')}"
+                  ></div>
+                </div>
+                <div th:if="${!isEligible}">
+                  <div
+                    th:replace="~{components/AlertFragment ::
+                alert(alertSettings=${nonEligibilityAlertSettings}, headingLevel='H6')}"
+                  ></div>
+                </div>
+              </div>
+              <div th:if="${isGuest}" class="section-internal">
+                <div
+                  th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
+                ></div>
+              </div>
+              <div th:if="${!isGuest}" class="section-internal">
+                <a
+                  th:href="${actionUrl}"
+                  class="usa-button"
+                  th:text="#{button.startApp}"
+                ></a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

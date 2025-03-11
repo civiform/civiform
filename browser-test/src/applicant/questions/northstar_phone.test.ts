@@ -222,7 +222,7 @@ test.describe(
         // Go back to question and ensure that "Review" button is also clickable
         // via Enter.
         await applicantQuestions.clickEdit()
-        await page.focus('text="Review and exit"')
+        await page.focus('text="Review and submit"')
         await page.keyboard.press('Enter')
         await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
       })

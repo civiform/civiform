@@ -127,6 +127,12 @@ it is around the label */
   @include u-margin-y('105');
 }
 
+// When a section follows breadcrumbs it'll add a larger top margin than what
+// we want
+.usa-breadcrumb + section {
+  @include u-margin-top('105');
+}
+
 .content-spacing {
   @include u-height('105');
 }

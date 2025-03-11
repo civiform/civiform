@@ -71,7 +71,6 @@ public enum MessageKey {
   BANNER_HTTPS_SECTION_HEADER("banner.httpsSectionHeader"),
   BANNER_HTTPS_SECTION_CONTENT("banner.httpsSectionContent"),
   BANNER_LINK("banner.link"),
-  BANNER_NORTH_STAR_TITLE("banner.northStarTitle"),
   BANNER_TITLE("banner.title"),
   BANNER_VIEW_APPLICATION("banner.viewApplication"),
   BLOCK_INDEX_LABEL("label.blockIndexLabel"),
@@ -123,6 +122,7 @@ public enum MessageKey {
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START("button.start"),
   BUTTON_START_HERE("button.startHere"),
+  BUTTON_START_SURVEY("button.startSurvey"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
@@ -286,6 +286,9 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
+  LINK_HOME("link.home"), // North Star only
+  LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
+  // Only
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MENU("header.menu"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
@@ -296,6 +299,14 @@ public enum MessageKey {
   MODAL_ERROR_SAVING_REVIEW_CONTENT("modal.errorSaving.review.content"),
   MODAL_ERROR_SAVING_REVIEW_NO_SAVE_BUTTON("modal.errorSaving.review.noSaveButton"),
   MODAL_ERROR_SAVING_REVIEW_TITLE("modal.errorSaving.review.title"),
+  MODAL_ERROR_SAVING_TITLE("modal.errorSaving.title"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTENT_PREVIOUS("modal.errorSaving.content.previous"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_REVIEW(
+      "modal.errorSaving.continueButton.review"), // North Star only
+  MODAL_ERROR_SAVING_CONTINUE_BUTTON_PREVIOUS(
+      "modal.errorSaving.continueButton.previous"), // North Star only
+  MODAL_ERROR_SAVING_FIX_BUTTON("modal.errorSaving.fixButton"), // North Star only
   MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
   MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
