@@ -78,7 +78,6 @@ public final class AwsStorageUtils {
     if (hasEndpointOverride) {
       String endpointOverride = config.getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
       logger.warn("prodAwsEndpoint: {}", URI.create(endpointOverride));
-
       return URI.create(endpointOverride);
     }
 
@@ -101,7 +100,8 @@ public final class AwsStorageUtils {
                 .url()
                 .toString();
         logger.warn("prodAwsActionLink: {}", url);
-        return url;
+        logger.warn("prodAwsActionLink redux: {}", String.format("%s/%s/", endpointOverride, bucketName));
+        return String.format("%s/%s/", endpointOverride, bucketName);
       } catch (ExecutionException | InterruptedException e) {
         logger.warn(
             "Unable to create an action link. Returning empty string.  Error: {}", e.toString());
