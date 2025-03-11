@@ -212,8 +212,7 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(intermediariesHeaderLink)
               .with(reportingHeaderLink)
               .with(apiKeysHeaderLink)
-              .condWith(
-                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
+              .with(apiDocsHeaderLink);
           break;
         }
       case PROGRAM_ADMIN:
@@ -221,8 +220,7 @@ public final class AdminLayout extends BaseHtmlLayout {
           adminHeader
               .with(programAdminProgramsHeaderLink)
               .with(reportingHeaderLink)
-              .condWith(
-                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
+              .with(apiDocsHeaderLink);
           break;
         }
     }
