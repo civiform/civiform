@@ -1,5 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('view program references from question view', () => {
   test('shows no results for an unreferenced question', async ({
@@ -120,7 +120,6 @@ test.describe('view program references from question view', () => {
     adminQuestions,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     const programName = 'Program name'
     const disabledProgramName = 'Disabled program name'
     const questionName = 'question-references-q'
