@@ -8,6 +8,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
+import java.util.logging.Logger;
+
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
@@ -71,12 +73,17 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   public FormTag renderFileUploadFormElement(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
+    Logger logger = LoggerFactory.getLogger(AwsFileUploadViewStrategy.class);
+    logger.warning("XXX: renderFileUploadFormElement::actionLink: {}", signedRequest.actionLink());
+
     return super.renderFileUploadFormElement(request).withAction(signedRequest.actionLink());
   }
 
   @Override
   public String formAction(StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
+    Logger logger = LoggerFactory.getLogger(AwsFileUploadViewStrategy.class);
+    logger.warning("XXX: formAction::actionLink: {}", signedRequest.actionLink());
     return signedRequest.actionLink();
   }
 
