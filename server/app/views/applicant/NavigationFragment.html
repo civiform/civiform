@@ -367,3 +367,20 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 </footer>
+
+<section
+  th:fragment="adminPreviewBackButton(goBackToAdminUrl)"
+  class="grid-container section"
+  th:if="${userIsAdmin}"
+>
+  <div class="grid-row">
+    <div class="tablet:grid-col-8 usa-prose">
+      <a th:href="${goBackToAdminUrl}">
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
+        ></svg>
+        Back to admin view
+      </a>
+    </div>
+  </div>
+</section>

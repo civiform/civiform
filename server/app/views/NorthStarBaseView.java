@@ -85,6 +85,9 @@ public abstract class NorthStarBaseView {
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
     context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
+    boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
+    context.setVariable("userIsAdmin", userIsAdmin);
+    context.setVariable("goBackIcon", Icons.ARROW_LEFT);
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
