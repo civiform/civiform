@@ -1077,13 +1077,6 @@ export class ApplicantQuestions {
     ).toBeVisible()
   }
 
-  async northStarValidatePreviouslyAnsweredText(questionText: string) {
-    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
-      has: this.page.locator(`:text("${questionText}")`),
-    })
-    expect(questionLocator).toBeTruthy
-  }
-
   async validateNoPreviouslyAnsweredText(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
@@ -1091,6 +1084,20 @@ export class ApplicantQuestions {
     await expect(
       questionLocator.locator('.cf-applicant-question-previously-answered'),
     ).toBeHidden()
+  }
+
+  async northStarValidatePreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    await expect(questionLocator.locator('.summary-answer')).toBeVisible()
+  }
+
+  async northStarValidateNoPreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    await expect(questionLocator.locator('.summary-answer')).toHaveText('-')
   }
 
   async seeStaticQuestion(questionText: string) {
