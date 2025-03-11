@@ -311,7 +311,7 @@
             >
               <div
                 class="usa-footer__contact-info expanding-div"
-                th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
+                th:utext="#{footer.technicalSupport(${emailLink})}"
               ></div>
             </div>
           </div>
@@ -351,8 +351,8 @@
 <a
   th:fragment="technicalSupportLink"
   class="usa-link"
-  href="mailto:civiform-dev@exygy.com"
+  th:href="@{mailto:{to}(to=${supportEmail})}"
   target="_blank"
   rel="noopener noreferrer"
-  >civiform-dev@exygy.com</a
+  ><span th:text="${supportEmail}"></span></a
 >

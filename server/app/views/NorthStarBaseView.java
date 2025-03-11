@@ -12,8 +12,11 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
 import java.util.Optional;
+import java.util.Set;
+
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.IContext;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -79,6 +82,16 @@ public abstract class NorthStarBaseView {
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
+
+    ThymeleafModule.PlayThymeleafContext emailContext =
+      playThymeleafContextFactory.create(request);
+    emailContext.setVariable("supportEmail",
+      settingsManifest.getSupportEmailAddress(request).get());
+    String emailLink = templateEngine.process(
+      "applicant/NavigationFragment", Set.of("technicalSupportLink"),
+      emailContext);
+    context.setVariable("emailLink", emailLink);
+
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
