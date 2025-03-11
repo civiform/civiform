@@ -812,11 +812,6 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional features.",
     "members": {
-      "APPLICATION_EXPORTABLE": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
-        "type": "bool"
-      },
       "DISABLED_VISIBILITY_CONDITION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows programs to be disabled from CiviForm",
