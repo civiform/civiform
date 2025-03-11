@@ -728,6 +728,8 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Please enter a date in the correct format
+# Date is not valid
+validation.invalidDate=Please enter a valid date
 # Date should be in the last 150 years.
 validation.impossibleDate=Please enter a date in the last 150 years
 # Date cannot be over 10 years in future .
