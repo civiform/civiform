@@ -721,200 +721,200 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         })
       })
 
-      // test('shows category filter chips', async ({
-      //   page,
-      //   adminPrograms,
-      //   applicantQuestions,
-      // }) => {
-      //   await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
-      //     await logout(page)
-      //     await expect(
-      //       page.getByRole('checkbox', {name: 'Education'}),
-      //     ).toBeHidden()
-      //     await expect(
-      //       page.getByRole('checkbox', {name: 'Healthcare'}),
-      //     ).toBeHidden()
-      //     await expect(
-      //       page.getByRole('checkbox', {name: 'General'}),
-      //     ).toBeHidden()
-      //     await expect(
-      //       page.getByRole('checkbox', {name: 'Utilities'}),
-      //     ).toBeHidden()
-      //   })
+      test('shows category filter chips', async ({
+        page,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
+        await test.step('check that filter chips do not appear on homepage while categories on draft programs only', async () => {
+          await logout(page)
+          await expect(
+            page.getByRole('checkbox', {name: 'Education'}),
+          ).toBeHidden()
+          await expect(
+            page.getByRole('checkbox', {name: 'Healthcare'}),
+          ).toBeHidden()
+          await expect(
+            page.getByRole('checkbox', {name: 'General'}),
+          ).toBeHidden()
+          await expect(
+            page.getByRole('checkbox', {name: 'Utilities'}),
+          ).toBeHidden()
+        })
 
-      //   await test.step('publish programs with categories', async () => {
-      //     await loginAsAdmin(page)
-      //     await adminPrograms.publishAllDrafts()
-      //     await logout(page)
-      //   })
+        await test.step('publish programs with categories', async () => {
+          await loginAsAdmin(page)
+          await adminPrograms.publishAllDrafts()
+          await logout(page)
+        })
 
-      //   const filterChips = page.locator('#ns-category-filter-form')
+        const filterChips = page.locator('#ns-category-filter-form')
 
-      //   await test.step('check that filter chips appear on homepage', async () => {
-      //     await expect(filterChips.getByText('Education')).toBeVisible()
-      //     await expect(filterChips.getByText('Healthcare')).toBeVisible()
-      //     await expect(filterChips.getByText('General')).toBeVisible()
-      //     await expect(filterChips.getByText('Utilities')).toBeVisible()
-      //   })
+        await test.step('check that filter chips appear on homepage', async () => {
+          await expect(filterChips.getByText('Education')).toBeVisible()
+          await expect(filterChips.getByText('Healthcare')).toBeVisible()
+          await expect(filterChips.getByText('General')).toBeVisible()
+          await expect(filterChips.getByText('Utilities')).toBeVisible()
+        })
 
-      //   await test.step('start applying to a program', async () => {
-      //     await applicantQuestions.applyProgram(
-      //       primaryProgramName,
-      //       /* northStarEnabled= */ true,
-      //     )
+        await test.step('start applying to a program', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+          )
 
-      //     await applicantQuestions.clickContinue()
-      //     await applicantQuestions.gotoApplicantHomePage()
-      //   })
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.gotoApplicantHomePage()
+        })
 
-      //   await test.step('check that categories only on started program are removed from filters', async () => {
-      //     await expect(filterChips.getByText('Education')).toBeHidden()
-      //     await expect(filterChips.getByText('Healthcare')).toBeHidden()
-      //     await expect(filterChips.getByText('General')).toBeVisible()
-      //     await expect(filterChips.getByText('Utilities')).toBeVisible()
-      //   })
-      // })
+        await test.step('check that categories only on started program are removed from filters', async () => {
+          await expect(filterChips.getByText('Education')).toBeHidden()
+          await expect(filterChips.getByText('Healthcare')).toBeHidden()
+          await expect(filterChips.getByText('General')).toBeVisible()
+          await expect(filterChips.getByText('Utilities')).toBeVisible()
+        })
+      })
 
-      // test('with program filters enabled, categorizes programs correctly', async ({
-      //   page,
-      //   adminPrograms,
-      //   applicantQuestions,
-      // }) => {
-      //   await test.step('publish programs with categories', async () => {
-      //     await adminPrograms.publishAllDrafts()
-      //   })
+      test('with program filters enabled, categorizes programs correctly', async ({
+        page,
+        adminPrograms,
+        applicantQuestions,
+      }) => {
+        await test.step('publish programs with categories', async () => {
+          await adminPrograms.publishAllDrafts()
+        })
 
-      //   await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
-      //     await logout(page)
-      //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-      //       {
-      //         expectedProgramsInMyApplicationsSection: [],
-      //         expectedProgramsInProgramsAndServicesSection: [
-      //           primaryProgramName,
-      //           otherProgramName,
-      //           'Minimal Sample Program',
-      //           'Comprehensive Sample Program',
-      //         ],
-      //         expectedProgramsInRecommendedSection: [],
-      //         expectedProgramsInOtherProgramsSection: [],
-      //       },
-      //       /* filtersOn= */ false,
-      //       /* northStarEnabled= */ true,
-      //     )
+        await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
+          await logout(page)
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [],
+              expectedProgramsInProgramsAndServicesSection: [
+                primaryProgramName,
+                otherProgramName,
+                'Minimal Sample Program',
+                'Comprehensive Sample Program',
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
 
-      //     // Check the program count in the section
-      //     await expect(
-      //       page.locator(
-      //         '#unfiltered-programs .cf-program-card-group .cf-application-card',
-      //       ),
-      //     ).toHaveCount(4)
-      //   })
+          // Check the program count in the section
+          await expect(
+            page.locator(
+              '#unfiltered-programs .cf-program-card-group .cf-application-card',
+            ),
+          ).toHaveCount(4)
+        })
 
-      //   await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
-      //     await applicantQuestions.applyProgram(primaryProgramName, true)
-      //     await applicantQuestions.answerTextQuestion('first answer')
-      //     await applicantQuestions.clickContinue()
-      //     await applicantQuestions.gotoApplicantHomePage()
-      //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-      //       {
-      //         expectedProgramsInMyApplicationsSection: [primaryProgramName],
-      //         expectedProgramsInProgramsAndServicesSection: [
-      //           otherProgramName,
-      //           'Minimal Sample Program',
-      //           'Comprehensive Sample Program',
-      //         ],
-      //         expectedProgramsInRecommendedSection: [],
-      //         expectedProgramsInOtherProgramsSection: [],
-      //       },
-      //       /* filtersOn= */ false,
-      //       /* northStarEnabled= */ true,
-      //     )
-      //   })
+        await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
+          await applicantQuestions.applyProgram(primaryProgramName, true)
+          await applicantQuestions.answerTextQuestion('first answer')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.gotoApplicantHomePage()
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [primaryProgramName],
+              expectedProgramsInProgramsAndServicesSection: [
+                otherProgramName,
+                'Minimal Sample Program',
+                'Comprehensive Sample Program',
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+        })
 
-      //   await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-      //     await applicantQuestions.applyProgram(
-      //       primaryProgramName,
-      //       /* northStarEnabled= */ true,
-      //       /* showProgramOverviewPage= */ false,
-      //     )
-      //     await applicantQuestions.answerTextQuestion('second answer')
-      //     await applicantQuestions.clickContinue()
-      //     await applicantQuestions.submitFromReviewPage(true)
-      //     await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-      //       {
-      //         expectedProgramsInMyApplicationsSection: [primaryProgramName],
-      //         expectedProgramsInProgramsAndServicesSection: [
-      //           otherProgramName,
-      //           'Minimal Sample Program',
-      //           'Comprehensive Sample Program',
-      //         ],
-      //         expectedProgramsInRecommendedSection: [],
-      //         expectedProgramsInOtherProgramsSection: [],
-      //       },
-      //       /* filtersOn= */ false,
-      //       /* northStarEnabled= */ true,
-      //     )
-      //   })
+        await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
+          await applicantQuestions.applyProgram(
+            primaryProgramName,
+            /* northStarEnabled= */ true,
+            /* showProgramOverviewPage= */ false,
+          )
+          await applicantQuestions.answerTextQuestion('second answer')
+          await applicantQuestions.clickContinue()
+          await applicantQuestions.submitFromReviewPage(true)
+          await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [primaryProgramName],
+              expectedProgramsInProgramsAndServicesSection: [
+                otherProgramName,
+                'Minimal Sample Program',
+                'Comprehensive Sample Program',
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+        })
 
-      //   await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
-      //     await applicantQuestions.filterProgramsByCategory('General')
+        await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
+          await applicantQuestions.filterProgramsByCategory('General')
 
-      //     await validateScreenshot(
-      //       page.locator('#programs-list'),
-      //       'north-star-homepage-programs-filtered',
-      //     )
-      //   })
+          await validateScreenshot(
+            page.locator('#programs-list'),
+            'north-star-homepage-programs-filtered',
+          )
+        })
 
-      //   await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
-      //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-      //       {
-      //         expectedProgramsInMyApplicationsSection: [primaryProgramName],
-      //         expectedProgramsInProgramsAndServicesSection: [],
-      //         expectedProgramsInRecommendedSection: [otherProgramName],
-      //         expectedProgramsInOtherProgramsSection: [
-      //           'Minimal Sample Program',
-      //           'Comprehensive Sample Program',
-      //         ],
-      //       },
-      //       /* filtersOn= */ true,
-      //       /* northStarEnabled= */ true,
-      //     )
+        await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [primaryProgramName],
+              expectedProgramsInProgramsAndServicesSection: [],
+              expectedProgramsInRecommendedSection: [otherProgramName],
+              expectedProgramsInOtherProgramsSection: [
+                'Minimal Sample Program',
+                'Comprehensive Sample Program',
+              ],
+            },
+            /* filtersOn= */ true,
+            /* northStarEnabled= */ true,
+          )
 
-      //     // Check the program count in the section headings
-      //     await expect(
-      //       page.getByRole('heading', {
-      //         name: 'Programs based on your selections (1)',
-      //       }),
-      //     ).toBeVisible()
-      //     await expect(
-      //       page.getByRole('heading', {
-      //         name: 'Other programs and services (2)',
-      //       }),
-      //     ).toBeVisible()
-      //   })
+          // Check the program count in the section headings
+          await expect(
+            page.getByRole('heading', {
+              name: 'Programs based on your selections (1)',
+            }),
+          ).toBeVisible()
+          await expect(
+            page.getByRole('heading', {
+              name: 'Other programs and services (2)',
+            }),
+          ).toBeVisible()
+        })
 
-      //   await validateAccessibility(page)
+        await validateAccessibility(page)
 
-      //   await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
-      //     await logout(page)
-      //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-      //       {
-      //         expectedProgramsInMyApplicationsSection: [],
-      //         expectedProgramsInProgramsAndServicesSection: [
-      //           primaryProgramName,
-      //           otherProgramName,
-      //           'Minimal Sample Program',
-      //           'Comprehensive Sample Program',
-      //         ],
-      //         expectedProgramsInRecommendedSection: [],
-      //         expectedProgramsInOtherProgramsSection: [],
-      //       },
-      //       /* filtersOn= */ false,
-      //       /* northStarEnabled= */ true,
-      //     )
-      //   })
-      // })
+        await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
+          await logout(page)
+          await applicantQuestions.expectProgramsWithFilteringEnabled(
+            {
+              expectedProgramsInMyApplicationsSection: [],
+              expectedProgramsInProgramsAndServicesSection: [
+                primaryProgramName,
+                otherProgramName,
+                'Minimal Sample Program',
+                'Comprehensive Sample Program',
+              ],
+              expectedProgramsInRecommendedSection: [],
+              expectedProgramsInOtherProgramsSection: [],
+            },
+            /* filtersOn= */ false,
+            /* northStarEnabled= */ true,
+          )
+        })
+      })
 
       test('Clearing filters resets programs to unfiltered view and unchecks category checkboxes', async ({
         page,
@@ -1120,38 +1120,38 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 //     await validateAccessibility(page)
 //   })
 
-//   test(
-//     'shows program with wide image in North Star and removes image from card when in My Applications',
-//     async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
-//       const programName = 'Wide Image Program'
-//       await loginAsAdmin(page)
-//       await adminPrograms.addProgram(programName)
-//       await adminPrograms.goToProgramImagePage(programName)
-//       await adminProgramImage.setImageFileAndSubmit(
-//         'src/assets/program-summary-image-wide.png',
-//       )
-//       await adminPrograms.publishAllDrafts()
-//       await logout(page)
+  // test(
+  //   'shows program with wide image in North Star and removes image from card when in My Applications',
+  //   async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
+  //     const programName = 'Wide Image Program'
+  //     await loginAsAdmin(page)
+  //     await adminPrograms.addProgram(programName)
+  //     await adminPrograms.goToProgramImagePage(programName)
+  //     await adminProgramImage.setImageFileAndSubmit(
+  //       'src/assets/program-summary-image-wide.png',
+  //     )
+  //     await adminPrograms.publishAllDrafts()
+  //     await logout(page)
 
-//       await enableFeatureFlag(page, 'north_star_applicant_ui')
+  //     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-//       await validateScreenshot(page, 'north-star-program-image-wide')
-//       await validateAccessibility(page)
+  //     await validateScreenshot(page, 'north-star-program-image-wide')
+  //     await validateAccessibility(page)
 
-//       await test.step('Fill out part of the program application', async () => {
-//         await applicantQuestions.applyProgram(
-//           programName,
-//           /* northStarEnabled= */ true,
-//         )
-//         await applicantQuestions.clickSubmitApplication()
-//         await applicantQuestions.gotoApplicantHomePage()
-//       })
+  //     await test.step('Fill out part of the program application', async () => {
+  //       await applicantQuestions.applyProgram(
+  //         programName,
+  //         /* northStarEnabled= */ true,
+  //       )
+  //       await applicantQuestions.clickSubmitApplication()
+  //       await applicantQuestions.gotoApplicantHomePage()
+  //     })
 
-//       await test.step('Expect the program card to not show the image when in My Applications section', async () => {
-//         await expect(page.locator('.cf-application-card img')).toBeHidden()
-//       })
-//     },
-//   )
+  //     await test.step('Expect the program card to not show the image when in My Applications section', async () => {
+  //       await expect(page.locator('.cf-application-card img')).toBeHidden()
+  //     })
+  //   },
+  // )
 
 //   test('shows program with tall image', async ({
 //     page,
@@ -1382,4 +1382,4 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 //     await page.getByRole('link', {name: 'Back'}).click()
 //     await logout(page)
 //   }
-// })
+})
