@@ -964,11 +964,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
   }
 
-  /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public boolean getCfOptionalQuestions(RequestHeader request) {
-    return getBool("CF_OPTIONAL_QUESTIONS", request);
-  }
-
   /**
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
@@ -2190,13 +2185,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "DISABLED_VISIBILITY_CONDITION_ENABLED",
                           "Enables the feature that allows programs to be disabled from CiviForm",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "CF_OPTIONAL_QUESTIONS",
-                          "If enabled, allows questions to be optional in programs. Is enabled by"
-                              + " default.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
