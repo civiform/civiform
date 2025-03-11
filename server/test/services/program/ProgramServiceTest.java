@@ -3,7 +3,6 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 import static support.FakeRequestBuilder.fakeRequest;
 
@@ -37,7 +36,6 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
@@ -64,7 +62,6 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
@@ -76,7 +73,6 @@ public class ProgramServiceTest extends ResetPostgres {
   private QuestionDefinition nameQuestion;
   private ProgramService ps;
   private SyncCacheApi programDefCache;
-  private SettingsManifest mockSettingsManifest;
   private CategoryRepository categoryRepository;
   private final Request request = fakeRequest();
   private ApplicationStatusesRepository applicationStatusesRepo;
@@ -98,8 +94,6 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.addressApplicantSecondaryAddress().getQuestionDefinition();
     colorQuestion = testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
     nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(false);
     categoryRepository = instanceOf(CategoryRepository.class);
   }
 
@@ -173,7 +167,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getDisabledActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
     QuestionDefinition questionOne = nameQuestion;
     QuestionDefinition questionTwo = addressQuestion;
     QuestionDefinition questionThree = colorQuestion;
@@ -3360,7 +3353,6 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void anyDisabledPrograms_checks_disabledProgramExist() {
-    when(mockSettingsManifest.getDisabledVisibilityConditionEnabled(request)).thenReturn(true);
     // When there are no programs, there are no disabled programs.
     assertThat(ps.anyDisabledPrograms()).isFalse();
 

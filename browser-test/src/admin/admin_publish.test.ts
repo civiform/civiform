@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -84,8 +84,6 @@ test.describe(
       const questionText = 'admin-publish-test-address-q'
       // adminPrograms.createNewVersion implicitly updates the question text to be suffixed with " new version".
       const draftQuestionText = `${questionText} new version`
-      await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-
       await test.step('Log in as a civiform admin and create a public program and a disabled program', async () => {
         await loginAsAdmin(page)
         await adminPrograms.addDisabledProgram(disabledProgram)
