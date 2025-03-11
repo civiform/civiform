@@ -1081,9 +1081,7 @@ export class ApplicantQuestions {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),
     })
-    expect(
-      questionLocator
-    ).toBeTruthy
+    expect(questionLocator).toBeTruthy
   }
 
   async validateNoPreviouslyAnsweredText(questionText: string) {

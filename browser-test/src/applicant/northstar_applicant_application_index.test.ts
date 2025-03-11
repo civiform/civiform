@@ -1093,19 +1093,36 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 })
 
-// test.describe('applicant program index page with images',
-//   {tag: ['@northstar']},
-//   () => {
+test.describe('applicant program index page with images',
+  {tag: ['@northstar']},
+  () => {
 
-//   test.beforeEach((async ({page}) => {
-//     await enableFeatureFlag(page, 'north_star_applicant_ui')
-//   }))
+  test.beforeEach((async ({page}) => {
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+  }))
 
-//   test('shows program with wide image', async ({
-//     page,
-//     adminPrograms,
-//     adminProgramImage,
-//   }) => {
+  test('shows program with wide image', async ({
+    page,
+    adminPrograms,
+    adminProgramImage,
+  }) => {
+    const programName = 'Wide Image Program'
+    await loginAsAdmin(page)
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+    await adminProgramImage.setImageFileAndSubmit(
+      'src/assets/program-summary-image-wide.png',
+    )
+    await adminPrograms.publishAllDrafts()
+    await logout(page)
+
+    await validateScreenshot(page, 'program-image-wide')
+    await validateAccessibility(page)
+  })
+
+// test(
+//   'shows program with wide image in North Star and removes image from card when in My Applications',
+//   async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
 //     const programName = 'Wide Image Program'
 //     await loginAsAdmin(page)
 //     await adminPrograms.addProgram(programName)
@@ -1116,42 +1133,25 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 //     await adminPrograms.publishAllDrafts()
 //     await logout(page)
 
-//     await validateScreenshot(page, 'program-image-wide')
+//     await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+//     await validateScreenshot(page, 'north-star-program-image-wide')
 //     await validateAccessibility(page)
-//   })
 
-  // test(
-  //   'shows program with wide image in North Star and removes image from card when in My Applications',
-  //   async ({page, adminPrograms, adminProgramImage, applicantQuestions}) => {
-  //     const programName = 'Wide Image Program'
-  //     await loginAsAdmin(page)
-  //     await adminPrograms.addProgram(programName)
-  //     await adminPrograms.goToProgramImagePage(programName)
-  //     await adminProgramImage.setImageFileAndSubmit(
-  //       'src/assets/program-summary-image-wide.png',
-  //     )
-  //     await adminPrograms.publishAllDrafts()
-  //     await logout(page)
+//     await test.step('Fill out part of the program application', async () => {
+//       await applicantQuestions.applyProgram(
+//         programName,
+//         /* northStarEnabled= */ true,
+//       )
+//       await applicantQuestions.clickSubmitApplication()
+//       await applicantQuestions.gotoApplicantHomePage()
+//     })
 
-  //     await enableFeatureFlag(page, 'north_star_applicant_ui')
-
-  //     await validateScreenshot(page, 'north-star-program-image-wide')
-  //     await validateAccessibility(page)
-
-  //     await test.step('Fill out part of the program application', async () => {
-  //       await applicantQuestions.applyProgram(
-  //         programName,
-  //         /* northStarEnabled= */ true,
-  //       )
-  //       await applicantQuestions.clickSubmitApplication()
-  //       await applicantQuestions.gotoApplicantHomePage()
-  //     })
-
-  //     await test.step('Expect the program card to not show the image when in My Applications section', async () => {
-  //       await expect(page.locator('.cf-application-card img')).toBeHidden()
-  //     })
-  //   },
-  // )
+//     await test.step('Expect the program card to not show the image when in My Applications section', async () => {
+//       await expect(page.locator('.cf-application-card img')).toBeHidden()
+//     })
+//   },
+// )
 
 //   test('shows program with tall image', async ({
 //     page,
