@@ -156,10 +156,6 @@ public abstract class NorthStarBaseView {
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
 
-    // Other options
-    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
-    context.setVariable("isApplicationExportable", isApplicationExportable);
-
     return context;
   }
 

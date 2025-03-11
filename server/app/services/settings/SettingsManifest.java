@@ -931,11 +931,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
-  /** Enables the feature that allows completed applications to be downloadable by PDF. */
-  public boolean getApplicationExportable(RequestHeader request) {
-    return getBool("APPLICATION_EXPORTABLE", request);
-  }
-
   /** Enables the feature that allows programs to be disabled from CiviForm */
   public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
     return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
@@ -2132,13 +2127,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   "Configuration options to enable or disable optional features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "APPLICATION_EXPORTABLE",
-                          "Enables the feature that allows completed applications to be"
-                              + " downloadable by PDF.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "DISABLED_VISIBILITY_CONDITION_ENABLED",
                           "Enables the feature that allows programs to be disabled from CiviForm",
