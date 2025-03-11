@@ -422,32 +422,30 @@ public final class QuestionsListView extends BaseHtmlView {
                 StyleUtils.responsiveXLarge("ml-10"),
                 "py-7",
                 "w-1/4");
-    if (groupedReferencingPrograms.isEmpty(
-        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
+    if (groupedReferencingPrograms.isEmpty()) {
       tag.with(p("Used in 0 programs."));
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Used in", numPrograms, "program")));
       }
+
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
-        } else {
-          tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program")));
-        }
+        tag.with(p(formatReferencingProgramsText("Added to", numPrograms, "program in use")));
       }
+
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
         tag.with(p(formatReferencingProgramsText("Removed from", numPrograms, "program")));
       }
-      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()
-          && settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
+
+      if (!groupedReferencingPrograms.disabledPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.disabledPrograms().size();
         tag.with(p(formatReferencingProgramsText("Added to ", numPrograms, "disabled program")));
       }
     }
+
     if (maybeReferencingProgramsModal.isPresent()) {
       tag.with(
           a().withId(maybeReferencingProgramsModal.get().getTriggerButtonId())
@@ -490,13 +488,10 @@ public final class QuestionsListView extends BaseHtmlView {
       return new AutoValue_QuestionsListView_GroupedReferencingPrograms.Builder();
     }
 
-    boolean isEmpty(boolean includeDisabledPrograms) {
+    boolean isEmpty() {
       boolean usedAndAddedAndRemovedProgramsIsEmpty =
           usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
-      if (includeDisabledPrograms) {
-        return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
-      }
-      return usedAndAddedAndRemovedProgramsIsEmpty;
+      return usedAndAddedAndRemovedProgramsIsEmpty && disabledPrograms().isEmpty();
     }
 
     int getTotalNumReferencingPrograms() {
@@ -540,9 +535,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // Use set operations to collect programs into 4 sets.
     Set<String> usedSet = Sets.intersection(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> addedSet = Sets.difference(draftProgramsMap.keySet(), activeProgramsMap.keySet());
-    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-      addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
-    }
+    addedSet = Sets.difference(addedSet, draftDisabledProgramsMap.keySet());
     Set<String> removedSet = Sets.difference(activeProgramsMap.keySet(), draftProgramsMap.keySet());
     Set<String> disabledSet =
         Sets.difference(draftDisabledProgramsMap.keySet(), activeProgramsMap.keySet());
@@ -580,8 +573,7 @@ public final class QuestionsListView extends BaseHtmlView {
       GroupedReferencingPrograms referencingPrograms,
       Optional<DomContent> modalHeader,
       Http.Request request) {
-    if (referencingPrograms.isEmpty(
-        settingsManifest.getDisabledVisibilityConditionEnabled(request))) {
+    if (referencingPrograms.isEmpty()) {
       return Optional.empty();
     }
 

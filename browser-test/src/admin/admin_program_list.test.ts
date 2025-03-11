@@ -154,7 +154,6 @@ test.describe('Program list page.', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     const publicProgram = 'List test public program'

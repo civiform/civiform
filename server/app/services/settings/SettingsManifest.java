@@ -941,11 +941,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("APPLICATION_EXPORTABLE", request);
   }
 
-  /** Enables the feature that allows programs to be disabled from CiviForm */
-  public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
-    return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
-  }
-
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public boolean getCfOptionalQuestions(RequestHeader request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
@@ -2149,12 +2144,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "APPLICATION_EXPORTABLE",
                           "Enables the feature that allows completed applications to be"
                               + " downloadable by PDF.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "DISABLED_VISIBILITY_CONDITION_ENABLED",
-                          "Enables the feature that allows programs to be disabled from CiviForm",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

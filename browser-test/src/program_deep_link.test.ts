@@ -1,6 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -136,7 +135,6 @@ test.describe('navigating to a deep link', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await test.step(`log in as admin and publish a disabled program`, async () => {
       await loginAsAdmin(page)
 

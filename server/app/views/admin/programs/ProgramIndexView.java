@@ -167,8 +167,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
 
-    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)
-        && programService.anyDisabledPrograms()) {
+    if (programService.anyDisabledPrograms()) {
       contentDiv.with(
           renderFilterLink(
               ProgramTab.IN_USE,
@@ -443,9 +442,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String visibilityText = " ";
     switch (program.displayMode()) {
       case DISABLED:
-        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-          visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
-        }
+        visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
         break;
       case HIDDEN_IN_INDEX:
         visibilityText = " (Hidden from applicants) ";
