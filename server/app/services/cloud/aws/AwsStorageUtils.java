@@ -100,8 +100,7 @@ public final class AwsStorageUtils {
                 .url()
                 .toString();
         logger.warn("prodAwsActionLink: {}", url);
-        logger.warn("prodAwsActionLink redux: {}", String.format("%s/%s/", endpointOverride, bucketName));
-        return String.format("%s/%s/", endpointOverride, bucketName);
+        return url;
       } catch (ExecutionException | InterruptedException e) {
         logger.warn(
             "Unable to create an action link. Returning empty string.  Error: {}", e.toString());
