@@ -77,9 +77,12 @@ public final class AwsStorageUtils {
     boolean hasEndpointOverride = checkNotNull(config).hasPath(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
     if (hasEndpointOverride) {
       String endpointOverride = config.getString(AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH);
+      logger.warn("prodAwsEndpoint: {}", URI.create(endpointOverride));
+
       return URI.create(endpointOverride);
     }
 
+    logger.warn("prodAwsEndpoint: {}", URI.create(String.format("https://s3.%s.amazonaws.com/", region.id())));
     return URI.create(String.format("https://s3.%s.amazonaws.com/", region.id()));
   }
 
@@ -97,8 +100,8 @@ public final class AwsStorageUtils {
                 .get()
                 .url()
                 .toString();
-        // AWS actions end with '/'
-        return url + "/";
+        logger.warn("prodAwsActionLink: {}", url);
+        return url;
       } catch (ExecutionException | InterruptedException e) {
         logger.warn(
             "Unable to create an action link. Returning empty string.  Error: {}", e.toString());
@@ -106,6 +109,7 @@ public final class AwsStorageUtils {
       }
     }
 
+    logger.warn("prodAwsActionLink: {}", String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id()));
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
 
@@ -123,8 +127,7 @@ public final class AwsStorageUtils {
               .get()
               .url()
               .toString();
-      // The prod AWS action links end with `/`, so our LocalStack action links should do the same.
-      return url + "/";
+      return url;
     } catch (ExecutionException | InterruptedException e) {
       logger.warn("Unable to create a Localstack action link. Returning empty string");
       return "";
