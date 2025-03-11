@@ -224,16 +224,12 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-      expect(await page.innerText('h2')).toContain(
-        'How to apply',
-      )
+      expect(await page.innerText('h2')).toContain('How to apply')
 
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      expect(await page.innerText('h2')).toContain(
-        'Review and submit',
-      )
+      expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
 
@@ -245,7 +241,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await applicantQuestions.applyProgram(otherProgramName, true)
     await applicantQuestions.answerTextQuestion('first answer')
     await applicantQuestions.clickContinue()
-    await applicantQuestions.northStarValidatePreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+      firstQuestionText,
+    )
     await applicantQuestions.submitFromReviewPage(true)
     await applicantQuestions.returnToProgramsFromSubmissionPage(true)
     await applicantQuestions.expectProgramsNorthstar({
@@ -255,7 +253,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
     // Check that the question repeated in the program with two questions shows previously answered.
     await applicantQuestions.applyProgram(primaryProgramName, true)
-    await applicantQuestions.northStarValidatePreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+      firstQuestionText,
+    )
     await applicantQuestions.validateNoPreviouslyAnsweredText(
       secondQuestionText,
     )
@@ -270,13 +270,19 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     // Check that the original program shows previously answered.
     await applicantQuestions.returnToProgramsFromSubmissionPage(true)
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
-    await applicantQuestions.northStarValidatePreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+      firstQuestionText,
+    )
     await applicantQuestions.clickSubmitApplication()
 
     // Change first response on second program.
     await applicantQuestions.returnToProgramsFromSubmissionPage(true)
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-    await page.getByRole('listitem').filter({ hasText: 'Screen 2 Edit This is the' }).getByRole('link').click()
+    await page
+      .getByRole('listitem')
+      .filter({hasText: 'Screen 2 Edit This is the'})
+      .getByRole('link')
+      .click()
     await applicantQuestions.answerTextQuestion('first answer 2')
     await applicantQuestions.clickContinue()
     await applicantQuestions.submitFromReviewPage(true)
@@ -286,7 +292,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await applicantQuestions.clickApplyProgramButton(otherProgramName)
     await page.pause()
 
-    await applicantQuestions.northStarValidatePreviouslyAnsweredText(firstQuestionText)
+    await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+      firstQuestionText,
+    )
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
 
@@ -389,118 +397,135 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await validateAccessibility(page)
     })
 
-    // test('with program filters enabled, categorizes programs correctly', async ({
-    //   page,
-    //   adminPrograms,
-    //   applicantQuestions,
-    // }) => {
-    //   await test.step('publish programs with categories', async () => {
-    //     await adminPrograms.publishAllDrafts()
-    //   })
+    test('with program filters enabled, categorizes programs correctly', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+      })
 
-    //   await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
-    //     await logout(page)
-    //     await loginAsTestUser(page)
-    //     await applicantQuestions.expectProgramsWithFilteringEnabled({
-    //       expectedProgramsInMyApplicationsSection: [],
-    //       expectedProgramsInProgramsAndServicesSection: [
-    //         primaryProgramName,
-    //         otherProgramName,
-    //         'Minimal Sample Program',
-    //         'Comprehensive Sample Program',
-    //       ],
-    //       expectedProgramsInRecommendedSection: [],
-    //       expectedProgramsInOtherProgramsSection: [],
-    //     })
+      await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
+        await logout(page)
+        await loginAsTestUser(page)
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          false,
+          true,
+        )
+      })
 
-    //     // Check the program count in the section heading
-    //     await expect(
-    //       page.getByRole('heading', {name: 'Programs and services (4)'}),
-    //     ).toBeVisible()
-    //   })
+      await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
+        await applicantQuestions.applyProgram(primaryProgramName, true)
+        await applicantQuestions.answerTextQuestion('first answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          false,
+          true,
+        )
+      })
 
-    //   await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
-    //     await applicantQuestions.applyProgram(primaryProgramName)
-    //     await applicantQuestions.answerTextQuestion('first answer')
-    //     await applicantQuestions.clickContinue()
-    //     await applicantQuestions.gotoApplicantHomePage()
-    //     await applicantQuestions.expectProgramsWithFilteringEnabled({
-    //       expectedProgramsInMyApplicationsSection: [primaryProgramName],
-    //       expectedProgramsInProgramsAndServicesSection: [
-    //         otherProgramName,
-    //         'Minimal Sample Program',
-    //         'Comprehensive Sample Program',
-    //       ],
-    //       expectedProgramsInRecommendedSection: [],
-    //       expectedProgramsInOtherProgramsSection: [],
-    //     })
-    //   })
+      await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
+        await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+        await applicantQuestions.answerTextQuestion('second answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage(true)
+        await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          false,
+          true,
+        )
+      })
 
-    //   await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
-    //     await applicantQuestions.applyProgram(primaryProgramName)
-    //     await applicantQuestions.answerTextQuestion('second answer')
-    //     await applicantQuestions.clickContinue()
-    //     await applicantQuestions.submitFromReviewPage()
-    //     await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-    //     await applicantQuestions.expectProgramsWithFilteringEnabled({
-    //       expectedProgramsInMyApplicationsSection: [primaryProgramName],
-    //       expectedProgramsInProgramsAndServicesSection: [
-    //         otherProgramName,
-    //         'Minimal Sample Program',
-    //         'Comprehensive Sample Program',
-    //       ],
-    //       expectedProgramsInRecommendedSection: [],
-    //       expectedProgramsInOtherProgramsSection: [],
-    //     })
-    //   })
+      await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
+        await page
+          .locator('#ns-category-filter-form')
+          .getByText('General')
+          .check()
+        await page.locator('button').getByText('Apply selections').click()
+        await page.waitForLoadState('networkidle')
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInMyApplicationsSection: [primaryProgramName],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInOtherProgramsSection: [
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+          },
+          true,
+          true,
+        )
+        // Check the program count in the section headings
+        await expect(
+          page.getByRole('heading', {
+            name: 'Programs based on your selections (1)',
+          }),
+        ).toBeVisible()
+        await expect(
+          page.getByRole('heading', {name: 'Other programs and services (2)'}),
+        ).toBeVisible()
+      })
 
-    //   await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
-    //     await page.locator('#category-filter-form').getByText('General').check()
-    //     await applicantQuestions.expectProgramsWithFilteringEnabled(
-    //       {
-    //         expectedProgramsInMyApplicationsSection: [primaryProgramName],
-    //         expectedProgramsInProgramsAndServicesSection: [],
-    //         expectedProgramsInRecommendedSection: [otherProgramName],
-    //         expectedProgramsInOtherProgramsSection: [
-    //           'Minimal Sample Program',
-    //           'Comprehensive Sample Program',
-    //         ],
-    //       },
-    //       true,
-    //     )
-    //     // Check the program count in the section headings
-    //     await expect(
-    //       page.getByRole('heading', {
-    //         name: 'Programs based on your selections (1)',
-    //       }),
-    //     ).toBeVisible()
-    //     await expect(
-    //       page.getByRole('heading', {name: 'Other programs and services (2)'}),
-    //     ).toBeVisible()
-    //   })
+      await validateAccessibility(page)
 
-    //   await validateAccessibility(page)
+      await validateScreenshot(
+        page.locator('#main-content'),
+        'ns-homepage-programs-filtered',
+      )
 
-    //   await validateScreenshot(
-    //     page.locator('#main-content'),
-    //     'homepage-programs-filtered',
-    //   )
-
-    //   await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
-    //     await logout(page)
-    //     await applicantQuestions.expectProgramsWithFilteringEnabled({
-    //       expectedProgramsInMyApplicationsSection: [],
-    //       expectedProgramsInProgramsAndServicesSection: [
-    //         primaryProgramName,
-    //         otherProgramName,
-    //         'Minimal Sample Program',
-    //         'Comprehensive Sample Program',
-    //       ],
-    //       expectedProgramsInRecommendedSection: [],
-    //       expectedProgramsInOtherProgramsSection: [],
-    //     })
-    //   })
-    // })
+      await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
+        await logout(page)
+        await applicantQuestions.expectProgramsWithFilteringEnabled(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              primaryProgramName,
+              otherProgramName,
+              'Minimal Sample Program',
+              'Comprehensive Sample Program',
+            ],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          false,
+          true,
+        )
+      })
+    })
   })
 
   test.describe('applicant program index page with northstar UI', () => {
