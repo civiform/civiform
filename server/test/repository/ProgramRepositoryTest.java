@@ -202,6 +202,38 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getSlug_programExists_findsSlug_fromDb() throws Exception {
+    ProgramModel program = resourceCreator.insertActiveProgram("Test Program");
+    String expectSlug = "test-program";
+
+    String foundSlug = repo.getSlug(program.id);
+
+    assertThat(foundSlug).isEqualTo(expectSlug);
+  }
+
+  @Test
+  public void getSlug_programExists_findsSlug_fromCache() throws Exception {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    ProgramModel program = resourceCreator.insertActiveProgram("Test Program");
+    String cachedName = "A different program name";
+    String expectSlug = "a-different-program-name";
+    var modifiedProgram =
+        program.getProgramDefinition().toBuilder().setAdminName(cachedName).build();
+    repo.setFullProgramDefinitionCache(modifiedProgram.id(), modifiedProgram);
+
+    String foundSlug = repo.getSlug(program.id);
+
+    assertThat(foundSlug).isEqualTo(expectSlug);
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> repo.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
   public void getForSlug_findsCorrectProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("Something With A Name");
 
