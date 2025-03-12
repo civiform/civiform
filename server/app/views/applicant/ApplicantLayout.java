@@ -114,7 +114,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     Optional<CiviFormProfile> profile =
         profileUtils.optionalCurrentUserProfile(bundle.getRequest());
     if (profile.isPresent()) {
-      maybeAddSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
+      addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
     }
 
     bundle.addBodyStyles(ApplicantStyles.BODY);

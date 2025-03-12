@@ -156,7 +156,7 @@ public class BaseHtmlLayout {
     return bundle.render();
   }
 
-  protected void maybeAddSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
+  protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
     if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
         && bundle.getRequest() instanceof Http.Request) {
       // Add the session timeout modals to the bundle

@@ -93,7 +93,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
-    maybeAddSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
+    addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
 
     return super.render(bundle);
   }
