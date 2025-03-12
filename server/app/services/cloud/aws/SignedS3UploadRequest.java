@@ -394,9 +394,10 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       abstract long maxBytes();
 
       @JsonValue
-      ImmutableList<String> toJson() {
-        return ImmutableList.of(
-            "content-length-range", String.valueOf(minBytes()), String.valueOf(maxBytes()));
+      Object[] toJson() {
+        return new Object[] {"content-length-range", minBytes(), maxBytes() };
+//        ImmutableList.of(
+//            "content-length-range", String.valueOf(minBytes()), String.valueOf(maxBytes()));
       }
     }
 
