@@ -104,7 +104,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     )
   })
 
-  test('Toast is shown when logged-in user end their session', async ({
+  test('Toast is shown when logged-in user ends their session', async ({
     page,
   }) => {
     await loginAsTestUser(page)
@@ -138,7 +138,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     })
     await expect(applicationCardLocator).toBeAttached()
 
-    // locator("..") gets the direct parent element, need to go up two levels.
+    // locator("..") gets the direct parent element, we need to go up two levels.
     await expect(
       applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
@@ -147,7 +147,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await logout(page)
     await loginAsTestUser(page)
 
-    // locator("..") gets the direct parent element, need to go up two levels.
+    // locator("..") gets the direct parent element, we need to go up two levels.
     await expect(
       applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
