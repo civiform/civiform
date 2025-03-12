@@ -1,8 +1,6 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.endsWith;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -24,6 +22,9 @@ public class TextFormatterTest extends ResetPostgres {
 
   @Test
   public void urlsRenderCorrectly() {
+    // Set the aria label back to the default before testing
+    TextFormatter.resetAriaLabelToDefault();
+
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             "hello google.com http://internet.website https://secure.website",
@@ -53,6 +54,9 @@ public class TextFormatterTest extends ResetPostgres {
 
   @Test
   public void textLinksRenderCorrectly() {
+    // Set the aria label back to the default before testing
+    TextFormatter.resetAriaLabelToDefault();
+
     ImmutableList<DomContent> content =
         TextFormatter.formatText(
             "[this is a link](https://www.google.com)",
@@ -280,9 +284,6 @@ public class TextFormatterTest extends ResetPostgres {
 
     assertThat(content.get(0).render())
         .contains("aria-label=\"https://www.example.com test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
   }
 
   @Test
@@ -292,9 +293,6 @@ public class TextFormatterTest extends ResetPostgres {
             "[link](https://www.example.com)", false, false, "test aria label");
 
     assertThat(content).contains("aria-label=\"https://www.example.com test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
   }
 
   @Test
