@@ -200,8 +200,8 @@ public final class HtmlBundle {
     pageNotProductionBannerTag.ifPresent(bodyTag::with);
     bodyTag.with(renderHeader(), renderMain(), renderModals());
 
-    Optional<DivTag> usWdsModal = renderUswdsModals();
-    usWdsModal.ifPresent(bodyTag::with);
+    Optional<DivTag> uswdsModal = renderUswdsModals();
+    uswdsModal.ifPresent(bodyTag::with);
 
     bodyTag.with(renderFooter());
 
