@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
@@ -24,13 +23,11 @@ import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramService;
 import services.question.QuestionService;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.migration.AdminExportView;
 
 public class AdminExportControllerTest extends ResetPostgres {
   private AdminExportController controller;
-  private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
 
   @Before
   public void setUp() {
@@ -42,7 +39,6 @@ public class AdminExportControllerTest extends ResetPostgres {
             instanceOf(ProgramMigrationService.class),
             instanceOf(ProgramService.class),
             instanceOf(QuestionService.class),
-            mockSettingsManifest,
             instanceOf(VersionRepository.class));
   }
 
