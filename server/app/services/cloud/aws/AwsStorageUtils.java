@@ -81,7 +81,9 @@ public final class AwsStorageUtils {
       return URI.create(endpointOverride);
     }
 
-    logger.warn("prodAwsEndpoint: {}", URI.create(String.format("https://s3.%s.amazonaws.com/", region.id())));
+    logger.warn(
+        "prodAwsEndpoint: {}",
+        URI.create(String.format("https://s3.%s.amazonaws.com/", region.id())));
     return URI.create(String.format("https://s3.%s.amazonaws.com/", region.id()));
   }
 
@@ -108,7 +110,9 @@ public final class AwsStorageUtils {
       }
     }
 
-    logger.warn("prodAwsActionLink: {}", String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id()));
+    logger.warn(
+        "prodAwsActionLink: {}",
+        String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id()));
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
 
