@@ -297,7 +297,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
               .setExpiration(expiration())
               .setBucket(bucket())
               .setKeyPrefix(key().replace("${filename}", ""))
-              .setContentLengthRange(0, fileLimitMb() * MB_TO_BYTES)
+//              .setContentLengthRange(0, fileLimitMb() * MB_TO_BYTES)
               .setSuccessActionRedirect(successActionRedirect(), useSuccessActionRedirectAsPrefix())
               .setCredential(credential())
               .setAlgorithm(algorithm())
@@ -397,7 +397,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       ImmutableList<String> toJson() {
         return ImmutableList.of(
 //            "content-length-range", String.valueOf(minBytes()), String.valueOf(maxBytes()));
-            "content-length-range", "0", String.valueOf(maxBytes()));
+//            "content-length-range", "0", String.valueOf(maxBytes()));
       }
     }
 
@@ -481,7 +481,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
       }
 
       Builder setContentLengthRange(long minBytes, long maxBytes) {
-        conditionsBuilder().add(ContentLengthRange.create(0, maxBytes));
+//        conditionsBuilder().add(ContentLengthRange.create(0, maxBytes));
         return this;
       }
 
