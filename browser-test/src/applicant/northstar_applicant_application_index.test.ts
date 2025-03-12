@@ -618,7 +618,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form', () => {
+  test.describe('common intake form present', () => {
     const commonIntakeFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
@@ -730,25 +730,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
     })
-  })
-
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
-
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ true,
-      )
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-    })
 
     test('shows common intake form', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
@@ -776,6 +757,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
+      await applicantQuestions.clickReview(true)
       expect(await page.innerText('h2')).toContain('Review and submit')
     })
   })
