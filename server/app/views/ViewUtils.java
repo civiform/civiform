@@ -383,7 +383,7 @@ public final class ViewUtils {
    * @param secondButtonText Text for the second footer button.
    * @return DivTag containing the button that opens the modal and the modal itself.
    */
-  public static DivTag makeUSWDSModal(
+  public static DivTag makeUswdsModal(
       ContainerTag body,
       String elementIdPrefix,
       String headerText,
@@ -402,6 +402,7 @@ public final class ViewUtils {
             .withId(modalId)
             .attr("aria-labelledby", headingId)
             .attr("aria-describedby", descriptionId)
+            .attr("data-modal-type", elementIdPrefix)
             .with(
                 div()
                     .withClass("usa-modal__content")
@@ -426,7 +427,11 @@ public final class ViewUtils {
                                                         button(firstButtonText)
                                                             .withType("button")
                                                             .withClass("usa-button")
-                                                            .attr("data-close-modal")))
+                                                            .attr("data-close-modal")
+                                                            .attr("data-modal-primary", "")
+                                                            .attr(
+                                                                "data-modal-type",
+                                                                elementIdPrefix)))
                                             .with(
                                                 li().withClass("usa-button-group__item")
                                                     .with(
@@ -435,12 +440,17 @@ public final class ViewUtils {
                                                             .withClass(
                                                                 "usa-button usa-button--unstyled"
                                                                     + " padding-105 text-center")
-                                                            .attr("data-close-modal"))))))
+                                                            .attr("data-close-modal")
+                                                            .attr("data-modal-secondary", "")
+                                                            .attr(
+                                                                "data-modal-type",
+                                                                elementIdPrefix))))))
                     .with(
                         BaseHtmlView.iconOnlyButton("Close this window")
                             .withClasses(
                                 "usa-button usa-modal__close", ButtonStyles.CLEAR_WITH_ICON, "pt-4")
                             .attr("data-close-modal")
+                            .attr("data-modal-type", elementIdPrefix)
                             .with(
                                 Icons.svg(Icons.CLOSE)
                                     .withClasses("usa-icon")
@@ -457,7 +467,8 @@ public final class ViewUtils {
                     .withHref("#" + modalId)
                     .withClasses("usa-button", "bg-blue-600")
                     .attr("aria-controls", modalId)
-                    .attr("data-open-modal"))
+                    .attr("data-open-modal")
+                    .attr("data-modal-type", elementIdPrefix))
             .with(modalContent);
 
     return linkDiv;
