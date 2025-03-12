@@ -61,7 +61,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminPrograms.publishAllDrafts()
     await logout(page)
   })
-  
+
   test('shows value of APPLICANT_PORTAL_NAME in welcome text', async ({
     page,
     adminSettings,
@@ -82,14 +82,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     expect(await page.getByText(/To get help with/).textContent()).toBeTruthy()
   })
 
-test('validate initial page load as guest user', async ({
+  test('validate initial page load as guest user', async ({
     page,
     applicantQuestions,
   }) => {
-    await validateScreenshot(
-      page,
-      'program-index-page-initial-load-northstar',
-    )
+    await validateScreenshot(page, 'program-index-page-initial-load-northstar')
     await applicantQuestions.expectTitle(page, 'Find programs')
   })
 
@@ -287,9 +284,7 @@ test('validate initial page load as guest user', async ({
         await expect(
           page.getByRole('checkbox', {name: 'Healthcare'}),
         ).toBeHidden()
-        await expect(
-          page.getByRole('checkbox', {name: 'General'}),
-        ).toBeHidden()
+        await expect(page.getByRole('checkbox', {name: 'General'})).toBeHidden()
         await expect(
           page.getByRole('checkbox', {name: 'Utilities'}),
         ).toBeHidden()
