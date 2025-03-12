@@ -255,7 +255,7 @@ public final class ApplicantFileUploadRenderer extends ApplicationBaseView {
   private DivTag createFileUploadTag(ApplicationBaseViewParams params) {
     return div()
         .withText(params.messages().at(MessageKey.UPLOADING.getKeyName()))
-        .withClasses(FILE_UPLOADING_TAG_CLASS, "inline-block", "px-2", "py-1")
+        .withClasses(FILE_UPLOADING_TAG_CLASS, "px-2", "py-1")
         .attr("role", "alert");
   }
 

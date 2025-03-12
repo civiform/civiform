@@ -5,7 +5,7 @@
 >
   <input
     type="radio"
-    class="usa-radio__input"
+    class="usa-radio__input usa-radio__input--tile"
     name="selectedAddress"
     th:value="${singleLineAddress}"
     th:checked="${selected}"
@@ -15,17 +15,17 @@
   <label th:class="${hideButton ? '' : 'usa-radio__label'}" th:for="${inputId}">
     <div
       th:text="${address.getStreet()}"
-      th:class="${hideButton ? 'cf-zero-top-margin' : 'usa-checkbox__label-description'}"
+      th:class="${hideButton ? 'cf-zero-top-margin' : ''}"
     ></div>
     <div
       th:if="${address.hasLine2()}"
       th:text="${address.getLine2()}"
-      th:class="${hideButton ? 'cf-zero-top-margin' : 'usa-checkbox__label-description'}"
+      th:class="${hideButton ? 'cf-zero-top-margin' : ''}"
     ></div>
     <!--/* City, State Zip */-->
     <div
       th:text="|${address.getCity()}, ${address.getState()} ${address.getZip()}|"
-      th:class="${hideButton ? 'cf-zero-top-margin' : 'usa-checkbox__label-description'}"
+      th:class="${hideButton ? 'cf-zero-top-margin' : ''}"
     ></div>
   </label>
 </div>

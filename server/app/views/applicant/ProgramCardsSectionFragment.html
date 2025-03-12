@@ -1,16 +1,17 @@
 <section
   th:fragment="cardsSection (section)"
-  class="cf-application-program-section"
-  th:with="showHeading=${section.sectionType().name() == 'STANDARD' && section.title().isPresent()}"
+  class="cf-application-program-section cf-below-cards"
+  th:with="sectionType=${section.sectionType().name()},
+           showHeading=${sectionType == 'STANDARD' && section.title().isPresent()}"
   th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
-  th:id="${section.sectionType().name() == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
+  th:id="${sectionType == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
-  <div th:if="${showHeading}" class="grid-row usa-prose">
+  <div th:if="${showHeading}" class="grid-row usa-prose section-bottom">
     <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
   </div>
 
   <!--/* Pre-screener card */-->
-  <div th:if="${section.sectionType().name() == 'COMMON_INTAKE'}">
+  <div th:if="${sectionType == 'COMMON_INTAKE'}">
     <div
       th:replace="~{applicant/ProgramCardsSectionFragment :: preScreenerCard(${section.cards().get(0)})}"
     ></div>
@@ -18,12 +19,12 @@
 
   <!--/* Programs card section */-->
   <ul
-    th:unless="${section.sectionType().name() == 'COMMON_INTAKE'}"
+    th:unless="${sectionType == 'COMMON_INTAKE'}"
     class="usa-card-group cf-program-card-group"
   >
     <th:block th:each="card : ${section.cards()}">
       <li
-        th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${section.sectionType().name()} ?: 'STANDARD')}"
+        th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${sectionType} ?: 'STANDARD')}"
       ></li>
     </th:block>
   </ul>

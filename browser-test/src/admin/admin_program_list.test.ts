@@ -16,7 +16,10 @@ test.describe('Program list page.', () => {
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-one-draft-program')
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeVisible()
+    await expect(programCard.getByText('Active')).toBeHidden()
   })
 
   test('view active program', async ({page, adminPrograms}) => {
@@ -26,6 +29,12 @@ test.describe('Program list page.', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeHidden()
+    await expect(programCard.getByText('Active')).toBeVisible()
+
+    // full page screenshot
     await validateScreenshot(page, 'program-list-one-active-program')
   })
 
@@ -42,7 +51,10 @@ test.describe('Program list page.', () => {
 
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.gotoAdminProgramsPage()
-    await validateScreenshot(page, 'program-list-active-and-draft-versions')
+
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await expect(programCard.getByText('Draft')).toBeVisible()
+    await expect(programCard.getByText('Active')).toBeVisible()
   })
 
   test('view program with description', async ({page, adminPrograms}) => {
@@ -65,8 +77,10 @@ test.describe('Program list page.', () => {
 
     await test.step('check that long description is shown when North Star flag is off', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      const firstProgram = page.locator('.cf-admin-program-card').first()
-      const firstProgramDesc = firstProgram.locator('.cf-program-description')
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
+      const firstProgramDesc = firstProgramCard.locator(
+        '.cf-program-description',
+      )
       await expect(
         firstProgramDesc.getByText(programLongDescription),
       ).toBeVisible()
@@ -81,8 +95,10 @@ test.describe('Program list page.', () => {
 
     await test.step('check that short description stripped of markdown is shown when North Star flag is on', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      const firstProgram = page.locator('.cf-admin-program-card').first()
-      const firstProgramDesc = firstProgram.locator('.cf-program-description')
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
+      const firstProgramDesc = firstProgramCard.locator(
+        '.cf-program-description',
+      )
       await expect(
         firstProgramDesc.getByText(programShortDescriptionWithoutMarkdown),
       ).toBeVisible()
@@ -115,13 +131,13 @@ test.describe('Program list page.', () => {
 
     await test.step('check that categories show as "None"', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      const firstProgram = page.locator('.cf-admin-program-card').first()
-      await expect(firstProgram.getByText('Categories: None')).toBeVisible()
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
+      await expect(firstProgramCard.getByText('Categories: None')).toBeVisible()
     })
     await test.step('check that program visibility is displayed', async () => {
-      const firstProgram = page.locator('.cf-admin-program-card').first()
+      const firstProgramCard = page.locator('.cf-admin-program-card').first()
       await expect(
-        firstProgram.getByText('Visibility state: Public'),
+        firstProgramCard.getByText('Visibility state: Public'),
       ).toBeVisible()
     })
 
@@ -157,6 +173,10 @@ test.describe('Program list page.', () => {
     await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
+    const activeElementClassList =
+      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2 border-blue-400 border-b-2'
+    const inactiveElementClassList =
+      'text-blue-600 hover:text-blue-500 inline-flex items-center m-2'
     const publicProgram = 'List test public program'
     const disabledProgram = 'List test disabled program'
     await adminPrograms.addProgram(publicProgram)
@@ -164,14 +184,27 @@ test.describe('Program list page.', () => {
 
     await adminPrograms.addDisabledProgram(disabledProgram)
 
+    // in use programs
     await expectProgramListElements(adminPrograms, [publicProgram])
-    await validateScreenshot(page, 'program-list-in-use-tab')
+    await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
+      activeElementClassList,
+    )
+    await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
+      inactiveElementClassList,
+    )
+
+    // disabled programs
     await expectProgramListElements(
       adminPrograms,
       [disabledProgram],
       /* isProgramDisabled = */ true,
     )
-    await validateScreenshot(page, 'program-list-disabled-tab')
+    await expect(page.getByRole('link', {name: 'In use'})).toHaveClass(
+      inactiveElementClassList,
+    )
+    await expect(page.getByRole('link', {name: 'Disabled'})).toHaveClass(
+      activeElementClassList,
+    )
   })
 
   test('sorts by last updated, preferring draft over active', async ({
@@ -227,8 +260,9 @@ test.describe('Program list page.', () => {
     )
 
     await expectProgramListElements(adminPrograms, [programTwo, programOne])
+    const firstProgramCard = page.locator('.cf-admin-program-card').first()
 
-    await validateScreenshot(page, 'intake-form-indicator')
+    await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
   })
 
   test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
@@ -254,11 +288,6 @@ test.describe('Program list page.', () => {
       'universal questions',
     )
 
-    await validateScreenshot(
-      page,
-      'program-list-view-no-universal-questions-text',
-    )
-
     // Create a universal question
     const textQuestion = 'text'
     await adminQuestions.addTextQuestion({
@@ -268,10 +297,6 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
     expect(await page.innerText('.cf-admin-program-card')).toContain(
       'universal questions',
-    )
-    await validateScreenshot(
-      page,
-      'program-list-view-with-universal-questions-text',
     )
   })
 
@@ -340,7 +365,11 @@ test.describe('Program list page.', () => {
     expect(await page.innerText(publishProgramOneModal)).not.toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
-    await validateScreenshot(page, 'publish-single-program-modal-no-warning')
+
+    await validateScreenshot(
+      page.locator(publishProgramOneModal),
+      'publish-single-program-modal-no-warning',
+    )
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
@@ -356,7 +385,10 @@ test.describe('Program list page.', () => {
     expect(await page.innerText(publishProgramOneModal)).toContain(
       'Warning: This program does not use all recommended universal questions.',
     )
-    await validateScreenshot(page, 'publish-single-program-modal-with-warning')
+    await validateScreenshot(
+      page.locator(publishProgramOneModal),
+      'publish-single-program-modal-with-warning',
+    )
     // Dismiss the modal
     await adminQuestions.clickSubmitButtonAndNavigate('Cancel')
 
@@ -392,18 +424,8 @@ test.describe('Program list page.', () => {
     await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoAdminProgramsPage()
 
-    await validateScreenshot(page, 'program-list')
-  })
-
-  test('program list with no image', async ({page, adminPrograms}) => {
-    await loginAsAdmin(page)
-
-    const programName = 'No Image Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllDrafts()
-    await adminPrograms.gotoAdminProgramsPage()
-
-    await validateScreenshot(page, 'program-list-no-image')
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await validateScreenshot(programCard, 'program-list')
   })
 
   test('program list with new image in draft', async ({
@@ -428,7 +450,8 @@ test.describe('Program list page.', () => {
 
     // Verify that the new image is shown in the Draft row
     // and a gray placeholder image icon is shown in the Active row.
-    await validateScreenshot(page, 'program-list-with-new-draft-image')
+    const programCard = page.locator('.cf-admin-program-card').first()
+    await validateScreenshot(programCard, 'program-list-with-new-draft-image')
   })
 
   // This test is flaky in staging prober tests, so only run it locally and on
@@ -457,8 +480,9 @@ test.describe('Program list page.', () => {
       )
       await adminPrograms.gotoAdminProgramsPage()
 
+      const programCard = page.locator('.cf-admin-program-card').first()
       await validateScreenshot(
-        page,
+        programCard,
         'program-list-with-different-active-and-draft-images',
       )
     })
@@ -484,8 +508,9 @@ test.describe('Program list page.', () => {
     await adminPrograms.gotoAdminProgramsPage()
 
     // Verify that the current image is shown twice, in both the Active row and Draft row
+    const programCard = page.locator('.cf-admin-program-card').first()
     await validateScreenshot(
-      page,
+      programCard,
       'program-list-with-same-active-and-draft-image',
     )
   })

@@ -7,12 +7,22 @@
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main>
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
+      <div
+        th:replace="~{applicant/NavigationFragment :: adminPreviewBackButton(${goBackToAdminUrl})}"
+      ></div>
 
+      <div
+        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+          ${applicationParams.programTitle()},
+          ${homeUrl},
+          ${programOverviewUrl})}"
+      ></div>
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
+
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
