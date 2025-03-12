@@ -48,10 +48,11 @@ public final class CiviFormMarkdown {
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
+        Link linkNode = (Link) node;
         attributes.put("class", StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"));
         attributes.put("target", "_blank");
         attributes.put("rel", "noopener noreferrer");
-        attributes.put("aria-label", ariaLabel);
+        attributes.put("aria-label", linkNode.getDestination() + " " + ariaLabel);
       } else if (node instanceof BulletList) {
         attributes.put("class", "list-disc mx-8");
       } else if (node instanceof OrderedList) {
