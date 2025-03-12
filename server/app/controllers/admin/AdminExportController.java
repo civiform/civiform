@@ -64,10 +64,6 @@ public class AdminExportController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, Long programId) {
-    if (!settingsManifest.getProgramMigrationEnabled()) {
-      return notFound("Program export is not enabled");
-    }
-
     ProgramDefinition program;
     try {
       program = programService.getFullProgramDefinition(programId);

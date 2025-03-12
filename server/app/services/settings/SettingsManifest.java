@@ -1023,11 +1023,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
-  /** Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled() {
-    return getBool("PROGRAM_MIGRATION_ENABLED");
-  }
-
   /** When enabled, admins will be able to select many applications for status updates */
   public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
@@ -2229,12 +2224,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "PROGRAM_MIGRATION_ENABLED",
-                          "Enables migrating programs between deployed environments",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "BULK_STATUS_UPDATE_ENABLED",
                           "When enabled, admins will be able to select many applications for status"
