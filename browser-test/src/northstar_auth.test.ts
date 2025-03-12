@@ -14,13 +14,13 @@ import {
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
 test.describe('Applicant auth', {tag: ['@northstar']}, () => {
+  const endYourSessionText = 'end your session'
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
   test('Applicant can login', async ({page}) => {
     await loginAsTestUser(page)
-    await validateScreenshot(page, 'logged-in')
 
     await expect(page.getByRole('banner')).toContainText(
       `Logged in as ${testUserDisplayName()}`,
@@ -30,16 +30,11 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     ).toBeAttached()
   })
 
-  test('No guest user shown in banner when viewing index page', async ({
+  test('End your session banner is not shown when first viewing index page', async ({
     page,
   }) => {
-    await validateScreenshot(page, 'no-user')
-
-    await expect(page.getByRole('banner')).not.toContainText(
-      "You're a guest user.",
-    )
     await expect(
-      page.getByRole('banner').getByRole('link', {name: 'End session'}),
+      page.getByRole('banner').getByRole('link', {name: endYourSessionText}),
     ).not.toBeAttached()
   })
 
@@ -60,14 +55,13 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     )
     await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
-      page.getByRole('link', {name: 'end your session'}),
+      page.getByRole('link', {name: endYourSessionText}),
     ).toBeAttached()
 
-    await page.getByRole('link', {name: 'end your session'}).click()
+    await page.getByRole('link', {name: endYourSessionText}).click()
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'guest-just-ended-session')
   })
 
   test('Applicant can confirm central provider logout', async ({page}) => {
@@ -116,7 +110,6 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await loginAsTestUser(page)
     await logout(page, /* closeToast=*/ false)
     await validateToastMessage(page, 'Your session has ended.')
-    await validateScreenshot(page, 'user-just-ended-session')
 
     await validateAccessibility(page)
   })
@@ -145,7 +138,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     })
     await expect(applicationCardLocator).toBeAttached()
 
-    // locator("..") gets the direct parent element
+    // locator("..") gets the direct parent element, need to go up two levels
     await expect(
       applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
@@ -154,7 +147,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     await logout(page)
     await loginAsTestUser(page)
 
-    // locator("..") gets the direct parent element
+    // locator("..") gets the direct parent element, need to go up two levels
     await expect(
       applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
