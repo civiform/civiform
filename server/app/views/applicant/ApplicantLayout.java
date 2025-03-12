@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
@@ -83,6 +84,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final boolean isDevOrStaging;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
+  private final MessagesApi messagesApi;
 
   @Inject
   public ApplicantLayout(
@@ -94,7 +96,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
-      PageNotProductionBanner pageNotProductionBanner) {
+      PageNotProductionBanner pageNotProductionBanner,
+      MessagesApi messagesApi) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -102,10 +105,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
+    // Add the session timeout modals to the bundle if the profile is present
+    Optional<CiviFormProfile> profile =
+        profileUtils.optionalCurrentUserProfile(bundle.getRequest());
+    if (profile.isPresent()) {
+      maybeAddSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
+    }
+
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
