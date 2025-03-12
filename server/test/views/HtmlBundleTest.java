@@ -77,7 +77,7 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testUswdsModals() {
+  public void testUSWDSModals() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
     DivTag modal =
@@ -108,7 +108,7 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testMultipleUswdsModals() {
+  public void testMultipleUSWDSModals() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
 
     DivTag modal1 = div().withClass("usa-modal").withId("test-modal-1").with(p("First modal"));
@@ -128,7 +128,7 @@ public class HtmlBundleTest extends ResetPostgres {
   }
 
   @Test
-  public void testEmptyUswdsModalsContainer() {
+  public void testEmptyUSWDSModalsContainer() {
     HtmlBundle bundle = new HtmlBundle(fakeRequest(), viewUtils);
     bundle.setJsBundle(JsBundle.APPLICANT);
 
