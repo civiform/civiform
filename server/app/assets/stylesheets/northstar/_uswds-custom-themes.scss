@@ -27,6 +27,7 @@
   box-shadow: 0 0 0 2px var(--primary);
 }
 
+// TODO(#9904): Update color var to be secondary or primary-lighter once product decision has been finalized.
 .usa-button.usa-modal__close {
   background-color: transparent;
   color: var(--primary);
