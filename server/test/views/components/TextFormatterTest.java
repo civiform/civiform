@@ -40,14 +40,14 @@ public class TextFormatterTest extends ResetPostgres {
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
         "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"http://internet.website opens in"
+            + " a new tab\" rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"https://secure.website opens in"
+            + " a new tab\" rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
         "</svg></a></p>\n");
   }
 
@@ -62,8 +62,8 @@ public class TextFormatterTest extends ResetPostgres {
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">this is a link",
+            + " hover:opacity-100\" target=\"_blank\" aria-label=\"https://www.google.com opens in"
+            + " a new tab\" rel=\"nofollow noopener noreferrer\">this is a link",
         "</svg></a></p>\n");
   }
 
@@ -278,7 +278,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content.get(0).render()).contains("aria-label=\"test aria label\"");
+    assertThat(content.get(0).render())
+        .contains("aria-label=\"https://www.example.com test aria label\"");
 
     // Set the aria label back to the default for the other tests
     TextFormatter.resetAriaLabelToDefault();
@@ -290,7 +291,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content).contains("aria-label=\"test aria label\"");
+    assertThat(content).contains("aria-label=\"https://www.example.com test aria label\"");
 
     // Set the aria label back to the default for the other tests
     TextFormatter.resetAriaLabelToDefault();
