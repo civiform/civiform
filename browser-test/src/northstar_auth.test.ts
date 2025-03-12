@@ -12,6 +12,7 @@ import {
   validateToastMessage,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
+import {CardSectionName} from './support/applicant_program_list'
 
 test.describe('Applicant auth', {tag: ['@northstar']}, () => {
   const endYourSessionText = 'end your session'
@@ -117,6 +118,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
   test('Guest login followed by auth login stores submitted applications', async ({
     page,
     adminPrograms,
+    applicantProgramList,
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
@@ -138,18 +140,22 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     })
     await expect(applicationCardLocator).toBeAttached()
 
-    // locator("..") gets the direct parent element, we need to go up two levels.
     await expect(
-      applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
 
     // Logout and login to make sure data is tied to account.
     await logout(page)
     await loginAsTestUser(page)
 
-    // locator("..") gets the direct parent element, we need to go up two levels.
     await expect(
-      applicationCardLocator.locator('..').locator('..').getByText('Submitted'),
+      applicantProgramList.getSubmittedTagLocator(
+        CardSectionName.MyApplications,
+        programName,
+      ),
     ).toContainText(/\d?\d\/\d?\d\/\d\d/)
   })
 })
