@@ -100,6 +100,49 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
   })
 
+  test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
+    page,
+  }) => {
+    expect(await page.textContent('html')).not.toContain('End session')
+    expect(await page.textContent('html')).not.toContain("You're a guest user")
+  })
+
+  test('does not show "End session" and "You\'re a guest user" after choosing a different language', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await applicantQuestions.gotoApplicantHomePage()
+    await selectApplicantLanguage(page, 'Español')
+    expect(await page.textContent('html')).not.toContain('End session')
+    expect(await page.textContent('html')).not.toContain("You're a guest user")
+  })
+
+  test('does not redirect to /callback when navigating to paths that do not require a profile', async ({
+    page,
+    context,
+  }) => {
+    let redirectedToCallback = false
+
+    page.on('response', (response) => {
+      if (response.url().includes('/callback?client_name=GuestClient')) {
+        redirectedToCallback = true
+      }
+    })
+
+    // Ensure we clear out any potential active session to verify that going
+    // to / does not redirect to /callback.
+    const PATHS = ['/', '/programs', '/applicants/programs']
+    for (const path of PATHS) {
+      await test.step(`Testing ${path}`, async () => {
+        redirectedToCallback = false
+        await context.clearCookies()
+        await page.goto(BASE_URL + path)
+        await page.waitForLoadState('networkidle')
+        expect(redirectedToCallback).toBe(false)
+      })
+    }
+  })
+
   test('categorizes programs for draft and applied applications as guest user', async ({
     applicantQuestions,
     page,
@@ -217,6 +260,51 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         /* filtersOn= */ false,
         /* northStarEnabled= */ true,
       )
+    })
+  })
+
+  test('categorizes programs for draft and applied applications', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await test.step("Navigate to the applicant's program index and validate that both programs appear in the Not started section.", async () => {
+      await loginAsTestUser(page)
+
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [primaryProgramName, otherProgramName],
+        wantInProgressOrSubmittedPrograms: [],
+      })
+    })
+
+    await test.step('Fill out first application block and confirm that the program appears in the In progress section.', async () => {
+      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [otherProgramName],
+        wantInProgressOrSubmittedPrograms: [primaryProgramName],
+      })
+    })
+
+    await test.step('Finish the application and confirm that the program appears in the Submitted section.', async () => {
+      await applicantQuestions.applyProgram(primaryProgramName, true, false)
+      await applicantQuestions.answerTextQuestion('second answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [otherProgramName],
+        wantInProgressOrSubmittedPrograms: [primaryProgramName],
+      })
+    })
+
+    await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
+      await logout(page)
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [otherProgramName, primaryProgramName],
+        wantInProgressOrSubmittedPrograms: [],
+      })
     })
   })
 
@@ -525,332 +613,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test.describe('common intake form', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
-
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
-
-      await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ true,
-      )
-
-      await adminPrograms.addProgramBlockUsingSpec(
-        commonIntakeFormProgramName,
-        {
-          name: 'Screen 2',
-          description: 'first block',
-          questions: [{name: 'first-q'}],
-        },
-      )
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-    })
-
-    test('shows common intake form card when an application has not been started', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await validateScreenshot(
-        page.getByLabel('Get Started'),
-        'ns-common-intake-form',
-      )
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
-        {
-          expectedProgramsInMyApplicationsSection: [],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-    })
-
-    test('puts common intake card in My applications section when application is in progress or submitted', async ({
-      applicantQuestions,
-      page,
-    }) => {
-      await test.step('Start applying to the common intake', async () => {
-        await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
-          /* northStarEnabled= */ true,
-          /* showProgramOverviewPage= */ false,
-        )
-        await applicantQuestions.answerTextQuestion('answer')
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.gotoApplicantHomePage()
-      })
-
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
-        {
-          expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
-          ],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-
-      await expect(page.getByLabel('Get Started')).toHaveCount(0)
-
-      await test.step('Submit application to the common intake', async () => {
-        await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
-          /* northStarEnabled= */ true,
-          /* showProgramOverviewPage= */ false,
-        )
-        await applicantQuestions.clickSubmitApplication()
-        await applicantQuestions.gotoApplicantHomePage()
-      })
-
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
-        {
-          expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
-          ],
-          expectedProgramsInProgramsAndServicesSection: [
-            primaryProgramName,
-            otherProgramName,
-          ],
-          expectedProgramsInRecommendedSection: [],
-          expectedProgramsInOtherProgramsSection: [],
-        },
-        /* filtersOn= */ false,
-        /* northStarEnabled= */ true,
-      )
-
-      await expect(page.getByLabel('Get Started')).toHaveCount(0)
-    })
-  })
-
-  test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
-    page,
-  }) => {
-    expect(await page.textContent('html')).not.toContain('End session')
-    expect(await page.textContent('html')).not.toContain("You're a guest user")
-  })
-
-  test('does not show "End session" and "You\'re a guest user" after choosing a different language', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguage(page, 'Español')
-    expect(await page.textContent('html')).not.toContain('End session')
-    expect(await page.textContent('html')).not.toContain("You're a guest user")
-  })
-
-  test('does not redirect to /callback when navigating to paths that do not require a profile', async ({
-    page,
-    context,
-  }) => {
-    let redirectedToCallback = false
-
-    page.on('response', (response) => {
-      if (response.url().includes('/callback?client_name=GuestClient')) {
-        redirectedToCallback = true
-      }
-    })
-
-    // Ensure we clear out any potential active session to verify that going
-    // to / does not redirect to /callback.
-    const PATHS = ['/', '/programs', '/applicants/programs']
-    for (const path of PATHS) {
-      await test.step(`Testing ${path}`, async () => {
-        redirectedToCallback = false
-        await context.clearCookies()
-        await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
-        expect(redirectedToCallback).toBe(false)
-      })
-    }
-  })
-
-  test('categorizes programs for draft and applied applications', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await test.step("Navigate to the applicant's program index and validate that both programs appear in the Not started section.", async () => {
-      await loginAsTestUser(page)
-
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [primaryProgramName, otherProgramName],
-        wantInProgressOrSubmittedPrograms: [],
-      })
-    })
-
-    await test.step('Fill out first application block and confirm that the program appears in the In progress section.', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.answerTextQuestion('first answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressOrSubmittedPrograms: [primaryProgramName],
-      })
-    })
-
-    await test.step('Finish the application and confirm that the program appears in the Submitted section.', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true, false)
-      await applicantQuestions.answerTextQuestion('second answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressOrSubmittedPrograms: [primaryProgramName],
-      })
-    })
-
-    await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
-      await logout(page)
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName, primaryProgramName],
-        wantInProgressOrSubmittedPrograms: [],
-      })
-    })
-  })
-
-  test('common intake form not present', async ({page}) => {
-    await validateScreenshot(page, 'ns-common-intake-form-not-set')
-    await validateAccessibility(page)
-  })
-
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
-
-    test.beforeEach(async ({page, adminPrograms}) => {
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
-        'program description',
-        'short program description',
-        'https://usa.gov',
-        ProgramVisibility.PUBLIC,
-        'admin description',
-        /* isCommonIntake= */ true,
-      )
-      await adminPrograms.publishAllDrafts()
-      await logout(page)
-    })
-
-    test('shows common intake form', async ({page, applicantQuestions}) => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.answerTextQuestion('first answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.gotoApplicantHomePage()
-
-      await validateScreenshot(page, 'ns-common-intake-form-sections')
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressOrSubmittedPrograms: [primaryProgramName],
-      })
-      await applicantQuestions.expectCommonIntakeFormNorthstar(
-        commonIntakeFormProgramName,
-      )
-    })
-
-    test('shows a different title for the common intake form', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-      expect(await page.innerText('h2')).toContain('How to apply')
-
-      await applicantQuestions.gotoApplicantHomePage()
-
-      await applicantQuestions.clickApplyProgramButton('Benefits finder')
-      expect(await page.innerText('h2')).toContain('Review and submit')
-    })
-  })
-
-  test('shows previously answered on text for questions that had been answered', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await test.step('Fill out application with one question and confirm it shows previously answered at the end', async () => {
-      await applicantQuestions.applyProgram(otherProgramName, true)
-      await applicantQuestions.answerTextQuestion('first answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-      await applicantQuestions.submitFromReviewPage(true)
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.expectProgramsNorthstar({
-        wantNotStartedPrograms: [primaryProgramName],
-        wantInProgressOrSubmittedPrograms: [otherProgramName],
-      })
-    })
-
-    await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
-      await applicantQuestions.applyProgram(primaryProgramName, true)
-      await applicantQuestions.clickReview(true)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-
-      await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
-        secondQuestionText,
-      )
-      await validateScreenshot(page, 'ns-question-shows-previously-answered')
-    })
-
-    await test.step('Fill out second question and check that the original program shows previously answered', async () => {
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.answerTextQuestion('second answer')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.clickApplyProgramButton(otherProgramName)
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
-
-    await test.step('Change first response on second program and check that the other program shows the previously answered text too', async () => {
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
-      await page
-        .getByRole('listitem')
-        .filter({hasText: 'Screen 2 Edit This is the'})
-        .getByRole('link')
-        .click()
-      await applicantQuestions.answerTextQuestion('first answer 2')
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.submitFromReviewPage(true)
-
-      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-      await applicantQuestions.clickApplyProgramButton(otherProgramName)
-
-      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
-        firstQuestionText,
-      )
-      await validateScreenshot(
-        page,
-        'ns-other-program-shows-previously-answered',
-      )
-    })
-  })
-
   test.describe('applicant program index page with program filtering', () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
@@ -1077,6 +839,244 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           true,
         )
       })
+    })
+  })
+
+  test('common intake form not present', async ({page}) => {
+    await validateScreenshot(page, 'ns-common-intake-form-not-set')
+    await validateAccessibility(page)
+  })
+
+  test.describe('common intake form', () => {
+    const commonIntakeFormProgramName = 'Benefits finder'
+
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+
+      await adminPrograms.addProgram(
+        commonIntakeFormProgramName,
+        'program description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+
+      await adminPrograms.addProgramBlockUsingSpec(
+        commonIntakeFormProgramName,
+        {
+          name: 'Screen 2',
+          description: 'first block',
+          questions: [{name: 'first-q'}],
+        },
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    test('shows common intake form card when an application has not been started', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await validateScreenshot(
+        page.getByLabel('Get Started'),
+        'ns-common-intake-form',
+      )
+      await applicantQuestions.expectProgramsWithFilteringEnabled(
+        {
+          expectedProgramsInMyApplicationsSection: [],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+        /* northStarEnabled= */ true,
+      )
+    })
+
+    test('puts common intake card in My applications section when application is in progress or submitted', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await test.step('Start applying to the common intake', async () => {
+        await applicantQuestions.applyProgram(
+          commonIntakeFormProgramName,
+          /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
+        )
+        await applicantQuestions.answerTextQuestion('answer')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
+
+      await applicantQuestions.expectProgramsWithFilteringEnabled(
+        {
+          expectedProgramsInMyApplicationsSection: [
+            commonIntakeFormProgramName,
+          ],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+        /* northStarEnabled= */ true,
+      )
+
+      await expect(page.getByLabel('Get Started')).toHaveCount(0)
+
+      await test.step('Submit application to the common intake', async () => {
+        await applicantQuestions.applyProgram(
+          commonIntakeFormProgramName,
+          /* northStarEnabled= */ true,
+          /* showProgramOverviewPage= */ false,
+        )
+        await applicantQuestions.clickSubmitApplication()
+        await applicantQuestions.gotoApplicantHomePage()
+      })
+
+      await applicantQuestions.expectProgramsWithFilteringEnabled(
+        {
+          expectedProgramsInMyApplicationsSection: [
+            commonIntakeFormProgramName,
+          ],
+          expectedProgramsInProgramsAndServicesSection: [
+            primaryProgramName,
+            otherProgramName,
+          ],
+          expectedProgramsInRecommendedSection: [],
+          expectedProgramsInOtherProgramsSection: [],
+        },
+        /* filtersOn= */ false,
+        /* northStarEnabled= */ true,
+      )
+
+      await expect(page.getByLabel('Get Started')).toHaveCount(0)
+    })
+  })
+
+  test.describe('common intake form present', () => {
+    const commonIntakeFormProgramName = 'Benefits finder'
+
+    test.beforeEach(async ({page, adminPrograms}) => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        commonIntakeFormProgramName,
+        'program description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    test('shows common intake form', async ({page, applicantQuestions}) => {
+      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.gotoApplicantHomePage()
+
+      await validateScreenshot(page, 'ns-common-intake-form-sections')
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [otherProgramName],
+        wantInProgressOrSubmittedPrograms: [primaryProgramName],
+      })
+      await applicantQuestions.expectCommonIntakeFormNorthstar(
+        commonIntakeFormProgramName,
+      )
+    })
+
+    test('shows a different title for the common intake form', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+      expect(await page.innerText('h2')).toContain('How to apply')
+
+      await applicantQuestions.gotoApplicantHomePage()
+
+      await applicantQuestions.clickApplyProgramButton('Benefits finder')
+      expect(await page.innerText('h2')).toContain('Review and submit')
+    })
+  })
+
+  test('shows previously answered on text for questions that had been answered', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await test.step('Fill out application with one question and confirm it shows previously answered at the end', async () => {
+      await applicantQuestions.applyProgram(otherProgramName, true)
+      await applicantQuestions.answerTextQuestion('first answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+        firstQuestionText,
+      )
+      await applicantQuestions.submitFromReviewPage(true)
+      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.expectProgramsNorthstar({
+        wantNotStartedPrograms: [primaryProgramName],
+        wantInProgressOrSubmittedPrograms: [otherProgramName],
+      })
+    })
+
+    await test.step('Check that the question repeated in the program with two questions shows previously answered', async () => {
+      await applicantQuestions.applyProgram(primaryProgramName, true)
+      await applicantQuestions.clickReview(true)
+      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+        firstQuestionText,
+      )
+
+      await applicantQuestions.northStarValidateNoPreviouslyAnsweredText(
+        secondQuestionText,
+      )
+      await validateScreenshot(page, 'ns-question-shows-previously-answered')
+    })
+
+    await test.step('Fill out second question and check that the original program shows previously answered', async () => {
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerTextQuestion('second answer')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+
+      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.clickApplyProgramButton(otherProgramName)
+      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+        firstQuestionText,
+      )
+      await applicantQuestions.clickSubmitApplication()
+    })
+
+    await test.step('Change first response on second program and check that the other program shows the previously answered text too', async () => {
+      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+      await page
+        .getByRole('listitem')
+        .filter({hasText: 'Screen 2 Edit This is the'})
+        .getByRole('link')
+        .click()
+      await applicantQuestions.answerTextQuestion('first answer 2')
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.submitFromReviewPage(true)
+
+      await applicantQuestions.returnToProgramsFromSubmissionPage(true)
+      await applicantQuestions.clickApplyProgramButton(otherProgramName)
+
+      await applicantQuestions.northStarValidatePreviouslyAnsweredText(
+        firstQuestionText,
+      )
+      await validateScreenshot(
+        page,
+        'ns-other-program-shows-previously-answered',
+      )
     })
   })
 })
