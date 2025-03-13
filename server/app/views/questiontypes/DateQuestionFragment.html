@@ -37,7 +37,11 @@
       >
         <label class="usa-label" th:for="${monthId}">
           <span th:text="#{label.month}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -121,7 +125,11 @@
       >
         <label class="usa-label" th:for="${dayId}">
           <span th:text="#{label.day}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -145,7 +153,11 @@
       >
         <label class="usa-label" th:for="${yearId}">
           <span th:text="#{label.year}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
