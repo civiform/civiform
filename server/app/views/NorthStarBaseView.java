@@ -109,14 +109,17 @@ public abstract class NorthStarBaseView {
 
     Optional<String> themeColorPrimary = settingsManifest.getThemeColorPrimary(request);
     Optional<String> themeColorPrimaryDark = settingsManifest.getThemeColorPrimaryDark(request);
-    // TODO(dwaterman): wrap this in a feature flag check
+    context.setVariable("themeColorPrimary", "#005ea2");
+    context.setVariable("themeColorPrimaryDark",  "#162e51");
+    if (settingsManifest.getCustomThemeColorsEnabled(request)) {
     if (themeColorPrimary.isPresent() && !themeColorPrimary.get().isEmpty()) {
       context.setVariable("themeColorPrimary", themeColorPrimary.get());
-    } else {
-      context.setVariable("themeColorPrimary", "#005ea2");
     }
-    context.setVariable("themeColorPrimaryDark", themeColorPrimaryDark.isPresent() ? themeColorPrimaryDark.get()
-    : "#005ea2"); // TODO(dwaterman): use different value
+    if (themeColorPrimaryDark.isPresent()) {
+      context.setVariable("themeColorPrimaryDark", themeColorPrimaryDark.get()); 
+    }
+    
+  }
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
