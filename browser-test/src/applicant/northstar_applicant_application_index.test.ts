@@ -833,13 +833,17 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('formats card correctly when description is one long word', async ({page, adminPrograms}) => {
+  test('formats card correctly when description is one long word', async ({
+    page,
+    adminPrograms,
+  }) => {
     await test.step('Add a program with one long word as the description', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
-        "Program with long word description", 
-        "description", 
-        "abracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabra")
+        'Program with long word description',
+        'description',
+        'abracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabra',
+      )
       await adminPrograms.publishAllDrafts()
       await logout(page)
     })
