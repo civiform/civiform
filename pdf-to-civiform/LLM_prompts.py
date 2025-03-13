@@ -87,11 +87,9 @@ class LLMPrompts:
         3. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
         4. Within each section, collate options for checkboxes as one field of "checkbox" type if possible. Checkbox fields must have options. Checkbox options must be uqique.
         5. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
-        6. make sure IDs are unique across the entire form.
-        7. make sure every section has a meaning title.
-        8. remove questions or sections related to signatures. 
-        9. remove questions or sections related to office use only. 
-
+        6. make sure IDs are meaningful,  unique across the entire form and only contain lowercase letters, numbers, and dashes, no other special charactrs.
+        7. make sure every section has a meaningful title.
+        8. remove questions or sections related to office use only. 
         
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
