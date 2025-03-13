@@ -41,7 +41,7 @@ class LLMPrompts:
         and associate instructions with relevant fields.
         
         Additionally, detect repeating sections and mark them accordingly.
-          
+
         A table is usually a repeating section. 
 
         make sure to consider the following rules to extract input fields and types:
@@ -65,12 +65,6 @@ class LLMPrompts:
         """
         return prompt
 
-    # added checkbox postprocessing to collate options. needed for Charlotte BUSINESS MATCHING GRANT PROGRAM APPLICATION form
-    # need to move repeating sections out of sections.  needed for Charlotte BUSINESS MATCHING GRANT PROGRAM APPLICATION form
-    # 7 make sure all sections has a title.   needed for Charlotte BUSINESS MATCHING GRANT PROGRAM APPLICATION
-    # 8. remove questions or sections related to signatures. 
-    # 9. remove questions or sections related to office use only. 
-
     @staticmethod
     def post_process_json_prompt(text):
         """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
@@ -84,12 +78,10 @@ class LLMPrompts:
         make sure to consider the following rules to process the json: 
         1. Do NOT create nested sections. 
         2. Within each section, If you find separate fields for first name, middle name, and last name, collate them into a single 'name' type field if possible. Do not create separate fields for name components. 
-        3. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
-        4. Within each section, collate options for checkboxes as one field of "checkbox" type if possible. Checkbox fields must have options. Checkbox options must be uqique.
-        5. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
-        6. make sure IDs are meaningful,  unique across the entire form and only contain lowercase letters, numbers, and dashes, no other special charactrs.
-        7. make sure every section has a meaningful title.
-        8. remove questions or sections related to office use only. 
+        2. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
+        3. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
+        4. make sure IDs are unique across the entire form.
+
         
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
