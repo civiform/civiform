@@ -441,7 +441,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         // Check the program count in the section
         await expect(
           page.locator(
-            '#unfiltered-programs .cf-program-card-group .cf-application-card',
+            '#unfiltered-programs .usa-card-group .cf-application-card',
           ),
         ).toHaveCount(4)
       })
@@ -595,7 +595,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
         await expect(
           page.locator(
-            '#unfiltered-programs .cf-program-card-group .cf-application-card',
+            '#unfiltered-programs .usa-card-group .cf-application-card',
           ),
         ).toHaveCount(4)
 
@@ -831,6 +831,27 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         'ns-other-program-shows-previously-answered',
       )
     })
+  })
+
+  test('formats card correctly when description is one long word', async ({
+    page,
+    adminPrograms,
+  }) => {
+    await test.step('Add a program with one long word as the description', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        'Program with long word description',
+        'description',
+        'abracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabracadabra',
+      )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
+
+    await validateScreenshot(
+      page.locator('#unfiltered-programs'),
+      'applicant-homepage-cards-long-word-description',
+    )
   })
 })
 

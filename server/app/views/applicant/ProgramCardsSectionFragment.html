@@ -18,10 +18,7 @@
   </div>
 
   <!--/* Programs card section */-->
-  <ul
-    th:unless="${sectionType == 'COMMON_INTAKE'}"
-    class="usa-card-group cf-program-card-group"
-  >
+  <ul th:unless="${sectionType == 'COMMON_INTAKE'}" class="usa-card-group">
     <th:block th:each="card : ${section.cards()}">
       <li
         th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${sectionType} ?: 'STANDARD')}"
@@ -33,7 +30,7 @@
 <li
   th:fragment="card (card, sectionType)"
   th:with="showImage=(${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())})"
-  class="usa-card tablet-lg:grid-col-6 widescreen:grid-col-4 cf-application-card"
+  class="usa-card tablet:grid-col-6 desktop:grid-col-4 cf-application-card"
   th:classappend="${showImage} ? usa-card--header-first : '' "
 >
   <div
@@ -51,11 +48,10 @@
 
     <!--*/ Optional image */-->
     <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
-      <div class="usa-card__img">
+      <div class="usa-card__img add-aspect-16x9">
         <img
           th:src="${card.imageSourceUrl().get()}"
           th:alt="${card.altText().orElse('')}"
-          class="cf-program-card-image"
         />
       </div>
     </div>
@@ -76,7 +72,7 @@
 
       <!--*/Program description */-->
       <div class="usa-prose">
-        <p th:text="${card.body()}"></p>
+        <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
       </div>
 
       <!--*/In progress tag */-->

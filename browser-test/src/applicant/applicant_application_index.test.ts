@@ -894,7 +894,7 @@ test.describe('applicant program index page', () => {
             // Check the program count in the section
             await expect(
               page.locator(
-                '#unfiltered-programs .cf-program-card-group .cf-application-card',
+                '#unfiltered-programs .usa-card-group .cf-application-card',
               ),
             ).toHaveCount(4)
           })
@@ -1048,7 +1048,7 @@ test.describe('applicant program index page', () => {
 
             await expect(
               page.locator(
-                '#unfiltered-programs .cf-program-card-group .cf-application-card',
+                '#unfiltered-programs .usa-card-group .cf-application-card',
               ),
             ).toHaveCount(4)
 
