@@ -53,7 +53,9 @@ public class SessionTimeoutFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-
+    if (SettingsFilter.areSettingRequestAttributesExcluded(requestHeader)) {
+      return nextFilter.apply(requestHeader);
+    }
     Optional<CiviFormProfile> optionalProfile =
         profileUtils.optionalCurrentUserProfile(requestHeader);
     if (optionalProfile.isEmpty()
