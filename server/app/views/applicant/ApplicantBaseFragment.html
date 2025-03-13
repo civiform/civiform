@@ -17,9 +17,10 @@
     type="text/javascript"
   ></script>
 
-  <style th:inline="css">
+  <style th:inline="css" th:nonce="${cspNonce}">
     :root {
-      --primary: [(${primaryColor})];
+      --primary: [(${themeColorPrimary})];
+      --primary-dark: [(${themeColorPrimaryDark})];
     }
   </style>
 </head>

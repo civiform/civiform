@@ -107,12 +107,16 @@ public abstract class NorthStarBaseView {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
 
-    Optional<String> primaryColor = settingsManifest.getThemeColorPrimary(request);
-    if (primaryColor.isPresent() && !primaryColor.get().isEmpty()) {
-      context.setVariable("primaryColor", primaryColor.get());
+    Optional<String> themeColorPrimary = settingsManifest.getThemeColorPrimary(request);
+    Optional<String> themeColorPrimaryDark = settingsManifest.getThemeColorPrimaryDark(request);
+    // TODO(dwaterman): wrap this in a feature flag check
+    if (themeColorPrimary.isPresent() && !themeColorPrimary.get().isEmpty()) {
+      context.setVariable("themeColorPrimary", themeColorPrimary.get());
     } else {
-      context.setVariable("primaryColor", "#005ea2");
+      context.setVariable("themeColorPrimary", "#005ea2");
     }
+    context.setVariable("themeColorPrimaryDark", themeColorPrimaryDark.isPresent() ? themeColorPrimaryDark.get()
+    : "#005ea2"); // TODO(dwaterman): use different value
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
