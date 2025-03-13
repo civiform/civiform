@@ -158,7 +158,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       // Go back to question and ensure that "Review" button is also clickable
       // via Enter.
       await applicantQuestions.clickEdit()
-      await page.focus('text="Review and exit"')
+      await page.focus('text="Review and submit"')
       await page.keyboard.press('Enter')
       await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
     })
@@ -206,7 +206,7 @@ test.describe('Text question for applicant flow', {tag: ['@northstar']}, () => {
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
       // Should display answered question with "x"s cut off from the end.
-      await validateScreenshot(page, 'text-max')
+      await validateScreenshot(page.locator('main'), 'text-max')
 
       // Form should submit with partial text entry.
       await applicantQuestions.submitFromReviewPage(

@@ -320,6 +320,7 @@ test.describe('applicant program index page', () => {
       )
 
       await applicantQuestions.gotoApplicantHomePage()
+
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
       expect(await page.innerText('h2')).toContain(
         'Benefits pre-screener summary',
@@ -836,6 +837,13 @@ test.describe('applicant program index page', () => {
             await expect(filterChips.getByText('Healthcare')).toBeVisible()
             await expect(filterChips.getByText('General')).toBeVisible()
             await expect(filterChips.getByText('Utilities')).toBeVisible()
+            // Take screenshot to validate filters and buttons are in different rows (fixes #9768).
+            await validateScreenshot(
+              page.locator('#ns-category-filter-form'),
+              'north-star-homepage-programs-filters',
+              /* fullPage= */ false,
+              /* mobileScreenshot= */ true,
+            )
           })
 
           await test.step('start applying to a program', async () => {

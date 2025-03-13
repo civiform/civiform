@@ -6,11 +6,39 @@
   <import class="ch.qos.logback.classic.AsyncAppender" />
   <import class="ch.qos.logback.core.FileAppender" />
   <import class="ch.qos.logback.core.ConsoleAppender" />
+  <import class="net.logstash.logback.encoder.LogstashEncoder" />
+
+  <!--
+      The `LogstashEncoder` has made Logback extremely noise on startup. Setting
+      debug="false" to the configuration element has no effect because that does
+      not take effect until after.
+
+      This `NopStatusListener` only affects logging statements coming from Logback
+      itself. Logging coming from our application remains unaffected.
+
+      If this were a one time thing at startup of the container it wouldn't be so
+      bad, but every time the hot reload occurs around 50-100 lines from Logback
+      restarting are dumped to the console. This makes it much more difficult to
+      view the logs for issues during development.
+  -->
+  <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
   <appender name="FILE" class="FileAppender">
     <file>${application.home:-.}/logs/application.log</file>
     <encoder class="PatternLayoutEncoder">
       <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="JSON" class="ConsoleAppender">
+    <encoder class="LogstashEncoder">
+      <fieldNames>
+        <timestamp>timestamp</timestamp>
+        <level>severity</level>
+        <version>[ignore]</version>
+        <levelValue>[ignore]</levelValue>
+      </fieldNames>
+      <includeContext>false</includeContext>
     </encoder>
   </appender>
 
@@ -22,6 +50,10 @@
 
   <appender name="ASYNCFILE" class="AsyncAppender">
     <appender-ref ref="FILE" />
+  </appender>
+
+  <appender name="ASYNCJSON" class="AsyncAppender">
+    <appender-ref ref="JSON" />
   </appender>
 
   <appender name="ASYNCSTDOUT" class="AsyncAppender">
@@ -56,9 +88,15 @@
   <logger name="io.ebean.SQL" level="OFF" />
   <logger name="io.ebean.TXN" level="OFF" />
 
+  <!--
+    If the environment variable LOGBACK_CONSOLE_APPENDER is set, then it will used as the
+    appender for console logging.  If the environment variable is not set, then the ASYNCSTDOUT
+    appender wil be used.
 
+    This environment variable is used in GCP deployemnts to reference ASYNCJSON appender.
+  -->
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="ASYNCSTDOUT" />
+    <appender-ref ref="${LOGBACK_CONSOLE_APPENDER:-ASYNCSTDOUT}" />
   </root>
 </configuration>

@@ -61,7 +61,6 @@
 
               <div class="section-internal">
                 <a
-                  th:if="${isApplicationExportable}"
                   th:href="${downloadHref}"
                   class="usa-button"
                   th:text="#{button.downloadApplication}"
@@ -105,20 +104,19 @@
         </div>
       </div>
 
+      <!--/* Program cards */-->
       <section th:if="${showProgramsCardsSection}" class="section-external">
         <div class="grid-container">
           <div class="grid-row">
-            <div class="tablet:grid-col-8">
-              <div class="usa-prose">
-                <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
-              </div>
+            <div class="tablet:grid-col-8 usa-prose">
+              <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
             </div>
           </div>
-        </div>
-        <div class="section-internal">
-          <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
-          ></div>
+          <div class="section-internal">
+            <div
+              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+            ></div>
+          </div>
         </div>
       </section>
 

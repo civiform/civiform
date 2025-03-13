@@ -57,7 +57,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
           "TI Email",
           "TI Organization",
           "Status",
-          "Admin Note");
+          "Admin Note",
+          "Status Last Modified Time");
   private static final ImmutableList<String> demographicMetadataHeaders =
       ImmutableList.of(
           "Opaque ID",
@@ -113,7 +114,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "Admin Note");
+            "Admin Note",
+            "Status Last Modified Time");
 
     assertThat(record.get("Applicant ID")).isEqualTo(applicant.id.toString());
     assertThat(record.get("Application ID")).isEqualTo(application.id.toString());
@@ -125,6 +127,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     assertThat(record.get("TI Organization")).isEmpty();
     // Status field tested separately.
     assertThat(record.get("Status")).isEmpty();
+    assertThat(record.get("Status Last Modified Time")).isEqualTo("2022/04/09 03:07:02 AM PDT");
   }
 
   @Test
@@ -179,6 +182,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller fakeApplicationFillerA =
         FakeApplicationFiller.newFillerFor(fakeProgram).submit();
     ApplicationModel fakeApplicationA = fakeApplicationFillerA.getApplication();
+
     programAdminApplicationService.setStatus(
         fakeApplicationA.id,
         fakeProgram.getProgramDefinition(),
@@ -189,10 +193,15 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     FakeApplicationFiller.newFillerFor(fakeProgram).submit();
 
     ImmutableList<CSVRecord> records = getParsedRecords(fakeProgram.id);
-
     // results are in reverse order from submission
     assertThat(records.get(0).get("Status")).isEmpty();
     assertThat(records.get(1).get("Status")).isEqualTo("approved");
+
+    // Status Last Modified Time checks
+    assertThat(records.get(1).get("Status Last Modified Time")).isNotEmpty();
+    // the default Status Last Modified Time should be overridden
+    assertThat(records.get(1).get("Status Last Modified Time"))
+        .isNotEqualTo("2022/04/09 03:07:02 AM PDT");
   }
 
   @Test
@@ -273,7 +282,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "applicant name (middle_name)",
             "applicant name (last_name)",
             "applicant name (suffix)",
-            "Admin Note");
+            "Admin Note",
+            "Status Last Modified Time");
 
     // Applications should appear most recent first.
     assertThat(records.get(0).get("applicant name (first_name)")).isEqualTo("His name");
@@ -327,7 +337,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "Admin Note");
+            "Admin Note",
+            "Status Last Modified Time");
   }
 
   @Test
@@ -386,7 +397,8 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
             "Status",
             // Unanswered questions should still have a column
             "applicant id (id)",
-            "Admin Note");
+            "Admin Note",
+            "Status Last Modified Time");
   }
 
   @Test

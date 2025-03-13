@@ -65,6 +65,54 @@ public class ApplicationModelTest extends ResetPostgres {
   }
 
   @Test
+  public void eligibility_determination_default_not_computed() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(
+        application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
+  }
+
+  @Test
+  public void eligibility_determination_eligible() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.ELIGIBLE);
+    assertThat(application.getEligibilityDetermination().equals(EligibilityDetermination.ELIGIBLE));
+  }
+
+  @Test
+  public void eligibility_determination_ineligible() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.INELIGIBLE);
+    assertThat(
+        application.getEligibilityDetermination().equals(EligibilityDetermination.INELIGIBLE));
+  }
+
+  @Test
+  public void eligibility_determination_no_eligibility_criteria() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    application.setEligibilityDetermination(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
+    assertThat(
+        application
+            .getEligibilityDetermination()
+            .equals(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA));
+  }
+
+  @Test
   public void isAdmin_applicant_isFalse() {
     ProgramModel program = ProgramBuilder.newActiveProgram("test program", "description").build();
 

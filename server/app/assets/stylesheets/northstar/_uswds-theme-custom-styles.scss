@@ -76,7 +76,16 @@ it is around the label */
 }
 
 /*
- * Less padding when there is an error, since we add a border and still want the inputs to line up.
+ * Add padding to the left of the group question when there is an error
+ * to make room for the error border.
+ */
+[class^='cf-question'].cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/*
+ * Less padding when there is a field-level error, since we add a border and
+ * still want the inputs to line up.
  */
 .cf-applicant-question-field.cf-question-field-with-error {
   @include u-padding-left('105');
@@ -118,6 +127,25 @@ it is around the label */
   @include u-margin-y('105');
 }
 
+// When a section follows breadcrumbs it'll add a larger top margin than what
+// we want
+.usa-breadcrumb + section {
+  @include u-margin-top('105');
+}
+
+// Remove top margin from h2 headings in .usa-prose on the home page because we
+// usually get enough spacing from the margin below section cards and add spacing below.
+.usa-prose > h2.cf-below-cards {
+  @include u-margin-top(0);
+  @include u-margin-bottom(3);
+}
+
+// Remove top margin from section elements in .usa-prose on the home page
+// because we sometimes get enough spacing from the margin below section cards.
+.usa-prose section.cf-below-cards {
+  @include u-margin-top(0);
+}
+
 .content-spacing {
   @include u-height('105');
 }
@@ -141,11 +169,17 @@ it is around the label */
 }
 
 .section-bottom {
-  @include u-margin-bottom(1);
+  @include u-margin-bottom(3);
 }
 
-.padding-section-large {
-  @include u-padding(4);
+.double-section-bottom {
+  @include u-margin-bottom(6);
+}
+
+// For the applicant home page container. The bottom spacing is provided by the cards.
+.padding-section-large-three-sides {
+  @include u-padding-top(4);
+  @include u-padding-x(4);
 }
 
 .container {
@@ -246,6 +280,11 @@ it is around the label */
 
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
+  // Hide the logo on mobile and tablet
+  .cf-header-logo {
+    display: none;
+  }
+
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
@@ -258,11 +297,6 @@ it is around the label */
 
 // Styles for mobile
 @media (max-width: 47.9em) {
-  // Hide the logo on mobile
-  .cf-header-logo {
-    display: none;
-  }
-
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;

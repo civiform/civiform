@@ -237,7 +237,7 @@ test.describe('address correction', () => {
       // once since they are all the same
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-with-suggestions',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -286,7 +286,7 @@ test.describe('address correction', () => {
 
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-no-suggestions',
         /* fullPage= */ true,
         /* mobileScreenshot= */ true,
@@ -320,7 +320,7 @@ test.describe('address correction', () => {
 
       await validateAccessibility(page)
       await validateScreenshot(
-        page,
+        page.locator('main'),
         'verify-address-esri-service-error',
         /* fullPage= */ true,
         // Since this page is currently the same as the no-suggestions page,
@@ -442,7 +442,7 @@ test.describe('address correction', () => {
           await applicantQuestions.expectVerifyAddressPage(true)
 
           await validateScreenshot(
-            page,
+            page.locator('main'),
             'north-star-verify-address-with-suggestions',
             /* fullPage= */ true,
             /* mobileScreenshot= */ true,
@@ -537,7 +537,7 @@ test.describe('address correction', () => {
         await applicantQuestions.expectVerifyAddressPage(false)
 
         await validateScreenshot(
-          page,
+          page.locator('main'),
           'north-star-verify-address-no-suggestions',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,

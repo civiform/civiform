@@ -61,6 +61,7 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
             : params.messages().at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     String pageTitle = String.format("%s — %s", summarySubstring, params.programTitle());
     context.setVariable("pageTitle", pageTitle);
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(params));
 
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
@@ -160,6 +161,10 @@ public final class NorthStarApplicantProgramSummaryView extends NorthStarBaseVie
 
   private String getSubmitUrl(Params params) {
     return applicantRoutes.submit(params.profile(), params.applicantId(), params.programId()).url();
+  }
+
+  private String getGoBackToAdminUrl(Params params) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(params.programId()).url();
   }
 
   @AutoValue

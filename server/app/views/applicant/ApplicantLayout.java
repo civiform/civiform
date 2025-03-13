@@ -7,6 +7,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
@@ -80,7 +81,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final LanguageUtils languageUtils;
   private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
-  private final DebugContent debugContent;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
 
@@ -93,7 +93,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      DebugContent debugContent,
       AssetsFinder assetsFinder,
       PageNotProductionBanner pageNotProductionBanner) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
@@ -102,7 +101,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageSelector = checkNotNull(languageSelector);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.debugContent = debugContent;
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
   }
 
@@ -174,10 +172,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col")
             .with(
-                div()
-                    .condWith(
-                        getSettingsManifest().getShowCiviformImageTagOnLandingPage(request),
-                        debugContent.civiformVersionDiv()),
                 div()
                     .with(
                         span(
@@ -310,7 +304,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .with(
                     p(
-                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        iff(
+                            !settingsManifest.getHideCivicEntityNameInHeader(request),
+                            b(settingsManifest.getWhitelabelCivicEntityShortName(request).get())),
                         span(text(" CiviForm")))));
   }
 

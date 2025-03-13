@@ -66,7 +66,9 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     })
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
-      await expect(usaBannerLocator).toContainText('An official website')
+      await expect(usaBannerLocator).toContainText(
+        'This is an official government website',
+      )
       await expect(usaBannerContentLocator).toBeHidden()
     })
 
@@ -92,7 +94,7 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     await test.step('Page loads with the banner visible and collapsed', async () => {
       await expect(usaBannerLocator).toContainText(
-        'An official website of the United States government',
+        'This is an official government website',
       )
       await expect(usaBannerContentLocator).toBeHidden()
     })
@@ -117,13 +119,13 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     await expect(headerLogo).toBeVisible()
   })
 
-  test('Header on tablet with north star enabled shows logo', async ({
+  test('Header on tablet with north star enabled hides logo', async ({
     page,
   }) => {
     await page.setViewportSize({width: 800, height: 1024})
 
     const headerLogo = page.locator('.cf-header-logo')
-    await expect(headerLogo).toBeVisible()
+    await expect(headerLogo).toBeHidden()
   })
 
   test('Header on mobile with north star enabled hides logo', async ({
@@ -133,5 +135,41 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     const headerLogo = page.locator('.cf-header-logo')
     await expect(headerLogo).toBeHidden()
+  })
+
+  test('Government name shown', async ({page}) => {
+    const headerText = page.locator('.usa-logo__text')
+    await expect(headerText).toHaveText('TestCity CiviForm')
+  })
+
+  test('Government name hidden', async ({page}) => {
+    await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+
+    await test.step('Header on desktop shows logo and hides gov name', async () => {
+      await page.setViewportSize({width: 1280, height: 720})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeVisible()
+      await expect(govName).toBeHidden()
+    })
+
+    await test.step('Header on tablet hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 800, height: 1024})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
+
+    await test.step('Header on mobile hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
   })
 })
