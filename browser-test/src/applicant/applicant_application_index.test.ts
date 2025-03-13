@@ -320,6 +320,7 @@ test.describe('applicant program index page', () => {
       )
 
       await applicantQuestions.gotoApplicantHomePage()
+
       await applicantQuestions.clickApplyProgramButton('Benefits finder')
       expect(await page.innerText('h2')).toContain(
         'Benefits pre-screener summary',

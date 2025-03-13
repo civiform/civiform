@@ -882,11 +882,6 @@
         "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
-      "PROGRAM_MIGRATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables migrating programs between deployed environments",
-        "type": "bool"
-      },
       "BULK_STATUS_UPDATE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, admins will be able to select many applications for status updates",
