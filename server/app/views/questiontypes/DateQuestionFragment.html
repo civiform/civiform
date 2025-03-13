@@ -49,6 +49,7 @@
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
           th:aria-describedby="${questionId} + '-description'"
           th:autofocus="${questionRendererParams.autofocusFirstError()}"
+          th:aria-required="${!question.isOptional()}"
         >
           <option value th:text="#{placeholder.memorableDate}"></option>
           <option
@@ -134,6 +135,7 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getDayValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
       <!--/* Year input */-->
@@ -158,6 +160,7 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getYearValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
     </div>

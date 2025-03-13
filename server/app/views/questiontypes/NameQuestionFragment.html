@@ -51,6 +51,7 @@
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
       th:name="${firstNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
+      th:aria-required="${!question.isOptional()}"
     />
   </div>
 
@@ -71,6 +72,7 @@
       autocomplete="additional-name"
       th:value="${nameQuestion.getMiddleNameValue().orElse('')}"
       th:name="${nameQuestion.getMiddleNamePath()}"
+      th:aria-required="${!question.isOptional()}"
     />
   </div>
 
@@ -104,6 +106,7 @@
       th:value="${nameQuestion.getLastNameValue().orElse('')}"
       th:name="${lastNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
+      th:aria-required="${!question.isOptional()}"
     />
   </div>
 
