@@ -68,11 +68,11 @@
               </div>
 
               <section
-                th:if="${not #strings.isEmpty(customConfirmationMessage)}"
+                th:if="${not #strings.isEmpty(customConfirmationMessageHtml)}"
                 class="usa-prose section-internal"
               >
                 <h2 th:text="#{heading.nextSteps}"></h2>
-                <p th:text="${customConfirmationMessage}"></p>
+                <p th:utext="${customConfirmationMessageHtml}"></p>
               </section>
 
               <div th:if="${isGuest}">
