@@ -527,6 +527,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_REGION");
   }
 
+  /**
+   * The GCP Region. If STORAGE_SERVICE_NAME is set to 'gcp', it is also the region where the GCP s3
+   * compatible service exists.
+   */
+  public Optional<String> getGcpRegion() {
+    return getString("GCP_REGION");
+  }
+
   /** The email address used for the 'from' email header for emails sent by CiviForm. */
   public Optional<String> getSenderEmailAddress() {
     return getString("SENDER_EMAIL_ADDRESS");
@@ -599,6 +607,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getAzureLocalConnectionString() {
     return getString("AZURE_LOCAL_CONNECTION_STRING");
+  }
+
+  /** s3 bucket to store files in. */
+  public Optional<String> getGcpS3BucketName() {
+    return getString("GCP_S3_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of files uploaded to s3. */
+  public Optional<String> getGcpS3FileLimitMb() {
+    return getString("GCP_S3_FILE_LIMIT_MB");
+  }
+
+  /** s3 bucket to store **publicly accessible** files in. */
+  public Optional<String> getGcpS3PublicBucketName() {
+    return getString("GCP_S3_PUBLIC_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to s3. */
+  public Optional<String> getGcpS3PublicFileLimitMb() {
+    return getString("GCP_S3_PUBLIC_FILE_LIMIT_MB");
   }
 
   /** Enables the feature that allows address correction for address questions. */
@@ -1708,7 +1736,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   /* isRequired= */ false,
                                   SettingType.ENUM,
                                   SettingMode.HIDDEN,
-                                  ImmutableList.of("s3", "azure-blob")),
+                                  ImmutableList.of("s3", "aws-s3", "azure-blob", "gcp-s3")),
                               SettingDescription.create(
                                   "AWS_S3_BUCKET_NAME",
                                   "s3 bucket to store files in.",
@@ -1770,6 +1798,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   "Allows local [Azurite"
                                       + " emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)"
                                       + " to be used for developer deployments.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_BUCKET_NAME",
+                                  "s3 bucket to store files in.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_FILE_LIMIT_MB",
+                                  "The max size (in Mb) of files uploaded to s3.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_PUBLIC_BUCKET_NAME",
+                                  "s3 bucket to store **publicly accessible** files in.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_PUBLIC_FILE_LIMIT_MB",
+                                  "The max size (in Mb) of **publicly accessible** files uploaded"
+                                      + " to s3.",
                                   /* isRequired= */ false,
                                   SettingType.STRING,
                                   SettingMode.HIDDEN))),
@@ -1897,6 +1950,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "AWS_REGION",
                           "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set"
                               + " to 'aws', it is also the region where the AWS s3 service exists.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "GCP_REGION",
+                          "The GCP Region. If STORAGE_SERVICE_NAME is set to 'gcp', it is also the"
+                              + " region where the GCP s3 compatible service exists.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.HIDDEN),

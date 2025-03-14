@@ -1,26 +1,27 @@
-package services.cloud.aws;
+package services.cloud.gcp;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
+import services.cloud.aws.Credentials;
 import services.cloud.generic_s3.AbstractS3PublicStorage;
 import services.cloud.generic_s3.GenericS3ClientWrapper;
 
-/** An AWS Simple Storage Service (S3) implementation of public storage. */
+/** An GCP Simple Storage Service (S3) implementation of public storage. */
 @Singleton
-public final class AwsPublicStorage extends AbstractS3PublicStorage {
-  @VisibleForTesting static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";
+public final class GcpPublicStorage extends AbstractS3PublicStorage {
+  @VisibleForTesting static final String GCP_PUBLIC_S3_BUCKET_CONF_PATH = "gcp.s3.public_bucket";
 
   @VisibleForTesting
-  static final String AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "aws.s3.public_file_limit_mb";
+  static final String GCP_PUBLIC_S3_FILE_LIMIT_CONF_PATH = "gcp.s3.public_file_limit_mb";
 
   @Inject
-  public AwsPublicStorage(
+  public GcpPublicStorage(
       GenericS3ClientWrapper awsS3ClientWrapper,
-      AwsStorageUtils awsStorageUtils,
-      AwsRegion region,
+      GcpStorageUtils awsStorageUtils,
+      GcpRegion region,
       Credentials credentials,
       Config config,
       Environment environment) {
@@ -30,12 +31,12 @@ public final class AwsPublicStorage extends AbstractS3PublicStorage {
   /** The bucket path defined in the conf file */
   @Override
   protected String getBucketConfigPath() {
-    return AWS_PUBLIC_S3_BUCKET_CONF_PATH;
+    return GCP_PUBLIC_S3_BUCKET_CONF_PATH;
   }
 
   /** The filelimitmb path in the conf file */
   @Override
   protected String getFileLimitMbPath() {
-    return AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH;
+    return GCP_PUBLIC_S3_FILE_LIMIT_CONF_PATH;
   }
 }

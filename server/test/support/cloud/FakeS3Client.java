@@ -4,18 +4,18 @@ import com.google.common.collect.ImmutableList;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import services.cloud.aws.AwsS3ClientWrapper;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.FileDeletionFailureException;
 import services.cloud.aws.FileListFailureException;
+import services.cloud.generic_s3.GenericS3ClientWrapper;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
-/** A fake implementation of {@link AwsS3ClientWrapper} to be used in tests. */
-public final class FakeAwsS3Client implements AwsS3ClientWrapper {
+/** A fake implementation of {@link GenericS3ClientWrapper} to be used in tests. */
+public final class FakeS3Client implements GenericS3ClientWrapper {
   /**
    * A file key that, if used, will cause {@link #listObjects} to throw a {@link
    * services.cloud.aws.FileListFailureException}.

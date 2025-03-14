@@ -1,27 +1,28 @@
-package services.cloud.aws;
+package services.cloud.gcp;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.net.URI;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.cloud.aws.Credentials;
 import services.cloud.generic_s3.GenericS3Client;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
-public class AwsS3ClientTest extends ResetPostgres {
+public class GcpS3ClientTest extends ResetPostgres {
   private static final URI endpointUri = URI.create("https://s3.us-east-2.amazonaws.com");
   private final Credentials credentials = instanceOf(Credentials.class);
-  private final GenericS3Client awsS3Client = new GenericS3Client();
+  private final GenericS3Client genericS3Client = new GenericS3Client();
 
   @Test
   public void deleteObjects_noObjectsInRequest_throws() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
-                awsS3Client.deleteObjects(
+                genericS3Client.deleteObjects(
                     credentials,
                     Region.US_EAST_2,
                     endpointUri,
@@ -37,7 +38,7 @@ public class AwsS3ClientTest extends ResetPostgres {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
-                awsS3Client.deleteObjects(
+                genericS3Client.deleteObjects(
                     credentials,
                     Region.US_EAST_2,
                     endpointUri,

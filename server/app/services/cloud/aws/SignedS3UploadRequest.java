@@ -260,7 +260,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
     abstract String serviceName();
 
     /** Set fileLimitMb. This is used to build the credential and the signing key. */
-    abstract Builder setFileLimitMb(int fileLimitMb);
+    public abstract Builder setFileLimitMb(int fileLimitMb);
 
     /** Get fileLimitMb. This is used to build the credential and the signing key. */
     abstract int fileLimitMb();

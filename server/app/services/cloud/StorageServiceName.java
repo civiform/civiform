@@ -4,9 +4,11 @@ import java.util.Optional;
 
 /** Enum representing supported options for cloud storage service. */
 public enum StorageServiceName {
-  AWS_S3("s3"),
+  /** Backwards compatibility, this default to AWS_S3 */
+  S3("s3"),
+  AWS_S3("aws-s3"),
   AZURE_BLOB("azure-blob"),
-  ;
+  GCP_S3("gcp-s3");
   private final String storageString;
 
   StorageServiceName(String storageString) {
