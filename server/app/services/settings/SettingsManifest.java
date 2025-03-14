@@ -1072,8 +1072,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
+  public boolean getSessionTimeoutEnabled(RequestHeader request) {
+    return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI. */
@@ -2290,7 +2290,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
