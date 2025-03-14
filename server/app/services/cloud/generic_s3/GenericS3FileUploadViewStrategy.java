@@ -1,4 +1,4 @@
-package views.fileupload;
+package services.cloud.generic_s3;
 
 import static j2html.TagCreator.input;
 
@@ -10,8 +10,9 @@ import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
+import views.fileupload.FileUploadViewStrategy;
 
-public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
+public final class GenericS3FileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ImmutableList<InputTag> additionalFileUploadFormInputs(
