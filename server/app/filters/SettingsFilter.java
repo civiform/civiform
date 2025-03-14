@@ -36,7 +36,7 @@ public final class SettingsFilter extends EssentialFilter {
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         (Http.RequestHeader request) -> {
-          if (EXCLUDED_PATHS.stream().anyMatch(prefix -> request.path().startsWith(prefix))) {
+          if (areSettingRequestAttributesExcluded(request)) {
             return next.apply(request);
           }
 
@@ -44,5 +44,9 @@ public final class SettingsFilter extends EssentialFilter {
               settingsService.get().applySettingsToRequest(request).thenApply(next::apply),
               materializer);
         });
+  }
+
+  public static boolean areSettingRequestAttributesExcluded(Http.RequestHeader request) {
+    return EXCLUDED_PATHS.stream().anyMatch(prefix -> request.path().startsWith(prefix));
   }
 }
