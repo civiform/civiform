@@ -130,6 +130,11 @@ public abstract class NorthStarBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
+    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled(request);
+    context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
+    if (sessionTimeoutEnabled) {
+      context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
+    }
 
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);

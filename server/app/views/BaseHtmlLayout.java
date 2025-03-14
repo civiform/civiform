@@ -14,6 +14,7 @@ import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.title;
+import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -32,6 +33,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.components.Icons;
+import views.components.SessionTimeoutModals;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -135,7 +137,6 @@ public class BaseHtmlLayout {
     // Add the favicon link
     bundle.setFavicon(settingsManifest.getFaviconUrl().get());
     bundle.setJsBundle(getJsBundle());
-
     return bundle;
   }
 
@@ -151,8 +152,18 @@ public class BaseHtmlLayout {
       bundle.setTitle(String.format("%s — %s", currentTitle, getTitleSuffix()));
     }
     // Best practice: add ❤️ every time you touch this file :)
-    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️"));
+    bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️❤️"));
     return bundle.render();
+  }
+
+  protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
+    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
+        && bundle.getRequest() instanceof Http.Request) {
+      // Add the session timeout modals to the bundle
+      Http.Request request = (Http.Request) bundle.getRequest();
+      String csrfToken = getCsrfToken(request);
+      bundle.addUswdsModals(SessionTimeoutModals.render(messages, csrfToken));
+    }
   }
 
   protected String getTitleSuffix() {

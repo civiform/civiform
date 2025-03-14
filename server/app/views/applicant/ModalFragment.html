@@ -288,3 +288,128 @@
     data-open-modal
   ></a>
 </div>
+
+<div th:fragment="sessionTimeoutModals">
+  <div id="session-timeout-container">
+    <div id="session-timeout-modals">
+      <div
+        class="usa-modal hidden"
+        id="session-inactivity-warning-modal"
+        aria-labelledby="session-inactivity-warning-heading"
+        aria-describedby="session-inactivity-description"
+        data-modal-type="session-inactivity-warning"
+      >
+        <div class="usa-modal__content">
+          <div class="usa-modal__main mx-4">
+            <h2
+              class="usa-modal__heading"
+              id="session-inactivity-warning-heading"
+              th:text="#{session.inactivity.warning.title}"
+            ></h2>
+            <div class="usa-prose my-6" id="session-inactivity-description">
+              <p th:text="#{session.inactivity.warning.message}"></p>
+              <form
+                id="extend-session-form"
+                th:attr="hx-post=${extendSessionUrl}"
+                hx-target="this"
+                hx-swap="none"
+              >
+                <input type="hidden" name="csrfToken" th:value="${csrfToken}" />
+                <button
+                  type="button"
+                  class="usa-button"
+                  data-modal-primary
+                  data-modal-type="session-inactivity-warning"
+                  th:text="#{session.extend.button}"
+                ></button>
+                <button
+                  type="button"
+                  class="usa-button usa-button--unstyled padding-105 text-center"
+                  data-modal-secondary
+                  data-modal-type="session-inactivity-warning"
+                  th:text="#{button.cancel}"
+                ></button>
+              </form>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="usa-button usa-modal__close"
+            th:aria-label="#{button.close}"
+            data-close-modal
+            data-modal-type="session-inactivity-warning"
+          >
+            <svg
+              th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+            ></svg>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="usa-modal hidden"
+        id="session-length-warning-modal"
+        aria-labelledby="session-length-warning-heading"
+        aria-describedby="session-length-description"
+        data-modal-type="session-length-warning"
+      >
+        <div class="usa-modal__content">
+          <div class="usa-modal__main mx-4">
+            <h2
+              class="usa-modal__heading"
+              id="session-length-warning-heading"
+              th:text="#{session.length.warning.title}"
+            ></h2>
+            <div class="usa-prose my-6" id="session-length-description">
+              <p th:text="#{session.length.warning.message}"></p>
+              <div class="usa-modal__footer">
+                <ul class="usa-button-group">
+                  <li class="usa-button-group__item">
+                    <button
+                      type="button"
+                      class="usa-button"
+                      data-modal-primary
+                      data-modal-type="session-length-warning"
+                      th:text="#{button.logout}"
+                    ></button>
+                  </li>
+                  <li class="usa-button-group__item">
+                    <button
+                      type="button"
+                      class="usa-button usa-button--unstyled padding-105 text-center"
+                      data-modal-secondary
+                      data-modal-type="session-length-warning"
+                      th:text="#{button.cancel}"
+                    ></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="usa-button usa-modal__close"
+            th:aria-label="#{button.close}"
+            data-close-modal
+            data-modal-type="session-length-warning"
+          >
+            <svg
+              th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+            ></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="session-timeout-messages" class="hidden">
+      <span
+        id="session-extended-success-text"
+        th:text="#{session.extended.success}"
+      ></span>
+      <span
+        id="session-extended-error-text"
+        th:text="#{session.extended.error}"
+      ></span>
+    </div>
+  </div>
+</div>
