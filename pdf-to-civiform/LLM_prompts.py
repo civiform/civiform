@@ -22,7 +22,14 @@ JSON_EXAMPLE = {
                 {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2", "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
                 {"label": "[Field Label]", "type": "[checkbox]", "options": ["opt 1", "opt 2", "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
             ]
-        }
+        },
+        {
+            "title": "[Section Name]",
+            "help_text": "[Relevant Instructional or informational Text (can be enclosed in brackets)]",
+            "fields": [
+                {"label": "[Field Label]", "type": "[file_upload]", "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
+            ]
+        },
     ]
 }
 
@@ -51,14 +58,14 @@ class LLMPrompts:
         2. **Currency**: Currency values with decimal separators (e.g., income, debts).
         3. **Checkbox**: Allows multiple selections (e.g., ethnicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible. Checkbox options must be unique.
         4. **Date**: Captures dates (e.g., birth date, graduation date, month, year etc).
-        6. **Email**: email address. Please collate domain and username if asked separately.
-        8. **File Upload**: File attachments (e.g., PDFs, images), e.g: copies of bills, proof of ssn, attach recent copy of.. etc
-        10. **Name**: A name. Additionally, any field that has name suffix/prefix such as company name etc. Please collate first name, middle name, and last name into full name.
-        11. **Number**: Integer values e.g., number of household members etc.
-        12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
-        14. **Text**: Open-ended text field for letters, alphanumerics, or symbols.
-        15. **Phone**: phone numbers.
-        16.  If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
+        5. **Email**: email address. Please collate domain and username if asked separately.
+        6. **File Upload**: File attachments (e.g., PDFs, images)
+        7. **Name**: A person's name. Please collate first name, middle name, and last name into full name.
+        8. **Number**: Integer values e.g., number of household members etc.
+        9. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
+        10. **Text**: Open-ended text field for letters, alphanumerics, or symbols.
+        11. **Phone**: phone numbers.
+        12.  If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
 
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
@@ -70,7 +77,7 @@ class LLMPrompts:
     @staticmethod
     def post_process_json_prompt(text):
         """Sends extracted json text to Gemini and asks it to collate related fields into appropriate civiform types, in particular names and address."""
-        #  TODO: could not reliablely move repeating sections out of sections without LLM creating unnecessary repeating sections.   
+        #  TODO: could not reliably move repeating sections out of sections without LLM creating unnecessary repeating sections.
         
         prompt = f"""
         You are an expert in government forms.  Process the following extracted json from a government form to be easier to use:
@@ -83,9 +90,8 @@ class LLMPrompts:
         3. Within each section, If you find separate address related fields for unit, city, zip code, street, municipality, county, district etc, you must collate them into a single 'address' type field. Please DO NOT create separate fields for address components. However, do separate mailing address from physical address.
         4. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.
         5. make sure IDs are unique across the entire form.
-        6. Any text field that has name suffix/prefix such as company name, applicant name, applicant (name), name of applicant etc must be corrected to a name field type.
-        7. Any text field that can be a number (integer) must be corrected to a number type - such as company number, frequency etc.
-        8. Any text/checkbox field that can be a file attachment must be corrected to a file upload type, i.e; instructions for providing attachments, such as the field includes text such as "copy of ", "proof of" etc.
+        6. Any text field that can be a number (integer) must be corrected to a number type - such as company number, frequency etc.
+        7. If necessary, create an additional new section with ONE file_upload field for text/checkbox fields that can be file attachments.
         
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
