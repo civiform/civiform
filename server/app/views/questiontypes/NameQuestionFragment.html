@@ -76,7 +76,6 @@
       autocomplete="additional-name"
       th:value="${nameQuestion.getMiddleNameValue().orElse('')}"
       th:name="${nameQuestion.getMiddleNamePath()}"
-      th:aria-required="${!question.isOptional()}"
     />
   </div>
 
