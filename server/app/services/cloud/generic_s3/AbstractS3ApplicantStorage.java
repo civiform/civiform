@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 /** An Simple Storage Service (S3) implementation of {@link ApplicantStorageClient}. */
 public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClient {
-  private final AbstractS3StorageUtils awsStorageUtils;
+  private final AbstractS3StorageUtils s3StorageUtils;
   private final Region region;
   private final Credentials credentials;
   private final String bucket;
@@ -33,23 +33,23 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
   private final AbstractS3ApplicantStorage.Client client;
 
   public AbstractS3ApplicantStorage(
-      AbstractS3StorageUtils awsStorageUtils,
+      AbstractS3StorageUtils s3StorageUtils,
       AbstractS3Region region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
-    this.awsStorageUtils = checkNotNull(awsStorageUtils);
+    this.s3StorageUtils = checkNotNull(s3StorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new AbstractS3ApplicantStorage.LocalStackClient(config, awsStorageUtils);
+      client = new AbstractS3ApplicantStorage.LocalStackClient(config, s3StorageUtils);
     } else if (environment.isTest()) {
       client = new AbstractS3ApplicantStorage.NullClient();
     } else {
-      client = new AbstractS3ApplicantStorage.AwsClient(awsStorageUtils);
+      client = new S3Client(s3StorageUtils);
     }
 
     appLifecycle.addStopHook(
@@ -103,7 +103,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     // SignedS3UploadRequest#useSuccessActionRedirectAsPrefix} for more details.
     String successActionRedirectPrefix =
         ApplicantRequestedAction.stripActionFromEndOfUrl(successActionRedirectUrl);
-    return awsStorageUtils.getSignedUploadRequest(
+    return s3StorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -129,7 +129,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     void close();
   }
 
-  static class NullClient implements AbstractS3ApplicantStorage.Client {
+  static class NullClient implements Client {
 
     private final S3Presigner presigner;
 
@@ -162,12 +162,12 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     public void close() {}
   }
 
-  class AwsClient implements AbstractS3ApplicantStorage.Client {
-    private final AbstractS3StorageUtils awsStorageUtils;
+  class S3Client implements Client {
+    private final AbstractS3StorageUtils s3StorageUtils;
     private final S3Presigner presigner;
 
-    AwsClient(AbstractS3StorageUtils awsStorageUtils) {
-      this.awsStorageUtils = checkNotNull(awsStorageUtils);
+    S3Client(AbstractS3StorageUtils s3StorageUtils) {
+      this.s3StorageUtils = checkNotNull(s3StorageUtils);
       presigner = S3Presigner.builder().region(region).build();
     }
 
@@ -178,7 +178,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.prodActionLink(bucket, region);
+      return s3StorageUtils.prodActionLink(bucket, region);
     }
 
     @Override
@@ -187,17 +187,17 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     }
   }
 
-  class LocalStackClient implements AbstractS3ApplicantStorage.Client {
+  class LocalStackClient implements Client {
     private final Config config;
-    private final AbstractS3StorageUtils awsStorageUtils;
+    private final AbstractS3StorageUtils s3StorageUtils;
     private final S3Presigner presigner;
 
-    LocalStackClient(Config config, AbstractS3StorageUtils awsStorageUtils) {
+    LocalStackClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
       this.config = checkNotNull(config);
-      this.awsStorageUtils = checkNotNull(awsStorageUtils);
+      this.s3StorageUtils = checkNotNull(s3StorageUtils);
       this.presigner =
           S3Presigner.builder()
-              .endpointOverride(awsStorageUtils.localStackEndpoint(config))
+              .endpointOverride(s3StorageUtils.localStackEndpoint(config))
               .region(region)
               .build();
     }
@@ -209,7 +209,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.localStackActionLink(config, bucket, region);
+      return s3StorageUtils.localStackActionLink(config, bucket, region);
     }
 
     @Override

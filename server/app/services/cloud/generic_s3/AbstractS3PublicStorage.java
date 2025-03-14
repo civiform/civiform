@@ -26,33 +26,33 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   private static final Logger logger = LoggerFactory.getLogger(AbstractS3PublicStorage.class);
 
-  private final GenericS3ClientWrapper awsS3ClientWrapper;
-  private final AbstractS3StorageUtils awsStorageUtils;
+  private final GenericS3ClientWrapper s3ClientWrapper;
+  private final AbstractS3StorageUtils s3StorageUtils;
   private final Region region;
   private final Credentials credentials;
   private final String bucket;
   private final int fileLimitMb;
-  private final AbstractS3PublicStorage.Client client;
+  private final Client client;
 
   public AbstractS3PublicStorage(
-      GenericS3ClientWrapper awsS3ClientWrapper,
-      AbstractS3StorageUtils awsStorageUtils,
+      GenericS3ClientWrapper s3ClientWrapper,
+      AbstractS3StorageUtils s3StorageUtils,
       AbstractS3Region region,
       Credentials credentials,
       Config config,
       Environment environment) {
-    this.awsS3ClientWrapper = checkNotNull(awsS3ClientWrapper);
-    this.awsStorageUtils = checkNotNull(awsStorageUtils);
+    this.s3ClientWrapper = checkNotNull(s3ClientWrapper);
+    this.s3StorageUtils = checkNotNull(s3StorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new AbstractS3PublicStorage.LocalStackClient(config, awsStorageUtils);
+      client = new LocalStackClient(config, s3StorageUtils);
     } else if (environment.isProd()) {
-      client = new AbstractS3PublicStorage.AwsClient();
+      client = new AwsClient();
     } else {
-      client = new AbstractS3PublicStorage.NullClient();
+      client = new NullClient();
     }
   }
 
@@ -75,7 +75,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successRedirectActionLink) {
-    return awsStorageUtils.getSignedUploadRequest(
+    return s3StorageUtils.getSignedUploadRequest(
         credentials,
         region,
         fileLimitMb,
@@ -117,7 +117,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   private ImmutableList<String> getCurrentFileKeys() throws FileListFailureException {
-    return awsS3ClientWrapper.listObjects(
+    return s3ClientWrapper.listObjects(
         credentials,
         region,
         client.endpoint(),
@@ -135,7 +135,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
             .delete(Delete.builder().objects(fileKeyObjects).build())
             .build();
     try {
-      awsS3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
+      s3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
     } catch (FileDeletionFailureException e) {
       // See UnusedProgramImagesCleanupJob for the deletion cadence.
       logger.error(
@@ -168,7 +168,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   /** A null client implementation used for tests. */
-  static class NullClient implements AbstractS3PublicStorage.Client {
+  static class NullClient implements Client {
     @Override
     public URI endpoint() {
       return URI.create("http://fake-endpoint.com");
@@ -181,36 +181,36 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   /** A real AWS client implementation used for deployments. */
-  class AwsClient implements AbstractS3PublicStorage.Client {
+  class AwsClient implements Client {
     @Override
     public URI endpoint() {
-      return awsStorageUtils.prodEndpoint(region);
+      return s3StorageUtils.prodEndpoint(region);
     }
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.prodActionLink(bucket, region);
+      return s3StorageUtils.prodActionLink(bucket, region);
     }
   }
 
   /** A LocalStack client implementation used for local development. */
-  class LocalStackClient implements AbstractS3PublicStorage.Client {
+  class LocalStackClient implements Client {
     private final Config config;
-    private final AbstractS3StorageUtils awsStorageUtils;
+    private final AbstractS3StorageUtils s3StorageUtils1;
 
-    LocalStackClient(Config config, AbstractS3StorageUtils awsStorageUtils) {
+    LocalStackClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
       this.config = checkNotNull(config);
-      this.awsStorageUtils = checkNotNull(awsStorageUtils);
+      this.s3StorageUtils1 = checkNotNull(s3StorageUtils);
     }
 
     @Override
     public URI endpoint() {
-      return awsStorageUtils.localStackEndpoint(config);
+      return s3StorageUtils1.localStackEndpoint(config);
     }
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.localStackActionLink(config, bucket, region);
+      return s3StorageUtils1.localStackActionLink(config, bucket, region);
     }
   }
 }
