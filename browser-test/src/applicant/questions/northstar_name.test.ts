@@ -65,6 +65,12 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
+      expect(
+        page.getByLabel('First name').getAttribute('aria-required'),
+      ).toBeTruthy()
+      expect(
+        page.getByLabel('Last name').getAttribute('aria-required'),
+      ).toBeTruthy()
       await validateAccessibility(page)
     })
 
@@ -77,7 +83,6 @@ test.describe('name applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
       await applicantQuestions.answerNameQuestion('', '', '')
-
       await expectQuestionHasNoErrors(page)
     })
 

@@ -242,7 +242,9 @@ public final class ViewUtils {
   }
 
   public static SpanTag requiredQuestionIndicator() {
-    return span(rawHtml("&nbsp;*")).withClasses("text-red-600", "font-semibold");
+    return span(rawHtml("&nbsp;*"))
+        .withClasses("text-red-600", "font-semibold")
+        .attr("aria-hidden", true);
   }
 
   /**
