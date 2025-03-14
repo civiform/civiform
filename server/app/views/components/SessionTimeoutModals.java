@@ -11,11 +11,26 @@ import play.i18n.Messages;
 import services.MessageKey;
 import views.ViewUtils;
 
+/**
+ * Renders modal dialogs for session timeout notifications.
+ *
+ * <p>This class creates two types of modals:
+ *
+ * <ul>
+ *   <li>Inactivity Warning Modal: Shown when user has been inactive for a certain period
+ *   <li>Session Length Warning Modal: Shown when total session length is about to expire
+ * </ul>
+ *
+ * <p>The modals use USWDS (U.S. Web Design System) styling and include:
+ *
+ * <ul>
+ *   <li>Success/error messages for session extension attempts
+ *   <li>CSRF protection for session extension requests
+ *   <li>HTMX integration for AJAX form submission
+ * </ul>
+ */
 public final class SessionTimeoutModals {
 
-  /*
-   * Creates the session timeout modals for inactivity and session length warnings.
-   */
   public static DivTag render(Messages messages, String csrfToken) {
     // Create hidden elements for localized messages
     DivTag localizedMessages =
