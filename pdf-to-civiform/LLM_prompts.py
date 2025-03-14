@@ -6,6 +6,7 @@ JSON_EXAMPLE = {
     "sections": [
         {
             "title": "[Section Name]",
+            "help_text": "[Relevant Instructional or informational Text (can be enclosed in brackets)]",
             "fields": [
                 {"label": "[Field Label]", "type": "[Field Type]", "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
                 {"label": "[Field Label]", "type": "[radio]", "options": ["opt 1", "opt 2", "opt 3"], "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
@@ -14,7 +15,7 @@ JSON_EXAMPLE = {
         },
         {
             "title": "[Section Name]",
-            "help_text": "[Relevant Instructional Text]",
+            "help_text": "[Relevant Instructional or informational Text (can be enclosed in brackets)]",
             "type": "repeating_section",
             "fields": [
                 {"label": "[Field Label]", "type": "[Field Type]", "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"},
@@ -38,26 +39,27 @@ class LLMPrompts:
         
         Identify form fields, labels, and instructions, and format the output as JSON.
         Ensure correct field types (number, radio button, text, checkbox, etc.), group fields into sections,
-        and associate instructions with relevant fields.
+        and associate instructions with relevant fields. Please DO NOT ignore identifying help text.
+        Please skip checklist/instructions pages which is for context.
         
         Additionally, detect repeating sections and mark them accordingly.
 
         A table is usually a repeating section. 
 
         make sure to consider the following rules to extract input fields and types:
-        1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street etc are included. Collate them if possible.
+        1. **Address**: address (e.g., residential, work, mailing). Unit, city, zip code, street, municipality, county, district etc are included. Please collate them into a single field.
         2. **Currency**: Currency values with decimal separators (e.g., income, debts).
-        3. **Checkbox**: Allows multiple selections (e.g., ethinicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible. Checkbox options must be uqique.
-        4. **Date**: Captures dates (e.g., birth date, graduation date).
-        6. **Email**: email address. Collate domain and username if asked separately.
-        8. **File Upload**: File attachments (e.g., PDFs, images).
-        10. **Name**: person's name. Collate first name, middle name, and last name into full name if possible.
-        11. **Number**: Integer values (e.g., number of household members etc).
+        3. **Checkbox**: Allows multiple selections (e.g., ethnicity, available benefits, languages spoken etc). collate options for checkboxes as one field of "checkbox" type if possible. Checkbox options must be unique.
+        4. **Date**: Captures dates (e.g., birth date, graduation date, month, year etc).
+        6. **Email**: email address. Please collate domain and username if asked separately.
+        8. **File Upload**: File attachments (e.g., PDFs, images), e.g: copies of bills, proof of ssn, attach recent copy of.. etc
+        10. **Name**: A name. Additionally, any field that has name suffix/prefix such as company name etc. Please collate first name, middle name, and last name into full name.
+        11. **Number**: Integer values e.g., number of household members etc.
         12. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
-        14. **Text**: Open-ended text field for letters, numbers, or symbols.
+        14. **Text**: Open-ended text field for letters, alphanumerics, or symbols.
         15. **Phone**: phone numbers.
         16.  If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
-        
+
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
         
@@ -76,12 +78,14 @@ class LLMPrompts:
         {text}
         
         make sure to consider the following rules to process the json: 
-        1. Do NOT create nested sections. 
-        2. Within each section, If you find separate fields for first name, middle name, and last name, collate them into a single 'name' type field if possible. Do not create separate fields for name components. 
-        2. Within each section, If you find separate address related fields for Unit, city, zip code, street etc, collate them into a single 'address' type field if possible. Do not create separate fields for address components.
-        3. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.    
-        4. make sure IDs are unique across the entire form.
-
+        1. Do NOT create nested sections.
+        2. Within each section, If you find separate fields for first name, middle name, and last name, you must collate them into a single 'name' type field. Please DO NOT create separate fields for name fields.
+        3. Within each section, If you find separate address related fields for unit, city, zip code, street, municipality, county, district etc, you must collate them into a single 'address' type field. Please DO NOT create separate fields for address components. However, do separate mailing address from physical address.
+        4. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.
+        5. make sure IDs are unique across the entire form.
+        6. Any text field that has name suffix/prefix such as company name, applicant name, applicant (name), name of applicant etc must be corrected to a name field type.
+        7. Any text field that can be a number (integer) must be corrected to a number type - such as company number, frequency etc.
+        8. Any text/checkbox field that can be a file attachment must be corrected to a file upload type, i.e; instructions for providing attachments, such as the field includes text such as "copy of ", "proof of" etc.
         
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
