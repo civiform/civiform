@@ -721,53 +721,48 @@ public final class ProgramBlocksView extends ProgramBaseView {
             ? ""
             : questionDefinition.getQuestionHelpText().getDefault();
 
-        DivTag content =
-            div()
-                .withClass("flex-grow")
-                .with(
-                    iff(
-                        malformedQuestionDefinition,
-                        p("This is not pointing at the latest version")
-                            .withClasses("text-red-500", "font-bold")),
-                    iff(
-                        malformedQuestionDefinition,
-                        p("Edit the program and try republishing").withClass("text-red-500")),
-                    div()
-                        .with(
-                            TextFormatter.formatText(
-                                questionDefinition.getQuestionText().getDefault())),
-                    div()
-                        .with(TextFormatter.formatText(questionHelpText))
-                        .withClasses("mt-1", "text-sm"),
-                    p()
-                        .withClasses("mt-1", "text-sm")
-                        .with(
-                            text(String.format("Admin ID: %s (", questionDefinition.getName())),
-                            iffElse(
-                                viewAllowsEditingProgram(),
-                                a("Edit")
-                                    .withHref(
-                                        controllers.admin.routes.AdminQuestionController.edit(
-                                        questionDefinition.getId())
-                                        .url())
-                                    .withClasses(
-                                        BaseStyles.LINK_TEXT,
-                                        BaseStyles.LINK_HOVER_TEXT,
-                                        "text-blue-600"),
-                                a("View")
-                                    .withHref(
-                                        controllers.admin.routes.AdminQuestionController.show(
+    DivTag content =
+        div()
+            .withClass("flex-grow")
+            .with(
+                iff(
+                    malformedQuestionDefinition,
+                    p("This is not pointing at the latest version")
+                        .withClasses("text-red-500", "font-bold")),
+                iff(
+                    malformedQuestionDefinition,
+                    p("Edit the program and try republishing").withClass("text-red-500")),
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            questionDefinition.getQuestionText().getDefault())),
+                div()
+                    .with(TextFormatter.formatText(questionHelpText))
+                    .withClasses("mt-1", "text-sm"),
+                p().withClasses("mt-1", "text-sm")
+                    .with(
+                        text(String.format("Admin ID: %s (", questionDefinition.getName())),
+                        iffElse(
+                            viewAllowsEditingProgram(),
+                            a("Edit")
+                                .withHref(
+                                    controllers.admin.routes.AdminQuestionController.edit(
                                             questionDefinition.getId())
-                                            .url())
-                                    .withClasses(
-                                        BaseStyles.LINK_TEXT,
-                                        BaseStyles.LINK_HOVER_TEXT,
-                                        "text-blue-600"))
-                            ,
-                             text(")") 
-                        ));
-                    
-    
+                                        .url())
+                                .withClasses(
+                                    BaseStyles.LINK_TEXT,
+                                    BaseStyles.LINK_HOVER_TEXT,
+                                    "text-blue-600"),
+                            a("View")
+                                .withHref(
+                                    controllers.admin.routes.AdminQuestionController.show(
+                                            questionDefinition.getId())
+                                        .url())
+                                .withClasses(
+                                    BaseStyles.LINK_TEXT,
+                                    BaseStyles.LINK_HOVER_TEXT,
+                                    "text-blue-600")),
+                        text(")")));
 
     Optional<FormTag> maybeOptionalToggle =
         renderOptionalToggle(

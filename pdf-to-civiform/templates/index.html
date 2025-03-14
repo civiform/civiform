@@ -1,238 +1,269 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF Form to CiviForm JSON</title>
     <style>
-        #output {
-            width: 95%;
-            height: 400px; /* Increased height */
-            border: 1px solid #ccc;
-            padding: 10px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            overflow: auto;
-            resize: both;
-            word-wrap: break-word;
-        }        .form-group {
-            margin-bottom: 10px;
-        }
-        .inline-form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .inline-form-group label {
-            margin-right: 10px;
-        }
-        .inline-form-group input[type="text"],
-        .inline-form-group select,
-        .inline-form-group button {
-            margin-right: 10px;
-        }
+      #output {
+        width: 95%;
+        height: 400px; /* Increased height */
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        overflow: auto;
+        resize: both;
+        word-wrap: break-word;
+      }
+      .form-group {
+        margin-bottom: 10px;
+      }
+      .inline-form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .inline-form-group label {
+        margin-right: 10px;
+      }
+      .inline-form-group input[type='text'],
+      .inline-form-group select,
+      .inline-form-group button {
+        margin-right: 10px;
+      }
     </style>
     <script>
-        async function uploadFile(event) {
-            event.preventDefault();
-            const fileInput = document.getElementById("pdfFile");
-            const file = fileInput.files[0];
-            if (!file) {
-                alert("Please select a PDF file containing a program form.");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("modelName", document.getElementById("LLMModelSelect").value);
-            formData.append("logLevel", getLogLevel());
-
-            const outputTextArea = document.getElementById("output");
-            const outputContainer = document.querySelector('.output-container');
-            outputTextArea.value = "Processing...";
-            updateCharacterCount(""); // Initialize count
-            outputContainer.classList.add('show'); // Show output
-
-            try {
-                const response = await fetch("/upload", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    // Handle non-JSON error responses (e.g., plain text, HTML)
-                    const errorText = await response.text(); // Get the response as text
-                    outputTextArea.value = `Error: ${response.status} - ${errorText}`;
-                    updateCharacterCount(errorText);
-                    return;
-                }
-
-                const responseData = await response.json();
-                // Get the response as text, regardless of content type
-                outputTextArea.value = JSON.stringify(responseData, null, 2);
-
-                //update debug log:
-                const debugLogElement = document.getElementById("debugLog");
-                if (responseData.debug_log){
-                    debugLogElement.textContent = responseData.debug_log;
-                } else{
-                    debugLogElement.textContent = "No debug log for single file";
-                }
-
-                updateCharacterCount(JSON.stringify(responseData, null, 2));
-
-            } catch (error) {
-                outputTextArea.value = `Request failed: ${error}`;
-                updateCharacterCount(outputTextArea.value);
-            }
+      async function uploadFile(event) {
+        event.preventDefault()
+        const fileInput = document.getElementById('pdfFile')
+        const file = fileInput.files[0]
+        if (!file) {
+          alert('Please select a PDF file containing a program form.')
+          return
         }
 
-        async function uploadDirectory(event) {
-            event.preventDefault();
-            const outputTextArea = document.getElementById("output");
-            const outputContainer = document.querySelector('.output-container');
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append(
+          'modelName',
+          document.getElementById('LLMModelSelect').value,
+        )
+        formData.append('logLevel', getLogLevel())
 
-            outputTextArea.value = "Processing directory... please wait";
-            outputContainer.classList.add('show');
-            updateCharacterCount("");
+        const outputTextArea = document.getElementById('output')
+        const outputContainer = document.querySelector('.output-container')
+        outputTextArea.value = 'Processing...'
+        updateCharacterCount('') // Initialize count
+        outputContainer.classList.add('show') // Show output
 
-            const formData = new FormData();
-            formData.append("modelName", document.getElementById("LLMModelSelect").value);
-            formData.append("logLevel", getLogLevel());
+        try {
+          const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData,
+          })
 
-            // Get the directory path from the input field
-            formData.append("directoryPath", document.getElementById("directoryPath").value);
+          if (!response.ok) {
+            // Handle non-JSON error responses (e.g., plain text, HTML)
+            const errorText = await response.text() // Get the response as text
+            outputTextArea.value = `Error: ${response.status} - ${errorText}`
+            updateCharacterCount(errorText)
+            return
+          }
 
-            try {
-                const response = await fetch("/upload_directory", {
-                    method: "POST",
-                    body: formData
-                });
+          const responseData = await response.json()
+          // Get the response as text, regardless of content type
+          outputTextArea.value = JSON.stringify(responseData, null, 2)
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    outputTextArea.value = `Error: ${response.status} - ${errorText}`;
-                    updateCharacterCount(errorText);
-                    const debugLogElement = document.getElementById("debugLog");
-                    debugLogElement.textContent = "No debug log. Check console for details."
+          //update debug log:
+          const debugLogElement = document.getElementById('debugLog')
+          if (responseData.debug_log) {
+            debugLogElement.textContent = responseData.debug_log
+          } else {
+            debugLogElement.textContent = 'No debug log for single file'
+          }
 
-                    return;
-                }
-
-                const responseData = await response.json();
-                outputTextArea.value = JSON.stringify(responseData, null, 2);
-
-                // Update summary information
-                const summaryElement = document.getElementById("processingSummary");
-                if (responseData.summary) {
-                    const summary = responseData.summary; // Extract the summary object
-                    summaryElement.textContent = `Total Files: ${summary.total_files}, Succeeded: ${summary.success_count}, Failed: ${summary.fail_count}`;
-                } else{
-                    summaryElement.textContent = `No summary available`;
-                }
-                
-                //update debug log:
-                const debugLogElement = document.getElementById("debugLog");
-                debugLogElement.textContent = responseData.debug_log;
-
-                updateCharacterCount(JSON.stringify(responseData, null, 2));
-            } catch (error) {
-                outputTextArea.value = `Request failed: ${error}`;
-                updateCharacterCount(outputTextArea.value);
-            }
+          updateCharacterCount(JSON.stringify(responseData, null, 2))
+        } catch (error) {
+          outputTextArea.value = `Request failed: ${error}`
+          updateCharacterCount(outputTextArea.value)
         }
+      }
 
-        function updateCharacterCount(text) {
-            document.getElementById("charCount").textContent = `Character Count: ${text.length}`;
+      async function uploadDirectory(event) {
+        event.preventDefault()
+        const outputTextArea = document.getElementById('output')
+        const outputContainer = document.querySelector('.output-container')
+
+        outputTextArea.value = 'Processing directory... please wait'
+        outputContainer.classList.add('show')
+        updateCharacterCount('')
+
+        const formData = new FormData()
+        formData.append(
+          'modelName',
+          document.getElementById('LLMModelSelect').value,
+        )
+        formData.append('logLevel', getLogLevel())
+
+        // Get the directory path from the input field
+        formData.append(
+          'directoryPath',
+          document.getElementById('directoryPath').value,
+        )
+
+        try {
+          const response = await fetch('/upload_directory', {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            outputTextArea.value = `Error: ${response.status} - ${errorText}`
+            updateCharacterCount(errorText)
+            const debugLogElement = document.getElementById('debugLog')
+            debugLogElement.textContent =
+              'No debug log. Check console for details.'
+
+            return
+          }
+
+          const responseData = await response.json()
+          outputTextArea.value = JSON.stringify(responseData, null, 2)
+
+          // Update summary information
+          const summaryElement = document.getElementById('processingSummary')
+          if (responseData.summary) {
+            const summary = responseData.summary // Extract the summary object
+            summaryElement.textContent = `Total Files: ${summary.total_files}, Succeeded: ${summary.success_count}, Failed: ${summary.fail_count}`
+          } else {
+            summaryElement.textContent = `No summary available`
+          }
+
+          //update debug log:
+          const debugLogElement = document.getElementById('debugLog')
+          debugLogElement.textContent = responseData.debug_log
+
+          updateCharacterCount(JSON.stringify(responseData, null, 2))
+        } catch (error) {
+          outputTextArea.value = `Request failed: ${error}`
+          updateCharacterCount(outputTextArea.value)
         }
+      }
 
-        document.addEventListener('DOMContentLoaded', function() {
-             const outputTextArea = document.getElementById("output");
-             updateCharacterCount(outputTextArea.value);
-            outputTextArea.addEventListener('input', function() {
-                updateCharacterCount(outputTextArea.value);
-            });
-        });
+      function updateCharacterCount(text) {
+        document.getElementById('charCount').textContent =
+          `Character Count: ${text.length}`
+      }
 
+      document.addEventListener('DOMContentLoaded', function () {
+        const outputTextArea = document.getElementById('output')
+        updateCharacterCount(outputTextArea.value)
+        outputTextArea.addEventListener('input', function () {
+          updateCharacterCount(outputTextArea.value)
+        })
+      })
     </script>
     <script>
-        function getLogLevel() {
-            const logLevelSelect = document.getElementById("logLevelSelect");
-            const selectedLogLevel = logLevelSelect.value;
-            return selectedLogLevel;
-        }
+      function getLogLevel() {
+        const logLevelSelect = document.getElementById('logLevelSelect')
+        const selectedLogLevel = logLevelSelect.value
+        return selectedLogLevel
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>PDF Form to CiviForm JSON</h1>
 
     <p class="description">
-        Convert PDF forms to CiviForm JSON. Enter a server-side directory path for multiple files or select a single PDF.
+      Convert PDF forms to CiviForm JSON. Enter a server-side directory path for
+      multiple files or select a single PDF.
     </p>
 
     <p>
-        <b>Instructions:</b>
-        <ol>
-            <li><b>Single File Processing:</b>
-                <ul>
-                 <li>To process a single PDF, select it using the file selection button.</li>
-                 </ul>
-           </li>
-            <li><b>Directory Processing:</b>
-                <ul>
-                   <li>Enter the server directory path where your PDF files are located. Default: `~/pdf_forms`</li>
-                   </ul>
-            </li>
-            <li>Click "Convert" (for a single file) or "Process Directory" (for multiple files on the server) to generate the CiviForm JSON output.</li>
-            <li>Copy the CiviForm JSON output and import it to CiviForm.</li>
-        </ol>
+      <strong>Instructions:</strong>
     </p>
+    <ol>
+      <li>
+        <strong>Single File Processing:</strong>
+        <ul>
+          <li>
+            To process a single PDF, select it using the file selection button.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Directory Processing:</strong>
+        <ul>
+          <li>
+            Enter the server directory path where your PDF files are located.
+            Default: `~/pdf_forms`
+          </li>
+        </ul>
+      </li>
+      <li>
+        Click "Convert" (for a single file) or "Process Directory" (for multiple
+        files on the server) to generate the CiviForm JSON output.
+      </li>
+      <li>Copy the CiviForm JSON output and import it to CiviForm.</li>
+    </ol>
 
     <div class="inline-form-group">
-        <div class="form-group">
-            <label for="LLMModelSelect">LLM Model:</label>
-            <select id="LLMModelSelect">
-                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
-                <option value="gemini-2.0-pro-exp">gemini-2.0-pro-exp</option>
-                <option value="gemini-2.0-flash-thinking">gemini-2.0-flash-thinking</option>
-                <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="logLevelSelect">Log Level:</label>
-            <select id="logLevelSelect">
-                <option value="INFO">INFO</option>
-                <option value="DEBUG">DEBUG</option>
-            </select>
-       </div>
+      <div class="form-group">
+        <label for="LLMModelSelect">LLM Model:</label>
+        <select id="LLMModelSelect">
+          <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+          <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+          <option value="gemini-2.0-pro-exp">gemini-2.0-pro-exp</option>
+          <option value="gemini-2.0-flash-thinking">
+            gemini-2.0-flash-thinking
+          </option>
+          <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="logLevelSelect">Log Level:</label>
+        <select id="logLevelSelect">
+          <option value="INFO">INFO</option>
+          <option value="DEBUG">DEBUG</option>
+        </select>
+      </div>
     </div>
-    
+
     <h2>Single File:</h2>
     <form onsubmit="uploadFile(event)" class="form-group">
-        <input type="file" id="pdfFile" accept="application/pdf" required>
-        <button type="submit">Convert a single PDF file</button>
+      <input type="file" id="pdfFile" accept="application/pdf" required />
+      <button type="submit">Convert a single PDF file</button>
     </form>
 
     <h2>Directory:</h2>
     <form onsubmit="uploadDirectory(event)" class="form-group">
-        <div class="inline-form-group">
-            <label for="directoryPath">Server Directory Path:</label>
-            <input type="text" id="directoryPath" name="directoryPath" value="~/pdf-to-civiform/pdf_forms">
-            <button type="submit">Process Directory</button>
-        </div>
+      <div class="inline-form-group">
+        <label for="directoryPath">Server Directory Path:</label>
+        <input
+          type="text"
+          id="directoryPath"
+          name="directoryPath"
+          value="~/pdf-to-civiform/pdf_forms"
+        />
+        <button type="submit">Process Directory</button>
+      </div>
     </form>
 
     <div class="output-container">
-        <h2>Output JSON (To-be-fixed: imcomplete json output):</h2>
-        <textarea id="output" placeholder="JSON output will appear here"></textarea>
-        <div id="processingSummary"></div>
-        <div id="charCount">Character Count: 0</div>
+      <h2>Output JSON (To-be-fixed: imcomplete json output):</h2>
+      <textarea
+        id="output"
+        placeholder="JSON output will appear here"
+      ></textarea>
+      <div id="processingSummary"></div>
+      <div id="charCount">Character Count: 0</div>
     </div>
 
     <div id="debug-log-container">
-        <h2>Debug Log:</h2>
-        <pre id="debugLog"></pre>
+      <h2>Debug Log:</h2>
+      <pre id="debugLog"></pre>
     </div>
-</body>
+  </body>
 </html>

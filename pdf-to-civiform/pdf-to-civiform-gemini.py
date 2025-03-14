@@ -23,19 +23,21 @@ from io import StringIO
 # output files are stored in ~/pdf-to-civiform/
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Capture logging output for web display
 log_stream = StringIO()
 log_handler = logging.StreamHandler(log_stream)
-log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+log_handler.setFormatter(
+    logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logging.getLogger().addHandler(log_handler)
-
 
 app = Flask(__name__)
 
 work_dir = os.path.expanduser("~/pdf-to-civiform/")
-default_upload_dir = os.path.join(work_dir, 'uploads')  # Define the default directory
+default_upload_dir = os.path.join(
+    work_dir, 'uploads')  # Define the default directory
 os.makedirs(default_upload_dir, exist_ok=True)
 logging.info("Working directory: %s", work_dir)
 logging.info(f"Default upload directory: {default_upload_dir}")
@@ -45,11 +47,13 @@ default_python_cache_path = os.path.join(work_dir, 'python_cache')
 if 'PYTHONPYCACHEPREFIX' not in os.environ:
     os.environ['PYTHONPYCACHEPREFIX'] = default_python_cache_path
 
-logging.info(f"PYTHONPYCACHEPREFIX  set to: {os.environ['PYTHONPYCACHEPREFIX']}")
+logging.info(
+    f"PYTHONPYCACHEPREFIX  set to: {os.environ['PYTHONPYCACHEPREFIX']}")
 
 
-def initialize_gemini_model(model_name="gemini-2.0-flash",
-                             api_key_file=os.path.expanduser("~/google_api_key")):
+def initialize_gemini_model(
+    model_name="gemini-2.0-flash",
+    api_key_file=os.path.expanduser("~/google_api_key")):
     """
     Initializes and configures the Gemini GenerativeModel.
 
@@ -69,7 +73,8 @@ def initialize_gemini_model(model_name="gemini-2.0-flash",
         return client
 
     except FileNotFoundError:
-        logging.error(f"Error: Google API key file not found at {api_key_file}.")
+        logging.error(
+            f"Error: Google API key file not found at {api_key_file}.")
         exit(1)
     except Exception as e:
         logging.error(f"Error loading Google API key: {e}")
@@ -83,13 +88,19 @@ def process_pdf_text_with_llm(client, model_name, file, base_name):
     logging.info(f"LLM processing input txt extracted from PDF...")
 
     try:
-        input_file= types.Part.from_bytes(data=file,mime_type='application/pdf',)
+        input_file = types.Part.from_bytes(
+            data=file,
+            mime_type='application/pdf',
+        )
         logging.debug(f"Sending PDF to LLM...")
-        response = client.models.generate_content(model=model_name, contents=[input_file, prompt])
-        response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
+        response = client.models.generate_content(
+            model=model_name, contents=[input_file, prompt])
+        response = response.text.strip("`").lstrip(
+            "json")  # Remove ``` and json if present
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            save_response_to_file(response, base_name, f"pdf-extract-{model_name}", work_dir)
+            save_response_to_file(
+                response, base_name, f"pdf-extract-{model_name}", work_dir)
 
         return response  # Return the processed text
 
@@ -103,19 +114,24 @@ def post_processing_llm(client, model_name, text, base_name):
     prompt_post_processing_json = LLMPrompts.post_process_json_prompt(text)
 
     try:
-        logging.info(f"post_processing_json_with_llm. collating names, addresses ...")
+        logging.info(
+            f"post_processing_json_with_llm. collating names, addresses ...")
         logging.debug(f"Sending collating data to LLM: {text}")
-        response = client.models.generate_content(model=model_name, contents=[prompt_post_processing_json])
-        response = response.text.strip("`").lstrip("json")  # Remove ``` and json if present
+        response = client.models.generate_content(
+            model=model_name, contents=[prompt_post_processing_json])
+        response = response.text.strip("`").lstrip(
+            "json")  # Remove ``` and json if present
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            save_response_to_file(response, base_name, f"post-processed-{model_name}", work_dir)
+            save_response_to_file(
+                response, base_name, f"post-processed-{model_name}", work_dir)
 
         return response  # Return the processed text
 
     except Exception as e:
         logging.error(f"Error during collating fields: {e}")
         return None
+
 
 def format_json_single_line_fields(json_string: str) -> str:
     """
@@ -144,14 +160,13 @@ def format_json_single_line_fields(json_string: str) -> str:
                     # Format other dictionaries with indentation
                     return "{\n" + "".join(
                         f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ':'))}: {custom_dumps(v, level + 1)},\n"
-                        for k, v in obj.items()
-                    )[:-2] + "\n" + ("    " * level) + "}"
+                        for k, v in obj.items())[:-2] + "\n" + (
+                            "    " * level) + "}"
             elif isinstance(obj, list):
                 # Format lists with indentation and single-line fields
                 return "[\n" + "".join(
                     f"{'    ' * (level + 1)}{custom_dumps(item, level + 1)},\n"
-                    for item in obj
-                )[:-2] + "\n" + ("    " * level) + "]"
+                    for item in obj)[:-2] + "\n" + ("    " * level) + "]"
             else:
                 return json.dumps(obj, separators=(',', ':'))
 
@@ -162,8 +177,9 @@ def format_json_single_line_fields(json_string: str) -> str:
         raise  # Re-raise the exception to be handled by the caller
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
-        raise ValueError(f"An unexpected error occurred during JSON formatting: {e}") from e  # Raise a ValueError
-
+        raise ValueError(
+            f"An unexpected error occurred during JSON formatting: {e}"
+        ) from e  # Raise a ValueError
 
 
 def save_response_to_file(response, base_name, output_suffix, work_dir):
@@ -177,7 +193,8 @@ def save_response_to_file(response, base_name, output_suffix, work_dir):
         work_dir (str): The working directory where the file will be saved.
     """
     try:
-        output_file_full = os.path.join(work_dir, f"{base_name}-{output_suffix}.json")
+        output_file_full = os.path.join(
+            work_dir, f"{base_name}-{output_suffix}.json")
 
         # Remove "```" from both ends and "json" from the start
         response = re.sub(r'^```\s*|\s*```$|\s*json\s*', '', response)
@@ -205,13 +222,14 @@ def process_file(file_full, model_name, client):
         # Extract the base filename without extension
         filename = os.path.basename(file_full)
         base_name, _ = os.path.splitext(filename)
-        base_name = base_name[:15]  # limit to 15 chars to avoid extremely long filenames
+        base_name = base_name[:
+                              15]  # limit to 15 chars to avoid extremely long filenames
         logging.info(f"Processing file: {file_full} ...")
 
         filepath = Path(file_full)
         file_bytes = filepath.read_bytes()
-        structured_json = process_pdf_text_with_llm(client, model_name, file_bytes,
-                                                    base_name)
+        structured_json = process_pdf_text_with_llm(
+            client, model_name, file_bytes, base_name)
 
         if structured_json is None:
             logging.error(f"LLM processing failed for file: {file_full}")
@@ -219,23 +237,29 @@ def process_file(file_full, model_name, client):
 
         logging.info(f"Formating json  .... ")
         formated_json = format_json_single_line_fields(structured_json)
-        save_response_to_file(formated_json, base_name, f"formated-{model_name}", work_dir)
+        save_response_to_file(
+            formated_json, base_name, f"formated-{model_name}", work_dir)
 
-        post_processed_json = post_processing_llm(client, model_name, formated_json, base_name)
+        post_processed_json = post_processing_llm(
+            client, model_name, formated_json, base_name)
         logging.info(f"Formating post processed json  .... ")
-        formated_post_processed_json = format_json_single_line_fields(post_processed_json)
-        save_response_to_file(formated_post_processed_json, f"{base_name}-post-processed", f"formated-{model_name}", work_dir)
-
+        formated_post_processed_json = format_json_single_line_fields(
+            post_processed_json)
+        save_response_to_file(
+            formated_post_processed_json, f"{base_name}-post-processed",
+            f"formated-{model_name}", work_dir)
 
         parsed_json = json.loads(formated_post_processed_json)
         civiform_json = convert_to_civiform_json(parsed_json)
-        save_response_to_file(civiform_json, base_name, f"civiform-{model_name}", work_dir)
+        save_response_to_file(
+            civiform_json, base_name, f"civiform-{model_name}", work_dir)
         logging.info(f"Done processing file: {file_full}")
 
         return civiform_json
     except Exception as e:
         logging.error(f"Failed to process file {file_full}: {e}")
         return None
+
 
 def process_directory(directory, model_name, client):
     """
@@ -254,33 +278,42 @@ def process_directory(directory, model_name, client):
     total_files = 0
     # Check if the directory is outside the allowed working directory
     if not os.path.abspath(directory).startswith(os.path.abspath(work_dir)):
-      logging.error(f"Attempted access outside working directory: {directory}")
-      return {"total_files": 0, "success_count": 0, "fail_count": 0, "file_results": {}}
+        logging.error(
+            f"Attempted access outside working directory: {directory}")
+        return {
+            "total_files": 0,
+            "success_count": 0,
+            "fail_count": 0,
+            "file_results": {}
+        }
 
     file_results = {}
 
     for filename in os.listdir(directory):
         if filename.lower().endswith(".pdf"):
-            total_files+=1
+            total_files += 1
             file_full = os.path.join(directory, filename)
             civiform_json = process_file(file_full, model_name, client)
-            file_results[filename] = {
-                "success": False,
-                "error_message": ""
-            }
+            file_results[filename] = {"success": False, "error_message": ""}
             if civiform_json:
-                success_count+=1
+                success_count += 1
                 file_results[filename]["success"] = True
             else:
-                fail_count+=1
+                fail_count += 1
                 file_results[filename]["success"] = False
-                file_results[filename]["error_message"] = "Failed to process file."
-    return {"total_files": total_files, "success_count": success_count, "fail_count": fail_count, "file_results": file_results}
- 
+                file_results[filename][
+                    "error_message"] = "Failed to process file."
+    return {
+        "total_files": total_files,
+        "success_count": success_count,
+        "fail_count": fail_count,
+        "file_results": file_results
+    }
+
 
 @app.route('/')
 def index():
-    return render_template('index.html',debug_log="")
+    return render_template('index.html', debug_log="")
 
 
 @app.route('/upload', methods=['POST'])
@@ -297,77 +330,97 @@ def upload_file():
 
     # Get LLM model name and log level from the request
     model_name = request.form.get('modelName')
-    logging.getLogger().setLevel(getattr(logging, request.form.get('logLevel', 'INFO').upper(), logging.INFO))
-    logging.info(f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}")
-    logging.debug(f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}")
+    logging.getLogger().setLevel(
+        getattr(
+            logging,
+            request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+    logging.info(
+        f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}"
+    )
+    logging.debug(
+        f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}"
+    )
 
     client = initialize_gemini_model(model_name)
 
     civiform_json = process_file(file_full, model_name, client)
 
     if civiform_json is None:
-         return jsonify({"error": "Failed to process file."}), 500
-
+        return jsonify({"error": "Failed to process file."}), 500
 
     return jsonify(json.loads(civiform_json))
+
 
 @app.route('/upload_directory', methods=['POST'])
 def upload_directory():
     """
     Endpoint to upload a directory of files and process each one.
     """
-        # Get LLM model name and log level from the request
+    # Get LLM model name and log level from the request
     model_name = request.form.get('modelName')
-    logging.getLogger().setLevel(getattr(logging, request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+    logging.getLogger().setLevel(
+        getattr(
+            logging,
+            request.form.get('logLevel', 'INFO').upper(), logging.INFO))
 
-    directory_path = request.form.get('directoryPath', default_upload_dir)  # Get path or default
+    directory_path = request.form.get(
+        'directoryPath', default_upload_dir)  # Get path or default
 
     # Sanitize the directory path
-    directory_path = os.path.expanduser(directory_path)  # Expand ~ and other special chars
+    directory_path = os.path.expanduser(
+        directory_path)  # Expand ~ and other special chars
     directory_path = os.path.abspath(directory_path)  # Convert to absolute path
 
     # Basic check to prevent accessing outside of the work dir
     if not directory_path.startswith(work_dir):
-        logging.error(f"Requested directory is outside of the work directory: {directory_path}")
+        logging.error(
+            f"Requested directory is outside of the work directory: {directory_path}"
+        )
         return jsonify({"error": "Invalid directory path."}), 400
-        
+
     # Ensure that the requested path is a directory
     if not os.path.isdir(directory_path):
-         logging.error(f"Invalid directory path: {directory_path}")
-         return jsonify({"error": "Invalid directory path."}), 400
+        logging.error(f"Invalid directory path: {directory_path}")
+        return jsonify({"error": "Invalid directory path."}), 400
 
     client = initialize_gemini_model(model_name)
-    
+
     directory_result = process_directory(directory_path, model_name, client)
     if directory_result["total_files"] == 0:
-      return jsonify({
-        "summary": {
-            "total_files": directory_result["total_files"],
-            "success_count": directory_result["success_count"],
-            "fail_count": directory_result["fail_count"],
-            "file_results": directory_result["file_results"]
-        }
-      })
-    if directory_result["success_count"] == 0 and directory_result["fail_count"] > 0:
-      return jsonify({
-            "error": "No files processed successfully.",
-            "summary": {
-                 "total_files": directory_result["total_files"],
-                 "success_count": directory_result["success_count"],
-                 "fail_count": directory_result["fail_count"],
-                 "file_results": directory_result["file_results"]
-            }
-        }), 500
-    
-    return jsonify({
-        "summary": {
-            "total_files": directory_result["total_files"],
-            "success_count": directory_result["success_count"],
-            "fail_count": directory_result["fail_count"],
-            "file_results": directory_result["file_results"]
-        }
-    })
-    
+        return jsonify(
+            {
+                "summary":
+                    {
+                        "total_files": directory_result["total_files"],
+                        "success_count": directory_result["success_count"],
+                        "fail_count": directory_result["fail_count"],
+                        "file_results": directory_result["file_results"]
+                    }
+            })
+    if directory_result["success_count"] == 0 and directory_result[
+            "fail_count"] > 0:
+        return jsonify(
+            {
+                "error": "No files processed successfully.",
+                "summary":
+                    {
+                        "total_files": directory_result["total_files"],
+                        "success_count": directory_result["success_count"],
+                        "fail_count": directory_result["fail_count"],
+                        "file_results": directory_result["file_results"]
+                    }
+            }), 500
+
+    return jsonify(
+        {
+            "summary":
+                {
+                    "total_files": directory_result["total_files"],
+                    "success_count": directory_result["success_count"],
+                    "fail_count": directory_result["fail_count"],
+                    "file_results": directory_result["file_results"]
+                }
+        })
 
 
 if __name__ == '__main__':
