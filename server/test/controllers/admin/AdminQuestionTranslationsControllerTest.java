@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import controllers.FlashKey;
 import java.util.Locale;
+import java.util.UUID;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -100,7 +101,9 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     "questionText",
                     "updated spanish question text",
                     "questionHelpText",
-                    "updated spanish help text"));
+                    "updated spanish help text",
+                    "concurrencyToken",
+                    question.getConcurrencyToken().toString()));
 
     Result result =
         controller.update(
@@ -132,7 +135,9 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     "questionText",
                     "updated spanish question text",
                     "questionHelpText",
-                    "updated spanish question help text"));
+                    "updated spanish question help text",
+                    "concurrencyToken",
+                    question.getConcurrencyToken().toString()));
 
     Result result =
         controller.update(
@@ -159,6 +164,60 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             () -> controller.update(fakeRequest(), "non-existent question name", "es-US"))
         .hasMessage("No draft found for question: \"non-existent question name\"")
         .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
+  public void update_withMissingConcurrencyToken_redirectsToFreshForm() {
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
+
+    Http.RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    "updated spanish question text",
+                    "questionHelpText",
+                    "updated spanish question help text"));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminQuestionTranslationsController.edit(
+                    question.getQuestionDefinition().getName(), "es-US")
+                .url());
+  }
+
+  @Test
+  public void update_withMismatchedConcurrencyToken_redirectsToFreshForm() {
+    QuestionModel question = createDraftQuestionEnglishAndSpanish();
+
+    Http.RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    "updated spanish question text",
+                    "questionHelpText",
+                    "updated spanish question help text",
+                    "concurrencyToken",
+                    UUID.randomUUID().toString()));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminQuestionTranslationsController.edit(
+                    question.getQuestionDefinition().getName(), "es-US")
+                .url());
   }
 
   @Test

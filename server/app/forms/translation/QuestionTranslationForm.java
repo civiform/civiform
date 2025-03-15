@@ -1,6 +1,8 @@
 package forms.translation;
 
 import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -12,10 +14,12 @@ public class QuestionTranslationForm {
 
   private String questionText;
   private String questionHelpText;
+  private UUID concurrencyToken;
 
   public QuestionTranslationForm() {
     this.questionText = "";
     this.questionHelpText = "";
+    this.concurrencyToken = UUID.randomUUID();
   }
 
   public final String getQuestionText() {
@@ -34,10 +38,17 @@ public class QuestionTranslationForm {
     this.questionHelpText = questionHelpText;
   }
 
+  public final void setConcurrencyToken(String concurrencyToken) {
+    if (!concurrencyToken.isEmpty()) {
+      this.concurrencyToken = UUID.fromString(concurrencyToken);
+    }
+  }
+
   public QuestionDefinitionBuilder builderWithUpdates(
       QuestionDefinition toUpdate, Locale updatedLocale) throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(toUpdate);
     builder.updateQuestionText(updatedLocale, questionText);
+    builder.setConcurrencyToken(Optional.of(concurrencyToken));
     // Help text is optional
     if (!questionHelpText.isBlank()) {
       builder.updateQuestionHelpText(updatedLocale, questionHelpText);

@@ -13,6 +13,7 @@ import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
@@ -92,6 +93,11 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     Locale localeToEdit = maybeLocaleToEdit.get();
 
     QuestionDefinition definition = getDraftQuestionDefinition(questionName);
+    Optional<ToastMessage> message =
+        request.flash().get(FlashKey.CONCURRENT_UPDATE).map(m -> ToastMessage.errorNonLocalized(m));
+    if (message.isPresent()) {
+      return ok(translationView.renderErrors(request, localeToEdit, definition, message.get()));
+    }
     return ok(translationView.render(request, localeToEdit, definition));
   }
 
@@ -133,6 +139,14 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       return badRequest(e.getMessage());
     } catch (InvalidUpdateException e) {
       return internalServerError(e.getMessage());
+    } catch (ConcurrentUpdateException e) {
+      // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
+      // made changes.
+      return redirect(routes.AdminQuestionTranslationsController.edit(questionName, locale).url())
+          .flashing(
+              FlashKey.CONCURRENT_UPDATE,
+              "The question was updated by another user while the edit page was open in your"
+                  + " browser. Please try your edits again.");
     }
   }
 

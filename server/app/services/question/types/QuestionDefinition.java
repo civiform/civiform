@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -181,6 +182,11 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public final Optional<Instant> getLastModifiedTime() {
     return config.lastModifiedTime();
+  }
+
+  @JsonIgnore
+  public final Optional<UUID> getConcurrencyToken() {
+    return config.concurrencyToken();
   }
 
   // TODO(#6597): Persist the question name key to the database instead of just memoizing it
@@ -394,7 +400,7 @@ public abstract class QuestionDefinition {
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
   @Override
   public boolean equals(Object other) {
-    return this.idEquals(other) && this.equalsIgnoreId(other);
+    return this.idEquals(other) && this.equalsIgnoreIdAndConcurrencyToken(other);
   }
 
   private boolean idEquals(Object other) {
@@ -408,13 +414,26 @@ public abstract class QuestionDefinition {
     return false;
   }
 
+  // private boolean concurrencyTokenEquals(Object other) {
+  //   if (other instanceof QuestionDefinition) {
+  //     QuestionDefinition o = (QuestionDefinition) other;
+
+  //     return this.getConcurrencyToken().equals(o.getConcurrencyToken());
+  //   }
+  //   return false;
+  // }
+
+  // public boolean equalsExceptConcurrencyToken(Object other) {
+  //   return this.idEquals(other) && equalsIgnoreIdAndConcurrencyToken(other);
+  // }
+
   /**
    * When an object is created, it is sent to the server without an id. The object returned from
    * QuestionService should be the QuestionDefinition with the id.
    *
    * <p>This checks all other fields ignoring the id.
    */
-  private boolean equalsIgnoreId(Object other) {
+  private boolean equalsIgnoreIdAndConcurrencyToken(Object other) {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 
@@ -423,7 +442,8 @@ public abstract class QuestionDefinition {
           && getDescription().equals(o.getDescription())
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
-          && getValidationPredicates().equals(o.getValidationPredicates());
+          && getValidationPredicates().equals(o.getValidationPredicates())
+          && getConcurrencyToken().equals(o.getConcurrencyToken());
     }
     return false;
   }
