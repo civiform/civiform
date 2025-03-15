@@ -249,6 +249,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     repo.updateQuestion(new QuestionModel(questionDefinition)).toCompletableFuture().join();
 
     QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    // assertThat(q.getQuestionDefinition().equalsExceptConcurrencyToken(questionDefinition)).isTrue();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
   }
 
@@ -262,7 +263,9 @@ public class QuestionRepositoryTest extends ResetPostgres {
     repo.updateQuestionSync(new QuestionModel(questionDefinition));
 
     QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    // assertThat(q.getQuestionDefinition().equalsExceptConcurrencyToken(questionDefinition)).isTrue();
     assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+    // todo compare without concurrency token? or should this be comparing with the concurrency token?
   }
 
   @Test

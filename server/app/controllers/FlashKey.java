@@ -14,4 +14,5 @@ public final class FlashKey {
   public static String SHOW_FAST_FORWARDED_MESSAGE = "showFastForwardedMessage";
   public static String SUCCESS_BANNER = "success-banner";
   public static String DUPLICATE_SUBMISSION = "duplicate-submission";
+  public static String CONCURRENT_UPDATE = "concurrent-update";
 }
