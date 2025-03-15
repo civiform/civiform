@@ -266,6 +266,40 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void createOrUpdateDraft_creatingDraftEnumeratorPreservesDraftRepeatedQuestions()
+      throws UnsupportedQuestionTypeException {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionModel repeatedQuestion = testQuestionBank.idRepeatedHouseholdMemberId();
+
+    // Create new draft of repeated question and publish it
+    QuestionDefinition firstRepeatedQuestionUpdate =
+        new QuestionDefinitionBuilder(repeatedQuestion.getQuestionDefinition())
+            .setDescription("update 1")
+            .build();
+    repo.createOrUpdateDraft(firstRepeatedQuestionUpdate);
+    versionRepo.publishNewSynchronizedVersion();
+
+    // Create new draft of repeated question
+    QuestionDefinition secondRepeatedQuestionUpdate =
+        new QuestionDefinitionBuilder(repeatedQuestion.getQuestionDefinition())
+            .setDescription("update 2")
+            .build();
+    QuestionModel secondRepeatedQuestion = repo.createOrUpdateDraft(secondRepeatedQuestionUpdate);
+
+    // Create draft of enumerator question
+    QuestionDefinition enumeratorQuestionUpdate =
+        new QuestionDefinitionBuilder(enumeratorQuestion.getQuestionDefinition())
+            .setDescription("updated")
+            .build();
+    repo.createOrUpdateDraft(enumeratorQuestionUpdate);
+
+    secondRepeatedQuestion.refresh();
+
+    assertThat(secondRepeatedQuestion.getQuestionDefinition().getDescription())
+        .isEqualTo(secondRepeatedQuestionUpdate.getDescription());
+  }
+
+  @Test
   public void createOrUpdateDraft_managesUniversalTagCorrectly()
       throws UnsupportedQuestionTypeException {
     // Question will be published in an ACTIVE version
