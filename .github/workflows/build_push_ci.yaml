@@ -101,19 +101,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - id: file_changes
-        uses: tj-actions/changed-files@v45
-        with:
-          json: 'true'
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      # - id: file_changes
+      #   uses: tj-actions/changed-files@v45
+      #   with:
+      #     json: 'true'
+      #   if: ${{ github.event_name != 'workflow_dispatch' }}
 
+      # TODO: need to come back and fix this so we don't push docker images that are unneeded.
       - name: Check build & push
         id: check_build
-        if: >
-          ${{ (github.event_name == 'workflow_dispatch') ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github') }}
+        # if: >
+        #   ${{ (github.event_name == 'workflow_dispatch') ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github') }}
         run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "build=build" >> $GITHUB_OUTPUT
 
       - name: Skip build & push
