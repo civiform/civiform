@@ -12,7 +12,7 @@ import services.settings.SettingsService;
 
 public class FeatureFlagOverrideControllerTest extends ResetPostgres {
 
-  private static final String FLAG_NAME = "CF_OPTIONAL_QUESTIONS";
+  private static final String FLAG_NAME = "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS";
   private FeatureFlagOverrideController controller;
 
   private SettingsService settingsService;
