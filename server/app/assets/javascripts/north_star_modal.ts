@@ -25,30 +25,34 @@ export class NorthStarModalController {
 
   static maybeUpdateButtonHrefToBypassUrl(modal: HTMLElement) {
     const onlyShowOnceGroup = modal.getAttribute('only-show-once-group')
-    if (onlyShowOnceGroup) {
-      const modalHasBeenShown = localStorage.getItem(onlyShowOnceGroup)
-      const bypassUrl = modal.getAttribute('bypass-url')
-      if (modalHasBeenShown) {
-        // Find corresponding buttons that open this modal and update href to bypassUrl
-        const modalButtons = document.querySelectorAll<HTMLAnchorElement>(
-          `a[href='#` + modal.getAttribute('dialog-id') + `']`,
-        )
-        modalButtons.forEach((modalButton) => {
-          if (bypassUrl) {
-            // This looks odd, but USWDS adds event listeners on the elements that trigger modal
-            // dialogs, so we need to clone the element so that we can effectively update the
-            // button to go straight through to the bypass URL instead of opening the modal.
-            const newModalButton = modalButton.cloneNode(
-              true,
-            ) as HTMLAnchorElement
-            modalButton.replaceWith(newModalButton)
-            newModalButton.href = bypassUrl
-            newModalButton.removeAttribute('data-open-modal')
-            newModalButton.removeAttribute('aria-controls')
-          }
-        })
-      }
+    if (!onlyShowOnceGroup) {
+      return
     }
+
+    const modalHasBeenShown = localStorage.getItem(onlyShowOnceGroup)
+    if (!modalHasBeenShown) {
+      return
+    }
+
+    const bypassUrl = modal.getAttribute('bypass-url')
+    if (!bypassUrl) {
+      return
+    }
+
+    // Find corresponding buttons that open this modal and update href to bypassUrl
+    const modalButtons = document.querySelectorAll<HTMLAnchorElement>(
+      `a[href='#` + modal.getAttribute('dialog-id') + `']`,
+    )
+    modalButtons.forEach((modalButton) => {
+      // This looks odd, but USWDS adds event listeners on the elements that trigger modal
+      // dialogs, so we need to clone the element so that we can effectively update the
+      // button to go straight through to the bypass URL instead of opening the modal.
+      const newModalButton = modalButton.cloneNode(true) as HTMLAnchorElement
+      modalButton.replaceWith(newModalButton)
+      newModalButton.href = bypassUrl
+      newModalButton.removeAttribute('data-open-modal')
+      newModalButton.removeAttribute('aria-controls')
+    })
   }
 
   constructor() {
