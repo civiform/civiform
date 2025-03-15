@@ -6,11 +6,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsPublicStorage.AWS_PUBLIC_S3_BUCKET_CONF_PATH;
 import static services.cloud.aws.AwsPublicStorage.AWS_PUBLIC_S3_FILE_LIMIT_CONF_PATH;
+import static services.cloud.aws.AwsStorageUtils.AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH;
 import static support.cloud.FakeAwsS3Client.DELETION_ERROR_FILE_KEY;
 import static support.cloud.FakeAwsS3Client.LIST_ERROR_FILE_KEY;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import java.io.File;
 import java.net.URI;
 import org.junit.Test;
@@ -62,6 +64,29 @@ public class AwsPublicStorageTest extends ResetPostgres {
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
+    assertThat(uploadRequest.actionLink()).endsWith("/");
+  }
+
+  @Test
+  public void getSignedUploadRequest_prodEnv_actionLinkIsProdOverride() {
+    Config config =
+        instanceOf(Config.class)
+            .withValue(
+                AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH,
+                ConfigValueFactory.fromAnyRef("https://foo.bar/"));
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            credentials,
+            config,
+            new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
+
+    SignedS3UploadRequest uploadRequest =
+        awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
+
+    assertThat(uploadRequest.actionLink()).contains("foo.bar");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
@@ -255,6 +280,29 @@ public class AwsPublicStorageTest extends ResetPostgres {
     awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
     assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("amazonaws");
+  }
+
+  @Test
+  public void prunePublicFileStorage_prodEnv_endpointIsProdOverride() {
+    Config config =
+        instanceOf(Config.class)
+            .withValue(
+                AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH,
+                ConfigValueFactory.fromAnyRef("https://foo.bar/"));
+    AwsPublicStorage awsPublicStorage =
+        new AwsPublicStorage(
+            fakeAwsS3Client,
+            instanceOf(AwsStorageUtils.class),
+            instanceOf(AwsRegion.class),
+            credentials,
+            config,
+            new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD));
+
+    // Add an object so that pruning actually needs to delete something.
+    fakeAwsS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
+    awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
+
+    assertThat(fakeAwsS3Client.getLastDeleteEndpointUsed().getHost()).contains("foo.bar");
   }
 
   @Test

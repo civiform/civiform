@@ -56,7 +56,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
-      client = new AwsClient(awsStorageUtils);
+      client = new AwsClient(config, awsStorageUtils);
     }
 
     appLifecycle.addStopHook(
@@ -164,10 +164,12 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
   }
 
   class AwsClient implements Client {
+    private final Config config;
     private final AwsStorageUtils awsStorageUtils;
     private final S3Presigner presigner;
 
-    AwsClient(AwsStorageUtils awsStorageUtils) {
+    AwsClient(Config config, AwsStorageUtils awsStorageUtils) {
+      this.config = checkNotNull(config);
       this.awsStorageUtils = checkNotNull(awsStorageUtils);
       presigner = S3Presigner.builder().region(region).build();
     }
@@ -179,7 +181,7 @@ public class AwsApplicantStorage implements ApplicantStorageClient {
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.prodAwsActionLink(bucket, region);
+      return awsStorageUtils.prodAwsActionLink(config, bucket, region);
     }
 
     @Override

@@ -74,4 +74,28 @@ public class SignedS3UploadRequestTest {
             "[\"starts-with\",\"$success_action_redirect\",\"https://civiform.dev/programs/4/blocks/1/updateFile/true\"]");
     assertThat(policyString).doesNotContain("{\"success_action_redirect\":");
   }
+
+  @Test
+  public void
+      uploadPolicyBuilder_useSuccessActionRedirectAsPrefixTrue_policyUsesContentLengthRange() {
+    SignedS3UploadRequest.UploadPolicy.Builder uploadPolicyBuilder =
+        SignedS3UploadRequest.UploadPolicy.builder()
+            .setSuccessActionRedirect(
+                "https://civiform.dev/programs/4/blocks/1/updateFile/true",
+                /* useSuccessActionRedirectAsPrefix= */ true)
+            // Irrelevant inputs
+            .setExpiration("expiration")
+            .setBucket("bucket")
+            .setKeyPrefix("key")
+            .setContentLengthRange(1, 100)
+            .setCredential("credential")
+            .setAlgorithm("algorithm")
+            .setDate("date")
+            .setSecurityToken("securityToken");
+
+    String policyString = uploadPolicyBuilder.build().getAsString();
+
+    assertThat(policyString).contains("[\"content-length-range\",1,100]");
+    assertThat(policyString).doesNotContain("{\"success_action_redirect\":");
+  }
 }
