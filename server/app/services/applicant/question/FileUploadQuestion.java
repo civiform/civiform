@@ -15,7 +15,6 @@ import services.question.types.FileUploadQuestionDefinition;
  * <p>See {@link ApplicantQuestion} for details.
  */
 public final class FileUploadQuestion extends AbstractQuestion {
-
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
   // and if they are this value could still not be set.
@@ -97,18 +96,28 @@ public final class FileUploadQuestion extends AbstractQuestion {
   }
 
   /*
-   * Returns the stored original filenames. If this data does not exist, return the file key values.
+   * Returns the stored original filenames, if they exist in storage.
    */
   public Optional<ImmutableList<String>> getOriginalFileNameListValue() {
-    return getFileKeyListValue();
+    return applicantQuestion.getApplicantData().readStringList(getOriginalFileNameListPath());
   }
 
   /*
-   * Returns the stored original filename for the given index. If this data does not exist, return the
-   * file key value for the same index.
+   * Returns the stored original filename for the given index, if the data exists in storage.
    */
   public Optional<String> getOriginalFileNameValueForIndex(int index) {
-    return getFileKeyValueForIndex(index);
+    Optional<String> originalFileName =
+        applicantQuestion.getApplicantData().readString(getOriginalFileNameListPathForIndex(index));
+    return originalFileName;
+  }
+
+  /*
+   * Returns the filename stored at the given index, will search for a value to return from
+   * the original filename column first, and if none is found, then it will return the filekey.
+   */
+  public Optional<String> getFileNameForIndex(int index) {
+    Optional<String> fileNameOptional = getOriginalFileNameValueForIndex(index);
+    return fileNameOptional.isPresent() ? fileNameOptional : getFileKeyValueForIndex(index);
   }
 
   public FileUploadQuestionDefinition getQuestionDefinition() {
