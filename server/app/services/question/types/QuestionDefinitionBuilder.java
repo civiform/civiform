@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionOption;
@@ -152,6 +153,11 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setLastModifiedTime(Optional<Instant> lastModifiedTime) {
     builder.setLastModifiedTime(lastModifiedTime);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setConcurrencyToken(UUID concurrencyToken) {
+    builder.setConcurrencyToken(concurrencyToken);
     return this;
   }
 

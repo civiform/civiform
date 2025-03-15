@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -181,6 +182,11 @@ public abstract class QuestionDefinition {
   @JsonIgnore
   public final Optional<Instant> getLastModifiedTime() {
     return config.lastModifiedTime();
+  }
+
+  @JsonIgnore
+  public final Optional<UUID> getConcurrencyToken() {
+    return config.concurrencyToken();
   }
 
   // TODO(#6597): Persist the question name key to the database instead of just memoizing it
@@ -423,7 +429,8 @@ public abstract class QuestionDefinition {
           && getDescription().equals(o.getDescription())
           && getQuestionText().equals(o.getQuestionText())
           && getQuestionHelpText().equals(o.getQuestionHelpText())
-          && getValidationPredicates().equals(o.getValidationPredicates());
+          && getValidationPredicates().equals(o.getValidationPredicates())
+          && getConcurrencyToken().equals(o.getConcurrencyToken());
     }
     return false;
   }

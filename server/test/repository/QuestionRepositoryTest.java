@@ -202,10 +202,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionModel question = new QuestionModel(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
-
     long id = question.id;
     QuestionModel q = repo.lookupQuestion(id).toCompletableFuture().join().get();
+
     assertThat(q.id).isEqualTo(id);
+    assertThat(q.getConcurrencyToken()).isNotNull();
   }
 
   @Test
@@ -221,8 +222,9 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionModel question = new QuestionModel(questionDefinition);
 
     repo.insertQuestionSync(question);
+    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
-    assertThat(repo.lookupQuestion(question.id).toCompletableFuture().join()).hasValue(question);
+    assertThat(q).isEqualTo(question);
   }
 
   @Test
@@ -241,28 +243,54 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void updateQuestion() throws UnsupportedQuestionTypeException {
-    QuestionModel question = resourceCreator.insertQuestion();
-    QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    QuestionModel initialQuestion = resourceCreator.insertQuestion();
+    QuestionDefinition initialQuestionDefinition = initialQuestion.getQuestionDefinition();
+    initialQuestionDefinition =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setDescription("new description")
+            .build();
 
-    repo.updateQuestion(new QuestionModel(questionDefinition)).toCompletableFuture().join();
+    repo.updateQuestion(new QuestionModel(initialQuestionDefinition)).toCompletableFuture().join();
+    QuestionModel retrievedQuestion =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    QuestionDefinition retrievedQuestionDefinition = retrievedQuestion.getQuestionDefinition();
 
-    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+    // assert concurrency token has changed
+    assertThat(retrievedQuestionDefinition.getConcurrencyToken().get())
+        .isNotEqualTo(initialQuestionDefinition.getConcurrencyToken().get());
+
+    // assert other fields are equal via a QuestionDefinition with a matching token
+    QuestionDefinition initialQuestionDefinitionWithMatchingToken =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setConcurrencyToken(retrievedQuestion.getConcurrencyToken())
+            .build();
+    assertThat(retrievedQuestionDefinition).isEqualTo(initialQuestionDefinitionWithMatchingToken);
   }
 
   @Test
   public void updateQuestionSync() throws UnsupportedQuestionTypeException {
-    QuestionModel question = resourceCreator.insertQuestion();
-    QuestionDefinition questionDefinition = question.getQuestionDefinition();
-    questionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition).setDescription("new description").build();
+    QuestionModel initialQuestion = resourceCreator.insertQuestion();
+    QuestionDefinition initialQuestionDefinition = initialQuestion.getQuestionDefinition();
+    initialQuestionDefinition =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setDescription("new description")
+            .build();
 
-    repo.updateQuestionSync(new QuestionModel(questionDefinition));
+    repo.updateQuestionSync(new QuestionModel(initialQuestionDefinition));
+    QuestionModel retrievedQuestion =
+        repo.lookupQuestion(initialQuestion.id).toCompletableFuture().join().get();
+    QuestionDefinition retrievedQuestionDefinition = retrievedQuestion.getQuestionDefinition();
 
-    QuestionModel q = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(q.getQuestionDefinition()).isEqualTo(questionDefinition);
+    // assert concurrency token has changed
+    assertThat(retrievedQuestionDefinition.getConcurrencyToken().get())
+        .isNotEqualTo(initialQuestionDefinition.getConcurrencyToken().get());
+
+    // assert other fields are equal via a QuestionDefinition with a matching token
+    QuestionDefinition initialQuestionDefinitionWithMatchingToken =
+        new QuestionDefinitionBuilder(initialQuestionDefinition)
+            .setConcurrencyToken(retrievedQuestion.getConcurrencyToken())
+            .build();
+    assertThat(retrievedQuestionDefinition).isEqualTo(initialQuestionDefinitionWithMatchingToken);
   }
 
   @Test

@@ -17,6 +17,7 @@ import controllers.FlashKey;
 import forms.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import models.LifecycleStage;
 import models.QuestionModel;
 import models.QuestionTag;
@@ -323,7 +324,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .put("questionType", originalNameQuestion.getQuestionDefinition().getQuestionType().name())
         .put("questionText", "question text updated")
         .put("questionHelpText", "a new help text")
-        .put("questionExportState", "DEMOGRAPHIC_PII");
+        .put("questionExportState", "DEMOGRAPHIC_PII")
+        .put("concurrencyToken", originalNameQuestion.getConcurrencyToken().toString());
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     Result result =
@@ -453,6 +455,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptionAdminNames[0]", "lavender_admin")
             .put("nextAvailableId", "5")
             .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
             // Has one fewer than the original question
             .build();
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
@@ -544,6 +547,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("optionAdminNames[1]", "strawberry_new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
@@ -611,6 +615,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("optionAdminNames[1]", "new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
@@ -679,6 +684,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptions[0]", "lavender") // New flavor
             .put("newOptionAdminNames[0]", "lavender_admin")
             .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
     RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
@@ -730,6 +736,67 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void update_withMissingConcurrencyToken_redirectsToFreshForm() {
+    // We can only update draft questions, so save this in the DRAFT version.
+    QuestionModel question =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
+            LifecycleStage.DRAFT);
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", question.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", question.getQuestionDefinition().getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "DEMOGRAPHIC_PII");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            question.getQuestionDefinition().getId(),
+            question.getQuestionDefinition().getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.edit(question.id).url());
+  }
+
+  @Test
+  public void update_withMismatchedConcurrencyToken_redirectsToFreshForm() {
+    // We can only update draft questions, so save this in the DRAFT version.
+    QuestionModel question =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(testQuestionBank.nameApplicantName()),
+            LifecycleStage.DRAFT);
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", question.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", question.getQuestionDefinition().getQuestionType().name())
+        .put("questionText", "question text updated")
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "DEMOGRAPHIC_PII")
+        .put("concurrencyToken", UUID.randomUUID().toString());
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            question.getQuestionDefinition().getId(),
+            question.getQuestionDefinition().getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data()).containsKey(FlashKey.CONCURRENT_UPDATE);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.edit(question.id).url());
   }
 
   private NameQuestionDefinition createNameQuestionDuplicate(QuestionModel question) {

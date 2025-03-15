@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
@@ -84,6 +85,8 @@ public class QuestionModel extends BaseModel {
   /** When the question was last modified. */
   @WhenModified private Instant lastModifiedTime;
 
+  private UUID concurrencyToken;
+
   @ManyToMany(mappedBy = "questions")
   @JoinTable(
       name = "versions_questions",
@@ -106,8 +109,22 @@ public class QuestionModel extends BaseModel {
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
-  @PreUpdate
   @PrePersist
+  public void persistQuestionDefinition() {
+    // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
+    // had relied on to mark the json fields as dirty. We now need to manually
+    // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
+    // get triggered.
+    io.ebean.DB.markAsDirty(this);
+    setFieldsFromQuestionDefinition(questionDefinition);
+    // If this is a new model and the concurrency token isn't set, create one.
+    if (this.concurrencyToken == null) {
+      this.concurrencyToken = UUID.randomUUID();
+    }
+  }
+
+  /** Populates column values from {@link QuestionDefinition}. */
+  @PreUpdate
   public void persistChangesToQuestionDefinition() {
     // Play Ebeans starting at v6.2.0 includes updated Ebeans that fixes a bug we
     // had relied on to mark the json fields as dirty. We now need to manually
@@ -115,6 +132,26 @@ public class QuestionModel extends BaseModel {
     // get triggered.
     io.ebean.DB.markAsDirty(this);
     setFieldsFromQuestionDefinition(questionDefinition);
+
+    // Verify the concurrency token is still valid before persisting
+    int numMatchingEntities =
+        this.db()
+            .find(QuestionModel.class)
+            .setLabel("QuestionModel.preUpdate")
+            .where()
+            .eq("id", this.id)
+            .eq("concurrency_token", this.concurrencyToken)
+            .findCount();
+
+    if (numMatchingEntities != 1) {
+      throw new ConcurrentUpdateException(
+          String.format(
+              "A Question with the concurrency_token \"%s\" and id \"%d\" could not be found.",
+              this.concurrencyToken, this.id));
+    }
+
+    // If the concurrency token matches, update it so any concurrent updates fail.
+    this.concurrencyToken = UUID.randomUUID();
   }
 
   /** Populates {@link QuestionDefinition} from column values. */
@@ -143,6 +180,10 @@ public class QuestionModel extends BaseModel {
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
             .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
+
+    if (concurrencyToken != null) {
+      builder.setConcurrencyToken(concurrencyToken);
+    }
 
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
@@ -192,6 +233,11 @@ public class QuestionModel extends BaseModel {
     return this;
   }
 
+  public QuestionModel setConcurrencyToken(UUID concurrencyToken) {
+    this.concurrencyToken = concurrencyToken;
+    return this;
+  }
+
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
   }
@@ -199,6 +245,9 @@ public class QuestionModel extends BaseModel {
   private QuestionModel setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
+    }
+    if (questionDefinition.getConcurrencyToken().isPresent()) {
+      concurrencyToken = questionDefinition.getConcurrencyToken().get();
     }
     enumeratorId = questionDefinition.getEnumeratorId().orElse(null);
     name = questionDefinition.getName();
@@ -278,5 +327,9 @@ public class QuestionModel extends BaseModel {
 
   public Optional<Instant> getCreateTime() {
     return Optional.ofNullable(createTime);
+  }
+
+  public UUID getConcurrencyToken() {
+    return this.concurrencyToken;
   }
 }
