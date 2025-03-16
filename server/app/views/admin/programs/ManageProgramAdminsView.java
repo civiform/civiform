@@ -77,7 +77,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 h2("Existing admins"),
                 renderExistingAdmins(request, program.id(), existingAdminEmails));
 
-    message.map(m -> m.setDuration(6000)).ifPresent(htmlBundle::addToastMessages);
+    message.map(m -> m.setDuration(12000)).ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
