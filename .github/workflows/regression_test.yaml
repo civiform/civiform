@@ -16,7 +16,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test
-        uses: QAInsights/PerfAction@v5.6.2
+        uses: QAInsights/PerfAction@v5.6.3
         with:
           test-plan-path: load-test/applicant_landing_page.jmx
           args: -JciviformUrl=staging-aws.civiform.dev

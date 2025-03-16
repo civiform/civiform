@@ -40,7 +40,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
-        uses: QAInsights/PerfAction@v5.6.2
+        uses: QAInsights/PerfAction@v5.6.3
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
           args: -JciviformUrl=${{ github.event.inputs.civiform_url }}
