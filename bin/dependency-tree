@@ -2,6 +2,7 @@
 
 # DOC: Run the "dependencyTree" sbt command and save to a file. This will overwrite
 # any existing dependency-tree.txt file.
+source bin/lib.sh
 
 rm -f server/dependency-tree.txt
 bin/sbt 'dependencyTree::toFile"/usr/src/server/dependency-tree.txt"'

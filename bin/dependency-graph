@@ -5,9 +5,9 @@
 # it expects, it will open it. Otherwise, just tell the user to open it themselves. On
 # MacOS with homebrew, do 'brew install yed'.
 
-rm -f server/dependencies-compile.graphml
-
 source bin/lib.sh
+
+rm -f server/dependencies-compile.graphml
 docker::set_project_name_dev
 container="${COMPOSE_PROJECT_NAME}-civiform-1"
 
@@ -29,7 +29,7 @@ fi
 # TODO: Add support for other platforms' yEd. Just running "yed" on the command line
 # doesn't work on MacOS.
 bin="/Applications/yEd.app/Contents/MacOS/JavaApplicationStub"
-if [ -f "${bin}" ]; then
+if [[ "$(uname -s)" == "Darwin" ]] && [ -f "${bin}" ]; then
   echo "yEd on MacOS detected. Opening file in yEd."
   ${bin} "$(pwd)/dependencies-compile.graphml"
 fi
