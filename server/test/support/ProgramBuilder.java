@@ -169,45 +169,6 @@ public class ProgramBuilder {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
   }
 
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and disabled.
-   */
-  public static ProgramBuilder newDisabledActiveProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.DISABLED,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and hidden in index.
-   */
-  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.HIDDEN_IN_INDEX,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and visible only to Trusted Intermediaries.
-   */
-  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.TI_ONLY,
-        ProgramType.DEFAULT);
-  }
-
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, description);
@@ -220,6 +181,19 @@ public class ProgramBuilder {
   public static ProgramBuilder newActiveProgramWithDisplayName(
       String adminName, String displayName) {
     return newActiveProgram(adminName, displayName, /* description= */ "");
+  }
+
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with
+   * {@link DisplayMode} and a blank description.
+   */
+  public static ProgramBuilder newActiveProgram(String name, DisplayMode displayMode) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        displayMode,
+        ProgramType.DEFAULT);
   }
 
   /**
