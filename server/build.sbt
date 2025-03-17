@@ -248,7 +248,7 @@ lazy val root = (project in file("."))
       // compose the new transition on top of the existing one
       // in case your plugins are using this hook.
       startupTransition compose previous
-    },
+    }
   )
   .settings(excludeTailwindGeneration: _*)
 //jacoco report setting
