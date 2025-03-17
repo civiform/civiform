@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+# DOC: Run the "dependencyTree" sbt command and save to a file. This will overwrite
+# any existing dependency-tree.txt file.
+
+rm -f server/dependency-tree.txt
+bin/sbt 'dependencyTree::toFile"/usr/src/server/dependency-tree.txt"'
+if [ -f 'server/dependency-tree.txt' ]; then
+  mv "server/dependency-tree.txt" .
+  echo "Saved to $(pwd)/dependency-tree.txt"
+else
+  echo "Could not find dependency-tree.txt. The sbt command probably failed."
+  exit 1
+fi
