@@ -21,7 +21,7 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import support.cloud.FakeApplicantStorageClient;
 import views.applicant.ApplicantFileUploadRenderer;
-import views.fileupload.AwsFileUploadViewStrategy;
+import views.fileupload.GenericS3FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 @RunWith(JUnitParamsRunner.class)
@@ -48,7 +48,7 @@ public class ApplicantQuestionRendererFactoryTest {
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
             new ApplicantFileUploadRenderer(
-                new AwsFileUploadViewStrategy(),
+                new GenericS3FileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
                 new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));
@@ -76,7 +76,7 @@ public class ApplicantQuestionRendererFactoryTest {
     ApplicantQuestionRendererFactory factory =
         new ApplicantQuestionRendererFactory(
             new ApplicantFileUploadRenderer(
-                new AwsFileUploadViewStrategy(),
+                new GenericS3FileUploadViewStrategy(),
                 applicantRoutes,
                 new FakeApplicantStorageClient(),
                 new SettingsManifest(ConfigFactory.parseMap(ImmutableMap.of()))));

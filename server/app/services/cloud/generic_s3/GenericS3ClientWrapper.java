@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
  */
 public interface GenericS3ClientWrapper {
   /**
-   * Deletes objects from AWS S3 cloud storage. The objects to delete are specified in the {@code
+   * Deletes objects from S3 cloud storage. The objects to delete are specified in the {@code
    * request}.
    *
    * @throws IllegalArgumentException if the {@code request} doesn't specify a bucket.

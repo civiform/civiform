@@ -88,7 +88,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
    * in two places:
    *
    * <p>1) In the `<input name="success_action_redirect">` element. (See {@link
-   * views.fileupload.AwsFileUploadViewStrategy#additionalFileUploadFormInputs}.)
+   * views.fileupload.GenericS3FileUploadViewStrategy#additionalFileUploadFormInputs}.)
    *
    * <p>2) In the `<input name="Policy">` element as part of the encoded policy string. (See {@link
    * Builder#buildPolicy()}.)

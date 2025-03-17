@@ -24,10 +24,9 @@ import services.cloud.generic_s3.GenericS3ClientWrapper;
 import views.BaseHtmlView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.fileupload.AwsFileUploadViewStrategy;
 import views.fileupload.AzureFileUploadViewStrategy;
 import views.fileupload.FileUploadViewStrategy;
-import views.fileupload.GcpFileUploadViewStrategy;
+import views.fileupload.GenericS3FileUploadViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
@@ -56,14 +55,14 @@ public class CloudStorageModule extends AbstractModule {
         bind(AbstractS3StorageUtils.class).to(AwsStorageUtils.class);
         bind(ApplicantStorageClient.class).to(AwsApplicantStorage.class);
         bind(PublicStorageClient.class).to(AwsPublicStorage.class);
-        bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
+        bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
         bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
         break;
       case GCP_S3:
         bind(AbstractS3StorageUtils.class).to(GcpStorageUtils.class);
         bind(ApplicantStorageClient.class).to(GcpApplicantStorage.class);
         bind(PublicStorageClient.class).to(GcpPublicStorage.class);
-        bind(FileUploadViewStrategy.class).to(GcpFileUploadViewStrategy.class);
+        bind(FileUploadViewStrategy.class).to(GenericS3FileUploadViewStrategy.class);
         bind(GenericS3ClientWrapper.class).to(GenericS3Client.class);
         break;
       case AZURE_BLOB:
