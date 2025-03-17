@@ -19,13 +19,13 @@ public final class GcpPublicStorage extends AbstractS3PublicStorage {
 
   @Inject
   public GcpPublicStorage(
-      GenericS3ClientWrapper awsS3ClientWrapper,
-      GcpStorageUtils awsStorageUtils,
+      GenericS3ClientWrapper gcpS3ClientWrapper,
+      GcpStorageUtils gcpStorageUtils,
       GcpRegion region,
       Credentials credentials,
       Config config,
       Environment environment) {
-    super(awsS3ClientWrapper, awsStorageUtils, region, credentials, config, environment);
+    super(gcpS3ClientWrapper, gcpStorageUtils, region, credentials, config, environment);
   }
 
   /** The bucket path defined in the conf file */

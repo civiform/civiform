@@ -51,7 +51,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_prodEnv_actionLinkIsProdAws() {
+  public void getSignedUploadRequest_prodEnv_actionLinkIsProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -88,7 +88,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_testEnv_notLocalStackOrProdAws() {
+  public void getSignedUploadRequest_testEnv_notLocalStackOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -243,7 +243,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_prodEnv_endpointIsProdAws() {
+  public void prunePublicFileStorage_prodEnv_endpointIsProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -279,7 +279,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProdAws() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -374,7 +374,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
 
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
 
-    // WHEN the in-use file set contains a key that doesn't exist in AWS
+    // WHEN the in-use file set contains a key that doesn't exist in GCP
     gcpPublicStorage.prunePublicFileStorage(
         ImmutableSet.of("program-summary-image/program-11/myFile11.jpeg"));
 
@@ -398,7 +398,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
             instanceOf(Environment.class));
 
     fakeS3Client.addObject("program-summary-image/program-11/myFile11.jpeg");
-    // WHEN AWS has a key that's hard-coded to throw the FileListFailureException when listing
+    // WHEN GCP has a key that's hard-coded to throw the FileListFailureException when listing
     // objects
     fakeS3Client.addObject(LIST_ERROR_FILE_KEY);
 

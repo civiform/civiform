@@ -4,7 +4,7 @@ import java.util.Optional;
 
 /** Enum representing supported options for cloud storage service. */
 public enum StorageServiceName {
-  /** Backwards compatibility, this default to AWS_S3 */
+  /** Backwards compatibility, this defaults to AWS_S3 */
   S3("s3"),
   AWS_S3("aws-s3"),
   AZURE_BLOB("azure-blob"),

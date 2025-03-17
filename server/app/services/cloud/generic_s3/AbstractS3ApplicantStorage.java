@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.ApplicantStorageClient;
-import services.cloud.StorageServiceName;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
 import software.amazon.awssdk.regions.Region;
@@ -72,7 +71,6 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
   @Override
   public String getPresignedUrlString(String fileKey) {
-    // TODO(#1841): support storing and displaying original filenames for AWS uploads
     return getPresignedUrlString(fileKey, /* originalFileName= */ Optional.empty());
   }
 
@@ -112,11 +110,6 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
         fileKey,
         successActionRedirectPrefix,
         /* useSuccessActionRedirectAsPrefix= */ true);
-  }
-
-  @Override
-  public StorageServiceName getStorageServiceName() {
-    return StorageServiceName.AWS_S3;
   }
 
   interface Client {

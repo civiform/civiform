@@ -8,7 +8,10 @@ import play.Environment;
 import services.cloud.generic_s3.AbstractS3PublicStorage;
 import services.cloud.generic_s3.GenericS3ClientWrapper;
 
-/** An AWS Simple Storage Service (S3) implementation of public storage. */
+/**
+ * An AWS Simple Storage Service (S3) implementation of public storage of {@link
+ * AbstractS3PublicStorage}.
+ */
 @Singleton
 public final class AwsPublicStorage extends AbstractS3PublicStorage {
   @VisibleForTesting static final String AWS_PUBLIC_S3_BUCKET_CONF_PATH = "aws.s3.public_bucket";

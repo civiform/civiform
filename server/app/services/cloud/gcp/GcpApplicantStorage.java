@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import services.cloud.StorageServiceName;
 import services.cloud.aws.Credentials;
 import services.cloud.generic_s3.AbstractS3ApplicantStorage;
 
@@ -18,13 +19,13 @@ public final class GcpApplicantStorage extends AbstractS3ApplicantStorage {
 
   @Inject
   public GcpApplicantStorage(
-      GcpStorageUtils awsStorageUtils,
+      GcpStorageUtils gcpStorageUtils,
       GcpRegion region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
-    super(awsStorageUtils, region, credentials, config, environment, appLifecycle);
+    super(gcpStorageUtils, region, credentials, config, environment, appLifecycle);
   }
 
   /** The bucket path defined in the conf file */
@@ -37,5 +38,11 @@ public final class GcpApplicantStorage extends AbstractS3ApplicantStorage {
   @Override
   protected String getFileLimitMbPath() {
     return GCP_S3_FILE_LIMIT_CONF_PATH;
+  }
+
+  /** Gets the {@link StorageServiceName} for the current storage client. */
+  @Override
+  public StorageServiceName getStorageServiceName() {
+    return StorageServiceName.GCP_S3;
   }
 }

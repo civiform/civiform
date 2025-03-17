@@ -24,13 +24,13 @@ public final class GcpStorageUtils extends AbstractS3StorageUtils {
     return PRESIGNED_URL_DURATION;
   }
 
-  /** Returns the endpoint to a production AWS instance. */
+  /** Returns the endpoint to a production GCP instance. */
   @Override
   public URI prodEndpoint(Region region) {
     return URI.create("https://storage.googleapis.com/");
   }
 
-  /** Returns the action link to use when uploading or downloading to a production AWS instance. */
+  /** Returns the action link to use when uploading or downloading to a production GCP instance. */
   @Override
   public String prodActionLink(String bucketName, Region region) {
     try {

@@ -180,7 +180,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     }
   }
 
-  /** A real AWS client implementation used for deployments. */
+  /** A real client implementation used for deployments. */
   class AwsClient implements Client {
     @Override
     public URI endpoint() {

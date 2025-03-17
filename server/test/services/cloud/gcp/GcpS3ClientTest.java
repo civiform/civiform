@@ -52,8 +52,8 @@ public class GcpS3ClientTest extends ResetPostgres {
         .withMessageContaining("must have a bucket");
   }
 
-  // It's difficult to test the other functionality in AwsS3Client because S3Client will try and
-  // connect to a functioning AWS endpoint, which we don't want to stand up for a unit test. There
-  // are browser tests that test file upload, download, and deletion that do use a functioning AWS
-  // endpoint and should cover the rest of the AwsS3Client implementation.
+  // It's difficult to test the other functionality in GcpS3Client because S3Client will try and
+  // connect to a functioning GCP endpoint, which we don't want to stand up for a unit test. There
+  // are browser tests that test file upload, download, and deletion that do use a functioning GCP
+  // endpoint and should cover the rest of the GcpS3Client implementation.
 }

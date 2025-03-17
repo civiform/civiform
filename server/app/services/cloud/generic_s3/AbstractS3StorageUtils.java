@@ -18,8 +18,7 @@ import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 /** Class providing helper methods for working with Simple Storage Service (S3). */
 public abstract class AbstractS3StorageUtils {
   /**
-   * The path to the config variable containing the endpoint for our local AWS instance
-   * (LocalStack).
+   * The path to the config variable containing the endpoint for our local instance (LocalStack).
    */
   public static final String LOCAL_ENDPOINT_CONF_PATH = "localstack.endpoint";
 
