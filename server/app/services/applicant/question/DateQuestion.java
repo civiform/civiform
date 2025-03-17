@@ -28,9 +28,9 @@ public final class DateQuestion extends AbstractQuestion {
     super(applicantQuestion);
   }
 
-  // Since we cannot inject DateConverter class here to check the zoneId mentioned in config,
-  // we take the systemDefaultZone as the Zone which used GMT timezone.
-  // Errorprone throws error on using system related timezones, hence we supress the warning.
+  // Since we cannot inject Config class here to check the zone, we take the systemDefaultZone as
+  // the Zone which internally uses GMT.
+  // Errorprone throws error on using system related timezones, hence we suppress the warning.
   @SuppressWarnings("JavaTimeDefaultTimeZone")
   private static LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
 
