@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -27,20 +28,52 @@ public final class DateQuestion extends AbstractQuestion {
     super(applicantQuestion);
   }
 
+  // Since we cannot inject DateConverter class here to check the zoneId mentioned in config,
+  // we take the systemDefaultZone as the Zone which used GMT timezone.
+  // Errorprone throws error on using system related timezones, hence we supress the warning.
+  @SuppressWarnings("JavaTimeDefaultTimeZone")
+  private static LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
+
+  private static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
+
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     ApplicantData applicantData = applicantQuestion.getApplicantData();
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a date and been noted as a failed update. We check for that here.
-    // TODO(#7356): Implement client side validation to prevent invalid dates from being entered,
-    // since it's difficult to separate which input is causing issues on the server.
     if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
           getDatePath(),
           ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
     }
-    return ImmutableMap.of();
+
+    return ImmutableMap.of(getDatePath(), validateDate());
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateDate() {
+    if (this.getDateValue().isPresent()) {
+
+      LocalDate enteredDate = dateValue.get();
+      ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
+
+      if (enteredDate.isBefore(CURRENT_DATE.minusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
+        errors.add(
+            ValidationErrorMessage.create(
+                MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
+                ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
+      }
+
+      if (enteredDate.isAfter(CURRENT_DATE.plusYears(ALLOWABLE_YEAR_FOR_DATE_VALIDATION))) {
+        errors.add(
+            ValidationErrorMessage.create(
+                MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
+                ALLOWABLE_YEAR_FOR_DATE_VALIDATION));
+      }
+      return errors.build();
+    }
+
+    return ImmutableSet.of();
   }
 
   @Override
