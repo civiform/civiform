@@ -105,6 +105,17 @@
         "tailwindcss"
       ],
       "allowedVersions": "<4.0.0"
+    },
+    // GitHub Actions: Pin to commit hashes and include a comment with the version
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true,
+      "commitMessagePrefix": "[Update Github Actions]: ",
+      "commitMessageExtra": "Updated to latest release",
+      "postUpdateOptions": ["comment"],
+      "rebaseWhen": "always",
+      "description": "Ensures GitHub Actions use commit hashes for security and include a version comment."
     }
   ]
 }
