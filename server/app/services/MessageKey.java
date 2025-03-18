@@ -199,6 +199,8 @@ public enum MessageKey {
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST("validation.dateBeyondAllowablePast"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),
   DATE_VALIDATION_DOB_NOT_IN_PAST("validation.dobNotInPast"),
   DATE_VALIDATION_IMPOSSIBLE_DOB("validation.impossibleDob"),
   DAY_LABEL("label.day"),
