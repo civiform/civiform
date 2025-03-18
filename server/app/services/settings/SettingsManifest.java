@@ -547,11 +547,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("STORAGE_SERVICE_NAME");
   }
 
-  /** Override the endpoint URI for AWS S3 with this value. (For use with GCP) */
-  public Optional<String> getAwsS3EndpointOverride() {
-    return getString("AWS_S3_ENDPOINT_OVERRIDE");
-  }
-
   /** s3 bucket to store files in. */
   public Optional<String> getAwsS3BucketName() {
     return getString("AWS_S3_BUCKET_NAME");
@@ -1026,11 +1021,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getFastforwardEnabled(RequestHeader request) {
     return getBool("FASTFORWARD_ENABLED", request);
-  }
-
-  /** Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled() {
-    return getBool("PROGRAM_MIGRATION_ENABLED");
   }
 
   /** When enabled, admins will be able to select many applications for status updates */
@@ -1720,13 +1710,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingMode.HIDDEN,
                                   ImmutableList.of("s3", "azure-blob")),
                               SettingDescription.create(
-                                  "AWS_S3_ENDPOINT_OVERRIDE",
-                                  "Override the endpoint URI for AWS S3 with this value. (For use"
-                                      + " with GCP)",
-                                  /* isRequired= */ false,
-                                  SettingType.STRING,
-                                  SettingMode.HIDDEN),
-                              SettingDescription.create(
                                   "AWS_S3_BUCKET_NAME",
                                   "s3 bucket to store files in.",
                                   /* isRequired= */ false,
@@ -2241,12 +2224,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "PROGRAM_MIGRATION_ENABLED",
-                          "Enables migrating programs between deployed environments",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "BULK_STATUS_UPDATE_ENABLED",
                           "When enabled, admins will be able to select many applications for status"

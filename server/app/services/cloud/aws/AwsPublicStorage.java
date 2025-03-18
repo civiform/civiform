@@ -56,7 +56,7 @@ public final class AwsPublicStorage extends PublicStorageClient {
     if (environment.isDev()) {
       client = new LocalStackClient(config, awsStorageUtils);
     } else if (environment.isProd()) {
-      client = new AwsClient(config);
+      client = new AwsClient();
     } else {
       client = new NullClient();
     }
@@ -182,20 +182,14 @@ public final class AwsPublicStorage extends PublicStorageClient {
 
   /** A real AWS client implementation used for deployments. */
   class AwsClient implements Client {
-    private final Config config;
-
-    AwsClient(Config config) {
-      this.config = checkNotNull(config);
-    }
-
     @Override
     public URI endpoint() {
-      return awsStorageUtils.prodAwsEndpoint(config, region);
+      return awsStorageUtils.prodAwsEndpoint(region);
     }
 
     @Override
     public String actionLink() {
-      return awsStorageUtils.prodAwsActionLink(config, bucket, region);
+      return awsStorageUtils.prodAwsActionLink(bucket, region);
     }
   }
 

@@ -466,11 +466,6 @@
             "type": "string",
             "values": ["s3", "azure-blob"]
           },
-          "AWS_S3_ENDPOINT_OVERRIDE": {
-            "mode": "HIDDEN",
-            "description": "Override the endpoint URI for AWS S3 with this value. (For use with GCP)",
-            "type": "string"
-          },
           "AWS_S3_BUCKET_NAME": {
             "mode": "HIDDEN",
             "description": "s3 bucket to store files in.",
@@ -885,11 +880,6 @@
       "FASTFORWARD_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
-        "type": "bool"
-      },
-      "PROGRAM_MIGRATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables migrating programs between deployed environments",
         "type": "bool"
       },
       "BULK_STATUS_UPDATE_ENABLED": {

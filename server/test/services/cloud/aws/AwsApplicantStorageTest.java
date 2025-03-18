@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsApplicantStorage.AWS_S3_FILE_LIMIT_CONF_PATH;
-import static services.cloud.aws.AwsStorageUtils.AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
 import java.io.File;
 import org.junit.Test;
 import play.Environment;
@@ -42,29 +40,6 @@ public class AwsApplicantStorageTest extends ResetPostgres {
         awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
     assertThat(uploadRequest.actionLink()).contains("amazonaws.com");
-    assertThat(uploadRequest.actionLink()).endsWith("/");
-  }
-
-  @Test
-  public void getSignedUploadRequest_prodEnv_actionLinkIsProdOverride() {
-    Config config =
-        instanceOf(Config.class)
-            .withValue(
-                AWS_S3_ENDPOINT_OVERRIDE_CONF_PATH,
-                ConfigValueFactory.fromAnyRef("https://foo.bar/"));
-    AwsApplicantStorage awsApplicantStorage =
-        new AwsApplicantStorage(
-            instanceOf(AwsStorageUtils.class),
-            instanceOf(AwsRegion.class),
-            instanceOf(Credentials.class),
-            config,
-            new Environment(new File("."), Environment.class.getClassLoader(), Mode.PROD),
-            instanceOf(ApplicationLifecycle.class));
-
-    SignedS3UploadRequest uploadRequest =
-        awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
-
-    assertThat(uploadRequest.actionLink()).contains("foo.bar");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
