@@ -116,6 +116,17 @@
       "postUpdateOptions": ["comment"],
       "rebaseWhen": "always",
       "description": "Ensures GitHub Actions use commit hashes for security and include a version comment."
+    },
+    // Docker Images: Pin to SHA256 digests for security and consistency
+    {
+      "groupName": "Docker Images",
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "pinDigests": true,
+      "commitMessagePrefix": "[Update Docker Images]: ",
+      "commitMessageExtra": "Pinned to latest digest",
+      "postUpdateOptions": ["comment"],
+      "rebaseWhen": "always",
+      "description": "Ensures Docker images use SHA256 digests for security and reproducibility."
     }
   ]
 }
