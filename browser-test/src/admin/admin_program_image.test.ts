@@ -68,6 +68,11 @@ test.describe('Admin can manage program image', () => {
           programDescription,
           shortDescription,
         )
+
+        await validateScreenshot(
+          page.getByRole('main'),
+          'program-image-preview',
+        )
       })
     },
   )
