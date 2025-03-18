@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.UUID;
 import org.junit.Test;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -15,7 +16,7 @@ public class QuestionFormTest {
 
     @Override
     public QuestionType getQuestionType() {
-      return null;
+      return QuestionType.TEXT;
     }
   }
 
@@ -51,6 +52,36 @@ public class QuestionFormTest {
     TestQuestionForm form = new TestQuestionForm();
     form.setRedirectUrl("file://foo/bar");
     assertThatThrownBy(form::getRedirectUrl).hasMessageContaining("Invalid absolute URL.");
+  }
+
+  @Test
+  public void getConcurrencyToken_generatesUUIDWhenUnset() {
+    TestQuestionForm form = new TestQuestionForm();
+    assertThat(form.getConcurrencyToken()).isNotNull();
+  }
+
+  @Test
+  public void getConcurrencyToken_returnsBuilderWithGeneratedUUIDWhenUnset()
+      throws UnsupportedQuestionTypeException {
+    TestQuestionForm form = new TestQuestionForm();
+    assertThat(form.getBuilder().build().getConcurrencyToken()).isNotEmpty();
+  }
+
+  @Test
+  public void getConcurrencyToken_returnsSameUUIDWhenSet() {
+    UUID initialToken = UUID.randomUUID();
+    TestQuestionForm form = new TestQuestionForm();
+    form.setConcurrencyToken(initialToken);
+    assertThat(form.getConcurrencyToken()).isEqualTo(initialToken.toString());
+  }
+
+  @Test
+  public void getConcurrencyToken_returnsBuilderWithSameUUIDWhenSet()
+      throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
+    TestQuestionForm form = new TestQuestionForm();
+    form.setConcurrencyToken(initialToken);
+    assertThat(form.getBuilder().build().getConcurrencyToken()).hasValue(initialToken);
   }
 
   @Test

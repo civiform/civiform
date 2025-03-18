@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.NumberQuestionDefinition;
@@ -14,11 +15,13 @@ public class NumberQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     NumberQuestionForm form = new NumberQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     form.setMin("2");
     form.setMax("8");
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -30,6 +33,7 @@ public class NumberQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
                 .build());
@@ -48,6 +52,7 @@ public class NumberQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(UUID.randomUUID())
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
                 .build());
@@ -62,11 +67,13 @@ public class NumberQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     NumberQuestionForm form = new NumberQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     form.setMin("");
     form.setMax("");
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -78,6 +85,7 @@ public class NumberQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();
