@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   localstack:
-    image: localstack/localstack:4.2.0
+    image: localstack/localstack:4.2.0@sha256:b5a68908bafbb56468bb1dd6ea0d0d333149c084c63e84a8de95d9059ad7e96d
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
@@ -25,7 +25,7 @@ services:
           - localhost.localstack.cloud
 
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
+    image: mcr.microsoft.com/azure-storage/azurite@sha256:0a47e12e3693483cef5c71f35468b91d751611f172d2f97414e9c69113b106d9
     profiles: ['azure', 'emulator']
     expose:
       - '10000'
@@ -47,7 +47,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.8
+    image: postgres:16.8@sha256:e95b0cb95f719e0ce156c2bc5545c89fbd98a1a692845a5331ddc79ea61f1b1e
     restart: always
     expose:
       - '5432'

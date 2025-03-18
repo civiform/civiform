@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -193,23 +195,25 @@ public final class QuestionRepository {
    */
   public void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
     VersionRepository versionRepository = versionRepositoryProvider.get();
-    // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
-    // Investigate further.
     Stream.concat(
             versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()).stream(),
             versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
+        .map(QuestionModel::getQuestionDefinition)
         // Find questions that reference the old enumerator ID.
-        .filter(
-            question ->
-                getQuestionDefinition(question)
-                    .getEnumeratorId()
-                    .equals(Optional.of(oldEnumeratorId)))
+        .filter(qd -> qd.getEnumeratorId().equals(Optional.of(oldEnumeratorId)))
+        // Keep only the first QuestionDefinition we encounter for each question. The first one will
+        // be the draft, if there is one, followed by the active version.
+        .collect(
+            Collectors.toMap(
+                QuestionDefinition::getName,
+                Function.identity(),
+                // This is called no more than once per question, iff there's both an active and
+                // draft version of the question, so for clarity we name the mergeFunction's
+                // parameters to match
+                (draft, active) -> draft))
+        .values()
         // Update to the new enumerator ID.
-        .forEach(
-            question -> {
-              createOrUpdateDraft(
-                  updateEnumeratorId(getQuestionDefinition(question), newEnumeratorId));
-            });
+        .forEach(qd -> createOrUpdateDraft(updateEnumeratorId(qd, newEnumeratorId)));
   }
 
   public QuestionDefinition updateEnumeratorId(

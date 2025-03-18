@@ -121,7 +121,7 @@ public final class ProgramRepository {
   public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
     if (settingsManifest.getProgramCacheEnabled()) {
       return versionsByProgramCache.getOrElseUpdate(
-          String.valueOf(program.id), () -> program.getVersions());
+          String.valueOf(program.id), program::getVersions);
     }
     return program.getVersions();
   }
@@ -170,37 +170,40 @@ public final class ProgramRepository {
    * <p>Draft program definition data must not be set in the cache.
    */
   public void setFullProgramDefinitionCache(long programId, ProgramDefinition programDefinition) {
-    if (settingsManifest.getQuestionCacheEnabled()
+    if (!settingsManifest.getQuestionCacheEnabled()
         // We only set the cache if it hasn't yet been set for the ID.
-        && getFullProgramDefinitionFromCache(programId).isEmpty()) {
-      // We should never set the cache for draft programs.
-      if (!versionRepository.get().isDraftProgram(programId)) {
-        ImmutableList<BlockDefinition> blocksWithNullQuestion =
-            programDefinition.blockDefinitions().stream()
-                .filter(BlockDefinition::hasNullQuestion)
-                .collect(ImmutableList.toImmutableList());
-        if (blocksWithNullQuestion.size() > 0) {
-          String nullQuestionIds =
-              blocksWithNullQuestion.stream()
-                  .flatMap(block -> block.programQuestionDefinitions().stream())
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
-                  .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
-                  .map(QuestionDefinition::getId)
-                  .map(String::valueOf)
-                  .collect(Collectors.joining(", "));
-          logger.warn(
-              "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
-                  + " into the cache. This is an issue in {} / {} blocks.",
-              programDefinition.slug(),
-              programDefinition.id(),
-              nullQuestionIds,
-              blocksWithNullQuestion.size(),
-              programDefinition.blockDefinitions().size());
-        } else {
-          programDefCache.set(String.valueOf(programId), programDefinition);
-        }
-      }
+        || getFullProgramDefinitionFromCache(programId).isPresent()) {
+      return;
     }
+    // We should never set the cache for draft programs.
+    if (versionRepository.get().isDraftProgram(programId)) {
+      return;
+    }
+    ImmutableList<BlockDefinition> blocksWithNullQuestion =
+        programDefinition.blockDefinitions().stream()
+            .filter(BlockDefinition::hasNullQuestion)
+            .collect(ImmutableList.toImmutableList());
+    if (!blocksWithNullQuestion.isEmpty()) {
+      String nullQuestionIds =
+          blocksWithNullQuestion.stream()
+              .flatMap(block -> block.programQuestionDefinitions().stream())
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
+              .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+              .map(QuestionDefinition::getId)
+              .map(String::valueOf)
+              .collect(Collectors.joining(", "));
+      logger.warn(
+          "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
+              + " into the cache. This is an issue in {} / {} blocks.",
+          programDefinition.slug(),
+          programDefinition.id(),
+          nullQuestionIds,
+          blocksWithNullQuestion.size(),
+          programDefinition.blockDefinitions().size());
+      return;
+    }
+
+    programDefCache.set(String.valueOf(programId), programDefinition);
   }
 
   /**
@@ -468,18 +471,17 @@ public final class ProgramRepository {
           .eq("id", Long.parseLong(maybeOnlyDigits))
           .ilike("applicant.phoneNumber", "%" + maybeOnlyDigits + "%")
           .endOr();
-    } else {
-      String firstNamePath = "applicant.firstName";
-      String lastNamePath = "applicant.lastName";
-      return query
-          .or()
-          .ilike("applicant.emailAddress", "%" + search + "%")
-          .ilike("submitter_email", "%" + search + "%")
-          .ilike(firstNamePath + " || ' ' || " + lastNamePath, "%" + search + "%")
-          .ilike(lastNamePath + " || ' ' || " + firstNamePath, "%" + search + "%")
-          .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
-          .endOr();
     }
+    String firstNamePath = "applicant.firstName";
+    String lastNamePath = "applicant.lastName";
+    return query
+        .or()
+        .ilike("applicant.emailAddress", "%" + search + "%")
+        .ilike("submitter_email", "%" + search + "%")
+        .ilike(firstNamePath + " || ' ' || " + lastNamePath, "%" + search + "%")
+        .ilike(lastNamePath + " || ' ' || " + firstNamePath, "%" + search + "%")
+        .ilike(lastNamePath + " || ', ' || " + firstNamePath, "%" + search + "%")
+        .endOr();
   }
 
   /**

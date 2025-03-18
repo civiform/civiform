@@ -1,7 +1,6 @@
 package services.email.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.cloud.aws.AwsStorageUtils.AWS_LOCAL_ENDPOINT_CONF_PATH;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -142,11 +141,13 @@ public final class SimpleEmail implements EmailSendClient {
   }
 
   static class LocalStackClient implements Client {
+    private String LOCALSTACK_ENDPOINT_CONF_PATH = "localstack.endpoint";
+
     private final String localEndpoint;
     private final SesClient client;
 
     LocalStackClient(AwsRegion region, Config config) {
-      localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
+      localEndpoint = checkNotNull(config).getString(LOCALSTACK_ENDPOINT_CONF_PATH);
       URI localUri;
       try {
         localUri = new URI(localEndpoint);

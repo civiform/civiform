@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check if commenter is a contributor
         id: check-if-commenter-is-a-contributor
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         env: 
           IGNORE_LIST: ${{ vars.CONTRIBUTOR_COMMENT_AUTO_REPLY_IGNORE_LIST }}
         with:
