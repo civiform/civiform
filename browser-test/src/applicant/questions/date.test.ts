@@ -61,6 +61,14 @@ test.describe('Date question for applicant flow', () => {
       expect(await page.innerText(dateId)).toContain(
         'Please enter a date less than the 150 years in future',
       )
+      await applicantQuestions.answerDateQuestion('1866-05-02')
+      await applicantQuestions.clickNext()
+
+      // Check required error is present
+      const dateId = '.cf-question-date'
+      expect(await page.innerText(dateId)).toContain(
+        'Please enter a date in the last 150 years',
+      )
     })
 
     test('with no answer does not submit', async ({

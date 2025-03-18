@@ -98,6 +98,34 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
         await expect(page.getByText('This question is required.')).toBeVisible()
       })
 
+      await test.step('with unallowable date in past does not submit', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '1822',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await expect(
+          page.getByText('Please enter a date in the last 150 years'),
+        ).toBeVisible()
+      })
+
+      await test.step('with unallowable date in future does not submit', async () => {
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2522',
+          '05 - May',
+          '2',
+        )
+        await applicantQuestions.clickContinue()
+
+        await expect(
+          page.getByText(
+            'Please enter a date less than the 150 years in future',
+          ),
+        ).toBeVisible()
+      })
+
       await test.step('with filled in date submits successfully', async () => {
         await applicantQuestions.answerMemorableDateQuestion(
           '2022',
