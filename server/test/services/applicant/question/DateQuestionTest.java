@@ -72,6 +72,44 @@ public class DateQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withApplicantData_failsValidationOnYearLessThanAllowableYear() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerDateQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "0049-05-10");
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    assertThat(dateQuestion.getValidationErrors()).hasSize(1);
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST, 150))));
+  }
+
+  @Test
+  public void withApplicantData_failsValidationOnYearMoreThanAllowableYear() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerDateQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "2549-05-10");
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    assertThat(dateQuestion.getValidationErrors()).hasSize(1);
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE, 150))));
+  }
+
+  @Test
   public void withMisformattedDate() {
     Path datePath =
         ApplicantData.APPLICANT_PATH

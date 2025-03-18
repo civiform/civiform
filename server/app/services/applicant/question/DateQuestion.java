@@ -34,7 +34,7 @@ public final class DateQuestion extends AbstractQuestion {
   @SuppressWarnings("JavaTimeDefaultTimeZone")
   private static LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
 
-  private static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
+  public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
