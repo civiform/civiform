@@ -18,7 +18,10 @@
   </div>
 
   <!--/* Programs card section */-->
-  <ul th:unless="${sectionType == 'COMMON_INTAKE'}" class="usa-card-group">
+  <ul
+    th:unless="${sectionType == 'COMMON_INTAKE'}"
+    class="usa-card-group cf-program-card-group"
+  >
     <th:block th:each="card : ${section.cards()}">
       <li
         th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${sectionType} ?: 'STANDARD')}"
@@ -30,7 +33,7 @@
 <li
   th:fragment="card (card, sectionType)"
   th:with="showImage=(${sectionType != 'MY_APPLICATIONS' and card.imageSourceUrl().isPresent() and not #strings.isEmpty(card.imageSourceUrl().get())})"
-  class="usa-card tablet:grid-col-6 desktop:grid-col-4 cf-application-card"
+  class="usa-card cf-application-card"
   th:classappend="${showImage} ? usa-card--header-first : '' "
 >
   <div

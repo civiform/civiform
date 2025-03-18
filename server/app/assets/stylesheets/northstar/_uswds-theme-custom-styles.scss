@@ -371,20 +371,22 @@ main {
   flex: 1 0 auto;
 }
 
+// Mobile
+.cf-program-card-group .usa-card {
+  @include grid-col(12);
+}
+
 // Tablet: Program card grid has 2 columns
 @media (min-width: 40em) {
-  .cf-program-card-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+  .cf-program-card-group .usa-card {
+    @include grid-col(6);
   }
 }
 
 // Desktop: Program card grid has 3 columns
 @media (min-width: 64em) {
-  .cf-program-card-group {
-    grid-template-columns: 1fr 1fr 1fr;
+  .cf-program-card-group .usa-card {
+    @include grid-col(4);
   }
 }
 
