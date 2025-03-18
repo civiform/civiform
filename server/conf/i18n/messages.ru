@@ -728,6 +728,10 @@ validation.phoneMustBeLocalToCountry=Указанный номер телефо�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Укажите дату в правильном формате.
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
