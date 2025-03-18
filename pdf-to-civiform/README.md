@@ -28,4 +28,4 @@ Import the generated CiviForm JSON (in `PREFIX-civiform.json`) into CiviForm usi
 - log in as a civiform admin, the "Import existing program" link should appear on the programs page.
 - From there, you paste in the CiviForm JSON and go through the flow
 
-- You can also run pdf-to-civiform-gemini.py or convert_to_civiform_json.py from command line to convert PDF form to intermediary json and from intermediary json to CiviForm json respectively, without going through the web page.
+You can also run pdf-to-civiform-gemini.py or convert_to_civiform_json.py from command line to convert PDF form to intermediary json and from intermediary json to CiviForm json respectively, without going through the web page.
