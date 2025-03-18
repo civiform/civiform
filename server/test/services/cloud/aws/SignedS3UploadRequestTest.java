@@ -26,6 +26,12 @@ public class SignedS3UploadRequestTest {
   }
 
   @Test
+  public void uploadPolicyBuilder_key_serviceName() {
+    SignedS3UploadRequest.Builder uploadRequestBuilder = SignedS3UploadRequest.builder();
+    assertThat(uploadRequestBuilder.serviceName()).isEqualTo("s3");
+  }
+
+  @Test
   public void uploadPolicyBuilder_useSuccessActionRedirectAsPrefixFalse_policyUsesExactMatch() {
     SignedS3UploadRequest.UploadPolicy.Builder uploadPolicyBuilder =
         SignedS3UploadRequest.UploadPolicy.builder()

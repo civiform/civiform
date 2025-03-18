@@ -64,7 +64,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public static Builder builder() {
     return new AutoValue_SignedS3UploadRequest.Builder()
         .setAlgorithm("AWS4-HMAC-SHA256")
-        .setServiceName(StorageServiceName.AWS_S3.getString());
+        .setServiceName(StorageServiceName.S3.getString());
   }
 
   // -- Below should be included in the upload form.
