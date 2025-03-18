@@ -35,11 +35,11 @@ jobs:
     name: Build civiform ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
       - name: Check if we should push
         if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
@@ -97,23 +97,24 @@ jobs:
     name: Build civiform dependancy ${{ matrix.version }} for ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
-      - id: file_changes
-        uses: tj-actions/changed-files@v45
-        with:
-          json: 'true'
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      # - id: file_changes
+      #   uses: tj-actions/changed-files@v45
+      #   with:
+      #     json: 'true'
+      #   if: ${{ github.event_name != 'workflow_dispatch' }}
 
+      # TODO: need to come back and fix this so we don't push docker images that are unneeded.
       - name: Check build & push
         id: check_build
-        if: >
-          ${{ (github.event_name == 'workflow_dispatch') ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||
-            contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github') }}
+        # if: >
+        #   ${{ (github.event_name == 'workflow_dispatch') ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||
+        #     contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github') }}
         run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "build=build" >> $GITHUB_OUTPUT
 
       - name: Skip build & push
@@ -121,10 +122,10 @@ jobs:
         run: echo "Skip ${{ matrix.image }} build for event ${{github.event_name}}" "${{steps.check_build.outputs.build}}"
 
       - name: Set up Docker QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push

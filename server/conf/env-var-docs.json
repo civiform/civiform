@@ -440,6 +440,11 @@
         "description": "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also the region where the AWS s3 service exists.",
         "type": "string"
       },
+      "GCP_REGION": {
+        "mode": "HIDDEN",
+        "description": "The GCP Region. If STORAGE_SERVICE_NAME is set to 'gcp', it is also the region where the GCP s3 compatible service exists.",
+        "type": "string"
+      },
       "SENDER_EMAIL_ADDRESS": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
@@ -464,7 +469,7 @@
             "mode": "HIDDEN",
             "description": "What static file storage provider to use.",
             "type": "string",
-            "values": ["s3", "azure-blob"]
+            "values": ["s3", "aws-s3", "azure-blob", "gcp-s3"]
           },
           "AWS_S3_BUCKET_NAME": {
             "mode": "HIDDEN",
@@ -514,6 +519,26 @@
           "AZURE_LOCAL_CONNECTION_STRING": {
             "mode": "HIDDEN",
             "description": "Allows local [Azurite emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) to be used for developer deployments.",
+            "type": "string"
+          },
+          "GCP_S3_BUCKET_NAME": {
+            "mode": "HIDDEN",
+            "description": "s3 bucket to store files in.",
+            "type": "string"
+          },
+          "GCP_S3_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of files uploaded to s3.",
+            "type": "string"
+          },
+          "GCP_S3_PUBLIC_BUCKET_NAME": {
+            "mode": "HIDDEN",
+            "description": "s3 bucket to store **publicly accessible** files in.",
+            "type": "string"
+          },
+          "GCP_S3_PUBLIC_FILE_LIMIT_MB": {
+            "mode": "HIDDEN",
+            "description": "The max size (in Mb) of **publicly accessible** files uploaded to s3.",
             "type": "string"
           }
         }
@@ -882,11 +907,6 @@
         "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
-      "PROGRAM_MIGRATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables migrating programs between deployed environments",
-        "type": "bool"
-      },
       "BULK_STATUS_UPDATE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "When enabled, admins will be able to select many applications for status updates",
@@ -928,7 +948,7 @@
         "type": "bool"
       },
       "SESSION_TIMEOUT_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false

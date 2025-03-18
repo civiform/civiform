@@ -133,6 +133,19 @@ it is around the label */
   @include u-margin-top('105');
 }
 
+// Remove top margin from h2 headings in .usa-prose on the home page because we
+// usually get enough spacing from the margin below section cards and add spacing below.
+.usa-prose > h2.cf-below-cards {
+  @include u-margin-top(0);
+  @include u-margin-bottom(3);
+}
+
+// Remove top margin from section elements in .usa-prose on the home page
+// because we sometimes get enough spacing from the margin below section cards.
+.usa-prose section.cf-below-cards {
+  @include u-margin-top(0);
+}
+
 .content-spacing {
   @include u-height('105');
 }
@@ -156,11 +169,17 @@ it is around the label */
 }
 
 .section-bottom {
-  @include u-margin-bottom(1);
+  @include u-margin-bottom(3);
 }
 
-.padding-section-large {
-  @include u-padding(4);
+.double-section-bottom {
+  @include u-margin-bottom(6);
+}
+
+// For the applicant home page container. The bottom spacing is provided by the cards.
+.padding-section-large-three-sides {
+  @include u-padding-top(4);
+  @include u-padding-x(4);
 }
 
 .container {
@@ -314,11 +333,6 @@ h1.usa-step-indicator__heading {
   line-height: inherit;
 }
 
-.cf-program-card-image {
-  height: 162px;
-  align-self: stretch;
-}
-
 .usa-footer__primary-content .usa-footer__primary-link {
   text-decoration: underline;
 }
@@ -425,4 +439,8 @@ main {
 
 .tag-submitted {
   background: var(--State-tokens-info-info-light, #99deea);
+}
+
+.cf-wrap-anywhere {
+  overflow-wrap: anywhere;
 }

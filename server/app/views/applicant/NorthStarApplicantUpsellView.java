@@ -19,6 +19,7 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
+import views.components.TextFormatter;
 
 public class NorthStarApplicantUpsellView extends NorthStarBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
@@ -87,8 +88,12 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
     context.setVariable("dateSubmitted", params.dateSubmitted());
 
     Locale locale = params.messages().lang().toLocale();
-    String customConfirmationMessage = params.customConfirmationMessage().getOrDefault(locale);
-    context.setVariable("customConfirmationMessage", customConfirmationMessage);
+    String customConfirmationMessageHtml =
+        TextFormatter.formatTextToSanitizedHTML(
+            params.customConfirmationMessage().getOrDefault(locale),
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false);
+    context.setVariable("customConfirmationMessageHtml", customConfirmationMessageHtml);
 
     // Info for login modal
     String applyToProgramsUrl = applicantRoutes.index(params.profile(), params.applicantId()).url();

@@ -124,34 +124,20 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(
                 h1(pageTitle),
                 div().withClass("flex-grow"),
-                demographicsCsvModal
-                    .getButton()
-                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
-                renderNewProgramButton(),
-                maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null);
-
-    if (settingsManifest.getProgramMigrationEnabled()) {
-      headerContent =
-          div()
-              .withClasses("flex", "items-center", "space-x-4", "mt-12")
-              .with(
-                  h1(pageTitle),
-                  div().withClass("flex-grow"),
-                  div()
-                      .with(
-                          div()
-                              .with(
-                                  demographicsCsvModal
-                                      .getButton()
-                                      .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
-                                  renderNewProgramButton(),
-                                  maybePublishModal.isPresent()
-                                      ? maybePublishModal.get().getButton()
-                                      : null)
-                              .withClasses("flex", "flex-row", "space-x-4"),
-                          renderImportProgramLink())
-                      .withClasses("flex", "flex-col", "items-end"));
-    }
+                div()
+                    .with(
+                        div()
+                            .with(
+                                demographicsCsvModal
+                                    .getButton()
+                                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
+                                renderNewProgramButton(),
+                                maybePublishModal.isPresent()
+                                    ? maybePublishModal.get().getButton()
+                                    : null)
+                            .withClasses("flex", "flex-row", "space-x-4"),
+                        renderImportProgramLink())
+                    .withClasses("flex", "flex-col", "items-end"));
 
     DivTag contentDiv =
         div()
@@ -534,9 +520,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      if (settingsManifest.getProgramMigrationEnabled()) {
-        draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
-      }
+      draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
 
       draftRow =
           Optional.of(
@@ -563,9 +547,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
-      if (settingsManifest.getProgramMigrationEnabled()) {
-        activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
-      }
+      activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
 
       activeRow =
           Optional.of(

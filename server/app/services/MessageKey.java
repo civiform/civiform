@@ -426,7 +426,16 @@ public enum MessageKey {
   UNNAMED_USER("label.unnamedUser"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
-  YEAR_LABEL("label.year");
+  YEAR_LABEL("label.year"),
+
+  // Session timeout related messages
+  SESSION_INACTIVITY_WARNING_TITLE("session.inactivity.warning.title"),
+  SESSION_INACTIVITY_WARNING_MESSAGE("session.inactivity.warning.message"),
+  SESSION_LENGTH_WARNING_TITLE("session.length.warning.title"),
+  SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
+  SESSION_EXTEND_BUTTON("session.extend.button"),
+  SESSION_EXTENDED_SUCCESS("session.extended.success"),
+  SESSION_EXTENDED_ERROR("session.extended.error");
 
   private final String keyName;
 
