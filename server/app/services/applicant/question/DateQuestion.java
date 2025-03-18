@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -34,7 +35,7 @@ public final class DateQuestion extends AbstractQuestion {
   @SuppressWarnings("JavaTimeDefaultTimeZone")
   private static LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
 
-  public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
+  @VisibleForTesting public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {

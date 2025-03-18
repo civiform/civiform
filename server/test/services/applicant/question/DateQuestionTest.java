@@ -87,7 +87,8 @@ public class DateQuestionTest extends ResetPostgres {
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST, 150))));
+                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
+                        DateQuestion.ALLOWABLE_YEAR_FOR_DATE_VALIDATION))));
   }
 
   @Test
@@ -106,7 +107,8 @@ public class DateQuestionTest extends ResetPostgres {
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE, 150))));
+                        MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
+                        DateQuestion.ALLOWABLE_YEAR_FOR_DATE_VALIDATION))));
   }
 
   @Test

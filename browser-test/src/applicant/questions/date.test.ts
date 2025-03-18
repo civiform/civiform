@@ -48,6 +48,21 @@ test.describe('Date question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage()
     })
 
+    test('with invalid answer does not submit', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('2566-05-02')
+      await applicantQuestions.clickNext()
+
+      // Check required error is present
+      const dateId = '.cf-question-date'
+      expect(await page.innerText(dateId)).toContain(
+        'Please enter a date less than the 150 years in future',
+      )
+    })
+
     test('with no answer does not submit', async ({
       page,
       applicantQuestions,
