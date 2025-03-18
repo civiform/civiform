@@ -11,7 +11,7 @@ import java.util.Optional;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
-public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
+public class GenericS3FileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ImmutableList<InputTag> additionalFileUploadFormInputs(
@@ -83,7 +83,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
     if (!(request instanceof SignedS3UploadRequest)) {
       throw new RuntimeException(
-          "Tried to upload a file to AWS S3 storage using incorrect request type");
+          "Tried to upload a file to S3 storage using incorrect request type");
     }
     return (SignedS3UploadRequest) request;
   }
@@ -95,7 +95,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public String getMultiFileUploadFormClass() {
-    // The TS module for AWS file upload does not need to discern between single file and
+    // The TS module for S3 file upload does not need to discern between single file and
     // multi file uploads, so the form class should be the same.
     return getUploadFormClass();
   }

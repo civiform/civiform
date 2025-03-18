@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    crossScalaVersions := Seq("2.13.15", "3.3.3"),
+    crossScalaVersions := Seq("2.13.16", "3.3.3"),
     scalaVersion := crossScalaVersions.value.head,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
@@ -43,8 +43,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.38",
-      "software.amazon.awssdk" % "ses" % "2.30.38",
+      "software.amazon.awssdk" % "s3" % "2.31.2",
+      "software.amazon.awssdk" % "ses" % "2.31.2",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.0",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.1",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",

@@ -170,41 +170,15 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and disabled.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with
+   * {@link DisplayMode} and a blank description.
    */
-  public static ProgramBuilder newDisabledActiveProgram(String name) {
+  public static ProgramBuilder newActiveProgram(String name, DisplayMode displayMode) {
     return newActiveProgram(
         /* adminName= */ name,
         /* displayName= */ name,
         /* description= */ "",
-        DisplayMode.DISABLED,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and hidden in index.
-   */
-  public static ProgramBuilder newActiveHiddenInIndexProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.HIDDEN_IN_INDEX,
-        ProgramType.DEFAULT);
-  }
-
-  /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
-   * blank description and visible only to Trusted Intermediaries.
-   */
-  public static ProgramBuilder newActiveTiOnlyProgram(String name) {
-    return newActiveProgram(
-        /* adminName= */ name,
-        /* displayName= */ name,
-        /* description= */ "",
-        DisplayMode.TI_ONLY,
+        displayMode,
         ProgramType.DEFAULT);
   }
 

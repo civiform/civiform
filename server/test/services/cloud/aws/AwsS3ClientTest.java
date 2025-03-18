@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.net.URI;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.cloud.generic_s3.GenericS3Client;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
@@ -13,7 +14,7 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 public class AwsS3ClientTest extends ResetPostgres {
   private static final URI endpointUri = URI.create("https://s3.us-east-2.amazonaws.com");
   private final Credentials credentials = instanceOf(Credentials.class);
-  private final AwsS3Client awsS3Client = new AwsS3Client();
+  private final GenericS3Client awsS3Client = new GenericS3Client();
 
   @Test
   public void deleteObjects_noObjectsInRequest_throws() {

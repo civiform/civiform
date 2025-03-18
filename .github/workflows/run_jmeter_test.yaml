@@ -36,17 +36,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test - ${{ github.event.inputs.test_to_run }}
-        uses: QAInsights/PerfAction@v5.6.2
+        uses: QAInsights/PerfAction@d16221318a6d261b1546b9dec9c0bb1739e3d480 # v5.6.3
         with:
           test-plan-path: load-test/${{ github.event.inputs.test_to_run }}.jmx
           args: -JciviformUrl=${{ github.event.inputs.civiform_url }}
           results-file: result.${{ github.event.inputs.output_file_type }}
       - name: Upload Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
         with:
           name: jmeter-results
           path: result.${{ github.event.inputs.output_file_type }}

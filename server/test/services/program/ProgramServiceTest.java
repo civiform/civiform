@@ -185,7 +185,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDisabledActiveProgram("program2")
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED)
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()
@@ -3375,7 +3375,7 @@ public class ProgramServiceTest extends ResetPostgres {
     // Adding disabled programs changes the result.
     ProgramBuilder.newDisabledDraftProgram("program1").buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
-    ProgramBuilder.newDisabledActiveProgram("program2").buildDefinition();
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED).buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
 
     // Adding an active program doesn't change the result.

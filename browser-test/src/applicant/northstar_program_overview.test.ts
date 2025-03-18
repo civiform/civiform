@@ -61,7 +61,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         )
 
       await page
-        .getByRole('textbox', {name: 'Step 1 description *'})
+        .getByRole('textbox', {name: 'Step 1 description'})
         .fill(
           'This is the _application step_ with markdown\n' +
             'Autodetected link: https://www.example.com\n' +
