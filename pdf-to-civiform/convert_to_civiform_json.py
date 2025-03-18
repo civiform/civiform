@@ -15,9 +15,13 @@ import re
 # It handles different field types, including repeating sections, and generates
 # the necessary structure for CiviForm programs and questions.
 
+
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def configure_logging(debug_mode):
+    level = logging.DEBUG if debug_mode else logging.INFO
+    logging.basicConfig(
+        level=level, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 # Replace type "textarea", "signature" as "text"
 # since CiviForm uses text for free form field
@@ -30,7 +34,8 @@ def replace_field_types(data):
             data["type"] = data["type"].lower()
             if data["type"] not in ("name", "text", "number", "radio",
                                     "checkbox", "currency", "date", "email",
-                                    "address", "phone", "repeating_section"):
+                                    "address", "phone", "repeating_section",
+                                    "fileupload"):
                 logging.warning(
                     f"Found unknown type that need to be replaced as text: {data}"
                 )
@@ -55,9 +60,12 @@ def replace_field_types(data):
 def create_question(field, question_id, enumerator_id=None):
     is_multioption = field["type"] in ["radio", "checkbox", "dropdown"]
     is_enumerator = field["type"] == "enumerator"
+    is_fileupload = field["type"] == "fileupload"
 
     question = {
-        "type": "multioption" if is_multioption else field["type"],
+        "type":
+            "multioption" if is_multioption else
+            "fileupload" if is_fileupload else field["type"],
         "config":
             {
                 "name": field["id"],
@@ -80,7 +88,8 @@ def create_question(field, question_id, enumerator_id=None):
                 "validationPredicates":
                     {
                         "type":
-                            "multioption" if is_multioption else field["type"]
+                            "multioption" if is_multioption else
+                            "fileupload" if is_fileupload else field["type"]
                     },
                 "id": question_id,
                 "universal": False,
@@ -163,6 +172,10 @@ def create_question(field, question_id, enumerator_id=None):
             "maxEntities": None
         }
 
+    if is_fileupload:
+        question["config"]["validationPredicates"][
+            "maxFiles"] = 3  #TODO default value
+
     # Conditionally add enumeratorId for repeated questions
     if enumerator_id is not None:
         question["config"]["enumeratorId"] = enumerator_id
@@ -187,8 +200,6 @@ def create_question(field, question_id, enumerator_id=None):
     elif question["type"] == "text":
         question["config"]["validationPredicates"]["minLength"] = None
         question["config"]["validationPredicates"]["maxLength"] = None
-    elif question["type"] == "fileupload":
-        question["config"]["validationPredicates"]["maxFiles"] = None
 
     return question
 
@@ -400,7 +411,8 @@ def convert_to_civiform_json(unprocessed_input_json):
             "name":
                 section["title"],
             "description":
-                section.get("help_text", "block-description-TO-BE-EDITED"),
+                "" if section.get("help_text") is None else section.get(
+                    "help_text", "block-description-TO-BE-EDITED"),
             "localizedName":
                 {
                     "translations": {
@@ -455,7 +467,10 @@ def main():
         description="Convert JSON to CiviForm format.")
     parser.add_argument("input_file", help="Path to the input JSON file.")
     parser.add_argument("-o", "--output", help="Path to the output JSON file.")
+    parser.add_argument(
+        "-d", "--debug", action="store_true", help="Enable debug mode.")
     args = parser.parse_args()
+    configure_logging(args.debug)
 
     base_filename = os.path.basename(args.input_file)
     base_name, _ = os.path.splitext(base_filename)

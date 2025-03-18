@@ -27,7 +27,7 @@ JSON_EXAMPLE = {
             "title": "[Section Name]",
             "help_text": "[Relevant Instructional or informational Text (can be enclosed in brackets)]",
             "fields": [
-                {"label": "[Field Label]", "type": "[file_upload]", "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
+                {"label": "[Field Label]", "type": "[fileupload]", "help_text": "[Field-specific Instruction]", "id": "[Generated Field ID]"}
             ]
         },
     ]
@@ -91,7 +91,7 @@ class LLMPrompts:
         4. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.
         5. make sure IDs are unique across the entire form.
         6. Any text field that can be a number (integer) must be corrected to a number type - such as company number, frequency etc.
-        7. If necessary, create an additional new section with ONE file_upload field for text/checkbox fields that can be file attachments.
+        7. If necessary, create an additional new section with ONE fileupload field for text/checkbox fields that can be file attachments.
         
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
