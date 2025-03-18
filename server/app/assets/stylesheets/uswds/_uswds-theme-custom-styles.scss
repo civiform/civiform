@@ -133,6 +133,10 @@ h1.usa-step-indicator__heading {
   @include u-text('base-darkest');
 }
 
+.text-ink {
+  @include u-text('ink');
+}
+
 /**
  * On tablet and mobile, give each link it's own row. Most of this logic is to make the border
  * extend the full width of the screen.

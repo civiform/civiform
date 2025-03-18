@@ -21,8 +21,7 @@ https://designsystem.digital.gov/utilities/.
   // create the banner.
   $theme-banner-background-color: 'blue-90',
   $border-settings: ('output': false),
-  // https://designsystem.digital.gov/utilities/color/#output-control-2
-  $color-settings: ('output': true),
+  $color-settings: ('output': false),
   // 0.5 is the USWDS size token that represents 0.25rem or 4px
   $theme-focus-offset: 0.5
 );
