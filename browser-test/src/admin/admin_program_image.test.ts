@@ -6,7 +6,7 @@ import {
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
-  seedProgramsAndCategories
+  seedProgramsAndCategories,
 } from '../support'
 import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
@@ -79,7 +79,7 @@ test.describe('Admin can manage program image', () => {
 
       await test.step('Verify preview with program filtering', async () => {
         await enableFeatureFlag(page, 'program_filtering_enabled')
-  
+
         await seedProgramsAndCategories(page)
         await page.goto('/')
 
@@ -101,7 +101,10 @@ test.describe('Admin can manage program image', () => {
 
         await adminPrograms.submitProgramDetailsEdits()
 
-        await validateScreenshot(page.getByRole("listitem"), 'ns-admin-program-image-card-preview')
+        await validateScreenshot(
+          page.getByRole('listitem'),
+          'ns-admin-program-image-card-preview',
+        )
 
         await adminProgramImage.expectNoImagePreview()
         await adminProgramImage.expectProgramPreviewCard(
