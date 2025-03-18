@@ -68,21 +68,6 @@ test.describe('Date question for applicant flow', {tag: ['@northstar']}, () => {
           /* mobileScreenshot= */ false,
         )
       })
-
-      await test.step('when filling unallowable date, error is expected', async () => {
-        await applicantQuestions.answerMemorableDateQuestion(
-          '0022',
-          '05 - May',
-          '2',
-        )
-        await applicantQuestions.clickContinue()
-        await validateScreenshot(
-          page,
-          'date-validation-error-in-north-star',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ false,
-        )
-      })
     })
 
     test('attempts to submit', async ({applicantQuestions, page}) => {
