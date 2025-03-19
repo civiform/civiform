@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
 
@@ -36,6 +35,7 @@ import software.amazon.awssdk.utils.BinaryUtils;
 public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   private static final long MB_TO_BYTES = 1L << 20;
+  private static final String S3_SERVICE_NAME = "s3";
 
   /** The name to use for the success action redirect in the policy JSON. */
   private static final String SUCCESS_ACTION_REDIRECT_NAME = "success_action_redirect";
@@ -64,7 +64,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public static Builder builder() {
     return new AutoValue_SignedS3UploadRequest.Builder()
         .setAlgorithm("AWS4-HMAC-SHA256")
-        .setServiceName(StorageServiceName.S3.getString());
+        .setServiceName(S3_SERVICE_NAME);
   }
 
   // -- Below should be included in the upload form.
