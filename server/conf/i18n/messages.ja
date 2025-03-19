@@ -37,9 +37,9 @@ header.menu=メニュー
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=セッションを終了
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=参考情報: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=成功: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=セッションは終了しました。
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -87,7 +87,7 @@ button.createAnAccount=アカウントを作成する
 # The text on the button an applicant clicks to log in to their session.
 button.login=ログイン
 # The text on the button an applicant clicks to sign in to their session.
-button.signIn=Sign in
+button.signIn=ログイン
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=アカウントをお持ちでない場合
 # The text between creating a new account, and becoming a guest
@@ -129,7 +129,7 @@ button.previousScreen=前へ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=戻る
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=確認して送信
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=スキップ
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -171,17 +171,17 @@ modal.errorSaving.previous.noSaveButton=保存せずに前の質問に移動
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=このまま回答を修正する
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
-modal.errorSaving.title=Some answers on this page need to be fixed
+modal.errorSaving.title=このページの回答に修正が必要なものがあります
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.review=申請のこのページにエラーがあるか、一部のフィールドが空白のままになっています。エラーを修正せずにこのまま確認ページに進むと、このページに入力された情報は失われます。
 # Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.previous=申請のこのページにエラーがあるか、一部のフィールドが空白のままになっています。エラーを修正せずにこのまま前のページに戻ると、このページに入力された情報は失われます。
 # Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
-modal.errorSaving.continueButton.review=Go to the review page without saving
+modal.errorSaving.continueButton.review=保存せずに確認ページに進む
 # Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
-modal.errorSaving.continueButton.previous=Go to the previous page without saving
+modal.errorSaving.continueButton.previous=保存せずに前のページに戻る
 # Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
-modal.errorSaving.fixButton=Stay here and fix your answers
+modal.errorSaving.fixButton=このページで回答を修正する
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -200,7 +200,7 @@ button.continueSr={0} への申請を続行
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ここから開始
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=アンケートを開始
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -222,16 +222,16 @@ content.findProgramsDescription=CiviForm は、{0} で対象となり得るプ�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
 # Main home page heading
-heading.homepage=Apply for government assistance here
+heading.homepage=政府の補助を申請するにはこちらから
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
 # Main home page intro text
-content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
+content.homepageIntro=食料、交通、育児、公共料金などに関する支援を受けるには、以下のオプションのいずれかをクリックしてください。一度に申請できるプログラムは 1 つのみです。
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # The label for the program filter checkboxes
-label.programFilters.v2=What do you want help with?
+label.programFilters.v2=必要な支援
 # The button to apply program filters
 button.applySelections=選択内容を適用
 # The button to clear program filter selections
@@ -263,7 +263,7 @@ title.otherProgramsSection.v2=その他のプログラムとサービス（{0}�
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=プログラムとサービス（{0}）
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programs and services
+title.availableProgramsSection=プログラムとサービス
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=選択内容に一致するプログラム（{0}）
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -582,9 +582,9 @@ content.confirmed={0} への申請ありがとうございます。申請を受�
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=アカウントを作成またはログイン
 # The title of a pop-up informing an applicant to sign in before continuing with the application
-title.signInModal=Sign in with an account
+title.signInModal=アカウントでログイン
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
+content.signInModal=アカウントを作成すると、申請のステータスを確認 / 変更したり、他のプログラムにすぐに申請したりできます。
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=情報を保存するには、{0} アカウントにログインするか、アカウントを作成します。今後の申請のためにいつでも戻ることができます。まだアカウントをお持ちでない場合は、ログインページから登録すると、一度入力したデータを保持できるようになります。
@@ -619,7 +619,7 @@ button.downloadPdf=PDF をダウンロード
 # A button prompting users to apply to programs.
 button.applyToPrograms=プログラムに申請
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your application details
+heading.yourSubmissionInformation=申請の詳細
 # Text above the name of the person who submitted this application
 heading.applicantName=この申請の送信者
 # Text above the confirmation number of the application
@@ -635,11 +635,11 @@ heading.nextSteps=次の手順
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} の申請を送信しました
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=To access your application later, create an account
+alert.createAccount=後から申請にアクセスするには、アカウントを作成してください
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
+alert.createAccountDescription=アカウントに情報を保存すると、申請のステータスを確認したり、他のプログラムにすぐに申請したりできます。
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=既存のアカウントにログイン
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -944,7 +944,7 @@ banner.notForProductionBannerLine2=プログラムやサービスに申請する
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=After you apply, {0} to protect your data.
+banner.guestBannerText=申請が終了したら、{0}してデータを保護します。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=セッションを終了
 
