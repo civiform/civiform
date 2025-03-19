@@ -37,9 +37,9 @@ header.menu=選單
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=結束工作階段
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=注意事項：{0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=成功：{0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=您的工作階段已結束。
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -87,7 +87,7 @@ button.createAnAccount=建立帳戶
 # The text on the button an applicant clicks to log in to their session.
 button.login=登入
 # The text on the button an applicant clicks to sign in to their session.
-button.signIn=Sign in
+button.signIn=登入
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=還沒有帳戶嗎？
 # The text between creating a new account, and becoming a guest
@@ -129,7 +129,7 @@ button.previousScreen=上一個畫面
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=返回
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=確認並提交
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=略過
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -171,17 +171,17 @@ modal.errorSaving.previous.noSaveButton=不儲存回答，返回上一個問題�
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=留在這個頁面並修正回答
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
-modal.errorSaving.title=Some answers on this page need to be fixed
+modal.errorSaving.title=本頁面上的部分回答需要修正
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.review=申請書的這個頁面有錯誤，或者部分欄位尚未填寫。如果繼續前往確認頁面，而不先更正錯誤，則您在本頁面上輸入的所有資訊都將遺失。
 # Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.previous=申請書的這個頁面有錯誤，或者部分欄位尚未填寫。如果繼續返回上一頁，而不先更正錯誤，則您在本頁面上輸入的所有資訊都將遺失。
 # Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
-modal.errorSaving.continueButton.review=Go to the review page without saving
+modal.errorSaving.continueButton.review=不儲存回答，繼續前往確認頁面
 # Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
-modal.errorSaving.continueButton.previous=Go to the previous page without saving
+modal.errorSaving.continueButton.previous=不儲存回答，繼續返回上一頁
 # Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
-modal.errorSaving.fixButton=Stay here and fix your answers
+modal.errorSaving.fixButton=留在這個頁面並修正回答
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -200,7 +200,7 @@ button.continueSr=繼續申請「{0}」
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=按這裡開始填寫
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=開始填寫問卷調查
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=查看及申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -222,16 +222,16 @@ content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
-heading.homepage=Apply for government assistance here
+heading.homepage=在這裡申請政府協助
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
-content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
+content.homepageIntro=如要取得食物、交通運輸、兒童照護、公用事業和其他領域的相關協助，請在下方點按任一選項。請注意，您一次只能申請一項計畫。
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
-label.programFilters.v2=What do you want help with?
+label.programFilters.v2=您需要哪個領域的協助？
 # The button to apply program filters
 button.applySelections=套用所選篩選條件
 # The button to clear program filter selections
@@ -263,7 +263,7 @@ title.otherProgramsSection.v2=其他計畫和服務 ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=計畫和服務 ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programs and services
+title.availableProgramsSection=計畫和服務
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=與您所選篩選條件相符的計畫 ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -582,9 +582,9 @@ content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料�
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=建立或登入帳戶
 # The title of a pop-up informing an applicant to sign in before continuing with the application
-title.signInModal=Sign in with an account
+title.signInModal=使用帳戶登入
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
+content.signInModal=建立帳戶後，您就能查看申請書狀態、變更申請書，以及快速申請其他計畫。
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
@@ -619,7 +619,7 @@ button.downloadPdf=下載 PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=申請參加計畫
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your application details
+heading.yourSubmissionInformation=您的申請書詳情
 # Text above the name of the person who submitted this application
 heading.applicantName=此申請書的提交者
 # Text above the confirmation number of the application
@@ -635,11 +635,11 @@ heading.nextSteps=後續步驟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=您已提交「{0}」的申請書
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=To access your application later, create an account
+alert.createAccount=如果想在之後存取申請書，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
+alert.createAccountDescription=只要在帳戶中儲存相關資訊，就能查看申請書狀態，還可以快速申請其他計畫。
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=登入現有帳戶
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -944,7 +944,7 @@ banner.notForProductionBannerLine2=如要申請加入計畫或服務，請前往
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=After you apply, {0} to protect your data.
+banner.guestBannerText=申請完成後，請{0}，確保您的資料安全。
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=結束訪客工作階段
 
