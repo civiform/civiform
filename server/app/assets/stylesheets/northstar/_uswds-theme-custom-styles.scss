@@ -47,14 +47,15 @@ svg {
 it is around the label */
 .usa-checkbox__input:focus + [class*='__label']::before,
 .usa-radio__input:focus + [class*='__label']::before {
-  outline: none;
+  outline: 2px solid rgba(0, 0, 0, 0);
+  outline-offset: 2px;
 }
 
 .cf-radio-option:focus-within,
 .usa-checkbox__input:focus + [class*='__label'],
 .usa-radio__input:focus + [class*='__label'] {
-  @include u-border('blue-40v');
-  @include u-border('05');
+  @include u-outline-color('blue-40v');
+  @include u-outline('05');
 }
 
 /*
