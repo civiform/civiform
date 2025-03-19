@@ -153,4 +153,29 @@
     cursor: default;
   }
 
+  .question-bank-add-button {
+    font-weight: 600; /* font-semibold */
+    display: block; /* block */
+    padding-top: 0.5rem; /* py-2 */
+    padding-bottom: 0.5rem; /* py-2 */
+    text-align: center; /* text-center */
+    border-radius: 9999px; /* rounded-full */
+    border-width: 1px; /* border */
+    border-style: solid; /* border */
+    color: #0056b3; /* text-civiform-blue */
+    border-color: #0056b3; /* border-civiform-blue */
+    background-color: white; /* bg-white */
+    height: 3rem; /* h-12 */
+    display: flex; /* flex */
+    align-items: center; /* items-center */
+    font-weight: 500; /* font-medium */
+    gap: 0.5rem; /* space-x-2 */
+
+    /* Hover effects */
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .question-bank-add-button:hover {
+    background-color: #e5e7eb; /* hover:bg-gray-200 */
+  }
 }

@@ -714,7 +714,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag row = div().withClasses("flex", "gap-4", "items-center");
     SvgTag icon =
-        Icons.questionTypeSvg(questionDefinition.getQuestionType())
+        Icons.questionTypeSvgWithId(questionDefinition.getQuestionType())
             .withClasses("shrink-0", "h-12", "w-6");
     String questionHelpText =
         questionDefinition.getQuestionHelpText().isEmpty()

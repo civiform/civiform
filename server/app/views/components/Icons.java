@@ -1,5 +1,6 @@
 package views.components;
 
+import java.util.Locale;
 import java.util.Optional;
 import services.question.types.QuestionType;
 
@@ -143,6 +144,7 @@ public enum Icons {
       24,
       "M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8"
           + " 5-8-5h16zm0 12H4V8l8 5 8-5v10z"),
+  EMAIL_LINK(24, ""),
   // Forms Add On
   ENUMERATOR(
       24,
@@ -528,8 +530,136 @@ public enum Icons {
     return svg(icon);
   }
 
+  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+    Icons icon;
+    switch (type) {
+      case ADDRESS:
+        icon = Icons.ADDRESS;
+        break;
+      case CHECKBOX:
+        icon = Icons.CHECKBOX;
+        break;
+      case CURRENCY:
+        return svg(Icons.CURRENCY)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case DATE:
+        icon = Icons.DATE;
+        break;
+      case DROPDOWN:
+        icon = Icons.DROPDOWN;
+        break;
+      case EMAIL:
+        icon = Icons.EMAIL;
+        break;
+      case FILEUPLOAD:
+        icon = Icons.FILEUPLOAD;
+        break;
+      case ID:
+        icon = Icons.ID;
+        break;
+      case NAME:
+        icon = Icons.NAME;
+        break;
+      case NUMBER:
+        icon = Icons.NUMBER;
+        break;
+      case RADIO_BUTTON:
+        icon = Icons.RADIO_BUTTON;
+        break;
+      case ENUMERATOR:
+        icon = Icons.ENUMERATOR;
+        break;
+      case STATIC:
+        return svg(Icons.ANNOTATION)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case TEXT:
+        icon = Icons.TEXT;
+        break;
+      case PHONE:
+        icon = Icons.PHONE;
+        break;
+      default: // fall through
+        icon = Icons.UNKNOWN;
+    }
+    return svg(icon).withId("svg-link-" + icon.name().toLowerCase(Locale.ROOT));
+  }
+
+  public static SvgTag questionTypeSvgLink(QuestionType type) {
+    Icons icon;
+    switch (type) {
+      case ADDRESS:
+        icon = Icons.ADDRESS;
+        break;
+      case CHECKBOX:
+        icon = Icons.CHECKBOX;
+        break;
+      case CURRENCY:
+        return svg(Icons.CURRENCY)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case DATE:
+        icon = Icons.DATE;
+        break;
+      case DROPDOWN:
+        icon = Icons.DROPDOWN;
+        break;
+      case EMAIL:
+        icon = Icons.EMAIL;
+        break;
+      case FILEUPLOAD:
+        icon = Icons.FILEUPLOAD;
+        break;
+      case ID:
+        icon = Icons.ID;
+        break;
+      case NAME:
+        icon = Icons.NAME;
+        break;
+      case NUMBER:
+        icon = Icons.NUMBER;
+        break;
+      case RADIO_BUTTON:
+        icon = Icons.RADIO_BUTTON;
+        break;
+      case ENUMERATOR:
+        icon = Icons.ENUMERATOR;
+        break;
+      case STATIC:
+        return svg(Icons.ANNOTATION)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case TEXT:
+        icon = Icons.TEXT;
+        break;
+      case PHONE:
+        icon = Icons.PHONE;
+        break;
+      default: // fall through
+        icon = Icons.UNKNOWN;
+    }
+    return svgLink(icon);
+  }
+
   public String getViewBox() {
     return viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", size, size));
+  }
+
+  /**
+   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
+   * classes like any other element.
+   */
+  private static SvgTag svgLink(Icons icon) {
+    return new SvgTag().with(use(icon.name()));
   }
 
   /**
@@ -556,5 +686,9 @@ public enum Icons {
 
   private static PathTag path(String pathString) {
     return new PathTag().attr("d", pathString);
+  }
+
+  private static UseTag use(String href) {
+    return new UseTag().attr("href", "#svg-link-" + href.toLowerCase(Locale.ROOT));
   }
 }
