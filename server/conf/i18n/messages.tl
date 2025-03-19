@@ -37,9 +37,9 @@ header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Tapusin ang session
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=Para sa iyong impormasyon: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=Tagumpay: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Natapos na ang iyong session.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -87,7 +87,7 @@ button.createAnAccount=Gumawa ng account
 # The text on the button an applicant clicks to log in to their session.
 button.login=Maglog-in
 # The text on the button an applicant clicks to sign in to their session.
-button.signIn=Sign in
+button.signIn=Mag-sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Walang account?
 # The text between creating a new account, and becoming a guest
@@ -129,7 +129,7 @@ button.previousScreen=Nakaraang
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Bumalik
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=Suriin at isumite
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Laktawan
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -171,17 +171,17 @@ modal.errorSaving.previous.noSaveButton=Magpatuloy sa nakaraang mga tanong nang 
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Manatili at ayusin ang iyong mga sagot
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
-modal.errorSaving.title=Some answers on this page need to be fixed
+modal.errorSaving.title=Kailangang ayusin ang ilang sagot sa page na ito
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.review=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa page ng pagsusuri, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
 # Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.previous=May ilang error o ilang field na naiwang blangko sa page na ito sa iyong aplikasyon. Kung magpapatuloy ka sa nakaraang page, hindi mase-save ang anumang impormasyong inilagay sa page na ito hanggang sa ayusin ang mga error.
 # Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
-modal.errorSaving.continueButton.review=Go to the review page without saving
+modal.errorSaving.continueButton.review=Pumunta sa page ng pagsusuri nang hindi nagse-save
 # Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
-modal.errorSaving.continueButton.previous=Go to the previous page without saving
+modal.errorSaving.continueButton.previous=Pumunta sa nakaraang page nang hindi nagse-save
 # Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
-modal.errorSaving.fixButton=Stay here and fix your answers
+modal.errorSaving.fixButton=Manatili rito at ayusin ang iyong mga sagot
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -200,7 +200,7 @@ button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Magsimula rito
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=Simulan ang survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Tingnan at mag-apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -222,16 +222,16 @@ content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga pr
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 # Main home page heading
-heading.homepage=Apply for government assistance here
+heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
-content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
+content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # The label for the program filter checkboxes
-label.programFilters.v2=What do you want help with?
+label.programFilters.v2=Sa aling bagay mo gustong makakuha ng tulong?
 # The button to apply program filters
 button.applySelections=I-apply ang mga napili
 # The button to clear program filter selections
@@ -263,7 +263,7 @@ title.otherProgramsSection.v2=Iba pang programa at serbisyo ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Mga programa at serbisyo ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programs and services
+title.availableProgramsSection=Mga programa at serbisyo
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Mga programa batay sa mga pinili mo ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -582,9 +582,9 @@ content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natangg
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Gumawa ng account o magsign-in
 # The title of a pop-up informing an applicant to sign in before continuing with the application
-title.signInModal=Sign in with an account
+title.signInModal=Mag-sign in gamit ang account
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
+content.signInModal=Magagawa mong tingnan ang status ng isang aplikasyon, gumawa ng mga pagbabago rito, at mabilis na mag-apply sa ibang programa kapag gumawa ka ng account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
@@ -619,7 +619,7 @@ button.downloadPdf=I-download ang PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Mag-apply sa mga programa
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your application details
+heading.yourSubmissionInformation=Ang mga detalye ng iyong aplikasyon
 # Text above the name of the person who submitted this application
 heading.applicantName=Sino ang nagsumite ng aplikasyong ito
 # Text above the confirmation number of the application
@@ -635,11 +635,11 @@ heading.nextSteps=Ano ang mga susunod na hakbang ko?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=To access your application later, create an account
+alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
+alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -944,7 +944,7 @@ banner.notForProductionBannerLine2=Para mag-apply sa isang program o serbisyo, p
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=After you apply, {0} to protect your data.
+banner.guestBannerText=Pagkatapos mong mag-apply, {0} para protektahan ang iyong data.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=tapusin ang session mo
 
