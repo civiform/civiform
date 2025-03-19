@@ -958,6 +958,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI.",
         "type": "bool",
         "required": false
+      },
+      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI.",
+        "type": "bool",
+        "required": false
       }
     }
   }
