@@ -77,7 +77,7 @@ async function verifyMarkdownHtml(page: Page) {
     '<p>Hello, I am some static text!<br>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">This is a link<svg',
+    '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="https://www.example.com opens in a new tab" rel="nofollow noopener noreferrer">This is a link<svg',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<ul class="list-disc mx-8"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
@@ -86,7 +86,7 @@ async function verifyMarkdownHtml(page: Page) {
     '<p>There are some empty lines below this that should be preserved<br>&nbsp;</p>\n<p>&nbsp;</p>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="opens in a new tab" rel="nofollow noopener noreferrer">https://www.example.com<svg',
+    '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="https://www.example.com opens in a new tab" rel="nofollow noopener noreferrer">https://www.example.com<svg',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<strong>Last line of content should be bold</strong>',
