@@ -2364,12 +2364,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                            "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                            "(NOT FOR PRODUCTION USE) Enable showing external program cards on"
-                                + " North Star applicant UI.",
-                            /* isRequired= */ false,
-                            SettingType.BOOLEAN,
-                            SettingMode.ADMIN_WRITEABLE))))
+                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
+                              + " Star applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
