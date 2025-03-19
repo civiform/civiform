@@ -37,9 +37,9 @@ header.menu=메뉴
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=세션 종료
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=참고용: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=성공: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=세션이 종료되었습니다.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -87,7 +87,7 @@ button.createAnAccount=계정 만들기
 # The text on the button an applicant clicks to log in to their session.
 button.login=로그인
 # The text on the button an applicant clicks to sign in to their session.
-button.signIn=Sign in
+button.signIn=로그인
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=계정이 없나요?
 # The text between creating a new account, and becoming a guest
@@ -129,7 +129,7 @@ button.previousScreen=이전
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=뒤로
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=검토 및 제출
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=건너뛰기
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -171,17 +171,17 @@ modal.errorSaving.previous.noSaveButton=저장하지 않고 이전 질문으로 
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=현재 페이지에서 답변 수정
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
-modal.errorSaving.title=Some answers on this page need to be fixed
+modal.errorSaving.title=이 페이지에 있는 일부 답변은 수정해야 합니다.
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.review=신청서의 이 페이지에 오류가 있거나 일부 필드가 비어 있습니다. 검토 페이지로 진행할 경우 오류가 수정될 때까지 이 페이지에 입력한 정보가 저장되지 않습니다.
 # Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.previous=신청서의 이 페이지에 오류가 있거나 일부 필드가 비어 있습니다. 이전 페이지로 진행할 경우 오류가 수정될 때까지 이 페이지에 입력한 정보가 저장되지 않습니다.
 # Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
-modal.errorSaving.continueButton.review=Go to the review page without saving
+modal.errorSaving.continueButton.review=저장하지 않고 검토 페이지로 이동
 # Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
-modal.errorSaving.continueButton.previous=Go to the previous page without saving
+modal.errorSaving.continueButton.previous=저장하지 않고 이전 페이지로 이동
 # Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
-modal.errorSaving.fixButton=Stay here and fix your answers
+modal.errorSaving.fixButton=여기에서 답변 수정
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -200,7 +200,7 @@ button.continueSr={0} 신청 계속하기
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=여기부터 시작
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=설문조사 시작
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=보기 및 신청
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -222,16 +222,16 @@ content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
-heading.homepage=Apply for government assistance here
+heading.homepage=여기에서 정부 지원 신청
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
-content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
+content.homepageIntro=식품, 교통, 아동 돌봄, 공공 서비스 등에 관한 지원을 받으려면 아래 옵션 중 하나를 클릭하세요. 한 번에 프로그램 한 개만 신청할 수 있습니다.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # The label for the program filter checkboxes
-label.programFilters.v2=What do you want help with?
+label.programFilters.v2=어떤 도움이 필요하신가요?
 # The button to apply program filters
 button.applySelections=선택사항 적용
 # The button to clear program filter selections
@@ -263,7 +263,7 @@ title.otherProgramsSection.v2=다른 프로그램 및 서비스({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=프로그램 및 서비스({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programs and services
+title.availableProgramsSection=프로그램 및 서비스
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=선택한 필터({0})를 기준으로 하는 프로그램
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -582,9 +582,9 @@ content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수�
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=계정 만들기 또는 로그인
 # The title of a pop-up informing an applicant to sign in before continuing with the application
-title.signInModal=Sign in with an account
+title.signInModal=계정으로 로그인
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
+content.signInModal=계정을 만들면 신청 상태를 확인하거나 변경하고 다른 프로그램도 빠르게 신청할 수 있습니다.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
@@ -619,7 +619,7 @@ button.downloadPdf=PDF 다운로드
 # A button prompting users to apply to programs.
 button.applyToPrograms=프로그램 신청
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your application details
+heading.yourSubmissionInformation=신청 세부정보
 # Text above the name of the person who submitted this application
 heading.applicantName=이 신청서를 제출한 사람
 # Text above the confirmation number of the application
@@ -635,11 +635,11 @@ heading.nextSteps=다음 단계는 무엇인가요?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted={0} 신청을 제출했습니다.
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=To access your application later, create an account
+alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드세요
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
+alert.createAccountDescription=계정에 정보를 저장하면 신청 상태를 확인하고 다른 프로그램을 빠르게 신청할 수 있습니다.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=기존 계정에 로그인
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -944,7 +944,7 @@ banner.notForProductionBannerLine2=프로그램이나 서비스를 신청하려�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=After you apply, {0} to protect your data.
+banner.guestBannerText=신청 후 데이터를 보호하려면 {0}하세요.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=세션을 종료
 
