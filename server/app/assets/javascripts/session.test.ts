@@ -403,7 +403,7 @@ describe('SessionTimeoutHandler', () => {
 
     afterEach(() => {
       jest.useRealTimers()
-      document.cookie = `${SessionTimeoutHandler['COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      document.cookie = `${SessionTimeoutHandler['TIMEOUT_COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     })
 
     it('immediately logs out if timeout is reached', () => {

@@ -34,7 +34,6 @@ import htmx from './htmx'
 
 window.addEventListener('load', () => {
   initializeEverything()
-  SessionTimeoutHandler.init()
   htmx.on('htmx:afterSettle', () => {
     afterSettle()
   })
@@ -69,6 +68,7 @@ function initializeEverything(): void {
   trustedIntermediaryController.init()
   fileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
+  SessionTimeoutHandler.init()
 }
 
 function afterSettle(): void {

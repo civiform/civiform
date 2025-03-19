@@ -36,7 +36,7 @@ export enum WarningType {
  */
 export class SessionTimeoutHandler {
   /** Name of cookie storing timeout data */
-  private static COOKIE_NAME = 'session_timeout_data'
+  private static TIMEOUT_COOKIE_NAME = 'session_timeout_data'
   /** Tracks if inactivity warning is currently shown */
   private static inactivityWarningShown = false
   /** Tracks if total length warning is currently shown */
@@ -51,6 +51,104 @@ export class SessionTimeoutHandler {
   static init() {
     void this.checkAndSetTimer()
     this.setupModalEventHandlers()
+  }
+
+  /**
+   * Main timer management method that:
+   * 1. Checks for immediate timeout conditions and logs out if needed
+   * 2. Shows inactivity warning once if its time has passed and not shown before
+   * 3. Shows total length warning once if its time has passed and not shown before
+   * 4. Sets timer for next future event (warning or timeout)
+   *
+   * Warning dialogs are shown only once per session and only one dialog
+   * can be visible at a time. If a warning was previously shown, it won't
+   * be shown again even if its time passes again.
+   */
+  private static checkAndSetTimer() {
+    const data = this.getTimeoutData()
+    if (!data) return
+
+    // Clear existing timer
+    if (this.timer) {
+      window.clearTimeout(this.timer)
+      this.timer = null
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+
+    // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
+    if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
+      this.handleTimeout()
+      return
+    }
+
+    // If a warning is already being shown, don't show another one
+    if (this.inactivityWarningShown || this.totalLengthWarningShown) {
+      return
+    }
+
+    // 2 & 3. Show warnings if they haven't been shown before and their time has passed
+    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
+      this.showWarning(WarningType.INACTIVITY)
+      this.hasInactivityWarningBeenShown = true
+      return
+    }
+
+    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
+      this.showWarning(WarningType.TOTAL_LENGTH)
+      this.hasTotalLengthWarningBeenShown = true
+      return
+    }
+
+    // Set timers for future events
+    const timeouts = []
+
+    // Only add inactivity warning if it hasn't been shown yet
+    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
+      timeouts.push({
+        time: data.inactivityWarning,
+        action: () => {
+          this.showWarning(WarningType.INACTIVITY)
+          this.hasInactivityWarningBeenShown = true
+        },
+      })
+    }
+
+    // Only add total length warning if it hasn't been shown yet
+    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
+      timeouts.push({
+        time: data.totalWarning,
+        action: () => {
+          this.showWarning(WarningType.TOTAL_LENGTH)
+          this.hasTotalLengthWarningBeenShown = true
+        },
+      })
+    }
+
+    // Always add timeout events
+    timeouts.push({
+      time: data.inactivityTimeout,
+      action: () => this.handleTimeout(),
+    })
+
+    timeouts.push({
+      time: data.totalTimeout,
+      action: () => this.handleTimeout(),
+    })
+
+    // Sort by earliest time
+    timeouts.sort((a, b) => a.time - b.time)
+
+    // We will always have at least one timeout in the future
+    const nextTimeout = timeouts[0]
+    const delay = (nextTimeout.time - now) * 1000
+
+    this.timer = window.setTimeout(() => {
+      nextTimeout.action()
+
+      // Check for next timeout after handling this one
+      this.checkAndSetTimer()
+    }, delay)
   }
 
   /**
@@ -165,7 +263,7 @@ export class SessionTimeoutHandler {
    * Reads the session timeout data from the cookie.
    */
   private static getTimeoutData(): TimeoutData | null {
-    const cookieValue = this.getCookie(this.COOKIE_NAME)
+    const cookieValue = this.getCookie(this.TIMEOUT_COOKIE_NAME)
     if (!cookieValue) return null
 
     try {
@@ -245,105 +343,6 @@ export class SessionTimeoutHandler {
     }
 
     return null
-  }
-
-  /**
-   * Main timer management method that:
-   * 1. Checks for immediate timeout conditions and logs out if needed
-   * 2. Shows inactivity warning once if its time has passed and not shown before
-   * 3. Shows total length warning once if its time has passed and not shown before
-   * 4. Sets timer for next future event (warning or timeout)
-   *
-   * Warning dialogs are shown only once per session and only one dialog
-   * can be visible at a time. If a warning was previously shown, it won't
-   * be shown again even if its time passes again.
-   */
-  private static checkAndSetTimer() {
-    const data = this.getTimeoutData()
-    if (!data) return
-
-    // Clear existing timer
-    if (this.timer) {
-      window.clearTimeout(this.timer)
-      this.timer = null
-    }
-
-    const now = Math.floor(Date.now() / 1000)
-
-    // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
-    if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
-      this.handleTimeout()
-      return
-    }
-
-    // If a warning is already being shown, don't show another one
-    if (this.inactivityWarningShown || this.totalLengthWarningShown) {
-      return
-    }
-
-    // 2 & 3. Show warnings if they haven't been shown before and their time has passed
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning <= now) {
-      this.showWarning(WarningType.INACTIVITY)
-      this.hasInactivityWarningBeenShown = true
-      return
-    }
-
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning <= now) {
-      this.showWarning(WarningType.TOTAL_LENGTH)
-      this.hasTotalLengthWarningBeenShown = true
-      return
-    }
-
-    // Set timers for future events
-    const timeouts = []
-
-    // Only add inactivity warning if it hasn't been shown yet
-    if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
-      timeouts.push({
-        time: data.inactivityWarning,
-        action: () => {
-          this.showWarning(WarningType.INACTIVITY)
-          this.hasInactivityWarningBeenShown = true
-        },
-      })
-    }
-
-    // Only add total length warning if it hasn't been shown yet
-    if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
-      timeouts.push({
-        time: data.totalWarning,
-        action: () => {
-          this.showWarning(WarningType.TOTAL_LENGTH)
-          this.hasTotalLengthWarningBeenShown = true
-        },
-      })
-    }
-
-    // Always add timeout events
-    timeouts.push({
-      time: data.inactivityTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    timeouts.push({
-      time: data.totalTimeout,
-      action: () => this.handleTimeout(),
-    })
-
-    // Sort by earliest time
-    timeouts.sort((a, b) => a.time - b.time)
-
-    if (timeouts.length > 0) {
-      const nextTimeout = timeouts[0]
-      const delay = (nextTimeout.time - now) * 1000
-
-      this.timer = window.setTimeout(() => {
-        nextTimeout.action()
-
-        // Check for next timeout after handling this one
-        this.checkAndSetTimer()
-      }, delay)
-    }
   }
 
   /**
