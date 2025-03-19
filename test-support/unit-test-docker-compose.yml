@@ -11,7 +11,7 @@ services:
       - ../init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
 
   dev-oidc:
-    image: civiform/oidc-provider@sha256:2552ca9deb83498b57f2bd62015eb4a4c763d653e69a17a8c829a9a6e86ea372
+    image: civiform-oidc-provider
     restart: always
     expose:
       - 3390
