@@ -37,9 +37,9 @@ header.menu=ເມນູ
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=ສິ້ນສຸດເຊດຊັນ
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=ເພື່ອເປັນຂໍ້ມູນສຳລັບທ່ານ: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=ສຳເລັດ: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -86,6 +86,8 @@ content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ
 button.createAnAccount=ສ້າງບັນຊີ
 # The text on the button an applicant clicks to log in to their session.
 button.login=ເຂົ້າສູ່ລະບົບ
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=ເຂົ້າສູ່ລະບົບ
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=ບໍ່ມີບັນຊີບໍ?
 # The text between creating a new account, and becoming a guest
@@ -127,7 +129,7 @@ button.previousScreen=ກ່ອນໜ້າ
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=ກັບຄືນ
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=ກວດສອບ ແລະ ອອກ
+button.reviewAndExit=ກວດສອບ ແລະ ສົ່ງ
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=ຂ້າມ
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -148,6 +150,10 @@ link.allDone=ຂ້ອຍແລ້ວໆ
 link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=ລຶບໄຟລ໌ອອກ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -164,6 +170,18 @@ modal.errorSaving.review.noSaveButton=ສືບຕໍ່ໄປຫາໜ້າຄ
 modal.errorSaving.previous.noSaveButton=ສືບຕໍ່ໄປຫາຄຳຕອບກ່ອນໜ້າໂດຍບໍ່ບັນທຶກ
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=ຢູ່ຕໍ່ແລ້ວແກ້ໄຂຄຳຕອບຂອງທ່ານ
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=ຄຳຕອບບາງສ່ວນໃນໜ້ານີ້ຕ້ອງໄດ້ຮັບການແກ້ໄຂ
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=ໜ້ານີ້ໃນໃບສະໝັກຂອງທ່ານມີຂໍ້ຜິດພາດບາງຢ່າງ ຫຼື ຊ່ອງຂໍ້ມູນບາງຊ່ອງຫວ່າງເປົ່າ. ຫາກທ່ານສືບຕໍ່ໄປຫາໜ້າກວດສອບ, ຂໍ້ມູນໃດກໍຕາມທີ່ລະບຸໃນໜ້ານີ້ຈະບໍ່ໄດ້ຮັບການບັນທຶກຈົນກວ່າຈະແກ້ໄຂຂໍ້ຜິດພາດ.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=ໜ້ານີ້ໃນໃບສະໝັກຂອງທ່ານມີຂໍ້ຜິດພາດບາງຢ່າງ ຫຼື ຊ່ອງຂໍ້ມູນບາງຊ່ອງຫວ່າງເປົ່າ. ຫາກທ່ານສືບຕໍ່ໄປຫາໜ້າກ່ອນໜ້າ, ຂໍ້ມູນໃດກໍຕາມທີ່ລະບຸໃນໜ້ານີ້ຈະບໍ່ໄດ້ຮັບການບັນທຶກຈົນກວ່າຈະແກ້ໄຂຂໍ້ຜິດພາດ.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=ເຂົ້າໄປໜ້າກວດສອບໂດຍບໍ່ຕ້ອງບັນທຶກ
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=ເຂົ້າໄປໜ້າກ່ອນໜ້າໂດຍບໍ່ຕ້ອງບັນທຶກ
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=ຢູ່ໜ້ານີ້ຕໍ່ ແລະ ແກ້ໄຂຄຳຕອບຂອງທ່ານ
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -181,6 +199,8 @@ button.editSr=ແກ້ໄຂໃບສະໝັກທີ່ສົ່ງຫາ {0
 button.continueSr=ສືບຕໍ່ສະໝັກ {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=ເລີ່ມຕົ້ນບ່ອນນີ້
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=ເລີ່ມເຮັດແບບສຳຫຼວດ
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=ເບິ່ງ ແລະ ນຳໃຊ້
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -202,16 +222,16 @@ content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອ
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
 # Main home page heading
-heading.homepage=ນຳໃຊ້ກັບໂປຣແກຣມໃນບ່ອນດຽວ
+heading.homepage=ສະໝັກຮັບຄວາມຊ່ວຍເຫຼືອຈາກລັດຖະບານຢູ່ບ່ອນນີ້
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 # Main home page intro text
-content.homepageIntro=ຮັບຄວາມຊ່ວຍເຫຼືອດ້ານການເບິ່ງແຍງເດັກນ້ອຍ, ອາຫານ, ການຂົນສົ່ງ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ.
+content.homepageIntro=ເພື່ອຮັບຄວາມຊ່ວຍເຫຼືອກ່ຽວກັບອາຫານ, ການຂົນສົ່ງ, ການເບິ່ງແຍງເດັກນ້ອຍ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ, ກະລຸນາຄລິກຕົວເລືອກໃດໜຶ່ງລຸ່ມນີ້. ທ່ານສາມາດສະໝັກໄດ້ເທື່ອລະໂຄງການ.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
 # The label for the program filter checkboxes
-label.programFilters.v2=ກັ່ນຕອງຕາມໝວດໝູ່
+label.programFilters.v2=ທ່ານຕ້ອງການຄວາມຊ່ວຍເຫຼືອໃນເລື່ອງໃດ?
 # The button to apply program filters
 button.applySelections=ນຳໃຊ້ລາຍການທີ່ເລືອກ
 # The button to clear program filter selections
@@ -243,7 +263,7 @@ title.otherProgramsSection.v2=ໂຄງການ ແລະ ບໍລິການ
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=ໂຄງການ ແລະ ບໍລິການ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=ໂປຣແກຣມ ແລະ ບໍໍລິການທີ່ມີໃຫ້
+title.availableProgramsSection=ໂຄງການ ແລະ ບໍລິການ
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=ໂປຣແກຣມທີ່ອີງຕາມການເລືອກຂອງທ່ານ ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -561,6 +581,10 @@ title.applicationConfirmation=ການຢືນຢັນການສະໝັ�
 content.confirmed=ຂໍຂອບໃຈສຳລັບການສະໝັກເຂົ້າຮ່ວມ {0}.  ໄດ້ຮັບໃບສະໝັກຂອງທ່ານແລ້ວ ແລະ ລະຫັດການສະໝັກຂອງທ່ານແມ່ນ {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=ເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=ທ່ານສາມາດກວດສອບສະຖານະຂອງໃບສະໝັກ, ດຳເນີນການປ່ຽນແປງໃນໃບສະໝັກ ແລະ ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວເມື່ອທ່ານສ້າງບັນຊີ.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີເພື່ອບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້. ທ່ານຈະສາມາດກັບຄືນມາໄດ້ທຸກເວລາເພື່ອຕື່ມໃບສະໝັກໃຫ້ຄົບຖ້ວນໃນອະນາຄົດ. ຫາກທ່ານຍັງບໍ່ມີບັນຊີ, ໜ້າເຂົ້າສູ່ລະບົບຈະອະນຸຍາດໃຫ້ທ່ານລົງທະບຽນ ແລະ ທ່ານຈະບໍ່ສູນເສຍຂໍ້ມູນໃດກໍຕາມທີ່ທ່ານເຄີຍປ້ອນໄປແລ້ວ.
@@ -595,7 +619,7 @@ button.downloadPdf=ດາວໂຫຼດ PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=ຂໍ້ມູນທີ່ທ່ານສົ່ງ
+heading.yourSubmissionInformation=ລາຍລະອຽດຂອງໃບສະໝັກຂອງທ່ານ
 # Text above the name of the person who submitted this application
 heading.applicantName=ໃຜເປັນຄົນສົ່ງໃບສະໝັກນີ້
 # Text above the confirmation number of the application
@@ -611,9 +635,9 @@ heading.nextSteps=ຂັ້ນຕອນຕໍ່ໄປຂອງຂ້ອຍແ�
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂອງທ່ານແລ້ວ {0} ລາຍການ
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=ສ້າງບັນຊີເພື່ອບັນທຶກຂໍ້ມູນການສະໝັກຂອງທ່ານ
+alert.createAccount=ເພື່ອເຂົ້າເຖິງໃບສະໝັກຂອງທ່ານໃນພາຍຫຼັງ, ໃຫ້ສ້າງບັນຊີ
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=ໃຊ້ບັນຊີເພື່ອເຂົ້າສູ່ລະບົບຄືນໃໝ່ເພື່ອກວດສອບສະຖານະການສະໝັກຂອງທ່ານ ແລະ ປະຢັດເວລາໃນການສະໝັກໂຄງການອື່ນໆ.
+alert.createAccountDescription=ທ່ານສາມາດກວດສອບສະຖານະຂອງໃບສະໝັກຂອງທ່ານ ແລະ ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວເມື່ອທ່ານບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້ໃນບັນຊີ.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ເຂົ້າສູ່ລະບົບບັນຊີທີ່ມີຢູ່ແລ້ວ
 
@@ -704,6 +728,10 @@ validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບທີ່ຖືກຕ້ອງ
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - ມັງກອນ
 # A month option when selecting a specific date from a dropdown menu.
@@ -916,7 +944,7 @@ banner.notForProductionBannerLine2=ເພື່ອສະໝັກເຂົ້າ
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=ທ່ານກຳລັງສະໝັກໃນຖານະຜູ້ເຂົ້າຮ່ວມ. ຫຼັງຈາກທີ່ທ່ານສະໝັກສຳເລັດແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
+banner.guestBannerText=ຫຼັງຈາກທີ່ທ່ານສະໝັກແລ້ວ, ໃຫ້ {0} ເພື່ອປົກປ້ອງຂໍ້ມູນຂອງທ່ານ.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ
 
@@ -961,3 +989,28 @@ category.tag.transportation=ການຂົນສົ່ງ
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=ສາທາລະນູປະໂພກ
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Session Inactivity Warning
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Session Length Warning
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Extend Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Session successfully extended
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Failed to extend session
