@@ -389,4 +389,181 @@ describe('SessionTimeoutHandler', () => {
       expect(logoutSpy).toHaveBeenCalled()
     })
   })
+
+  describe('checkAndSetTimer', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+      // Reset static flags
+      SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
+      SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
+      SessionTimeoutHandler['inactivityWarningShown'] = false
+      SessionTimeoutHandler['totalLengthWarningShown'] = false
+      SessionTimeoutHandler['timer'] = null
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+      document.cookie = `${SessionTimeoutHandler['COOKIE_NAME']}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    })
+
+    it('immediately logs out if timeout is reached', () => {
+      const logoutSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'handleTimeout',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now - 120,
+          inactivityTimeout: now - 60, // Past timeout
+          totalWarning: now + 3600,
+          totalTimeout: now + 7200,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(logoutSpy).toHaveBeenCalled()
+    })
+
+    it('shows inactivity warning immediately if time has passed and not shown before', () => {
+      const showWarningSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'showWarning',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now - 60, // Past warning
+          inactivityTimeout: now + 60,
+          totalWarning: now + 3600,
+          totalTimeout: now + 7200,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
+      expect(SessionTimeoutHandler['hasInactivityWarningBeenShown']).toBe(true)
+    })
+
+    it('does not show inactivity warning if already shown before', () => {
+      const showWarningSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'showWarning',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      SessionTimeoutHandler['hasInactivityWarningBeenShown'] = true
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now - 60,
+          inactivityTimeout: now + 60,
+          totalWarning: now + 3600,
+          totalTimeout: now + 7200,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(showWarningSpy).not.toHaveBeenCalled()
+    })
+
+    it('shows total length warning if time has passed and no other warning shown', () => {
+      const showWarningSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'showWarning',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now + 3600,
+          inactivityTimeout: now + 7200,
+          totalWarning: now - 60, // Past warning
+          totalTimeout: now + 3600,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.TOTAL_LENGTH)
+      expect(SessionTimeoutHandler['hasTotalLengthWarningBeenShown']).toBe(true)
+    })
+
+    it('does not show total length warning if inactivity warning is showing', () => {
+      const showWarningSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'showWarning',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      SessionTimeoutHandler['inactivityWarningShown'] = true
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now - 60,
+          inactivityTimeout: now + 60,
+          totalWarning: now - 30, // Past warning
+          totalTimeout: now + 3600,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(showWarningSpy).not.toHaveBeenCalled()
+    })
+
+    it('sets timer for future inactivity warning', () => {
+      const showWarningSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'showWarning',
+      )
+      const now = Math.floor(Date.now() / 1000)
+
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now + 60, // Future warning
+          inactivityTimeout: now + 120,
+          totalWarning: now + 3600,
+          totalTimeout: now + 7200,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(SessionTimeoutHandler['timer']).not.toBeNull()
+
+      // Fast forward to warning time
+      jest.advanceTimersByTime(60000)
+      expect(showWarningSpy).toHaveBeenCalledWith(WarningType.INACTIVITY)
+    })
+
+    it('clears existing timer before setting new one', () => {
+      const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout')
+      const now = Math.floor(Date.now() / 1000)
+
+      // Set initial timer
+      document.cookie = `session_timeout_data=${btoa(
+        JSON.stringify({
+          inactivityWarning: now + 60,
+          inactivityTimeout: now + 120,
+          totalWarning: now + 3600,
+          totalTimeout: now + 7200,
+          currentTime: now,
+        }),
+      )}`
+
+      SessionTimeoutHandler['checkAndSetTimer']()
+      const firstTimer = SessionTimeoutHandler['timer']
+      expect(firstTimer).not.toBeNull()
+
+      // Call again to check if timer is cleared
+      SessionTimeoutHandler['checkAndSetTimer']()
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(firstTimer)
+    })
+  })
 })
