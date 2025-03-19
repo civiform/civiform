@@ -37,9 +37,9 @@ header.menu=Меню
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Завершить сеанс
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=Для справки: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=Готово: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Сеанс завершен.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -87,7 +87,7 @@ button.createAnAccount=Создать аккаунт
 # The text on the button an applicant clicks to log in to their session.
 button.login=Войти
 # The text on the button an applicant clicks to sign in to their session.
-button.signIn=Sign in
+button.signIn=Войти
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Нет аккаунта?
 # The text between creating a new account, and becoming a guest
@@ -129,7 +129,7 @@ button.previousScreen=Перейти к предыдущему экрану
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Назад
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=Проверить и подать заявку
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Пропустить
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -171,17 +171,17 @@ modal.errorSaving.previous.noSaveButton=Не сохранять и перейт�
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Остаться и исправить
 # Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
-modal.errorSaving.title=Some answers on this page need to be fixed
+modal.errorSaving.title=Исправьте ошибки в ответах на этой странице
 # Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.review=На этой странице есть ошибки в ответах или незаполненные поля. Если вы перейдете к проверке заявки, введенная здесь информация будет потеряна. Чтобы ответы сохранились, исправьте ошибки.
 # Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
-modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+modal.errorSaving.content.previous=На этой странице есть ошибки в ответах или незаполненные поля. Если вы вернетесь к предыдущему экрану, введенная здесь информация будет потеряна. Чтобы ответы сохранились, исправьте ошибки.
 # Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
-modal.errorSaving.continueButton.review=Go to the review page without saving
+modal.errorSaving.continueButton.review=Не сохранять и перейти к проверке
 # Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
-modal.errorSaving.continueButton.previous=Go to the previous page without saving
+modal.errorSaving.continueButton.previous=Не сохранять и вернуться
 # Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
-modal.errorSaving.fixButton=Stay here and fix your answers
+modal.errorSaving.fixButton=Исправить ошибки на этой странице
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -200,7 +200,7 @@ button.continueSr=Продолжить заполнять заявку на уч
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Начать
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=Пройти опрос
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -222,16 +222,16 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
-heading.homepage=Apply for government assistance here
+heading.homepage=Подайте заявку на государственную поддержку
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
-content.homepageIntro=To get help with food, transportation, child care, utilities, and more, click one of the options below. You can apply to one program at a time.
+content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # The label for the program filter checkboxes
-label.programFilters.v2=What do you want help with?
+label.programFilters.v2=С чем вам нужна помощь?
 # The button to apply program filters
 button.applySelections=Применить фильтры
 # The button to clear program filter selections
@@ -263,7 +263,7 @@ title.otherProgramsSection.v2=Другие программы и услуги ({
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Программы и услуги ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programs and services
+title.availableProgramsSection=Программы и услуги
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Программы по фильтрам ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -582,9 +582,9 @@ content.confirmed=Благодарим вас! Мы получили вашу з
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Зарегистрируйтесь или войдите в аккаунт
 # The title of a pop-up informing an applicant to sign in before continuing with the application
-title.signInModal=Sign in with an account
+title.signInModal=Войдите в аккаунт
 # The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
-content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
+content.signInModal=Создав аккаунт, вы сможете проверять статус заявки, изменять ее и быстро подавать новые.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Чтобы вся указанная вами информация сохранилась и вы могли в любое время использовать ее для подачи будущих заявок, войдите в ваш аккаунт, зарегистрированный в сервисе "{0}". Если у вас нет аккаунта, вы можете создать его на странице входа.
@@ -619,7 +619,7 @@ button.downloadPdf=Скачать в формате PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=Зарегистрироваться в программах
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Your application details
+heading.yourSubmissionInformation=Данные вашей заявки
 # Text above the name of the person who submitted this application
 heading.applicantName=Отправитель заявки
 # Text above the confirmation number of the application
@@ -635,11 +635,11 @@ heading.nextSteps=Что мне нужно делать дальше?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Вы отправили заявку на участие в программе "{0}"
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=To access your application later, create an account
+alert.createAccount=Чтобы вернуться к заявке позже, создайте аккаунт
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=You can check your application status and quickly apply to other programs when you save your information in an account.
+alert.createAccountDescription=Сохранив информацию в аккаунте, вы сможете проверять статус заявки и быстро подавать новые.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=Войти с существующим аккаунтом
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -944,7 +944,7 @@ banner.notForProductionBannerLine2=Чтобы подать заявку на у�
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=After you apply, {0} to protect your data.
+banner.guestBannerText=После подачи заявки {0}, чтобы защитить данные.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=завершите сеанс
 
