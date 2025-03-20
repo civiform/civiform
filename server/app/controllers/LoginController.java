@@ -91,9 +91,9 @@ public class LoginController extends Controller {
       return badRequest("Login not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
-    if (client instanceof OidcClient) {
+    if (client instanceof OidcClient oidcClient) {
       webContext.setRequestAttribute(
-          OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
+          OidcConfiguration.SCOPE, oidcClient.getConfiguration().getScope());
     }
     try {
       Optional<RedirectionAction> redirectMaybe =

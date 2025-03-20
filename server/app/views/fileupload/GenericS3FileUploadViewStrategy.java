@@ -81,11 +81,11 @@ public class GenericS3FileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
-    if (!(request instanceof SignedS3UploadRequest)) {
+    if (!(request instanceof SignedS3UploadRequest signedS3UploadRequest)) {
       throw new RuntimeException(
           "Tried to upload a file to S3 storage using incorrect request type");
     }
-    return (SignedS3UploadRequest) request;
+    return signedS3UploadRequest;
   }
 
   @Override
