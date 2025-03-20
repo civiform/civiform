@@ -1109,6 +1109,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
+  public boolean getExternalProgramCardsEnabled(RequestHeader request) {
+    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2355,6 +2360,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
                               + " applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
+                              + " Star applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
