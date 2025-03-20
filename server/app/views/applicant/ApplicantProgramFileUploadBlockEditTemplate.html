@@ -76,11 +76,11 @@
                 class="grid"
               >
                 <li
-                  th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
                   class="grid-row margin-y-1"
                 >
                   <span
-                    th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+                    th:text="${fileUploadViewStrategy.getFileName(fileUploadQuestion.getFileNameForIndex(iter.index).get())}"
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a
