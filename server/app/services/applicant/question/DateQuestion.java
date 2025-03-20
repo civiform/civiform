@@ -32,8 +32,8 @@ public final class DateQuestion extends AbstractQuestion {
   // Since we cannot inject Config class here to check the zone, we take the systemDefaultZone as
   // the Zone which internally uses GMT.
   // Errorprone throws error on using system related timezones, hence we suppress the warning.
-  @SuppressWarnings("JavaTimeDefaultTimeZone")
-  private static LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
+  @SuppressWarnings({"JavaTimeDefaultTimeZone", "TimeInStaticInitializer"})
+  private static final LocalDate CURRENT_DATE = LocalDate.now(Clock.systemDefaultZone());
 
   @VisibleForTesting public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
 
