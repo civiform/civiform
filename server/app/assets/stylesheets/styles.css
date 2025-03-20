@@ -185,5 +185,15 @@
     display: flex; /* flex */
     flex-direction: row; /* flex-row */
   }
+  .question-bank-element {
+    width: 100%; /* w-full */
+    margin-top: 1rem; /*my-4*/
+    margin-bottom: 1rem; /*my-4*/
+    padding-left: 1.5rem; /* pl-6 */
+    border-color: #e2e8f0; /* border-gray-300*/
+    border-radius: 0.5rem; /* rounded-lg */
+    border-width: 1px; /* border */
+    border-style: solid; /* border */
+  }
 
 }
