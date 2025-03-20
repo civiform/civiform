@@ -83,11 +83,14 @@ public class NorthStarAddressCorrectionBlockView extends NorthStarBaseView {
             : params.messages().at(MessageKey.ADDRESS_CORRECTION_NO_VALID_LINE_2.getKeyName());
 
     AlertSettings addressAlertSettings =
-        new AlertSettings(
-            /* show= */ true,
-            Optional.of(params.messages().at(MessageKey.ADDRESS_CORRECTION_LINE_1.getKeyName())),
-            alertMessage,
-            AlertType.WARNING);
+        AlertSettings.builder()
+            .show(true)
+            .title(
+                Optional.of(
+                    params.messages().at(MessageKey.ADDRESS_CORRECTION_LINE_1.getKeyName())))
+            .text(alertMessage)
+            .alertType(AlertType.WARNING)
+            .build();
     context.setVariable("addressAlertSettings", addressAlertSettings);
 
     return templateEngine.process("applicant/AddressCorrectionBlockTemplate", context);

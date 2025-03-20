@@ -127,7 +127,8 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
 
-    // Used with hx-select to reload the Programs and services section and clear filters
+    // Used with hx-select to reload the Programs and services section and clear
+    // filters
     String refreshUrl =
         applicantId.isPresent() && profile.isPresent()
             ? applicantRoutes.index(profile.get(), applicantId.get()).url()

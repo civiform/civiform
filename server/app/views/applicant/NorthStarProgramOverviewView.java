@@ -1,7 +1,6 @@
 package views.applicant;
 
 import auth.CiviFormProfile;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
@@ -84,7 +83,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     // for the program.  We only want to show the eligibility alert for unstarted programs.
     boolean showEligibilityAlert =
         optionalProgramData.isPresent()
-            && ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get());
+            ? ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get())
+            : false;
 
     if (showEligibilityAlert) {
       boolean isTrustedIntermediary = profile.isTrustedIntermediary();
@@ -126,8 +126,8 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
 
   private AlertSettings createEligibilityAlertSettings(
       Messages messages, boolean isTrustedIntermediary, boolean isEligible) {
-    final String alertText;
-    final AlertType alertType;
+    String alertText;
+    AlertType alertType;
 
     if (isEligible) {
       alertText =
@@ -143,13 +143,15 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
       alertType = AlertType.WARNING;
     }
 
-    return new AlertSettings(
-        /* show= */ true,
-        /* title= */ Optional.empty(),
-        alertText,
-        alertType,
-        ImmutableList.of(),
-        /* isSlim= */ true);
+    AlertSettings eligibilityAlertSettings =
+        AlertSettings.builder()
+            .show(true)
+            .title(Optional.empty())
+            .text(alertText)
+            .alertType(alertType)
+            .isSlim(true)
+            .build();
+    return eligibilityAlertSettings;
   }
 
   private ImmutableMap<String, String> getStepsMap(
@@ -166,6 +168,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
                       /* preserveEmptyLines= */ true,
                       /* addRequiredIndicator= */ false));
             });
-    return applicationStepsBuilder.build();
+    ImmutableMap<String, String> applicationStepsMap = applicationStepsBuilder.build();
+    return applicationStepsMap;
   }
 }
