@@ -73,6 +73,8 @@ label.primaryNavigation=기본 탐색
 label.agencyIdentifier=기관 식별자,
 # Aria-label for guest session alert
 label.guestSessionAlert=게스트 세션 정보 알림
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
