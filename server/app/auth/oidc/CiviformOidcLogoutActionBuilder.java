@@ -128,7 +128,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   public Optional<RedirectionAction> getLogoutAction(
       CallContext callContext, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
-    if (StringUtils.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
+    if (StringUtils.isNotBlank(logoutUrl)
+        && currentProfile instanceof CiviFormProfileData civiFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
 
@@ -138,8 +139,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         State state = new State(configuration.getStateGenerator().generateValue(callContext));
 
         long accountId = Long.parseLong(currentProfile.getId());
-        Optional<JWT> idToken =
-            getIdTokenForAccount(accountId, (CiviFormProfileData) currentProfile);
+        Optional<JWT> idToken = getIdTokenForAccount(accountId, civiFormProfileData);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
