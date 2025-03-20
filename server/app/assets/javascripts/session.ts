@@ -1,4 +1,5 @@
 import {ToastController} from './toast'
+import {hideUswdsModal} from './modal'
 
 /**
  * Represents session timeout data with timestamps for various timeout events.
@@ -25,6 +26,17 @@ export enum WarningType {
   INACTIVITY = 'inactivity',
   /** Warning shown when total session length is approaching limit */
   TOTAL_LENGTH = 'total_length',
+}
+
+/**
+ * Types of session timeout modals available in the UI.
+ * Used for both modal identification and DOM element IDs.
+ */
+export const enum SessionModalType {
+  /** Modal shown for inactivity warnings */
+  INACTIVITY = 'session-inactivity-warning',
+  /** Modal shown for total session length warnings */
+  LENGTH = 'session-length-warning',
 }
 
 /**
@@ -155,8 +167,9 @@ export class SessionTimeoutHandler {
    * Set up event handlers for the server-rendered modals and process the extend session form submission.
    */
   private static setupModalEventHandlers() {
-    // HTMX after-request handler for session extension
+    // HTMX handler remains at document level for form submissions
     document.addEventListener('htmx:afterRequest', (event: Event) => {
+      // ...existing htmx handler code...
       const customEvent = event as CustomEvent
       const detail = customEvent.detail as {
         xhr: XMLHttpRequest
@@ -164,7 +177,7 @@ export class SessionTimeoutHandler {
       }
       if (detail.elt.id !== 'extend-session-form') return
 
-      this.hideModal('session-inactivity-warning')
+      hideUswdsModal(SessionModalType.INACTIVITY)
       this.inactivityWarningShown = false
 
       // Processes /extend-session form submissions
@@ -198,64 +211,55 @@ export class SessionTimeoutHandler {
       }
     })
 
-    /**
-     * Handle modal button actions using event delegation:
-     * - Primary actions:
-     *   - For inactivity warning: Extends session by submitting form to /extend-session
-     *   - For total length warning: Initiates logout
-     * - Secondary/close actions:
-     *   - Hides the modal
-     *   - Resets warning visibility flags
-     *   - Rechecks timeout conditions
-     *
-     * Uses data attributes to identify buttons and their actions:
-     * - data-modal-type: Identifies which modal the button belongs to
-     * - data-modal-primary: Primary action button (extend/logout)
-     * - data-modal-secondary: Secondary action button (dismiss)
-     * - data-close-modal: Close button (X)
-     */
-    document.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement
-      if (!target) return
+    // Set up handlers for inactivity warning modal
+    const inactivityModal = document.getElementById(
+      `${SessionModalType.INACTIVITY}-modal`,
+    )
+    if (inactivityModal) {
+      // Handle extend session button
+      const extendButton = inactivityModal.querySelector('[data-modal-primary]')
+      extendButton?.addEventListener('click', () => {
+        const form = document.getElementById(
+          'extend-session-form',
+        ) as HTMLFormElement
+        form?.requestSubmit()
+      })
 
-      const modalType = target.getAttribute('data-modal-type')
-      if (!modalType) return
-
-      if (target.hasAttribute('data-modal-primary')) {
-        if (modalType === 'session-inactivity-warning') {
-          // submit the extend session form to /extend-session endpoint.
-          const form = document.getElementById(
-            'extend-session-form',
-          ) as HTMLFormElement
-          form?.requestSubmit()
-        } else if (modalType === 'session-length-warning') {
-          this.logout()
-        }
-      } else if (
-        target.hasAttribute('data-modal-secondary') ||
-        target.hasAttribute('data-close-modal')
-      ) {
-        this.hideModal(modalType)
-        if (modalType === 'session-inactivity-warning') {
+      // Handle dismiss/close buttons
+      const closeButtons = inactivityModal.querySelectorAll(
+        '[data-modal-secondary], [data-close-modal]',
+      )
+      closeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          hideUswdsModal(SessionModalType.INACTIVITY)
           this.inactivityWarningShown = false
-        } else if (modalType === 'session-length-warning') {
-          this.totalLengthWarningShown = false
-        }
-        this.checkAndSetTimer()
-      }
-    })
-  }
+          this.checkAndSetTimer()
+        })
+      })
+    }
 
-  /**
-   * Hides the specified modal by adding the 'is-hidden' class.
-   * Updates visibility tracking flags when hiding a modal.
-   *
-   * @param modalType Type of modal to hide ('session-inactivity-warning' or 'session-length-warning')
-   */
-  private static hideModal(modalType: string) {
-    const modal = document.getElementById(`${modalType}-modal`)
-    if (modal) {
-      modal.classList.add('is-hidden')
+    // Set up handlers for session length warning modal
+    const lengthModal = document.getElementById(
+      `${SessionModalType.LENGTH}-modal`,
+    )
+    if (lengthModal) {
+      // Handle logout button
+      const logoutButton = lengthModal.querySelector('[data-modal-primary]')
+      logoutButton?.addEventListener('click', () => {
+        this.logout()
+      })
+
+      // Handle dismiss/close buttons
+      const closeButtons = lengthModal.querySelectorAll(
+        '[data-modal-secondary], [data-close-modal]',
+      )
+      closeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          hideUswdsModal(SessionModalType.LENGTH)
+          this.totalLengthWarningShown = false
+          this.checkAndSetTimer()
+        })
+      })
     }
   }
 
@@ -362,8 +366,8 @@ export class SessionTimeoutHandler {
     // Get the appropriate modal element
     const modalId =
       type === WarningType.INACTIVITY
-        ? 'session-inactivity-warning-modal'
-        : 'session-length-warning-modal'
+        ? `${SessionModalType.INACTIVITY}-modal`
+        : `${SessionModalType.LENGTH}-modal`
     const modal = document.getElementById(modalId)
     if (!modal) {
       console.error(`Modal with ID ${modalId} not found`)

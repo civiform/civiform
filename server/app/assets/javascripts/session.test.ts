@@ -18,13 +18,10 @@ describe('SessionTimeoutHandler', () => {
   let extendSessionForm: HTMLFormElement
   let consoleSpy: ReturnType<typeof jest.spyOn>
 
-  beforeEach(() => {
-    // Set up DOM elements
-    container = document.createElement('div')
-    container.id = 'session-timeout-modals'
-    document.body.appendChild(container)
-
-    // Create inactivity warning modal with new structure
+  /**
+   * Create inactivity warning modal with new structure
+   */
+  function createInactivityModal() {
     inactivityModal = document.createElement('div')
     inactivityModal.id = 'session-inactivity-warning-modal'
     inactivityModal.classList.add('is-hidden', 'usa-modal')
@@ -32,74 +29,40 @@ describe('SessionTimeoutHandler', () => {
       'data-modal-type',
       'session-inactivity-warning',
     )
-    container.appendChild(inactivityModal)
 
-    // Create extend session form
+    createExtendSessionForm()
+    addSecondaryButton(inactivityModal, 'session-inactivity-warning')
+    addCloseButton(inactivityModal)
+    container.appendChild(inactivityModal)
+  }
+
+  /**
+   * Create extend session form
+   */
+  function createExtendSessionForm() {
     extendSessionForm = document.createElement('form')
     extendSessionForm.id = 'extend-session-form'
     extendSessionForm.setAttribute('hx-post', '/extend-session')
     extendSessionForm.setAttribute('hx-target', 'this')
     extendSessionForm.setAttribute('hx-swap', 'none')
-
-    // Add CSRF token input
-    const csrfInput = document.createElement('input')
-    csrfInput.setAttribute('name', 'csrfToken')
-    csrfInput.value = 'test-csrf-token'
-    extendSessionForm.appendChild(csrfInput)
-
-    // Create primary button (extend session)
-    const primaryButton = document.createElement('button')
-    primaryButton.textContent = 'Extend Session'
-    primaryButton.classList.add('usa-button')
-    primaryButton.setAttribute('data-modal-primary', '')
-    primaryButton.setAttribute('data-modal-type', 'session-inactivity-warning')
-    extendSessionForm.appendChild(primaryButton)
-
+    addCsrfToken()
+    addExtendSessionButton()
     inactivityModal.appendChild(extendSessionForm)
+  }
 
-    // Create secondary button (cancel)
-    const secondaryButton = document.createElement('button')
-    secondaryButton.textContent = 'Cancel'
-    secondaryButton.classList.add('usa-button', 'usa-button--unstyled')
-    secondaryButton.setAttribute('data-modal-secondary', '')
-    secondaryButton.setAttribute(
-      'data-modal-type',
-      'session-inactivity-warning',
-    )
-    inactivityModal.appendChild(secondaryButton)
+  /**
+   * Creates modal container that holds all session timeout related modals
+   */
+  function createModalContainer() {
+    container = document.createElement('div')
+    container.id = 'session-timeout-modals'
+    document.body.appendChild(container)
+  }
 
-    // Create close button
-    const closeButton = document.createElement('button')
-    closeButton.textContent = 'Close'
-    closeButton.classList.add('usa-button', 'usa-modal__close')
-    closeButton.setAttribute('data-close-modal', '')
-    closeButton.setAttribute('data-modal-type', 'session-inactivity-warning')
-    inactivityModal.appendChild(closeButton)
-
-    // Create session length warning modal
-    lengthModal = document.createElement('div')
-    lengthModal.id = 'session-length-warning-modal'
-    lengthModal.classList.add('is-hidden', 'usa-modal')
-    lengthModal.setAttribute('data-modal-type', 'session-length-warning')
-    container.appendChild(lengthModal)
-
-    // Create primary button (logout)
-    const logoutButton = document.createElement('button')
-    logoutButton.textContent = 'Logout'
-    logoutButton.classList.add('usa-button')
-    logoutButton.setAttribute('data-modal-primary', '')
-    logoutButton.setAttribute('data-modal-type', 'session-length-warning')
-    lengthModal.appendChild(logoutButton)
-
-    // Create secondary button (cancel)
-    const lengthCancelButton = document.createElement('button')
-    lengthCancelButton.textContent = 'Cancel'
-    lengthCancelButton.classList.add('usa-button', 'usa-button--unstyled')
-    lengthCancelButton.setAttribute('data-modal-secondary', '')
-    lengthCancelButton.setAttribute('data-modal-type', 'session-length-warning')
-    lengthModal.appendChild(lengthCancelButton)
-
-    // Add localized message elements
+  /**
+   * Creates localized message elements for session timeout notifications
+   */
+  function createMessageContainer() {
     const messageContainer = document.createElement('div')
     messageContainer.id = 'session-timeout-messages'
     messageContainer.classList.add('is-hidden')
@@ -113,9 +76,99 @@ describe('SessionTimeoutHandler', () => {
     errorText.id = 'session-extended-error-text'
     errorText.textContent = 'Failed to extend session'
     messageContainer.appendChild(errorText)
-
     container.appendChild(messageContainer)
+  }
 
+  /**
+   * Creates session length warning modal with buttons
+   */
+  function createLengthWarningModal() {
+    lengthModal = document.createElement('div')
+    lengthModal.id = 'session-length-warning-modal'
+    lengthModal.classList.add('is-hidden', 'usa-modal')
+    lengthModal.setAttribute('data-modal-type', 'session-length-warning')
+
+    // Create primary button (logout)
+    const logoutButton = document.createElement('button')
+    logoutButton.textContent = 'Logout'
+    logoutButton.classList.add('usa-button')
+    logoutButton.setAttribute('data-modal-primary', '')
+    logoutButton.setAttribute('data-modal-type', 'session-length-warning')
+    lengthModal.appendChild(logoutButton)
+
+    // Create secondary button (cancel)
+    const cancelButton = document.createElement('button')
+    cancelButton.textContent = 'Cancel'
+    cancelButton.classList.add('usa-button', 'usa-button--unstyled')
+    cancelButton.setAttribute('data-modal-secondary', '')
+    cancelButton.setAttribute('data-modal-type', 'session-length-warning')
+    lengthModal.appendChild(cancelButton)
+    container.appendChild(lengthModal)
+  }
+
+  /**
+   * Adds CSRF token input to a form
+   */
+  function addCsrfToken() {
+    const csrfInput = document.createElement('input')
+    csrfInput.setAttribute('name', 'csrfToken')
+    csrfInput.value = 'test-csrf-token'
+    extendSessionForm.appendChild(csrfInput)
+  }
+
+  /**
+   * Adds extend session button to a form
+   */
+  function addExtendSessionButton() {
+    const primaryButton = document.createElement('button')
+    primaryButton.textContent = 'Extend Session'
+    primaryButton.classList.add('usa-button')
+    primaryButton.setAttribute('data-modal-primary', '')
+    primaryButton.setAttribute('data-modal-type', 'session-inactivity-warning')
+    extendSessionForm.appendChild(primaryButton)
+  }
+
+  /**
+   * Adds secondary (cancel) button to a modal
+   * @param modal Modal element to add button to
+   * @param modalType Type of modal (for data attribute)
+   */
+  function addSecondaryButton(modal: HTMLElement, modalType: string) {
+    const button = document.createElement('button')
+    button.textContent = 'Cancel'
+    button.classList.add('usa-button', 'usa-button--unstyled')
+    button.setAttribute('data-modal-secondary', '')
+    button.setAttribute('data-modal-type', modalType)
+    modal.appendChild(button)
+  }
+
+  /**
+   * Adds close button to a modal
+   * @param modal Modal element to add button to
+   */
+  function addCloseButton(modal: HTMLElement) {
+    const closeButton = document.createElement('button')
+    closeButton.textContent = 'Close'
+    closeButton.classList.add('usa-button', 'usa-modal__close')
+    closeButton.setAttribute('data-close-modal', '')
+    closeButton.setAttribute('data-modal-type', 'session-inactivity-warning')
+    modal.appendChild(closeButton)
+  }
+
+  /**
+   * Sets up all DOM elements needed for testing
+   */
+  function setupDomElements() {
+    createModalContainer()
+    createInactivityModal()
+    createLengthWarningModal()
+    createMessageContainer()
+  }
+
+  /**
+   * Sets up all test mocks
+   */
+  function setupMocks() {
     // Mock ToastController
     jest.spyOn(ToastController, 'showToastMessage').mockImplementation(() => {})
 
@@ -127,6 +180,11 @@ describe('SessionTimeoutHandler', () => {
       value: {href: ''},
       writable: true,
     })
+  }
+
+  beforeEach(() => {
+    setupDomElements()
+    setupMocks()
   })
 
   afterEach(() => {
