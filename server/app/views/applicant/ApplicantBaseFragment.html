@@ -7,7 +7,7 @@
   <!--/* Best practice: add ❤️ every time you touch this file :) */-->
   <meta
     name="thanks"
-    content="Thank you Bion ❤️❤️❤️❤️, Sijia ⭐️❤️❤️⭐️, Austin ❤️❤️❤️❤️"
+    content="Thank you Bion ❤️❤️❤️❤️❤️, Sijia ⭐️❤️❤️❤️⭐️, Austin ❤️❤️❤️❤️❤️"
   />
 
   <title th:text="${pageTitle}"></title>
@@ -93,3 +93,11 @@
 >
   <path th:attr="d=${icon.path}"></path>
 </svg>
+
+<th:block th:fragment="skipNav">
+  <a
+    class="usa-skipnav"
+    href="#main-content"
+    th:text="#{link.skipToMainContent}"
+  ></a>
+</th:block>
