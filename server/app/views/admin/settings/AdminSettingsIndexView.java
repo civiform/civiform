@@ -209,21 +209,16 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .getSettingDisplayValue(request, settingDescription)
             .filter(v -> !v.isBlank());
 
-    switch (settingDescription.settingType()) {
-      case BOOLEAN:
-        return renderBoolInput(settingDescription, value);
-      case LIST_OF_STRINGS:
-      case STRING:
-        return renderStringInput(settingDescription, value, errorMessages);
-      case ENUM:
-        return renderEnumInput(settingDescription, value);
-      case INT:
-        return renderIntInput(settingDescription, value);
-      default:
-        throw new IllegalStateException(
-            String.format(
-                "Settings of type %s are not writeable", settingDescription.settingType()));
-    }
+    return switch (settingDescription.settingType()) {
+      case BOOLEAN -> renderBoolInput(settingDescription, value);
+      case LIST_OF_STRINGS, STRING -> renderStringInput(settingDescription, value, errorMessages);
+      case ENUM -> renderEnumInput(settingDescription, value);
+      case INT -> renderIntInput(settingDescription, value);
+      default ->
+          throw new IllegalStateException(
+              String.format(
+                  "Settings of type %s are not writeable", settingDescription.settingType()));
+    };
   }
 
   private static DivTag renderIntInput(

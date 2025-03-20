@@ -100,18 +100,12 @@ public final class AdminReportingController extends CiviFormController {
     String csv;
 
     try {
-      switch (DataSetName.valueOf(dataSetName)) {
-        case APPLICATION_COUNTS_BY_MONTH:
-          csv = reportingService.applicationCountsByMonthCsv();
-          break;
-
-        case APPLICATION_COUNTS_BY_PROGRAM:
-          csv = reportingService.applicationCountsByProgramCsv();
-          break;
-
-        default:
-          throw new BadRequestException("Unrecognized DataSetName: " + dataSetName);
-      }
+      csv =
+          switch (DataSetName.valueOf(dataSetName)) {
+            case APPLICATION_COUNTS_BY_MONTH -> reportingService.applicationCountsByMonthCsv();
+            case APPLICATION_COUNTS_BY_PROGRAM -> reportingService.applicationCountsByProgramCsv();
+            default -> throw new BadRequestException("Unrecognized DataSetName: " + dataSetName);
+          };
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new BadRequestException(e.getMessage());
     }

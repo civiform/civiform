@@ -15,7 +15,6 @@ import java.text.ParseException;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.TechnicalException;
@@ -162,16 +161,9 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   }
 
   private boolean enhancedLogoutEnabled() {
-    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
-    // 17).
-    switch (identityProviderType) {
-      case ADMIN_IDENTITY_PROVIDER:
-        return settingsManifest.getAdminOidcEnhancedLogoutEnabled();
-      case APPLICANT_IDENTITY_PROVIDER:
-        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
-      default:
-        throw new NotImplementedException(
-            "Identity provider type not handled: " + identityProviderType);
-    }
+    return switch (identityProviderType) {
+      case ADMIN_IDENTITY_PROVIDER -> settingsManifest.getAdminOidcEnhancedLogoutEnabled();
+      case APPLICANT_IDENTITY_PROVIDER -> settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
+    };
   }
 }
