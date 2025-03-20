@@ -33,8 +33,9 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main id="main-content" tabindex="-1">
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
         id="top-content"
