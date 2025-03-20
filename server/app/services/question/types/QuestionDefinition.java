@@ -404,8 +404,7 @@ public abstract class QuestionDefinition {
   }
 
   private boolean idEquals(Object other) {
-    if (other instanceof QuestionDefinition) {
-      QuestionDefinition o = (QuestionDefinition) other;
+    if (other instanceof QuestionDefinition o) {
 
       return this.isPersisted() == o.isPersisted()
           && (!this.isPersisted() || this.getId() == o.getId());
@@ -421,8 +420,7 @@ public abstract class QuestionDefinition {
    * <p>This checks all other fields ignoring the id.
    */
   private boolean equalsIgnoreId(Object other) {
-    if (other instanceof QuestionDefinition) {
-      QuestionDefinition o = (QuestionDefinition) other;
+    if (other instanceof QuestionDefinition o) {
 
       return getQuestionType().equals(o.getQuestionType())
           && getName().equals(o.getName())
