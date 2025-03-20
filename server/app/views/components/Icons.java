@@ -469,21 +469,8 @@ public enum Icons {
   /**
    * Returns SVG element for given question. Note that callers need to size this element using
    * Tailwind classes like any other element.
-   *
-   * <p>public static SvgTag questionTypeSvg(QuestionType type) { Icons icon; switch (type) { case
-   * ADDRESS: icon = Icons.ADDRESS; break; case CHECKBOX: icon = Icons.CHECKBOX; break; case
-   * CURRENCY: return svg(Icons.CURRENCY) .attr("fill", "none") .attr("stroke-linecap", "round")
-   * .attr("stroke-linejoin", "round") .attr("stroke-width", "2"); case DATE: icon = Icons.DATE;
-   * break; case DROPDOWN: icon = Icons.DROPDOWN; break; case EMAIL: icon = Icons.EMAIL; break; case
-   * FILEUPLOAD: icon = Icons.FILEUPLOAD; break; case ID: icon = Icons.ID; break; case NAME: icon =
-   * Icons.NAME; break; case NUMBER: icon = Icons.NUMBER; break; case RADIO_BUTTON: icon =
-   * Icons.RADIO_BUTTON; break; case ENUMERATOR: icon = Icons.ENUMERATOR; break; case STATIC: return
-   * svg(Icons.ANNOTATION) .attr("fill", "none") .attr("stroke-linecap", "round")
-   * .attr("stroke-linejoin", "round") .attr("stroke-width", "2"); case TEXT: icon = Icons.TEXT;
-   * break; case PHONE: icon = Icons.PHONE; break; default: // fall through icon = Icons.UNKNOWN; }
-   * return svg(icon); }
    */
-  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+  public static SvgTag questionTypeSvg(QuestionType type) {
     Icons icon;
     switch (type) {
       case ADDRESS:
@@ -494,10 +481,10 @@ public enum Icons {
         break;
       case CURRENCY:
         return svg(Icons.CURRENCY)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
       case DATE:
         icon = Icons.DATE;
         break;
@@ -527,10 +514,63 @@ public enum Icons {
         break;
       case STATIC:
         return svg(Icons.ANNOTATION)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
+      case TEXT:
+        icon = Icons.TEXT;
+        break;
+      case PHONE:
+        icon = Icons.PHONE;
+        break;
+      default: // fall through
+        icon = Icons.UNKNOWN;
+        return svg(icon);
+    }
+
+  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+    Icons icon;
+    switch (type) {
+      case ADDRESS:
+        icon = Icons.ADDRESS;
+        break;
+      case CHECKBOX:
+        icon = Icons.CHECKBOX;
+        break;
+      case CURRENCY:
+         icon = Icons.CURRENCY;
+         break;
+      case DATE:
+        icon = Icons.DATE;
+        break;
+      case DROPDOWN:
+        icon = Icons.DROPDOWN;
+        break;
+      case EMAIL:
+        icon = Icons.EMAIL;
+        break;
+      case FILEUPLOAD:
+        icon = Icons.FILEUPLOAD;
+        break;
+      case ID:
+        icon = Icons.ID;
+        break;
+      case NAME:
+        icon = Icons.NAME;
+        break;
+      case NUMBER:
+        icon = Icons.NUMBER;
+        break;
+      case RADIO_BUTTON:
+        icon = Icons.RADIO_BUTTON;
+        break;
+      case ENUMERATOR:
+        icon = Icons.ENUMERATOR;
+        break;
+      case STATIC:
+         icon = Icons.ANNOTATION;
+         break;
       case TEXT:
         icon = Icons.TEXT;
         break;
@@ -540,7 +580,7 @@ public enum Icons {
       default: // fall through
         icon = Icons.UNKNOWN;
     }
-    return svg(icon).withId("svg-link-" + icon.name().toLowerCase(Locale.ROOT));
+    return new SvgTag().with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
   }
 
   public static SvgTag questionTypeSvgLink(QuestionType type) {
