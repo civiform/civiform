@@ -304,7 +304,8 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag rowWithAdminNote =
         div()
             .withClasses(
-                ReferenceClasses.QUESTION_BANK_ELEMENT,"question-bank-element",
+                ReferenceClasses.QUESTION_BANK_ELEMENT,
+                "question-bank-element",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
                 getDisplayQuestion(cardData).isUniversal(),
