@@ -370,8 +370,7 @@ public final class ApplicantQuestion {
 
   @Override
   public boolean equals(@Nullable Object object) {
-    if (object instanceof ApplicantQuestion) {
-      ApplicantQuestion that = (ApplicantQuestion) object;
+    if (object instanceof ApplicantQuestion that) {
       return this.getQuestionDefinition().equals(that.getQuestionDefinition())
           && this.applicantData.equals(that.applicantData);
     }

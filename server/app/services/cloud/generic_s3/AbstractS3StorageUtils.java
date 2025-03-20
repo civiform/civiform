@@ -62,8 +62,7 @@ public abstract class AbstractS3StorageUtils {
             .setSuccessActionRedirect(successActionRedirect)
             .setUseSuccessActionRedirectAsPrefix(useSuccessActionRedirectAsPrefix);
 
-    if (awsCredentials instanceof AwsSessionCredentials) {
-      AwsSessionCredentials sessionCredentials = (AwsSessionCredentials) awsCredentials;
+    if (awsCredentials instanceof AwsSessionCredentials sessionCredentials) {
       builder.setSecurityToken(sessionCredentials.sessionToken());
     }
     return builder.build();
