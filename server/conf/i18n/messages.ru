@@ -73,6 +73,8 @@ label.primaryNavigation=Основное меню навигации
 label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
