@@ -526,8 +526,8 @@ public enum Icons {
         break;
       default: // fall through
         icon = Icons.UNKNOWN;
-        return svg(icon);
     }
+    return svg(icon);
   }
 
   public static SvgTag questionTypeSvgWithId(QuestionType type) {
@@ -585,6 +585,10 @@ public enum Icons {
         .with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
   }
 
+  /**
+   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
+   * classes like any other element.
+   */
   public static SvgTag questionTypeSvgLink(QuestionType type) {
     Icons icon;
     switch (type) {
@@ -642,19 +646,12 @@ public enum Icons {
       default: // fall through
         icon = Icons.UNKNOWN;
     }
-    return new SvgTag().with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
+    return new SvgTag()
+        .with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
   }
 
   public String getViewBox() {
     return viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", size, size));
-  }
-
-  /**
-   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
-   * classes like any other element.
-   */
-  private static SvgTag svgLink(Icons icon) {
-    return new SvgTag().with(use(icon.name()));
   }
 
   /**
@@ -681,9 +678,5 @@ public enum Icons {
 
   private static PathTag path(String pathString) {
     return new PathTag().attr("d", pathString);
-  }
-
-  private static UseTag use(String href) {
-    return new UseTag().attr("href", "#svg-link-" + href.toLowerCase(Locale.ROOT));
   }
 }
