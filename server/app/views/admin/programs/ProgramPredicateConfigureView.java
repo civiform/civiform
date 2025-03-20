@@ -485,7 +485,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
     return div()
         .withClasses("my-4", "p-4", "flex", "flex-row", "gap-4", "border", "border-gray-300")
         .with(
-            div(Icons.questionTypeSvg(questionDefinition.getQuestionType())
+            div(Icons.questionTypeSvgWithId(questionDefinition.getQuestionType())
                     .withClasses("shrink-0", "h-12", "w-6"))
                 .withClasses("flex", "items-center"))
         .with(

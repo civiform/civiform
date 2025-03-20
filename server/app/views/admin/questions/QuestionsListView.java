@@ -383,9 +383,9 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
+            .withClasses("question-bank-info-cell")
             .with(
-                Icons.questionTypeSvg(definition.getQuestionType())
+                Icons.questionTypeSvgWithId(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()

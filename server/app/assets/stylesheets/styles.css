@@ -178,4 +178,12 @@
   .question-bank-add-button:hover {
     background-color: #e5e7eb; /* hover:bg-gray-200 */
   }
+  .question-bank-info-cell {
+    font-weight: bold; /* font-bold */
+    align-items: center; /* items-center */
+    color: black; /* text-black */
+    display: flex; /* flex */
+    flex-direction: row; /* flex-row */
+  }
+
 }
