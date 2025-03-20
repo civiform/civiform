@@ -73,6 +73,8 @@ label.primaryNavigation=Primary navigation
 label.agencyIdentifier=Agency identifier,
 # Aria-label for guest session alert
 label.guestSessionAlert=Guest session informational alert
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -86,6 +88,8 @@ content.loginPrompt=Please log in with your {0} account
 button.createAnAccount=Create an account
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Sign in
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Don''t have an account?
 # The text between creating a new account, and becoming a guest
@@ -127,7 +131,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Back
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and exit
+button.reviewAndExit=Review and submit
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -148,6 +152,10 @@ link.allDone=I''m all done
 link.applyToAnotherProgram=Apply to another program
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Create account or sign in
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Remove file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -164,6 +172,18 @@ modal.errorSaving.review.noSaveButton=Continue to review page without saving
 modal.errorSaving.previous.noSaveButton=Continue to previous questions without saving
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Stay and fix your answers
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Some answers on this page need to be fixed
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=This page of your application either has some errors or some fields were left blank. If you continue to the review page, none of the information entered on this page will be saved until the errors are corrected.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=This page of your application either has some errors or some fields were left blank. If you continue to the previous page, none of the information entered on this page will be saved until the errors are corrected.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Go to the review page without saving
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Go to the previous page without saving
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Stay here and fix your answers
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -181,6 +201,8 @@ button.editSr=Edit submitted application to {0}
 button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Start survey
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=View and apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -561,6 +583,10 @@ title.applicationConfirmation=Application confirmation
 content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Create an account or sign in
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Sign in with an account
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=You can check the status of an application, make changes to it, and apply to other programs quickly when you create an account.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
@@ -704,6 +730,10 @@ validation.phoneMustBeLocalToCountry=The phone you have provided does not belong
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Please enter a date in the correct format
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,8 +927,6 @@ email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has ch
 #------------------------------------------------------------------------------#
 
 banner.title=This is an official government website.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=An official website of the United States government
 banner.link=Here''s how you know
 banner.govWebsiteSectionHeader=Official websites use .gov
 banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
@@ -963,3 +991,28 @@ category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Session Inactivity Warning
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Session Length Warning
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Extend Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Session successfully extended
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Failed to extend session

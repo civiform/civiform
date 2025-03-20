@@ -4,9 +4,10 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(${programTitle}, ${programShortDescription})}"
       ></div>
@@ -61,7 +62,6 @@
 
               <div class="section-internal">
                 <a
-                  th:if="${isApplicationExportable}"
                   th:href="${downloadHref}"
                   class="usa-button"
                   th:text="#{button.downloadApplication}"
@@ -69,11 +69,11 @@
               </div>
 
               <section
-                th:if="${not #strings.isEmpty(customConfirmationMessage)}"
+                th:if="${not #strings.isEmpty(customConfirmationMessageHtml)}"
                 class="usa-prose section-internal"
               >
                 <h2 th:text="#{heading.nextSteps}"></h2>
-                <p th:text="${customConfirmationMessage}"></p>
+                <p th:utext="${customConfirmationMessageHtml}"></p>
               </section>
 
               <div th:if="${isGuest}">
@@ -105,20 +105,19 @@
         </div>
       </div>
 
+      <!--/* Program cards */-->
       <section th:if="${showProgramsCardsSection}" class="section-external">
         <div class="grid-container">
           <div class="grid-row">
-            <div class="tablet:grid-col-8">
-              <div class="usa-prose">
-                <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
-              </div>
+            <div class="tablet:grid-col-8 usa-prose">
+              <h2 th:text="#{content.otherProgramsToApplyFor}"></h2>
             </div>
           </div>
-        </div>
-        <div class="section-internal">
-          <div
-            th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
-          ></div>
+          <div class="section-internal">
+            <div
+              th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+            ></div>
+          </div>
         </div>
       </section>
 

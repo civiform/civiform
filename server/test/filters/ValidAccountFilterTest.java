@@ -12,14 +12,16 @@ import auth.ProfileUtils;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import javax.inject.Provider;
 import models.AccountModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
-import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.test.WithApplication;
+import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 public class ValidAccountFilterTest extends WithApplication {
@@ -30,135 +32,71 @@ public class ValidAccountFilterTest extends WithApplication {
   private CiviFormProfile mockProfile;
   private CiviFormProfileData mockProfileData;
   private AccountModel mockAccount;
+  private SessionTimeoutService sessionTimeoutService;
+  private Clock clock;
 
   @Before
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
+    sessionTimeoutService = mock(SessionTimeoutService.class);
+    clock = mock(Clock.class);
+    Provider<SettingsManifest> settingsManifestProvider = () -> this.settingsManifest;
+
     filter =
-        new ValidAccountFilter(profileUtils, () -> settingsManifest, mat, instanceOf(Clock.class));
+        new ValidAccountFilter(
+            profileUtils, settingsManifestProvider, mat, clock, () -> sessionTimeoutService);
 
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
     mockAccount = mock(AccountModel.class);
-
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
     when(mockProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(mockAccount));
+
+    // Default setup for session timeout service
+    when(sessionTimeoutService.isSessionTimedOut(any()))
+        .thenReturn(CompletableFuture.completedFuture(false));
   }
 
   @Test
   public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
+    Result result = executeFilter(request);
 
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
-
-    // when session timeout is disabled, we don't update last activity time
     verify(mockProfileData, never()).updateLastActivityTime(any());
     assertThat(result.status()).isEqualTo(200);
   }
 
   @Test
   public void testValidProfile_sessionTimeoutEnabled_updatesLastActivityTime() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
-    long currentTime = System.currentTimeMillis();
-    long lastActivityTime = currentTime - (1 * 60 * 1000);
-    when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
+    Result result = executeFilter(request);
 
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
-
-    verify(mockProfileData).updateLastActivityTime(any());
+    verify(mockProfileData).updateLastActivityTime(clock);
     assertThat(result.status()).isEqualTo(200);
   }
 
   @Test
-  public void testInvalidProfile_redirectsToLogout() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
-
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
-
-    assertThat(result.status()).isEqualTo(303);
-    assertThat(result.redirectLocation()).hasValue("/logout");
-  }
-
-  @Test
-  public void testInactivityTimeout_sessionTimeoutEnabled_redirectsToLogout() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+  public void testSessionTimeout_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-    when(settingsManifest.getSessionInactivityTimeoutMinutes()).thenReturn(Optional.of(30));
+    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
 
-    long currentTime = System.currentTimeMillis();
-    long lastActivityTime = currentTime - (31 * 60 * 1000);
-    when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(lastActivityTime)));
-
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
-
-    assertThat(result.status()).isEqualTo(303);
-    assertThat(result.redirectLocation()).hasValue("/logout");
-  }
-
-  @Test
-  public void testSessionDurationExceeded_sessionTimeoutEnabled_redirectsToLogout()
-      throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-    when(settingsManifest.getSessionInactivityTimeoutMinutes()).thenReturn(Optional.of(30));
-    when(settingsManifest.getMaximumSessionDurationMinutes()).thenReturn(Optional.of(600));
-
-    long currentTime = System.currentTimeMillis();
-    long sessionStartTime = currentTime - (601 * 60 * 1000);
-    long lastActivityTime = currentTime - (5 * 60 * 1000);
-
-    when(mockProfileData.getLastActivityTime(any())).thenReturn(lastActivityTime);
-    when(mockProfile.getSessionStartTime())
-        .thenReturn(CompletableFuture.completedFuture(Optional.of(sessionStartTime)));
-
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
+    Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(303);
     assertThat(result.redirectLocation()).hasValue("/logout");
@@ -166,71 +104,70 @@ public class ValidAccountFilterTest extends WithApplication {
 
   @Test
   public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
     // Session ID not found in active sessions
     when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
     when(mockProfileData.getSessionId()).thenReturn("session123");
 
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
+    Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(303); // Redirect status
     assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
   @Test
-  public void testAllowedEndpoint_bypassesFilter() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/playIndex");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+  public void testInvalidProfile_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
 
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
+    Result result = executeFilter(request);
 
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
+  }
+
+  @Test
+  public void testAllowedEndpoint_bypassesFilter() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/playIndex").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
+
+    Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
   }
 
   @Test
   public void testLogoutRequest_bypassesFilter() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/logout");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/logout").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
 
-    EssentialAction action =
-        filter.apply(
-            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
+    Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
   }
 
   @Test
   public void testNoProfile_bypassesFilter() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.empty());
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  private Result executeFilter(RequestHeader request) throws Exception {
     EssentialAction action =
         filter.apply(
             EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
-
-    Result result = action.apply(request.build()).run(mat).toCompletableFuture().get();
-
-    assertThat(result.status()).isEqualTo(200);
+    return action.apply(request).run(mat).toCompletableFuture().get();
   }
 }

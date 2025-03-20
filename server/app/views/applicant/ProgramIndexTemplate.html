@@ -1,9 +1,9 @@
-<!--/* 
-  Shows list of programs.  
-  
+<!--/*
+  Shows list of programs.
+
   Parameters:
 
-  isGuest: Boolean 
+  isGuest: Boolean
     True if the user is a guest, false if user is logged in.
 
   section: List<ProgramSectionParams>
@@ -33,8 +33,9 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
-    <main>
+    <main id="main-content" tabindex="-1">
       <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
       <div
         id="top-content"
@@ -47,20 +48,26 @@
       </div>
       <div
         id="programs-list"
-        class="grid-container padding-section-large usa-prose"
+        class="grid-container padding-section-large-three-sides usa-prose"
       >
         <div th:if="${commonIntakeSection.isPresent()}">
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${commonIntakeSection.get()})}"
           ></div>
         </div>
-        <div th:if="${myApplicationsSection.isPresent()}" class="usa-prose">
-          <h2 th:text="#{title.myApplicationsSection.v2}"></h2>
+        <th:block th:if="${myApplicationsSection.isPresent()}">
+          <h2
+            th:text="#{title.myApplicationsSection.v2}"
+            class="cf-below-cards"
+          ></h2>
           <div
             th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${myApplicationsSection.get()})}"
           ></div>
-        </div>
-        <h2 th:text="#{title.availableProgramsSection}"></h2>
+        </th:block>
+        <h2
+          th:text="#{title.availableProgramsSection}"
+          class="cf-below-cards"
+        ></h2>
         <div
           th:replace="~{applicant/ProgramFiltersFragment :: programFiltersFragment(${categoryOptions}, ${applicantId})}"
         ></div>

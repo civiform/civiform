@@ -7,6 +7,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iff;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
@@ -38,6 +39,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
@@ -80,9 +82,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final LanguageUtils languageUtils;
   private final LanguageSelector languageSelector;
   private final boolean isDevOrStaging;
-  private final DebugContent debugContent;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
+  private final MessagesApi messagesApi;
 
   @Inject
   public ApplicantLayout(
@@ -93,21 +95,28 @@ public class ApplicantLayout extends BaseHtmlLayout {
       LanguageUtils languageUtils,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      DebugContent debugContent,
       AssetsFinder assetsFinder,
-      PageNotProductionBanner pageNotProductionBanner) {
+      PageNotProductionBanner pageNotProductionBanner,
+      MessagesApi messagesApi) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.debugContent = debugContent;
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
+    // Add the session timeout modals to the bundle if the profile is present
+    Optional<CiviFormProfile> profile =
+        profileUtils.optionalCurrentUserProfile(bundle.getRequest());
+    if (profile.isPresent()) {
+      addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
+    }
+
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
@@ -174,10 +183,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col")
             .with(
-                div()
-                    .condWith(
-                        getSettingsManifest().getShowCiviformImageTagOnLandingPage(request),
-                        debugContent.civiformVersionDiv()),
                 div()
                     .with(
                         span(
@@ -310,7 +315,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .with(
                     p(
-                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        iff(
+                            !settingsManifest.getHideCivicEntityNameInHeader(request),
+                            b(settingsManifest.getWhitelabelCivicEntityShortName(request).get())),
                         span(text(" CiviForm")))));
   }
 

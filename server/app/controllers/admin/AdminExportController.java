@@ -21,7 +21,6 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
 
@@ -41,7 +40,6 @@ public class AdminExportController extends CiviFormController {
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminExportController(
@@ -51,7 +49,6 @@ public class AdminExportController extends CiviFormController {
       ProgramMigrationService programMigrationService,
       ProgramService programService,
       QuestionService questionService,
-      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.adminExportView = checkNotNull(adminExportView);
@@ -59,15 +56,10 @@ public class AdminExportController extends CiviFormController {
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, Long programId) {
-    if (!settingsManifest.getProgramMigrationEnabled()) {
-      return notFound("Program export is not enabled");
-    }
-
     ProgramDefinition program;
     try {
       program = programService.getFullProgramDefinition(programId);

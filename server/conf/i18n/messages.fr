@@ -37,9 +37,9 @@ header.menu=Menu
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Fermer la session
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=Attention : {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=Opération réussie : {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Votre session a été fermée.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -86,6 +86,8 @@ content.loginPrompt=Veuillez vous connecter avec votre compte {0}.
 button.createAnAccount=Créer un compte
 # The text on the button an applicant clicks to log in to their session.
 button.login=Se connecter
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Se connecter
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Vous n''avez pas de compte ?
 # The text between creating a new account, and becoming a guest
@@ -127,7 +129,7 @@ button.previousScreen=Précédent
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Retour
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Examiner et quitter
+button.reviewAndExit=Vérifier et envoyer
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Passer
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -148,6 +150,10 @@ link.allDone=J''ai terminé
 link.applyToAnotherProgram=S''inscrire à un autre programme
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Créer un compte ou se connecter
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Supprimer un fichier
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -164,6 +170,18 @@ modal.errorSaving.review.noSaveButton=Accéder à la page de vérification sans 
 modal.errorSaving.previous.noSaveButton=Retourner aux questions précédentes sans enregistrer
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Rester sur la page et corriger
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Certaines réponses sur cette page doivent être corrigées
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=Cette page de votre demande contient des erreurs ou des champs non renseignés. Si vous passez à la page de vérification sans corriger ces erreurs, aucune des informations saisies sur cette page ne sera enregistrée.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=Cette page de votre demande contient des erreurs ou des champs non renseignés. Si vous retournez à la page précédente sans corriger ces erreurs, aucune des informations saisies sur cette page ne sera enregistrée.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Accéder à la page de vérification sans enregistrer
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Retourner à la page précédente sans enregistrer
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Rester et corriger les réponses
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -181,6 +199,8 @@ button.editSr=Modifier la demande d'inscription au {0} envoyée
 button.continueSr=Continuer la demande d'inscription au {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Commencer
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Répondre à l''enquête
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Afficher et faire une demande
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -202,16 +222,16 @@ content.findProgramsDescription=CiviForm vous aide à trouver des programmes aux
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
 # Main home page heading
-heading.homepage=Demandez à vous inscrire à des programmes au même endroit
+heading.homepage=Demandez une aide gouvernementale
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
 # Main home page intro text
-content.homepageIntro=Obtenez de l''aide pour la garde d''enfants, l''alimentation, les transports, l''énergie et plus.
+content.homepageIntro=Pour obtenir de l''aide pour l''alimentation, les transports, la garde d''enfants, l''énergie et plus, cliquez sur une des options ci-dessous. Vous ne pouvez demander votre inscription qu''à un programme à la fois.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # The label for the program filter checkboxes
-label.programFilters.v2=Filtrer par catégorie
+label.programFilters.v2=De quel type d''aide avez-vous besoin ?
 # The button to apply program filters
 button.applySelections=Appliquer les sélections
 # The button to clear program filter selections
@@ -243,7 +263,7 @@ title.otherProgramsSection.v2=Autres programmes et services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programmes et services ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Programmes et services disponibles
+title.availableProgramsSection=Programmes et services
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Programmes correspondant à vos choix ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -561,6 +581,10 @@ title.applicationConfirmation=Confirmation de la demande d''inscription
 content.confirmed=Merci pour votre demande d''inscription au {0}.  Nous l''avons bien reçue. Voici l''identifiant de votre demande : {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Créez un compte ou connectez-vous
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Connectez-vous avec un compte
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Un compte vous permet de consulter l''état d''une demande, de la modifier et de vous inscrire rapidement à d''autres programmes.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Connectez-vous à votre compte {0} ou créez-en un pour pouvoir enregistrer vos informations. Vous pourrez revenir à tout moment pour terminer vos futures demandes d''inscription. Si vous n''avez pas encore de compte, vous pourrez en créer un à la page de connexion pour ne pas perdre les données que vous avez déjà saisies.
@@ -611,9 +635,9 @@ heading.nextSteps=Quelles sont les prochaines étapes ?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Vous avez envoyé votre demande d''inscription au {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Créez un compte pour enregistrer les informations de votre demande d''inscription
+alert.createAccount=Créez un compte pour accéder plus tard à votre demande
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Utilisez un compte pour vous reconnecter et vérifier l''état de votre demande d''inscription, et pour gagner du temps lorsque vous souhaitez vous inscrire à d''autres programmes.
+alert.createAccountDescription=En enregistrant vos informations dans un compte, vous pourrez consulter l''état d''une demande et vous inscrire rapidement à d''autres programmes.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Se connecter à un compte existant
 
@@ -704,6 +728,10 @@ validation.phoneMustBeLocalToCountry=Le numéro de téléphone que vous avez sai
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Veuillez saisir une date au format correct
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - janvier
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,8 +925,6 @@ email.tiApplicationUpdateBody=L''état de la demande d''inscription au programme
 #------------------------------------------------------------------------------#
 
 banner.title=Ce site est un site Web gouvernemental officiel.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Un site Web officiel du gouvernement des États-Unis
 banner.link=Voici comment vous en assurer
 banner.govWebsiteSectionHeader=L''adresse des sites Web officiels se termine par .gov
 banner.govWebsiteSectionContent=Les sites Web dont l''adresse se termine par .gov appartiennent à des organismes officiels du gouvernement américain.
@@ -918,7 +944,7 @@ banner.notForProductionBannerLine2=Pour vous inscrire à un programme ou à un s
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Vous effectuez une demande d''inscription en tant qu''invité. À la fin de celle-ci, {0} pour protéger vos données.
+banner.guestBannerText=Une fois votre demande envoyée, {0} pour protéger vos données.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=fermez votre session
 
@@ -963,3 +989,28 @@ category.tag.transportation=Transports
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Énergie
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Session Inactivity Warning
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Session Length Warning
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Extend Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Session successfully extended
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Failed to extend session

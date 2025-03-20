@@ -202,6 +202,7 @@ public final class JsonExporterService {
                 .orElse(EMPTY_VALUE))
         .setSubmitTime(application.getSubmitTime())
         .setStatus(application.getLatestStatus())
+        .setStatusLastModifiedTime(application.getStatusLastModifiedTime())
         .setApplicationNote(application.getLatestNote())
         .setRevisionState(toRevisionState(application.getLifecycleStage()))
         // TODO(#9212): There should never be duplicate entries because question paths should be
@@ -251,6 +252,16 @@ public final class JsonExporterService {
         .ifPresentOrElse(
             applicationNote -> jsonApplication.putString(notePath, applicationNote),
             () -> jsonApplication.putNull(notePath));
+
+    Path statusLastModiedTimePath = Path.create("status_last_modified_time");
+    applicationExportData
+        .statusLastModifiedTime()
+        .ifPresentOrElse(
+            statusLastModifiedTime ->
+                jsonApplication.putString(
+                    statusLastModiedTimePath,
+                    dateConverter.renderDateTimeIso8601ExtendedOffset(statusLastModifiedTime)),
+            () -> jsonApplication.putNull(statusLastModiedTimePath));
 
     exportApplicationEntriesToJsonApplication(
         jsonApplication, applicationExportData.applicationEntries());
@@ -343,6 +354,8 @@ public final class JsonExporterService {
 
     public abstract Optional<String> status();
 
+    public abstract Optional<Instant> statusLastModifiedTime();
+
     public abstract RevisionState revisionState();
 
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
@@ -375,6 +388,8 @@ public final class JsonExporterService {
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
+
+      public abstract Builder setStatusLastModifiedTime(Optional<Instant> statusLastModifiedTime);
 
       public abstract Builder setApplicationNote(Optional<String> applicationNote);
 

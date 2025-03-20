@@ -97,6 +97,11 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                               .addProperty(
                                                   "status", new StringSchema().nullable(true))
                                               .addProperty(
+                                                  "status_last_modified_time",
+                                                  new StringSchema()
+                                                      .format("date-time")
+                                                      .nullable(true))
+                                              .addProperty(
                                                   "submit_time",
                                                   new StringSchema().format("date-time"))
                                               .addProperty("submitter_type", new StringSchema())

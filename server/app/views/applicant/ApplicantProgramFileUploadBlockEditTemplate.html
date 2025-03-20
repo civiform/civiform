@@ -4,8 +4,11 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main
+      id="main-content"
+      tabindex="-1"
       role="main"
       th:with="question=${applicationParams.block().getQuestions().get(0)},
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
@@ -14,10 +17,17 @@
       <div th:replace="~{components/ToastFragment :: blockEditToasts}"></div>
 
       <div
+        th:replace="~{applicant/BreadcrumbFragment :: breadcrumb(
+          ${applicationParams.programTitle()},
+          ${homeUrl},
+          ${programOverviewUrl})}"
+      ></div>
+      <div
         th:replace="~{applicant/TitleAndDescriptionFragment :: titleAndDescriptionFragment(
           ${applicationParams.programTitle()},
           ${applicationParams.programShortDescription()})}"
       ></div>
+
       <div
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
@@ -58,7 +68,7 @@
               <div
                 th:text="#{label.uploading}"
                 role="alert"
-                class="cf-file-uploading-tag padding-1 display-inline-block"
+                class="cf-file-uploading-tag padding-1"
               ></div>
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"

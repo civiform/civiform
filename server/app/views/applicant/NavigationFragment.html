@@ -25,7 +25,17 @@
               />
             </div>
             <em class="usa-logo__text">
-              <span th:text="${civicEntityShortName}"></span>
+              <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name on destop (when the logo appears) */-->
+              <span
+                class="cf-gov-name desktop:display-none"
+                th:if="${hideCivicEntityName}"
+                th:text="${civicEntityShortName}"
+              ></span>
+              <!--/* This span is added only if the flag to hide the government name is disabled */-->
+              <span
+                th:if="${!hideCivicEntityName}"
+                th:text="${civicEntityShortName}"
+              ></span>
               <span>CiviForm</span>
             </em>
           </a>
@@ -68,6 +78,11 @@
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
   <div th:replace="~{this :: tiAlert}"></div>
+  <th:block th:if="${sessionTimeoutEnabled}">
+    <th:div
+      th:replace="~{applicant/ModalFragment :: sessionTimeoutModals}"
+    ></th:div>
+  </th:block>
 </th:block>
 
 <section
@@ -80,10 +95,7 @@
     <header class="usa-banner__header">
       <div class="usa-banner__inner">
         <div class="grid-col-fill tablet:grid-col-auto">
-          <p
-            class="usa-banner__header-text"
-            th:text="#{banner.northStarTitle}"
-          ></p>
+          <p class="usa-banner__header-text" th:text="#{banner.title}"></p>
           <p class="usa-banner__header-action" th:text="#{banner.link}"></p>
         </div>
         <button
@@ -187,7 +199,6 @@
     </div>
   </div>
 </section>
-
 <div th:fragment="tiAlert" th:if="${isTrustedIntermediary}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
@@ -242,6 +253,7 @@
       class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.login}"
       id="login-button"
+      data-testid="login-button"
       th:href="${loginLink}"
     ></a>
   </th:block>
@@ -312,9 +324,19 @@
             <div
               class="grid-col-auto mobile-lg:grid-col-12 desktop:grid-col-auto"
             >
+              <!--/* We construct the link inline instead of using a fragment
+                since ${supportEmail} won't be recognized when the fragment is
+                evaluated at insertion time */-->
               <div
                 class="usa-footer__contact-info expanding-div"
-                th:utext="#{footer.technicalSupport(~{this :: technicalSupportLink})}"
+                th:with="supportLink='<a class=\'usa-link\' '
+                  + 'href=\'mailto:' + ${supportEmail} + '\' '
+                  + 'target=\'_blank\' '
+                  + 'rel=\'noopener noreferrer\'>'
+                  + ${supportEmail}
+                  + '</a>'"
+                th:utext="#{footer.technicalSupport(${supportLink})}"
+                data-testid="supportEmail"
               ></div>
             </div>
           </div>
@@ -351,11 +373,19 @@
   ></div>
 </footer>
 
-<a
-  th:fragment="technicalSupportLink"
-  class="usa-link"
-  href="mailto:civiform-dev@exygy.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  >civiform-dev@exygy.com</a
+<section
+  th:fragment="adminPreviewBackButton(goBackToAdminUrl)"
+  class="grid-container section"
+  th:if="${userIsAdmin}"
 >
+  <div class="grid-row">
+    <div class="tablet:grid-col-8 usa-prose">
+      <a th:href="${goBackToAdminUrl}">
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${goBackIcon})}"
+        ></svg>
+        Back to admin view
+      </a>
+    </div>
+  </div>
+</section>

@@ -15,8 +15,11 @@ import {Page} from 'playwright'
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
-  const customConfirmationText =
-    'Custom confirmation message for sample program'
+  const customConfirmationMarkup =
+    '**Custom** confirmation message for sample program'
+  // getByText won't match across HTML so check for the rest of the string.
+  const customConfirmationMarkupMatcher =
+    'confirmation message for sample program'
 
   const relatedProgramsHeading = 'Other programs you might be interested in'
   const relatedProgramName = 'Related program'
@@ -36,7 +39,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         undefined,
         undefined,
         undefined,
-        customConfirmationText,
+        customConfirmationMarkup,
       )
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
@@ -56,7 +59,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await loginAsTestUser(page)
 
-    await enableFeatureFlag(page, 'application_exportable')
     await enableFeatureFlag(
       page,
       'suggest_programs_on_application_confirmation_page',
@@ -114,7 +116,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await createRelatedProgram(page, adminPrograms)
     await loginAsTestUser(page)
 
-    await enableFeatureFlag(page, 'application_exportable')
     await disableFeatureFlag(
       page,
       'suggest_programs_on_application_confirmation_page',
@@ -135,37 +136,11 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     )
   })
 
-  test('view application submitted page while logged in without download link', async ({
-    page,
-    applicantQuestions,
-    applicantProgramOverview,
-  }) => {
-    // This test will only validate that the download link is no longer visible.
-    await loginAsTestUser(page)
-
-    await disableFeatureFlag(page, 'application_exportable')
-
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
-
-    await validateApplicationDownloadLink(
-      page,
-      /* expectedDownloadApplicationLink= */ false,
-    )
-  })
-
   test('view application submitted page while logged out', async ({
     page,
     applicantQuestions,
     applicantProgramOverview,
   }) => {
-    await enableFeatureFlag(page, 'application_exportable')
-
     await test.step('Submit application', async () => {
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantProgramOverview.startApplicationFromProgramOverviewPage(
@@ -187,7 +162,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
     await test.step('Validate that login dialog is shown when user clicks on apply to another program', async () => {
       await applicantQuestions.clickBackToHomepageButton()
-      await expect(page.getByText('Create an account or sign in')).toBeVisible()
+      await expect(page.getByText('Sign in with an account')).toBeVisible()
 
       await validateScreenshot(
         page,
@@ -198,28 +173,6 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
 
       await validateAccessibility(page)
     })
-  })
-
-  test('view application submitted page while logged out without download link', async ({
-    page,
-    applicantQuestions,
-    applicantProgramOverview,
-  }) => {
-    // This test will only validate that the download link is no longer visible.
-    await disableFeatureFlag(page, 'application_exportable')
-
-    await test.step('Submit application', async () => {
-      await applicantQuestions.clickApplyProgramButton(programName)
-      await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-        programName,
-      )
-      await applicantQuestions.clickSubmitApplication()
-    })
-
-    await validateApplicationDownloadLink(
-      page,
-      /* expectedDownloadApplicationLink= */ false,
-    )
   })
 
   test('Validate login link in alert', async ({
@@ -305,7 +258,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectConfirmationPage(
         /* northStarEnabled= */ true,
       )
-      await expect(page.getByText(customConfirmationText)).toBeVisible()
+      await expect(
+        page.getByText(customConfirmationMarkupMatcher),
+      ).toBeVisible()
 
       if (expectRelatedProgram) {
         await expect(

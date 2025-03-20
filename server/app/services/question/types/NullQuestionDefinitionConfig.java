@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 
@@ -64,6 +65,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
   @Override
   Optional<Instant> lastModifiedTime() {
+    return Optional.empty();
+  }
+
+  @Override
+  Optional<UUID> concurrencyToken() {
     return Optional.empty();
   }
 
@@ -129,6 +135,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     public QuestionDefinitionConfig.Builder setLastModifiedTime(
         Optional<Instant> lastModifiedTime) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setConcurrencyToken(UUID concurrencyToken) {
       return this;
     }
 

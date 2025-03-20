@@ -6,7 +6,9 @@ import {
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
+  seedProgramsAndCategories,
 } from '../support'
+import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', () => {
   test('views a program without an image', async ({page, adminPrograms}) => {
@@ -68,6 +70,51 @@ test.describe('Admin can manage program image', () => {
           programDescription,
           shortDescription,
         )
+
+        await validateScreenshot(
+          page.getByRole('main'),
+          'program-image-preview',
+        )
+      })
+
+      await test.step('Verify preview with program filtering', async () => {
+        await enableFeatureFlag(page, 'program_filtering_enabled')
+
+        await seedProgramsAndCategories(page)
+        await page.goto('/')
+
+        await adminPrograms.addProgram(
+          'Test program with tags',
+          programDescription,
+          shortDescription,
+          'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          'admin description',
+          /* isCommonIntake= */ false,
+          'selectedTI',
+          'confirmationMessage',
+          Eligibility.IS_GATING,
+          /* submitNewProgram= */ false,
+        )
+        await page.getByText('Education').check()
+        await page.getByText('Healthcare').check()
+
+        await adminPrograms.submitProgramDetailsEdits()
+
+        await validateScreenshot(
+          page.getByRole('listitem'),
+          'ns-admin-program-image-card-preview',
+        )
+
+        await adminProgramImage.expectNoImagePreview()
+        await adminProgramImage.expectProgramPreviewCard(
+          programName,
+          programDescription,
+          shortDescription,
+        )
+
+        await expect(page.getByText('Education')).toBeVisible()
+        await expect(page.getByText('Healthcare')).toBeVisible()
       })
     },
   )

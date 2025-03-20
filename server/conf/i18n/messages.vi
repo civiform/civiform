@@ -37,9 +37,9 @@ header.menu=Trình đơn
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=Kết thúc phiên truy cập
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=Thông tin bạn cần biết: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=Thành công: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -86,6 +86,8 @@ content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
 button.createAnAccount=Tạo tài khoản
 # The text on the button an applicant clicks to log in to their session.
 button.login=Đăng nhập
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=Đăng nhập
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Bạn không có tài khoản?
 # The text between creating a new account, and becoming a guest
@@ -127,7 +129,7 @@ button.previousScreen=Trước
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Quay lại
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Xem lại và thoát
+button.reviewAndExit=Xem lại và gửi
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Bỏ qua
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -148,6 +150,10 @@ link.allDone=Tôi đã hoàn thành
 link.applyToAnotherProgram=Đăng ký một chương trình khác
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Xoá tệp
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -164,6 +170,18 @@ modal.errorSaving.review.noSaveButton=Tiếp tục chuyển đến trang đánh 
 modal.errorSaving.previous.noSaveButton=Tiếp tục chuyển đến trang câu hỏi trước đó mà không lưu
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=Tiếp tục chỉnh sửa câu trả lời
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=Cần sửa một số câu trả lời trên trang này
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=Trang này trên đơn đăng ký của bạn có chứa một số lỗi hoặc bỏ trống một số trường. Nếu bạn chuyển đến trang xem lại mà không sửa những lỗi đó, mọi thông tin bạn nhập trên trang này sẽ không được lưu.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=Trang này trên đơn đăng ký của bạn có chứa một số lỗi hoặc bỏ trống một số trường. Nếu bạn quay lại trang trước mà không sửa những lỗi đó, mọi thông tin bạn nhập trên trang này sẽ không được lưu.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=Chuyển đến trang xem lại mà không lưu
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=Quay lại trang trước mà không lưu
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=Ở lại trang này và sửa các câu trả lời
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -181,6 +199,8 @@ button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
 button.continueSr=Tiếp tục đăng ký {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Bắt đầu tại đây
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=Bắt đầu khảo sát
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Xem và đăng ký
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -202,16 +222,16 @@ content.findProgramsDescription=CiviForm giúp bạn tìm được những chư�
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trình và dịch vụ
 # Main home page heading
-heading.homepage=Đăng ký nhiều chương trình tại một nơi
+heading.homepage=Đăng ký nhận trợ cấp của chính phủ tại đây
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 # Main home page intro text
-content.homepageIntro=Nhận trợ giúp về chăm sóc trẻ em, thực phẩm, phương tiện đi lại, dịch vụ điện nước và nhiều dịch vụ khác.
+content.homepageIntro=Để được trợ giúp về thực phẩm, phương tiện đi lại, dịch vụ chăm sóc trẻ em, tiện ích và nhiều dịch vụ khác, hãy nhấp vào một trong các lựa chọn sau. Mỗi lần, bạn chỉ có thể đăng ký một chương trình.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
 # The label for the program filter checkboxes
-label.programFilters.v2=Lọc theo danh mục
+label.programFilters.v2=Bạn muốn nhận dịch vụ trợ giúp nào?
 # The button to apply program filters
 button.applySelections=Áp dụng các lựa chọn
 # The button to clear program filter selections
@@ -243,7 +263,7 @@ title.otherProgramsSection.v2=Chương trình và dịch vụ khác ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Chương trình và dịch vụ ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=Các chương trình và dịch vụ có sẵn
+title.availableProgramsSection=Chương trình và dịch vụ
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=Các chương trình dựa trên lựa chọn của bạn ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -561,6 +581,10 @@ title.applicationConfirmation=Xác nhận đơn đăng ký
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=Đăng nhập bằng tài khoản
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=Sau khi tạo tài khoản, bạn sẽ có thể nhanh chóng kiểm tra trạng thái của đơn đăng ký, sửa thông tin trên đơn, cũng như đăng ký các chương trình khác.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
@@ -595,7 +619,7 @@ button.downloadPdf=Tải bản PDF xuống
 # A button prompting users to apply to programs.
 button.applyToPrograms=Đăng ký chương trình
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=Thông tin bạn đã gửi
+heading.yourSubmissionInformation=Thông tin trên đơn đăng ký của bạn
 # Text above the name of the person who submitted this application
 heading.applicantName=Người gửi đơn này
 # Text above the confirmation number of the application
@@ -611,9 +635,9 @@ heading.nextSteps=Tôi cần làm gì tiếp theo?
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=Bạn đã gửi đơn đăng ký {0}
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=Tạo tài khoản để lưu thông tin đơn đăng ký của bạn
+alert.createAccount=Tạo tài khoản để bạn có thể truy cập vào đơn đăng ký sau này
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=Sử dụng một tài khoản để đăng nhập lại nhằm kiểm tra trạng thái đơn đăng ký của bạn và tiết kiệm thời gian khi đăng ký các chương trình khác.
+alert.createAccountDescription=Sau khi lưu thông tin vào một tài khoản, bạn sẽ có thể nhanh chóng kiểm tra trạng thái của đơn đăng ký, cũng như đăng ký các chương trình khác.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 
@@ -704,6 +728,10 @@ validation.phoneMustBeLocalToCountry=Số điện thoại bạn đã cung cấp 
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=Hãy nhập ngày theo đúng định dạng
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 — Tháng 1
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,8 +925,6 @@ email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong 
 #------------------------------------------------------------------------------#
 
 banner.title=Đây là một trang web chính thức của chính phủ.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=Một trang web chính thức của chính phủ Hoa Kỳ
 banner.link=Sau đây là cách giúp bạn biết đâu là trang web chính thức của chính phủ
 banner.govWebsiteSectionHeader=Các trang web chính thức sử dụng tên miền .gov
 banner.govWebsiteSectionContent=Những địa chỉ trang web có đuôi .gov là địa chỉ trang web thuộc về các tổ chức chính thức của chính phủ tại Hoa Kỳ.
@@ -918,7 +944,7 @@ banner.notForProductionBannerLine2=Để đăng ký một chương trình hoặc
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=Bạn đang đăng ký với tư cách là khách. Sau khi đăng ký xong, hãy {0} để bảo vệ dữ liệu của bạn.
+banner.guestBannerText=Sau khi đăng ký, hãy {0} để bảo vệ dữ liệu của bạn.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=kết thúc phiên của bạn
 
@@ -963,3 +989,28 @@ category.tag.transportation=Vận tải
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Dịch vụ tiện ích
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Session Inactivity Warning
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Session Length Warning
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Extend Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Session successfully extended
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Failed to extend session

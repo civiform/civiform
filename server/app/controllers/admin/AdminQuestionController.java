@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -127,7 +128,6 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
-
     try {
       return ok(
           editView.renderNewQuestionForm(
@@ -240,15 +240,21 @@ public final class AdminQuestionController extends CiviFormController {
                       .getActiveAndDraftQuestions()
                       .getDraftQuestionDefinition(questionDefinition.getName());
               if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
+                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()))
+                    .flashing(request.flash().data());
               }
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
+                Optional<ToastMessage> message =
+                    request
+                        .flash()
+                        .get(FlashKey.CONCURRENT_UPDATE)
+                        .map(m -> ToastMessage.errorNonLocalized(m));
                 return ok(
                     editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
+                        request, questionDefinition, maybeEnumerationQuestion, message));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -294,6 +300,14 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
+    } catch (ConcurrentUpdateException e) {
+      // If there was a concurrent update, load a fresh edit form so the admin sees the concurrently
+      // made changes.
+      return redirect(routes.AdminQuestionController.edit(id))
+          .flashing(
+              FlashKey.CONCURRENT_UPDATE,
+              "The question was updated by another user while the edit page was open in your"
+                  + " browser. Please try your edits again.");
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {

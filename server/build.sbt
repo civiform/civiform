@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    crossScalaVersions := Seq("2.13.15", "3.3.3"),
+    crossScalaVersions := Seq("2.13.16", "3.3.3"),
     scalaVersion := crossScalaVersions.value.head,
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
@@ -43,15 +43,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.32",
-      "software.amazon.awssdk" % "ses" % "2.30.32",
+      "software.amazon.awssdk" % "s3" % "2.31.2",
+      "software.amazon.awssdk" % "ses" % "2.31.2",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.15.3",
-      "com.azure" % "azure-storage-blob" % "12.29.0",
+      "com.azure" % "azure-identity" % "1.15.4",
+      "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.30.1",
+      "com.microsoft.graph" % "microsoft-graph" % "6.32.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.0",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.1",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -126,8 +126,11 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.73",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.28",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25"
+      "io.swagger.core.v3" % "swagger-core" % "2.2.29",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
+
+      // Logstash to write JSON formatted log lines with logback
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.0"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(
@@ -315,6 +318,32 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// Define a custom command to add custom asset files. These are files that need to be
+// added to the `public` folder prior to the asset jar generation which occurs early
+// in the dist pipeline.
+//
+// During development webpack manages the files, but webpack doesn't run early
+// enough during the dist pipeline.
+val addCustomAssets = taskKey[Unit]("Add custom assets")
+addCustomAssets := {
+
+  // The swagger-ui-dist files already come minified. These are getting
+  // manually copied to the `public` folder instead of running through
+  // the webpack minifier/bundler because they cause webpack to fail with
+  // multiple errors. Doing it this way the files get put into `public`
+  // then the asset builder adds them to the internal assets jar file
+  // so they still get the url versioned hash prepended.
+  val sourceDir = baseDirectory.value / "node_modules" / "swagger-ui-dist"
+  val targetDir = baseDirectory.value / "public" / "swagger-ui"
+
+  if (!sourceDir.exists) {
+    throw new IllegalStateException(s"Source directory not found: $sourceDir")
+  }
+
+  IO.createDirectory(targetDir) // Create target directory if it doesn't exist
+  IO.copyDirectory(sourceDir, targetDir)
+}
 
 // scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
 // removes the .z component and returns the path to the generated source file directory.

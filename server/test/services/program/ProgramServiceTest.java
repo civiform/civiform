@@ -185,7 +185,7 @@ public class ProgramServiceTest extends ResetPostgres {
         .withBlock()
         .withRequiredQuestionDefinition(questionThree)
         .buildDefinition();
-    ProgramBuilder.newDisabledActiveProgram("program2")
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED)
         .withBlock()
         .withRequiredQuestionDefinition(questionTwo)
         .withBlock()
@@ -1629,6 +1629,21 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThatThrownBy(() -> ps.getDraftFullProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
         .hasMessageContaining("Program draft not found for slug: non-existent-program");
+  }
+
+  @Test
+  public void getSlug() throws Exception {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+    String foundSlug = ps.getSlug(programDefinition.id());
+
+    assertThat(foundSlug).isEqualTo(programDefinition.slug());
+  }
+
+  @Test
+  public void getSlug_programMissing_throws() {
+    var throwableAssert = assertThatThrownBy(() -> ps.getSlug(1));
+
+    throwableAssert.isExactlyInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -3360,7 +3375,7 @@ public class ProgramServiceTest extends ResetPostgres {
     // Adding disabled programs changes the result.
     ProgramBuilder.newDisabledDraftProgram("program1").buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
-    ProgramBuilder.newDisabledActiveProgram("program2").buildDefinition();
+    ProgramBuilder.newActiveProgram("program2", DisplayMode.DISABLED).buildDefinition();
     assertThat(ps.anyDisabledPrograms()).isTrue();
 
     // Adding an active program doesn't change the result.

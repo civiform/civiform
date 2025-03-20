@@ -37,9 +37,9 @@ header.menu=القائمة
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=إنهاء الجلسة
 # Message for screen readers as part of aria label to let user know about an informational alert.
-heading.informationAriaLabelPrefix=For your information: {0}
+heading.informationAriaLabelPrefix=لمعلوماتك: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
-heading.successAriaLabelPrefix=Success: {0}
+heading.successAriaLabelPrefix=أكملت الإجراء بنجاح: {0}
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=لقد انتهت جلستك.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -86,6 +86,8 @@ content.loginPrompt=يُرجى تسجيل الدخول باستخدام حساب
 button.createAnAccount=إنشاء حساب
 # The text on the button an applicant clicks to log in to their session.
 button.login=تسجيل الدخول
+# The text on the button an applicant clicks to sign in to their session.
+button.signIn=تسجيل الدخول
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=أليس لديك حساب؟
 # The text between creating a new account, and becoming a guest
@@ -127,7 +129,7 @@ button.previousScreen=الشاشة السابقة
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=الرجوع
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=المراجعة والخروج
+button.reviewAndExit=المراجعة والإرسال
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=التخطّي
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -148,6 +150,10 @@ link.allDone=لقد انتهيت
 link.applyToAnotherProgram=إرسال طلب للانضمام إلى برنامج آخر
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=إنشاء حساب أو تسجيل الدخول
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
+link.home=Home
+# Displayed in breadcrumbs to indicate this is an application of the supplied program name.
+link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=حذف الملف
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -164,6 +170,18 @@ modal.errorSaving.review.noSaveButton=المتابعة إلى صفحة المر�
 modal.errorSaving.previous.noSaveButton=المتابعة إلى صفحة الأسئلة السابقة بدون حفظ الإجابات
 # Text for a button. When the button is clicked, the user will be shown the information that they previously inputted and will be asked to fix the errors with it.
 modal.errorSaving.stayAndFixButton=البقاء في الصفحة وتصحيح الإجابات
+# Title of a pop-up informing the user that there were errors in the information they inputted. (new version for North Star)
+modal.errorSaving.title=بعض الإجابات على هذه الصفحة تحتاج إلى تصحيح
+# Text of a pop-up informing the user that continuing to the review page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.review=هذه الصفحة من طلبك تتضمّن بعض الأخطاء أو بعض الحقول الفارغة. إذا تابعت إلى صفحة المراجعة، لن تُحفظ أي من المعلومات التي أدخلتها في هذه الصفحة إلى حين تصحيح الأخطاء.
+# Text of a pop-up informing the user that continuing to the previous page will lose the information inputted since it has errors unless they are corrected. (new version for North Star)
+modal.errorSaving.content.previous=هذه الصفحة من طلبك تتضمّن بعض الأخطاء أو بعض الحقول الفارغة. إذا انتقلت إلى الصفحة السابقة، لن تُحفظ أي من المعلومات التي أدخلتها في هذه الصفحة إلى حين تصحيح الأخطاء.
+# Text of button that discards all the information the user has inputted and navigates to the application review page. (new version for North Star)
+modal.errorSaving.continueButton.review=الانتقال إلى صفحة المراجعة بدون حفظ الإجابات
+# Text of button that discards all the information the user has inputted and navigates to the application preview page. (new version for North Star)
+modal.errorSaving.continueButton.previous=الانتقال إلى الصفحة السابقة بدون حفظ الإجابات
+# Text of button that shows the previous inputted information and asks to fix the errors with it. (new version for North Star)
+modal.errorSaving.fixButton=البقاء في الصفحة وتصحيح الإجابات
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
@@ -181,6 +199,8 @@ button.editSr=تعديل الطلب المُرسل للانضمام إلى "{0}"
 button.continueSr=متابعة إرسال طلب للانضمام إلى "{0}"
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=البدء هنا
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startSurvey=بدء الاستطلاع
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=عرض طلب الانضمام وإرساله
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -202,16 +222,16 @@ content.findProgramsDescription=يساعدك CiviForm في العثور على �
 # Title for programs page when applicant is not logged in
 content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
 # Main home page heading
-heading.homepage=إرسال طلبات للانضمام إلى البرامج من مكان واحد
+heading.homepage=طلب مساعدة حكومية هنا
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
-content.homepageIntro=يمكنك الحصول على المساعدة بشأن رعاية الأطفال والطعام والنقل وشركات الطاقة وغير ذلك.
+content.homepageIntro=للحصول على مساعدة بشأن الطعام والنقل ورعاية الأطفال والمرافق والمزيد، يُرجى النقر على أحد الخيارات أدناه. يمكنك إرسال طلب للانضمام إلى برنامج واحد في كل مرة.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
 # The label for the program filter checkboxes
-label.programFilters.v2=الفلترة حسب الفئة
+label.programFilters.v2=ما الذي أنت بحاجة إلى مساعدة بشأنه؟
 # The button to apply program filters
 button.applySelections=تطبيق الاختيارات
 # The button to clear program filter selections
@@ -243,7 +263,7 @@ title.otherProgramsSection.v2=البرامج والخدمات الأخرى ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=البرامج والخدمات ({0})
 # Title of the section on the home page that shows any available programs that have not yet been applied to.
-title.availableProgramsSection=البرامج والخدمات المتاحة
+title.availableProgramsSection=البرامج والخدمات
 # Title of the section on the home page that shows programs that match any of the selected filters.
 title.recommendedSection.v2=برامج مستنِدة إلى الفلاتر التي حدّدتها ({0})
 # A label on the summary of a section of the application indicating to the applicant that all required questions have been filled out.
@@ -561,6 +581,10 @@ title.applicationConfirmation=تأكيد إرسال الطلب
 content.confirmed=نشكرك على طلب الانضمام إلى "{0}".  لقد تلقّينا طلبك الذي يحمل المعرّف {1}.
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=إنشاء حساب أو تسجيل الدخول
+# The title of a pop-up informing an applicant to sign in before continuing with the application
+title.signInModal=تسجيل الدخول باستخدام حساب
+# The text of a pop-up informing an applicant to sign in so they can access the application later before continuing with the application
+content.signInModal=عند إنشاء حساب، يمكنك التحقّق من حالة الطلب أو إجراء تغييرات عليه أو إرسال طلبات إلى برامج أخرى بسرعة.
 
 # Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد لحفظ معلوماتك. سيكون بإمكانك العودة في أي وقت لإكمال الطلبات المستقبلية. وإذا لم يسبق لك إنشاء حساب، تتيح لك صفحة "تسجيل الدخول" الاشتراك للحفاظ على أي بيانات تم إدخالها.
@@ -595,7 +619,7 @@ button.downloadPdf=تنزيل ملف PDF
 # A button prompting users to apply to programs.
 button.applyToPrograms=إرسال طلبات للانضمام إلى البرامج
 # Heading above a section showing the user's name, confirmation number, and date
-heading.yourSubmissionInformation=معلومات طلبك
+heading.yourSubmissionInformation=تفاصيل طلبك
 # Text above the name of the person who submitted this application
 heading.applicantName=مُرسِل هذا الطلب
 # Text above the confirmation number of the application
@@ -611,9 +635,9 @@ heading.nextSteps=ما هي خطواتي التالية؟
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=لقد أرسلت طلبك للانضمام إلى "{0}"
 # Informational "alert" title to encourage the user to create an account
-alert.createAccount=ننصحك بإنشاء حساب لحفظ معلومات طلباتك
+alert.createAccount=للوصول إلى طلبك لاحقًا، يُرجى إنشاء حساب
 # Description text in an alert that explains how creating an account can help the user
-alert.createAccountDescription=ننصحك بإنشاء حساب لتسجيل الدخول من خلاله للاطّلاع على حالة الطلب وتوفير الوقت المُستغرَق في إرسال طلبات إلى برامج أخرى.
+alert.createAccountDescription=عند حفظ معلوماتك في حساب، يمكنك التحقّق من حالة الطلب أو إجراء تغييرات عليه أو إرسال طلبات إلى برامج أخرى بسرعة.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=تسجيل الدخول إلى حساب حالي
 
@@ -704,6 +728,10 @@ validation.phoneMustBeLocalToCountry=رقم الهاتف الذي تم تقدي�
 #----------------------------------------------------------------------------------------------------------#
 
 validation.invalidDateFormat=يُرجى إدخال تاريخ بالتنسيق الصحيح
+# Date cannot be over specified years in past.
+validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+# Date cannot be over specified years in future.
+validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=‫01 - يناير
 # A month option when selecting a specific date from a dropdown menu.
@@ -897,8 +925,6 @@ email.tiApplicationUpdateBody=لقد تغيّرت حالة طلب "{0}" بالا
 #------------------------------------------------------------------------------#
 
 banner.title=هذا موقع إلكتروني رسمي تابع لجهة حكومية.
-# Text on a banner at the top of the page telling users this is an official government website
-banner.northStarTitle=موقع إلكتروني رسمي تابع لحكومة الولايات المتحدة
 banner.link=في ما يلي كيفية معرفة ذلك
 banner.govWebsiteSectionHeader=تستخدم المواقع الإلكترونية التابعة لجهة حكومية النطاق "‎.gov"
 banner.govWebsiteSectionContent=تعود عناوين المواقع الإلكترونية التي تنتهي بـ "‎.gov" إلى مؤسسات حكومية رسمية في الولايات المتحدة.
@@ -918,7 +944,7 @@ banner.notForProductionBannerLine2=لإرسال طلب للانضمام إلى �
 # GUEST BANNER - alert explaining that user is logged in as a guest #
 #------------------------------------------------------------------------------#
 # A message in an alert about ending their session when they are finished. The placeholder in {0} will be a link with the text 'end your session'.
-banner.guestBannerText=يتم إرسال الطلب كضيف. بعد إكماله، يُرجى {0} لحماية بياناتك.
+banner.guestBannerText=بعد إرسال الطلب، يُرجى {0} لحماية بياناتك.
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=إنهاء الجلسة
 
@@ -963,3 +989,28 @@ category.tag.transportation=النقل
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=شركات الطاقة
+
+#------------------------------------------------------------------------------#
+#  Session timeout messages                                                    #
+#------------------------------------------------------------------------------#
+
+# Title of the warning modal that appears when the user has been inactive for a while
+session.inactivity.warning.title=Session Inactivity Warning
+
+# Message shown in a modal asking the user if they want to extend their session due to inactivity
+session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+
+# Title of a modal dialog displayed when a user's session is about to expire due to session length limit
+session.length.warning.title=Session Length Warning
+
+# Message shown in a modal warning the user their session will end soon due to session length limit
+session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+
+# Text on a button that allows users to extend their session when shown timeout warnings
+session.extend.button=Extend Session
+
+# Success message shown when the user's session is successfully extended after clicking the extend button
+session.extended.success=Session successfully extended
+
+# Error message shown when there was a problem extending the user's session
+session.extended.error=Failed to extend session
