@@ -30,18 +30,13 @@ public final class PredicateEvaluator {
    * to create this evaluator.
    */
   public boolean evaluate(PredicateExpressionNode node) {
-    switch (node.getType()) {
-      case LEAF_OPERATION:
-        return evaluateLeafNode(node.getLeafOperationNode());
-      case LEAF_ADDRESS_SERVICE_AREA:
-        return evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
-      case AND:
-        return evaluateAndNode(node.getAndNode());
-      case OR:
-        return evaluateOrNode(node.getOrNode());
-      default:
-        return false;
-    }
+    return switch (node.getType()) {
+      case LEAF_OPERATION -> evaluateLeafNode(node.getLeafOperationNode());
+      case LEAF_ADDRESS_SERVICE_AREA ->
+          evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
+      case AND -> evaluateAndNode(node.getAndNode());
+      case OR -> evaluateOrNode(node.getOrNode());
+    };
   }
 
   /**

@@ -144,42 +144,26 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
 
     public QuestionJsonPresenter create(QuestionType questionType) {
-      switch (questionType) {
-        case ADDRESS:
-          return addressJsonPresenter;
-        case CHECKBOX:
-          return multiSelectJsonPresenter;
-        case CURRENCY:
-          return currencyJsonPresenter;
-        case DATE:
-          return dateJsonPresenter;
-        case DROPDOWN:
-        case RADIO_BUTTON:
-          return singleSelectJsonPresenter;
-        case EMAIL:
-          return emailJsonPresenter;
-        case ENUMERATOR:
-          return enumeratorJsonPresenter;
-        case FILEUPLOAD:
-          return fileUploadJsonPresenter;
-        case ID:
-          return idJsonPresenter;
-        case NAME:
-          return nameJsonPresenter;
-        case NUMBER:
-          return numberJsonPresenter;
-        case PHONE:
-          return phoneJsonPresenter;
+      return switch (questionType) {
+        case ADDRESS -> addressJsonPresenter;
+        case CHECKBOX -> multiSelectJsonPresenter;
+        case CURRENCY -> currencyJsonPresenter;
+        case DATE -> dateJsonPresenter;
+        case DROPDOWN, RADIO_BUTTON -> singleSelectJsonPresenter;
+        case EMAIL -> emailJsonPresenter;
+        case ENUMERATOR -> enumeratorJsonPresenter;
+        case FILEUPLOAD -> fileUploadJsonPresenter;
+        case ID -> idJsonPresenter;
+        case NAME -> nameJsonPresenter;
+        case NUMBER -> numberJsonPresenter;
+        case PHONE -> phoneJsonPresenter;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC:
-          return emptyJsonPresenter;
-        case TEXT:
-          return textJsonPresenter;
-
-        default:
-          throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
-      }
+        case STATIC -> emptyJsonPresenter;
+        case TEXT -> textJsonPresenter;
+        default ->
+            throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
+      };
     }
   }
 

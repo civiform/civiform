@@ -60,43 +60,31 @@ final class CsvColumnFactory {
   }
 
   Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType) {
-    switch (aq.getType()) {
-      case ADDRESS:
-        return buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
-      case CHECKBOX:
-        return buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
-      case CURRENCY:
-        return buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
-      case DATE:
-        return buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
-      case DROPDOWN:
-      case RADIO_BUTTON:
-        return buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
-      case EMAIL:
-        return buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
+    return switch (aq.getType()) {
+      case ADDRESS -> buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
+      case CHECKBOX ->
+          buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
+      case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
+      case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
+      case DROPDOWN, RADIO_BUTTON ->
+          buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
+      case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
         // Enumerator questions themselves are not included in the CSV, but their repeated questions
         // are.
-      case ENUMERATOR:
-        return Stream.empty();
-      case FILEUPLOAD:
-        return buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
-      case ID:
-        return buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
-      case NAME:
-        return buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
-      case NUMBER:
-        return buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
-      case PHONE:
-        return buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
+      case ENUMERATOR -> Stream.empty();
+      case FILEUPLOAD ->
+          buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
+      case ID -> buildColumnsForIdQuestion(aq.createIdQuestion(), columnType);
+      case NAME -> buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
+      case NUMBER -> buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
+      case PHONE -> buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
         // Static content questions are not included in CSV because they do not include an answer
         // from the user.
-      case STATIC:
-        return Stream.empty();
-      case TEXT:
-        return buildColumnsForTextQuestion(aq.createTextQuestion(), columnType);
-      default:
-        throw new RuntimeException(String.format("Unrecognized questionType %s", aq.getType()));
-    }
+      case STATIC -> Stream.empty();
+      case TEXT -> buildColumnsForTextQuestion(aq.createTextQuestion(), columnType);
+      default ->
+          throw new RuntimeException(String.format("Unrecognized questionType %s", aq.getType()));
+    };
   }
 
   private Stream<Column> buildColumnsForAddressQuestion(AddressQuestion q, ColumnType columnType) {

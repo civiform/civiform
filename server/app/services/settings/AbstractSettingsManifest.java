@@ -83,21 +83,15 @@ public abstract class AbstractSettingsManifest {
    */
   public Optional<String> getSettingDisplayValue(
       Http.RequestHeader request, SettingDescription settingDescription) {
-    switch (settingDescription.settingType()) {
-      case BOOLEAN:
-        return Optional.of(
-            String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
-      case INT:
-        return getInt(settingDescription, request).map(String::valueOf);
-      case LIST_OF_STRINGS:
-        return getListOfStrings(settingDescription, request).map(list -> String.join(", ", list));
-      case ENUM:
-      case STRING:
-        return getString(settingDescription, request).map(String::valueOf);
-      default:
-        throw new IllegalStateException(
-            "Unknown setting type: " + settingDescription.settingType());
-    }
+    return switch (settingDescription.settingType()) {
+      case BOOLEAN ->
+          Optional.of(
+              String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
+      case INT -> getInt(settingDescription, request).map(String::valueOf);
+      case LIST_OF_STRINGS ->
+          getListOfStrings(settingDescription, request).map(list -> String.join(", ", list));
+      case ENUM, STRING -> getString(settingDescription, request).map(String::valueOf);
+    };
   }
 
   /**
@@ -105,20 +99,13 @@ public abstract class AbstractSettingsManifest {
    * config.
    */
   public Optional<String> getSettingSerializationValue(SettingDescription settingDescription) {
-    switch (settingDescription.settingType()) {
-      case BOOLEAN:
-        return getBool(settingDescription).map(String::valueOf);
-      case INT:
-        return getInt(settingDescription).map(String::valueOf);
-      case LIST_OF_STRINGS:
-        return getListOfStrings(settingDescription).map(list -> String.join(",", list));
-      case ENUM:
-      case STRING:
-        return getString(settingDescription).map(String::valueOf);
-      default:
-        throw new IllegalStateException(
-            "Unknown setting type: " + settingDescription.settingType());
-    }
+    return switch (settingDescription.settingType()) {
+      case BOOLEAN -> getBool(settingDescription).map(String::valueOf);
+      case INT -> getInt(settingDescription).map(String::valueOf);
+      case LIST_OF_STRINGS ->
+          getListOfStrings(settingDescription).map(list -> String.join(",", list));
+      case ENUM, STRING -> getString(settingDescription).map(String::valueOf);
+    };
   }
 
   /**
