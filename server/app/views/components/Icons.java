@@ -481,10 +481,10 @@ public enum Icons {
         break;
       case CURRENCY:
         return svg(Icons.CURRENCY)
-          .attr("fill", "none")
-          .attr("stroke-linecap", "round")
-          .attr("stroke-linejoin", "round")
-          .attr("stroke-width", "2");
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case DATE:
         icon = Icons.DATE;
         break;
@@ -514,10 +514,10 @@ public enum Icons {
         break;
       case STATIC:
         return svg(Icons.ANNOTATION)
-          .attr("fill", "none")
-          .attr("stroke-linecap", "round")
-          .attr("stroke-linejoin", "round")
-          .attr("stroke-width", "2");
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case TEXT:
         icon = Icons.TEXT;
         break;
@@ -528,6 +528,7 @@ public enum Icons {
         icon = Icons.UNKNOWN;
         return svg(icon);
     }
+  }
 
   public static SvgTag questionTypeSvgWithId(QuestionType type) {
     Icons icon;
@@ -539,8 +540,8 @@ public enum Icons {
         icon = Icons.CHECKBOX;
         break;
       case CURRENCY:
-         icon = Icons.CURRENCY;
-         break;
+        icon = Icons.CURRENCY;
+        break;
       case DATE:
         icon = Icons.DATE;
         break;
@@ -569,8 +570,8 @@ public enum Icons {
         icon = Icons.ENUMERATOR;
         break;
       case STATIC:
-         icon = Icons.ANNOTATION;
-         break;
+        icon = Icons.ANNOTATION;
+        break;
       case TEXT:
         icon = Icons.TEXT;
         break;
@@ -580,7 +581,8 @@ public enum Icons {
       default: // fall through
         icon = Icons.UNKNOWN;
     }
-    return new SvgTag().with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
+    return new SvgTag()
+        .with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
   }
 
   public static SvgTag questionTypeSvgLink(QuestionType type) {
