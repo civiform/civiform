@@ -84,10 +84,15 @@ public final class SimpleEmail implements EmailSendClient {
       subject = String.format("[Test Message] %s", subject);
       bodyText =
           String.format(
-              "This email was generated from our test server.\n\n"
-                  + "If you didn't expect this message please disregard.\n\n"
-                  + "***************************************************\n\n\n"
-                  + "%s",
+              """
+              This email was generated from our test server.
+
+              If you didn't expect this message please disregard.
+
+              ***************************************************
+
+
+              %s""",
               bodyText);
     }
 
