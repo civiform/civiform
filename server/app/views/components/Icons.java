@@ -600,7 +600,7 @@ public enum Icons {
       default: // fall through
         icon = Icons.UNKNOWN;
     }
-    return svgLink(icon);
+    return new SvgTag().with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
   }
 
   public String getViewBox() {
