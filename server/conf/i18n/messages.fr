@@ -73,6 +73,8 @@ label.primaryNavigation=Navigation principale
 label.agencyIdentifier=Identifiant de l'agence
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerte informative de session Invité
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
