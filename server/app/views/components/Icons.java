@@ -530,10 +530,8 @@ public enum Icons {
   }
 
   /**
-   * This method makes use of a previously created svg with the help of <use></use> tag. To know
-   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
-   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
-   * to the original svg's id.
+   * This method creates a svg tag with an id. The reason for creating an id is to reuse the svg
+   * using the <use></> tag in the questionTypeSvgLink() method below.
    */
   public static SvgTag questionTypeSvgWithId(QuestionType type) {
     Icons icon;
@@ -595,8 +593,10 @@ public enum Icons {
   }
 
   /**
-   * Returns SVG element for given icon. Note that callers need to size this element using Tailwind
-   * classes like any other element.
+   * This method makes use of a previously created svg with the help of <use></use> tag. To know
+   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
+   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
+   * to the original svg's id.
    */
   public static SvgTag questionTypeSvgLink(QuestionType type) {
     Icons icon;
