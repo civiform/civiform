@@ -10,6 +10,7 @@ import re
 from convert_to_civiform_json import convert_to_civiform_json
 from LLM_prompts import LLMPrompts
 from io import StringIO
+import traceback # Import the traceback module
 
 # This script extracts text from uploaded PDF files, uses Gemini LLM to
 # convert the text into structured JSON representing a form, formats the JSON
@@ -53,32 +54,43 @@ logging.info(
 
 def initialize_gemini_model(
     model_name="gemini-2.0-flash",
+    api_key=None,
     api_key_file=os.path.expanduser("~/google_api_key")):
     """
     Initializes and configures the Gemini GenerativeModel.
 
     Args:
         model_name (str): The name of the Gemini model to use.
+        api_key (str, optional): API key provided by the user. Defaults to None.
         api_key_file (str): The path to the file containing the Google API key.
 
     Returns:
-        genai.GenerativeModel: The initialized Gemini model.
+        genai.Client: The initialized Gemini client.
     """
     try:
-        with open(api_key_file, "r") as f:
-            GOOGLE_API_KEY = f.read().strip()
-        client = genai.Client(api_key=GOOGLE_API_KEY)
-        logging.info("Google API key loaded successfully.")
+        if api_key:
+            GOOGLE_API_KEY = api_key
+            logging.info("Using Gemini API key provided in the input box.")
+        else:
+            try:
+                with open(api_key_file, "r") as f:
+                    GOOGLE_API_KEY = f.read().strip()
+                logging.info("Google API key loaded successfully from file.")
+            except FileNotFoundError:
+                logging.error(
+                    f"Error: Google API key file not found at {api_key_file} and no key provided in input."
+                )
+                return None
+            except Exception as e:
+                logging.error(f"Error loading Google API key from file: {e}")
+                return None
 
+        client = genai.Client(api_key=GOOGLE_API_KEY)
         return client
 
-    except FileNotFoundError:
-        logging.error(
-            f"Error: Google API key file not found at {api_key_file}.")
-        exit(1)
     except Exception as e:
-        logging.error(f"Error loading Google API key: {e}")
-        exit(1)
+        logging.error(f"Error initializing Gemini client: {e}")
+        return None
 
 
 def process_pdf_text_with_llm(client, model_name, file, base_name):
@@ -95,18 +107,19 @@ def process_pdf_text_with_llm(client, model_name, file, base_name):
         logging.debug(f"Sending PDF to LLM...")
         response = client.models.generate_content(
             model=model_name, contents=[input_file, prompt])
-        response = response.text.strip("`").lstrip(
+        response_text = response.text.strip("`").lstrip(
             "json")  # Remove ``` and json if present
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             save_response_to_file(
-                response, base_name, f"pdf-extract-{model_name}", work_dir)
+                response_text, base_name, f"pdf-extract-{model_name}", work_dir)
 
-        return response  # Return the processed text
+        return response_text, None  # Return response and None for error
 
     except Exception as e:
-        logging.error(f"process_pdf_text_with_llm: {e}")
-        return None
+        error_details = f"process_pdf_text_with_llm: {e}"
+        logging.error(error_details)
+        return None, error_details # Return None for response and the error details
 
 
 def post_processing_llm(client, model_name, text, base_name):
@@ -135,7 +148,7 @@ def post_processing_llm(client, model_name, text, base_name):
 
 def format_json_single_line_fields(json_string: str) -> str:
     """
-    Formats a JSON string to ensure all field attributes (including options) 
+    Formats a JSON string to ensure all field attributes (including options)
     are on a single line, while maintaining readability for nested structures.
 
     Args:
@@ -217,7 +230,9 @@ def process_file(file_full, model_name, client):
         client : The initialized Gemini client.
 
     Returns:
-        str: The CiviForm JSON string, or None if an error occurred.
+        str: The CiviForm JSON string.
+    Raises:
+        Exception: If LLM processing or post-processing fails.
     """
     try:
         # Extract the base filename without extension
@@ -229,12 +244,11 @@ def process_file(file_full, model_name, client):
 
         filepath = Path(file_full)
         file_bytes = filepath.read_bytes()
-        structured_json = process_pdf_text_with_llm(
+        structured_json, llm_error = process_pdf_text_with_llm(
             client, model_name, file_bytes, base_name)
 
         if structured_json is None:
-            logging.error(f"LLM processing failed for file: {file_full}")
-            return None
+            raise Exception(f"LLM processing failed for file: {file_full}. Details: {llm_error}")
 
         logging.info(f"Formating json  .... ")
         formated_json = format_json_single_line_fields(structured_json)
@@ -243,6 +257,9 @@ def process_file(file_full, model_name, client):
 
         post_processed_json = post_processing_llm(
             client, model_name, formated_json, base_name)
+        if post_processed_json is None:
+            raise Exception(f"LLM post-processing failed for file: {file_full}")
+
         logging.info(f"Formating post processed json  .... ")
         formated_post_processed_json = format_json_single_line_fields(
             post_processed_json)
@@ -259,7 +276,7 @@ def process_file(file_full, model_name, client):
         return civiform_json
     except Exception as e:
         logging.error(f"Failed to process file {file_full}: {e}")
-        return None
+        raise # Re-raise the exception to be caught in the route
 
 
 @app.route('/')
@@ -280,25 +297,22 @@ def upload_file():
         file_full = os.path.join(default_upload_dir, filename)
         file.save(file_full)
 
-        # Get LLM model name and log level from the request
+        # Get LLM model name, API key, and log level from the request
         model_name = request.form.get('modelName')
-        logging.getLogger().setLevel(
-            getattr(
-                logging,
-                request.form.get('logLevel', 'INFO').upper(), logging.INFO))
-        logging.info(
-            f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}"
-        )
-        logging.debug(
-            f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}"
-        )
+        gemini_api_key = request.form.get('geminiApiKey')
+        log_level_str = request.form.get('logLevel', 'INFO').upper()
+        log_level = getattr(logging, log_level_str, logging.INFO)
+        logging.getLogger().setLevel(log_level)
+        logging.info(f"Log level set to: {logging.getLevelName(log_level)}")
+        logging.debug(f"log_level_str passed in: {log_level_str}")
 
-        client = initialize_gemini_model(model_name)
+        client = initialize_gemini_model(model_name, api_key=gemini_api_key)
+        if client is None:
+            error_message = "Failed to initialize Gemini client. Check API key or file."
+            logging.error(error_message)
+            return jsonify({"error": error_message}), 500
 
         civiform_json = process_file(file_full, model_name, client)
-
-        if civiform_json is None:
-            return jsonify({"error": "Failed to process file."}), 500
 
         # Log the length
         logging.info(f"Length of civiform_json: {len(civiform_json)}")
@@ -306,8 +320,9 @@ def upload_file():
         return jsonify(civiform_json)
 
     except Exception as e:
-        logging.error(f"An error occurred during file upload: {e}")
-        return jsonify({"error": "An error occurred during file upload."}), 500
+        error_message = f"An error occurred during file upload: {e}"
+        logging.error(f"{error_message}\n{traceback.format_exc()}") # Log full traceback
+        return jsonify({"error": error_message, "details": traceback.format_exc()}), 500
 
 
 def process_directory(directory, model_name, client):
@@ -342,16 +357,21 @@ def process_directory(directory, model_name, client):
         if filename.lower().endswith(".pdf"):
             total_files += 1
             file_full = os.path.join(directory, filename)
-            civiform_json = process_file(file_full, model_name, client)
             file_results[filename] = {"success": False, "error_message": ""}
-            if civiform_json:
-                success_count += 1
-                file_results[filename]["success"] = True
-            else:
+            try:
+                civiform_json = process_file(file_full, model_name, client)
+                if civiform_json:
+                    success_count += 1
+                    file_results[filename]["success"] = True
+                else:
+                    fail_count += 1
+                    file_results[filename]["error_message"] = "Failed to process file."
+            except Exception as e:
                 fail_count += 1
-                file_results[filename]["success"] = False
-                file_results[filename][
-                    "error_message"] = "Failed to process file."
+                error_message = f"Error processing {filename}: {e}"
+                file_results[filename]["error_message"] = error_message
+                logging.error(f"{error_message}\n{traceback.format_exc()}")
+
 
     # Prepare the debug log string
     debug_log = log_stream.getvalue()
@@ -375,8 +395,9 @@ def upload_directory():
     log_stream.seek(0)
     log_stream.truncate(0)
 
-    # Get LLM model name and log level from the request
+    # Get LLM model name, API key, and log level from the request
     model_name = request.form.get('modelName')
+    gemini_api_key = request.form.get('geminiApiKey')
     log_level_str = request.form.get('logLevel', 'INFO').upper()
     log_level = getattr(logging, log_level_str, logging.INFO)
     logging.getLogger().setLevel(log_level)
@@ -403,22 +424,31 @@ def upload_directory():
         logging.error(f"Invalid directory path: {directory_path}")
         return jsonify({"error": "Invalid directory path."}), 400
 
-    client = initialize_gemini_model(model_name)
+    client = initialize_gemini_model(model_name, api_key=gemini_api_key)
+    if client is None:
+        error_message = "Failed to initialize Gemini client. Check API key or file."
+        logging.error(error_message)
+        return jsonify({"error": error_message}), 500
 
-    directory_result = process_directory(directory_path, model_name, client)
-    debug_log = directory_result.get("debug_log", "No debug log captured.")
+    try:
+        directory_result = process_directory(directory_path, model_name, client)
+        debug_log = directory_result.get("debug_log", "No debug log captured.")
 
-    response_data = {
-        "summary": {
-            "total_files": directory_result["total_files"],
-            "success_count": directory_result["success_count"],
-            "fail_count": directory_result["fail_count"],
-            "file_results": directory_result["file_results"]
-        },
-        "debug_log": debug_log
-    }
+        response_data = {
+            "summary": {
+                "total_files": directory_result["total_files"],
+                "success_count": directory_result["success_count"],
+                "fail_count": directory_result["fail_count"],
+                "file_results": directory_result["file_results"]
+            },
+            "debug_log": debug_log
+        }
+        return jsonify(response_data)
+    except Exception as e:
+        error_message = f"An error occurred during directory processing: {e}"
+        logging.error(f"{error_message}\n{traceback.format_exc()}")
+        return jsonify({"error": error_message, "details": traceback.format_exc()}), 500
 
-    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 7000)))

@@ -84,6 +84,8 @@
           document.getElementById('LLMModelSelect').value,
         )
         formData.append('logLevel', getLogLevel())
+        formData.append('geminiApiKey', document.getElementById('geminiApiKeyInput').value || '')
+
 
         const outputTextArea = document.getElementById('output')
         const outputContainer = document.querySelector('.output-container')
@@ -99,10 +101,17 @@
           })
 
           if (!response.ok) {
-            const errorText = await response.text()
-            outputTextArea.value = `Error: ${response.status} - ${errorText}`
-            updateCharacterCount('output', errorText)
-            return
+            const errorData = await response.json();
+            let errorText = `Error: ${response.status}`;
+            if (errorData.error) {
+                errorText += ` - ${errorData.error}`;
+            }
+            if (errorData.details) {
+                errorText += `\n\nDetails:\n${errorData.details}`;
+            }
+            outputTextArea.value = errorText;
+            updateCharacterCount('output', errorText);
+            return;
           }
 
           const responseData = await response.text()
@@ -142,6 +151,7 @@
           document.getElementById('LLMModelSelect').value,
         );
         formData.append('logLevel', getLogLevel());
+        formData.append('geminiApiKey', document.getElementById('geminiApiKeyInput').value || '')
 
         formData.append(
           'directoryPath',
@@ -155,8 +165,15 @@
           });
 
           if (!response.ok) {
-            const errorText = await response.text();
-            outputTextArea.value = `Error: ${response.status} - ${errorText}`;
+            const errorData = await response.json();
+            let errorText = `Error: ${response.status}`;
+            if (errorData.error) {
+                errorText += ` - ${errorData.error}`;
+            }
+            if (errorData.details) {
+                errorText += `\n\nDetails:\n${errorData.details}`;
+            }
+            outputTextArea.value = errorText;
             updateCharacterCount('directoryOutput', errorText);
             return;
           }
@@ -277,8 +294,8 @@
       <li>
         Copy the CiviForm JSON output and import it to CiviForm using the
         <a href="https://docs.civiform.us/user-manual/civiform-admin-guide/program-migration#importing-a-program">"Import program" flow</a>.
-        </li>    
-      </ol>
+        </li>
+    </ol>
 
     <div class="inline-form-group">
       <div class="form-group">
@@ -292,6 +309,10 @@
           </option>
           <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label for="geminiApiKeyInput">Gemini API Key:</label>
+        <input type="text" id="geminiApiKeyInput" placeholder="Enter API Key or leave blank to use file" size="40">
       </div>
       <div class="form-group">
         <label for="logLevelSelect">Log Level:</label>
@@ -311,7 +332,7 @@
     <div class="output-container">
       <h3 class="section-spacer">
         Output CiviForm JSON :
-      </h2>
+      </h3>
       <button onclick="copyToClipboard('output')">Copy to Clipboard</button>
       <textarea
         id="output"
@@ -336,7 +357,7 @@
     </form>
 
     <div class="output-container" id="directory-output-container">
-      <h3>Directory Processing Output:</h2>
+      <h3>Directory Processing Output:</h3>
       <textarea
         id="directoryOutput"
         class="output-area"
