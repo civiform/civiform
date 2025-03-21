@@ -63,7 +63,7 @@ public class ProgramModel extends BaseModel {
   @Constraints.Required private String externalLink;
 
   /** The program's display mode. */
-  @Constraints.Required private String displayMode;
+  @Constraints.Required private DisplayMode displayMode;
 
   /** The notification preferences for this program */
   @Constraints.Required
@@ -183,7 +183,7 @@ public class ProgramModel extends BaseModel {
     this.localizedShortDescription = definition.localizedShortDescription();
     this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
-    this.displayMode = definition.displayMode().getValue();
+    this.displayMode = definition.displayMode();
     this.notificationPreferences = new ArrayList<>(definition.notificationPreferences());
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
@@ -213,7 +213,7 @@ public class ProgramModel extends BaseModel {
       String defaultShortDescription,
       String defaultConfirmationMessage,
       String externalLink,
-      String displayMode,
+      DisplayMode displayMode,
       ImmutableList<ProgramNotificationPreference> notificationPreferences,
       ImmutableList<BlockDefinition> blockDefinitions,
       VersionModel associatedVersion,
@@ -255,7 +255,7 @@ public class ProgramModel extends BaseModel {
     localizedConfirmationMessage = programDefinition.localizedConfirmationMessage();
     blockDefinitions = programDefinition.blockDefinitions();
     slug = programDefinition.slug();
-    displayMode = programDefinition.displayMode().getValue();
+    displayMode = programDefinition.displayMode();
     notificationPreferences = new ArrayList<>(programDefinition.notificationPreferences());
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
@@ -284,7 +284,7 @@ public class ProgramModel extends BaseModel {
             .setLocalizedDescription(localizedDescription)
             .setLocalizedShortDescription(localizedShortDescription)
             .setExternalLink(externalLink)
-            .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setDisplayMode(displayMode)
             .setNotificationPreferences(ImmutableList.copyOf(notificationPreferences))
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime)
