@@ -16,6 +16,7 @@ public final class ProgramForm {
   private String displayMode;
   private List<String> notificationPreferences;
   private Boolean isCommonIntakeForm;
+  private String programType;
 
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
@@ -36,6 +37,7 @@ public final class ProgramForm {
     displayMode = "";
     notificationPreferences = new ArrayList<>();
     isCommonIntakeForm = false;
+    programType = "";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
@@ -121,6 +123,14 @@ public final class ProgramForm {
 
   public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
     this.isCommonIntakeForm = isCommonIntakeForm;
+  }
+
+  public String getProgramType() {
+    return programType;
+  }
+
+  public void setProgramType(String programType) {
+    this.programType = programType;
   }
 
   public Boolean getConfirmedChangeCommonIntakeForm() {
