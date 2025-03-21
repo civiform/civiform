@@ -1369,11 +1369,11 @@ export class AdminPrograms {
   }
 
   getCommonIntakeFormToggle() {
-    return this.page.locator('input[name=isCommonIntakeForm]')
+    return this.page.locator('input[id=common-intake-checkbox]')
   }
 
   async clickCommonIntakeFormToggle() {
-    await this.page.click('input[name=isCommonIntakeForm]')
+    await this.page.click('input[id=common-intake-checkbox]')
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {

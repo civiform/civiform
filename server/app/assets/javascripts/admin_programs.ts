@@ -29,8 +29,8 @@ class AdminPrograms {
   // - program category checkboxes (disabled and unchecked)
   // - application steps
   // - long program description (only if northstar UI is enabled)
-  static attachCommonIntakeChangeListener() {
-    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
+  static attachProgramTypeChangeListener() {
+    addEventListenerToElements('#program-type-fieldset', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
         document.querySelector('#common-intake-checkbox')
       )
@@ -203,7 +203,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
-  AdminPrograms.attachCommonIntakeChangeListener()
+  AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
