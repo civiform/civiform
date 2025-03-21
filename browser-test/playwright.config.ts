@@ -3,13 +3,18 @@ import {BASE_URL} from './src/support/config'
 
 import fs from 'fs'
 import path from 'path'
-import crypto from 'crypto'
+
+interface TestFile {
+  file: string
+  size: number
+}
 
 /**
- * Recursively finds all 'test.ts' files in './src', sorts them by MD5 hash.
+ * Recursively finds all 'test.ts' files in './src', sorts them to ensure
+ * deterministic ordering with even distribution of file sizes across shards.
  */
 /* eslint-disable */
-function getTestFilesSortedByHash(dir: string = './src'): string[] {
+function getTestFilesSortedBySize(dir: string = './src'): string[] {
   const results: string[] = []
 
   function search(directory: string) {
@@ -23,16 +28,37 @@ function getTestFilesSortedByHash(dir: string = './src'): string[] {
 
   search(dir)
 
-  return results
-    .map((file) => ({
+  // Get files with size information
+  const filesWithInfo: TestFile[] = results.map((file) => {
+    const stats = fs.statSync(file)
+    return {
       file,
-      hash: crypto
-        .createHash('md5')
-        .update(fs.readFileSync(file))
-        .digest('hex'),
-    }))
-    .sort((a, b) => a.hash.localeCompare(b.hash))
-    .map((entry) => entry.file)
+      size: stats.size,
+    }
+  })
+
+  // Sort by path first for determinism (when sizes are equal)
+  filesWithInfo.sort((a, b) => a.file.localeCompare(b.file))
+
+  // Sort by size in descending order
+  const bySize = [...filesWithInfo].sort((a, b) => b.size - a.size)
+
+  // Create a new array where we alternate between large and small files
+  const distributedFiles: TestFile[] = []
+  const halfLength = Math.ceil(bySize.length / 2)
+
+  // Take one from beginning, one from end, and so on
+  for (let i = 0; i < halfLength; i++) {
+    const largeFile = bySize[i]
+    if (largeFile) distributedFiles.push(largeFile)
+
+    const smallFile = bySize[bySize.length - 1 - i]
+    // Avoid duplicating the middle element in odd-length arrays
+    if (smallFile && smallFile !== largeFile) distributedFiles.push(smallFile)
+  }
+
+  // Return just the file paths
+  return distributedFiles.map((entry) => entry.file)
 }
 
 // For details see: https://playwright.dev/docs/api/class-testconfig
@@ -78,7 +104,7 @@ export default defineConfig({
   ],
   projects: [
     {
-      testMatch: getTestFilesSortedByHash(),
+      testMatch: getTestFilesSortedBySize(),
     },
   ],
 })
