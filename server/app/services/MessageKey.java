@@ -288,6 +288,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
+  LINK_SKIP_TO_MAIN_CONTENT("link.skipToMainContent"), // North Star only
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only

@@ -4,8 +4,11 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
   <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
     <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
     <main
+      id="main-content"
+      tabindex="-1"
       role="main"
       th:with="question=${applicationParams.block().getQuestions().get(0)},
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
@@ -73,11 +76,11 @@
                 class="grid"
               >
                 <li
-                  th:each="fileKey: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
                   class="grid-row margin-y-1"
                 >
                   <span
-                    th:text="${fileUploadViewStrategy.getFileName(fileKey)}"
+                    th:text="${fileUploadViewStrategy.getFileName(fileUploadQuestion.getFileNameForIndex(iter.index).get())}"
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a
