@@ -629,7 +629,7 @@ public enum Icons {
         icon = Icons.ENUMERATOR;
         break;
       case STATIC:
-        icon= Icons.ANNOTATION;
+        icon = Icons.ANNOTATION;
         break;
       case TEXT:
         icon = Icons.TEXT;
