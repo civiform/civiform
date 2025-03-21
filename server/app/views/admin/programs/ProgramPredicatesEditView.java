@@ -286,7 +286,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
         .withClasses("my-4", "p-4", "flex", "flex-row", "gap-4", "border", "border-gray-300")
         .with(checkbox)
         .with(
-            div(Icons.questionTypeSvgWithId(questionDefinition.getQuestionType())
+            div(Icons.questionTypeSvg(questionDefinition.getQuestionType())
                     .withClasses("shrink-0", "h-12", "w-6"))
                 .withClasses("flex", "items-center"))
         .with(

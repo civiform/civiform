@@ -144,7 +144,6 @@ public enum Icons {
       24,
       "M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8"
           + " 5-8-5h16zm0 12H4V8l8 5 8-5v10z"),
-  EMAIL_LINK(24, ""),
   // Forms Add On
   ENUMERATOR(
       24,
@@ -470,65 +469,65 @@ public enum Icons {
    * Returns SVG element for given question. Note that callers need to size this element using
    * Tailwind classes like any other element.
    */
-  //  public static SvgTag questionTypeSvg(QuestionType type) {
-  //    Icons icon;
-  //    switch (type) {
-  //      case ADDRESS:
-  //        icon = Icons.ADDRESS;
-  //        break;
-  //      case CHECKBOX:
-  //        icon = Icons.CHECKBOX;
-  //        break;
-  //      case CURRENCY:
-  //        return svg(Icons.CURRENCY)
-  //            .attr("fill", "none")
-  //            .attr("stroke-linecap", "round")
-  //            .attr("stroke-linejoin", "round")
-  //            .attr("stroke-width", "2");
-  //      case DATE:
-  //        icon = Icons.DATE;
-  //        break;
-  //      case DROPDOWN:
-  //        icon = Icons.DROPDOWN;
-  //        break;
-  //      case EMAIL:
-  //        icon = Icons.EMAIL;
-  //        break;
-  //      case FILEUPLOAD:
-  //        icon = Icons.FILEUPLOAD;
-  //        break;
-  //      case ID:
-  //        icon = Icons.ID;
-  //        break;
-  //      case NAME:
-  //        icon = Icons.NAME;
-  //        break;
-  //      case NUMBER:
-  //        icon = Icons.NUMBER;
-  //        break;
-  //      case RADIO_BUTTON:
-  //        icon = Icons.RADIO_BUTTON;
-  //        break;
-  //      case ENUMERATOR:
-  //        icon = Icons.ENUMERATOR;
-  //        break;
-  //      case STATIC:
-  //        return svg(Icons.ANNOTATION)
-  //            .attr("fill", "none")
-  //            .attr("stroke-linecap", "round")
-  //            .attr("stroke-linejoin", "round")
-  //            .attr("stroke-width", "2");
-  //      case TEXT:
-  //        icon = Icons.TEXT;
-  //        break;
-  //      case PHONE:
-  //        icon = Icons.PHONE;
-  //        break;
-  //      default: // fall through
-  //        icon = Icons.UNKNOWN;
-  //    }
-  //    return svg(icon);
-  //  }
+    public static SvgTag questionTypeSvg(QuestionType type) {
+      Icons icon;
+      switch (type) {
+        case ADDRESS:
+          icon = Icons.ADDRESS;
+          break;
+        case CHECKBOX:
+          icon = Icons.CHECKBOX;
+          break;
+        case CURRENCY:
+          return svg(Icons.CURRENCY)
+              .attr("fill", "none")
+              .attr("stroke-linecap", "round")
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-width", "2");
+        case DATE:
+          icon = Icons.DATE;
+          break;
+        case DROPDOWN:
+          icon = Icons.DROPDOWN;
+          break;
+        case EMAIL:
+          icon = Icons.EMAIL;
+          break;
+        case FILEUPLOAD:
+          icon = Icons.FILEUPLOAD;
+          break;
+        case ID:
+          icon = Icons.ID;
+          break;
+        case NAME:
+          icon = Icons.NAME;
+          break;
+        case NUMBER:
+          icon = Icons.NUMBER;
+          break;
+        case RADIO_BUTTON:
+          icon = Icons.RADIO_BUTTON;
+          break;
+        case ENUMERATOR:
+          icon = Icons.ENUMERATOR;
+          break;
+        case STATIC:
+          return svg(Icons.ANNOTATION)
+              .attr("fill", "none")
+              .attr("stroke-linecap", "round")
+              .attr("stroke-linejoin", "round")
+              .attr("stroke-width", "2");
+        case TEXT:
+          icon = Icons.TEXT;
+          break;
+        case PHONE:
+          icon = Icons.PHONE;
+          break;
+        default: // fall through
+          icon = Icons.UNKNOWN;
+      }
+      return svg(icon);
+    }
 
   public static SvgTag questionTypeSvgWithId(QuestionType type) {
     Icons icon;
@@ -581,8 +580,14 @@ public enum Icons {
       default: // fall through
         icon = Icons.UNKNOWN;
     }
-    return new SvgTag()
-        .with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
+    return svg(icon).withId(makeSvgLinkId(icon));
+  }
+
+  /**
+   * Generate the HTML ID for the icon
+   */
+  private static String makeSvgLinkId(Icons icon) {
+    return String.format("svg-link-%s", icon.name().toLowerCase(Locale.ROOT));
   }
 
   /**
@@ -641,7 +646,7 @@ public enum Icons {
         icon = Icons.UNKNOWN;
     }
     return new SvgTag()
-        .with(new UseTag().attr("href", "#svg-link-" + icon.name().toLowerCase(Locale.ROOT)));
+      .with(new UseTag().attr("href", "#" + makeSvgLinkId(icon)));
   }
 
   public String getViewBox() {
