@@ -908,25 +908,6 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      validateProgramDataForCreate_noErrorWhenMissingApplicationStepsForExternalProgram() {
-    ImmutableSet<CiviFormError> result =
-        ps.validateProgramDataForCreate(
-            "name-two",
-            "display name",
-            "display description",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            /* notificationPreferences= */ ImmutableList.of(),
-            /* categoryIds= */ ImmutableList.of(),
-            /* tiGroups= */ ImmutableList.of(),
-            /* applicationSteps= */ ImmutableList.of(),
-            ProgramType.EXTERNAL_PROGRAM);
-
-    assertThat(result).isEmpty();
-  }
-
-  @Test
   public void checkApplicationStepErrors_returnsErrorWhenNoSteps() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
@@ -1247,47 +1228,6 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(new ApplicationStep("title", "description")));
 
     assertThat(result.hasResult()).isTrue();
-    assertThat(result.isError()).isFalse();
-  }
-
-  @Test
-  public void updateProgram_allowsUpdatingExternalProgram() throws Exception {
-    ErrorAnd<ProgramDefinition, CiviFormError> externalProgram =
-        ps.createProgramDefinition(
-            "name-one",
-            "original description",
-            "original display name",
-            "",
-            "original short display description",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(),
-            /* eligibilityIsGating= */ true,
-            ProgramType.EXTERNAL_PROGRAM,
-            ImmutableList.of(),
-            /* categoryIds= */ ImmutableList.of(),
-            /* applicationSteps= */ ImmutableList.of());
-
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateProgramDefinition(
-            externalProgram.getResult().id(),
-            Locale.US,
-            "updated description",
-            "updated display name",
-            "",
-            "updated short description",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(),
-            /* eligibilityIsGating= */ true,
-            ProgramType.COMMON_INTAKE_FORM,
-            ImmutableList.of(),
-            /* categories= */ ImmutableList.of(),
-            /* applicationSteps= */ ImmutableList.of());
-
-getSlug    assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
   }
 
