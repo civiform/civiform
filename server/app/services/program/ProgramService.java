@@ -406,7 +406,7 @@ public final class ProgramService {
             defaultShortDescription,
             defaultConfirmationMessage,
             externalLink,
-            displayMode,
+            DisplayMode.valueOf(displayMode),
             notificationPreferencesAsEnums,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersionOrCreate(),
