@@ -529,6 +529,12 @@ public enum Icons {
     return svg(icon);
   }
 
+  /**
+   * This method makes use of a previously created svg with the help of <use></use> tag. To know
+   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
+   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
+   * to the original svg's id.
+   */
   public static SvgTag questionTypeSvgWithId(QuestionType type) {
     Icons icon;
     switch (type) {
