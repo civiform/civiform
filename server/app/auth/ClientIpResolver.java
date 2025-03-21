@@ -65,15 +65,10 @@ public final class ClientIpResolver {
    */
   public String resolveClientIp(PlayWebContext context) {
 
-    switch (clientIpType) {
-      case DIRECT:
-        return context.getRemoteAddr();
-      case FORWARDED:
-        return getClientIpFromRequest(context);
-      default:
-        throw new IllegalStateException(
-            String.format("Unrecognized ClientIpType: %s", clientIpType));
-    }
+    return switch (clientIpType) {
+      case DIRECT -> context.getRemoteAddr();
+      case FORWARDED -> getClientIpFromRequest(context);
+    };
   }
 
   private String getClientIpFromRequest(PlayWebContext context) {

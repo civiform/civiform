@@ -180,23 +180,18 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private ATag createBackButton(
       ProgramDefinition programDefinition, ProgramEditStatus programEditStatus) {
-    String backTarget;
-    switch (programEditStatus) {
-      case EDIT:
-        backTarget = routes.AdminProgramBlocksController.index(programDefinition.id()).url();
-        break;
-      case CREATION:
-      case CREATION_EDIT:
-        // By the time we're in the image view, the program has been created so the new status is
-        // CREATION_EDIT.
-        backTarget =
-            routes.AdminProgramController.edit(
-                    programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
-                .url();
-        break;
-      default:
-        throw new IllegalStateException("All cases should be handled above");
-    }
+    String backTarget =
+        switch (programEditStatus) {
+          case EDIT -> routes.AdminProgramBlocksController.index(programDefinition.id()).url();
+          case CREATION, CREATION_EDIT ->
+              // By the time we're in the image view, the program has been created so the new status
+              // is
+              // CREATION_EDIT.
+              routes.AdminProgramController.edit(
+                      programDefinition.id(), ProgramEditStatus.CREATION_EDIT.name())
+                  .url();
+          default -> throw new IllegalStateException("All cases should be handled above");
+        };
 
     return new LinkElement()
         .setHref(backTarget)
