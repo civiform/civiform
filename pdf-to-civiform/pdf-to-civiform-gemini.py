@@ -262,56 +262,6 @@ def process_file(file_full, model_name, client):
         return None
 
 
-def process_directory(directory, model_name, client):
-    """
-    Processes all PDF files in a given directory.
-
-    Args:
-        directory (str): The path to the directory containing PDF files.
-        model_name (str): The name of the LLM model to use.
-        client: The initialized Gemini client.
-
-    Returns:
-        dict: Dictionary containing success and failure details.
-    """
-    success_count = 0
-    fail_count = 0
-    total_files = 0
-    # Check if the directory is outside the allowed working directory
-    if not os.path.abspath(directory).startswith(os.path.abspath(work_dir)):
-        logging.error(
-            f"Attempted access outside working directory: {directory}")
-        return {
-            "total_files": 0,
-            "success_count": 0,
-            "fail_count": 0,
-            "file_results": {}
-        }
-
-    file_results = {}
-
-    for filename in os.listdir(directory):
-        if filename.lower().endswith(".pdf"):
-            total_files += 1
-            file_full = os.path.join(directory, filename)
-            civiform_json = process_file(file_full, model_name, client)
-            file_results[filename] = {"success": False, "error_message": ""}
-            if civiform_json:
-                success_count += 1
-                file_results[filename]["success"] = True
-            else:
-                fail_count += 1
-                file_results[filename]["success"] = False
-                file_results[filename][
-                    "error_message"] = "Failed to process file."
-    return {
-        "total_files": total_files,
-        "success_count": success_count,
-        "fail_count": fail_count,
-        "file_results": file_results
-    }
-
-
 @app.route('/')
 def index():
     return render_template('index.html', debug_log="")
@@ -360,17 +310,78 @@ def upload_file():
         return jsonify({"error": "An error occurred during file upload."}), 500
 
 
+def process_directory(directory, model_name, client):
+    """
+    Processes all PDF files in a given directory and returns summary information.
+
+    Args:
+        directory (str): The path to the directory containing PDF files.
+        model_name (str): The name of the LLM model to use.
+        client: The initialized Gemini client.
+
+    Returns:
+        dict: Dictionary containing summary details (total, success, fail, file_results).
+    """
+    success_count = 0
+    fail_count = 0
+    total_files = 0
+    # Check if the directory is outside the allowed working directory
+    if not os.path.abspath(directory).startswith(os.path.abspath(work_dir)):
+        logging.error(
+            f"Attempted access outside working directory: {directory}")
+        return {
+            "total_files": 0,
+            "success_count": 0,
+            "fail_count": 0,
+            "file_results": {}
+        }
+
+    file_results = {}
+
+    for filename in os.listdir(directory):
+        if filename.lower().endswith(".pdf"):
+            total_files += 1
+            file_full = os.path.join(directory, filename)
+            civiform_json = process_file(file_full, model_name, client)
+            file_results[filename] = {"success": False, "error_message": ""}
+            if civiform_json:
+                success_count += 1
+                file_results[filename]["success"] = True
+            else:
+                fail_count += 1
+                file_results[filename]["success"] = False
+                file_results[filename][
+                    "error_message"] = "Failed to process file."
+
+    # Prepare the debug log string
+    debug_log = log_stream.getvalue()
+    log_stream.seek(0)
+    log_stream.truncate(0)
+
+    return {
+        "total_files": total_files,
+        "success_count": success_count,
+        "fail_count": fail_count,
+        "file_results": file_results,
+        "debug_log": debug_log
+    }
+
+
 @app.route('/upload_directory', methods=['POST'])
 def upload_directory():
     """
-    Endpoint to upload a directory of files and process each one.
+    Endpoint to process a directory of files and return a summary.
     """
+    log_stream.seek(0)
+    log_stream.truncate(0)
+
     # Get LLM model name and log level from the request
     model_name = request.form.get('modelName')
-    logging.getLogger().setLevel(
-        getattr(
-            logging,
-            request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+    log_level_str = request.form.get('logLevel', 'INFO').upper()
+    log_level = getattr(logging, log_level_str, logging.INFO)
+    logging.getLogger().setLevel(log_level)
+    logging.info(f"Log level set to: {logging.getLevelName(log_level)}")
+    logging.debug(f"log_level_str passed in: {log_level_str}")
 
     directory_path = request.form.get(
         'directoryPath', default_upload_dir)  # Get path or default
@@ -395,43 +406,19 @@ def upload_directory():
     client = initialize_gemini_model(model_name)
 
     directory_result = process_directory(directory_path, model_name, client)
-    if directory_result["total_files"] == 0:
-        return jsonify(
-            {
-                "summary":
-                    {
-                        "total_files": directory_result["total_files"],
-                        "success_count": directory_result["success_count"],
-                        "fail_count": directory_result["fail_count"],
-                        "file_results": directory_result["file_results"]
-                    }
-            })
-    if directory_result["success_count"] == 0 and directory_result[
-            "fail_count"] > 0:
-        return jsonify(
-            {
-                "error": "No files processed successfully.",
-                "summary":
-                    {
-                        "total_files": directory_result["total_files"],
-                        "success_count": directory_result["success_count"],
-                        "fail_count": directory_result["fail_count"],
-                        "file_results": directory_result["file_results"]
-                    }
-            }), 500
+    debug_log = directory_result.get("debug_log", "No debug log captured.")
 
-    return jsonify(
-        {
-            "summary":
-                {
-                    "total_files": directory_result["total_files"],
-                    "success_count": directory_result["success_count"],
-                    "fail_count": directory_result["fail_count"],
-                    "file_results": directory_result["file_results"]
-                }
+    response_data = {
+        "summary": {
+            "total_files": directory_result["total_files"],
+            "success_count": directory_result["success_count"],
+            "fail_count": directory_result["fail_count"],
+            "file_results": directory_result["file_results"]
         },
-        sort_keys=False)
+        "debug_log": debug_log
+    }
 
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 7000)))

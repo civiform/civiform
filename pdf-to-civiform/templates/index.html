@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF Form to CiviForm JSON</title>
     <style>
-      #output {
+      #output, #directoryOutput { /* Apply styles to both output areas */
         width: 95%;
-        height: 400px;
+        height: 200px;
         border: 1px solid #ccc;
         padding: 10px;
         font-family: monospace;
@@ -32,24 +32,39 @@
       }
 
       .inline-form-group input[type='text'] {
-        margin-right: 20px; /* Increased margin */
+        margin-right: 20px;
+        /* Increased margin */
       }
 
       /* Style all buttons to look like the default file input */
       button {
-        border: 1px solid #ccc; /* Light gray border */
-        background-color: #eee; /* Light gray background */
-        color: #333; /* Dark gray text */
+        border: 1px solid #ccc;
+        /* Light gray border */
+        background-color: #eee;
+        /* Light gray background */
+        color: #333;
+        /* Dark gray text */
         padding: 5px 10px;
         border-radius: 4px;
         cursor: pointer;
         margin-right: 10px;
-        font-family: inherit; /* Use the default font */
-        font-size: inherit; /* Use the default font size */
+        font-family: inherit;
+        /* Use the default font */
+        font-size: inherit;
+        /* Use the default font size */
       }
 
       .section-spacer {
         margin-top: 50px;
+      }
+
+      .file-input-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .output-container {
+        margin-bottom: 20px;
       }
     </style>
     <script>
@@ -74,7 +89,7 @@
         const outputContainer = document.querySelector('.output-container')
 
         outputTextArea.value = 'Processing...'
-        updateCharacterCount('')
+        updateCharacterCount('output', '')
         outputContainer.classList.add('show')
 
         try {
@@ -86,12 +101,11 @@
           if (!response.ok) {
             const errorText = await response.text()
             outputTextArea.value = `Error: ${response.status} - ${errorText}`
-            updateCharacterCount(errorText)
+            updateCharacterCount('output', errorText)
             return
           }
 
           const responseData = await response.text()
-          console.log('Raw responseData:', responseData)
           try {
             const firstParse = JSON.parse(responseData) // Parse the outer string
             const jsonData = JSON.parse(firstParse) // Parse the inner string (which was the result of the first parse)
@@ -105,111 +119,118 @@
               responseData
           }
 
-          const debugLogElement = document.getElementById('debugLog')
-          if (debugLogElement) {
-            if (responseData.debug_log) {
-              debugLogElement.textContent = responseData.debug_log
-            } else {
-              debugLogElement.textContent = 'No debug log for single file'
-            }
-          }
-
-          updateCharacterCount(outputTextArea.value)
+          updateCharacterCount('output', outputTextArea.value)
         } catch (error) {
           outputTextArea.value = `Request failed: ${error}`
-          updateCharacterCount(outputTextArea.value)
+          updateCharacterCount('output', outputTextArea.value)
         }
       }
 
       async function uploadDirectory(event) {
-        event.preventDefault()
+        event.preventDefault();
 
-        const outputContainer = document.querySelector('.output-container')
-        const outputTextArea = document.getElementById('output')
+        const outputTextArea = document.getElementById('directoryOutput');
+        const outputContainer = document.querySelector('#directory-output-container');
 
-        outputTextArea.value = 'Processing directory... please wait'
-        updateCharacterCount('')
-        outputContainer.classList.add('show')
+        outputTextArea.value = 'Processing directory... please wait';
+        updateCharacterCount('directoryOutput', '');
+        outputContainer.classList.add('show');
 
-        const formData = new FormData()
+        const formData = new FormData();
         formData.append(
           'modelName',
           document.getElementById('LLMModelSelect').value,
-        )
-        formData.append('logLevel', getLogLevel())
+        );
+        formData.append('logLevel', getLogLevel());
 
         formData.append(
           'directoryPath',
           document.getElementById('directoryPath').value,
-        )
+        );
 
         try {
           const response = await fetch('/upload_directory', {
             method: 'POST',
             body: formData,
-          })
+          });
 
           if (!response.ok) {
-            const errorText = await response.text()
-            outputTextArea.value = `Error: ${response.status} - ${errorText}`
-            updateCharacterCount(errorText)
-            const debugLogElement = document.getElementById('debugLog')
-            if (debugLogElement) {
-              debugLogElement.textContent =
-                'No debug log. Check console for details.'
-            }
-
-            return
+            const errorText = await response.text();
+            outputTextArea.value = `Error: ${response.status} - ${errorText}`;
+            updateCharacterCount('directoryOutput', errorText);
+            return;
           }
 
-          const responseData = await response.json()
-          outputTextArea.value = JSON.stringify(responseData, null, 2)
+          const responseData = await response.json();
 
-          const summaryElement = document.getElementById('processingSummary')
-          if (summaryElement) {
-            if (responseData.summary) {
-              const summary = responseData.summary
-              summaryElement.textContent = `Total Files: ${summary.total_files}, Succeeded: ${summary.success_count}, Failed: ${summary.fail_count}`
+          if (responseData.summary) {
+            const summary = responseData.summary;
+            let outputText = `Directory Processing Summary:\nTotal Files: ${summary.total_files}\nSucceeded: ${summary.success_count}\nFailed: ${summary.fail_count}\n\n`;
+
+            if (summary.file_results) {
+                outputText += "Details:\n";
+                for (const file in summary.file_results) {
+                    outputText += `${file}: ${summary.file_results[file].success ? 'Success' : 'Fail'}`;
+                    if (summary.file_results[file].error_message) {
+                        outputText += ` - ${summary.file_results[file].error_message}`;
+                    }
+                    outputText += "\n";
+                }
             } else {
-              summaryElement.textContent = 'No summary available'
+                outputText += "No file details available.\n";
             }
-          }
+            outputTextArea.value = outputText;
+            updateCharacterCount('directoryOutput', outputText);
 
-          const debugLogElement = document.getElementById('debugLog')
-          if (debugLogElement) {
-            debugLogElement.textContent = responseData.debug_log
+          } else {
+            outputTextArea.value = 'No summary available';
+            updateCharacterCount('directoryOutput', outputTextArea.value);
           }
-
-          updateCharacterCount(outputTextArea.value)
         } catch (error) {
-          outputTextArea.value = `Request failed: ${error}`
-          updateCharacterCount(outputTextArea.value)
+          outputTextArea.value = `Request failed: ${error}`;
+          updateCharacterCount('directoryOutput', outputTextArea.value);
         }
       }
 
-      function updateCharacterCount(text) {
-        document.getElementById('charCount').textContent =
-          `Character Count: ${text.length}`
+      function updateCharacterCount(textAreaId, text) {
+        const charCountElement = document.getElementById(`${textAreaId}CharCount`);
+        if (charCountElement) {
+            charCountElement.textContent = `Character Count: ${text.length}`;
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function () {
-        const outputTextArea = document.getElementById('output')
-        updateCharacterCount(outputTextArea.value)
-        outputTextArea.addEventListener('input', function () {
-          updateCharacterCount(outputTextArea.value)
-        })
-      })
+        const outputTextArea = document.getElementById('output');
+        const directoryOutputTextArea = document.getElementById('directoryOutput');
 
-      function copyToClipboard() {
-        const outputTextArea = document.getElementById('output')
-        outputTextArea.select()
-        document.execCommand('copy')
-        if (window.getSelection) {
-          window.getSelection().removeAllRanges()
-        } else if (document.selection) {
-          document.selection.empty()
+        if (outputTextArea) {
+            updateCharacterCount('output', outputTextArea.value);
+            outputTextArea.addEventListener('input', function () {
+                updateCharacterCount('output', outputTextArea.value);
+            });
         }
-        alert('Copied to clipboard!')
+        if (directoryOutputTextArea) {
+            updateCharacterCount('directoryOutput', directoryOutputTextArea.value);
+            directoryOutputTextArea.addEventListener('input', function () {
+                updateCharacterCount('directoryOutput', directoryOutputTextArea.value);
+            });
+        }
+      });
+
+      function copyToClipboard(textAreaId) {
+        const outputTextArea = document.getElementById(textAreaId);
+        if (!outputTextArea) {
+          console.error(`Text area with id "${textAreaId}" not found.`);
+          return;
+        }
+        outputTextArea.select();
+        document.execCommand('copy');
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges();
+        } else if (document.selection) {
+          document.selection.empty();
+        }
+        alert(`Copied content from ${textAreaId} to clipboard!`);
       }
     </script>
     <script>
@@ -253,8 +274,11 @@
           </li>
         </ul>
       </li>
-      <li>Copy the CiviForm JSON output and import it to CiviForm.</li>
-    </ol>
+      <li>
+        Copy the CiviForm JSON output and import it to CiviForm using the
+        <a href="https://docs.civiform.us/user-manual/civiform-admin-guide/program-migration#importing-a-program">"Import program" flow</a>.
+        </li>    
+      </ol>
 
     <div class="inline-form-group">
       <div class="form-group">
@@ -285,16 +309,15 @@
     </form>
 
     <div class="output-container">
-      <h2 class="section-spacer">
-        Output JSON (To-be-fixed: imcomplete json output):
+      <h3 class="section-spacer">
+        Output CiviForm JSON :
       </h2>
-      <button onclick="copyToClipboard()">Copy to Clipboard</button>
+      <button onclick="copyToClipboard('output')">Copy to Clipboard</button>
       <textarea
         id="output"
         placeholder="JSON output will appear here"
       ></textarea>
-      <div id="processingSummary"></div>
-      <div id="charCount">Character Count: 0</div>
+      <div id="outputCharCount">Character Count: 0</div>
     </div>
 
     <h2 class="section-spacer">Directory:</h2>
@@ -306,12 +329,23 @@
           id="directoryPath"
           name="directoryPath"
           value="~/pdf-to-civiform/pdf_forms"
+          size="50"
         />
         <button type="submit">Process Directory</button>
       </div>
     </form>
-    
-    <div id="debug-log-container">
+
+    <div class="output-container" id="directory-output-container">
+      <h3>Directory Processing Output:</h2>
+      <textarea
+        id="directoryOutput"
+        class="output-area"
+        placeholder="Directory processing summary and details will appear here"
+      ></textarea>
+
+    </div>
+
+    <div id="debug-log-container" style="display: none;">
       <h2>Debug Log:</h2>
       <pre id="debugLog"></pre>
     </div>
