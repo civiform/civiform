@@ -4,11 +4,6 @@ import {BASE_URL} from './src/support/config'
 import fs from 'fs'
 import path from 'path'
 
-interface TestFile {
-  file: string
-  size: number
-}
-
 /**
  * Recursively finds all 'test.ts' files in './src', sorts them to ensure
  * deterministic ordering with even distribution of file sizes across shards.
@@ -28,37 +23,53 @@ function getTestFilesSortedBySize(dir: string = './src'): string[] {
 
   search(dir)
 
-  // Get files with size information
-  const filesWithInfo: TestFile[] = results.map((file) => {
-    const stats = fs.statSync(file)
-    return {
-      file,
-      size: stats.size,
+  // Return just the file paths
+  return partitionFilesBySizeInOrder(results, 10)
+}
+
+/**
+ * Partitions file paths by file size into roughly balanced buckets,
+ * then returns a flat array of file paths: ordered by bucket, then file.
+ */
+/* eslint-disable */
+function partitionFilesBySizeInOrder(
+  filePaths: string[],
+  numBuckets: number,
+): string[] {
+  // Map file paths to { path, size }
+  const filesWithSizes = filePaths.map((file) => ({
+    path: file,
+    size: fs.statSync(file).size, // inline file size
+  }))
+
+  // Sort by descending size
+  filesWithSizes.sort((a, b) => b.size - a.size)
+
+  // Initialize buckets
+  const buckets: {sum: number; files: string[]}[] = Array.from(
+    {length: numBuckets},
+    () => ({
+      sum: 0,
+      files: [],
+    }),
+  )
+
+  // Distribute files
+  for (const file of filesWithSizes) {
+    // Find bucket with the smallest current sum
+    let bestBucket = buckets[0]
+    for (const bucket of buckets) {
+      if (bucket.sum < bestBucket.sum) {
+        bestBucket = bucket
+      }
     }
-  })
 
-  // Sort by path first for determinism (when sizes are equal)
-  filesWithInfo.sort((a, b) => a.file.localeCompare(b.file))
-
-  // Sort by size in descending order
-  const bySize = [...filesWithInfo].sort((a, b) => b.size - a.size)
-
-  // Create a new array where we alternate between large and small files
-  const distributedFiles: TestFile[] = []
-  const halfLength = Math.ceil(bySize.length / 2)
-
-  // Take one from beginning, one from end, and so on
-  for (let i = 0; i < halfLength; i++) {
-    const largeFile = bySize[i]
-    if (largeFile) distributedFiles.push(largeFile)
-
-    const smallFile = bySize[bySize.length - 1 - i]
-    // Avoid duplicating the middle element in odd-length arrays
-    if (smallFile && smallFile !== largeFile) distributedFiles.push(smallFile)
+    bestBucket.files.push(file.path)
+    bestBucket.sum += file.size
   }
 
-  // Return just the file paths
-  return distributedFiles.map((entry) => entry.file)
+  // Return a flat array in bucket order, then file order
+  return buckets.flatMap((bucket) => bucket.files)
 }
 
 // For details see: https://playwright.dev/docs/api/class-testconfig
