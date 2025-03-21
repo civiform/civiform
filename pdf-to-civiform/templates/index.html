@@ -7,7 +7,7 @@
     <style>
       #output {
         width: 95%;
-        height: 400px; /* Increased height */
+        height: 400px;
         border: 1px solid #ccc;
         padding: 10px;
         font-family: monospace;
@@ -16,21 +16,40 @@
         resize: both;
         word-wrap: break-word;
       }
+
       .form-group {
         margin-bottom: 10px;
       }
+
       .inline-form-group {
         display: flex;
         align-items: center;
         margin-bottom: 10px;
       }
+
       .inline-form-group label {
         margin-right: 10px;
       }
-      .inline-form-group input[type='text'],
-      .inline-form-group select,
-      .inline-form-group button {
+
+      .inline-form-group input[type='text'] {
+        margin-right: 20px; /* Increased margin */
+      }
+
+      /* Style all buttons to look like the default file input */
+      button {
+        border: 1px solid #ccc; /* Light gray border */
+        background-color: #eee; /* Light gray background */
+        color: #333; /* Dark gray text */
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
         margin-right: 10px;
+        font-family: inherit; /* Use the default font */
+        font-size: inherit; /* Use the default font size */
+      }
+
+      .section-spacer {
+        margin-top: 50px;
       }
     </style>
     <script>
@@ -53,9 +72,10 @@
 
         const outputTextArea = document.getElementById('output')
         const outputContainer = document.querySelector('.output-container')
+
         outputTextArea.value = 'Processing...'
-        updateCharacterCount('') // Initialize count
-        outputContainer.classList.add('show') // Show output
+        updateCharacterCount('')
+        outputContainer.classList.add('show')
 
         try {
           const response = await fetch('/upload', {
@@ -64,26 +84,37 @@
           })
 
           if (!response.ok) {
-            // Handle non-JSON error responses (e.g., plain text, HTML)
-            const errorText = await response.text() // Get the response as text
+            const errorText = await response.text()
             outputTextArea.value = `Error: ${response.status} - ${errorText}`
             updateCharacterCount(errorText)
             return
           }
 
-          const responseData = await response.json()
-          // Get the response as text, regardless of content type
-          outputTextArea.value = JSON.stringify(responseData, null, 2)
-
-          //update debug log:
-          const debugLogElement = document.getElementById('debugLog')
-          if (responseData.debug_log) {
-            debugLogElement.textContent = responseData.debug_log
-          } else {
-            debugLogElement.textContent = 'No debug log for single file'
+          const responseData = await response.text()
+          console.log('Raw responseData:', responseData)
+          try {
+            const firstParse = JSON.parse(responseData) // Parse the outer string
+            const jsonData = JSON.parse(firstParse) // Parse the inner string (which was the result of the first parse)
+            outputTextArea.value = JSON.stringify(jsonData, null, 2)
+          } catch (error) {
+            console.error('Error parsing JSON:', error)
+            outputTextArea.value =
+              'Error parsing JSON: ' +
+              error.message +
+              '\n\nRaw data:\n' +
+              responseData
           }
 
-          updateCharacterCount(JSON.stringify(responseData, null, 2))
+          const debugLogElement = document.getElementById('debugLog')
+          if (debugLogElement) {
+            if (responseData.debug_log) {
+              debugLogElement.textContent = responseData.debug_log
+            } else {
+              debugLogElement.textContent = 'No debug log for single file'
+            }
+          }
+
+          updateCharacterCount(outputTextArea.value)
         } catch (error) {
           outputTextArea.value = `Request failed: ${error}`
           updateCharacterCount(outputTextArea.value)
@@ -92,12 +123,13 @@
 
       async function uploadDirectory(event) {
         event.preventDefault()
-        const outputTextArea = document.getElementById('output')
+
         const outputContainer = document.querySelector('.output-container')
+        const outputTextArea = document.getElementById('output')
 
         outputTextArea.value = 'Processing directory... please wait'
-        outputContainer.classList.add('show')
         updateCharacterCount('')
+        outputContainer.classList.add('show')
 
         const formData = new FormData()
         formData.append(
@@ -106,7 +138,6 @@
         )
         formData.append('logLevel', getLogLevel())
 
-        // Get the directory path from the input field
         formData.append(
           'directoryPath',
           document.getElementById('directoryPath').value,
@@ -123,8 +154,10 @@
             outputTextArea.value = `Error: ${response.status} - ${errorText}`
             updateCharacterCount(errorText)
             const debugLogElement = document.getElementById('debugLog')
-            debugLogElement.textContent =
-              'No debug log. Check console for details.'
+            if (debugLogElement) {
+              debugLogElement.textContent =
+                'No debug log. Check console for details.'
+            }
 
             return
           }
@@ -132,20 +165,22 @@
           const responseData = await response.json()
           outputTextArea.value = JSON.stringify(responseData, null, 2)
 
-          // Update summary information
           const summaryElement = document.getElementById('processingSummary')
-          if (responseData.summary) {
-            const summary = responseData.summary // Extract the summary object
-            summaryElement.textContent = `Total Files: ${summary.total_files}, Succeeded: ${summary.success_count}, Failed: ${summary.fail_count}`
-          } else {
-            summaryElement.textContent = `No summary available`
+          if (summaryElement) {
+            if (responseData.summary) {
+              const summary = responseData.summary
+              summaryElement.textContent = `Total Files: ${summary.total_files}, Succeeded: ${summary.success_count}, Failed: ${summary.fail_count}`
+            } else {
+              summaryElement.textContent = 'No summary available'
+            }
           }
 
-          //update debug log:
           const debugLogElement = document.getElementById('debugLog')
-          debugLogElement.textContent = responseData.debug_log
+          if (debugLogElement) {
+            debugLogElement.textContent = responseData.debug_log
+          }
 
-          updateCharacterCount(JSON.stringify(responseData, null, 2))
+          updateCharacterCount(outputTextArea.value)
         } catch (error) {
           outputTextArea.value = `Request failed: ${error}`
           updateCharacterCount(outputTextArea.value)
@@ -164,6 +199,18 @@
           updateCharacterCount(outputTextArea.value)
         })
       })
+
+      function copyToClipboard() {
+        const outputTextArea = document.getElementById('output')
+        outputTextArea.select()
+        document.execCommand('copy')
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges()
+        } else if (document.selection) {
+          document.selection.empty()
+        }
+        alert('Copied to clipboard!')
+      }
     </script>
     <script>
       function getLogLevel() {
@@ -173,6 +220,7 @@
       }
     </script>
   </head>
+
   <body>
     <h1>PDF Form to CiviForm JSON</h1>
 
@@ -190,6 +238,8 @@
         <ul>
           <li>
             To process a single PDF, select it using the file selection button.
+            Click "Convert" (for a single file) to generate the CiviForm JSON
+            output.
           </li>
         </ul>
       </li>
@@ -197,14 +247,11 @@
         <strong>Directory Processing:</strong>
         <ul>
           <li>
-            Enter the server directory path where your PDF files are located.
-            Default: `~/pdf_forms`
+            Enter the server directory path (Default: `~/pdf_forms`) where your
+            PDF files are located. Click "Process Directory" (for multiple files
+            on the server) to generate the CiviForm JSON output.
           </li>
         </ul>
-      </li>
-      <li>
-        Click "Convert" (for a single file) or "Process Directory" (for multiple
-        files on the server) to generate the CiviForm JSON output.
       </li>
       <li>Copy the CiviForm JSON output and import it to CiviForm.</li>
     </ol>
@@ -237,7 +284,7 @@
       <button type="submit">Convert a single PDF file</button>
     </form>
 
-    <h2>Directory:</h2>
+    <h2 class="section-spacer">Directory:</h2>
     <form onsubmit="uploadDirectory(event)" class="form-group">
       <div class="inline-form-group">
         <label for="directoryPath">Server Directory Path:</label>
@@ -252,7 +299,10 @@
     </form>
 
     <div class="output-container">
-      <h2>Output JSON (To-be-fixed: imcomplete json output):</h2>
+      <h2 class="section-spacer">
+        Output JSON (To-be-fixed: imcomplete json output):
+      </h2>
+      <button onclick="copyToClipboard()">Copy to Clipboard</button>
       <textarea
         id="output"
         placeholder="JSON output will appear here"

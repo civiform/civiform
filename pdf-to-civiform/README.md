@@ -8,7 +8,7 @@ Relevant documentation and active work items are captured in this epic: [https:/
 To run the prototype:
 
 - Make sure you have your Gemini API key in `~/google_api_key`. (instruction: https://ai.google.dev/gemini-api/docs/quickstart?lang=python)
-- This script requires python 3.x and the set of dependencies:  "pip install -r python_dependencies.txt " 
+- This script requires python 3.x and the set of dependencies: "pip install -r python_dependencies.txt "
 - From `/workspaces/civiform/pdf-to-civiform`, run the following script from the command line:
 
   ```bash

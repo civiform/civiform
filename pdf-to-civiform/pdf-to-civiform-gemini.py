@@ -155,11 +155,12 @@ def format_json_single_line_fields(json_string: str) -> str:
             if isinstance(obj, dict):
                 if "label" in obj and "type" in obj and "id" in obj:
                     # Format field objects on a single line
-                    return json.dumps(obj, separators=(',', ':'))
+                    return json.dumps(
+                        obj, separators=(',', ':'), sort_keys=False)
                 else:
                     # Format other dictionaries with indentation
                     return "{\n" + "".join(
-                        f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ':'))}: {custom_dumps(v, level + 1)},\n"
+                        f"{'    ' * (level + 1)}{json.dumps(k, separators=(',', ':'), sort_keys=False)}: {custom_dumps(v, level + 1)},\n"
                         for k, v in obj.items())[:-2] + "\n" + (
                             "    " * level) + "}"
             elif isinstance(obj, list):
@@ -168,7 +169,7 @@ def format_json_single_line_fields(json_string: str) -> str:
                     f"{'    ' * (level + 1)}{custom_dumps(item, level + 1)},\n"
                     for item in obj)[:-2] + "\n" + ("    " * level) + "]"
             else:
-                return json.dumps(obj, separators=(',', ':'))
+                return json.dumps(obj, separators=(',', ':'), sort_keys=False)
 
         return custom_dumps(data)
 
@@ -318,37 +319,45 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
 
-    filename = secure_filename(file.filename)
-    file_full = os.path.join(default_upload_dir, filename)
-    file.save(file_full)
+        filename = secure_filename(file.filename)
+        file_full = os.path.join(default_upload_dir, filename)
+        file.save(file_full)
 
-    # Get LLM model name and log level from the request
-    model_name = request.form.get('modelName')
-    logging.getLogger().setLevel(
-        getattr(
-            logging,
-            request.form.get('logLevel', 'INFO').upper(), logging.INFO))
-    logging.info(
-        f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}"
-    )
-    logging.debug(
-        f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}"
-    )
+        # Get LLM model name and log level from the request
+        model_name = request.form.get('modelName')
+        logging.getLogger().setLevel(
+            getattr(
+                logging,
+                request.form.get('logLevel', 'INFO').upper(), logging.INFO))
+        logging.info(
+            f"Log level set to: {logging.getLevelName(logging.getLogger().getEffectiveLevel())}"
+        )
+        logging.debug(
+            f"log_level_str passed in: {request.form.get('logLevel', 'INFO').upper()}"
+        )
 
-    client = initialize_gemini_model(model_name)
+        client = initialize_gemini_model(model_name)
 
-    civiform_json = process_file(file_full, model_name, client)
+        civiform_json = process_file(file_full, model_name, client)
 
-    if civiform_json is None:
-        return jsonify({"error": "Failed to process file."}), 500
+        if civiform_json is None:
+            return jsonify({"error": "Failed to process file."}), 500
 
-    return jsonify(json.loads(civiform_json))
+        # Log the length
+        logging.info(f"Length of civiform_json: {len(civiform_json)}")
+
+        return jsonify(civiform_json)
+
+    except Exception as e:
+        logging.error(f"An error occurred during file upload: {e}")
+        return jsonify({"error": "An error occurred during file upload."}), 500
 
 
 @app.route('/upload_directory', methods=['POST'])
@@ -420,7 +429,8 @@ def upload_directory():
                     "fail_count": directory_result["fail_count"],
                     "file_results": directory_result["file_results"]
                 }
-        })
+        },
+        sort_keys=False)
 
 
 if __name__ == '__main__':
