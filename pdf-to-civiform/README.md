@@ -15,7 +15,7 @@ To run the prototype:
   python pdf_to_civiform.py
   ```
 
-- Launch `http://localhost:5000/` in your browser and upload a PDF file.
+- Launch `http://localhost:7001/` in your browser and upload a PDF file.
 
 There are 3 output files generated in `~/pdf-to-civiform/`. The "PREFIX" in the output filenames refers to the original PDF filename (without the '.pdf' extension).
 

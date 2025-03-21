@@ -284,20 +284,6 @@
       <button type="submit">Convert a single PDF file</button>
     </form>
 
-    <h2 class="section-spacer">Directory:</h2>
-    <form onsubmit="uploadDirectory(event)" class="form-group">
-      <div class="inline-form-group">
-        <label for="directoryPath">Server Directory Path:</label>
-        <input
-          type="text"
-          id="directoryPath"
-          name="directoryPath"
-          value="~/pdf-to-civiform/pdf_forms"
-        />
-        <button type="submit">Process Directory</button>
-      </div>
-    </form>
-
     <div class="output-container">
       <h2 class="section-spacer">
         Output JSON (To-be-fixed: imcomplete json output):
@@ -311,6 +297,20 @@
       <div id="charCount">Character Count: 0</div>
     </div>
 
+    <h2 class="section-spacer">Directory:</h2>
+    <form onsubmit="uploadDirectory(event)" class="form-group">
+      <div class="inline-form-group">
+        <label for="directoryPath">Server Directory Path:</label>
+        <input
+          type="text"
+          id="directoryPath"
+          name="directoryPath"
+          value="~/pdf-to-civiform/pdf_forms"
+        />
+        <button type="submit">Process Directory</button>
+      </div>
+    </form>
+    
     <div id="debug-log-container">
       <h2>Debug Log:</h2>
       <pre id="debugLog"></pre>
