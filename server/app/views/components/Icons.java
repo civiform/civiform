@@ -599,11 +599,8 @@ public enum Icons {
         icon = Icons.CHECKBOX;
         break;
       case CURRENCY:
-        return svg(Icons.CURRENCY)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        icon = Icons.CURRENCY;
+        break;
       case DATE:
         icon = Icons.DATE;
         break;
@@ -632,11 +629,8 @@ public enum Icons {
         icon = Icons.ENUMERATOR;
         break;
       case STATIC:
-        return svg(Icons.ANNOTATION)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        icon= Icons.ANNOTATION;
+        break;
       case TEXT:
         icon = Icons.TEXT;
         break;
