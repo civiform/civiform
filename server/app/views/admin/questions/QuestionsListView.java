@@ -305,12 +305,7 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses(
                 ReferenceClasses.QUESTION_BANK_ELEMENT,
-                "w-full",
-                "my-4",
-                "pl-6",
-                "border-gray-300",
-                "rounded-lg",
-                "border",
+                "question-bank-element",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .condWith(
                 getDisplayQuestion(cardData).isUniversal(),
@@ -383,7 +378,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
-            .withClasses("font-bold", "text-black", "flex", "flex-row", "items-center")
+            .withClasses("question-bank-info-cell")
             .with(
                 Icons.questionTypeSvg(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))

@@ -1,5 +1,6 @@
 package views.components;
 
+import java.util.Locale;
 import java.util.Optional;
 import services.question.types.QuestionType;
 
@@ -526,6 +527,129 @@ public enum Icons {
         icon = Icons.UNKNOWN;
     }
     return svg(icon);
+  }
+
+  /**
+   * This method creates a svg tag with an id. The reason for creating an id is to reuse the svg
+   * using the <use></> tag in the questionTypeSvgLink() method below.
+   */
+  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+    Icons icon;
+    switch (type) {
+      case ADDRESS:
+        icon = Icons.ADDRESS;
+        break;
+      case CHECKBOX:
+        icon = Icons.CHECKBOX;
+        break;
+      case CURRENCY:
+        icon = Icons.CURRENCY;
+        break;
+      case DATE:
+        icon = Icons.DATE;
+        break;
+      case DROPDOWN:
+        icon = Icons.DROPDOWN;
+        break;
+      case EMAIL:
+        icon = Icons.EMAIL;
+        break;
+      case FILEUPLOAD:
+        icon = Icons.FILEUPLOAD;
+        break;
+      case ID:
+        icon = Icons.ID;
+        break;
+      case NAME:
+        icon = Icons.NAME;
+        break;
+      case NUMBER:
+        icon = Icons.NUMBER;
+        break;
+      case RADIO_BUTTON:
+        icon = Icons.RADIO_BUTTON;
+        break;
+      case ENUMERATOR:
+        icon = Icons.ENUMERATOR;
+        break;
+      case STATIC:
+        icon = Icons.ANNOTATION;
+        break;
+      case TEXT:
+        icon = Icons.TEXT;
+        break;
+      case PHONE:
+        icon = Icons.PHONE;
+        break;
+      default: // fall through
+        icon = Icons.UNKNOWN;
+    }
+    return svg(icon).withId(makeSvgLinkId(icon));
+  }
+
+  /** Generate the HTML ID for the icon */
+  private static String makeSvgLinkId(Icons icon) {
+    return String.format("svg-link-%s", icon.name().toLowerCase(Locale.ROOT));
+  }
+
+  /**
+   * This method makes use of a previously created svg with the help of <use></use> tag. To know
+   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
+   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
+   * to the original svg's id.
+   */
+  public static SvgTag questionTypeSvgLink(QuestionType type) {
+    Icons icon;
+    switch (type) {
+      case ADDRESS:
+        icon = Icons.ADDRESS;
+        break;
+      case CHECKBOX:
+        icon = Icons.CHECKBOX;
+        break;
+      case CURRENCY:
+        icon = Icons.CURRENCY;
+        break;
+      case DATE:
+        icon = Icons.DATE;
+        break;
+      case DROPDOWN:
+        icon = Icons.DROPDOWN;
+        break;
+      case EMAIL:
+        icon = Icons.EMAIL;
+        break;
+      case FILEUPLOAD:
+        icon = Icons.FILEUPLOAD;
+        break;
+      case ID:
+        icon = Icons.ID;
+        break;
+      case NAME:
+        icon = Icons.NAME;
+        break;
+      case NUMBER:
+        icon = Icons.NUMBER;
+        break;
+      case RADIO_BUTTON:
+        icon = Icons.RADIO_BUTTON;
+        break;
+      case ENUMERATOR:
+        icon = Icons.ENUMERATOR;
+        break;
+      case STATIC:
+        icon = Icons.ANNOTATION;
+        break;
+      case TEXT:
+        icon = Icons.TEXT;
+        break;
+      case PHONE:
+        icon = Icons.PHONE;
+        break;
+      default: // fall through
+        icon = Icons.UNKNOWN;
+    }
+    return new SvgTag().with(new UseTag().attr("href", "#" + makeSvgLinkId(icon)));
   }
 
   public String getViewBox() {
