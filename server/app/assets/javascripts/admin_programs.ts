@@ -239,7 +239,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
-  AdminPrograms.attachCommonIntakeChangeListener()
+  AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
