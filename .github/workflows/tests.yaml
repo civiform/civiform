@@ -188,6 +188,16 @@ jobs:
             browser-test/tmp/html-output/
             browser-test/tmp/videos/
 
+      # Upload Playwright trace files and recorded videos. We want this for aws and azure so we
+      # have access to what happened in failed tests.
+      - name: Upload test videos on failure
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
+        with:
+          name: run-heuristics-${{ matrix.cloud }}-shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
+          path: |
+            browser-test/tmp/run-heuristics/
+
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -217,4 +227,3 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
-
