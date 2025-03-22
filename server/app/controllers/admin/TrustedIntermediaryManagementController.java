@@ -7,6 +7,7 @@ import controllers.FlashKey;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
 import forms.RemoveTrustedIntermediaryForm;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.TrustedIntermediaryGroupModel;
@@ -64,6 +65,14 @@ public class TrustedIntermediaryManagementController extends Controller {
     }
     if (Strings.isNullOrEmpty(form.get().getDescription())) {
       return flashCreateTIFieldValuesWithError("Must provide group description.", form);
+    }
+    List<String> trustedIntermediaryGroupsWithSameName =
+        accountRepository.listTrustedIntermediaryGroups().stream()
+            .map(TrustedIntermediaryGroupModel::getName)
+            .filter(name -> name.equals(form.get().getName()))
+            .toList();
+    if (!trustedIntermediaryGroupsWithSameName.isEmpty()) {
+      return flashCreateTIFieldValuesWithError("Must provide a unique group name.", form);
     }
     accountRepository.createNewTrustedIntermediaryGroup(
         form.get().getName(), form.get().getDescription());
