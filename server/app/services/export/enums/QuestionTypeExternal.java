@@ -26,37 +26,23 @@ public enum QuestionTypeExternal {
   PHONE;
 
   public static QuestionTypeExternal fromQuestionType(QuestionType questionTypeInternal) {
-    switch (questionTypeInternal) {
-      case ADDRESS:
-        return QuestionTypeExternal.ADDRESS;
-      case CHECKBOX:
-        return QuestionTypeExternal.MULTI_SELECT;
-      case CURRENCY:
-        return QuestionTypeExternal.CURRENCY;
-      case DATE:
-        return QuestionTypeExternal.DATE;
-      case DROPDOWN:
-      case RADIO_BUTTON:
-        return QuestionTypeExternal.SINGLE_SELECT;
-      case EMAIL:
-        return QuestionTypeExternal.EMAIL;
-      case ENUMERATOR:
-        return QuestionTypeExternal.ENUMERATOR;
-      case FILEUPLOAD:
-        return QuestionTypeExternal.FILE_UPLOAD;
-      case ID:
-        return QuestionTypeExternal.ID;
-      case NAME:
-        return QuestionTypeExternal.NAME;
-      case NUMBER:
-        return QuestionTypeExternal.NUMBER;
-      case TEXT:
-        return QuestionTypeExternal.TEXT;
-      case PHONE:
-        return QuestionTypeExternal.PHONE;
-      default:
-        throw new NotImplementedException(
-            "QuestionType." + questionTypeInternal.name() + " is not supported in the API.");
-    }
+    return switch (questionTypeInternal) {
+      case ADDRESS -> QuestionTypeExternal.ADDRESS;
+      case CHECKBOX -> QuestionTypeExternal.MULTI_SELECT;
+      case CURRENCY -> QuestionTypeExternal.CURRENCY;
+      case DATE -> QuestionTypeExternal.DATE;
+      case DROPDOWN, RADIO_BUTTON -> QuestionTypeExternal.SINGLE_SELECT;
+      case EMAIL -> QuestionTypeExternal.EMAIL;
+      case ENUMERATOR -> QuestionTypeExternal.ENUMERATOR;
+      case FILEUPLOAD -> QuestionTypeExternal.FILE_UPLOAD;
+      case ID -> QuestionTypeExternal.ID;
+      case NAME -> QuestionTypeExternal.NAME;
+      case NUMBER -> QuestionTypeExternal.NUMBER;
+      case TEXT -> QuestionTypeExternal.TEXT;
+      case PHONE -> QuestionTypeExternal.PHONE;
+      default ->
+          throw new NotImplementedException(
+              "QuestionType." + questionTypeInternal.name() + " is not supported in the API.");
+    };
   }
 }

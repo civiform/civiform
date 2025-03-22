@@ -276,20 +276,12 @@ public final class SettingsService {
   }
 
   private static String getDefaultValue(SettingDescription settingDescription) {
-    switch (settingDescription.settingType()) {
-      case INT:
-        return "0";
-      case ENUM:
-        return settingDescription.allowableValues().get().stream().findFirst().get();
-      case LIST_OF_STRINGS:
-      case STRING:
-        return "CHANGE ME";
-      case BOOLEAN:
-        return "false";
-      default:
-        throw new IllegalStateException(
-            String.format("Unrecognized setting type: %s", settingDescription.settingType()));
-    }
+    return switch (settingDescription.settingType()) {
+      case INT -> "0";
+      case ENUM -> settingDescription.allowableValues().get().stream().findFirst().get();
+      case LIST_OF_STRINGS, STRING -> "CHANGE ME";
+      case BOOLEAN -> "false";
+    };
   }
 
   /** Represents the result of an update attempt. */

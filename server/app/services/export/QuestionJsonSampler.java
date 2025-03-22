@@ -187,45 +187,31 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
 
     public QuestionJsonSampler create(QuestionType questionType) {
-      switch (questionType) {
-        case ADDRESS:
-          return addressJsonSampler;
-        case CHECKBOX:
-          return multiSelectJsonSampler;
-        case CURRENCY:
-          return currencyJsonSampler;
-        case DATE:
-          return dateJsonSampler;
-        case DROPDOWN:
-        case RADIO_BUTTON:
-          return singleSelectJsonSampler;
-        case EMAIL:
-          return emailJsonSampler;
+      return switch (questionType) {
+        case ADDRESS -> addressJsonSampler;
+        case CHECKBOX -> multiSelectJsonSampler;
+        case CURRENCY -> currencyJsonSampler;
+        case DATE -> dateJsonSampler;
+        case DROPDOWN -> singleSelectJsonSampler;
+        case RADIO_BUTTON -> singleSelectJsonSampler;
+        case EMAIL -> emailJsonSampler;
           // Answers to enumerator questions are not included. This is because enumerators store an
           // identifier value for each repeated entity, which with the current export logic
           // conflicts with the answers stored for repeated entities.
-        case ENUMERATOR:
-          return enumeratorJsonSampler;
-        case FILEUPLOAD:
-          return fileUploadJsonSampler;
-        case ID:
-          return idJsonSampler;
-        case NAME:
-          return nameJsonSampler;
-        case NUMBER:
-          return numberJsonSampler;
-        case PHONE:
-          return phoneJsonSampler;
+        case ENUMERATOR -> enumeratorJsonSampler;
+        case FILEUPLOAD -> fileUploadJsonSampler;
+        case ID -> idJsonSampler;
+        case NAME -> nameJsonSampler;
+        case NUMBER -> numberJsonSampler;
+        case PHONE -> phoneJsonSampler;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
-        case STATIC:
-          return emptyJsonSampler;
-        case TEXT:
-          return textJsonSampler;
+        case STATIC -> emptyJsonSampler;
+        case TEXT -> textJsonSampler;
 
-        default:
-          throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
-      }
+        default ->
+            throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
+      };
     }
   }
 
