@@ -112,10 +112,11 @@ export default defineConfig({
     ['html', {open: 'never', outputFolder: 'tmp/html-output'}],
     ['json', {outputFile: 'tmp/json-output/results.json'}],
     ['./src/reporters/file_placement_reporter.ts'],
+    ['./src/reporters/run_heuristics_reporter.ts'],
   ],
-  projects: [
-    {
-      testMatch: getTestFilesSortedBySize(),
-    },
-  ],
+  // projects: [
+  //   {
+  //     testMatch: getTestFilesSortedBySize(),
+  //   },
+  // ],
 })
