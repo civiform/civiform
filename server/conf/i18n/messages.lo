@@ -73,6 +73,8 @@ label.primaryNavigation=ການນຳທາງຫຼັກ
 label.agencyIdentifier=ຕົວລະບຸຕົວແທນ,
 # Aria-label for guest session alert
 label.guestSessionAlert=ແຈ້ງເຕືອນຂໍ້ມູນໄລຍະເວລາຂອງແຂກ
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
