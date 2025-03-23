@@ -24,17 +24,17 @@ class AdminPrograms {
     )
   }
 
-  // When the common intake checkbox is selected,
-  // the following fields should be disabled:
-  // - program category checkboxes (disabled and unchecked)
-  // - application steps
-  // - long program description (only if northstar UI is enabled)
-  static attachCommonIntakeChangeListener() {
-    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
+  // Listens when the program type fieldset is selected and disables fields as applicable.
+  static attachProgramTypeChangeListener() {
+    addEventListenerToElements('#program-type-fieldset', 'click', () => {
+      // Disable the following fields when the common intake checkbox is selected:
+      // - program category checkboxes (disabled and unchecked)
+      // - application steps
+      // - long program description (only if northstar UI is enabled)
+
       const commonIntakeCheckbox = <HTMLInputElement>(
         document.querySelector('#common-intake-checkbox')
       )
-
       const programCategoryCheckboxes = document.querySelectorAll(
         '[id^="checkbox-category"]',
       )
@@ -203,7 +203,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
-  AdminPrograms.attachCommonIntakeChangeListener()
+  AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
