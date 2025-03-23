@@ -9,7 +9,7 @@ import path from 'path'
  * deterministic ordering with even distribution of file sizes across shards.
  */
 /* eslint-disable */
-function getTestFilesSortedBySize(dir: string = './src'): string[] {
+function getTestFilesSorted(dir: string = './src'): string[] {
   const results: string[] = []
 
   function search(directory: string) {
@@ -23,8 +23,22 @@ function getTestFilesSortedBySize(dir: string = './src'): string[] {
 
   search(dir)
 
+
+  const runDurationTable: RunDurationTable = JSON.parse(fs.readFileSync('./run-heuristics.json', 'utf8'))
+
+  for (const l of results) {
+    if (!(l in runDurationTable)) {
+        runDurationTable[l] = 0
+    }
+  }
+
   // Return just the file paths
-  return partitionFilesBySizeInOrder(results, 10)
+  const buckets = partitionFiles(runDurationTable, 10)
+  const bins = buckets.flatMap((bucket) => bucket.files)
+
+  console.log(JSON.stringify(buckets, null, 4))
+  
+  return bins
 }
 
 /**
@@ -72,6 +86,58 @@ function partitionFilesBySizeInOrder(
   return buckets.flatMap((bucket) => bucket.files)
 }
 
+/**
+ *
+ */
+/* eslint-disable */
+function partitionFiles(
+  runDurationTable: RunDurationTable,
+  numBuckets: number,
+): Bucket[] {
+  const filesWithDurations = Object.entries(runDurationTable).map(
+    ([file, duration]) => ({
+      path: file,
+      duration: duration,
+    }),
+  )
+
+  // Sort by descending size
+  filesWithDurations.sort((a, b) => b.duration - a.duration)
+
+  // Initialize buckets
+  const buckets: Bucket[] = Array.from({length: numBuckets}, () => ({
+    duration: 0,
+    files: [],
+  }))
+
+  // Distribute files
+  for (const file of filesWithDurations) {
+    // Find bucket with the smallest current sum
+    let bestBucket = buckets[0]
+    for (const bucket of buckets) {
+      if (bucket.duration < bestBucket.duration) {
+        bestBucket = bucket
+      }
+    }
+
+    bestBucket.files.push(file.path)
+    bestBucket.duration += file.duration
+  }
+
+  return buckets
+}
+
+
+interface RunDurationTable {
+  [file: string]: number
+}
+
+interface Bucket {
+  duration: number
+  files: string[]
+}
+
+
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
 export default defineConfig({
@@ -114,9 +180,9 @@ export default defineConfig({
     ['./src/reporters/file_placement_reporter.ts'],
     ['./src/reporters/run_heuristics_reporter.ts'],
   ],
-  // projects: [
-  //   {
-  //     testMatch: getTestFilesSortedBySize(),
-  //   },
-  // ],
+  projects: [
+    {
+      testMatch: getTestFilesSorted(),
+    },
+  ],
 })

@@ -38,23 +38,15 @@ class RunHeuristicsReporter implements Reporter {
       fs.readFileSync('./tmp/json-output/results.json', 'utf8'),
     )
 
-    const resultHashTable = this.walkSuites(jsonObj.suites, {})
-    // const buckets = this.partitionFilesBySizeInOrder(resultHashTable, 3)
+    const runDurationTable: RunDurationTable = this.walkSuites(jsonObj.suites, {})
 
     fs.mkdirSync('./tmp/run-heuristics', {recursive: true})
 
     fs.writeFileSync(
       './tmp/run-heuristics/run-heuristics-report.json',
-      JSON.stringify(resultHashTable, null, 2),
+      JSON.stringify(runDurationTable, null, 2),
       'utf-8',
     )
-
-    // const flatBins = buckets.flatMap((bucket) => bucket.files)
-    // fs.writeFileSync(
-    //   './tmp/run-heuristics/run-heuristics-report.txt',
-    //   'src/' + flatBins.join(' src/'),
-    //   'utf-8',
-    // )
   }
 
   /**
@@ -63,8 +55,8 @@ class RunHeuristicsReporter implements Reporter {
    */
   walkSuites(
     suites: Suite[],
-    resultHashTable: ResultHashTable,
-  ): ResultHashTable {
+    resultHashTable: RunDurationTable,
+  ): RunDurationTable {
     for (const suite of suites) {
       if (suite.suites !== undefined) {
         this.walkSuites(suite.suites, resultHashTable)
@@ -166,8 +158,9 @@ interface Test {
 interface TestResult {
   duration: number
 }
+// End Playwright json report structure
 
-interface ResultHashTable {
+interface RunDurationTable {
   [file: string]: number
 }
 
