@@ -221,28 +221,13 @@ jobs:
 
           # Create report-heuristics directory
           mkdir -p combined-output/report-heuristics
-          # mkdir -p temp-json-files
-
-          # # Collect all JSON files into the temporary directory
-          # for artifact_dir in individual-artifacts/run-heuristics-aws-shard-*; do
-          #   if [[ -d "${artifact_dir}" ]]; then
-          #     echo "Processing directory: ${artifact_dir}"
-          #     find "${artifact_dir}" -name "*.json" -exec cp {} temp-json-files/ \;
-          #   fi
-          # done
-
-          # echo "JSON files collected for merging:"
-          # ls -la temp-json-files/
 
           # Merge all JSON files into a single object using jq
           echo "Merging JSON files into a single combined file..."
-          jq -s 'reduce .[] as $item ({}; . + $item)' individual-artifacts/run-heuristics-aws-shard-*/*.json > combined-output/report-heuristics.json
+          jq -s 'reduce .[] as $item ({}; . + $item)' individual-artifacts/run-heuristics-aws-shard-*/*.json > combined-output/run-heuristics.json
 
           echo "Contents of the combined JSON file:"
-          cat combined-output/report-heuristics.json
-
-          # # Remove temporary directory
-          # rm -rf temp-json-files
+          cat combined-output/run-heuristics.json
 
           # Show the final structure
           echo "Final artifact structure:"
