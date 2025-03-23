@@ -38,7 +38,10 @@ class RunHeuristicsReporter implements Reporter {
       fs.readFileSync('./tmp/json-output/results.json', 'utf8'),
     )
 
-    const runDurationTable: RunDurationTable = this.walkSuites(jsonObj.suites, {})
+    const runDurationTable: RunDurationTable = this.walkSuites(
+      jsonObj.suites,
+      {},
+    )
 
     fs.mkdirSync('./tmp/run-heuristics', {recursive: true})
 
@@ -62,11 +65,12 @@ class RunHeuristicsReporter implements Reporter {
         this.walkSuites(suite.suites, resultHashTable)
       }
 
-      if (resultHashTable[suite.file] === undefined) {
-        resultHashTable[suite.file] = 0
+      const key = 'src/' + suite.file
+      if (resultHashTable[key] === undefined) {
+        resultHashTable[key] = 0
       }
 
-      resultHashTable[suite.file] += this.processSpecs(suite.specs)
+      resultHashTable[key] += this.processSpecs(suite.specs)
     }
 
     return resultHashTable

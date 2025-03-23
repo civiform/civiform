@@ -23,12 +23,13 @@ function getTestFilesSorted(dir: string = './src'): string[] {
 
   search(dir)
 
-
-  const runDurationTable: RunDurationTable = JSON.parse(fs.readFileSync('./run-heuristics.json', 'utf8'))
+  const runDurationTable: RunDurationTable = JSON.parse(
+    fs.readFileSync('./run-heuristics.json', 'utf8'),
+  )
 
   for (const l of results) {
     if (!(l in runDurationTable)) {
-        runDurationTable[l] = 0
+      runDurationTable[l] = 0
     }
   }
 
@@ -37,7 +38,7 @@ function getTestFilesSorted(dir: string = './src'): string[] {
   const bins = buckets.flatMap((bucket) => bucket.files)
 
   console.log(JSON.stringify(buckets, null, 4))
-  
+
   return bins
 }
 
@@ -127,7 +128,6 @@ function partitionFiles(
   return buckets
 }
 
-
 interface RunDurationTable {
   [file: string]: number
 }
@@ -136,7 +136,6 @@ interface Bucket {
   duration: number
   files: string[]
 }
-
 
 // For details see: https://playwright.dev/docs/api/class-testconfig
 
