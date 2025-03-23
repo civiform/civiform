@@ -542,13 +542,10 @@ test.describe('normal question lifecycle', () => {
       'label:has-text("Administrative identifier")',
       'My Test Question14-0',
     )
-    expect(await page.locator('#question-name-preview').innerText()).toContain(
+
+    await expect(page.locator('#question-name-preview')).toContainText(
       'Visible in the API as:',
     )
-
-    // Wait for debounce
-    await page.waitForTimeout(300) // ms
-
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
 })

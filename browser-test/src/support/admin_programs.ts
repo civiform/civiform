@@ -788,6 +788,8 @@ export class AdminPrograms {
     // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
     // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
+
+    // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(250)
   }
 
@@ -810,9 +812,11 @@ export class AdminPrograms {
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
-    await this.page.waitForSelector(
-      `div.cf-program-question p:text("Admin ID: ${questionName}")`,
-    )
+    await expect(
+      this.page.locator(
+        `div.cf-program-question p:has-text("Admin ID: ${questionName}")`,
+      ),
+    ).toBeVisible()
   }
 
   async questionBankNames(universal = false): Promise<string[]> {
@@ -905,10 +909,8 @@ export class AdminPrograms {
         await optionalToggle.click()
       }
     }
-    return await this.page.$eval(
-      '#block-name-input',
-      (el) => (el as HTMLInputElement).value,
-    )
+
+    return await this.page.locator('#block-name-input').inputValue()
   }
 
   async addProgramRepeatedBlock(

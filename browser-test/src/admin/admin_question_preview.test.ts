@@ -1,5 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
 
 test.describe('File upload question preview', () => {
   test('File upload preview', async ({page, adminQuestions}) => {
@@ -55,9 +55,6 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
 
     await test.step('Expect preview renders properly', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
-
-      // The address question needs extra time to render
-      await page.waitForSelector('[data-load-question="true"]')
 
       await validateScreenshot(
         page.locator('#question-fragment'),

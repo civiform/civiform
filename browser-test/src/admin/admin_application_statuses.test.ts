@@ -99,7 +99,7 @@ test.describe('view program statuses', () => {
       expect(await adminPrograms.isPaginationVisibleForApplicationTable()).toBe(
         true,
       )
-      expect(page.locator('.usa-pagination__button:has-text("2")'))
+
       await validateScreenshot(page, 'application-table-pagination')
     })
   })
@@ -261,7 +261,8 @@ test.describe('view program statuses', () => {
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           expect(notifyCheckbox).not.toBeNull()
           await notifyCheckbox!.uncheck()
-          expect(await notifyCheckbox!.isChecked()).toBe(false)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          await expect(notifyCheckbox!).not.toBeChecked()
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
@@ -286,7 +287,8 @@ test.describe('view program statuses', () => {
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           expect(notifyCheckbox).not.toBeNull()
-          expect(await notifyCheckbox!.isChecked()).toBe(true)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          await expect(notifyCheckbox!).toBeChecked()
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
@@ -835,7 +837,8 @@ test.describe('view program statuses', () => {
 
         const notifyCheckbox = await modal.$('input[type=checkbox]')
         expect(notifyCheckbox).not.toBeNull()
-        expect(await notifyCheckbox!.isChecked()).toBe(true)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        await expect(notifyCheckbox!).toBeChecked()
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )
