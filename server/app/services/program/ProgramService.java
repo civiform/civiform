@@ -810,7 +810,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
     if (programType == ProgramType.COMMON_INTAKE_FORM
-        || programType == ProgramType.EXTERNAL_PROGRAM) {
+        || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
 
