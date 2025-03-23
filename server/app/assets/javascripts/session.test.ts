@@ -9,6 +9,7 @@ type SessionTimeoutHandlerType = typeof SessionTimeoutHandler & {
   showWarning: (type: WarningType) => void
   inactivityWarningShown: boolean
   totalLengthWarningShown: boolean
+  isInitialized: boolean
 }
 
 describe('SessionTimeoutHandler', () => {
@@ -185,6 +186,8 @@ describe('SessionTimeoutHandler', () => {
   beforeEach(() => {
     setupDomElements()
     setupMocks()
+    // Reset initialization flag
+    SessionTimeoutHandler['isInitialized'] = false
   })
 
   afterEach(() => {
@@ -192,8 +195,12 @@ describe('SessionTimeoutHandler', () => {
 
     jest.clearAllMocks()
 
+    // Reset all static flags
     SessionTimeoutHandler['inactivityWarningShown'] = false
     SessionTimeoutHandler['totalLengthWarningShown'] = false
+    SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
+    SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
+    SessionTimeoutHandler['isInitialized'] = false
   })
 
   describe('showWarning', () => {
@@ -451,12 +458,13 @@ describe('SessionTimeoutHandler', () => {
   describe('checkAndSetTimer', () => {
     beforeEach(() => {
       jest.useFakeTimers()
-      // Reset static flags
+      // Reset all static flags including initialization
       SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
       SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
       SessionTimeoutHandler['inactivityWarningShown'] = false
       SessionTimeoutHandler['totalLengthWarningShown'] = false
       SessionTimeoutHandler['timer'] = null
+      SessionTimeoutHandler['isInitialized'] = false
     })
 
     afterEach(() => {
@@ -622,6 +630,25 @@ describe('SessionTimeoutHandler', () => {
       // Call again to check if timer is cleared
       SessionTimeoutHandler['checkAndSetTimer']()
       expect(clearTimeoutSpy).toHaveBeenCalledWith(firstTimer)
+    })
+  })
+
+  // Add new test for initialization
+  describe('init', () => {
+    it('initializes only once', () => {
+      const checkAndSetTimerSpy = jest.spyOn(
+        SessionTimeoutHandler as SessionTimeoutHandlerType,
+        'checkAndSetTimer',
+      )
+
+      // First initialization
+      SessionTimeoutHandler.init()
+      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1)
+      expect(SessionTimeoutHandler['isInitialized']).toBe(true)
+
+      // Second initialization attempt
+      SessionTimeoutHandler.init()
+      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1) // Still only called once
     })
   })
 })
