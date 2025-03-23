@@ -297,8 +297,9 @@ test.describe('program creation', () => {
         '[This is a link](https://www.example.com)\n',
     })
 
-    await page.waitForTimeout(100) // ms
     const previewLocator = page.locator('#sample-question')
+    await expect(previewLocator).toContainText('This is an example')
+
     await validateScreenshot(
       previewLocator,
       'program-creation-static-question-with-formatting',
@@ -322,8 +323,9 @@ test.describe('program creation', () => {
         'Here is more text after more blank lines',
     })
 
-    await page.waitForTimeout(100) // ms
     const previewLocator = page.locator('#sample-question')
+    await expect(previewLocator).toContainText('Here is the first line')
+
     await validateScreenshot(
       previewLocator,
       'program-creation-static-question-with-blank-lines',
