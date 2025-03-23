@@ -391,35 +391,83 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     }
 
     return each(
-        fieldset()
-            .withId("program-type-fieldset")
+        // Program type radio buttons.
+        form()
+            .withClasses("usa-form")
             .with(
-                legend("Special program type").withClass(BaseStyles.INPUT_LABEL),
-                FieldWithLabel.radio()
-                    .setId("common-intake-type")
-                    .setFieldName("programType")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Pre-screener. This will pin the program card to the top of the programs"
-                            + " and services page while moving other program cards below it.")
-                    .setValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                    .setDisabled(commonIntakeFieldDisabled)
-                    .setChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM))
-                    .getRadioTag())
-            .condWith(
-                settingsManifest.getExternalProgramCardsEnabled(request),
-                FieldWithLabel.radio()
-                    .setId("external-program-type")
-                    .setFieldName("programType")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "External program. This will add a program card with a link to the external"
-                            + " site.")
-                    .setValue(ProgramType.EXTERNAL_PROGRAM.getValue())
-                    .setDisabled(externalProgramFieldDisabled)
-                    .setChecked(programType.equals(ProgramType.EXTERNAL_PROGRAM))
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                div(
+                    legend("Program type").withClass("text-gray-600"),
+                    fieldset()
+                        .withId("program-type-fieldset")
+                        .withClasses("usa-fieldset")
+                        .with(
+                            div(
+                                    input()
+                                        .withId("default-program-type")
+                                        .withClasses("usa-radio__input usa-radio__input--tile")
+                                        .withType("radio")
+                                        .withName("programType")
+                                        .withValue(ProgramType.DEFAULT.getValue())
+                                        .withCondDisabled(commonIntakeFieldDisabled)
+                                        .withCondChecked(programType.equals(ProgramType.DEFAULT)),
+                                    label("Internal program")
+                                        .withFor("default-program-type")
+                                        .withClasses("usa-radio__label")
+                                        .with(
+                                            span()
+                                                .withClasses("usa-checkbox__label-description")
+                                                .withText(
+                                                    "Program hosted in CiviForm. This will add a"
+                                                        + " program card that will open the"
+                                                        + " program.")))
+                                .withClasses("usa-radio"),
+                            div(
+                                    input()
+                                        .withId("common-intake-type")
+                                        .withClasses("usa-radio__input usa-radio__input--tile")
+                                        .withType("radio")
+                                        .withName("programType")
+                                        .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
+                                        .withCondDisabled(commonIntakeFieldDisabled)
+                                        .withCondChecked(
+                                            programType.equals(ProgramType.COMMON_INTAKE_FORM)),
+                                    label("Pre-screener")
+                                        .withFor("common-intake-type")
+                                        .withClasses("usa-radio__label")
+                                        .with(
+                                            span()
+                                                .withClasses("usa-checkbox__label-description")
+                                                .withText(
+                                                    " This will pin the program card to the top of"
+                                                        + " the programs and services page while"
+                                                        + " moving other program cards below it."
+                                                        + " You can set one program as the"
+                                                        + " pre-screener")))
+                                .withClasses("usa-radio"))
+                        .condWith(
+                            settingsManifest.getExternalProgramCardsEnabled(request),
+                            div(
+                                    input()
+                                        .withId("external-program-type")
+                                        .withClasses("usa-radio__input usa-radio__input--tile")
+                                        .withType("radio")
+                                        .withName("programType")
+                                        .withValue(ProgramType.EXTERNAL_PROGRAM.getValue())
+                                        .withCondDisabled(externalProgramFieldDisabled)
+                                        .withCondChecked(
+                                            programType.equals(ProgramType.EXTERNAL_PROGRAM)),
+                                    label("External program")
+                                        .withFor("external-program-type")
+                                        .withClasses("usa-radio__label")
+                                        .with(
+                                            span()
+                                                .withClasses("usa-checkbox__label-description")
+                                                .withText(
+                                                    " Program hosted outside of CiviForm. This will"
+                                                        + " add a program card with a link to the"
+                                                        + " external site.")))
+                                .withClasses("usa-radio"))
+                        .withClasses("mb-2"))),
         // Hidden checkbox used to signal whether or not the user has confirmed they want to change
         // which program is marked as the common intake form.
         FieldWithLabel.checkbox()
