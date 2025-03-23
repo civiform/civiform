@@ -42,6 +42,7 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -57,6 +58,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String PROGRAM_TYPE_FIELD_NAME = "programType";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
@@ -190,15 +192,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Common intake form
+        // Program type
         fieldset(
                 div(
                         input()
                             .withId("common-intake-checkbox")
                             .withClasses("usa-checkbox__input")
                             .withType("checkbox")
-                            .withName("isCommonIntakeForm")
-                            .withValue("true")
+                            .withName(PROGRAM_TYPE_FIELD_NAME)
+                            .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
                             .withCondChecked(isCommonIntakeForm),
                         label("Set program as pre-screener")
                             .withFor("common-intake-checkbox")
@@ -395,65 +397,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return div()
         .withId("apply-step-" + indexPlusOne + "-div")
         .with(title.getInputTag(), description.getTextareaTag());
-  }
-
-  private DomContent buildProgramTypeFieldset(
-      SettingsManifest settingsManifest,
-      Request request,
-      ProgramType programType,
-      ProgramEditStatus programEditStatus) {
-    // When creating a program, visible program type fields are always enabled. Otherwise,
-    //   - external program is always disabled since a program cannot be changed to external after
-    //      creation
-    //   - common intake is disabled for external program since a program cannot be changed from
-    //     external program to another type (although in a future we could allow it).
-    boolean commonIntakeFieldDisabled = false;
-    boolean externalProgramFieldDisabled = false;
-    if (programEditStatus.equals(ProgramEditStatus.CREATION_EDIT)
-        || programEditStatus.equals(programEditStatus.EDIT)) {
-      commonIntakeFieldDisabled = programType.equals(ProgramType.EXTERNAL_PROGRAM);
-      externalProgramFieldDisabled = true;
-    }
-
-    return each(
-        fieldset()
-            .withId("program-type-fieldset")
-            .with(
-                legend("Special program type").withClass(BaseStyles.INPUT_LABEL),
-                FieldWithLabel.radio()
-                    .setId("common-intake-checkbox")
-                    .setFieldName("programType")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Pre-screener. This will pin the program card to the top of the programs"
-                            + " and services page while moving other program cards below it.")
-                    .setValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                    .setDisabled(commonIntakeFieldDisabled)
-                    .setChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM))
-                    .getRadioTag())
-            .condWith(
-                settingsManifest.getExternalProgramCardsEnabled(request),
-                FieldWithLabel.radio()
-                    .setId("external-program-checkbox")
-                    .setFieldName("programType")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "External program. This will add a program card with a link to the external"
-                            + " site.")
-                    .setValue(ProgramType.EXTERNAL_PROGRAM.getValue())
-                    .setDisabled(externalProgramFieldDisabled)
-                    .setChecked(programType.equals(ProgramType.EXTERNAL_PROGRAM))
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Hidden checkbox used to signal whether or not the user has confirmed they want to change
-        // which program is marked as the common intake form.
-        FieldWithLabel.checkbox()
-            .setId("confirmed-change-common-intake-checkbox")
-            .setFieldName("confirmedChangeCommonIntakeForm")
-            .setValue("false")
-            .setChecked(false)
-            .addStyleClass("hidden")
-            .getCheckboxTag());
   }
 
   private DivTag showCategoryCheckboxes(
