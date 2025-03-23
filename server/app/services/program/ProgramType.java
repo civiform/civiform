@@ -10,7 +10,7 @@ import io.ebean.annotation.DbEnumValue;
 public enum ProgramType {
   DEFAULT("default"),
   COMMON_INTAKE_FORM("common_intake_form"),
-  EXTERNAL_PROGRAM("external_program");
+  EXTERNAL("external");
 
   private final String dbValue;
 

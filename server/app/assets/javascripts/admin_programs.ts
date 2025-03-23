@@ -25,20 +25,13 @@ class AdminPrograms {
   }
 
   /**
-   * Attaches a change event listener to the common intake checkbox to manage
-   * the disabled state of related form elements. When the common intake
-   * checkbox is checked, the following fields are disabled:
-   * 1. Program categories
-   * 2. Long program description, if NorthStar UI is enabled
-   * 3. All application steps
-   *
-   * When the checkbox is unchecked, all these elements are re-enabled and
-   * required indicators are shown again.
+   * Attaches a change event listener to the program type radio buttons to
+   * manage the disabled state of related form elements.
    */
-  static attachCommonIntakeChangeListener() {
-    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
+  static attachProgramTypeChangeListener() {
+    addEventListenerToElements('#program-type', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
-        document.querySelector('#common-intake-checkbox')
+        document.querySelector('#common-intake-program-option')
       )
 
       // Program categories
