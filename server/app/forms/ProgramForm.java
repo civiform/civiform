@@ -15,7 +15,6 @@ public final class ProgramForm {
   private String externalLink;
   private String displayMode;
   private List<String> notificationPreferences;
-  private Boolean isCommonIntakeForm;
   private String programType;
 
   // Represents whether or not the user has confirmed that they want to change which program is
@@ -36,7 +35,6 @@ public final class ProgramForm {
     externalLink = "";
     displayMode = "";
     notificationPreferences = new ArrayList<>();
-    isCommonIntakeForm = false;
     programType = "";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
@@ -115,14 +113,6 @@ public final class ProgramForm {
 
   public void setLocalizedShortDescription(String localizedShortDescription) {
     this.localizedShortDescription = localizedShortDescription;
-  }
-
-  public Boolean getIsCommonIntakeForm() {
-    return isCommonIntakeForm;
-  }
-
-  public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
-    this.isCommonIntakeForm = isCommonIntakeForm;
   }
 
   public String getProgramType() {
