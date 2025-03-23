@@ -775,9 +775,7 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
-    if (!programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-      checkApplicationStepErrors(errorsBuilder, applicationSteps);
-    }
+    checkApplicationStepErrors(programType, errorsBuilder, applicationSteps);
 
     return errorsBuilder.build();
   }
@@ -799,18 +797,22 @@ public final class ProgramService {
   }
 
   /**
-   * Check for validation errors on application steps. An error will be shown if: - no application
-   * step is filled in - any application step is partially filled in (missing title or description)
+   * Check for validation errors on application steps. An error will be shown for default type
+   * programs when: - no application step is filled in - any application step is partially filled in
+   * (missing title or description)
    *
-   * <p>Prescreener programs do not require application steps so validation is not checked for those
-   * programs.
-   *
+   * @param programType the type of the program
    * @param errorsBuilder set of program validation errors
    * @param applicationSteps the {@link Locale} to update
    */
   ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
+    if (programType == ProgramType.COMMON_INTAKE_FORM
+        || programType == ProgramType.EXTERNAL_PROGRAM) {
+      return errorsBuilder;
+    }
 
     if (applicationSteps.size() == 0) {
       return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));

@@ -298,15 +298,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         fieldset(
                 legend("Email notifications").withClass("text-gray-600"),
                 buildUSWDSCheckboxOption(
-                    /* id= */ "notification-preferences-email",
-                    /* name= */ NOTIFICATIONS_PREFERENCES_FIELD_NAME,
-                    /* value= */ ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                        .getValue(),
-                    /* isChecked= */ notificationPreferences.contains(
+                    "notification-preferences-email",
+                    NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                    ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
+                    notificationPreferences.contains(
                         ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                             .getValue()),
-                    /* isDisabled= */ false,
-                    /* label= */ "Send Program Admins an email notification every time an"
+                    "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
@@ -388,7 +386,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .with(
                 legend("Special program type").withClass(BaseStyles.INPUT_LABEL),
                 FieldWithLabel.radio()
-                    .setId("common-intake-checkbox")
+                    .setId("common-intake-type")
                     .setFieldName("programType")
                     .setAriaRequired(true)
                     .setLabelText(
@@ -401,7 +399,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .condWith(
                 settingsManifest.getExternalProgramCardsEnabled(request),
                 FieldWithLabel.radio()
-                    .setId("external-program-checkbox")
+                    .setId("external-program-type")
                     .setFieldName("programType")
                     .setAriaRequired(true)
                     .setLabelText(
