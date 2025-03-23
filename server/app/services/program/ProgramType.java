@@ -9,8 +9,7 @@ import io.ebean.annotation.DbEnumValue;
  */
 public enum ProgramType {
   DEFAULT("default"),
-  COMMON_INTAKE_FORM("common_intake_form"),
-  EXTERNAL_PROGRAM("external_program");
+  COMMON_INTAKE_FORM("common_intake_form");
 
   private final String dbValue;
 
@@ -24,12 +23,8 @@ public enum ProgramType {
   }
 
   public static ProgramType fromValue(String value) {
-    if (value.equals("default")) {
-      return DEFAULT;
-    } else if (value.equals("common_intake_form")) {
+    if (value.equals("common_intake_form")) {
       return COMMON_INTAKE_FORM;
-    } else if (value.equals("external_program")) {
-      return EXTERNAL_PROGRAM;
     }
     return DEFAULT;
   }

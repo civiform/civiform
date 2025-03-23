@@ -43,6 +43,7 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -58,6 +59,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String PROGRAM_TYPE_FIELD_NAME = "programType";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
@@ -191,15 +193,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Common intake form
+        // Program type
         fieldset(
                 div(
                         input()
                             .withId("common-intake-checkbox")
                             .withClasses("usa-checkbox__input")
                             .withType("checkbox")
-                            .withName("isCommonIntakeForm")
-                            .withValue("true")
+                            .withName(PROGRAM_TYPE_FIELD_NAME)
+                            .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
                             .withCondChecked(isCommonIntakeForm),
                         label("Set program as pre-screener")
                             .withFor("common-intake-checkbox")
