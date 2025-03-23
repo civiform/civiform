@@ -42,7 +42,6 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -279,6 +278,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     "Visible to selected trusted intermediaries only"),
                 showTiSelectionList(
                     selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+<<<<<<< HEAD
                 buildUSWDSRadioOption(
                     "program-display-mode-disabled",
                     DISPLAY_MODE_FIELD_NAME,
@@ -294,6 +294,28 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     NOTIFICATIONS_PREFERENCES_FIELD_NAME,
                     ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
                     notificationPreferences.contains(
+=======
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-disabled")
+                    .setFieldName("displayMode")
+                    .setAriaRequired(true)
+                    .setLabelText("Disabled")
+                    .setValue(DisplayMode.DISABLED.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+                    .getRadioTag())
+            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        fieldset()
+            .with(
+                legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
+                FieldWithLabel.checkbox()
+                    .setId("email-notifications-checkbox")
+                    .setFieldName("notificationPreferences")
+                    .setAriaRequired(true)
+                    .setLabelText(
+                        "Send Program Admins an email notification every time an application is"
+                            + " submitted")
+                    .setValue(
+>>>>>>> 8bd3d98b5 (Disable fields for external program)
                         ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                             .getValue()),
                     "Send Program Admins an email notification every time an"
@@ -378,7 +400,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .with(
                 legend("Special program type").withClass(BaseStyles.INPUT_LABEL),
                 FieldWithLabel.radio()
-                    .setId("common-intake-checkbox")
+                    .setId("common-intake-type")
                     .setFieldName("programType")
                     .setAriaRequired(true)
                     .setLabelText(
@@ -391,7 +413,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .condWith(
                 settingsManifest.getExternalProgramCardsEnabled(request),
                 FieldWithLabel.radio()
-                    .setId("external-program-checkbox")
+                    .setId("external-program-type")
                     .setFieldName("programType")
                     .setAriaRequired(true)
                     .setLabelText(
