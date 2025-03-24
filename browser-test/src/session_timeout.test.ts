@@ -142,7 +142,6 @@ async function advanceToTimeout(page: Page, timeoutType: TimeoutType) {
   await mockDateAndAdvanceTime(page, advanceMs)
 }
 
-// Replace the existing advance methods with the new shared one
 async function advanceToSessionInactivityWarning(page: Page) {
   return advanceToTimeout(page, 'inactivityWarning')
 }

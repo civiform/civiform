@@ -115,9 +115,7 @@ export class SessionTimeoutHandler {
    */
   private static checkAndSetTimer() {
     const data = this.getTimeoutData()
-    if (!data) {
-      return
-    }
+    if (!data) return
 
     // Clear existing timer
     if (this.timer) {
@@ -151,10 +149,10 @@ export class SessionTimeoutHandler {
       return
     }
 
-    // Create array of all future events
+    // Set timers for future events
     const timeouts = []
 
-    // Add warnings if not shown yet
+    // Only add inactivity warning if it hasn't been shown yet
     if (!this.hasInactivityWarningBeenShown && data.inactivityWarning > now) {
       timeouts.push({
         time: data.inactivityWarning,
@@ -177,31 +175,27 @@ export class SessionTimeoutHandler {
       })
     }
 
-    // Add timeout events
+    // Always add timeout events
     timeouts.push({
       time: data.inactivityTimeout,
-      action: () => {
-        this.handleTimeout()
-      },
+      action: () => this.handleTimeout(),
       type: 'timeout',
     })
 
     timeouts.push({
       time: data.totalTimeout,
-      action: () => {
-        this.handleTimeout()
-      },
+      action: () => this.handleTimeout(),
       type: 'timeout',
     })
 
-    // Simple sort by timestamp - earliest first
+    // Sort by earliest time
     timeouts.sort((a, b) => a.time - b.time)
 
     // We will always have at least one event in the future
     const nextTimeout = timeouts[0]
     const delay = (nextTimeout.time - now) * 1000
 
-    // Store the next timeout action and time for testing
+    // Store the next timeout action and time for handling timechange event.
     this.nextTimeoutAction = nextTimeout.action
     this.nextTimeoutTime = nextTimeout.time
 
@@ -320,20 +314,19 @@ export class SessionTimeoutHandler {
    */
   private static getTimeoutData(): TimeoutData | null {
     const cookieValue = this.getCookie(this.TIMEOUT_COOKIE_NAME)
-    if (!cookieValue) {
-      return null
-    }
+    if (!cookieValue) return null
 
     try {
+      // Decode Base64 and parse JSON
       const jsonString = atob(decodeURIComponent(cookieValue))
       const data: unknown = JSON.parse(jsonString)
       if (!this.isTimeoutData(data)) {
+        console.error('Invalid timeout data format')
         return null
       }
-
+      // Calculate clock skew between client and server
       const clientNow = Math.floor(Date.now() / 1000)
       const clockSkew = clientNow - data.currentTime
-
       return {
         inactivityWarning: data.inactivityWarning + clockSkew,
         inactivityTimeout: data.inactivityTimeout + clockSkew,
@@ -342,7 +335,7 @@ export class SessionTimeoutHandler {
         currentTime: data.currentTime,
       }
     } catch (e) {
-      console.log('Failed to parse timeout cookie:', e)
+      console.error('Failed to parse session timeout data:', e)
       return null
     }
   }
