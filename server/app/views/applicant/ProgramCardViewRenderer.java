@@ -192,8 +192,8 @@ public final class ProgramCardViewRenderer {
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatTextWithAriaLabel(
             program.localizedDescription().getOrDefault(preferredLocale),
-            false,
-            false,
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ false,
             messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     DivTag description =
         div()

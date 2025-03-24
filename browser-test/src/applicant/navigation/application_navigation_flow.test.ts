@@ -147,7 +147,7 @@ test.describe('Applicant navigation flow', () => {
       )
       // text links are formatted correctly with an icon
       expect(cardHtml).toContain(
-        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" aria-label="https://www.example.com opens in a new tab" rel="nofollow noopener noreferrer">website<svg',
+        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">website<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab">',
       )
 
       // there shouldn't be any external Links
