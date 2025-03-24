@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.17",
+      "ch.qos.logback" % "logback-classic" % "1.5.18",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
