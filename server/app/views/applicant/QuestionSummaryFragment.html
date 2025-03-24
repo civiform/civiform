@@ -3,11 +3,11 @@
     <!-- Horizontal separator line -->
     <div class="border-top border-base-lighter content"></div>
 
-    <div class="usa-prose container">
+    <div class="usa-prose container" th:with="ariaLabel=#{link.opensNewTabSr}">
       <!-- TODO(#5510): Add indicator for optional questions -->
       <span
         class="grid-col-6 left-align zero-margin mobile-truncate-3"
-        th:utext="${answerData.questionHtml()}"
+        th:utext="${answerData.questionHtml(ariaLabel)}"
       ></span>
       <div th:replace="~{this :: multilineAnswer(${answerData})}"></div>
     </div>

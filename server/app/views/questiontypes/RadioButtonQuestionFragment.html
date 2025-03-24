@@ -27,6 +27,7 @@
       class="usa-radio cf-multi-option-question-option"
       th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)}"
+      th:with="ariaLabel=#{link.opensNewTabSr}"
     >
       <input
         class="usa-radio__input usa-radio__input--tile cf-radio-input"
@@ -41,7 +42,7 @@
       <label
         class="usa-radio__label maxw-mobile-lg cf-multi-option-value"
         th:for="${inputId}"
-        th:utext="${option.formattedOptionText()}"
+        th:utext="${option.formattedOptionText(ariaLabel)}"
       ></label>
     </div>
   </fieldset>

@@ -30,19 +30,25 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContent).contains("hello google.com ");
 
     // URLs with protocols are turned into links, the protocol is maintained and the SVG icon is
-    // added
+    // added with an aria label
     List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
         "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"http://internet.website, opens"
-            + " in a new tab\" rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\""
+            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
+            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
+            + " align-text-top\" aria-label=\", test aria label\">",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"https://secure.website opens in"
-            + " a new tab\" rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">https://secure.website<svg xmlns=\"http://www.w3.org/2000/svg\""
+            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
+            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
+            + " align-text-top\" aria-label=\", test aria label\">",
         "</svg></a></p>\n");
   }
 
@@ -54,8 +60,11 @@ public class TextFormatterTest extends ResetPostgres {
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"https://www.google.com opens in"
-            + " a new tab\" rel=\"nofollow noopener noreferrer\">this is a link",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is"
+            + " a link<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\""
+            + " stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"false\" viewBox=\"0 0 24"
+            + " 24\" class=\"shrink-0 h-5 w-auto inline ml-1 align-text-top\" aria-label=\", test"
+            + " aria label\">",
         "</svg></a></p>\n");
   }
 
@@ -257,8 +266,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content.get(0).render())
-        .contains("aria-label=\"https://www.example.com test aria label\"");
+    assertThat(content.get(0).render()).contains("aria-label=\", test aria label\"");
   }
 
   @Test
@@ -267,7 +275,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content).contains("aria-label=\"https://www.example.com test aria label\"");
+    assertThat(content).contains("aria-label=\", test aria label\"");
   }
 
   @Test

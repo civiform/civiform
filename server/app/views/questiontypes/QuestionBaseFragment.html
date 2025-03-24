@@ -12,6 +12,7 @@
 <div
   th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
   class="margin-bottom-105"
+  th:with="ariaLabel=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
   <legend class="usa-legend display-flex">
@@ -21,7 +22,7 @@
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:utext="${question.getFormattedQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabel)}"
     class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
   ></div>
 </div>
@@ -29,6 +30,7 @@
 <div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
   class="margin-bottom-105"
+  th:with="ariaLabel=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
   <label class="usa-label display-flex" th:for="${inputId}">
@@ -38,14 +40,17 @@
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:utext="${question.getFormattedQuestionHelpText()}"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabel)}"
     class="cf-applicant-question-help-text"
   ></div>
 </div>
 
-<th:block th:fragment="titleContent(question)">
+<th:block
+  th:fragment="titleContent(question)"
+  th:with="ariaLabel=#{link.opensNewTabSr}"
+>
   <span
-    th:utext="${question.getFormattedQuestionText()}"
+    th:utext="${question.getFormattedQuestionText(ariaLabel)}"
     class="font-sans-lg cf-applicant-question-text"
   ></span>
 </th:block>

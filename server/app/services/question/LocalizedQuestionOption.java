@@ -30,8 +30,9 @@ public abstract class LocalizedQuestionOption {
   public abstract String optionText();
 
   /** Sanitized HTML for the option that processes Markdown. */
-  public String formattedOptionText() {
-    return TextFormatter.formatTextToSanitizedHTML(optionText(), false, false);
+  public String formattedOptionText(String ariaLabel) {
+    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        optionText(), false, false, ariaLabel);
   }
 
   /** The locale this option is localized to. */

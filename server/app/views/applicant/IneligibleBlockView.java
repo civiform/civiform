@@ -136,6 +136,8 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(
                         TextFormatter.formatTextWithAriaLabel(
                             eligibilityMsg,
+                            true,
+                            false,
                             messages
                                 .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                                 .toLowerCase(Locale.ROOT)))

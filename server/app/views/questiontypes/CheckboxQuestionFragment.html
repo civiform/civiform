@@ -35,6 +35,7 @@
       class="usa-checkbox cf-multi-option-question-option"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
       th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
+      th:with="ariaLabel=#{link.opensNewTabSr}"
     >
       <input
         class="usa-checkbox__input usa-checkbox__input--tile"
@@ -49,7 +50,7 @@
       <label
         class="usa-checkbox__label maxw-mobile-lg cf-radio-option cf-multi-option-value"
         th:for="${inputId}"
-        th:utext="${option.formattedOptionText()}"
+        th:utext="${option.formattedOptionText(ariaLabel)}"
       ></label>
     </div>
   </fieldset>
