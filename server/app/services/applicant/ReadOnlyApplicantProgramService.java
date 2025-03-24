@@ -630,14 +630,11 @@ public final class ReadOnlyApplicantProgramService {
 
   private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
     boolean evaluation = evaluatePredicate(block, predicate);
-    switch (predicate.action()) {
-      case HIDE_BLOCK:
-        return !evaluation;
-      case SHOW_BLOCK:
-        return evaluation;
-      default:
-        return true;
-    }
+    return switch (predicate.action()) {
+      case HIDE_BLOCK -> !evaluation;
+      case SHOW_BLOCK -> evaluation;
+      default -> true;
+    };
   }
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {

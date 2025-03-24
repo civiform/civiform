@@ -703,16 +703,12 @@ public final class ApplicantService {
 
   public Optional<ImmutableSet<String>> getApplicantEmails(
       ApplicantPersonalInfo applicantPersonalInfo) {
-    switch (applicantPersonalInfo.getType()) {
-      case LOGGED_IN:
-        return applicantPersonalInfo.loggedIn().email();
-      case TI_PARTIALLY_CREATED:
-        return applicantPersonalInfo.tiPartiallyCreated().email();
-      case GUEST:
-        return applicantPersonalInfo.guest().email();
-      default:
-        return Optional.empty();
-    }
+    return switch (applicantPersonalInfo.getType()) {
+      case LOGGED_IN -> applicantPersonalInfo.loggedIn().email();
+      case TI_PARTIALLY_CREATED -> applicantPersonalInfo.tiPartiallyCreated().email();
+      case GUEST -> applicantPersonalInfo.guest().email();
+      default -> Optional.empty();
+    };
   }
 
   /**
