@@ -3,7 +3,6 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
-  waitForPageJsLoad,
 } from '../support'
 
 test.describe('File upload question preview', () => {
