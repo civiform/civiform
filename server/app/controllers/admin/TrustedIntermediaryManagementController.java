@@ -3,6 +3,8 @@ package controllers.admin;
 import auth.Authorizers;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+
+import com.google.common.collect.ImmutableList;
 import controllers.FlashKey;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
@@ -66,11 +68,11 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (Strings.isNullOrEmpty(form.get().getDescription())) {
       return flashCreateTIFieldValuesWithError("Must provide group description.", form);
     }
-    List<String> trustedIntermediaryGroupsWithSameName =
+    ImmutableList<String> trustedIntermediaryGroupsWithSameName =
         accountRepository.listTrustedIntermediaryGroups().stream()
             .map(TrustedIntermediaryGroupModel::getName)
             .filter(name -> name.equals(form.get().getName()))
-            .toList();
+            .collect(ImmutableList.toImmutableList());
     if (!trustedIntermediaryGroupsWithSameName.isEmpty()) {
       return flashCreateTIFieldValuesWithError("Must provide a unique group name.", form);
     }
