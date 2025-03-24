@@ -517,58 +517,24 @@ public enum Icons {
 
   /** Maps a question type to an icon type */
   private static Icons getIconTypeFromQuestionType(QuestionType type) {
-    Icons icon;
-    switch (type) {
-      case ADDRESS:
-        icon = Icons.ADDRESS;
-        break;
-      case CHECKBOX:
-        icon = Icons.CHECKBOX;
-        break;
-      case CURRENCY:
-        icon = Icons.CURRENCY;
-        break;
-      case DATE:
-        icon = Icons.DATE;
-        break;
-      case DROPDOWN:
-        icon = Icons.DROPDOWN;
-        break;
-      case EMAIL:
-        icon = Icons.EMAIL;
-        break;
-      case FILEUPLOAD:
-        icon = Icons.FILEUPLOAD;
-        break;
-      case ID:
-        icon = Icons.ID;
-        break;
-      case NAME:
-        icon = Icons.NAME;
-        break;
-      case NUMBER:
-        icon = Icons.NUMBER;
-        break;
-      case RADIO_BUTTON:
-        icon = Icons.RADIO_BUTTON;
-        break;
-      case ENUMERATOR:
-        icon = Icons.ENUMERATOR;
-        break;
-      case STATIC:
-        icon = Icons.ANNOTATION;
-        break;
-      case TEXT:
-        icon = Icons.TEXT;
-        break;
-      case PHONE:
-        icon = Icons.PHONE;
-        break;
-      default: // fall through
-        icon = Icons.UNKNOWN;
-    }
-
-    return icon;
+    return switch (type) {
+      case ADDRESS -> Icons.ADDRESS;
+      case CHECKBOX -> Icons.CHECKBOX;
+      case CURRENCY -> Icons.CURRENCY;
+      case DATE -> Icons.DATE;
+      case DROPDOWN -> Icons.DROPDOWN;
+      case EMAIL -> Icons.EMAIL;
+      case FILEUPLOAD -> Icons.FILEUPLOAD;
+      case ID -> Icons.ID;
+      case NAME -> Icons.NAME;
+      case NUMBER -> Icons.NUMBER;
+      case RADIO_BUTTON -> Icons.RADIO_BUTTON;
+      case ENUMERATOR -> Icons.ENUMERATOR;
+      case STATIC -> Icons.ANNOTATION;
+      case TEXT -> Icons.TEXT;
+      case PHONE -> Icons.PHONE;
+      default -> Icons.UNKNOWN;
+    };
   }
 
   public String getViewBox() {
