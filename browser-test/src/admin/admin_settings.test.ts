@@ -51,15 +51,15 @@ test.describe('Managing system-wide settings', () => {
     await adminSettings.gotoAdminSettings()
 
     await test.step('button check', async () => {
-      await adminSettings.disableSetting('CF_OPTIONAL_QUESTIONS')
+      await adminSettings.enableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges()
-      await adminSettings.expectDisabled('CF_OPTIONAL_QUESTIONS')
+      await adminSettings.expectEnabled('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
 
-      await adminSettings.enableSetting('CF_OPTIONAL_QUESTIONS')
+      await adminSettings.disableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges()
-      await adminSettings.expectEnabled('CF_OPTIONAL_QUESTIONS')
+      await adminSettings.expectDisabled('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
 
-      await adminSettings.enableSetting('CF_OPTIONAL_QUESTIONS')
+      await adminSettings.disableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges(/* expectUpdated= */ false)
     })
   })
