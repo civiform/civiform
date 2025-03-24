@@ -36,7 +36,7 @@ Resources:
 
 - [ ] Create an Oncall issue for the next rotation, and assign to the next oncall
 - [ ] Check Security lists daily
-- [ ] Check #ci Slack channel daily to monitor failed pushes
+- [ ] Check #ci Slack channel daily to monitor failed pushes and e2e test runs
 - [ ] Check [needs triage bugs](https://github.com/civiform/civiform/issues?q=is%3Aopen+is%3Aissue+label%3Aneeds-triage) daily to ensure there aren't any P0s
 - [ ] Check for dependency updates
   - For any problematic dependency updates that break tests, add the "needs-triage" label so Exygy can prioritize fixing these issues.
