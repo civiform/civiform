@@ -473,21 +473,18 @@ public enum Icons {
     Icons icon = getIconTypeFromQuestionType(type);
     SvgTag iconSvg = svg(icon);
 
-    switch (type) {
-      case CURRENCY:
-        iconSvg
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-        break;
-      case STATIC:
-        iconSvg
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-        break;
+    if (type == QuestionType.CURRENCY) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
+    } else if (type == QuestionType.STATIC) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
     }
 
     return iconSvg;
