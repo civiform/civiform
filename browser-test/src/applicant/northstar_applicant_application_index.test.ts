@@ -13,6 +13,7 @@ import {
   seedProgramsAndCategories,
   selectApplicantLanguageNorthstar,
   normalizeElements,
+  waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -155,7 +156,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         redirectedToCallback = false
         await context.clearCookies()
         await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
+        await waitForPageJsLoad(page)
         expect(redirectedToCallback).toBe(false)
       })
     }
