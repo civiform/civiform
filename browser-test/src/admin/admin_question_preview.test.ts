@@ -1,5 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from '../support'
 
 test.describe('File upload question preview', () => {
   test('File upload preview', async ({page, adminQuestions}) => {
