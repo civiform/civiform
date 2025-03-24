@@ -2,7 +2,6 @@ import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
   loginAsAdmin,
-  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -10,8 +9,12 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
-  test('sample question seeding works', async ({page, adminQuestions}) => {
-    await seedQuestions(page)
+  test('sample question seeding works', async ({
+    page,
+    adminQuestions,
+    seeding,
+  }) => {
+    await seeding.seedQuestions()
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
@@ -542,13 +545,10 @@ test.describe('normal question lifecycle', () => {
       'label:has-text("Administrative identifier")',
       'My Test Question14-0',
     )
-    expect(await page.locator('#question-name-preview').innerText()).toContain(
+
+    await expect(page.locator('#question-name-preview')).toContainText(
       'Visible in the API as:',
     )
-
-    // Wait for debounce
-    await page.waitForTimeout(300) // ms
-
     await expect(page.locator('#formatted-name')).toHaveText('my_test_question')
   })
 })

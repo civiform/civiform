@@ -79,7 +79,7 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(content.get(0).render())
         .isEqualTo(
             "<p>Enter your full legal name.<span class=\"text-red-600"
-                + " font-semibold\">\u00a0*</span></p>\n");
+                + " font-semibold\" aria-hidden=\"true\">\u00a0*</span></p>\n");
   }
 
   @Test
@@ -92,7 +92,8 @@ public class TextFormatterTest extends ResetPostgres {
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
+            "<p>Here is some text.<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
+                + " *</span></p>\n"
                 + "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item"
                 + " two</li></ul>\n");
 
@@ -104,7 +105,8 @@ public class TextFormatterTest extends ResetPostgres {
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\"> *</span></p>\n"
+            "<p>Here is some text.<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
+                + " *</span></p>\n"
                 + "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item"
                 + " two</li></ol>\n");
   }
@@ -120,7 +122,8 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
             "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item two</li><li>list item"
-                + " three<span class=\"text-red-600 font-semibold\"> *</span></li></ul>\n");
+                + " three<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
+                + " *</span></li></ul>\n");
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
@@ -131,7 +134,8 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
             "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item two</li><li>list"
-                + " item three<span class=\"text-red-600 font-semibold\"> *</span></li></ol>\n");
+                + " item three<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
+                + " *</span></li></ol>\n");
   }
 
   @Test

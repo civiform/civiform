@@ -3,6 +3,7 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.CurrencyQuestionDefinition;
@@ -14,11 +15,13 @@ public class CurrencyQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     CurrencyQuestionForm form = new CurrencyQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("");
+    form.setConcurrencyToken(initialToken);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     CurrencyQuestionDefinition expected =
@@ -28,6 +31,7 @@ public class CurrencyQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -44,6 +48,7 @@ public class CurrencyQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(UUID.randomUUID())
                 .build());
 
     CurrencyQuestionForm form = new CurrencyQuestionForm(originalQd);

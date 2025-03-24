@@ -15,8 +15,11 @@ import {Page} from 'playwright'
 
 test.describe('Upsell tests', {tag: ['@northstar']}, () => {
   const programName = 'Sample program'
-  const customConfirmationText =
-    'Custom confirmation message for sample program'
+  const customConfirmationMarkup =
+    '**Custom** confirmation message for sample program'
+  // getByText won't match across HTML so check for the rest of the string.
+  const customConfirmationMarkupMatcher =
+    'confirmation message for sample program'
 
   const relatedProgramsHeading = 'Other programs you might be interested in'
   const relatedProgramName = 'Related program'
@@ -36,7 +39,7 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
         undefined,
         undefined,
         undefined,
-        customConfirmationText,
+        customConfirmationMarkup,
       )
       await adminPrograms.publishProgram(programName)
       await adminPrograms.expectActiveProgram(programName)
@@ -255,7 +258,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectConfirmationPage(
         /* northStarEnabled= */ true,
       )
-      await expect(page.getByText(customConfirmationText)).toBeVisible()
+      await expect(
+        page.getByText(customConfirmationMarkupMatcher),
+      ).toBeVisible()
 
       if (expectRelatedProgram) {
         await expect(

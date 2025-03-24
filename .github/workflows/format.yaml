@@ -17,20 +17,21 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
-      - id: file_changes
-        uses: tj-actions/changed-files@v45
-        with:
-          json: 'true'
+      # TODO: Need to come back and better handle when the formatter is running the commented out parts
+      # - id: file_changes
+      #   uses: tj-actions/changed-files@v45
+      #   with:
+      #     json: 'true'
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
 
       - name: Re-build formatter if needed
-        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'formatter/')
+        # if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'formatter/')
         id: formatter_rebuild
         run: bin/build-formatter
 
@@ -42,13 +43,13 @@ jobs:
       - name: Run bin/fmt-sbt
         env:
           DOCKER_BUILDKIT: 1
-        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
+        # if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
         run: bin/fmt-sbt
       - name: show bin/fmt and bin/fmt-sbt diff
         run: git add .; git diff --exit-code HEAD
 
       - name: Check bin scripts have docstrings
-        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'bin/') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml')
+        # if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'bin/') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml')
         id: check_bin_script_docs
         run: bin/help
 

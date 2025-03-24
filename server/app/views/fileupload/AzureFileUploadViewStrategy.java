@@ -60,11 +60,11 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
-    if (!(request instanceof BlobStorageUploadRequest)) {
+    if (!(request instanceof BlobStorageUploadRequest blobStorageUploadRequest)) {
       throw new RuntimeException(
           "Tried to upload a file to Azure Blob storage using incorrect request type");
     }
-    return (BlobStorageUploadRequest) request;
+    return blobStorageUploadRequest;
   }
 
   @Override

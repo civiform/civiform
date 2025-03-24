@@ -12,23 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ github.event.inputs.branch_name }}
       - name: JMeter Test
-        uses: QAInsights/PerfAction@v5.6.2
+        uses: QAInsights/PerfAction@d16221318a6d261b1546b9dec9c0bb1739e3d480 # v5.6.3
         with:
           test-plan-path: load-test/applicant_landing_page.jmx
           args: -JciviformUrl=staging-aws.civiform.dev
           results-file: result.jtl
       - name: Upload Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: jmeter-results
           path: result.jtl
           if-no-files-found: error
       - name: Analyze Results with Latency Lingo
-        uses: latency-lingo/github-action@v0.0.2
+        uses: latency-lingo/github-action@28f94150b86d9f7ab6c00f25ef1497a9d90f8cec # v0.0.2
         with:
           api-key: ${{ secrets.LATENCY_LINGO_API_KEY }}
           file: result.jtl

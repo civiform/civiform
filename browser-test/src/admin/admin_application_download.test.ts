@@ -6,13 +6,12 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedQuestions,
   waitForPageJsLoad,
 } from '../support'
 
 test.describe('csv export for multioption question', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
   test('multioption csv into its own column', async ({
@@ -144,8 +143,8 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('csv json pdf download test- two applications', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
 

@@ -3,18 +3,14 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  seedQuestions,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
-import {BASE_URL} from '../../support/config'
 
 test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await seedQuestions(page)
-    await page.goto(BASE_URL)
   })
 
   test.describe('required file upload question', () => {
@@ -232,6 +228,9 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
+      expect(
+        page.getByLabel('Drag file here').getAttribute('aria-required'),
+      ).toBeTruthy()
       await validateAccessibility(page)
     })
 

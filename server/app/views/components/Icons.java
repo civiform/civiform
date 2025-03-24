@@ -1,5 +1,6 @@
 package views.components;
 
+import java.util.Locale;
 import java.util.Optional;
 import services.question.types.QuestionType;
 
@@ -469,63 +470,71 @@ public enum Icons {
    * Tailwind classes like any other element.
    */
   public static SvgTag questionTypeSvg(QuestionType type) {
-    Icons icon;
-    switch (type) {
-      case ADDRESS:
-        icon = Icons.ADDRESS;
-        break;
-      case CHECKBOX:
-        icon = Icons.CHECKBOX;
-        break;
-      case CURRENCY:
-        return svg(Icons.CURRENCY)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-      case DATE:
-        icon = Icons.DATE;
-        break;
-      case DROPDOWN:
-        icon = Icons.DROPDOWN;
-        break;
-      case EMAIL:
-        icon = Icons.EMAIL;
-        break;
-      case FILEUPLOAD:
-        icon = Icons.FILEUPLOAD;
-        break;
-      case ID:
-        icon = Icons.ID;
-        break;
-      case NAME:
-        icon = Icons.NAME;
-        break;
-      case NUMBER:
-        icon = Icons.NUMBER;
-        break;
-      case RADIO_BUTTON:
-        icon = Icons.RADIO_BUTTON;
-        break;
-      case ENUMERATOR:
-        icon = Icons.ENUMERATOR;
-        break;
-      case STATIC:
-        return svg(Icons.ANNOTATION)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
-      case TEXT:
-        icon = Icons.TEXT;
-        break;
-      case PHONE:
-        icon = Icons.PHONE;
-        break;
-      default: // fall through
-        icon = Icons.UNKNOWN;
+    Icons icon = getIconTypeFromQuestionType(type);
+    SvgTag iconSvg = svg(icon);
+
+    if (type == QuestionType.CURRENCY) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
+    } else if (type == QuestionType.STATIC) {
+      iconSvg
+          .attr("fill", "none")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-width", "2");
     }
-    return svg(icon);
+
+    return iconSvg;
+  }
+
+  /**
+   * This method creates a svg tag with an id. The reason for creating an id is to reuse the svg
+   * using the <use></> tag in the questionTypeSvgLink() method below.
+   */
+  public static SvgTag questionTypeSvgWithId(QuestionType type) {
+    Icons icon = getIconTypeFromQuestionType(type);
+    return questionTypeSvg(type).withId(makeSvgLinkId(icon));
+  }
+
+  /** Generate the HTML ID for the icon */
+  private static String makeSvgLinkId(Icons icon) {
+    return String.format("svg-link-%s", icon.name().toLowerCase(Locale.ROOT));
+  }
+
+  /**
+   * This method makes use of a previously created svg with the help of <use></use> tag. To know
+   * more about use tag - https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use
+   * Once the svg tag is created with an id, the <use></use> tag can reuse the svg by adding a href
+   * to the original svg's id.
+   */
+  public static SvgTag questionTypeSvgLink(QuestionType type) {
+    Icons icon = getIconTypeFromQuestionType(type);
+    return new SvgTag().with(new UseTag().attr("href", "#" + makeSvgLinkId(icon)));
+  }
+
+  /** Maps a question type to an icon type */
+  private static Icons getIconTypeFromQuestionType(QuestionType type) {
+    return switch (type) {
+      case ADDRESS -> Icons.ADDRESS;
+      case CHECKBOX -> Icons.CHECKBOX;
+      case CURRENCY -> Icons.CURRENCY;
+      case DATE -> Icons.DATE;
+      case DROPDOWN -> Icons.DROPDOWN;
+      case EMAIL -> Icons.EMAIL;
+      case FILEUPLOAD -> Icons.FILEUPLOAD;
+      case ID -> Icons.ID;
+      case NAME -> Icons.NAME;
+      case NUMBER -> Icons.NUMBER;
+      case RADIO_BUTTON -> Icons.RADIO_BUTTON;
+      case ENUMERATOR -> Icons.ENUMERATOR;
+      case STATIC -> Icons.ANNOTATION;
+      case TEXT -> Icons.TEXT;
+      case PHONE -> Icons.PHONE;
+      default -> Icons.UNKNOWN;
+    };
   }
 
   public String getViewBox() {

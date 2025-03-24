@@ -84,14 +84,12 @@ public record AlertSettings(
   }
 
   public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {
-    switch (alertType) {
-      case SUCCESS:
-        return messages.at(MessageKey.HEADING_SUCCESS_ARIA_LABEL_PREFIX.getKeyName(), titleText);
-      case INFO:
-        return messages.at(
-            MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(), titleText);
-      default:
-        return titleText;
-    }
+    return switch (alertType) {
+      case SUCCESS ->
+          messages.at(MessageKey.HEADING_SUCCESS_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      case INFO ->
+          messages.at(MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(), titleText);
+      default -> titleText;
+    };
   }
 }

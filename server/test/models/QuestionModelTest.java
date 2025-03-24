@@ -1,11 +1,13 @@
 package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,8 +57,123 @@ public class QuestionModelTest extends ResetPostgres {
     QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
 
     QuestionDefinition expected =
-        new QuestionDefinitionBuilder(definition).setId(question.id).build();
+        new QuestionDefinitionBuilder(definition)
+            .setId(question.id)
+            .setConcurrencyToken(question.getConcurrencyToken())
+            .build();
     assertThat(found.getQuestionDefinition()).isEqualTo(expected);
+  }
+
+  @Test
+  public void canPersistAndRetrieveConcurrencyTokenOnNewQuestion()
+      throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.save();
+
+    QuestionDefinition persistedQuestionDefinition =
+        repo.lookupQuestion(question.id).toCompletableFuture().join().get().getQuestionDefinition();
+
+    assertThat(persistedQuestionDefinition.getConcurrencyToken().get()).isEqualTo(initialToken);
+  }
+
+  @Test
+  public void canGenerateAndRetrieveConcurrencyTokenOnNewQuestion()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.save();
+
+    QuestionDefinition persistedQuestionDefinition =
+        repo.lookupQuestion(question.id).toCompletableFuture().join().get().getQuestionDefinition();
+
+    assertThat(persistedQuestionDefinition.getConcurrencyToken()).isPresent();
+  }
+
+  @Test
+  public void canUpdateConcurrrencyTokenWhenQuestionIsUpdated()
+      throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
+    QuestionDefinition initialDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
+                .build());
+    QuestionModel question = new QuestionModel(initialDefinition);
+    question.save();
+
+    QuestionDefinition updatedDefinition =
+        new QuestionDefinitionBuilder(
+                new TextQuestionDefinition(
+                    QuestionDefinitionConfig.builder()
+                        .setName("test")
+                        .setDescription("test update")
+                        .setQuestionText(LocalizedStrings.of())
+                        .setQuestionHelpText(LocalizedStrings.empty())
+                        .setConcurrencyToken(initialToken)
+                        .build()))
+            .setId(question.id)
+            .build();
+    QuestionModel updatedQuestion = new QuestionModel(updatedDefinition);
+    updatedQuestion.update();
+
+    QuestionDefinition persistedQuestionDefinition =
+        repo.lookupQuestion(question.id).toCompletableFuture().join().get().getQuestionDefinition();
+
+    assertThat(persistedQuestionDefinition.getConcurrencyToken().get()).isNotEqualTo(initialToken);
+  }
+
+  @Test
+  public void canRejectUpdateIfConcurrencyTokenMismatched()
+      throws UnsupportedQuestionTypeException {
+    UUID initialToken = UUID.randomUUID();
+    QuestionDefinition initialDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(initialToken)
+                .build());
+    QuestionModel question = new QuestionModel(initialDefinition);
+    question.save();
+
+    QuestionDefinition updatedDefinition =
+        new QuestionDefinitionBuilder(
+                new TextQuestionDefinition(
+                    QuestionDefinitionConfig.builder()
+                        .setName("test")
+                        .setDescription("test update")
+                        .setQuestionText(LocalizedStrings.of())
+                        .setQuestionHelpText(LocalizedStrings.empty())
+                        .setConcurrencyToken(UUID.randomUUID())
+                        .build()))
+            .setId(question.id)
+            .build();
+
+    QuestionModel updatedQuestion = new QuestionModel(updatedDefinition);
+    assertThrows(ConcurrentUpdateException.class, () -> updatedQuestion.update());
   }
 
   @Test

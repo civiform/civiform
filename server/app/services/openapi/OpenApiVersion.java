@@ -15,15 +15,13 @@ public enum OpenApiVersion {
   }
 
   public static OpenApiVersion fromString(Optional<String> openApiVersion) {
-    switch (openApiVersion.orElse("")) {
-      case VersionLabels.swagger_v2:
-        return SWAGGER_V2;
-      case VersionLabels.openapi_v3_0:
-        return OPENAPI_V3_0;
-      default:
-        throw new RuntimeException(
-            String.format("OpenApiVersion %s is not supported", openApiVersion.orElse("")));
-    }
+    return switch (openApiVersion.orElse("")) {
+      case VersionLabels.swagger_v2 -> SWAGGER_V2;
+      case VersionLabels.openapi_v3_0 -> OPENAPI_V3_0;
+      default ->
+          throw new RuntimeException(
+              String.format("OpenApiVersion %s is not supported", openApiVersion.orElse("")));
+    };
   }
 
   private final String name;

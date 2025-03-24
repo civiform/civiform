@@ -3,6 +3,7 @@ package forms.translation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -64,5 +65,31 @@ public class QuestionTranslationFormTest {
 
     assertThat(updated.getQuestionText().get(Locale.CANADA)).isEqualTo("new locale");
     assertThat(updated.getQuestionHelpText()).isEqualTo(LocalizedStrings.empty());
+  }
+
+  @Test
+  public void builder_includesConcurrencyTokenWhenSet() throws Exception {
+    UUID initialToken = UUID.randomUUID();
+    QuestionDefinition question = questionBank.nameApplicantName().getQuestionDefinition();
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+    form.setConcurrencyToken(initialToken);
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, LocalizedStrings.DEFAULT_LOCALE).build();
+
+    assertThat(updated.getConcurrencyToken()).hasValue(initialToken);
+  }
+
+  @Test
+  public void builder_generatesConcurrencyTokenWhenUnset() throws Exception {
+    QuestionDefinition question = questionBank.nameApplicantName().getQuestionDefinition();
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, LocalizedStrings.DEFAULT_LOCALE).build();
+
+    assertThat(updated.getConcurrencyToken()).isNotEmpty();
   }
 }

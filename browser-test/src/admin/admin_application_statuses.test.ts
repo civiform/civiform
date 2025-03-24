@@ -99,7 +99,7 @@ test.describe('view program statuses', () => {
       expect(await adminPrograms.isPaginationVisibleForApplicationTable()).toBe(
         true,
       )
-      expect(page.locator('.usa-pagination__button:has-text("2")'))
+
       await validateScreenshot(page, 'application-table-pagination')
     })
   })

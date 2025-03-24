@@ -199,6 +199,8 @@ public enum MessageKey {
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST("validation.dateBeyondAllowablePast"),
+  DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),
   DATE_VALIDATION_DOB_NOT_IN_PAST("validation.dobNotInPast"),
   DATE_VALIDATION_IMPOSSIBLE_DOB("validation.impossibleDob"),
   DAY_LABEL("label.day"),
@@ -286,6 +288,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
+  LINK_SKIP_TO_MAIN_CONTENT("link.skipToMainContent"), // North Star only
   LINK_HOME("link.home"), // North Star only
   LINK_APPLICATION_FOR_PROGRAM("link.applicationForProgram"), // North Star
   // Only
@@ -424,7 +427,16 @@ public enum MessageKey {
   UNNAMED_USER("label.unnamedUser"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
-  YEAR_LABEL("label.year");
+  YEAR_LABEL("label.year"),
+
+  // Session timeout related messages
+  SESSION_INACTIVITY_WARNING_TITLE("session.inactivity.warning.title"),
+  SESSION_INACTIVITY_WARNING_MESSAGE("session.inactivity.warning.message"),
+  SESSION_LENGTH_WARNING_TITLE("session.length.warning.title"),
+  SESSION_LENGTH_WARNING_MESSAGE("session.length.warning.message"),
+  SESSION_EXTEND_BUTTON("session.extend.button"),
+  SESSION_EXTENDED_SUCCESS("session.extended.success"),
+  SESSION_EXTENDED_ERROR("session.extended.error");
 
   private final String keyName;
 

@@ -41,16 +41,13 @@ public abstract class PredicateDefinition {
 
   /** Determines what {@link PredicateFormat} a given predicate expression tree is. */
   public static PredicateFormat detectPredicateFormat(PredicateExpressionNode rootNode) {
-    switch (rootNode.getType()) {
-      case OR:
-        return PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
-      case LEAF_ADDRESS_SERVICE_AREA:
-      case LEAF_OPERATION:
-        return PredicateFormat.SINGLE_QUESTION;
-      default:
-        throw new IllegalStateException(
-            String.format("Unsupported predicate expression format: %s", rootNode));
-    }
+    return switch (rootNode.getType()) {
+      case OR -> PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
+      case LEAF_ADDRESS_SERVICE_AREA, LEAF_OPERATION -> PredicateFormat.SINGLE_QUESTION;
+      default ->
+          throw new IllegalStateException(
+              String.format("Unsupported predicate expression format: %s", rootNode));
+    };
   }
 
   @JsonProperty("rootNode")

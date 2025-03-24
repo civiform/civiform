@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,6 +127,15 @@ public class QuestionDefinitionTest {
     QuestionDefinition differentDescription =
         builder.setDescription("Different description").build();
     assertThat(question.equals(differentDescription)).isFalse();
+  }
+
+  @Test
+  public void testEquality_differentConcurrencyTokenReturnsFalse()
+      throws UnsupportedQuestionTypeException {
+    QuestionDefinition question = builder.setConcurrencyToken(UUID.randomUUID()).build();
+    QuestionDefinition questionWithDifferentToken =
+        builder.setConcurrencyToken(UUID.randomUUID()).build();
+    assertThat(question.equals(questionWithDifferentToken)).isFalse();
   }
 
   @Test

@@ -8,7 +8,6 @@
   class="cf-question-address"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
-  data-load-question="true"
 >
   <fieldset class="usa-fieldset">
     <div class="cf-question-header">
@@ -40,7 +39,11 @@
       </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.street}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
           *</span
         >
       </label>
@@ -106,7 +109,11 @@
       </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.city}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
           *</span
         >
       </label>
@@ -140,7 +147,11 @@
       </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.state}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
           *</span
         >
       </label>
@@ -181,7 +192,11 @@
       </th:block>
       <label class="usa-label" th:for="${inputId}">
         <span th:text="#{label.zipcode}"></span>
-        <span th:if="${!question.isOptional()}" class="usa-hint--required">
+        <span
+          th:if="${!question.isOptional()}"
+          class="usa-hint--required"
+          th:aria-hidden="true"
+        >
           *</span
         >
       </label>
