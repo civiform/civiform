@@ -56,9 +56,6 @@ test.describe('Admin question preview', {tag: ['@northstar']}, () => {
     await test.step('Expect preview renders properly', async () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
 
-      // The address question needs extra time to render
-      await page.waitForSelector('[data-load-question="true"]')
-
       await validateScreenshot(
         page.locator('#question-fragment'),
         'north-star-address-question',
