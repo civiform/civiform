@@ -240,11 +240,6 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
-export const seedQuestions = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-questions')
-}
-
 export const seedProgramsAndCategories = async (page: Page) => {
   await test.step('Seed programs', async () => {
     await page.goto('/dev/seed')
