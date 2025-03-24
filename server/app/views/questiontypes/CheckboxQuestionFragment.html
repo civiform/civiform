@@ -34,8 +34,7 @@
     <div
       class="usa-checkbox cf-multi-option-question-option"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
-      th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()}"
-      th:with="ariaLabel=#{link.opensNewTabSr}"
+      th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()},ariaLabel=#{link.opensNewTabSr}"
     >
       <input
         class="usa-checkbox__input usa-checkbox__input--tile"
