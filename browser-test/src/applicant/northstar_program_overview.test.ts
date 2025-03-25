@@ -281,7 +281,6 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     const disabledProgramName = 'dis'
 
     await test.step('create a new disabled program', async () => {

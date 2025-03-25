@@ -977,15 +977,6 @@ test.describe(
       )
       await enableFeatureFlag(applicantActor.getPage(), 'FASTFORWARD_ENABLED')
 
-      await enableFeatureFlag(
-        civiformAdminActor.getPage(),
-        'DISABLED_VISIBILITY_CONDITION_ENABLED',
-      )
-      await enableFeatureFlag(
-        applicantActor.getPage(),
-        'DISABLED_VISIBILITY_CONDITION_ENABLED',
-      )
-
       /*
 
       Program definitions

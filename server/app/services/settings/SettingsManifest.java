@@ -959,11 +959,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
-  /** Enables the feature that allows programs to be disabled from CiviForm */
-  public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
-    return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
-  }
-
   /**
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
@@ -2182,12 +2177,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   "Configuration options to enable or disable optional features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "DISABLED_VISIBILITY_CONDITION_ENABLED",
-                          "Enables the feature that allows programs to be disabled from CiviForm",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS",
                           "If enabled, CiviForm Admins are able to see all applications for all"
