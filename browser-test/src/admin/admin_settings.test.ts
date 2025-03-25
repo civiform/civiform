@@ -1,9 +1,10 @@
 import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
   test('Displays the settings page', async ({page, adminSettings}) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
 
     await test.step('Go to admin settings page and take screenshot', async () => {
       await page.setViewportSize({
