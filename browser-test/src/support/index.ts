@@ -240,6 +240,19 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
+export const selectApplicantLanguageNorthstar = async (
+  page: Page,
+  languageCode: string,
+) => {
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language-menu')
+
+    await page.click(`#select-language-${languageCode}`)
+
+    await waitForPageJsLoad(page)
+  })
+}
+
 export const seedProgramsAndCategories = async (page: Page) => {
   await test.step('Seed programs', async () => {
     await page.goto('/dev/seed')

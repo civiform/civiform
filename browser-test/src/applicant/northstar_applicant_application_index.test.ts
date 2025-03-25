@@ -11,7 +11,7 @@ import {
   validateAccessibility,
   validateScreenshot,
   seedProgramsAndCategories,
-  selectApplicantLanguage,
+  selectApplicantLanguageNorthstar,
   normalizeElements,
 } from '../support'
 import {Locator, Page} from 'playwright'
@@ -130,7 +130,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
