@@ -55,9 +55,13 @@ import views.style.StyleUtils;
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
-  private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
+
+  // Names of form fields.
+  private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
+  private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
+  private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -208,105 +212,156 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setChecked(false)
             .addStyleClass("hidden")
             .getCheckboxTag(),
-        fieldset()
-            .with(
+        // Program Eligibility
+        div(
                 legend("Program eligibility gating")
-                    .withClass(BaseStyles.INPUT_LABEL)
-                    .with(ViewUtils.requiredQuestionIndicator())
-                    .with(p("(Not applicable if this program is the pre-screener)")),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Only allow residents to submit applications if they meet all eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(true))
-                    .setChecked(eligibilityIsGating)
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Allow residents to submit applications even if they don't meet eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(false))
-                    .setChecked(!eligibilityIsGating)
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                    .withClass("text-gray-600")
+                    .with(ViewUtils.requiredQuestionIndicator()),
+                fieldset()
+                    .withClasses("usa-fieldset")
+                    .with(
+                        div(
+                                input()
+                                    .withId("program-eligibility-gating")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(ELIGIBILITY_FIELD_NAME)
+                                    .withValue(String.valueOf(true))
+                                    .withCondChecked(eligibilityIsGating),
+                                label(
+                                        "Only allow residents to submit applications if they"
+                                            + " meet all eligibility requirements")
+                                    .withFor("program-visibility-gating")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"),
+                        div(
+                                input()
+                                    .withId("program-eligibility-not-gating")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(ELIGIBILITY_FIELD_NAME)
+                                    .withValue(String.valueOf(true))
+                                    .withCondChecked(!eligibilityIsGating),
+                                label(
+                                        "Allow residents to submit applications even if they"
+                                            + " don't meet eligibility requirements")
+                                    .withFor("program-visibility-not-gating")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio")))
+            .withClasses("mb-4"),
+        // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
-        fieldset()
-            .with(
+        // Program visibility
+        div(
                 legend("Program visibility")
-                    .withClass(BaseStyles.INPUT_LABEL)
+                    .withClass("text-gray-600")
                     .with(ViewUtils.requiredQuestionIndicator()),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-public")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Publicly visible")
-                    .setValue(DisplayMode.PUBLIC.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-hidden")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Hide from applicants. Only individuals with the unique program link can"
-                            + " access this program")
-                    .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-ti-only")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Trusted intermediaries only")
-                    .setValue(DisplayMode.TI_ONLY.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-select-ti-only")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Visible to selected trusted intermediaries only")
-                    .setValue(DisplayMode.SELECT_TI.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-                    .getRadioTag(),
-                showTiSelectionList(
-                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-disabled")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Disabled")
-                    .setValue(DisplayMode.DISABLED.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        fieldset()
-            .with(
-                legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
-                FieldWithLabel.checkbox()
-                    .setFieldName("notificationPreferences")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Send Program Admins an email notification every time an application is"
-                            + " submitted")
-                    .setValue(
-                        ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                            .getValue())
-                    .setChecked(
-                        notificationPreferences.contains(
-                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                .getValue()))
-                    .getCheckboxTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                fieldset()
+                    .withClasses("usa-fieldset")
+                    .with(
+                        div(
+                                input()
+                                    .withId("program-display-mode-public")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(DISPLAY_MODE_FIELD_NAME)
+                                    .withValue(DisplayMode.PUBLIC.getValue())
+                                    .withCondChecked(
+                                        displayMode.equals(DisplayMode.PUBLIC.getValue())),
+                                label("Publicly visible")
+                                    .withFor("program-display-mode-public")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"),
+                        div(
+                                input()
+                                    .withId("program-display-mode-hidden")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(DISPLAY_MODE_FIELD_NAME)
+                                    .withValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
+                                    .withCondChecked(
+                                        displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue())),
+                                label(
+                                        "Hide from applicants. Only individuals with the unique"
+                                            + " program link can access this program")
+                                    .withFor("program-display-mode-hidden")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"),
+                        div(
+                                input()
+                                    .withId("program-display-mode-ti-only")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(DISPLAY_MODE_FIELD_NAME)
+                                    .withValue(DisplayMode.TI_ONLY.getValue())
+                                    .withCondChecked(
+                                        displayMode.equals(DisplayMode.TI_ONLY.getValue())),
+                                label("Trusted intermediaries only")
+                                    .withFor("program-display-mode-ti-only")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"),
+                        div(
+                                input()
+                                    .withId("program-display-mode-select-ti-only")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(DISPLAY_MODE_FIELD_NAME)
+                                    .withValue(DisplayMode.SELECT_TI.getValue())
+                                    .withCondChecked(
+                                        displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                                label("Visible to selected trusted intermediaries only")
+                                    .withFor("program-display-mode-select-ti-only")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"),
+                        showTiSelectionList(
+                            selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                        div(
+                                input()
+                                    .withId("program-display-mode-disabled")
+                                    .withClasses("usa-radio__input usa-radio__input--tile")
+                                    .withType("radio")
+                                    .withName(DISPLAY_MODE_FIELD_NAME)
+                                    .withValue(DisplayMode.DISABLED.getValue())
+                                    .withCondChecked(
+                                        displayMode.equals(DisplayMode.DISABLED.getValue())),
+                                label("Disabled")
+                                    .withFor("program-display-mode-disabled")
+                                    .withClasses("usa-radio__label"))
+                            .withClasses("usa-radio"))
+            .withClasses("mb-4"),
+        // Email notifications
+        div(
+                legend("Email notifications").withClass("text-gray-600"),
+                fieldset()
+                    .withClasses("usa-fieldset")
+                    .with(
+                        div(
+                                input()
+                                    .withId("notification-preferences-email")
+                                    .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                                    .withType("checkbox")
+                                    .withName(NOTIFICATIONS_PREFERENCES_FIELD_NAME)
+                                    .withValue(
+                                        ProgramNotificationPreference
+                                            .EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                            .getValue())
+                                    .withCondChecked(
+                                        notificationPreferences.contains(
+                                            ProgramNotificationPreference
+                                                .EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                                .getValue())),
+                                label(
+                                        "Send Program Admins an email notification every time an"
+                                            + " application is submitted")
+                                    .withFor("notification-preferences-email")
+                                    .withClasses("usa-checkbox__label"))
+                            .withClasses("usa-checkbox")))
+            .withClasses("mb-4"),
+>>>>>>> 1356f4a43 (Use USWDS on checkbox and radio options in ProgramFormBuilder)
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
-        FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Long program description (optional)")
