@@ -259,7 +259,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                     DISPLAY_MODE_FIELD_NAME,
                                     DisplayMode.HIDDEN_IN_INDEX.getValue(),
                                     displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
-                                    "Hidden from applicants"),
+                                    "Hide from applicants. Only individuals with the unique program"
+                                        + " link can access this program"),
                                 buildUSWDSRadioOption(
                                     "program-display-mode-ti-only",
                                     DISPLAY_MODE_FIELD_NAME,
