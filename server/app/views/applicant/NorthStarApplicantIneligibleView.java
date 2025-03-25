@@ -95,10 +95,7 @@ public class NorthStarApplicantIneligibleView extends NorthStarBaseView {
 
     // Manually construct a hyperlink with a runtime href and localized string. The hyperlink will
     // be inserted into another localized string in the Thymeleaf template.
-    String linkHref =
-        program.externalLink().isEmpty()
-            ? applicantRoutes.show(params.profile(), params.applicantId(), program.slug()).url()
-            : program.externalLink();
+    String linkHref = applicantRoutes.show(program.slug()).url();
     String linkText =
         params.messages().at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT);
     String linkHtml =
