@@ -56,7 +56,13 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(title)
             .addMainContent(
-                div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
+                div()
+                    .withClasses("my-5")
+                    .with(
+                        layout.createGoBackButton(
+                            routes.TrustedIntermediaryManagementController.index().url(),
+                            "Back to all Intermediaries"))
+                    .with(renderAddNewButton(tiGroup, request)),
                 div(
                     table()
                         .withClasses("border", "border-gray-300", "shadow-md", "w-full")
