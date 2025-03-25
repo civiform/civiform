@@ -62,7 +62,7 @@ class LLMPrompts:
         6. **File Upload**: File attachments (e.g., PDFs, images)
         7. **Name**: A person's name. Please collate first name, middle name, and last name into full name.
         8. **Number**: Integer values e.g., number of household members etc.
-        9. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions).
+        9. **Radio Button**: Single selection from short lists (<=7 items, e.g., Yes/No questions). Should have more than one option.
         10. **Text**: Open-ended text field for letters, alphanumerics, or symbols.
         11. **Phone**: phone numbers.
         12.  If you see a field you do not understand, please use "unknown" as the type, associate relevant text as help text and assign a unique ID.
@@ -73,6 +73,31 @@ class LLMPrompts:
         Output only JSON, no explanations.
         """
         return prompt
+
+    @staticmethod
+    def fix_malformed_json_prompt(text):
+            """Prompt for converting PDF text to intermediary JSON."""
+            prompt = f"""
+            You are an expert in government forms.  Process the following malformed extracted json from a government form to the correct output format:
+
+            {text}
+
+            Instructions:
+
+            You will receive a JSON string that may be truncated, improperly formatted, or missing closing brackets/braces.
+            Your job is to repair the JSON while preserving all original data.
+            Ensure that:
+            Every opening bracket '{' or [ has a corresponding closing bracket '}' or ].
+            No JSON keys or values are lost.
+            The output remains structurally valid and well-formed.
+            Do NOT modify field values or alter key names. Only fix structural issues.
+            If a portion of the JSON is ambiguous due to truncation, make a best-guess correction while maintaining logical consistency.
+
+            **Output Rules:**
+            - Output ONLY the corrected JSON—do NOT add explanations or comments.
+            - Ensure the JSON can be parsed without errors in standard JSON libraries.
+            """
+            return prompt
 
     @staticmethod
     def post_process_json_prompt(text):
@@ -91,11 +116,14 @@ class LLMPrompts:
         4. For each "repeating_section", create an "entity_nickname" field which best describes the entity that the repeating entries are about.
         5. make sure IDs are unique across the entire form.
         6. Any text field that can be a number (integer) must be corrected to a number type - such as company number, frequency etc.
-        7. If necessary, create an additional new section with ONE fileupload field for text/checkbox fields that can be file attachments.
-        
+        7. If necessary, create an additional new section with ONE file upload field for text/checkbox fields that can be file attachments.
+        8. Ensure that any quotes within fields are either removed or properly escaped to maintain correct JSON formatting.
         Output JSON structure should match this example:
         {json.dumps(JSON_EXAMPLE, indent=4)}
 
-        Output only JSON, no explanations.
+        **Output Rules:**
+        - **Output ONLY JSON.** Return only the processed JSON. No additional text. Do NOT include explanations, comments, or surrounding text.
+        - **Ensure the JSON is fully valid.** Partial or malformed JSON is NOT acceptable.
+        - The response **must** be a complete, well-structured JSON object.
         """
         return prompt

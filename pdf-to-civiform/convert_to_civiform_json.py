@@ -142,14 +142,15 @@ def create_question(field, question_id, enumerator_id=None):
                 f"ERROR: Radio button question '{field['label']}' must have at least two options."
             )
 
-        # Check the number of options for multioption field (checkbox)
-        if field["type"] == "checkbox" and len(question_options) < 1:
-            logging.error(
-                f"ERROR: Multioption field '{field['label']}' must have at least one option."
-            )
-            raise ValueError(
-                f"ERROR: Multioption field '{field['label']}' must have at least one option."
-            )
+        # This Check needs to be removed as there are PDFs with just one checkbox option
+        #Check the number of options for multioption field (checkbox)
+#         if field["type"] == "checkbox" and len(question_options) < 1:
+#             logging.error(
+#                 f"ERROR: Multioption field '{field['label']}' must have at least one option."
+#             )
+#             raise ValueError(
+#                 f"ERROR: Multioption field '{field['label']}' must have at least one option."
+#             )
 
         question["questionOptions"] = question_options
         question["multiOptionQuestionType"] = "RADIO_BUTTON" if field[
