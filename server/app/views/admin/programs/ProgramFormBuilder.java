@@ -57,7 +57,6 @@ import views.style.StyleUtils;
 abstract class ProgramFormBuilder extends BaseHtmlView {
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
-
   // Names of form fields.
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
@@ -220,35 +219,21 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 fieldset()
                     .withClasses("usa-fieldset")
                     .with(
-                        div(
-                                input()
-                                    .withId("program-eligibility-gating")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(ELIGIBILITY_FIELD_NAME)
-                                    .withValue(String.valueOf(true))
-                                    .withCondChecked(eligibilityIsGating),
-                                label(
-                                        "Only allow residents to submit applications if they"
-                                            + " meet all eligibility requirements")
-                                    .withFor("program-visibility-gating")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"),
-                        div(
-                                input()
-                                    .withId("program-eligibility-not-gating")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(ELIGIBILITY_FIELD_NAME)
-                                    .withValue(String.valueOf(true))
-                                    .withCondChecked(!eligibilityIsGating),
-                                label(
-                                        "Allow residents to submit applications even if they"
-                                            + " don't meet eligibility requirements")
-                                    .withFor("program-visibility-not-gating")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio")))
-            .withClasses("mb-4"),
+                        buildUSWDSRadioOption(
+                            "program-eligibility-gating",
+                            ELIGIBILITY_FIELD_NAME,
+                            String.valueOf(true),
+                            eligibilityIsGating,
+                            "Only allow residents to submit applications if they meet all"
+                                + " eligibility requirements"),
+                        buildUSWDSRadioOption(
+                            "program-eligibility-not-gating",
+                            ELIGIBILITY_FIELD_NAME,
+                            String.valueOf(false),
+                            !eligibilityIsGating,
+                            "Allow residents to submit applications even if they don't meet"
+                                + " eligibility requirements")))
+            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
@@ -263,81 +248,47 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withClasses("usa-fieldset")
                     .with(
                         div(
-                                input()
-                                    .withId("program-display-mode-public")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(DISPLAY_MODE_FIELD_NAME)
-                                    .withValue(DisplayMode.PUBLIC.getValue())
-                                    .withCondChecked(
-                                        displayMode.equals(DisplayMode.PUBLIC.getValue())),
-                                label("Publicly visible")
-                                    .withFor("program-display-mode-public")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"),
-                        div(
-                                input()
-                                    .withId("program-display-mode-hidden")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(DISPLAY_MODE_FIELD_NAME)
-                                    .withValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
-                                    .withCondChecked(
-                                        displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue())),
-                                label(
-                                        "Hide from applicants. Only individuals with the unique"
-                                            + " program link can access this program")
-                                    .withFor("program-display-mode-hidden")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"),
-                        div(
-                                input()
-                                    .withId("program-display-mode-ti-only")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(DISPLAY_MODE_FIELD_NAME)
-                                    .withValue(DisplayMode.TI_ONLY.getValue())
-                                    .withCondChecked(
-                                        displayMode.equals(DisplayMode.TI_ONLY.getValue())),
-                                label("Trusted intermediaries only")
-                                    .withFor("program-display-mode-ti-only")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"),
-                        div(
-                                input()
-                                    .withId("program-display-mode-select-ti-only")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(DISPLAY_MODE_FIELD_NAME)
-                                    .withValue(DisplayMode.SELECT_TI.getValue())
-                                    .withCondChecked(
-                                        displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                                label("Visible to selected trusted intermediaries only")
-                                    .withFor("program-display-mode-select-ti-only")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"),
-                        showTiSelectionList(
-                            selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                        div(
-                                input()
-                                    .withId("program-display-mode-disabled")
-                                    .withClasses("usa-radio__input usa-radio__input--tile")
-                                    .withType("radio")
-                                    .withName(DISPLAY_MODE_FIELD_NAME)
-                                    .withValue(DisplayMode.DISABLED.getValue())
-                                    .withCondChecked(
-                                        displayMode.equals(DisplayMode.DISABLED.getValue())),
-                                label("Disabled")
-                                    .withFor("program-display-mode-disabled")
-                                    .withClasses("usa-radio__label"))
-                            .withClasses("usa-radio"))
-            .withClasses("mb-4"),
+                                buildUSWDSRadioOption(
+                                    "program-display-mode-public",
+                                    DISPLAY_MODE_FIELD_NAME,
+                                    DisplayMode.PUBLIC.getValue(),
+                                    displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                                    "Publicly visible"),
+                                buildUSWDSRadioOption(
+                                    "program-display-mode-hidden",
+                                    DISPLAY_MODE_FIELD_NAME,
+                                    DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                                    displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                                    "Hidden from applicants"),
+                                buildUSWDSRadioOption(
+                                    "program-display-mode-ti-only",
+                                    DISPLAY_MODE_FIELD_NAME,
+                                    DisplayMode.TI_ONLY.getValue(),
+                                    displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                                    "Trusted intermediaries only"),
+                                buildUSWDSRadioOption(
+                                    "program-display-mode-select-ti-only",
+                                    DISPLAY_MODE_FIELD_NAME,
+                                    DisplayMode.SELECT_TI.getValue(),
+                                    displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                                    "Visible to selected trusted intermediaries only"),
+                                showTiSelectionList(
+                                    selectedTi,
+                                    displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                                buildUSWDSRadioOption(
+                                    "program-display-mode-disabled",
+                                    DISPLAY_MODE_FIELD_NAME,
+                                    DisplayMode.DISABLED.getValue(),
+                                    displayMode.equals(DisplayMode.DISABLED.getValue()),
+                                    "Disabled")))
+            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+>>>>>>> 9809e3e8f (Add build methods)
         // Email notifications
-        div(
                 legend("Email notifications").withClass("text-gray-600"),
                 fieldset()
                     .withClasses("usa-fieldset")
                     .with(
+<<<<<<< HEAD
                         div(
                                 input()
                                     .withId("notification-preferences-email")
@@ -361,6 +312,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             .withClasses("usa-checkbox")))
             .withClasses("mb-4"),
 >>>>>>> 1356f4a43 (Use USWDS on checkbox and radio options in ProgramFormBuilder)
+=======
+                        buildUSWDSCheckboxOption(
+                            "notification-preferences-email",
+                            NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                .getValue(),
+                            notificationPreferences.contains(
+                                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                    .getValue()),
+                            "Send Program Admins an email notification every time an application is"
+                                + " submitted")))
+            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+>>>>>>> 9809e3e8f (Add build methods)
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
@@ -610,5 +574,33 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return submitButton(saveProgramDetailsText)
         .withId("program-update-button")
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
+  }
+
+  private DivTag buildUSWDSRadioOption(
+      String id, String name, String value, Boolean isChecked, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-radio__input usa-radio__input--tile")
+                .withType("radio")
+                .withName(name)
+                .withValue(value)
+                .withCondChecked(isChecked),
+            label(label).withFor(id).withClasses("usa-radio__label"))
+        .withClasses("usa-radio");
+  }
+
+  private DivTag buildUSWDSCheckboxOption(
+      String id, String name, String value, Boolean isChecked, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withValue(value)
+                .withCondChecked(isChecked),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 }
