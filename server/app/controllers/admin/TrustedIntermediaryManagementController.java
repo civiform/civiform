@@ -3,13 +3,11 @@ package controllers.admin;
 import auth.Authorizers;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import com.google.common.collect.ImmutableList;
 import controllers.FlashKey;
 import forms.AddTrustedIntermediaryForm;
 import forms.CreateTrustedIntermediaryGroupForm;
 import forms.RemoveTrustedIntermediaryForm;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.TrustedIntermediaryGroupModel;
