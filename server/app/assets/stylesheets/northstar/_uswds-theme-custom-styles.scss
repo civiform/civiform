@@ -447,3 +447,28 @@ main {
 .cf-wrap-anywhere {
   overflow-wrap: anywhere;
 }
+
+// Custom styling to make the usa-language component work with buttons rather than anchors
+.usa-language__submenu-item {
+  &:focus {
+    outline-offset: units('neg-05');
+  }
+
+  &:hover {
+    color: color('white');
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  button {
+    all: unset;
+    color: color('white');
+    display: block;
+    line-height: line-height($theme-navigation-font-family, 3);
+    padding: 0;
+    padding: units(1);
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
+}
