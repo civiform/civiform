@@ -4,6 +4,7 @@ import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 test.describe('Managing system-wide settings', () => {
   test('Displays the settings page', async ({page, adminSettings}) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
 
     await test.step('Go to admin settings page and take screenshot', async () => {
       await page.setViewportSize({
@@ -51,7 +52,6 @@ test.describe('Managing system-wide settings', () => {
     await adminSettings.gotoAdminSettings()
 
     await test.step('button check', async () => {
-      await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
       await adminSettings.enableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges()
       await adminSettings.expectEnabled('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
