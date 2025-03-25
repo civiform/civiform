@@ -241,79 +241,53 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
         // Program visibility
         div(
-                legend("Program visibility")
-                    .withClass("text-gray-600")
-                    .with(ViewUtils.requiredQuestionIndicator()),
-                fieldset()
-                    .withClasses("usa-fieldset")
-                    .with(
-                        div(
-                                buildUSWDSRadioOption(
-                                    "program-display-mode-public",
-                                    DISPLAY_MODE_FIELD_NAME,
-                                    DisplayMode.PUBLIC.getValue(),
-                                    displayMode.equals(DisplayMode.PUBLIC.getValue()),
-                                    "Publicly visible"),
-                                buildUSWDSRadioOption(
-                                    "program-display-mode-hidden",
-                                    DISPLAY_MODE_FIELD_NAME,
-                                    DisplayMode.HIDDEN_IN_INDEX.getValue(),
-                                    displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
-                                    "Hide from applicants. Only individuals with the unique program"
-                                        + " link can access this program"),
-                                buildUSWDSRadioOption(
-                                    "program-display-mode-ti-only",
-                                    DISPLAY_MODE_FIELD_NAME,
-                                    DisplayMode.TI_ONLY.getValue(),
-                                    displayMode.equals(DisplayMode.TI_ONLY.getValue()),
-                                    "Trusted intermediaries only"),
-                                buildUSWDSRadioOption(
-                                    "program-display-mode-select-ti-only",
-                                    DISPLAY_MODE_FIELD_NAME,
-                                    DisplayMode.SELECT_TI.getValue(),
-                                    displayMode.equals(DisplayMode.SELECT_TI.getValue()),
-                                    "Visible to selected trusted intermediaries only"),
-                                showTiSelectionList(
-                                    selectedTi,
-                                    displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                                buildUSWDSRadioOption(
-                                    "program-display-mode-disabled",
-                                    DISPLAY_MODE_FIELD_NAME,
-                                    DisplayMode.DISABLED.getValue(),
-                                    displayMode.equals(DisplayMode.DISABLED.getValue()),
-                                    "Disabled")))
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
->>>>>>> 9809e3e8f (Add build methods)
+            legend("Program visibility")
+                .withClass("text-gray-600")
+                .with(ViewUtils.requiredQuestionIndicator()),
+            fieldset()
+                .withClasses("usa-fieldset")
+                .with(
+                    div(
+                        buildUSWDSRadioOption(
+                            "program-display-mode-public",
+                            DISPLAY_MODE_FIELD_NAME,
+                            DisplayMode.PUBLIC.getValue(),
+                            displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                            "Publicly visible"),
+                        buildUSWDSRadioOption(
+                            "program-display-mode-hidden",
+                            DISPLAY_MODE_FIELD_NAME,
+                            DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                            displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                            "Hide from applicants. Only individuals with the unique"
+                                + " program link can access this program"),
+                        buildUSWDSRadioOption(
+                            "program-display-mode-ti-only",
+                            DISPLAY_MODE_FIELD_NAME,
+                            DisplayMode.TI_ONLY.getValue(),
+                            displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                            "Trusted intermediaries only"),
+                        buildUSWDSRadioOption(
+                            "program-display-mode-select-ti-only",
+                            DISPLAY_MODE_FIELD_NAME,
+                            DisplayMode.SELECT_TI.getValue(),
+                            displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                            "Visible to selected trusted intermediaries only"),
+                        showTiSelectionList(
+                            selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                        buildUSWDSRadioOption(
+                            "program-display-mode-disabled",
+                            DISPLAY_MODE_FIELD_NAME,
+                            DisplayMode.DISABLED.getValue(),
+                            displayMode.equals(DisplayMode.DISABLED.getValue()),
+                            "Disabled")))
+                .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
         // Email notifications
+        div(
                 legend("Email notifications").withClass("text-gray-600"),
                 fieldset()
                     .withClasses("usa-fieldset")
                     .with(
-<<<<<<< HEAD
-                        div(
-                                input()
-                                    .withId("notification-preferences-email")
-                                    .withClasses("usa-checkbox__input usa-checkbox__input--tile")
-                                    .withType("checkbox")
-                                    .withName(NOTIFICATIONS_PREFERENCES_FIELD_NAME)
-                                    .withValue(
-                                        ProgramNotificationPreference
-                                            .EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                            .getValue())
-                                    .withCondChecked(
-                                        notificationPreferences.contains(
-                                            ProgramNotificationPreference
-                                                .EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                                .getValue())),
-                                label(
-                                        "Send Program Admins an email notification every time an"
-                                            + " application is submitted")
-                                    .withFor("notification-preferences-email")
-                                    .withClasses("usa-checkbox__label"))
-                            .withClasses("usa-checkbox")))
-            .withClasses("mb-4"),
->>>>>>> 1356f4a43 (Use USWDS on checkbox and radio options in ProgramFormBuilder)
-=======
                         buildUSWDSCheckboxOption(
                             "notification-preferences-email",
                             NOTIFICATIONS_PREFERENCES_FIELD_NAME,
@@ -322,11 +296,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             notificationPreferences.contains(
                                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                                     .getValue()),
-                            "Send Program Admins an email notification every time an application is"
-                                + " submitted")))
+                            "Send Program Admins an email notification every time an"
+                                + " application is submitted")))
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
->>>>>>> 9809e3e8f (Add build methods)
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
+        FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Long program description (optional)")
