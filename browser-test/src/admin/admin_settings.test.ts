@@ -1,5 +1,5 @@
 import {test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
   test('Displays the settings page', async ({page, adminSettings}) => {
@@ -50,7 +50,7 @@ test.describe('Managing system-wide settings', () => {
     await adminSettings.gotoAdminSettings()
 
     await test.step('button check', async () => {
-      await enableFeatureFlag(page, 'allow_civiform_admin_access')
+      await disableFeatureFlag(page, 'allow_civiform_admin_access')
       await adminSettings.enableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges()
       await adminSettings.expectEnabled('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
