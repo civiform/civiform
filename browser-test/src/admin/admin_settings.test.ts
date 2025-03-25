@@ -44,6 +44,7 @@ test.describe('Managing system-wide settings', () => {
       )
     })
   })
+
   test('Updates settings on save', async ({page, adminSettings}) => {
     await loginAsAdmin(page)
 
