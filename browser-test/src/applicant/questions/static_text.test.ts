@@ -77,7 +77,7 @@ async function verifyMarkdownHtml(page: Page) {
     '<p>Hello, I am some static text!<br>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">This is a link<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab">',
+    '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">This is a link<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab" role="img">',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<ul class="list-disc mx-8"><li>Item 1</li><li>Item 2<br>&nbsp;</li></ul>',
@@ -86,7 +86,7 @@ async function verifyMarkdownHtml(page: Page) {
     '<p>There are some empty lines below this that should be preserved<br>&nbsp;</p>\n<p>&nbsp;</p>',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-    '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">https://www.example.com<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab">',
+    '<p>This link should be autodetected: <a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">https://www.example.com<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens in a new tab" role="img">',
   )
   expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
     '<strong>Last line of content should be bold</strong>',

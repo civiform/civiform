@@ -39,7 +39,7 @@ public class TextFormatterTest extends ResetPostgres {
             + " noreferrer\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\""
             + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
             + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
-            + " align-text-top\" aria-label=\", test aria label\">",
+            + " align-text-top\" aria-label=\", test aria label\" role=\"img\">",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
@@ -48,7 +48,7 @@ public class TextFormatterTest extends ResetPostgres {
             + " noreferrer\">https://secure.website<svg xmlns=\"http://www.w3.org/2000/svg\""
             + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
             + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
-            + " align-text-top\" aria-label=\", test aria label\">",
+            + " align-text-top\" aria-label=\", test aria label\" role=\"img\">",
         "</svg></a></p>\n");
   }
 
@@ -64,7 +64,7 @@ public class TextFormatterTest extends ResetPostgres {
             + " a link<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\""
             + " stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"false\" viewBox=\"0 0 24"
             + " 24\" class=\"shrink-0 h-5 w-auto inline ml-1 align-text-top\" aria-label=\", test"
-            + " aria label\">",
+            + " aria label\" role=\"img\">",
         "</svg></a></p>\n");
   }
 

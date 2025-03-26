@@ -21,15 +21,18 @@ public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
-  private static String ariaLabel = "opens in a new tab";
+  private static String ariaLabelNewTab = "opens in a new tab";
 
   /**
    * Adds an aria label to links before passing provided text through Markdown formatter. This
    * function should be used when the resulting html will be applicant facing.
    */
   public static ImmutableList<DomContent> formatTextWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    setAriaLabelForLinks(ariaLabel);
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelNewTab) {
+    setAriaLabelForLinks(ariaLabelNewTab);
     return formatText(text, preserveEmptyLines, addRequiredIndicator);
   }
 
@@ -39,8 +42,11 @@ public final class TextFormatter {
    * This function should be used when the resulting html will be applicant facing.
    */
   public static String formatTextToSanitizedHTMLWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    setAriaLabelForLinks(ariaLabel);
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelNewTab) {
+    setAriaLabelForLinks(ariaLabelNewTab);
     return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
   }
 
@@ -76,8 +82,8 @@ public final class TextFormatter {
     return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
   }
 
-  static void setAriaLabelForLinks(String ariaLabelString) {
-    ariaLabel = ariaLabelString;
+  static void setAriaLabelForLinks(String ariaLabelNewTabString) {
+    ariaLabelNewTab = ariaLabelNewTabString;
   }
 
   /**
@@ -122,8 +128,9 @@ public final class TextFormatter {
     String svgIconString =
         Icons.svg(Icons.OPEN_IN_NEW)
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
-            .attr("aria-label", ", " + ariaLabel)
+            .attr("aria-label", ", " + ariaLabelNewTab)
             .attr("aria-hidden", false)
+            .attr("role", "img")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
   }
@@ -214,7 +221,8 @@ public final class TextFormatter {
                 "aria-label",
                 "aria-hidden",
                 "viewBox", // <--- This is for SVGs and it **IS** case-sensitive
-                "d")
+                "d",
+                "role")
             .globally()
             .toFactory();
 
