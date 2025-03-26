@@ -385,7 +385,6 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportProgram_hasMainProgramInfo() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
-
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
@@ -395,8 +394,17 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
     assertThat(linesFromPdf.get(2))
         .isEqualTo("Admin description: " + programDef.adminDescription());
-    assertThat(linesFromPdf.get(3)).contains("Time of export:");
-    assertThat(linesFromPdf.get(4)).isEqualTo("Origin of export: http://localhost:9000");
+    assertThat(linesFromPdf.get(3))
+        .contains(
+            "Admin short description: " + programDef.localizedShortDescription().getDefault());
+    assertThat(linesFromPdf.get(3))
+        .contains(
+            "Admin short description: " + programDef.localizedShortDescription().getDefault());
+    assertThat(linesFromPdf.get(3))
+        .contains(
+            "Admin short description: " + programDef.localizedShortDescription().getDefault());
+    assertThat(linesFromPdf.get(4)).contains("Time of export:");
+    assertThat(linesFromPdf.get(5)).isEqualTo("Origin of export: http://localhost:9000");
   }
 
   @Test

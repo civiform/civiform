@@ -10,6 +10,7 @@ import junitparams.converters.Nullable;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.ApplicationStep;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -257,7 +258,12 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeProgram() {
-    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram("Fake Program", "Test program");
+    ProgramBuilder fakeProgram =
+        ProgramBuilder.newActiveProgram("Fake Program", "Test program")
+            .withApplicationSteps(
+                ImmutableList.of(
+                    new ApplicationStep("step 1 title", "step 1 description"),
+                    new ApplicationStep("step 2 title", "step 2 description")));
     for (int i = 0; i < fakeQuestions.size(); i++) {
       int screenNumber = i + 1;
       fakeProgram

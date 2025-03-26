@@ -318,6 +318,15 @@ public final class PdfExporter {
               "Admin short description: "
                   + programDefinition.localizedShortDescription().getDefault(),
               SMALL_GRAY_FONT));
+      document.add(
+          new Paragraph(
+              "Time of export: "
+                  + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
+              SMALL_GRAY_FONT));
+      document.add(new Paragraph("Origin of export: " + baseUrl, SMALL_GRAY_FONT));
+
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
       Paragraph applicationSteps = new Paragraph();
       programDefinition.applicationSteps().stream()
           .forEach(
@@ -327,18 +336,16 @@ public final class PdfExporter {
                         step.getTitle().getDefault() + step.getDescription().getDefault(),
                         SMALL_GRAY_FONT));
               });
-      document.add(applicationSteps);
+      if (!applicationSteps.isEmpty()) {
+        document.add(new Paragraph("Application steps", PARAGRAPH_FONT));
+        document.add(applicationSteps);
+      }
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
+      document.add(new Paragraph("Application confirmation message", PARAGRAPH_FONT));
       document.add(
           new Paragraph(
-              "Application confirmation message: "
-                  + programDefinition.localizedConfirmationMessage().getDefault(),
-              SMALL_GRAY_FONT));
-      document.add(
-          new Paragraph(
-              "Time of export: "
-                  + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
-              SMALL_GRAY_FONT));
-      document.add(new Paragraph("Origin of export: " + baseUrl, SMALL_GRAY_FONT));
+              programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(
