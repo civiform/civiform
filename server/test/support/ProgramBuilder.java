@@ -231,7 +231,7 @@ public class ProgramBuilder {
             /* defaultDisplayName */ displayName,
             /* defaultDisplayDescription */ description,
             /* defaultShortDescription */ "short description",
-            /* defaultConfirmationMessage */ "",
+            /* defaultConfirmationMessage */ "thanks for filling",
             /* externalLink */ "",
             /* displayMode */ displayMode.getValue(),
             /* notificationPreferences */ ImmutableList.of(),
