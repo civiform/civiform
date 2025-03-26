@@ -351,7 +351,6 @@ public final class PdfExporter {
         renderProgramBlock(
             document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
       }
-
     } finally {
       if (document != null) {
         document.close();
