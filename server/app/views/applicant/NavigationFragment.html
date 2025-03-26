@@ -274,20 +274,38 @@
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
 
-    <select
-      name="locale"
-      th:aria-label="#{label.languageSr}"
-      class="usa-button margin-right-0"
-      id="select-language"
-    >
-      <option th:text="#{button.languages}"></option>
-      <option
-        class="usa-language__submenu-item"
-        th:each="language: ${enabledLanguages}"
-        th:value="${language.key.code()}"
-        th:text="${language.value}"
-      ></option>
-    </select>
+    <ul class="usa-language__primary usa-accordion">
+      <li class="usa-language__primary-item">
+        <button
+          id="select-language-menu"
+          type="button"
+          class="usa-button usa-language__link"
+          role="button"
+          aria-expanded="false"
+          aria-controls="select-language"
+          th:text="#{button.languages}"
+        ></button>
+        <ul
+          th:aria-label="#{label.languageSr}"
+          id="select-language"
+          class="usa-language__submenu"
+          hidden="true"
+        >
+          <li
+            th:each="language: ${enabledLanguages}"
+            class="usa-language__submenu-item"
+          >
+            <button
+              th:id="|select-language-${language.key.code()}|"
+              name="locale"
+              type="submit"
+              th:value="${language.key.code()}"
+              th:text="${language.value}"
+            ></button>
+          </li>
+        </ul>
+      </li>
+    </ul>
   </form>
 </div>
 

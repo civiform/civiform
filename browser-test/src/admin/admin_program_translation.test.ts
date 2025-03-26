@@ -5,6 +5,7 @@ import {
   logout,
   loginAsTestUser,
   selectApplicantLanguage,
+  selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateToastMessage,
 } from '../support'
@@ -532,7 +533,7 @@ test.describe('Admin can manage program translations', () => {
       await test.step('Publish and verify in the applicant experience', async () => {
         await adminPrograms.publishProgram(programName)
         await logout(page)
-        await selectApplicantLanguage(page, 'Español')
+        await selectApplicantLanguageNorthstar(page, 'es-US')
         await applicantQuestions.clickApplyProgramButton('Spanish name')
         await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
           'Descripción general del programa', // translated page title
