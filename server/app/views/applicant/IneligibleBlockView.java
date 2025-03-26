@@ -132,7 +132,16 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .withClasses("mb-4"))
             .condWith(
                 isEligibilityMsgEnabled && !eligibilityMsg.isEmpty(),
-                div().with(TextFormatter.formatText(eligibilityMsg)).withClasses("mb-4"))
+                div()
+                    .with(
+                        TextFormatter.formatTextWithAriaLabel(
+                            eligibilityMsg,
+                            true,
+                            false,
+                            messages
+                                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                                .toLowerCase(Locale.ROOT)))
+                    .withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_CHANGE_ELIGIBILITY_ANSWERS.getKeyName()))
                     .withClasses("mb-4"))

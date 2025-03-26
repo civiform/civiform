@@ -26,8 +26,8 @@ public class NorthStarAnswerData implements Comparable<NorthStarAnswerData> {
     return answerData.questionIndex();
   }
 
-  public String questionHtml() {
-    return answerData.applicantQuestion().getFormattedQuestionText();
+  public String questionHtml(String ariaLabelNewTab) {
+    return answerData.applicantQuestion().getFormattedQuestionText(ariaLabelNewTab);
   }
 
   public ImmutableList<String> multilineAnswerText() {

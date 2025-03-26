@@ -1,8 +1,6 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.endsWith;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -25,45 +23,48 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            "hello google.com http://internet.website https://secure.website",
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+        TextFormatter.formatText("hello google.com http://internet.website https://secure.website");
     String htmlContent = content.get(0).render();
 
     // URLs without protocols are not turned into links
     assertThat(htmlContent).contains("hello google.com ");
 
     // URLs with protocols are turned into links, the protocol is maintained and the SVG icon is
-    // added
+    // added with an aria label
     List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
         "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\""
+            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
+            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
+            + " align-text-top\" aria-label=\", test aria label\" role=\"img\">",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">https://secure.website<svg xmlns=\"http://www.w3.org/2000/svg\""
+            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
+            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
+            + " align-text-top\" aria-label=\", test aria label\" role=\"img\">",
         "</svg></a></p>\n");
   }
 
   @Test
   public void textLinksRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            "[this is a link](https://www.google.com)",
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+        TextFormatter.formatText("[this is a link](https://www.google.com)");
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
         "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" aria-label=\"opens in a new tab\""
-            + " rel=\"nofollow noopener noreferrer\">this is a link",
+            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is"
+            + " a link<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\""
+            + " stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"false\" viewBox=\"0 0 24"
+            + " 24\" class=\"shrink-0 h-5 w-auto inline ml-1 align-text-top\" aria-label=\", test"
+            + " aria label\" role=\"img\">",
         "</svg></a></p>\n");
   }
 
@@ -141,9 +142,7 @@ public class TextFormatterTest extends ResetPostgres {
   public void listRendersCorrectly() {
     String withList =
         "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
-    ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> content = TextFormatter.formatText(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
@@ -167,9 +166,7 @@ public class TextFormatterTest extends ResetPostgres {
         4. vanilla
         """;
 
-    ImmutableList<DomContent> content =
-        TextFormatter.formatText(
-            withList, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> content = TextFormatter.formatText(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
@@ -202,9 +199,7 @@ public class TextFormatterTest extends ResetPostgres {
                 + "<p> </p>\n"
                 + "<p>This is the third (or sixth) line of content.</p>\n");
 
-    ImmutableList<DomContent> nonPreservedBlanksContent =
-        TextFormatter.formatText(
-            withBlankLine, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> nonPreservedBlanksContent = TextFormatter.formatText(withBlankLine);
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
             "<p>This is the first line of content.</p>\n"
@@ -216,9 +211,7 @@ public class TextFormatterTest extends ResetPostgres {
   public void appliesTextEmphasis() {
     String stringWithMarkdown =
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(
-            stringWithMarkdown, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithMarkdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             "<h2>Hello!</h2>\n"
@@ -229,11 +222,7 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void removesScriptTags() {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(
-            stringWithScriptTag,
-            /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithScriptTag);
     assertThat(formattedText.get(0).render()).isEqualTo("\n");
   }
 
@@ -246,8 +235,7 @@ public class TextFormatterTest extends ResetPostgres {
             + "and\n"
             + "### Header 3\n"
             + " should be allowed";
-    ImmutableList<DomContent> formattedText =
-        TextFormatter.formatText(stringWithH1Markdown, false, false);
+    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithH1Markdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             "<h2>Header 1</h2>\n"
@@ -267,7 +255,7 @@ public class TextFormatterTest extends ResetPostgres {
 
     String stringWithBadAttributesAndElements =
         "<script>console.log('uhoh')</script><div id=\"bad-id\"></div>";
-    TextFormatter.formatText(stringWithBadAttributesAndElements, false, false);
+    TextFormatter.formatText(stringWithBadAttributesAndElements);
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
     assertThat(logsList.get(0).getMessage())
@@ -282,10 +270,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content.get(0).render()).contains("aria-label=\"test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
+    assertThat(content.get(0).render()).contains("aria-label=\", test aria label\"");
   }
 
   @Test
@@ -294,10 +279,7 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
             "[link](https://www.example.com)", false, false, "test aria label");
 
-    assertThat(content).contains("aria-label=\"test aria label\"");
-
-    // Set the aria label back to the default for the other tests
-    TextFormatter.resetAriaLabelToDefault();
+    assertThat(content).contains("aria-label=\", test aria label\"");
   }
 
   @Test
