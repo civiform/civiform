@@ -156,6 +156,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
+        // Program name
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
@@ -169,6 +170,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Short description will be visible to applicants at a future date.",
             false,
             "my-2"),
+        // Short description
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
             .setFieldName("localizedShortDescription")
@@ -179,7 +181,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(shortDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program url
         programUrlField(adminName, programEditStatus),
+        // Admin description
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -187,6 +191,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        // Common intake form
         FieldWithLabel.checkbox()
             .setId("common-intake-checkbox")
             .setFieldName("isCommonIntakeForm")
@@ -300,6 +305,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                 + " application is submitted")))
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
+        // Program long description
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
@@ -313,6 +319,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setReadOnly(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program external link
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -326,6 +333,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Application steps will be visible to applicants at a future date.",
             false,
             "my-2"),
+        // Application steps
         div()
             .with(
                 buildApplicationStepDiv(0, applicationSteps, isCommonIntakeForm),
@@ -334,6 +342,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 buildApplicationStepDiv(3, applicationSteps, isCommonIntakeForm),
                 buildApplicationStepDiv(4, applicationSteps, isCommonIntakeForm)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
+        // Confirmation message
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
             .setFieldName("localizedConfirmationMessage")

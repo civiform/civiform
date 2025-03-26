@@ -47,10 +47,6 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
-export enum NotificationPreference {
-  EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
-}
-
 export interface QuestionSpec {
   name: string
   isOptional?: boolean
@@ -444,18 +440,23 @@ export class AdminPrograms {
 
   async expectEmailNotificationPreferenceIsChecked(isChecked: boolean) {
     await expect(
-      this.page.getByRole('checkbox', {
-        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
-      }),
+      this.page.locator('#notification-preferences-email'),
     ).toBeChecked({checked: isChecked})
   }
 
   async setEmailNotificationPreferenceCheckbox(checked: boolean) {
-    await this.page
-      .getByRole('checkbox', {
-        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
-      })
-      .setChecked(checked)
+    const checkbox = this.page.locator('#notification-preferences-email')
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page
+        .locator('label[for="notification-preferences-email"]')
+        .click()
+    }
   }
 
   async gotoEditDraftProgramPage(
