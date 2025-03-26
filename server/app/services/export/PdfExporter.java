@@ -333,7 +333,7 @@ public final class PdfExporter {
               step -> {
                 applicationSteps.add(
                     new Paragraph(
-                        step.getTitle().getDefault() + step.getDescription().getDefault(),
+                        step.getTitle().getDefault() + " : " + step.getDescription().getDefault(),
                         SMALL_GRAY_FONT));
               });
       if (!applicationSteps.isEmpty()) {

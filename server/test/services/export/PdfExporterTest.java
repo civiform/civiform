@@ -397,14 +397,22 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPdf.get(3))
         .contains(
             "Admin short description: " + programDef.localizedShortDescription().getDefault());
-    assertThat(linesFromPdf.get(3))
-        .contains(
-            "Admin short description: " + programDef.localizedShortDescription().getDefault());
-    assertThat(linesFromPdf.get(3))
-        .contains(
-            "Admin short description: " + programDef.localizedShortDescription().getDefault());
     assertThat(linesFromPdf.get(4)).contains("Time of export:");
     assertThat(linesFromPdf.get(5)).isEqualTo("Origin of export: http://localhost:9000");
+    assertThat(linesFromPdf.get(8)).isEqualTo("Application Steps");
+    String step1 =
+        programDef.applicationSteps().get(0).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(0).getDescription().getDefault();
+    String step2 =
+        programDef.applicationSteps().get(1).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(1).getDescription().getDefault();
+    assertThat(linesFromPdf.get(9)).isEqualTo(step1);
+    assertThat(linesFromPdf.get(10)).isEqualTo(step2);
+    assertThat(linesFromPdf.get(13)).isEqualTo("Application confirmation message");
+    assertThat(linesFromPdf.get(14))
+        .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
   }
 
   @Test

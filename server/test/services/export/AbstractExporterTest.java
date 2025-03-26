@@ -263,7 +263,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .withApplicationSteps(
                 ImmutableList.of(
                     new ApplicationStep("step 1 title", "step 1 description"),
-                    new ApplicationStep("step 2 title", "step 2 description")));
+                    new ApplicationStep("step 2 title", "step 2 description")))
+            .withLocalizedConfirmationMessage(Locale.US, "Thanks for submitting");
     for (int i = 0; i < fakeQuestions.size(); i++) {
       int screenNumber = i + 1;
       fakeProgram
