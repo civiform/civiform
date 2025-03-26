@@ -336,10 +336,8 @@ public final class PdfExporter {
                         step.getTitle().getDefault() + " : " + step.getDescription().getDefault(),
                         SMALL_GRAY_FONT));
               });
-      if (!applicationSteps.isEmpty()) {
-        document.add(new Paragraph("Application steps", PARAGRAPH_FONT));
-        document.add(applicationSteps);
-      }
+      document.add(new Paragraph("Application steps", PARAGRAPH_FONT));
+      document.add(applicationSteps);
       document.add(Chunk.NEWLINE);
       document.add(new LineSeparator());
       document.add(new Paragraph("Application confirmation message", PARAGRAPH_FONT));
