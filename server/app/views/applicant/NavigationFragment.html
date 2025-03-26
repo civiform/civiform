@@ -10,70 +10,68 @@
   <div class="usa-overlay"></div>
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
-      <div class="display-flex flex-align-center grid-col-fill">
-        <div class="usa-navbar width-full">
-          <a
-            href="/"
-            class="usa-logo display-flex flex-align-center text-ink text-no-underline"
-            id="header-return-home"
-          >
-            <div class="padding-top-2 padding-bottom-2">
-              <img
-                th:src="${smallLogoUrl}"
-                class="height-8 cf-header-logo padding-right-2"
-                th:attr="alt=${civicEntityFullName + ' Logo'}"
-              />
-            </div>
-            <em class="usa-logo__text">
-              <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name on destop (when the logo appears) */-->
-              <span
-                class="cf-gov-name desktop:display-none"
-                th:if="${hideCivicEntityName}"
-                th:text="${civicEntityShortName}"
-              ></span>
-              <!--/* This span is added only if the flag to hide the government name is disabled */-->
-              <span
-                th:if="${!hideCivicEntityName}"
-                th:text="${civicEntityShortName}"
-              ></span>
-              <span>CiviForm</span>
-            </em>
-          </a>
-          <button
-            type="button"
-            class="usa-menu-btn"
-            th:text="#{header.menu}"
-          ></button>
-        </div>
-        <nav
-          th:aria-label="#{label.primaryNavigation}"
-          class="usa-nav grid-container"
-          role="navigation"
+      <div class="usa-navbar width-full">
+        <a
+          href="/"
+          class="usa-logo display-flex flex-align-center text-ink text-no-underline"
+          id="header-return-home"
         >
-          <button
-            type="button"
-            class="usa-nav__close"
-            th:aria-label="#{button.close}"
-          >
-            <svg
-              th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
-            ></svg>
-          </button>
-          <div class="display-flex grid-col-fill flex-column flex-align-end">
-            <div th:replace="~{this :: userName}"></div>
-            <div class="grid-row grid-gap-1">
-              <button
-                th:if="${showDebugTools}"
-                th:replace="~{this :: showDebugTools}"
-              ></button>
-              <div>
-                <button th:replace="~{this :: loginOrLogout}"></button>
-              </div>
-              <button th:replace="~{this :: languageSelector}"></button>
-            </div>
+          <div class="padding-top-2 padding-bottom-2">
+            <img
+              th:src="${smallLogoUrl}"
+              class="height-8 cf-header-logo padding-right-2"
+              th:attr="alt=${civicEntityFullName + ' Logo'}"
+            />
           </div>
-        </nav>
+          <em class="usa-logo__text">
+            <!--/* This span is added only if the flag is enabled to hide the government name. In that case, we will hide the name on destop (when the logo appears) */-->
+            <span
+              class="cf-gov-name desktop:display-none"
+              th:if="${hideCivicEntityName}"
+              th:text="${civicEntityShortName}"
+            ></span>
+            <!--/* This span is added only if the flag to hide the government name is disabled */-->
+            <span
+              th:if="${!hideCivicEntityName}"
+              th:text="${civicEntityShortName}"
+            ></span>
+            <span>CiviForm</span>
+          </em>
+        </a>
+        <button
+          type="button"
+          class="usa-menu-btn"
+          th:text="#{header.menu}"
+        ></button>
       </div>
+      <nav
+        th:aria-label="#{label.primaryNavigation}"
+        class="usa-nav grid-container"
+        role="navigation"
+      >
+        <button
+          type="button"
+          class="usa-nav__close"
+          th:aria-label="#{button.close}"
+        >
+          <svg
+            th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+          ></svg>
+        </button>
+        <div class="display-flex grid-col-fill flex-column flex-align-end">
+          <div th:replace="~{this :: userName}"></div>
+          <div class="grid-row grid-gap-1">
+            <button
+              th:if="${showDebugTools}"
+              th:replace="~{this :: showDebugTools}"
+            ></button>
+            <div>
+              <button th:replace="~{this :: loginOrLogout}"></button>
+            </div>
+            <button th:replace="~{this :: languageSelector}"></button>
+          </div>
+        </div>
+      </nav>
     </div>
   </header>
   <div th:replace="~{this :: guestSessionAlert}"></div>
