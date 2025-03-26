@@ -41,7 +41,8 @@ public final class ProgramCardsSectionParamsFactory {
     MY_APPLICATIONS,
     COMMON_INTAKE,
     UNFILTERED_PROGRAMS,
-    STANDARD;
+    STANDARD,
+    RECOMMENDED;
   }
 
   @Inject

@@ -2,12 +2,23 @@
   th:fragment="cardsSection (section)"
   class="cf-application-program-section cf-below-cards"
   th:with="sectionType=${section.sectionType().name()},
-           showHeading=${sectionType == 'STANDARD' && section.title().isPresent()}"
+           showHeading=${(sectionType == 'STANDARD' || sectionType == 'RECOMMENDED') && section.title().isPresent()}"
   th:aria-label="${!showHeading && section.title().isPresent()} ? ${section.title().get()}"
   th:id="${sectionType == 'UNFILTERED_PROGRAMS'} ? 'unfiltered-programs'"
 >
   <div th:if="${showHeading}" class="grid-row usa-prose section-bottom">
-    <h3 th:id="${section.id().get()}" th:text="${section.title().get()}"></h3>
+    <h3
+      th:unless="${sectionType == 'RECOMMENDED'}"
+      th:id="${section.id().get()}"
+      th:text="${section.title().get()}"
+    ></h3>
+    <h3
+      th:if="${sectionType == 'RECOMMENDED'}"
+      th:id="${section.id().get()}"
+      th:text="${section.title().get()}"
+      tabindex="-1"
+      autofocus
+    ></h3>
   </div>
 
   <!--/* Pre-screener card */-->
