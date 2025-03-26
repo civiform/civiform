@@ -192,7 +192,6 @@ describe('SessionTimeoutHandler', () => {
 
   afterEach(() => {
     container.remove()
-
     jest.clearAllMocks()
 
     // Reset all static flags
@@ -201,6 +200,9 @@ describe('SessionTimeoutHandler', () => {
     SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
     SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
     SessionTimeoutHandler['isInitialized'] = false
+    SessionTimeoutHandler['initialClockSkew'] = null // Add this line
+    SessionTimeoutHandler['nextTimeoutAction'] = null // Also reset these
+    SessionTimeoutHandler['nextTimeoutTime'] = null // for completeness
   })
 
   describe('showWarning', () => {
