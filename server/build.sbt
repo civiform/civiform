@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.29",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.26",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.0"
