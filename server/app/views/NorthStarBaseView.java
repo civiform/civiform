@@ -62,7 +62,6 @@ public abstract class NorthStarBaseView {
     context.setVariable("civiformImageTag", settingsManifest.getCiviformImageTag().get());
     context.setVariable("addNoIndexMetaTag", settingsManifest.getStagingAddNoindexMetaTag());
     context.setVariable("tailwindStylesheet", assetsFinder.path("stylesheets/tailwind.css"));
-    context.setVariable("uswdsStylesheet", assetsFinder.path("dist/uswds.min.css"));
     context.setVariable("northStarStylesheet", assetsFinder.path("dist/uswds_northstar.min.css"));
     context.setVariable("applicantJsBundle", assetsFinder.path("dist/applicant.bundle.js"));
     context.setVariable("uswdsJsInit", assetsFinder.path("javascripts/uswds/uswds-init.min.js"));

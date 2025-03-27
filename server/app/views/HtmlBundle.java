@@ -254,8 +254,8 @@ public final class HtmlBundle {
             link().withRel("apple-touch-icon").withHref("/apple-touch-icon.png"),
             link().withRel("apple-touch-icon-precomposed.png").withHref("/apple-touch-icon.png"))
         .with(metadata)
-        .with(stylesheets)
-        .with(CspUtil.applyCsp(request, headScripts));
+        .with(CspUtil.applyCsp(request, headScripts))
+        .with(CspUtil.applyCspToStyles(request, stylesheets));
   }
 
   private HeaderTag renderHeader() {

@@ -49,6 +49,10 @@
     color: #71767a;
   }
 
+  .width-115 {
+    width: 115px;
+  }
+
   button:hover {
     @apply bg-blue-700;
   }
