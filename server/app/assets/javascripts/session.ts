@@ -91,11 +91,7 @@ export class SessionTimeoutHandler {
    * be shown again even if its time passes again.
    */
   private static checkAndSetTimer() {
-    console.log('checkAndSetTimer called')
     const data = this.getTimeoutData()
-    console.log(
-      `data. CurrentTime: ${data?.currentTime} inactivityWarning: ${data?.inactivityWarning} inactivityTimeout: ${data?.inactivityTimeout} totalWarning: ${data?.totalWarning} totalTimeout: ${data?.totalTimeout}`,
-    )
     if (!data) return
 
     // Clear existing timer
@@ -105,7 +101,6 @@ export class SessionTimeoutHandler {
     }
 
     const now = Math.floor(Date.now() / 1000)
-    console.log(`Now: ${now}`)
 
     // 1. If there is an inactivityTimeout or totalTimeout that has passed, just logout
     if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
@@ -113,9 +108,6 @@ export class SessionTimeoutHandler {
       return
     }
 
-    console.log(
-      `Dialog show flags. inactivityWarningShown: ${this.inactivityWarningShown} totalLengthWarningShown: ${this.totalLengthWarningShown}`,
-    )
     // If a warning is already being shown, don't show another one
     if (this.inactivityWarningShown || this.totalLengthWarningShown) {
       return
