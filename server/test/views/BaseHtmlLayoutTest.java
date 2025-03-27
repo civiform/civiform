@@ -49,7 +49,8 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
     assertThat(content.body())
         .containsPattern(
-            "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+            "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\""
+                + " nonce=\"my-nonce\">");
     assertThat(content.body())
         .containsPattern(
             "<script src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
@@ -95,7 +96,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
                 + " href=\"/assets/dist/[a-z0-9]+-uswds.min.css\""
                 + " rel=\"stylesheet\"><link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\""
-                + " rel=\"stylesheet\">");
+                + " rel=\"stylesheet\" nonce=\"my-nonce\">");
   }
 
   @Test
