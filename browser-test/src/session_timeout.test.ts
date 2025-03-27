@@ -58,24 +58,30 @@ test.describe('Session timeout warnings for Applicants', () => {
 })
 
 // NorthStar UI
-test.describe('Session timeout warnings with NorthStar UI', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await enableFeatureFlag(page, 'session_timeout_enabled')
-    await loginAsTestUser(page)
-  })
+test.describe(
+  'Session timeout warnings with NorthStar UI',
+  {tag: ['@northstar']},
+  () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'session_timeout_enabled')
+      await loginAsTestUser(page)
+    })
 
-  test('shows inactivity warning and extends session modal', async ({page}) => {
-    const sessionTimeout = new SessionTimeout(page)
-    await sessionTimeout.verifyTimeoutModalBehavior()
-    await sessionTimeout.verifySessionLengthDialogLogout()
-  })
+    test('shows inactivity warning and extends session modal', async ({
+      page,
+    }) => {
+      const sessionTimeout = new SessionTimeout(page)
+      await sessionTimeout.verifyTimeoutModalBehavior()
+      await sessionTimeout.verifySessionLengthDialogLogout()
+    })
 
-  test('dismisses warning modals when Cancel is clicked and logs out automatically at timeout', async ({
-    page,
-  }) => {
-    const sessionTimeout = new SessionTimeout(page)
-    await sessionTimeout.verifyModalDismissal()
-    await sessionTimeout.verifyAutoLogout()
-  })
-})
+    test('dismisses warning modals when Cancel is clicked and logs out automatically at timeout', async ({
+      page,
+    }) => {
+      const sessionTimeout = new SessionTimeout(page)
+      await sessionTimeout.verifyModalDismissal()
+      await sessionTimeout.verifyAutoLogout()
+    })
+  },
+)
