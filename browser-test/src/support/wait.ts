@@ -1,5 +1,5 @@
 import {ElementHandle, Frame, Page} from 'playwright'
-import {expect} from 'playwright/test'
+import {expect, Locator} from 'playwright/test'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
@@ -29,6 +29,7 @@ export const clickAndWaitForModal = async (page: Page, modalId: string) => {
 
 /**
  * Waits for any modal to be displayed.
+ * @deprecated prefer using {@link waitForAnyModalLocator} instead.
  */
 export const waitForAnyModal = async (
   page: Page | Frame,
@@ -36,6 +37,17 @@ export const waitForAnyModal = async (
   return (await page.waitForSelector(
     '.cf-modal:not(.hidden)',
   )) as unknown as ElementHandle<HTMLElement>
+}
+
+/**
+ * Waits for any modal to be displayed.
+ */
+export const waitForAnyModalLocator = async (
+  page: Page | Frame,
+): Promise<Locator> => {
+  const modal = page.locator('.cf-modal:not(.hidden)').first()
+  await modal.waitFor()
+  return modal
 }
 
 /**

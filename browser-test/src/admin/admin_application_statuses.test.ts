@@ -258,10 +258,11 @@ test.describe('view program statuses', () => {
             : []
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-          const notifyCheckbox = await modal.$('input[type=checkbox]')
-          expect(notifyCheckbox).not.toBeNull()
-          await notifyCheckbox!.uncheck()
-          expect(await notifyCheckbox!.isChecked()).toBe(false)
+
+          const notifyCheckbox = modal.getByRole('checkbox', {name: 'Notify'})
+          await notifyCheckbox.uncheck()
+          await expect(notifyCheckbox).not.toBeChecked()
+
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
           await adminPrograms.expectUpdateStatusToast()
@@ -284,9 +285,11 @@ test.describe('view program statuses', () => {
             : []
           const modal =
             await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
-          const notifyCheckbox = await modal.$('input[type=checkbox]')
-          expect(notifyCheckbox).not.toBeNull()
-          expect(await notifyCheckbox!.isChecked()).toBe(true)
+
+          await expect(
+            modal.getByRole('checkbox', {name: 'Notify'}),
+          ).toBeChecked()
+
           expect(await modal.innerText()).toContain(' of this change at ')
           await adminPrograms.confirmStatusUpdateModal(modal)
           expect(await adminPrograms.getStatusOption()).toBe(emailStatusName)
@@ -833,9 +836,10 @@ test.describe('view program statuses', () => {
         const modal =
           await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
 
-        const notifyCheckbox = await modal.$('input[type=checkbox]')
-        expect(notifyCheckbox).not.toBeNull()
-        expect(await notifyCheckbox!.isChecked()).toBe(true)
+        await expect(
+          modal.getByRole('checkbox', {name: 'Notify'}),
+        ).toBeChecked()
+
         expect(await modal.innerText()).toContain(
           ' of this change at ' + guestEmail,
         )

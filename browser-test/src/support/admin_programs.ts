@@ -5,6 +5,7 @@ import {
   clickAndWaitForModal,
   dismissModal,
   waitForAnyModal,
+  waitForAnyModalLocator,
   waitForPageJsLoad,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
@@ -1152,22 +1153,18 @@ export class AdminPrograms {
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
-  async setStatusOptionAndAwaitModal(
-    status: string,
-  ): Promise<ElementHandle<HTMLElement>> {
+  async setStatusOptionAndAwaitModal(status: string): Promise<Locator> {
     await this.page.locator(this.statusSelector()).selectOption(status)
-
-    return waitForAnyModal(this.page)
+    return waitForAnyModalLocator(this.page)
   }
-
   /**
    * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
    * containing the modal has been refreshed.
    */
-  async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
+  async confirmStatusUpdateModal(modal: Locator) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-    const confirmButton = (await modal.$('text=Confirm'))!
+    const confirmButton = modal.getByText('Confirm')
     await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
     await waitForPageJsLoad(this.page)
   }
