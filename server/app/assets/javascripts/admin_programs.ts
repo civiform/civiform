@@ -24,86 +24,122 @@ class AdminPrograms {
     )
   }
 
-  // When the common intake checkbox is selected,
-  // the following fields should be disabled:
-  // - program category checkboxes (disabled and unchecked)
-  // - application steps
-  // - long program description (only if northstar UI is enabled)
+  /**
+   * Attaches a change event listener to the common intake checkbox to manage
+   * the disabled state of related form elements. When the common intake
+   * checkbox is checked, the following fields are disabled:
+   * 1. Program categories
+   * 2. Long program description, if NorthStar UI is enabled
+   * 3. All application steps
+   *
+   * When the checkbox is unchecked, all these elements are re-enabled and
+   * required indicators are shown again.
+   */
   static attachCommonIntakeChangeListener() {
     addEventListenerToElements('#common-intake-checkbox', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
         document.querySelector('#common-intake-checkbox')
       )
 
-      const programCategoryCheckboxes = document.querySelectorAll(
-        '[id^="checkbox-category"]',
+      // Program categories
+      this.updateUSWDSCheckboxesDisabledState(
+        /* fieldSelectors= */ '[id^="checkbox-category"]',
+        /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
-      programCategoryCheckboxes.forEach((checkbox) => {
-        const category = checkbox as HTMLInputElement
-        if (commonIntakeCheckbox.checked) {
-          category.disabled = true
-          category.checked = false
-        } else {
-          category.disabled = false
-        }
-      })
 
+      // Long program description
       const longDescription = document.getElementById(
         'program-display-description-textarea',
       ) as HTMLInputElement
       const northStarUiEnabled =
         longDescription.dataset.northstarEnabled === 'true'
-      this.maybeDisableField(
-        longDescription,
-        commonIntakeCheckbox.checked && northStarUiEnabled,
+      this.updateTextFieldDisableState(
+        /* fieldElement= */ longDescription,
+        /* shouldDisable= */ commonIntakeCheckbox.checked && northStarUiEnabled,
       )
 
-      const applicationStepTitles = document.querySelectorAll(
-        'input[id^="apply-step"]',
+      // Application steps
+      this.updateTextFieldsDisabledState(
+        /* fieldSelectors= */ 'input[id^="apply-step"]',
+        /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
-      const applicationStepDescriptions = document.querySelectorAll(
-        'textarea[id^="apply-step"]',
+      this.updateTextFieldsDisabledState(
+        /* fieldSelectors= */ 'textarea[id^="apply-step"]',
+        /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
-      this.maybeDisableApplicationSteps(
-        applicationStepTitles,
-        commonIntakeCheckbox,
-      )
-      this.maybeDisableApplicationSteps(
-        applicationStepDescriptions,
-        commonIntakeCheckbox,
-      )
-      // remove the required indicator from the first application step
+      // Show the required indicator in the first application step only when
+      // the application steps are enabled
       const applicationStepOneDiv = document.querySelector('#apply-step-1-div')
-      if (commonIntakeCheckbox.checked) {
-        const requiredIndicators =
-          applicationStepOneDiv?.querySelectorAll('span')
-        requiredIndicators?.forEach((indicator) => {
+      const requiredIndicators = applicationStepOneDiv?.querySelectorAll('span')
+      requiredIndicators?.forEach((indicator) => {
+        if (commonIntakeCheckbox.checked) {
           indicator.classList.add('hidden')
-        })
-      }
+        } else {
+          indicator.classList.remove('hidden')
+        }
+      })
     })
   }
 
-  static maybeDisableApplicationSteps(
-    applicationStepFields: NodeListOf<Element>,
-    commonIntakeCheckbox: HTMLInputElement,
+  /**
+   * Updates the disabled state for multiple text fields matching the provided selector.
+   *
+   * @param fieldSelectors - CSS selector string to identify the text fields to update
+   * @param shouldDisable - Boolean indicating whether to disable (true) or enable (false) the fields
+   */
+  static updateTextFieldsDisabledState(
+    fieldSelectors: string,
+    shouldDisable: boolean,
   ) {
-    applicationStepFields.forEach((step) => {
-      const applicationStepField = step as HTMLInputElement
-      this.maybeDisableField(applicationStepField, commonIntakeCheckbox.checked)
+    const textFields = document.querySelectorAll(fieldSelectors)
+    textFields.forEach((field) => {
+      const fieldElement = field as HTMLInputElement
+      this.updateTextFieldDisableState(fieldElement, shouldDisable)
     })
   }
 
-  static maybeDisableField(field: HTMLInputElement, shouldDisable: boolean) {
+  /**
+   * Updates the disabled state for a single text field element.
+   *
+   * @param fieldElement - The HTML input element to update
+   * @param shouldDisable - Boolean indicating whether to disable (true) or enable (false) the field
+   */
+  static updateTextFieldDisableState(
+    fieldElement: HTMLInputElement,
+    shouldDisable: boolean,
+  ) {
     if (shouldDisable) {
-      field.disabled = true
-      field.classList.add(
+      fieldElement.disabled = true
+      fieldElement.classList.add(
         this.DISABLED_TEXT_CLASS,
         this.DISABLED_BACKGROUND_CLASS,
       )
     } else {
-      field.disabled = false
+      fieldElement.disabled = false
     }
+  }
+
+  /**
+   * Updates the disabled state for USWDS checkboxes matching the provided selector.
+   * When disabling checkboxes, also unchecks them to prevent submitting their values.
+   *
+   * @param fieldSelectors - CSS selector string to identify the checkboxes to update
+   * @param shouldDisable - Boolean indicating whether to disable (true) or enable (false) the checkboxes
+   */
+  static updateUSWDSCheckboxesDisabledState(
+    fieldSelectors: string,
+    shouldDisable: boolean,
+  ) {
+    const checkboxes = document.querySelectorAll(fieldSelectors)
+    checkboxes.forEach((checkbox) => {
+      const checkboxElement = checkbox as HTMLInputElement
+      if (shouldDisable) {
+        checkboxElement.disabled = true
+        checkboxElement.checked = false
+      } else {
+        checkboxElement.disabled = false
+      }
+    })
   }
 
   static attachEventListenersToEditTIButton() {
