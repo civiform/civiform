@@ -12,21 +12,17 @@ import play.mvc.Result;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 import views.docs.ApiDocsView;
 
 public final class ApiDocsController {
 
   private final ApiDocsView docsView;
   private final ProgramService programService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ApiDocsController(
-      ApiDocsView docsView, ProgramService programService, SettingsManifest settingsManifest) {
+  public ApiDocsController(ApiDocsView docsView, ProgramService programService) {
     this.docsView = docsView;
     this.programService = programService;
-    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -52,10 +48,6 @@ public final class ApiDocsController {
 
   private Result docsForSlug(
       Http.Request request, String selectedProgramSlug, boolean useActiveVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
-      return notFound("API Docs are not enabled.");
-    }
-
     ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
     Optional<ProgramDefinition> programDefinition =
         getProgramDefinition(selectedProgramSlug, useActiveVersion);

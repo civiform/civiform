@@ -1,6 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   seedProgramsAndCategories,
@@ -11,7 +10,6 @@ import {
 test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page}) => {
     await seedProgramsAndCategories(page)
-    await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
   test('Views active API docs', async ({
