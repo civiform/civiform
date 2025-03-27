@@ -374,7 +374,7 @@ public final class QuestionsListView extends BaseHtmlView {
         div()
             .withClasses("question-bank-info-cell")
             .with(
-                Icons.questionTypeSvg(definition.getQuestionType())
+                Icons.questionTypeSvgWithId(definition.getQuestionType())
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()
