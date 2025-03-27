@@ -279,6 +279,11 @@ it is around the label */
   }
 }
 
+// Styles the header to be vertically aligned
+.usa-header--basic .usa-nav-container {
+  align-items: center;
+}
+
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
   // Hide the logo on mobile and tablet
