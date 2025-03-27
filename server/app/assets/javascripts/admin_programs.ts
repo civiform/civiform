@@ -24,23 +24,26 @@ class AdminPrograms {
     )
   }
 
-  // When the common intake checkbox is selected,
-  // the following fields should be disabled:
-  // - program category checkboxes (disabled and unchecked)
-  // - application steps
-  // - long program description (only if northstar UI is enabled)
-  static attachCommonIntakeChangeListener() {
-    addEventListenerToElements('#common-intake-checkbox', 'click', () => {
-      const commonIntakeCheckbox = <HTMLInputElement>(
-        document.querySelector('#common-intake-checkbox')
+  /**
+   * Listens when the program type fieldset is selected and disables fields as applicable.
+   */
+  static attachProgramTypeChangeListener() {
+    addEventListenerToElements('#program-type-fieldset', 'click', () => {
+      // Get the program type radio elements.
+      const commonIntakeType = <HTMLInputElement>(
+        document.querySelector('#common-intake-type')
+      )
+      const externalProgramType = <HTMLInputElement>(
+        document.querySelector('#external-program-type')
       )
 
+      // Category elements are disabled when common intake type is selected.
       const programCategoryCheckboxes = document.querySelectorAll(
         '[id^="checkbox-category"]',
       )
       programCategoryCheckboxes.forEach((checkbox) => {
         const category = checkbox as HTMLInputElement
-        if (commonIntakeCheckbox.checked) {
+        if (commonIntakeType.checked) {
           category.disabled = true
           category.checked = false
         } else {
@@ -48,55 +51,84 @@ class AdminPrograms {
         }
       })
 
-      const longDescription = document.getElementById(
-        'program-display-description-textarea',
-      ) as HTMLInputElement
-      const northStarUiEnabled =
-        longDescription.dataset.northstarEnabled === 'true'
-      this.maybeDisableField(
-        longDescription,
-        commonIntakeCheckbox.checked && northStarUiEnabled,
+      // Program eligibility options are disabled when external program type is
+      // selected.
+      const programEligibilityOptions = document.querySelectorAll(
+        '[id^="program-eligibility"]',
+      )
+      console.log(programEligibilityOptions)
+      programEligibilityOptions.forEach((checkbox) => {
+        const category = checkbox as HTMLInputElement
+        this.maybeDisableField(category, externalProgramType.checked)
+      })
+
+      // Email notifications checkbox is disabled when external program type is
+      // selected.
+      this.maybeDisableFieldById(
+        'email-notifications-checkbox',
+        externalProgramType.checked,
       )
 
-      const applicationStepTitles = document.querySelectorAll(
+      // Long description textarea is disabled when external program type is
+      // selected, or common intake type is selected with North Star UI enabled.
+      this.maybeDisableFieldById(
+        'program-display-description-textarea',
+        externalProgramType.checked ||
+          (commonIntakeType.checked &&
+            document.body.dataset.northstarEnabled === 'true'),
+      )
+
+      // Application steps are disabled when common intake type or external
+      // program type is selected.
+      this.maybeDisableApplicationSteps(
         'input[id^="apply-step"]',
+        commonIntakeType.checked || externalProgramType.checked,
       )
-      const applicationStepDescriptions = document.querySelectorAll(
+      this.maybeDisableApplicationSteps(
         'textarea[id^="apply-step"]',
+        commonIntakeType.checked || externalProgramType.checked,
       )
-      this.maybeDisableApplicationSteps(
-        applicationStepTitles,
-        commonIntakeCheckbox,
-      )
-      this.maybeDisableApplicationSteps(
-        applicationStepDescriptions,
-        commonIntakeCheckbox,
-      )
-      // remove the required indicator from the first application step
-      const applicationStepOneDiv = document.querySelector('#apply-step-1-div')
-      if (commonIntakeCheckbox.checked) {
+      // Remove the required indicator from the first application step
+      if (commonIntakeType.checked || externalProgramType.checked) {
+        const applicationStepOneDiv =
+          document.querySelector('#apply-step-1-div')
         const requiredIndicators =
           applicationStepOneDiv?.querySelectorAll('span')
         requiredIndicators?.forEach((indicator) => {
           indicator.classList.add('hidden')
         })
       }
+
+      // Confirmation message is disabled when external program is selected.
+      this.maybeDisableFieldById(
+        'program-confirmation-message-textarea',
+        externalProgramType.checked,
+      )
     })
   }
 
   static maybeDisableApplicationSteps(
-    applicationStepFields: NodeListOf<Element>,
-    commonIntakeCheckbox: HTMLInputElement,
+    applicationStepsSelector: string,
+    shouldDisable: boolean,
   ) {
+    const applicationStepFields = document.querySelectorAll(
+      applicationStepsSelector,
+    )
     applicationStepFields.forEach((step) => {
       const applicationStepField = step as HTMLInputElement
-      this.maybeDisableField(applicationStepField, commonIntakeCheckbox.checked)
+      this.maybeDisableField(applicationStepField, shouldDisable)
     })
+  }
+
+  static maybeDisableFieldById(elementId: string, shouldDisable: boolean) {
+    const element = document.getElementById(elementId) as HTMLInputElement
+    this.maybeDisableField(element, shouldDisable)
   }
 
   static maybeDisableField(field: HTMLInputElement, shouldDisable: boolean) {
     if (shouldDisable) {
       field.disabled = true
+      field.checked = false
       field.classList.add(
         this.DISABLED_TEXT_CLASS,
         this.DISABLED_BACKGROUND_CLASS,
@@ -203,7 +235,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
-  AdminPrograms.attachCommonIntakeChangeListener()
+  AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
