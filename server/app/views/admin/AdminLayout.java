@@ -5,6 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static views.BaseHtmlView.asRedirectElement;
 import static views.ViewUtils.makeSvgTextButton;
 
@@ -125,6 +126,21 @@ public final class AdminLayout extends BaseHtmlLayout {
         makeSvgTextButton("Manage translations", Icons.LANGUAGE).withClass(buttonStyles);
     buttonId.ifPresent(button::withId);
     return Optional.of(asRedirectElement(button, linkDestination));
+  }
+
+  /**
+   * Creates a button that will take a user back to the previous page.
+   *
+   * @param goBackUrl the URL to return to
+   * @param goBackText the text to display on the button
+   * @return a DivTag containing the button
+   */
+  public DivTag createGoBackButton(String goBackUrl, String goBackText) {
+    return div(a(Icons.svg(Icons.ARROW_LEFT).withClasses("w-5", "h-5", "mr-2"))
+            .with(text(goBackText))
+            .withHref(goBackUrl)
+            .withClasses("text-blue-600", "hover:text-blue-500", "inline-flex", "items-center"))
+        .withClasses("grid-row");
   }
 
   private NavTag renderNavBar(Http.RequestHeader request) {
