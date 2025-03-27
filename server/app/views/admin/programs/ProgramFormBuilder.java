@@ -217,93 +217,82 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .addStyleClass("hidden")
             .getCheckboxTag(),
         // Program Eligibility
-        div(
+        fieldset(
                 legend("Program eligibility gating")
                     .withClass("text-gray-600")
                     .with(ViewUtils.requiredQuestionIndicator()),
-                fieldset()
-                    .withClasses("usa-fieldset")
-                    .with(
-                        buildUSWDSRadioOption(
-                            "program-eligibility-gating",
-                            ELIGIBILITY_FIELD_NAME,
-                            String.valueOf(true),
-                            eligibilityIsGating,
-                            "Only allow residents to submit applications if they meet all"
-                                + " eligibility requirements"),
-                        buildUSWDSRadioOption(
-                            "program-eligibility-not-gating",
-                            ELIGIBILITY_FIELD_NAME,
-                            String.valueOf(false),
-                            !eligibilityIsGating,
-                            "Allow residents to submit applications even if they don't meet"
-                                + " eligibility requirements")))
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                buildUSWDSRadioOption(
+                    "program-eligibility-gating",
+                    ELIGIBILITY_FIELD_NAME,
+                    String.valueOf(true),
+                    eligibilityIsGating,
+                    "Only allow residents to submit applications if they meet all"
+                        + " eligibility requirements"),
+                buildUSWDSRadioOption(
+                    "program-eligibility-not-gating",
+                    ELIGIBILITY_FIELD_NAME,
+                    String.valueOf(false),
+                    !eligibilityIsGating,
+                    "Allow residents to submit applications even if they don't meet"
+                        + " eligibility requirements"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
         // Program visibility
-        div(
-            legend("Program visibility")
-                .withClass("text-gray-600")
-                .with(ViewUtils.requiredQuestionIndicator()),
-            fieldset()
-                .withClasses("usa-fieldset")
-                .with(
-                    div(
-                        buildUSWDSRadioOption(
-                            "program-display-mode-public",
-                            DISPLAY_MODE_FIELD_NAME,
-                            DisplayMode.PUBLIC.getValue(),
-                            displayMode.equals(DisplayMode.PUBLIC.getValue()),
-                            "Publicly visible"),
-                        buildUSWDSRadioOption(
-                            "program-display-mode-hidden",
-                            DISPLAY_MODE_FIELD_NAME,
-                            DisplayMode.HIDDEN_IN_INDEX.getValue(),
-                            displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
-                            "Hide from applicants. Only individuals with the unique"
-                                + " program link can access this program"),
-                        buildUSWDSRadioOption(
-                            "program-display-mode-ti-only",
-                            DISPLAY_MODE_FIELD_NAME,
-                            DisplayMode.TI_ONLY.getValue(),
-                            displayMode.equals(DisplayMode.TI_ONLY.getValue()),
-                            "Trusted intermediaries only"),
-                        buildUSWDSRadioOption(
-                            "program-display-mode-select-ti-only",
-                            DISPLAY_MODE_FIELD_NAME,
-                            DisplayMode.SELECT_TI.getValue(),
-                            displayMode.equals(DisplayMode.SELECT_TI.getValue()),
-                            "Visible to selected trusted intermediaries only"),
-                        showTiSelectionList(
-                            selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                        buildUSWDSRadioOption(
-                            "program-display-mode-disabled",
-                            DISPLAY_MODE_FIELD_NAME,
-                            DisplayMode.DISABLED.getValue(),
-                            displayMode.equals(DisplayMode.DISABLED.getValue()),
-                            "Disabled")))
-                .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
+        fieldset(
+                legend("Program visibility")
+                    .withClass("text-gray-600")
+                    .with(ViewUtils.requiredQuestionIndicator()),
+                buildUSWDSRadioOption(
+                    "program-display-mode-public",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.PUBLIC.getValue(),
+                    displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                    "Publicly visible"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-hidden",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                    displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                    "Hide from applicants. Only individuals with the unique"
+                        + " program link can access this program"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-ti-only",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.TI_ONLY.getValue(),
+                    displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                    "Trusted intermediaries only"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-select-ti-only",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.SELECT_TI.getValue(),
+                    displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                    "Visible to selected trusted intermediaries only"),
+                showTiSelectionList(
+                    selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+                buildUSWDSRadioOption(
+                    "program-display-mode-disabled",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.DISABLED.getValue(),
+                    displayMode.equals(DisplayMode.DISABLED.getValue()),
+                    "Disabled"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
-        div(
+        fieldset(
                 legend("Email notifications").withClass("text-gray-600"),
-                fieldset()
-                    .withClasses("usa-fieldset")
-                    .with(
-                        buildUSWDSCheckboxOption(
-                            "notification-preferences-email",
-                            NOTIFICATIONS_PREFERENCES_FIELD_NAME,
-                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                .getValue(),
-                            notificationPreferences.contains(
-                                ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                    .getValue()),
-                            "Send Program Admins an email notification every time an"
-                                + " application is submitted")))
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                buildUSWDSCheckboxOption(
+                    "notification-preferences-email",
+                    NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                    ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
+                    notificationPreferences.contains(
+                        ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                            .getValue()),
+                    "Send Program Admins an email notification every time an"
+                        + " application is submitted"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
         // Program long description
         FieldWithLabel.textArea()

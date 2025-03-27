@@ -47,6 +47,10 @@ export enum Eligibility {
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
 }
 
+export enum NotificationPreference {
+  EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
+}
+
 export interface QuestionSpec {
   name: string
   isOptional?: boolean
@@ -440,12 +444,16 @@ export class AdminPrograms {
 
   async expectEmailNotificationPreferenceIsChecked(isChecked: boolean) {
     await expect(
-      this.page.locator('#notification-preferences-email'),
+      this.page.getByRole('checkbox', {
+        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+      }),
     ).toBeChecked({checked: isChecked})
   }
 
   async setEmailNotificationPreferenceCheckbox(checked: boolean) {
-    const checkbox = this.page.locator('#notification-preferences-email')
+    const checkbox = this.page.getByRole('checkbox', {
+      name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+    })
     const isCurrentlyChecked = await checkbox.isChecked()
 
     if (isCurrentlyChecked !== checked) {
