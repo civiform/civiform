@@ -164,6 +164,7 @@ async function loginAsTestUserAwsStaging(
   isTi: boolean,
 ) {
   await Promise.all([
+    // eslint-disable-next-line playwright/no-networkidle
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
   ])
@@ -172,6 +173,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
     page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
+      // eslint-disable-next-line playwright/no-networkidle
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
