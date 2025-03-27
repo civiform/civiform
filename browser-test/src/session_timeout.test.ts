@@ -35,6 +35,9 @@ test.describe('Session timeout warnings for Admin', () => {
   })
 })
 
+/**
+ * Define tests for the session timeout functionality for applicants.
+ */
 function defineApplicantTests(options: {isNorthStar?: boolean} = {}) {
   const description: string = options.isNorthStar
     ? 'with NorthStar UI'
@@ -67,7 +70,8 @@ function defineApplicantTests(options: {isNorthStar?: boolean} = {}) {
     })
   })
 }
+// Regular Applicant UI
+defineApplicantTests()
 
-// Call the shared test function for both UIs
-defineApplicantTests() // Regular Applicant UI
-defineApplicantTests({isNorthStar: true}) // NorthStar UI
+// NorthStar UI
+defineApplicantTests({isNorthStar: true})

@@ -99,7 +99,7 @@ export class SessionTimeout {
   }
 
   /**
-   * Verifies automatic logout behavior
+   * Advance the session to the timeout threshold and verify that the user is logged out.
    */
   async verifyAutoLogout() {
     await test.step('Advance to timeout and verify logout', async () => {
@@ -108,6 +108,9 @@ export class SessionTimeout {
     })
   }
 
+  /**
+   * Verify that the session length warning modal appears and the user is logged out on logout button click.
+   */
   async verifySessionLengthDialogLogout() {
     await test.step('verify logout from session length warning dialog', async () => {
       await this.page.click(
@@ -117,6 +120,9 @@ export class SessionTimeout {
     })
   }
 
+  /**
+   * Verify that the session length warning modal appears for Admins and the user is logged out on logout button click.
+   */
   async verifyAdminSessionLengthDialogLogout() {
     await test.step('verify logout from session length warning dialog', async () => {
       await this.page.click(
@@ -163,6 +169,10 @@ export class SessionTimeout {
     await this.advanceTimeWithClockAPI(advanceMs)
   }
 
+  /**
+   * Retrieves and adjusts the timeout data from the cookie with clock skew calculation
+   * @returns TimeoutData or null if cookie not found
+   */
   private async getAdjustedTimeoutData(): Promise<TimeoutData | null> {
     return this.page.evaluate(() => {
       const cookie = document.cookie

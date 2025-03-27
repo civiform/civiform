@@ -200,9 +200,9 @@ describe('SessionTimeoutHandler', () => {
     SessionTimeoutHandler['hasInactivityWarningBeenShown'] = false
     SessionTimeoutHandler['hasTotalLengthWarningBeenShown'] = false
     SessionTimeoutHandler['isInitialized'] = false
-    SessionTimeoutHandler['initialClockSkew'] = null // Add this line
-    SessionTimeoutHandler['nextTimeoutAction'] = null // Also reset these
-    SessionTimeoutHandler['nextTimeoutTime'] = null // for completeness
+    SessionTimeoutHandler['initialClockSkew'] = null
+    SessionTimeoutHandler['nextTimeoutAction'] = null
+    SessionTimeoutHandler['nextTimeoutTime'] = null
   })
 
   describe('showWarning', () => {
@@ -635,7 +635,6 @@ describe('SessionTimeoutHandler', () => {
     })
   })
 
-  // Add new test for initialization
   describe('init', () => {
     it('initializes only once', () => {
       const checkAndSetTimerSpy = jest.spyOn(
@@ -650,7 +649,9 @@ describe('SessionTimeoutHandler', () => {
 
       // Second initialization attempt
       SessionTimeoutHandler.init()
-      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1) // Still only called once
+
+      // Still only called once
+      expect(checkAndSetTimerSpy).toHaveBeenCalledTimes(1)
     })
   })
 })
