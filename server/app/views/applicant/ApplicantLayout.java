@@ -33,6 +33,8 @@ import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -241,8 +243,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         .with(
                             a("DevTools")
                                 .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                .withClasses(ApplicantStyles.LINK)
-                                .withStyle("cursor:pointer")))
+                                .withClasses(
+                                    StyleUtils.joinStyles(ApplicantStyles.LINK, "cursor-pointer"))))
                 .with(
                     div(
                             getLanguageForm(request, messages, applicantId),
@@ -479,24 +481,46 @@ public class ApplicantLayout extends BaseHtmlLayout {
       int totalBlockCount,
       boolean forSummary,
       Messages messages) {
-    int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
-    DivTag progressInner =
-        div()
-            .withClasses(
-                BaseStyles.BG_CIVIFORM_BLUE,
+    double numerator = forSummary ? blockIndex : blockIndex + 1;
+    double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
+    ArrayList<String> progressClassesList =
+        new ArrayList<String>(
+            Arrays.asList(
                 "transition-all",
                 "duration-300",
                 "h-full",
-                "block",
-                "absolute",
                 "left-0",
                 "top-0",
-                "w-1",
-                "rounded-full")
-            .withStyle("width:" + percentComplete + "%");
+                "w-auto",
+                "flex-grow"));
+
+    // List of divs representing number of progress steps. Used to render correct progress
+    // percentage on progress bar.
+    ArrayList<DivTag> innerProgressBars = new ArrayList<DivTag>();
+    // Render a set of divs with blue civiform backgrou d
+    for (int i = 0; i < numerator; i++) {
+      ArrayList<String> innerProgressBarClasses = new ArrayList<>(progressClassesList);
+      innerProgressBarClasses.add(BaseStyles.BG_CIVIFORM_BLUE);
+      if (i == 0) {
+        innerProgressBarClasses.add("rounded-l-full");
+      }
+      if (i == (int) numerator - 1) {
+        innerProgressBarClasses.add("rounded-r-full");
+      }
+
+      DivTag progressInner =
+          div().withClasses(innerProgressBarClasses.stream().toArray(String[]::new));
+      innerProgressBars.add(progressInner);
+    }
+    // Render second set of divs with no background color set
+    for (int i = (int) numerator; i < denominator; i++) {
+      DivTag progressInner = div().withClasses(progressClassesList.stream().toArray(String[]::new));
+      innerProgressBars.add(progressInner);
+    }
     DivTag progressIndicator =
-        div(progressInner)
+        div()
+            .with(innerProgressBars)
             .withId("progress-indicator")
             .withClasses(
                 "border",
@@ -505,6 +529,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 "font-semibold",
                 "bg-white",
                 "relative",
+                "flex",
+                "justify-stretch",
                 "h-4",
                 "mt-4");
 
@@ -526,34 +552,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 span(blockNumberText).withClasses("text-gray-500", "text-base", "text-right"));
 
     return div().with(programTitleContainer).with(progressIndicator);
-  }
-
-  /**
-   * Returns whole number out of 100 representing the completion percent of this program.
-   *
-   * <p>See {@link #renderProgramApplicationTitleAndProgressIndicator(String, int, int, boolean,
-   * Messages)} about why there's a difference between the percent complete for summary views, and
-   * for non-summary views.
-   */
-  private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
-    if (totalBlockCount == 0) {
-      return 100;
-    }
-    if (blockIndex == -1) {
-      return 0;
-    }
-
-    // While in progress, add one to blockIndex for 1-based indexing, so that when applicant is on
-    // first block, we show
-    // some amount of progress; and add one to totalBlockCount so that when applicant is on the last
-    // block, we show that they're
-    // still in progress.
-    // For summary views, we don't need to do any of the tricks, so we just use the actual total
-    // block count and block index.
-    double numerator = forSummary ? blockIndex : blockIndex + 1;
-    double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
-
-    return (int) (numerator / denominator * 100.0);
   }
 
   protected Optional<DivTag> maybeRenderBackToAdminViewButton(
