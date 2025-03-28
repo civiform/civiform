@@ -1,6 +1,11 @@
 import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
-import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import {
+  dismissModal,
+  waitForAnyModal,
+  waitForAnyModalLocator,
+  waitForPageJsLoad,
+} from './wait'
 
 export class AdminProgramStatuses {
   private page!: Page
@@ -218,21 +223,19 @@ export class AdminProgramStatuses {
       this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
     )
 
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Edit this status')
 
     // We perform selectors within the modal since using the typical
     // selectors will match multiple modals on the page.
-    const emailFieldHandle = (await modal.$(
-      'text="Email the applicant about the status change"',
-    ))!
-    const emailBody = await emailFieldHandle.inputValue()
+    const emailBody = modal.getByText(
+      'Email the applicant about the status change',
+    )
 
     // Close the modal prior to any assertions to avoid affecting
     // subsequent tests.
+    await expect(emailBody).toHaveValue(expectedEmailBody)
     await dismissModal(this.page)
-
-    expect(emailBody).toEqual(expectedEmailBody)
   }
 
   async emailTranslationWarningIsVisible(statusName: string): Promise<boolean> {
