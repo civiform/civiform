@@ -1185,22 +1185,23 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify client info is pre-populated in the application after clicking continue', async () => {
         await applicantQuestions.clickContinue()
-        expect(await page.locator('input[type=date]').inputValue()).toEqual(
-          '2001-01-01',
-        )
-        expect(
-          await page.locator('.cf-name-first').locator('input').inputValue(),
-        ).toEqual('first')
-        expect(
-          await page.locator('.cf-name-middle').locator('input').inputValue(),
-        ).toEqual('middle')
-        expect(
-          await page.locator('.cf-name-last').locator('input').inputValue(),
-        ).toEqual('last')
-        expect(
-          await page.locator('.cf-phone-number').locator('input').inputValue(),
-        ).toEqual('(917) 867-5309')
-        expect(await page.locator('input[type=email]').inputValue()).toEqual(
+
+        await expect(
+          page.getByRole('textbox', {name: 'Date of birth'}),
+        ).toHaveValue('2001-01-01')
+        await expect(
+          page.getByRole('textbox', {name: 'First name'}),
+        ).toHaveValue('first')
+        await expect(
+          page.getByRole('textbox', {name: 'Middle name'}),
+        ).toHaveValue('middle')
+        await expect(
+          page.getByRole('textbox', {name: 'Last name'}),
+        ).toHaveValue('last')
+        await expect(
+          page.getByRole('textbox', {name: 'Phone number'}),
+        ).toHaveValue('(917) 867-5309')
+        await expect(page.getByRole('textbox', {name: 'Email'})).toHaveValue(
           'test@email.com',
         )
         await validateScreenshot(page, 'pai-program-application')

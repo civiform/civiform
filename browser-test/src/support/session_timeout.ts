@@ -235,8 +235,5 @@ export class SessionTimeout {
       })
       window.dispatchEvent(timeChangeEvent)
     }, advanceMilliseconds)
-
-    // Give the browser a moment to process the event
-    await this.page.waitForTimeout(100)
   }
 }

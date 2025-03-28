@@ -79,7 +79,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    expect(await page.getByText(/To get help with/).textContent()).toBeTruthy()
+    await expect(page.getByText(/To get help with/)).toBeVisible()
   })
 
   test('validate initial page load as guest user', async ({
