@@ -47,6 +47,16 @@ class AdminPrograms {
         /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
 
+      // Program eligibility
+      this.updateUSWDSCheckboxesDisabledState(
+        /* fieldSelectors= */ '[id^="program-eligibility"]',
+        /* shouldDisable= */ commonIntakeCheckbox.checked,
+      )
+      this.hideRequiredIndicators(
+        /* fieldSelector= */ '#program-eligibility',
+        /* shouldHide= */ commonIntakeCheckbox.checked,
+      )
+
       // Long program description
       const longDescription = document.getElementById(
         'program-display-description-textarea',
@@ -67,17 +77,11 @@ class AdminPrograms {
         /* fieldSelectors= */ 'textarea[id^="apply-step"]',
         /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
-      // Show the required indicator in the first application step only when
-      // the application steps are enabled
-      const applicationStepOneDiv = document.querySelector('#apply-step-1-div')
-      const requiredIndicators = applicationStepOneDiv?.querySelectorAll('span')
-      requiredIndicators?.forEach((indicator) => {
-        if (commonIntakeCheckbox.checked) {
-          indicator.classList.add('hidden')
-        } else {
-          indicator.classList.remove('hidden')
-        }
-      })
+      // Step #1 should hide required indicator if it's a common intake form.
+      this.hideRequiredIndicators(
+        /* fieldSelector= */ '#apply-step-1-div',
+        /* shouldHide= */ commonIntakeCheckbox.checked,
+      )
     })
   }
 
@@ -138,6 +142,24 @@ class AdminPrograms {
         checkboxElement.checked = false
       } else {
         checkboxElement.disabled = false
+      }
+    })
+  }
+
+  /**
+   * Adds or removes the required indicator for a field
+   *
+   * @param {string} fieldSelector - The selector for the field
+   * @param {boolean} shouldHide - Whether to show or hide the required indicator
+   */
+  static hideRequiredIndicators(fieldSelector: string, shouldHide: boolean) {
+    const field = document.querySelector(fieldSelector)
+    const requiredIndicators = field?.querySelectorAll('span')
+    requiredIndicators?.forEach((indicator) => {
+      if (shouldHide) {
+        indicator.classList.add('hidden')
+      } else {
+        indicator.classList.remove('hidden')
       }
     })
   }
