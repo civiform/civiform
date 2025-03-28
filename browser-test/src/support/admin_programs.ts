@@ -43,6 +43,7 @@ export enum FormField {
   APPLICATION_STEPS,
   LONG_DESCRIPTION,
   PROGRAM_CATEGORIES,
+  PROGRAM_ELIGIBILITY,
 }
 
 export enum ProgramVisibility {
@@ -291,6 +292,17 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.PROGRAM_ELIGIBILITY: {
+        for (const eligibilityName of Object.values(Eligibility)) {
+          const option = this.page.getByRole('radio', {
+            name: eligibilityName,
+          })
+          await expect(option).toBeDisabled()
+          await expect(option).not.toBeChecked()
+        }
+        break
+      }
+
       default:
         throw new Error(
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
@@ -340,6 +352,16 @@ export class AdminPrograms {
             name: categoryName,
           })
           await expect(category).toBeEnabled()
+        }
+        break
+      }
+
+      case FormField.PROGRAM_ELIGIBILITY: {
+        for (const eligibilityName of Object.values(Eligibility)) {
+          const option = this.page.getByRole('radio', {
+            name: eligibilityName,
+          })
+          await expect(option).toBeEnabled()
         }
         break
       }
