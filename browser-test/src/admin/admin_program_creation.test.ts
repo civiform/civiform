@@ -7,7 +7,11 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
-import {Eligibility, ProgramVisibility} from '../support/admin_programs'
+import {
+  Eligibility,
+  FormField,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {dismissModal, waitForAnyModal} from '../support/wait'
 import {Page} from 'playwright'
 
@@ -1040,7 +1044,10 @@ test.describe('program creation', () => {
     })
 
     await test.step('expect application steps to be disabled', async () => {
-      await adminPrograms.expectApplicationStepsDisabled()
+      await adminPrograms.expectFormFieldDisabled(
+        FormField.APPLICATION_STEPS,
+        /* isDisabled= */ true,
+      )
     })
 
     await test.step('save program', async () => {
@@ -1050,7 +1057,10 @@ test.describe('program creation', () => {
 
     await test.step('edit program and confirm application steps are still disabled', async () => {
       await adminPrograms.goToProgramDescriptionPage(programName)
-      await adminPrograms.expectApplicationStepsDisabled()
+      await adminPrograms.expectFormFieldDisabled(
+        FormField.APPLICATION_STEPS,
+        /* isDisabled= */ true,
+      )
     })
   })
 
@@ -1307,9 +1317,14 @@ test.describe('program creation', () => {
       })
 
       await test.step('expect fields to be unchecked and disabled', async () => {
-        await expect(page.getByText('Education')).toBeDisabled()
-        await expect(page.getByText('Education')).not.toBeChecked()
-        await adminPrograms.expectApplicationStepsDisabled()
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+          /* isDisabled= */ true,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.APPLICATION_STEPS,
+          /* isDisabled= */ true,
+        )
       })
 
       await test.step('save program', async () => {
@@ -1319,9 +1334,14 @@ test.describe('program creation', () => {
 
       await test.step('edit program and confirm fields are still disabled', async () => {
         await adminPrograms.goToProgramDescriptionPage(programName)
-        await expect(page.getByText('Education')).toBeDisabled()
-        await expect(page.getByText('Education')).not.toBeChecked()
-        await adminPrograms.expectApplicationStepsDisabled()
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_CATEGORIES,
+          /* isDisabled= */ true,
+        )
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.APPLICATION_STEPS,
+          /* isDisabled= */ true,
+        )
       })
     })
   })
@@ -1363,12 +1383,14 @@ test.describe('program creation', () => {
 
         await test.step('expect fields to be unchecked and disabled', async () => {
           // Long description is only disabled when the northstar UI is enabled
-          await expect(
-            page.getByRole('textbox', {
-              name: 'Long program description (optional)',
-            }),
-          ).toBeDisabled()
-          await adminPrograms.expectApplicationStepsDisabled()
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+            /* isDisabled= */ true,
+          )
         })
 
         await test.step('save program', async () => {
@@ -1378,12 +1400,14 @@ test.describe('program creation', () => {
 
         await test.step('edit program and confirm fields are still disabled', async () => {
           await adminPrograms.goToProgramDescriptionPage(programName)
-          await expect(
-            page.getByRole('textbox', {
-              name: 'Long program description (optional)',
-            }),
-          ).toBeDisabled()
-          await adminPrograms.expectApplicationStepsDisabled()
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+            /* isDisabled= */ true,
+          )
         })
       })
 
@@ -1426,33 +1450,57 @@ test.describe('program creation', () => {
           await expect(commonIntakeFormInput).toBeChecked()
         })
 
-        await test.step('expect fields to be unchecked and disabled', async () => {
-          await expect(page.getByText('Education')).toBeDisabled()
-          await expect(page.getByText('Education')).not.toBeChecked()
-          await adminPrograms.expectApplicationStepsDisabled()
-          // Long description is only disabled when the northstar UI is enabled
-          await expect(
-            page.getByRole('textbox', {
-              name: 'Long program description (optional)',
-            }),
-          ).toBeDisabled()
+        await test.step('expect non-applicable fields to have disabled state', async () => {
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_CATEGORIES,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+            /* isDisabled= */ true,
+          )
         })
 
-        await test.step('save program', async () => {
+        await test.step('expect fields are re-enabled when toggling off common intake form', async () => {
+          await adminPrograms.clickCommonIntakeFormToggle()
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_CATEGORIES,
+            /* isDisabled= */ false,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+            /* isDisabled= */ false,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+            /* isDisabled= */ false,
+          )
+        })
+
+        await test.step('click common intake toggle again and save program', async () => {
+          await adminPrograms.clickCommonIntakeFormToggle()
           await adminPrograms.submitProgramDetailsEdits()
           await adminPrograms.expectProgramBlockEditPage(programName)
         })
 
         await test.step('edit program and confirm fields are still disabled', async () => {
           await adminPrograms.goToProgramDescriptionPage(programName)
-          await expect(page.getByText('Education')).toBeDisabled()
-          await expect(page.getByText('Education')).not.toBeChecked()
-          await expect(
-            page.getByRole('textbox', {
-              name: 'Long program description (optional)',
-            }),
-          ).toBeDisabled()
-          await adminPrograms.expectApplicationStepsDisabled()
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_CATEGORIES,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+            /* isDisabled= */ true,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+            /* isDisabled= */ true,
+          )
         })
       })
     },

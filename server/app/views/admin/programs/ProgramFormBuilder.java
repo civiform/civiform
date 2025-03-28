@@ -382,7 +382,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 
-    if (indexPlusOne.equals("1")) {
+    Boolean isRequired = indexPlusOne.equals("1") && !isCommonIntakeForm;
+    if (isRequired) {
       title.setLabelText("Step 1 title").setRequired(true);
       description.setLabelText("Step 1 description").setRequired(true);
     } else {

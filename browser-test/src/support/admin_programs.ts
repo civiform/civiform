@@ -35,6 +35,16 @@ export interface DownloadedApplication {
   }
 }
 
+/**
+ * List of fields in the program form. This list is not exhaustive, as fields
+ * are added when needed by a test.
+ */
+export enum FormField {
+  PROGRAM_CATEGORIES,
+  LONG_DESCRIPTION,
+  APPLICATION_STEPS,
+}
+
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
@@ -46,6 +56,21 @@ export enum ProgramVisibility {
 export enum Eligibility {
   IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export enum ProgramCategories {
+  CHILDCARE = 'Childcare',
+  ECONOMIC = 'Economic',
+  EDUCATION = 'Education',
+  EMPLOYMENT = 'Employment',
+  FOOD = 'Food',
+  GENERAL = 'General',
+  HEALTHCARE = 'Healthcare',
+  HOUSING = 'Housing',
+  INTERNET = 'Internet',
+  TRAINING = 'Training',
+  TRANSPORTATION = 'Transportation',
+  UTILITIES = 'Utilities',
 }
 
 export enum NotificationPreference {
@@ -219,17 +244,76 @@ export class AdminPrograms {
     }
   }
 
-  async expectApplicationStepsDisabled() {
-    for (let i = 0; i < 5; i++) {
-      const indexPlusOne = i + 1
-      await expect(
-        this.page.getByRole('textbox', {name: `Step ${indexPlusOne} title`}),
-      ).toBeDisabled()
-      await expect(
-        this.page.getByRole('textbox', {
-          name: `Step ${indexPlusOne} description`,
-        }),
-      ).toBeDisabled()
+  /**
+   * Verifies whether specific form fields are properly disabled or enabled based on expected state.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+   * @param isDisabled - Boolean indicating whether the field should be disabled (true) or enabled (false)
+   *
+   * @throws Will throw an error if the elements' states don't match the expected disabled/enabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldDisabled(formField: FormField, isDisabled: boolean) {
+    switch (formField) {
+      case FormField.PROGRAM_CATEGORIES: {
+        this.page.getByRole('checkbox')
+
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          if (isDisabled) {
+            await expect(category).toBeDisabled()
+            await expect(category).not.toBeChecked()
+          } else {
+            await expect(category).toBeEnabled()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        if (isDisabled) {
+          await expect(longDescription).toBeDisabled()
+        } else {
+          await expect(longDescription).toBeEnabled()
+        }
+        break
+      }
+
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          if (isDisabled) {
+            await expect(stepTitle).toBeDisabled()
+            await expect(stepDescription).toBeDisabled()
+            if (indexPlusOne == 1) {
+              await stepTitle.locator('span').isHidden()
+            }
+          } else {
+            await expect(stepTitle).toBeEnabled()
+            await expect(stepDescription).toBeEnabled()
+            if (indexPlusOne == 1) {
+              await stepTitle.locator('span').isVisible()
+            }
+          }
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
     }
   }
 
