@@ -73,6 +73,8 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
