@@ -33,6 +33,7 @@ import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import views.AlertComponent;
 import views.ViewUtils;
 import views.style.AdminStyles;
@@ -188,6 +189,27 @@ public final class ProgramQuestionBank {
                 h2("All other questions").withClasses(AdminStyles.SEMIBOLD_HEADER))
             .with(each(nonUniversalQuestions, qd -> renderQuestionDefinition(qd))));
 
+    contentDiv.with(
+        div()
+            .with(
+                Icons.questionTypeSvgWithId(QuestionType.ADDRESS),
+                Icons.questionTypeSvgWithId(QuestionType.CURRENCY),
+                Icons.questionTypeSvgWithId(QuestionType.CHECKBOX),
+                Icons.questionTypeSvgWithId(QuestionType.DATE),
+                Icons.questionTypeSvgWithId(QuestionType.DROPDOWN),
+                Icons.questionTypeSvgWithId(QuestionType.EMAIL),
+                Icons.questionTypeSvgWithId(QuestionType.ENUMERATOR),
+                Icons.questionTypeSvgWithId(QuestionType.FILEUPLOAD),
+                Icons.questionTypeSvgWithId(QuestionType.ID),
+                Icons.questionTypeSvgWithId(QuestionType.NAME),
+                Icons.questionTypeSvgWithId(QuestionType.NUMBER),
+                Icons.questionTypeSvgWithId(QuestionType.RADIO_BUTTON),
+                Icons.questionTypeSvgWithId(QuestionType.STATIC),
+                Icons.questionTypeSvgWithId(QuestionType.TEXT),
+                Icons.questionTypeSvgWithId(QuestionType.PHONE),
+                Icons.questionTypeSvgWithId(QuestionType.NULL_QUESTION))
+            .withStyle("display: none"));
+
     return questionForm;
   }
 
@@ -224,13 +246,11 @@ public final class ProgramQuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(
-                ReferenceClasses.ADD_QUESTION_BUTTON,
-                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
-                "h-12");
+            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, "question-bank-add-button");
 
     SvgTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-6", "w-6");
+        Icons.questionTypeSvgLink(definition.getQuestionType())
+            .withClasses("shrink-0", "h-6", "w-6");
 
     // Only show the admin note if it is not empty.
     PTag adminNote =

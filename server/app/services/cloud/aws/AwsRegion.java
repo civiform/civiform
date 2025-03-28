@@ -1,24 +1,21 @@
 package services.cloud.aws;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.typesafe.config.Config;
 import javax.inject.Inject;
-import software.amazon.awssdk.regions.Region;
+import services.cloud.generic_s3.AbstractS3Region;
 
 /** This class reads the AWS region in application.conf and builds a {@code Region} object. */
-public final class AwsRegion {
+public final class AwsRegion extends AbstractS3Region {
   public static final String AWS_REGION_CONF_PATH = "aws.region";
-
-  private final Region region;
 
   @Inject
   public AwsRegion(Config config) {
-    String regionName = checkNotNull(config).getString(AWS_REGION_CONF_PATH);
-    region = Region.of(regionName);
+    super(config);
   }
 
-  public Region get() {
-    return region;
+  /** The region path defined in the conf file */
+  @Override
+  public String getRegionConfigPath() {
+    return AWS_REGION_CONF_PATH;
   }
 }

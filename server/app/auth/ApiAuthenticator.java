@@ -67,7 +67,7 @@ public class ApiAuthenticator implements Authenticator {
    */
   @Override
   public Optional<Credentials> validate(CallContext context, Credentials rawCredentials) {
-    if (!(rawCredentials instanceof UsernamePasswordCredentials)) {
+    if (!(rawCredentials instanceof UsernamePasswordCredentials credentials)) {
       throw new RuntimeException("ApiAuthenticator must receive UsernamePasswordCredentials.");
     }
 
@@ -76,7 +76,6 @@ public class ApiAuthenticator implements Authenticator {
     // built-in support for basic auth uses those terms to identify the components of the
     // basic auth credentials. In this sense, the API key ID is the "username" and the secret
     // is the "password". An API key itself can be thought of as the "user account".
-    UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) rawCredentials;
     String keyId = credentials.getUsername();
 
     // Cache the API key for quick lookup in the controller, also for subsequent requests.

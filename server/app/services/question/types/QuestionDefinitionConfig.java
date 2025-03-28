@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
 
@@ -55,6 +56,9 @@ public abstract class QuestionDefinitionConfig {
 
   @JsonIgnore
   abstract Optional<Instant> lastModifiedTime();
+
+  @JsonIgnore
+  abstract Optional<UUID> concurrencyToken();
 
   @JsonProperty("universal")
   abstract boolean universal();
@@ -111,6 +115,8 @@ public abstract class QuestionDefinitionConfig {
     public abstract Builder setLastModifiedTime(Instant lastModifiedTime);
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
+
+    public abstract Builder setConcurrencyToken(UUID concurrencyToken);
 
     @JsonProperty("validationPredicates")
     public abstract Builder setValidationPredicates(

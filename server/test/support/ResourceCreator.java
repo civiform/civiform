@@ -15,6 +15,7 @@ import models.ApiKeyModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
 import models.CategoryModel;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
@@ -133,15 +134,15 @@ public class ResourceCreator {
   }
 
   public ProgramModel insertActiveDisabledProgram(String name) {
-    return ProgramBuilder.newDisabledActiveProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.DISABLED).build();
   }
 
   public ProgramModel insertActiveTiOnlyProgram(String name) {
-    return ProgramBuilder.newActiveTiOnlyProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.TI_ONLY).build();
   }
 
   public ProgramModel insertActiveHiddenInIndexProgram(String name) {
-    return ProgramBuilder.newActiveHiddenInIndexProgram(name).build();
+    return ProgramBuilder.newActiveProgram(name, DisplayMode.HIDDEN_IN_INDEX).build();
   }
 
   public ProgramModel insertActiveProgram(Locale locale, String name) {

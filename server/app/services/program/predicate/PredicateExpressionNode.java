@@ -92,22 +92,18 @@ public abstract class PredicateExpressionNode {
   @JsonIgnore
   @Memoized
   public ImmutableList<Long> getQuestions() {
-    switch (getType()) {
-      case LEAF_ADDRESS_SERVICE_AREA:
-        return ImmutableList.of(getLeafAddressNode().questionId());
-      case LEAF_OPERATION:
-        return ImmutableList.of(getLeafOperationNode().questionId());
-      case AND:
-        return getAndNode().children().stream()
-            .flatMap(n -> n.getQuestions().stream())
-            .collect(ImmutableList.toImmutableList());
-      case OR:
-        return getOrNode().children().stream()
-            .flatMap(n -> n.getQuestions().stream())
-            .collect(ImmutableList.toImmutableList());
-      default:
-        return ImmutableList.of();
-    }
+    return switch (getType()) {
+      case LEAF_ADDRESS_SERVICE_AREA -> ImmutableList.of(getLeafAddressNode().questionId());
+      case LEAF_OPERATION -> ImmutableList.of(getLeafOperationNode().questionId());
+      case AND ->
+          getAndNode().children().stream()
+              .flatMap(n -> n.getQuestions().stream())
+              .collect(ImmutableList.toImmutableList());
+      case OR ->
+          getOrNode().children().stream()
+              .flatMap(n -> n.getQuestions().stream())
+              .collect(ImmutableList.toImmutableList());
+    };
   }
 
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {

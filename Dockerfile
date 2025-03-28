@@ -1,11 +1,11 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4c68376a702446fc3c79af22de146a148bc3367e73c25a5803d453b6b3f722fb
 
 # The eclipse-temurin image and the standard openJDK11 fails to run on M1 Macs because it is incompatible with ARM architecture. This
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM eclipse-temurin:17.0.14_7-jdk-alpine AS amd64
-FROM bellsoft/liberica-openjdk-alpine:17.0.13-12 AS arm64
+FROM eclipse-temurin:17.0.14_7-jdk-alpine@sha256:b16e661d76d3af0d226d0585063dbcafe7fb8a4ef31cfcaaec71d39c41269420 AS amd64
+FROM bellsoft/liberica-openjdk-alpine:17.0.13-12@sha256:3ca9f436cc6a806244b710bd461eb9b703d194965c3335c8569521ad8f2aaf9e AS arm64
 
 FROM ${TARGETARCH}
 

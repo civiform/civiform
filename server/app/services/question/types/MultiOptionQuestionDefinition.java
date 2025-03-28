@@ -66,15 +66,11 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    switch (multiOptionQuestionType) {
-      case CHECKBOX:
-        return QuestionType.CHECKBOX;
-      case DROPDOWN:
-        return QuestionType.DROPDOWN;
-      case RADIO_BUTTON:
-        return QuestionType.RADIO_BUTTON;
-    }
-    throw new IllegalStateException("Not a valid MultiOptionQuestionType.");
+    return switch (multiOptionQuestionType) {
+      case CHECKBOX -> QuestionType.CHECKBOX;
+      case DROPDOWN -> QuestionType.DROPDOWN;
+      case RADIO_BUTTON -> QuestionType.RADIO_BUTTON;
+    };
   }
 
   @Override

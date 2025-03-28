@@ -5,7 +5,10 @@
   <meta name="civiform-build-tag" th:content="${civiformImageTag}" />
   <meta th:if="${addNoIndexMetaTag}" name="robots" content="noindex" />
   <!--/* Best practice: add ❤️ every time you touch this file :) */-->
-  <meta name="thanks" content="Thank you Bion ❤️❤️❤️" />
+  <meta
+    name="thanks"
+    content="Thank you Bion ❤️❤️❤️❤️❤️, Sijia ⭐️❤️❤️❤️⭐️, Austin ❤️❤️❤️❤️❤️"
+  />
 
   <title th:text="${pageTitle}"></title>
 
@@ -43,6 +46,7 @@
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style */-->
   <p
+    aria-hidden="true"
     th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
     class="font-sans-xs"
   ></p>
@@ -97,3 +101,11 @@
 >
   <path th:attr="d=${icon.path}"></path>
 </svg>
+
+<th:block th:fragment="skipNav">
+  <a
+    class="usa-skipnav"
+    href="#main-content"
+    th:text="#{link.skipToMainContent}"
+  ></a>
+</th:block>

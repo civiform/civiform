@@ -216,6 +216,8 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       ).toBeVisible()
       await expect(page.getByText('Apply to another program')).toBeVisible()
       await expect(page.getByText('Edit my responses')).toBeVisible()
+      const href = await page.getByText('program details').getAttribute('href')
+      expect(href).toContain('/pet-assistance-program')
 
       await page.click('#header-return-home')
       await tiDashboard.clickOnViewApplications()

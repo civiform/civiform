@@ -153,8 +153,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         p("Sorting by most recently updated").withClass("text-sm")));
 
-    if (settingsManifest.getDisabledVisibilityConditionEnabled(request)
-        && programService.anyDisabledPrograms()) {
+    if (programService.anyDisabledPrograms()) {
       contentDiv.with(
           renderFilterLink(
               ProgramTab.IN_USE,
@@ -384,7 +383,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     sortedDraftPrograms,
                                     program ->
                                         renderPublishModalProgramItem(
-                                            program, universalQuestionIds, request)))),
+                                            program, universalQuestionIds)))),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PUBLISH_REFERENCES_QUESTION)
                     .with(
@@ -425,13 +424,11 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag renderPublishModalProgramItem(
-      ProgramDefinition program, ImmutableList<Long> universalQuestionIds, Http.Request request) {
+      ProgramDefinition program, ImmutableList<Long> universalQuestionIds) {
     String visibilityText = " ";
     switch (program.displayMode()) {
       case DISABLED:
-        if (settingsManifest.getDisabledVisibilityConditionEnabled(request)) {
-          visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
-        }
+        visibilityText = " (Hidden from applicants and Trusted Intermediaries) ";
         break;
       case HIDDEN_IN_INDEX:
         visibilityText = " (Hidden from applicants) ";

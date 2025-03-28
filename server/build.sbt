@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.0-jre",
+      "com.google.guava" % "guava" % "33.4.6-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.30.38",
-      "software.amazon.awssdk" % "ses" % "2.30.38",
+      "software.amazon.awssdk" % "s3" % "2.31.7",
+      "software.amazon.awssdk" % "ses" % "2.31.7",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.32.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.33.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.23.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.0",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.6-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -96,17 +96,17 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.11.0",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.36.0",
+      "com.google.errorprone" % "error_prone_core" % "2.37.0",
       "org.checkerframework" % "dataflow-errorprone" % "3.49.1",
 
       // Apache libraries for export
-      "org.apache.commons" % "commons-csv" % "1.13.0",
+      "org.apache.commons" % "commons-csv" % "1.14.0",
       "commons-validator" % "commons-validator" % "1.9.0",
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.0",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.2",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.17",
+      "ch.qos.logback" % "logback-classic" % "1.5.18",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.29",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.26",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.0"

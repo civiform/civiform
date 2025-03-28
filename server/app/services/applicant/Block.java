@@ -331,8 +331,7 @@ public final class Block {
 
   @Override
   public boolean equals(@Nullable Object object) {
-    if (object instanceof Block) {
-      Block that = (Block) object;
+    if (object instanceof Block that) {
       return this.id.equals(that.id)
           && this.blockDefinition.equals(that.blockDefinition)
           && this.applicantData.equals(that.applicantData);

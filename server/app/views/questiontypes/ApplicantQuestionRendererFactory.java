@@ -39,47 +39,32 @@ public final class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getRenderer(
       ApplicantQuestion question, Optional<Messages> maybeMessages) {
-    switch (question.getType()) {
-      case ADDRESS:
-        return new AddressQuestionRenderer(question);
-      case CHECKBOX:
-        return new CheckboxQuestionRenderer(question);
-      case CURRENCY:
-        return new CurrencyQuestionRenderer(question);
-      case DATE:
-        return new DateQuestionRenderer(question);
-      case DROPDOWN:
-        return new DropdownQuestionRenderer(question);
-      case EMAIL:
-        return new EmailQuestionRenderer(question);
-      case FILEUPLOAD:
-        return new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
-      case ID:
-        return new IdQuestionRenderer(question);
-      case NAME:
-        return new NameQuestionRenderer(question);
-      case NUMBER:
-        return new NumberQuestionRenderer(question);
-      case RADIO_BUTTON:
-        return new RadioButtonQuestionRenderer(question);
-      case ENUMERATOR:
-        return new EnumeratorQuestionRenderer(question);
-      case STATIC:
-        return new StaticContentQuestionRenderer(question, maybeMessages);
-      case TEXT:
-        return new TextQuestionRenderer(question);
-      case PHONE:
-        return new PhoneQuestionRenderer(question);
-      case NULL_QUESTION:
-        throw new IllegalStateException(
-            String.format(
-                "Question type %s should not be rendered. Question ID: %s. Active program question"
-                    + " definition is possibly pointing to an old question ID",
-                question.getType(), question.getQuestionDefinition().getId()));
-      default:
-        throw new UnsupportedOperationException(
-            "Unrecognized question type: " + question.getType());
-    }
+    return switch (question.getType()) {
+      case ADDRESS -> new AddressQuestionRenderer(question);
+      case CHECKBOX -> new CheckboxQuestionRenderer(question);
+      case CURRENCY -> new CurrencyQuestionRenderer(question);
+      case DATE -> new DateQuestionRenderer(question);
+      case DROPDOWN -> new DropdownQuestionRenderer(question);
+      case EMAIL -> new EmailQuestionRenderer(question);
+      case FILEUPLOAD -> new FileUploadQuestionRenderer(question, applicantFileUploadRenderer);
+      case ID -> new IdQuestionRenderer(question);
+      case NAME -> new NameQuestionRenderer(question);
+      case NUMBER -> new NumberQuestionRenderer(question);
+      case RADIO_BUTTON -> new RadioButtonQuestionRenderer(question);
+      case ENUMERATOR -> new EnumeratorQuestionRenderer(question);
+      case STATIC -> new StaticContentQuestionRenderer(question, maybeMessages);
+      case TEXT -> new TextQuestionRenderer(question);
+      case PHONE -> new PhoneQuestionRenderer(question);
+      case NULL_QUESTION ->
+          throw new IllegalStateException(
+              String.format(
+                  "Question type %s should not be rendered. Question ID: %s. Active program"
+                      + " question definition is possibly pointing to an old question ID",
+                  question.getType(), question.getQuestionDefinition().getId()));
+      default ->
+          throw new UnsupportedOperationException(
+              "Unrecognized question type: " + question.getType());
+    };
   }
 
   public static QuestionDefinition questionDefinitionSample(QuestionType questionType)

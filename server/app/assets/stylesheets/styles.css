@@ -153,4 +153,48 @@
     cursor: default;
   }
 
+  /* The purpose of these classes are to help reduce the page load size cause by duplication of all these on each question. */
+  .question-bank-add-button {
+    font-weight: 600;
+    display: block;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    text-align: center;
+    border-radius: 9999px;
+    border-width: 1px;
+    border-style: solid;
+    color: #113f9f;
+    border-color: #113f9f;
+    background-color: white;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    gap: 0.5rem;
+
+    /* Hover effects */
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .question-bank-add-button:hover {
+    background-color: #e5e7eb;
+  }
+  .question-bank-info-cell {
+    font-weight: bold;
+    align-items: center;
+    color: black;
+    display: flex;
+    flex-direction: row;
+  }
+  .question-bank-element {
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    border-color: #e2e8f0;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+  }
+
 }

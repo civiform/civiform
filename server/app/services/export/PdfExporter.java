@@ -315,10 +315,35 @@ public final class PdfExporter {
               "Admin description: " + programDefinition.adminDescription(), SMALL_GRAY_FONT));
       document.add(
           new Paragraph(
+              "Admin short description: "
+                  + programDefinition.localizedShortDescription().getDefault(),
+              SMALL_GRAY_FONT));
+      document.add(
+          new Paragraph(
               "Time of export: "
                   + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
               SMALL_GRAY_FONT));
       document.add(new Paragraph("Origin of export: " + baseUrl, SMALL_GRAY_FONT));
+
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
+      Paragraph applicationSteps = new Paragraph();
+      programDefinition.applicationSteps().stream()
+          .forEach(
+              step -> {
+                applicationSteps.add(
+                    new Paragraph(
+                        step.getTitle().getDefault() + " : " + step.getDescription().getDefault(),
+                        SMALL_GRAY_FONT));
+              });
+      document.add(new Paragraph("Application steps", PARAGRAPH_FONT));
+      document.add(applicationSteps);
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
+      document.add(new Paragraph("Application confirmation message", PARAGRAPH_FONT));
+      document.add(
+          new Paragraph(
+              programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
         renderProgramBlock(

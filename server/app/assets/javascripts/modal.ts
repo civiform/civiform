@@ -104,3 +104,16 @@ export class ModalController {
 export function init() {
   new ModalController()
 }
+
+/**
+ * Hides the specified modal by adding the 'is-hidden' class.
+ * Updates visibility tracking flags when hiding a modal.
+ *
+ * @param modalType Type of modal to hide
+ */
+export function hideUswdsModal(modalType: string) {
+  const modal = document.getElementById(`${modalType}-modal`)
+  if (modal) {
+    modal.classList.add('is-hidden')
+  }
+}

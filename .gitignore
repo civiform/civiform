@@ -75,3 +75,9 @@ coverage.xml
 # Python
 .venv/
 __pycache__/
+
+# Output of bin/dependency-tree
+dependency-tree.txt
+server/dependency-tree.txt
+dependencies-compile.graphml
+server/dependencies-compile.graphml

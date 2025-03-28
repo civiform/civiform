@@ -63,12 +63,8 @@ public class PageNumberPaginationSpec extends BasePaginationSpec {
 
   private void setOrderBy(OrderByEnum orderBy) {
     switch (orderBy) {
-      case ID:
-        this.orderBy = "id desc";
-        break;
-      case SUBMIT_TIME:
-        this.orderBy = "submitTime desc, id desc";
-        break;
+      case ID -> this.orderBy = "id desc";
+      case SUBMIT_TIME -> this.orderBy = "submitTime desc, id desc";
     }
   }
 

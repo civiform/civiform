@@ -317,15 +317,13 @@ public final class JsonExporterService {
   }
 
   private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {
-    switch (lifecycleStage) {
-      case ACTIVE:
-        return RevisionState.CURRENT;
-      case OBSOLETE:
-        return RevisionState.OBSOLETE;
-      default:
-        throw new NotImplementedException(
-            "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
-    }
+    return switch (lifecycleStage) {
+      case ACTIVE -> RevisionState.CURRENT;
+      case OBSOLETE -> RevisionState.OBSOLETE;
+      default ->
+          throw new NotImplementedException(
+              "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
+    };
   }
 
   @AutoValue

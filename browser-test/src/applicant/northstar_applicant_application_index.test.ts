@@ -10,11 +10,11 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  seedProgramsAndCategories,
-  selectApplicantLanguage,
+  selectApplicantLanguageNorthstar,
   normalizeElements,
+  waitForPageJsLoad,
 } from '../support'
-import {Page} from 'playwright'
+import {Locator, Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
@@ -90,7 +90,25 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await applicantQuestions.expectTitle(page, 'Find programs')
   })
 
-  test('validate accessibility', async ({page}) => {
+  test('validate accessibility and validate skip link', async ({page}) => {
+    const skipLinkLocator: Locator = page.getByRole('link', {
+      name: 'Skip to main content',
+    })
+    await test.step('Tab and verify focus on skip link', async () => {
+      await page.keyboard.press('Tab')
+      await expect(skipLinkLocator).toBeFocused()
+      await expect(skipLinkLocator).toBeVisible()
+    })
+
+    await test.step('Click on skip link and skip to main content', async () => {
+      await skipLinkLocator.click()
+      await expect(page.locator('main')).toBeFocused()
+      await page.keyboard.press('Tab')
+      await expect(
+        page.getByRole('link', {name: 'View and apply'}).first(),
+      ).toBeFocused()
+    })
+
     await validateAccessibility(page)
   })
 
@@ -112,7 +130,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -137,7 +155,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         redirectedToCallback = false
         await context.clearCookies()
         await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
+        await waitForPageJsLoad(page)
         expect(redirectedToCallback).toBe(false)
       })
     }
@@ -309,11 +327,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test.describe('program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 

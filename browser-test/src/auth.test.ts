@@ -8,7 +8,6 @@ import {
   loginAsAdmin,
   validateAccessibility,
   validateToastMessage,
-  seedProgramsAndCategories,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
@@ -42,8 +41,9 @@ test.describe('Applicant auth', () => {
     page,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

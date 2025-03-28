@@ -744,12 +744,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<FormTag> maybeOptionalToggle =
         renderOptionalToggle(
-            request,
-            csrfTag,
-            programDefinition.id(),
-            blockDefinition.id(),
-            questionDefinition,
-            isOptional);
+            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -870,15 +865,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * optional or mandatory.
    */
   private Optional<FormTag> renderOptionalToggle(
-      Request request,
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
-    if (!settingsManifest.getCfOptionalQuestions(request)) {
-      return Optional.empty();
-    }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }

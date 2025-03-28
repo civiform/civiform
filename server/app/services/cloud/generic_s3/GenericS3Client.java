@@ -1,8 +1,11 @@
-package services.cloud.aws;
+package services.cloud.generic_s3;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import java.net.URI;
+import services.cloud.aws.Credentials;
+import services.cloud.aws.FileDeletionFailureException;
+import services.cloud.aws.FileListFailureException;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
@@ -13,11 +16,15 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
- * A real implementation of {@link AwsS3ClientWrapper} that delegates to the real {@link S3Client}.
+ * A real implementation of {@link GenericS3ClientWrapper} that delegates to the real {@link
+ * S3Client}.
+ *
+ * <p>This can later be subclassed in the event that AWS, GCP, or an alternative S3 compatible
+ * storage provider needs to customize it.
  */
-public class AwsS3Client implements AwsS3ClientWrapper {
+public final class GenericS3Client implements GenericS3ClientWrapper {
   @Inject
-  public AwsS3Client() {}
+  public GenericS3Client() {}
 
   @Override
   public void deleteObjects(

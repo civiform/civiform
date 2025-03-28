@@ -17,6 +17,7 @@ import * as phoneNumber from './phone'
 import * as apiDocs from './api_docs'
 import * as trustedIntermediary from './trusted_intermediary'
 import * as htmx from './htmx'
+import {SessionTimeoutHandler} from './session'
 
 declare global {
   interface Window {
@@ -43,4 +44,5 @@ window.addEventListener('load', () => {
   // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()
   trustedIntermediary.init()
+  SessionTimeoutHandler.init()
 })

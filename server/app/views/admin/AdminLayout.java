@@ -5,6 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static views.BaseHtmlView.asRedirectElement;
 import static views.ViewUtils.makeSvgTextButton;
 
@@ -17,6 +18,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import java.util.Optional;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
@@ -51,6 +53,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   private final NavPage activeNavPage;
   private final TranslationLocales translationLocales;
+  private final MessagesApi messagesApi;
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
@@ -60,10 +63,12 @@ public final class AdminLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder) {
+      AssetsFinder assetsFinder,
+      MessagesApi messagesApi) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.activeNavPage = activeNavPage;
     this.translationLocales = checkNotNull(translationLocales);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -89,6 +94,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
+    addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
 
     return super.render(bundle);
   }
@@ -120,6 +126,21 @@ public final class AdminLayout extends BaseHtmlLayout {
         makeSvgTextButton("Manage translations", Icons.LANGUAGE).withClass(buttonStyles);
     buttonId.ifPresent(button::withId);
     return Optional.of(asRedirectElement(button, linkDestination));
+  }
+
+  /**
+   * Creates a button that will take a user back to the previous page.
+   *
+   * @param goBackUrl the URL to return to
+   * @param goBackText the text to display on the button
+   * @return a DivTag containing the button
+   */
+  public DivTag createGoBackButton(String goBackUrl, String goBackText) {
+    return div(a(Icons.svg(Icons.ARROW_LEFT).withClasses("w-5", "h-5", "mr-2"))
+            .with(text(goBackText))
+            .withHref(goBackUrl)
+            .withClasses("text-blue-600", "hover:text-blue-500", "inline-flex", "items-center"))
+        .withClasses("grid-row");
   }
 
   private NavTag renderNavBar(Http.RequestHeader request) {

@@ -164,6 +164,7 @@ async function loginAsTestUserAwsStaging(
   isTi: boolean,
 ) {
   await Promise.all([
+    // eslint-disable-next-line playwright/no-networkidle
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
   ])
@@ -172,6 +173,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
     page.waitForURL(isTi ? '**/admin/**' : /.*\/programs.*/, {
+      // eslint-disable-next-line playwright/no-networkidle
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
@@ -240,15 +242,16 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   })
 }
 
-export const seedQuestions = async (page: Page) => {
-  await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#sample-questions')
-}
+export const selectApplicantLanguageNorthstar = async (
+  page: Page,
+  languageCode: string,
+) => {
+  await test.step('Set applicant language from header dropdown', async () => {
+    await page.click('#select-language-menu')
 
-export const seedProgramsAndCategories = async (page: Page) => {
-  await test.step('Seed programs', async () => {
-    await page.goto('/dev/seed')
-    await page.click('#sample-programs')
+    await page.click(`#select-language-${languageCode}`)
+
+    await waitForPageJsLoad(page)
   })
 }
 

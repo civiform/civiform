@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.span;
 
@@ -66,7 +67,12 @@ public final class QuestionTranslationView extends TranslationFormView {
         ImmutableList.<DomContent>builder()
             .add(
                 questionTextFields(
-                    question, locale, question.getQuestionText(), question.getQuestionHelpText()));
+                    question, locale, question.getQuestionText(), question.getQuestionHelpText()))
+            .add(
+                input()
+                    .isHidden()
+                    .withName("concurrencyToken")
+                    .withValue(question.getConcurrencyToken().map(String::valueOf).orElse("")));
     Optional<DomContent> questionTypeSpecificContent =
         getQuestionTypeSpecificContent(question, locale);
     if (questionTypeSpecificContent.isPresent()) {

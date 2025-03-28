@@ -97,21 +97,51 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedQuestions() {
-    devDatabaseSeedTask.seedQuestions();
+    Result result = redirect(routes.DevToolsController.index().url());
+    return seedQuestionsInternal()
+        ? result.flashing(FlashKey.SUCCESS, "Sample questions seeded")
+        : result.flashing(FlashKey.ERROR, "Failed to seed questions");
+  }
 
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "Sample questions seeded");
+  public Result seedQuestionsHeadless() {
+    return seedQuestionsInternal() ? ok() : internalServerError();
+  }
+
+  private boolean seedQuestionsInternal() {
+    try {
+      devDatabaseSeedTask.seedQuestions();
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to seed questions", ex);
+      return false;
+    }
   }
 
   public Result seedPrograms() {
-    // TODO: Check whether test program already exists to prevent error.
-    ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
+    Result result = redirect(routes.DevToolsController.index().url());
+    return seedProgramsInternal()
+        ? result.flashing(FlashKey.SUCCESS, "The database has been seeded")
+        : result.flashing(FlashKey.ERROR, "Failed to seed programs");
+  }
 
-    devDatabaseSeedTask.seedProgramCategories();
-    devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
-    devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "The database has been seeded");
+  public Result seedProgramsHeadless() {
+    return seedProgramsInternal() ? ok() : internalServerError();
+  }
+
+  private boolean seedProgramsInternal() {
+    try {
+      // TODO: Check whether test program already exists to prevent error.
+      ImmutableList<QuestionDefinition> createdSampleQuestions =
+          devDatabaseSeedTask.seedQuestions();
+      devDatabaseSeedTask.seedProgramCategories();
+      devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
+      devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to seed programs.", ex);
+      return false;
+    }
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {

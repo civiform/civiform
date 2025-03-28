@@ -2,18 +2,11 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   loginAsAdmin,
   logout,
-  seedQuestions,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
-import {BASE_URL} from '../../support/config'
 
 test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
-    await page.goto(BASE_URL)
-  })
-
   test.describe('test multiple file upload with max files', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'

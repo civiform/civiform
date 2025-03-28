@@ -10,8 +10,8 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  seedProgramsAndCategories,
   selectApplicantLanguage,
+  waitForPageJsLoad,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -132,7 +132,7 @@ test.describe('applicant program index page', () => {
         redirectedToCallback = false
         await context.clearCookies()
         await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
+        await waitForPageJsLoad(page)
         expect(redirectedToCallback).toBe(false)
       })
     }
@@ -380,15 +380,13 @@ test.describe('applicant program index page', () => {
   })
 
   test.describe('applicant program index page with program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
-      await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
-        await page.goto('/')
-      })
+      await seeding.seedProgramsAndCategories()
 
       await test.step('go to program edit form and add categories to primary program', async () => {
+        await page.goto('/')
         await loginAsAdmin(page)
         await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
           primaryProgramName,
