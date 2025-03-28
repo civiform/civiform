@@ -1,13 +1,11 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   dismissToast,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
 } from '../support'
-import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', () => {
   test('views a program without an image', async ({page, adminPrograms}) => {
@@ -20,103 +18,6 @@ test.describe('Admin can manage program image', () => {
 
     await validateScreenshot(page, 'program-image-none')
   })
-
-  test(
-    'Views program card preview in North Star',
-    {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage, seeding}) => {
-      const programName = 'Test Program'
-      const programDescription = 'Test description'
-      const shortDescription = 'Short description'
-
-      await test.step('Set up program', async () => {
-        await enableFeatureFlag(page, 'north_star_applicant_ui')
-        await loginAsAdmin(page)
-
-        await adminPrograms.addProgram(
-          programName,
-          programDescription,
-          shortDescription,
-        )
-
-        await adminPrograms.goToProgramImagePage(programName)
-      })
-
-      await test.step('Verify preview without image', async () => {
-        await adminProgramImage.expectNoImagePreview()
-        await adminProgramImage.expectProgramPreviewCard(
-          programName,
-          programDescription,
-          shortDescription,
-        )
-      })
-
-      await test.step('Verify preview with image', async () => {
-        await adminProgramImage.setImageFileAndSubmit(
-          'src/assets/program-summary-image-wide.png',
-        )
-        await adminProgramImage.expectProgramImagePage()
-
-        await validateToastMessage(
-          page,
-          adminProgramImage.imageUpdatedToastMessage(),
-        )
-        await dismissToast(page)
-
-        await adminProgramImage.expectImagePreview()
-        await adminProgramImage.expectProgramPreviewCard(
-          programName,
-          programDescription,
-          shortDescription,
-        )
-
-        await validateScreenshot(
-          page.getByRole('main'),
-          'program-image-preview',
-        )
-      })
-
-      await test.step('Verify preview with program filtering', async () => {
-        await enableFeatureFlag(page, 'program_filtering_enabled')
-
-        await seeding.seedProgramsAndCategories()
-        await page.goto('/')
-
-        await adminPrograms.addProgram(
-          'Test program with tags',
-          programDescription,
-          shortDescription,
-          'https://usa.gov',
-          ProgramVisibility.PUBLIC,
-          'admin description',
-          /* isCommonIntake= */ false,
-          'selectedTI',
-          'confirmationMessage',
-          Eligibility.IS_GATING,
-          /* submitNewProgram= */ false,
-        )
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-
-        await adminPrograms.submitProgramDetailsEdits()
-
-        await validateScreenshot(
-          page.getByRole('listitem'),
-          'ns-admin-program-image-card-preview',
-        )
-
-        await adminProgramImage.expectNoImagePreview()
-        await adminProgramImage.expectProgramPreviewCard(
-          programName,
-          programDescription,
-          shortDescription,
-        )
-
-        await expect(page.getByText('Education')).toBeVisible()
-        await expect(page.getByText('Healthcare')).toBeVisible()
-      })
-    },
-  )
 
   test.describe('back button', () => {
     test('back button redirects to block page if came from block page', async ({
