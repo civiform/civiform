@@ -59,10 +59,24 @@ export class SessionTimeoutHandler {
   private static hasTotalLengthWarningBeenShown = false
   /** Current active timeout timer */
   private static timer: number | null = null
+  /** Tracks if handler has been initialized */
+  private static isInitialized = false
+
+  /** Used for testing. Stores the next timeout action and time. */
+  private static nextTimeoutAction: (() => void) | null = null
+  private static nextTimeoutTime: number | null = null
+  private static initialClockSkew: number | null = null
 
   static init() {
+    if (this.isInitialized) {
+      return
+    }
+
     void this.checkAndSetTimer()
     this.setupModalEventHandlers()
+    // Add listener for timechange event to support testing with mocked time
+    window.addEventListener('timechange', () => this.handleTimeChange())
+    this.isInitialized = true
   }
 
   /**
@@ -126,7 +140,6 @@ export class SessionTimeoutHandler {
       })
     }
 
-    // Only add total length warning if it hasn't been shown yet
     if (!this.hasTotalLengthWarningBeenShown && data.totalWarning > now) {
       timeouts.push({
         time: data.totalWarning,
@@ -151,11 +164,17 @@ export class SessionTimeoutHandler {
     // Sort by earliest time
     timeouts.sort((a, b) => a.time - b.time)
 
-    // We will always have at least one timeout in the future
+    // We will always have at least one event in the future
     const nextTimeout = timeouts[0]
     const delay = (nextTimeout.time - now) * 1000
 
+    // Store the next timeout action and time for handling timechange event.
+    this.nextTimeoutAction = nextTimeout.action
+    this.nextTimeoutTime = nextTimeout.time
+
     this.timer = window.setTimeout(() => {
+      this.nextTimeoutAction = null
+      this.nextTimeoutTime = null
       nextTimeout.action()
 
       // Check for next timeout after handling this one
@@ -278,14 +297,18 @@ export class SessionTimeoutHandler {
         console.error('Invalid timeout data format')
         return null
       }
-      // Calculate clock skew between client and server
-      const clientNow = Math.floor(Date.now() / 1000)
-      const clockSkew = clientNow - data.currentTime
+      // Store initial clock skew when data is first read
+      if (!this.initialClockSkew) {
+        const clientNow = Math.floor(Date.now() / 1000)
+        this.initialClockSkew = clientNow - data.currentTime
+      }
+
+      // Use the initial clock skew instead of recalculating
       return {
-        inactivityWarning: data.inactivityWarning + clockSkew,
-        inactivityTimeout: data.inactivityTimeout + clockSkew,
-        totalWarning: data.totalWarning + clockSkew,
-        totalTimeout: data.totalTimeout + clockSkew,
+        inactivityWarning: data.inactivityWarning + this.initialClockSkew,
+        inactivityTimeout: data.inactivityTimeout + this.initialClockSkew,
+        totalWarning: data.totalWarning + this.initialClockSkew,
+        totalTimeout: data.totalTimeout + this.initialClockSkew,
         currentTime: data.currentTime,
       }
     } catch (e) {
@@ -395,5 +418,35 @@ export class SessionTimeoutHandler {
    */
   private static logout() {
     window.location.href = '/logout'
+  }
+
+  /**
+   * Handles time change events. Currently only used by tests to simulate time advancement.
+   * Checks if any timeouts have been reached and executes appropriate actions.
+   */
+  private static handleTimeChange() {
+    // First check if we need to immediately logout due to timeout
+    const data = this.getTimeoutData()
+    if (data) {
+      const now = Math.floor(Date.now() / 1000)
+      // Check for timeout conditions first
+      if (data.inactivityTimeout <= now || data.totalTimeout <= now) {
+        this.handleTimeout()
+        return
+      }
+    }
+
+    // If we have stored the next timeout action and time, check if it should fire
+    if (this.nextTimeoutAction && this.nextTimeoutTime) {
+      const now = Math.floor(Date.now() / 1000)
+      if (now >= this.nextTimeoutTime) {
+        const action = this.nextTimeoutAction
+        this.nextTimeoutAction = null
+        this.nextTimeoutTime = null
+        action()
+      }
+    }
+    // Always recheck timeouts after time change
+    void this.checkAndSetTimer()
   }
 }
