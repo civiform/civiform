@@ -1,22 +1,16 @@
 import {test, expect} from './support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  seedProgramsAndCategories,
-  waitForPageJsLoad,
-} from './support'
+import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from './support'
 
 test.describe('Viewing API docs', () => {
   const program1 = 'comprehensive-sample-program'
   const program2 = 'minimal-sample-program'
 
-  test.beforeEach(async ({page}) => {
-    await seedProgramsAndCategories(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedProgramsAndCategories()
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
-  // TODO will re-enable after getting the swagger-ui files working in prod build
-  test.skip('Views OpenApi Schema', async ({page, adminPrograms}) => {
+  test('Views OpenApi Schema', async ({page, adminPrograms}) => {
     await test.step('Login as admin and publish drafts', async () => {
       await page.goto('/')
       await loginAsAdmin(page)

@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -35,8 +34,6 @@ test.describe('Program admin program list', () => {
     page,
     adminPrograms,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-
     await test.step('log in as a CiviForm admin and publish multiple programs', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(

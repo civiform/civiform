@@ -2,7 +2,6 @@ import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   loginAsTrustedIntermediary,
@@ -291,8 +290,6 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
     applicantQuestions,
   }) => {
     const programName = 'Disabled program'
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-
     await test.step('login as a CiviForm admin and publish a disabled program', async () => {
       await loginAsAdmin(page)
 

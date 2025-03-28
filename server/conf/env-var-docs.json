@@ -837,11 +837,6 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional features.",
     "members": {
-      "DISABLED_VISIBILITY_CONDITION_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the feature that allows programs to be disabled from CiviForm",
-        "type": "bool"
-      },
       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by default.",

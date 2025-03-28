@@ -6,7 +6,6 @@ import {
   validateScreenshot,
   validateToastMessage,
   validateToastHidden,
-  seedProgramsAndCategories,
 } from '../support'
 import {Eligibility, ProgramVisibility} from '../support/admin_programs'
 
@@ -25,7 +24,7 @@ test.describe('Admin can manage program image', () => {
   test(
     'Views program card preview in North Star',
     {tag: ['@northstar']},
-    async ({page, adminPrograms, adminProgramImage}) => {
+    async ({page, adminPrograms, adminProgramImage, seeding}) => {
       const programName = 'Test Program'
       const programDescription = 'Test description'
       const shortDescription = 'Short description'
@@ -80,7 +79,7 @@ test.describe('Admin can manage program image', () => {
       await test.step('Verify preview with program filtering', async () => {
         await enableFeatureFlag(page, 'program_filtering_enabled')
 
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
 
         await adminPrograms.addProgram(

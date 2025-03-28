@@ -7,6 +7,13 @@ export class Seeding {
     this.request = request
   }
 
+  async seedProgramsAndCategories() {
+    await test.step('Seed programs and categories', async () => {
+      const response = await this.request.post('/dev/seedProgramsHeadless')
+      await expect(response).toBeOK()
+    })
+  }
+
   async seedQuestions() {
     await test.step('Seed questions', async () => {
       const response = await this.request.post('/dev/seedQuestionsHeadless')

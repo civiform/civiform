@@ -3,7 +3,6 @@ import {
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
-  seedProgramsAndCategories,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
@@ -47,7 +46,6 @@ test.describe('program creation', () => {
     adminPrograms,
     adminProgramImage,
   }) => {
-    await enableFeatureFlag(page, 'disabled_visibility_condition_enabled')
     await loginAsAdmin(page)
 
     await adminPrograms.addProgram(
@@ -70,42 +68,6 @@ test.describe('program creation', () => {
     await validateScreenshot(
       page,
       'program-creation-page-disabled-visibility-enabled',
-    )
-
-    // When the program submission goes through,
-    // verify we're redirected to the program image upload page.
-    await adminPrograms.submitProgramDetailsEdits()
-    await adminProgramImage.expectProgramImagePage()
-  })
-
-  test('create program with disabled visibility condition feature disabled', async ({
-    page,
-    adminPrograms,
-    adminProgramImage,
-  }) => {
-    await disableFeatureFlag(page, 'disabled_visibility_condition_enabled')
-    await loginAsAdmin(page)
-
-    await adminPrograms.addProgram(
-      'program name',
-      'description',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      /* isCommonIntake= */ false,
-      'selectedTI',
-      'confirmationMessage',
-      Eligibility.IS_GATING,
-      /* submitNewProgram= */ false,
-    )
-    await adminPrograms.expectProgramDetailsSaveAndContinueButton()
-    expect(await page.innerText('id=program-details-form')).not.toContain(
-      'Disabled',
-    )
-    await validateScreenshot(
-      page,
-      'program-creation-page-disabled-visibility-disabled',
     )
 
     // When the program submission goes through,
@@ -334,8 +296,9 @@ test.describe('program creation', () => {
         '[This is a link](https://www.example.com)\n',
     })
 
-    await page.waitForTimeout(100) // ms
     const previewLocator = page.locator('#sample-question')
+    await expect(previewLocator).toContainText('This is an example')
+
     await validateScreenshot(
       previewLocator,
       'program-creation-static-question-with-formatting',
@@ -359,8 +322,9 @@ test.describe('program creation', () => {
         'Here is more text after more blank lines',
     })
 
-    await page.waitForTimeout(100) // ms
     const previewLocator = page.locator('#sample-question')
+    await expect(previewLocator).toContainText('Here is the first line')
+
     await validateScreenshot(
       previewLocator,
       'program-creation-static-question-with-blank-lines',
@@ -1229,13 +1193,10 @@ test.describe('program creation', () => {
   })
 
   test.describe('create and update programs with program filtering enabled', () => {
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async ({page, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
-
-      await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
-        await page.goto('/')
-      })
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
     })
 
     test('create and update program with categories', async ({
@@ -1426,11 +1387,12 @@ test.describe('program creation', () => {
       test('create common intake form with with northstar UI and program filtering enabled', async ({
         page,
         adminPrograms,
+        seeding,
       }) => {
         await enableFeatureFlag(page, 'program_filtering_enabled')
 
         await test.step('seed categories', async () => {
-          await seedProgramsAndCategories(page)
+          await seeding.seedProgramsAndCategories()
           await page.goto('/')
         })
 

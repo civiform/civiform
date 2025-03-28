@@ -15,17 +15,13 @@
     "playwright/no-conditional-expect": "off",
     "playwright/no-conditional-in-test": "off",
     "playwright/no-element-handle": "off",
-    "playwright/no-eval": "off",
-    "playwright/no-networkidle": "off",
     // We shouldn't go crazy with nesting test.step, but it's a hard no
     // on enforcing it. There are times when it makes complex tests more
     // easier to read.
     "playwright/no-nested-step": "off",
     "playwright/no-skipped-test": "off",
     "playwright/no-wait-for-selector": "off",
-    "playwright/no-wait-for-timeout": "off",
-    "playwright/prefer-web-first-assertions": "off",
-    "playwright/valid-expect": "off"
+    "playwright/prefer-web-first-assertions": "off"
   },
   "parserOptions": {
     "project": ["./src/tsconfig.json"]

@@ -276,6 +276,8 @@ POST    /dev/seedQuestions                        controllers.dev.DevToolsContro
 +nocsrf
 POST    /dev/seedQuestionsHeadless                controllers.dev.DevToolsController.seedQuestionsHeadless()
 POST    /dev/seedPrograms                         controllers.dev.DevToolsController.seedPrograms()
++nocsrf
+POST    /dev/seedProgramsHeadless                 controllers.dev.DevToolsController.seedProgramsHeadless()
 POST    /dev/seed/clear                           controllers.dev.DevToolsController.clear()
 +nocsrf
 POST    /dev/seed/clearHeadless                   controllers.dev.DevToolsController.clearHeadless()

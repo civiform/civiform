@@ -10,7 +10,6 @@ export class ApplicantFileQuestion {
   private skipButtonLocator = '#fileupload-skip-button'
   private deleteButtonLocator = '#fileupload-delete-button'
   private questionErrorLocator = '.cf-question-error-message'
-  private uploadedFilesLocator = '#cf-fileupload-uploaded-files'
 
   private page!: Page
 

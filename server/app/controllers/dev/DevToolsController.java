@@ -118,14 +118,30 @@ public class DevToolsController extends Controller {
   }
 
   public Result seedPrograms() {
-    // TODO: Check whether test program already exists to prevent error.
-    ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
+    Result result = redirect(routes.DevToolsController.index().url());
+    return seedProgramsInternal()
+        ? result.flashing(FlashKey.SUCCESS, "The database has been seeded")
+        : result.flashing(FlashKey.ERROR, "Failed to seed programs");
+  }
 
-    devDatabaseSeedTask.seedProgramCategories();
-    devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
-    devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
-    return redirect(routes.DevToolsController.index().url())
-        .flashing(FlashKey.SUCCESS, "The database has been seeded");
+  public Result seedProgramsHeadless() {
+    return seedProgramsInternal() ? ok() : internalServerError();
+  }
+
+  private boolean seedProgramsInternal() {
+    try {
+      // TODO: Check whether test program already exists to prevent error.
+      ImmutableList<QuestionDefinition> createdSampleQuestions =
+          devDatabaseSeedTask.seedQuestions();
+      devDatabaseSeedTask.seedProgramCategories();
+      devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
+      devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+
+      return true;
+    } catch (RuntimeException ex) {
+      LOGGER.error("Failed to seed programs.", ex);
+      return false;
+    }
   }
 
   public Result runDurableJob(Request request) throws InterruptedException {
