@@ -22,7 +22,6 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.LabelTag;
 import java.util.List;
 import java.util.Map;
 import models.CategoryModel;
@@ -47,8 +46,6 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -61,6 +58,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -192,21 +190,26 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Common intake form
-        FieldWithLabel.checkbox()
-            .setId("common-intake-checkbox")
-            .setFieldName("isCommonIntakeForm")
-            .setLabelText("Set program as pre-screener")
-            .addStyleClass("border-none")
-            .setValue("true")
-            .setChecked(isCommonIntakeForm)
-            .getCheckboxTag()
-            .with(
-                span(ViewUtils.makeSvgToolTip(
-                        "You can set one program as the ‘pre-screener’. This will pin the"
-                            + " program card to the top of the programs and services page"
-                            + " while moving other program cards below it.",
-                        Icons.INFO))
-                    .withClass("ml-2")),
+        fieldset(
+                div(
+                        input()
+                            .withId("common-intake-checkbox")
+                            .withClasses("usa-checkbox__input")
+                            .withType("checkbox")
+                            .withName("isCommonIntakeForm")
+                            .withValue("true")
+                            .withCondChecked(isCommonIntakeForm),
+                        label("Set program as pre-screener")
+                            .withFor("common-intake-checkbox")
+                            .withClasses("usa-checkbox__label"),
+                        span(ViewUtils.makeSvgToolTip(
+                                "You can set one program as the ‘pre-screener’. This will pin the"
+                                    + " program card to the top of the programs and services page"
+                                    + " while moving other program cards below it.",
+                                Icons.INFO))
+                            .withClass("ml-2"))
+                    .withClasses("usa-checkbox"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Hidden checkbox used to signal whether or not the user has confirmed they want to
         // change which program is marked as the common intake form.
         FieldWithLabel.checkbox()
@@ -431,49 +434,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private DomContent showTiSelectionList(ImmutableSet<Long> selectedTi, boolean selectTiChecked) {
     List<TrustedIntermediaryGroupModel> tiGroups =
         accountRepository.listTrustedIntermediaryGroups();
-    DivTag tiSelectionRenderer =
-        div()
-            // Hidden input that's always selected to allow for clearing multi-select data.
-            .with(
-                input()
-                    .withType("checkbox")
-                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
-                    .withValue("")
-                    .withCondChecked(true)
-                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
-            .with(
-                tiGroups.stream()
-                    .map(
-                        option ->
-                            renderCheckboxOption(
-                                option.getName(), option.id, selectedTi.contains(option.id))));
-    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TiList").with(tiSelectionRenderer);
 
-    return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
-  }
-
-  private DivTag renderCheckboxOption(String tiName, Long tiId, boolean selected) {
-    String id = tiId.toString();
-    LabelTag labelTag =
-        label()
-            .withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                BaseStyles.CHECKBOX_LABEL,
-                BaseStyles.BORDER_CIVIFORM_BLUE)
-            .with(
-                input()
-                    .withId(id)
-                    .withType("checkbox")
-                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
-                    .withValue(String.valueOf(tiId))
-                    .withCondChecked(selected)
-                    .withClasses(
-                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
-                span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
-
-    return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
-        .with(labelTag);
+    DivTag tiDiv =
+        div(
+                // Hidden input that's always selected to allow for clearing multi-select data.
+                buildUSWDSCheckboxOption("", TI_GROUPS_FIELD_NAME, "", true, "")
+                    .withClasses("hidden"),
+                each(
+                    tiGroups,
+                    tiGroup ->
+                        buildUSWDSCheckboxOption(
+                            tiGroup.id.toString(),
+                            TI_GROUPS_FIELD_NAME,
+                            tiGroup.id.toString(),
+                            selectedTi.contains(tiGroup.id),
+                            tiGroup.getName())))
+            .withId("TiList")
+            .withClasses("px-4", "py-2");
+    return selectTiChecked ? tiDiv : tiDiv.isHidden();
   }
 
   private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {

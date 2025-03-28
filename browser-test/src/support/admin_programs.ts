@@ -1381,7 +1381,11 @@ export class AdminPrograms {
   }
 
   async clickCommonIntakeFormToggle() {
-    await this.page.click('input[name=isCommonIntakeForm]')
+    // Note: We click on the label instead of directly interacting with the checkbox
+    // because USWDS styling hides the actual checkbox input and styles the label to
+    // look like a checkbox. The actual input element is visually hidden or positioned
+    // off-screen, making it inaccessible to Playwright's direct interactions.
+    await this.page.locator('label[for="common-intake-checkbox"]').click()
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {
