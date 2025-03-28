@@ -224,19 +224,28 @@ export class SessionTimeout {
     // Run for a small amount of time to ensure all timers are processed
     await this.page.clock.runFor(100)
 
-    // Dispatch a custom event to notify the application that time has changed
-    // This helps trigger any listeners that might be waiting for time changes
-    await this.page.evaluate((ms) => {
-      const timeChangeEvent = new CustomEvent('timechange', {
-        detail: {
-          advancedBy: ms,
-          newTime: Date.now(),
-        },
-      })
-      window.dispatchEvent(timeChangeEvent)
-    }, advanceMilliseconds)
-
-    // Give the browser a moment to process the event
-    await this.page.waitForTimeout(100)
+    try {
+      if (this.page.isClosed()) {
+        console.error(
+          'Page context is closed. Skipping dispatching timechange event.',
+        )
+        return
+      }
+      // Dispatch a custom event to notify the application that time has changed
+      // This helps trigger any listeners that might be waiting for time changes
+      await this.page.evaluate((ms) => {
+        const timeChangeEvent = new CustomEvent('timechange', {
+          detail: {
+            advancedBy: ms,
+            newTime: Date.now(),
+          },
+        })
+        window.dispatchEvent(timeChangeEvent)
+      }, advanceMilliseconds)
+    } catch (error) {
+      // In some rare cases, the page context is destroyed when advancing time to a timeout.
+      // In these cases, we just skip sending the timechange event.
+      console.error('Page context destroyed:', error)
+    }
   }
 }
