@@ -147,6 +147,10 @@ it is around the label */
   @include u-margin-top(0);
 }
 
+.list-style-type-disc {
+  list-style-type: disc;
+}
+
 .content-spacing {
   @include u-height('105');
 }

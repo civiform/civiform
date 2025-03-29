@@ -35,6 +35,8 @@ export default defineConfig({
     video: process.env.RECORD_VIDEO === 'true' ? 'on-first-retry' : 'off',
     // Fall back support config file until it is removed
     baseURL: process.env.BASE_URL || BASE_URL, // 'http://civiform:9000'
+    // // Bypass CSP to prevent flaky tests due to stylesheets
+    // bypassCSP: true,
   },
   reporter: [
     ['list', {printSteps: true}],

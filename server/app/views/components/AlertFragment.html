@@ -60,8 +60,7 @@
     <!--/* padding-left-205 indents the list */-->
     <ul
       th:if="${not #lists.isEmpty(alertSettings.additionalText)}"
-      class="padding-left-205"
-      th:style="'list-style-type: disc;'"
+      class="padding-left-205 list-style-type-disc"
       th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
     >
       <li

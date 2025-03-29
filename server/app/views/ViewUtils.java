@@ -207,8 +207,8 @@ public final class ViewUtils {
             "place-items-center",
             "justify-center",
             "h-10",
+            "width-115",
             Joiner.on(" ").join(extraClasses))
-        .withStyle("width: 115px")
         .with(
             Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "w-5", "h-5"),
             span(badgeText).withClass("mr-1"));

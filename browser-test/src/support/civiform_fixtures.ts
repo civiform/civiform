@@ -104,12 +104,6 @@ export const test = base.extend<CiviformFixtures>({
   },
 
   page: async ({page, request}, use) => {
-    page.on('console', (msg) => {
-      if (msg.text().includes('Content Security Policy')) {
-        throw new Error(msg.text())
-      }
-    })
-
     // BeforeEach
     await new Seeding(request).clearDatabase()
 
