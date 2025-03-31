@@ -1,13 +1,15 @@
 package durablejobs.jobs;
 
-import static org.checkerframwork.errorprone.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import durablejobs.DurableJob;
 import io.ebean.Database;
+import io.ebean.DB;
 import io.ebean.Transaction;
 import models.ApplicationModel;
 import models.EligibilityDetermination;
 import models.PersistedDurableJobModel;
+import javax.inject.Inject;
 import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
   @Inject
   public CalculateEligibilityDeterminationJob(ApplicantService applicantService) {
     this.applicantService = checkNotNull(applicantService);
+    this.database = DB.getDefault();
   }
 
   @Override
@@ -60,7 +63,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
                 applicantService.calculateEligibilityDetermination(
                     programDefinition, roAppProgramService);
             application.setEligibilityDetermination(eligibilityDetermination);
-          } catch (Exception e) {
+          } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);
           }
         }

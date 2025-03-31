@@ -482,6 +482,8 @@ public final class ApplicantService {
   public EligibilityDetermination calculateEligibilityDetermination(
       ProgramDefinition programDefinition,
       ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
+    //return EligibilityDetermination.NOT_COMPUTED;
+    
     if (programDefinition.hasEligibilityEnabled()) {
       if (readOnlyApplicantProgramService.isApplicationNotEligible()) {
         return EligibilityDetermination.INELIGIBLE;
