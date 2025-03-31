@@ -40,9 +40,9 @@ export interface DownloadedApplication {
  * are added when needed by a test.
  */
 export enum FormField {
-  PROGRAM_CATEGORIES,
-  LONG_DESCRIPTION,
   APPLICATION_STEPS,
+  LONG_DESCRIPTION,
+  PROGRAM_CATEGORIES,
 }
 
 export enum ProgramVisibility {
@@ -245,45 +245,15 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether specific form fields are properly disabled or enabled based on expected state.
+   * Verifies whether the given form field is disabled.
    *
    * @param formField - The specific form field type to verify (from FormField enum)
-   * @param isDisabled - Boolean indicating whether the field should be disabled (true) or enabled (false)
-   *
-   * @throws Will throw an error if the elements' states don't match the expected disabled/enabled state
+
+   * @throws Will throw an error if the elements' states don't match the expected disabled state
    * @throws Will throw an error if an invalid or unsupported form field type is provided
    */
-  async expectFormFieldDisabled(formField: FormField, isDisabled: boolean) {
+  async expectFormFieldDisabled(formField: FormField) {
     switch (formField) {
-      case FormField.PROGRAM_CATEGORIES: {
-        this.page.getByRole('checkbox')
-
-        for (const categoryName of Object.values(ProgramCategories)) {
-          const category = this.page.getByRole('checkbox', {
-            name: categoryName,
-          })
-          if (isDisabled) {
-            await expect(category).toBeDisabled()
-            await expect(category).not.toBeChecked()
-          } else {
-            await expect(category).toBeEnabled()
-          }
-        }
-        break
-      }
-
-      case FormField.LONG_DESCRIPTION: {
-        const longDescription = this.page.getByRole('textbox', {
-          name: 'Long program description (optional)',
-        })
-        if (isDisabled) {
-          await expect(longDescription).toBeDisabled()
-        } else {
-          await expect(longDescription).toBeEnabled()
-        }
-        break
-      }
-
       case FormField.APPLICATION_STEPS: {
         for (let i = 0; i < 5; i++) {
           const indexPlusOne = i + 1
@@ -293,19 +263,83 @@ export class AdminPrograms {
           const stepDescription = this.page.getByRole('textbox', {
             name: `Step ${indexPlusOne} description`,
           })
-          if (isDisabled) {
-            await expect(stepTitle).toBeDisabled()
-            await expect(stepDescription).toBeDisabled()
-            if (indexPlusOne == 1) {
-              await stepTitle.locator('span').isHidden()
-            }
-          } else {
-            await expect(stepTitle).toBeEnabled()
-            await expect(stepDescription).toBeEnabled()
-            if (indexPlusOne == 1) {
-              await stepTitle.locator('span').isVisible()
-            }
+          await expect(stepTitle).toBeDisabled()
+          await expect(stepDescription).toBeDisabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isHidden()
           }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeDisabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeDisabled()
+          await expect(category).not.toBeChecked()
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
+    }
+  }
+
+  /**
+   * Verifies whether the given form field ais enabled.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+   *
+   * @throws Will throw an error if the elements' states don't match the expected enabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldEnabled(formField: FormField) {
+    switch (formField) {
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          await expect(stepTitle).toBeEnabled()
+          await expect(stepDescription).toBeEnabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isVisible()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeEnabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeEnabled()
         }
         break
       }

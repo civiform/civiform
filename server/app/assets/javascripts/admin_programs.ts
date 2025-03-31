@@ -53,17 +53,17 @@ class AdminPrograms {
       ) as HTMLInputElement
       const northStarUiEnabled =
         longDescription.dataset.northstarEnabled === 'true'
-      this.updateTextFieldDisableState(
+      this.updateTextFieldElementDisabledState(
         /* fieldElement= */ longDescription,
         /* shouldDisable= */ commonIntakeCheckbox.checked && northStarUiEnabled,
       )
 
       // Application steps
-      this.updateTextFieldsDisabledState(
+      this.updateTextFieldSelectorsDisabledState(
         /* fieldSelectors= */ 'input[id^="apply-step"]',
         /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
-      this.updateTextFieldsDisabledState(
+      this.updateTextFieldSelectorsDisabledState(
         /* fieldSelectors= */ 'textarea[id^="apply-step"]',
         /* shouldDisable= */ commonIntakeCheckbox.checked,
       )
@@ -87,14 +87,14 @@ class AdminPrograms {
    * @param fieldSelectors - CSS selector string to identify the text fields to update
    * @param shouldDisable - Boolean indicating whether to disable (true) or enable (false) the fields
    */
-  static updateTextFieldsDisabledState(
+  static updateTextFieldSelectorsDisabledState(
     fieldSelectors: string,
     shouldDisable: boolean,
   ) {
     const textFields = document.querySelectorAll(fieldSelectors)
     textFields.forEach((field) => {
       const fieldElement = field as HTMLInputElement
-      this.updateTextFieldDisableState(fieldElement, shouldDisable)
+      this.updateTextFieldElementDisabledState(fieldElement, shouldDisable)
     })
   }
 
@@ -104,7 +104,7 @@ class AdminPrograms {
    * @param fieldElement - The HTML input element to update
    * @param shouldDisable - Boolean indicating whether to disable (true) or enable (false) the field
    */
-  static updateTextFieldDisableState(
+  static updateTextFieldElementDisabledState(
     fieldElement: HTMLInputElement,
     shouldDisable: boolean,
   ) {
