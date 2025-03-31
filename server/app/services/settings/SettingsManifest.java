@@ -1055,6 +1055,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
+   * screen.
+   */
+  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
+    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
+  }
+
+  /**
    * (NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs
    * between deployed environments. Note: this should only be used on new environments, since
    * existing programs will be modified if a program with the same question gets imported.
@@ -2270,6 +2278,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "BULK_STATUS_UPDATE_ENABLED",
                           "When enabled, admins will be able to select many applications for status"
                               + " updates",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
+                              + " eligibility message per screen.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
