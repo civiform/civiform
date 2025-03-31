@@ -30,8 +30,7 @@ abstract class FormattedPredicateValue {
   }
 
   private static FormattedPredicateValue createEmpty() {
-    return create(/* mainValue= */ Optional.empty(), /* secondValue=
-    */ Optional.empty());
+    return create(/* mainValue= */ Optional.empty(), /* secondValue= */ Optional.empty());
   }
 
   private static FormattedPredicateValue createSingleValue(String value) {
