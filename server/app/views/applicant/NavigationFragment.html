@@ -311,7 +311,7 @@
             >
               <div
                 class="usa-footer__contact-info expanding-div"
-                th:utext="#{footer.technicalSupport(${emailLink})}"
+                th:utext="#{footer.technicalSupport(${supportEmailLink})}"
               ></div>
             </div>
           </div>
@@ -348,6 +348,8 @@
   ></div>
 </footer>
 
+<!-- This fragment is also used in Java so it can be composed into a
+     localized message; it is not possible to do that otherwise. -->
 <a
   th:fragment="technicalSupportLink"
   class="usa-link"

@@ -83,14 +83,12 @@ public abstract class NorthStarBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
 
-    ThymeleafModule.PlayThymeleafContext emailContext =
-      playThymeleafContextFactory.create(request);
-    emailContext.setVariable("supportEmail",
+    context.setVariable("supportEmail",
       settingsManifest.getSupportEmailAddress(request).get());
-    String emailLink = templateEngine.process(
+    String supportEmailLink = templateEngine.process(
       "applicant/NavigationFragment", Set.of("technicalSupportLink"),
-      emailContext);
-    context.setVariable("emailLink", emailLink);
+      context);
+    context.setVariable("supportEmailLink", supportEmailLink);
 
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
