@@ -1212,9 +1212,9 @@ public final class ApplicantService {
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<ApplicationModel> maybeDraftApp =
-              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.DRAFT, /* defaultValue= */ Optional.empty());
           Optional<ApplicationModel> maybeSubmittedApp =
-              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, /* defaultValue= */ Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
