@@ -28,6 +28,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicationModel;
@@ -40,12 +42,15 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.statuses.StatusDefinitions;
+import services.statuses.StatusService;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
@@ -53,6 +58,7 @@ public final class PdfExporter {
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
   private final DateConverter dateConverter;
+  private final StatusService statusService;
 
   // A set of fonts that approximate various heading and text sizes to easily create visual
   // hierarchy in the PDF.
@@ -61,11 +67,11 @@ public final class PdfExporter {
   private static final Font H3_FONT = FontFactory.getFont(FontFactory.HELVETICA, 16);
   private static final Font PARAGRAPH_FONT = FontFactory.getFont(FontFactory.HELVETICA, 12);
   private static final Font SMALL_GRAY_FONT =
-      FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+    FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
   private static final Font PREDICATE_FONT =
-      FontFactory.getFont(FontFactory.HELVETICA, 11, BaseColor.BLUE);
+    FontFactory.getFont(FontFactory.HELVETICA, 11, BaseColor.BLUE);
   private static final Font LINK_FONT =
-      FontFactory.getFont(FontFactory.HELVETICA, 11, Font.UNDERLINE, new BaseColor(0, 94, 162));
+    FontFactory.getFont(FontFactory.HELVETICA, 11, Font.UNDERLINE, new BaseColor(0, 94, 162));
 
   /**
    * Similar to {@link views.admin.programs.ProgramBlocksView#INDENTATION_FACTOR_INCREASE_ON_LEVEL}:
@@ -76,14 +82,15 @@ public final class PdfExporter {
 
   @Inject
   PdfExporter(
-      ApplicantService applicantService,
-      @Now Provider<LocalDateTime> nowProvider,
-      Config configuration,
-      DateConverter dateConverter) {
+    ApplicantService applicantService,
+    @Now Provider<LocalDateTime> nowProvider,
+    Config configuration,
+    DateConverter dateConverter, StatusService statusService) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusService = checkNotNull(statusService);
   }
 
   /**
@@ -93,12 +100,12 @@ public final class PdfExporter {
    * generate the required PDF.
    */
   public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
-      throws DocumentException, IOException {
+    throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
-        applicantService
-            .getReadOnlyApplicantProgramService(application)
-            .toCompletableFuture()
-            .join();
+      applicantService
+        .getReadOnlyApplicantProgramService(application)
+        .toCompletableFuture()
+        .join();
 
     ImmutableList<AnswerData> answersOnlyActive = roApplicantService.getSummaryDataOnlyActive();
     ImmutableList<AnswerData> answersOnlyHidden = ImmutableList.<AnswerData>of();
@@ -109,38 +116,38 @@ public final class PdfExporter {
     // We expect a name to be present at this point. However, if it's not, we use a placeholder
     // rather than throwing an error here.
     String applicantName =
-        application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
+      application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
-        buildApplicationPdf(
-            answersOnlyActive,
-            answersOnlyHidden,
-            applicantNameWithApplicationId,
-            application.getApplicant().id,
-            application.getProgram().getProgramDefinition(),
-            application.getLatestStatus(),
-            getSubmitTime(application.getSubmitTime()),
-            isAdmin);
+      buildApplicationPdf(
+        answersOnlyActive,
+        answersOnlyHidden,
+        applicantNameWithApplicationId,
+        application.getApplicant().id,
+        application.getProgram().getProgramDefinition(),
+        application.getLatestStatus(),
+        getSubmitTime(application.getSubmitTime()),
+        isAdmin);
     return new InMemoryPdf(bytes, filename);
   }
 
   private String getSubmitTime(Instant submitTime) {
     return submitTime == null
-        ? "Application submitted without submission time marked."
-        : dateConverter.renderDateTimeHumanReadable(submitTime);
+      ? "Application submitted without submission time marked."
+      : dateConverter.renderDateTimeHumanReadable(submitTime);
   }
 
   private byte[] buildApplicationPdf(
-      ImmutableList<AnswerData> answersOnlyActive,
-      ImmutableList<AnswerData> answersOnlyHidden,
-      String applicantNameWithApplicationId,
-      Long applicantId,
-      ProgramDefinition programDefinition,
-      Optional<String> statusValue,
-      String submitTime,
-      boolean isAdmin)
-      throws DocumentException, IOException {
+    ImmutableList<AnswerData> answersOnlyActive,
+    ImmutableList<AnswerData> answersOnlyHidden,
+    String applicantNameWithApplicationId,
+    Long applicantId,
+    ProgramDefinition programDefinition,
+    Optional<String> statusValue,
+    String submitTime,
+    boolean isAdmin)
+    throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
     Document document = null;
@@ -152,30 +159,30 @@ public final class PdfExporter {
       document.open();
 
       Paragraph applicant =
-          new Paragraph(
-              applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+        new Paragraph(
+          applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
       Paragraph program =
-          new Paragraph(
-              "Program Name : " + programDefinition.adminName(),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+        new Paragraph(
+          "Program Name : " + programDefinition.adminName(),
+          FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
       Paragraph status =
-          new Paragraph(
-              "Status: " + statusValue.orElse("none"),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        new Paragraph(
+          "Status: " + statusValue.orElse("none"),
+          FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(status);
       Paragraph submitTimeInformation =
-          new Paragraph(
-              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        new Paragraph(
+          "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answersOnlyActive) {
         Paragraph question =
-            new Paragraph(
-                answerData.questionDefinition().getName(),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          new Paragraph(
+            answerData.questionDefinition().getName(),
+            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
         final Paragraph answer;
         if (!answerData.encodedFileKeys().isEmpty()) {
           answer = new Paragraph();
@@ -184,10 +191,10 @@ public final class PdfExporter {
             String encodedFileKey = encodedFileKeys.get(i);
             String fileName = answerData.fileNames().get(i);
             String fileLink =
-                (isAdmin
-                        ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
-                        : controllers.routes.FileController.show(applicantId, encodedFileKey))
-                    .url();
+              (isAdmin
+                ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                .url();
             Anchor anchor = new Anchor(fileName, LINK_FONT);
             anchor.setReference(baseUrl + fileLink);
             Paragraph fileParagraph = new Paragraph();
@@ -197,44 +204,44 @@ public final class PdfExporter {
         } else if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
-              (isAdmin
-                      ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
-                      : controllers.routes.FileController.show(applicantId, encodedFileKey))
-                  .url();
+            (isAdmin
+              ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+              : controllers.routes.FileController.show(applicantId, encodedFileKey))
+              .url();
           Anchor anchor = new Anchor(answerData.answerText());
           anchor.setReference(baseUrl + fileLink);
           answer = new Paragraph();
           answer.add(anchor);
         } else {
           answer =
-              new Paragraph(
-                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+            new Paragraph(
+              answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
         }
         LocalDate date =
-            Instant.ofEpochMilli(answerData.timestamp())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+          Instant.ofEpochMilli(answerData.timestamp())
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
         Paragraph time =
-            new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
+          new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
         Paragraph eligibility = new Paragraph();
         if (isAdmin && isEligibilityEnabledInProgram) {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
-                programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
+              programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
             if (eligibilityDef
-                .map(
-                    definition ->
-                        definition
-                            .predicate()
-                            .getQuestions()
-                            .contains(answerData.questionDefinition().getId()))
-                .orElse(false)) {
+              .map(
+                definition ->
+                  definition
+                    .predicate()
+                    .getQuestions()
+                    .contains(answerData.questionDefinition().getId()))
+              .orElse(false)) {
 
               String eligibilityText =
-                  answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+                answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
               eligibility =
-                  new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
+                new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
               eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
             }
           } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -252,19 +259,19 @@ public final class PdfExporter {
       if (!answersOnlyHidden.isEmpty()) {
         document.add(Chunk.NEWLINE);
         Paragraph hiddenText =
-            new Paragraph(
-                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+          new Paragraph(
+            "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
         document.add(hiddenText);
         document.add(Chunk.NEWLINE);
         for (AnswerData answerData : answersOnlyHidden) {
           Paragraph question =
-              new Paragraph(
-                  answerData.questionDefinition().getName(),
-                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+            new Paragraph(
+              answerData.questionDefinition().getName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
           final Paragraph answer;
           answer =
-              new Paragraph(
-                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+            new Paragraph(
+              answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
           document.add(question);
           document.add(answer);
         }
@@ -283,11 +290,11 @@ public final class PdfExporter {
    * object.
    *
    * @param allQuestions a list of all questions in the question bank. Used for displaying
-   *     predicates correctly.
+   *                     predicates correctly.
    */
   public InMemoryPdf exportProgram(
-      ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions)
-      throws DocumentException, IOException, TranslationNotFoundException {
+    ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions)
+    throws DocumentException, IOException, TranslationNotFoundException {
     LocalDateTime timeCreated = nowProvider.get();
     String filename = String.format("%s-%s.pdf", programDefinition.adminName(), timeCreated);
     byte[] bytes = buildProgramPdf(programDefinition, allQuestions, timeCreated);
@@ -295,10 +302,10 @@ public final class PdfExporter {
   }
 
   private byte[] buildProgramPdf(
-      ProgramDefinition programDefinition,
-      ImmutableList<QuestionDefinition> allQuestions,
-      LocalDateTime timeCreated)
-      throws DocumentException, IOException {
+    ProgramDefinition programDefinition,
+    ImmutableList<QuestionDefinition> allQuestions,
+    LocalDateTime timeCreated)
+    throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
     Document document = null;
@@ -311,44 +318,74 @@ public final class PdfExporter {
       document.add(new Paragraph(programDefinition.localizedName().getDefault(), H1_FONT));
       document.add(new Paragraph("Admin name: " + programDefinition.adminName(), SMALL_GRAY_FONT));
       document.add(
-          new Paragraph(
-              "Admin description: " + programDefinition.adminDescription(), SMALL_GRAY_FONT));
+        new Paragraph(
+          "Admin description: " + programDefinition.adminDescription(), SMALL_GRAY_FONT));
       document.add(
-          new Paragraph(
-              "Admin short description: "
-                  + programDefinition.localizedShortDescription().getDefault(),
-              SMALL_GRAY_FONT));
+        new Paragraph(
+          "Admin short description: "
+            + programDefinition.localizedShortDescription().getDefault(),
+          SMALL_GRAY_FONT));
       document.add(
-          new Paragraph(
-              "Time of export: "
-                  + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
-              SMALL_GRAY_FONT));
+        new Paragraph(
+          "Time of export: "
+            + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
+          SMALL_GRAY_FONT));
       document.add(new Paragraph("Origin of export: " + baseUrl, SMALL_GRAY_FONT));
 
       document.add(Chunk.NEWLINE);
       document.add(new LineSeparator());
       Paragraph applicationSteps = new Paragraph();
       programDefinition.applicationSteps().stream()
-          .forEach(
-              step -> {
-                applicationSteps.add(
-                    new Paragraph(
-                        step.getTitle().getDefault() + " : " + step.getDescription().getDefault(),
-                        SMALL_GRAY_FONT));
-              });
+        .forEach(
+          step -> {
+            applicationSteps.add(
+              new Paragraph(
+                step.getTitle().getDefault() + " : " + step.getDescription().getDefault(),
+                SMALL_GRAY_FONT));
+          });
       document.add(new Paragraph("Application steps", PARAGRAPH_FONT));
       document.add(applicationSteps);
       document.add(Chunk.NEWLINE);
       document.add(new LineSeparator());
       document.add(new Paragraph("Application confirmation message", PARAGRAPH_FONT));
       document.add(
-          new Paragraph(
-              programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
+        new Paragraph(
+          programDefinition.localizedConfirmationMessage().getDefault(), SMALL_GRAY_FONT));
+
+      document.add(Chunk.NEWLINE);
+      document.add(new LineSeparator());
+      Paragraph statuses = new Paragraph();
+
+      ImmutableList<StatusDefinitions> statusDefinitions = statusService.getAllPossibleStatusDefinitions(programDefinition.id());
+      Map<String,String> statusTextToEmailMap = new HashMap<>();
+      statusDefinitions.stream().forEach( statusDef ->
+      {
+        statusDef.getStatuses().stream().forEach(status ->{
+          statusTextToEmailMap.put(status.localizedStatusText().getDefault(),status.localizedEmailBodyText().isEmpty()? "":status.localizedEmailBodyText().get().getDefault());
+        });
+
+      });
+
+      statusTextToEmailMap.entrySet().stream().forEach( e->{
+        statuses.add(new Paragraph(e.getKey(), PARAGRAPH_FONT));
+        statuses.add(
+          new Paragraph(e.getValue(), SMALL_GRAY_FONT));
+      });
+      document.add(new Paragraph("Application statuses", PARAGRAPH_FONT));
+      document.add(statuses);
 
       for (BlockDefinition block : programDefinition.getNonRepeatedBlockDefinitions()) {
-        renderProgramBlock(
+        if(true) {
+          renderProgramBlock2(
             document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
+        }
+        else {
+          renderProgramBlock(
+            document, programDefinition, block, allQuestions, /* indentationLevel= */ 0);
+        }
       }
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
     } finally {
       if (document != null) {
         document.close();
@@ -362,6 +399,65 @@ public final class PdfExporter {
     }
     return byteArrayOutputStream.toByteArray();
   }
+
+  /**
+   * Renders the given block in the program preview PDF.
+   *
+   * @param indentationLevel the level of indentation. Should be 0 for most questions, 1 for
+   *                         questions nested under an enumerator, 2 for doubly-nested enumerator questions, etc. Should
+   *                         be multiplied by {@code INDENTATION_PER_LEVEL} when adding text into the PDF.
+   */
+  private void renderProgramBlock2(
+    Document document,
+    ProgramDefinition program,
+    BlockDefinition block,
+    ImmutableList<QuestionDefinition> allQuestions,
+    int indentationLevel)
+    throws DocumentException {
+    document.add(Chunk.NEWLINE);
+    LineSeparator ls = new LineSeparator();
+    ls.setAlignment(Element.ALIGN_RIGHT);
+    // Approximately indent the line separator by subtracting 5% of its width per level of
+    // indentation.
+    ls.setPercentage(100 - (indentationLevel * 5));
+    document.add(ls);
+
+    if (block.localizedEligibilityMessage().isPresent()) {
+      document.add(new Paragraph("Custom Eligibility message", PARAGRAPH_FONT));
+      document.add(new Paragraph(block.localizedEligibilityMessage().get().getDefault(),SMALL_GRAY_FONT));
+      document.add(Chunk.NEWLINE);
+      document.add(ls);
+    }
+
+    for (int i = 0; i < block.getQuestionCount(); i++) {
+      // Question-level information
+      QuestionDefinition question = block.getQuestionDefinition(i);
+      document.add(text(question.getQuestionText().getDefault(), H3_FONT, indentationLevel));
+      if (!question.getQuestionHelpText().isEmpty()) {
+        document.add(
+          text(question.getQuestionHelpText().getDefault(), PARAGRAPH_FONT, indentationLevel));
+      }
+
+      // If a question offers options, put those options in the PDF
+      if (question.getQuestionType().isMultiOptionType()) {
+        MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+        List list = createList(indentationLevel);
+        for (QuestionOption option : multiOption.getOptions()) {
+          list.add(new ListItem(option.optionText().getDefault()));
+        }
+        document.add(list);
+      }
+      document.add(Chunk.NEWLINE);
+    }
+
+    if (block.isEnumerator()) {
+      for (BlockDefinition subBlock : program.getBlockDefinitionsForEnumerator(block.id())) {
+        // Indent the blocks related to the enumerator so it's clear they're related
+        renderProgramBlock2(document, program, subBlock, allQuestions, indentationLevel + 1);
+      }
+    }
+  }
+
 
   /**
    * Renders the given block in the program preview PDF.
