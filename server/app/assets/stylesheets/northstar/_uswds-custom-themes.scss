@@ -17,6 +17,10 @@
   background-color: var(--primary-dark);
 }
 
+.bg-primary-darker.border-primary {
+  border-color: var(--primary-dark);
+}
+
 .usa-button:not(
     .usa-button--outline,
     .usa-button--unstyled,

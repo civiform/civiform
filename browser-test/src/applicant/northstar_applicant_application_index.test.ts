@@ -1157,3 +1157,76 @@ test.describe(
     }
   },
 )
+
+test.describe(
+  'applied color themes on applicant program index page',
+  {tag: ['@northstar']},
+  () => {
+    const primaryProgramName = 'Application index primary program'
+    const otherProgramName = 'Application index other program'
+
+    const firstQuestionText = 'This is the first question'
+    const secondQuestionText = 'This is the second question'
+
+    // TODO(dwaterman): enable theming flags
+    test.beforeEach(
+      async ({page, adminSettings, adminPrograms, adminQuestions}) => {
+        await enableFeatureFlag(page, 'north_star_applicant_ui')
+        await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+        await loginAsAdmin(page)
+        await adminSettings.gotoAdminSettings()
+
+        await adminSettings.setStringSetting(
+          'THEME_COLOR_PRIMARY',
+          '#967efb',
+        )
+        await adminSettings.setStringSetting(
+          'THEME_COLOR_PRIMARY_DARK',
+          '#a72f10',
+        )
+
+        await adminSettings.saveChanges()
+
+        // Create a program with two questions on separate blocks so that an applicant can partially
+        // complete an application.
+        await adminPrograms.addProgram(primaryProgramName)
+        await adminQuestions.addTextQuestion({
+          questionName: 'first-q',
+          questionText: firstQuestionText,
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'second-q',
+          questionText: secondQuestionText,
+        })
+        // Primary program's screen 1 has 0 questions, so the 'first block' is actually screen 2
+        await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
+          description: 'first block',
+          questions: [{name: 'first-q'}],
+        })
+        // The 'second block' is actually screen 3
+        await adminPrograms.addProgramBlockUsingSpec(primaryProgramName, {
+          description: 'second block',
+          questions: [{name: 'second-q'}],
+        })
+
+        await adminPrograms.addProgram(otherProgramName)
+        await adminPrograms.addProgramBlockUsingSpec(otherProgramName, {
+          description: 'first block',
+          questions: [{name: 'first-q'}],
+        })
+
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      },
+    )
+
+    test('applies color theming', async ({page}) => {
+      await validateScreenshot(
+        page,
+        'program-index-page-theme',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
+  },
+)
