@@ -320,6 +320,10 @@ public final class PdfExporter {
               SMALL_GRAY_FONT));
       document.add(
           new Paragraph(
+              "Admin long description: " + programDefinition.localizedDescription().getDefault(),
+              SMALL_GRAY_FONT));
+      document.add(
+          new Paragraph(
               "Time of export: "
                   + timeCreated.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a")),
               SMALL_GRAY_FONT));
