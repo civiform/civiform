@@ -1,7 +1,6 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -364,7 +363,6 @@ test.describe('Applicant navigation flow', () => {
       adminPrograms,
     }) => {
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
       await test.step('Add eligibility message with markdown', async () => {
         const eligibilityMsg =

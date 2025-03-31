@@ -67,9 +67,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String programDetailsLink = programDefinition.externalLink();
     ATag infoLink = null;
     String eligibilityMsg = "";
-    boolean isEligibilityMsgEnabled =
-        settingsManifest.getCustomizedEligibilityMessageEnabled(request);
-    if (blockDefinition.isPresent() && isEligibilityMsgEnabled) {
+    if (blockDefinition.isPresent()) {
       Locale preferredLocale = messages.lang().toLocale();
       eligibilityMsg =
           blockDefinition
@@ -130,8 +128,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                         messages.at(
                             MessageKey.CONTENT_ELIGIBILITY_CRITERIA.getKeyName(), infoLink)))
                     .withClasses("mb-4"))
-            .condWith(
-                isEligibilityMsgEnabled && !eligibilityMsg.isEmpty(),
+            .with(
                 div()
                     .with(
                         TextFormatter.formatTextWithAriaLabel(

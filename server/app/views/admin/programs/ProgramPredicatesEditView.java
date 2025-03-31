@@ -230,9 +230,7 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show the eligibility message field, if the eligibility msg feature flag is on.
-            .condWith(
-                settingsManifest.getCustomizedEligibilityMessageEnabled(request),
-                createEligibilityMessageForm(request, blockDefinition, programDefinition))
+            .with(createEligibilityMessageForm(request, blockDefinition, programDefinition))
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()

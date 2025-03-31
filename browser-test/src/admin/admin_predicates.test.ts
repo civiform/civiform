@@ -401,7 +401,6 @@ test.describe('create and edit predicates', () => {
     adminPredicates,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
     const programName = 'Test eligibility message field availbale to use'
     const firstScreen = 'Screen 1'
     const secondScreen = 'Screen 2'
