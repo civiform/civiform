@@ -30,11 +30,12 @@ abstract class FormattedPredicateValue {
   }
 
   private static FormattedPredicateValue createEmpty() {
-    return create(/* mainValue= */ Optional.empty(), /* secondaryValue= */ Optional.empty());
+    return create(/* mainValue= */ Optional.empty(), /* secondValue=
+    */ Optional.empty());
   }
 
   private static FormattedPredicateValue createSingleValue(String value) {
-    return create(/* mainValue= */ Optional.of(value), /* secondaryValue= */ Optional.empty());
+    return create(/* mainValue= */ Optional.of(value), /* secondValue= */ Optional.empty());
   }
 
   private static FormattedPredicateValue createWithSecondValue(
