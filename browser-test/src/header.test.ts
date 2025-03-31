@@ -1,11 +1,11 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
   validateScreenshot,
   validateAccessibility,
-  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', () => {
@@ -16,6 +16,7 @@ test.describe('Header', () => {
     page,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     await test.step('Take a screenshot with no profile/account', async () => {
       await validateScreenshot(page.getByRole('navigation'), 'not-logged-in')
@@ -24,7 +25,7 @@ test.describe('Header', () => {
     await test.step('Take a screenshot as a guest', async () => {
       // Since a guest account is not created until you start applying for something,
       // we have to make a program.
-      await seedProgramsAndCategories(page)
+      await seeding.seedProgramsAndCategories()
       await page.goto('/')
       await loginAsAdmin(page)
       await adminPrograms.publishAllDrafts()
@@ -45,6 +46,18 @@ test.describe('Header', () => {
     await test.step('Passes accessibility test', async () => {
       await validateAccessibility(page)
     })
+  })
+
+  test('Government name shown', async ({page}) => {
+    const headerText = page.locator('#brand-id')
+    await expect(headerText).toHaveText('TestCity CiviForm')
+  })
+
+  test('Government name hidden', async ({page}) => {
+    await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+
+    const headerText = page.locator('#brand-id')
+    await expect(headerText).toHaveText(' CiviForm')
   })
 
   test('Government banner', async ({page}) => {

@@ -76,16 +76,15 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
-    ATag downloadButton = new ATag();
-    if (settingsManifest.getApplicationExportable(request)) {
-      downloadButton =
-          new ATag()
-              .withHref(redirectUrl)
-              .with(
-                  button(messages.at(MessageKey.BUTTON_DOWNLOAD_PDF.getKeyName()))
-                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
-              .withClass("flex");
-    }
+
+    ATag downloadButton =
+        new ATag()
+            .withHref(redirectUrl)
+            .with(
+                button(messages.at(MessageKey.BUTTON_DOWNLOAD_PDF.getKeyName()))
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+            .withClass("flex");
+
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(

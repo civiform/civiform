@@ -374,25 +374,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
   private static ImmutableList<PredicateExpressionNode> getExistingAndNodes(
       PredicateDefinition existingPredicate) {
     PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
-    switch (format) {
-      case SINGLE_QUESTION:
-        {
-          return ImmutableList.of(
+    return switch (format) {
+      case SINGLE_QUESTION ->
+          ImmutableList.of(
               PredicateExpressionNode.create(
                   AndNode.create(ImmutableList.of(existingPredicate.rootNode()))));
-        }
-
-      case OR_OF_SINGLE_LAYER_ANDS:
-        {
-          return existingPredicate.rootNode().getOrNode().children();
-        }
-
-      default:
-        {
+      case OR_OF_SINGLE_LAYER_ANDS -> existingPredicate.rootNode().getOrNode().children();
+      default ->
           throw new IllegalArgumentException(
               String.format("Unrecognized predicate format: %s", format));
-        }
-    }
+    };
   }
 
   private static ImmutableMap<Long, LeafExpressionNode> getOneRowOfLeafNodes(

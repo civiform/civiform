@@ -78,6 +78,8 @@ public abstract class NorthStarBaseView {
             .getCivicEntitySmallLogoUrl()
             .orElse(assetsFinder.path("Images/civiform-staging.png")));
     context.setVariable(
+        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
+    context.setVariable(
         "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
     context.setVariable(
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
@@ -93,6 +95,10 @@ public abstract class NorthStarBaseView {
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", assetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", assetsFinder.path("Images/uswds/icon-dot-gov.svg"));
+    context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
+    boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
+    context.setVariable("userIsAdmin", userIsAdmin);
+    context.setVariable("goBackIcon", Icons.ARROW_LEFT);
 
     // Language selector params
     context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
@@ -135,6 +141,11 @@ public abstract class NorthStarBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     maybeSetUpNotProductionBanner(context, request, messages);
+    boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled(request);
+    context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
+    if (sessionTimeoutEnabled) {
+      context.setVariable("extendSessionUrl", routes.SessionController.extendSession().url());
+    }
 
     boolean showDebugTools =
         isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
@@ -163,10 +174,6 @@ public abstract class NorthStarBaseView {
       context.setVariable(
           "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
-
-    // Other options
-    boolean isApplicationExportable = settingsManifest.getApplicationExportable(request);
-    context.setVariable("isApplicationExportable", isApplicationExportable);
 
     return context;
   }

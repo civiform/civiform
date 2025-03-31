@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+
+# DOC: Run the "dependencyGraphMl" sbt command and save to a file. This will overwrite
+# any existing dependencies-compile.graphml file. If on MacOS and it can find yEd where
+# it expects, it will open it. Otherwise, just tell the user to open it themselves. On
+# MacOS with homebrew, do 'brew install yed'.
+
+source bin/lib.sh
+
+rm -f server/dependencies-compile.graphml
+docker::set_project_name_dev
+container="${COMPOSE_PROJECT_NAME}-civiform-1"
+
+bin/pull-image
+
+docker::compose_dev up --wait -d
+docker::dev_and_test_server_sbt_command 8457 dependencyGraphMl
+docker exec ${container} cp /usr/src/server/target/dependencies-compile.graphml /usr/src/server/dependencies-compile.graphml
+docker::compose_dev stop civiform
+
+if [ -f 'server/dependencies-compile.graphml' ]; then
+  mv "server/dependencies-compile.graphml" .
+  echo "Saved to $(pwd)/dependencies-compile.graphml"
+else
+  echo "Could not find dependencies-compile.graphml. The sbt command probably failed."
+  exit 1
+fi
+
+# TODO: Add support for other platforms' yEd. Just running "yed" on the command line
+# doesn't work on MacOS.
+bin="/Applications/yEd.app/Contents/MacOS/JavaApplicationStub"
+if [[ "$(uname -s)" == "Darwin" ]] && [ -f "${bin}" ]; then
+  echo "yEd on MacOS detected. Opening file in yEd."
+  ${bin} "$(pwd)/dependencies-compile.graphml"
+fi

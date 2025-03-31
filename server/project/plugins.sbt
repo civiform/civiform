@@ -1,5 +1,5 @@
 // Play plugins
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.6")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.7")
 addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.3.0")
 
 // Dependency tree plugin. To use, open an sbt shell and run dependencyBrowseTree

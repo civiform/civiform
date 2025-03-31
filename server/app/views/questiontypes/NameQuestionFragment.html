@@ -37,7 +37,11 @@
     </th:block>
     <label class="usa-label" th:for="${firstNameId}">
       <span th:text="#{label.firstName}"></span>
-      <span th:if="${!question.isOptional()}" class="usa-hint--required">
+      <span
+        th:if="${!question.isOptional()}"
+        class="usa-hint--required"
+        th:aria-hidden="true"
+      >
         *</span
       >
     </label>
@@ -51,6 +55,7 @@
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
       th:name="${firstNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
+      th:aria-required="${!question.isOptional()}"
     />
   </div>
 
@@ -90,7 +95,11 @@
     </th:block>
     <label class="usa-label" th:for="${lastNameId}">
       <span th:text="#{label.lastName}"></span>
-      <span th:if="${!question.isOptional()}" class="usa-hint--required">
+      <span
+        th:if="${!question.isOptional()}"
+        class="usa-hint--required"
+        th:aria-hidden="true"
+      >
         *</span
       >
     </label>
@@ -104,6 +113,7 @@
       th:value="${nameQuestion.getLastNameValue().orElse('')}"
       th:name="${lastNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
+      th:aria-required="${!question.isOptional()}"
     />
   </div>
 

@@ -10,7 +10,6 @@ import auth.ProfileFactory;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -33,45 +32,6 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
     when(testProfile.getProfileData()).thenReturn(testProfileData);
     when(testProfileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME))
         .thenReturn(false);
-  }
-
-  @Test
-  public void selectAndFormatDescription_usesShortDescriptionWhenPresent() {
-    ProgramDefinition program = createProgramDefinition("short description", "long description");
-    String description =
-        ProgramCardsSectionParamsFactory.selectAndFormatDescription(program, Locale.getDefault());
-
-    assertThat(description).isEqualTo("short description");
-  }
-
-  @Test
-  public void selectAndFormatDescription_usesLongDescriptionWhenShortDescriptionIsBlank() {
-    ProgramDefinition program = createProgramDefinition("", "long description");
-    String description =
-        ProgramCardsSectionParamsFactory.selectAndFormatDescription(program, Locale.getDefault());
-
-    assertThat(description).isEqualTo("long description\n");
-  }
-
-  @Test
-  public void selectAndFormatDescription_truncatesAndRemovesMarkdownFromLongDescription() {
-    ProgramDefinition program =
-        createProgramDefinition(
-            "",
-            "Here is a very long description with some markdown.\n"
-                + "Here we have a [link](https://www.example.com) and some __bold text__.\n"
-                + "Here we have a list:\n"
-                + "- one\n"
-                + "- two\n"
-                + "- three\n"
-                + "And some more text to make sure this is realllllllllyyyyyy long.");
-    String description =
-        ProgramCardsSectionParamsFactory.selectAndFormatDescription(program, Locale.getDefault());
-
-    assertThat(description)
-        .isEqualTo(
-            "Here is a very long description with some markdown. Here we have a link and some bold"
-                + " text. Here ...");
   }
 
   @Test

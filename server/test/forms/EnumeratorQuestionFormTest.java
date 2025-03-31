@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.OptionalInt;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -55,6 +56,17 @@ public class EnumeratorQuestionFormTest {
     assertThat(qd.getEntityType()).isEqualTo(LocalizedStrings.withDefaultValue(""));
     assertThat(qd.getMinEntities()).isEqualTo(OptionalInt.empty());
     assertThat(qd.getMaxEntities()).isEqualTo(OptionalInt.empty());
+  }
+
+  @Test
+  public void getBuilder_includesConcurrencyToken() throws Exception {
+    UUID initialToken = UUID.randomUUID();
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+    form.setConcurrencyToken(initialToken);
+
+    EnumeratorQuestionDefinition qd = (EnumeratorQuestionDefinition) form.getBuilder().build();
+
+    assertThat(qd.getConcurrencyToken()).hasValue(initialToken);
   }
 
   /** Returns a QuestionDefinitionConfig with minimal required fields set */

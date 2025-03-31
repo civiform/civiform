@@ -243,16 +243,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   private boolean enhancedLogoutEnabled() {
-    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
-    // 17).
-    switch (identityProviderType()) {
-      case ADMIN_IDENTITY_PROVIDER:
-        return settingsManifest.getAdminOidcEnhancedLogoutEnabled();
-      case APPLICANT_IDENTITY_PROVIDER:
-        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
-      default:
-        throw new NotImplementedException(
-            "Identity provider type not handled: " + identityProviderType());
-    }
+    return switch (identityProviderType()) {
+      case ADMIN_IDENTITY_PROVIDER -> settingsManifest.getAdminOidcEnhancedLogoutEnabled();
+      case APPLICANT_IDENTITY_PROVIDER -> settingsManifest.getApplicantOidcEnhancedLogoutEnabled();
+      default ->
+          throw new NotImplementedException(
+              "Identity provider type not handled: " + identityProviderType());
+    };
   }
 }

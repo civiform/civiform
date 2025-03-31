@@ -6,14 +6,13 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
 test.describe('csv export for multioption question', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
   test('multioption csv into its own column', async ({
@@ -134,8 +133,8 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('normal application flow', () => {
-  test.beforeEach(async ({page}) => {
-    await seedQuestions(page)
+  test.beforeEach(async ({page, seeding}) => {
+    await seeding.seedQuestions()
     await page.goto('/')
   })
 
@@ -446,7 +445,6 @@ test.describe('normal application flow', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
     await adminPrograms.addAndPublishProgramWithQuestions(

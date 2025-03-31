@@ -53,10 +53,13 @@ public class SessionTimeoutFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-
+    if (SettingsFilter.areSettingRequestAttributesExcluded(requestHeader)) {
+      return nextFilter.apply(requestHeader);
+    }
     Optional<CiviFormProfile> optionalProfile =
         profileUtils.optionalCurrentUserProfile(requestHeader);
-    if (!settingsManifest.get().getSessionTimeoutEnabled() || optionalProfile.isEmpty()) {
+    if (optionalProfile.isEmpty()
+        || !settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
       return nextFilter.apply(requestHeader).thenApply(this::clearTimeoutCookie);
     }
     return nextFilter

@@ -21,16 +21,48 @@ public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
-  public static final String DEFAULT_ARIA_LABEL = "opens in a new tab";
+  private static String ariaLabelNewTab = "opens in a new tab";
 
-  /** Adds an aria label to links before passing provided text through Markdown formatter. */
+  /**
+   * Adds an aria label to links before passing provided text through Markdown formatter. This
+   * function should be used when the resulting html will be applicant facing.
+   */
   public static ImmutableList<DomContent> formatTextWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelNewTab) {
+    setAriaLabelForLinks(ariaLabelNewTab);
     return formatText(text, preserveEmptyLines, addRequiredIndicator);
   }
 
-  /** Passes provided text through Markdown formatter. */
+  /**
+   * Adds an aria label to links before passing provided text through Markdown formatter, returning
+   * a String with the sanitized HTML. This is used by Thymeleaf to render Static Text questions.
+   * This function should be used when the resulting html will be applicant facing.
+   */
+  public static String formatTextToSanitizedHTMLWithAriaLabel(
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelNewTab) {
+    setAriaLabelForLinks(ariaLabelNewTab);
+    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
+  }
+
+  /**
+   * Passes provided text through Markdown formatter with preserveEmptyLines and
+   * addRequiredIndicator set to false. This function does not add translated aria labels to links
+   * and should only be used in admin facing views.
+   */
+  public static ImmutableList<DomContent> formatText(String text) {
+    return formatText(text, false, false);
+  }
+
+  /**
+   * Passes provided text through Markdown formatter. This function does not add translated aria
+   * labels to links and should only be used in admin facing views.
+   */
   public static ImmutableList<DomContent> formatText(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
@@ -39,25 +71,26 @@ public final class TextFormatter {
   }
 
   /**
-   * Passes provided text through Markdown formatter with preserveEmptyLines and
-   * addRequiredIndicator set to false
+   * Remove all markdown from the string by disallowing all elements and attributes. When calling
+   * this method, be sure to check the whitespace between words in the resulting string and adjust
+   * as neccessary.
    */
-  public static ImmutableList<DomContent> formatText(String text) {
-    return formatText(text, false, false);
+  public static String removeMarkdown(String text) {
+    String markdownText = formatTextToSanitizedHTML(text, false, false);
+    PolicyFactory customPolicy =
+        new HtmlPolicyBuilder().allowElements().allowAttributes("").globally().toFactory();
+    return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
+  }
+
+  static void setAriaLabelForLinks(String ariaLabelNewTabString) {
+    ariaLabelNewTab = ariaLabelNewTabString;
   }
 
   /**
-   * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
-   * This is used by Thymeleaf to render Static Text questions.
+   * Passes provided text through Markdown formatter, generating an HTML String. This function does
+   * not add translated aria labels to links and should only be used in admin facing views.
    */
-  public static String formatTextToSanitizedHTMLWithAriaLabel(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator, String ariaLabel) {
-    CIVIFORM_MARKDOWN.setAriaLabel(ariaLabel);
-    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
-  }
-
-  /** Passes provided text through Markdown formatter, generating an HTML String */
-  public static String formatTextToSanitizedHTML(
+  static String formatTextToSanitizedHTML(
       String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
     if (text.isBlank()) {
       return "";
@@ -77,23 +110,6 @@ public final class TextFormatter {
     return sanitizeHtml(markdownText);
   }
 
-  /**
-   * Remove all markdown from the string by disallowing all elements and attributes. When calling
-   * this method, be sure to check the whitespace between words in the resulting string and adjust
-   * as neccessary.
-   */
-  public static String removeMarkdown(String text) {
-    String markdownText = formatTextToSanitizedHTML(text, false, false);
-    PolicyFactory customPolicy =
-        new HtmlPolicyBuilder().allowElements().allowAttributes("").globally().toFactory();
-    return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
-  }
-
-  /** Used for testing */
-  public static void resetAriaLabelToDefault() {
-    CIVIFORM_MARKDOWN.setAriaLabel(DEFAULT_ARIA_LABEL);
-  }
-
   private static String preserveEmptyLines(String text) {
     String[] lines = Iterables.toArray(Splitter.on("\n").split(text), String.class);
     for (int i = 0; i < lines.length; i++) {
@@ -108,9 +124,13 @@ public final class TextFormatter {
 
   private static String addIconToLinks(String markdownText) {
     String closingATag = "</a>";
+
     String svgIconString =
         Icons.svg(Icons.OPEN_IN_NEW)
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
+            .attr("aria-label", ", " + ariaLabelNewTab)
+            .attr("aria-hidden", false)
+            .attr("role", "img")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
   }
@@ -201,7 +221,8 @@ public final class TextFormatter {
                 "aria-label",
                 "aria-hidden",
                 "viewBox", // <--- This is for SVGs and it **IS** case-sensitive
-                "d")
+                "d",
+                "role")
             .globally()
             .toFactory();
 

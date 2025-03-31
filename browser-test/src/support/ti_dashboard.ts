@@ -81,7 +81,8 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
+
     await this.page.fill('#email-input', newEmail)
     await this.page.click('text="Save"')
     await waitForPageJsLoad(this.page)
@@ -98,7 +99,8 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
+
     await this.page.fill('#phone-number-input', phone)
     await this.page.fill('#ti-note-input', tiNote)
     await this.page.click('text="Save"')
@@ -112,7 +114,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
 
     // The success alert should not be present before the form is submitted
     await this.expectSuccessAlertNotPresent()
@@ -134,7 +136,7 @@ export class TIDashboard {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(this.page)
-    await this.page.waitForSelector('h2:has-text("Edit client")')
+    await this.expectEditHeadingToBeVisible()
     expect(await this.page.textContent('html')).toContain(client.notes)
   }
 
@@ -205,6 +207,16 @@ export class TIDashboard {
       .locator('.usa-card__container a:text("View applications")')
       .click()
     await waitForPageJsLoad(this.page)
+  }
+
+  async expectEditHeadingToBeVisible() {
+    await expect(
+      this.page.getByRole('heading', {name: 'Edit Client'}),
+    ).toBeVisible()
+  }
+
+  async expectSearchHeadingToBeVisible() {
+    await expect(this.page.getByRole('heading', {name: 'Search'})).toBeVisible()
   }
 
   async expectSuccessToast(successToastMessage: string) {

@@ -16,6 +16,7 @@ import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import services.session.SessionTimeoutService;
@@ -58,14 +59,14 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get())
+              shouldLogoutUser(profile.get(), request)
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          if (settingsManifest.get().getSessionTimeoutEnabled()) {
+                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
                             profile.get().getProfileData().updateLastActivityTime(clock);
                           }
                           return next.apply(request);
@@ -76,7 +77,8 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletableFuture<Boolean> shouldLogoutUser(CiviFormProfile profile) {
+  private CompletableFuture<Boolean> shouldLogoutUser(
+      CiviFormProfile profile, RequestHeader request) {
     if (!profileUtils.validCiviFormProfile(profile)) {
       return CompletableFuture.completedFuture(true);
     }
@@ -88,7 +90,7 @@ public class ValidAccountFilter extends EssentialFilter {
                 return CompletableFuture.completedFuture(true);
               }
 
-              if (!settingsManifest.get().getSessionTimeoutEnabled()) {
+              if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
                 return CompletableFuture.completedFuture(false);
               }
 

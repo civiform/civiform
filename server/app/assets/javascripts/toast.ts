@@ -52,13 +52,13 @@ export class ToastController {
       // If showing this message is conditioned on a localStorage key, check if the key is stored.
       const keyIsStored =
         localStorage.getItem(message.condOnStorageKey) !== null
-      if (keyIsStored) {
-        // If the key is stored, remove it now and show the message.
-        localStorage.removeItem(message.condOnStorageKey)
-      } else {
-        // If the key is not stored, don't show the message.
+      if (!keyIsStored) {
+        // Don't show the message.
         return
       }
+
+      // Remove the key now and show the message.
+      localStorage.removeItem(message.condOnStorageKey)
     }
 
     const toastMessage = document.createElement('div')
@@ -210,15 +210,17 @@ export class ToastController {
    *  */
   private static dismissToast(toastId: string, dismissClicked: boolean) {
     const toastMessage = document.getElementById(toastId)
-    if (toastMessage) {
-      if (dismissClicked && toastMessage.getAttribute('ignorable')) {
-        localStorage.setItem(toastId + '-dismissed', 'true')
-      }
-
-      // Dismiss the toast with the given id.
-      toastMessage.classList.add('opacity-0')
-      ToastController.cleanupToast(toastId)
+    if (!toastMessage) {
+      return
     }
+
+    if (dismissClicked && toastMessage.getAttribute('ignorable')) {
+      localStorage.setItem(toastId + '-dismissed', 'true')
+    }
+
+    // Dismiss the toast with the given id.
+    toastMessage.classList.add('opacity-0')
+    ToastController.cleanupToast(toastId)
   }
 
   /**

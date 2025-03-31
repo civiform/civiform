@@ -67,7 +67,7 @@ public final class CreateQuestionButton {
                   "text-gray-600",
                   StyleUtils.hover("bg-gray-100", "text-gray-800"))
               .with(
-                  Icons.questionTypeSvg(type)
+                  Icons.questionTypeSvgWithId(type)
                       .withClasses("inline-block", "h-6", "w-6", "mr-1", "text-sm"))
               .with(p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm"));
       dropdown.with(linkTag);

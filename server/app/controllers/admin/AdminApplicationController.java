@@ -237,14 +237,11 @@ public final class AdminApplicationController extends CiviFormController {
         .map(
             s -> {
               try {
-                switch (relativeTimeOfDay) {
-                  case START:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                  case END:
-                    return dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
-                  default:
-                    return dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
-                }
+                return switch (relativeTimeOfDay) {
+                  case START -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                  case END -> dateConverter.parseIso8601DateToEndOfLocalDateInstant(s);
+                  default -> dateConverter.parseIso8601DateToStartOfLocalDateInstant(s);
+                };
               } catch (DateTimeParseException e) {
                 throw new BadRequestException("Malformed query param");
               }

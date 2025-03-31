@@ -125,17 +125,16 @@ h1.usa-step-indicator__heading {
   line-height: inherit;
 }
 
-.cf-program-card-image {
-  height: 162px;
-  align-self: stretch;
-}
-
 /**
  * USWDS color utils are turned off, so we use the USWDS color manually.
  * See #7951 for detils
  */
 .cf-footer-help-links a {
   @include u-text('base-darkest');
+}
+
+.text-ink {
+  @include u-text('ink');
 }
 
 /**

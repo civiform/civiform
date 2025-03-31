@@ -474,8 +474,18 @@ public final class ReadOnlyApplicantProgramService {
 
           if (fileUploadQuestion.getFileKeyListValue().isPresent()) {
             ImmutableList<String> fileKeys = fileUploadQuestion.getFileKeyListValue().get();
+            Optional<ImmutableList<String>> originalFileNamesOptional =
+                fileUploadQuestion.getOriginalFileNameListValue();
+            ImmutableList<String> storageFileNames;
+            // Only Azure deployments store OriginalFilenames, for all other deployments, the
+            // filename is stored in the
+            // filekey.
+            storageFileNames =
+                originalFileNamesOptional.isPresent() ? originalFileNamesOptional.get() : fileKeys;
             fileNames =
-                fileKeys.stream().map(FileUploadQuestion::getFileName).collect(toImmutableList());
+                storageFileNames.stream()
+                    .map(FileUploadQuestion::getFileName)
+                    .collect(toImmutableList());
             encodedFileKeys =
                 fileKeys.stream()
                     .map((fileKey) -> URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
@@ -620,14 +630,11 @@ public final class ReadOnlyApplicantProgramService {
 
   private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
     boolean evaluation = evaluatePredicate(block, predicate);
-    switch (predicate.action()) {
-      case HIDE_BLOCK:
-        return !evaluation;
-      case SHOW_BLOCK:
-        return evaluation;
-      default:
-        return true;
-    }
+    return switch (predicate.action()) {
+      case HIDE_BLOCK -> !evaluation;
+      case SHOW_BLOCK -> evaluation;
+      default -> true;
+    };
   }
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {

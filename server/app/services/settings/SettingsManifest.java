@@ -51,6 +51,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
   }
 
+  /**
+   * Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the CiviForm header. This
+   * may be desired if the government name is included in the logo. Since northstar hides the logo
+   * on smaller screens, this will only hide the name if the logo is showing.
+   */
+  public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
+    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
+  }
+
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
   public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
     return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
@@ -518,6 +527,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AWS_REGION");
   }
 
+  /**
+   * The GCP Region. If STORAGE_SERVICE_NAME is set to 'gcp', it is also the region where the GCP s3
+   * compatible service exists.
+   */
+  public Optional<String> getGcpRegion() {
+    return getString("GCP_REGION");
+  }
+
   /** The email address used for the 'from' email header for emails sent by CiviForm. */
   public Optional<String> getSenderEmailAddress() {
     return getString("SENDER_EMAIL_ADDRESS");
@@ -590,6 +607,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<String> getAzureLocalConnectionString() {
     return getString("AZURE_LOCAL_CONNECTION_STRING");
+  }
+
+  /** s3 bucket to store files in. */
+  public Optional<String> getGcpS3BucketName() {
+    return getString("GCP_S3_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of files uploaded to s3. */
+  public Optional<String> getGcpS3FileLimitMb() {
+    return getString("GCP_S3_FILE_LIMIT_MB");
+  }
+
+  /** s3 bucket to store **publicly accessible** files in. */
+  public Optional<String> getGcpS3PublicBucketName() {
+    return getString("GCP_S3_PUBLIC_BUCKET_NAME");
+  }
+
+  /** The max size (in Mb) of **publicly accessible** files uploaded to s3. */
+  public Optional<String> getGcpS3PublicFileLimitMb() {
+    return getString("GCP_S3_PUBLIC_FILE_LIMIT_MB");
   }
 
   /** Enables the feature that allows address correction for address questions. */
@@ -778,18 +815,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * The tag of the docker image this server is running inside. Is added as a HTML meta tag with
-   * name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also
-   * shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.
+   * name 'civiform-build-tag'.
    */
   public Optional<String> getCiviformImageTag() {
     return getString("CIVIFORM_IMAGE_TAG");
   }
 
-  /**
-   * The release version of CiviForm. For example: v1.18.0. If
-   * SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a
-   * value other than the empty string or 'latest'.
-   */
+  /** The release version of CiviForm. For example: v1.18.0. */
   public Optional<String> getCiviformVersion() {
     return getString("CIVIFORM_VERSION");
   }
@@ -927,35 +959,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("SESSION_INACTIVITY_TIMEOUT_MINUTES");
   }
 
-  /** Enables the feature that allows completed applications to be downloadable by PDF. */
-  public boolean getApplicationExportable(RequestHeader request) {
-    return getBool("APPLICATION_EXPORTABLE", request);
-  }
-
-  /** Enables the feature that allows programs to be disabled from CiviForm */
-  public boolean getDisabledVisibilityConditionEnabled(RequestHeader request) {
-    return getBool("DISABLED_VISIBILITY_CONDITION_ENABLED", request);
-  }
-
-  /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public boolean getCfOptionalQuestions(RequestHeader request) {
-    return getBool("CF_OPTIONAL_QUESTIONS", request);
-  }
-
   /**
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
    */
   public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
     return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
-  }
-
-  /**
-   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
-   * default.
-   */
-  public boolean getShowCiviformImageTagOnLandingPage(RequestHeader request) {
-    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
   /**
@@ -1032,11 +1041,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
-  /** Enables migrating programs between deployed environments */
-  public boolean getProgramMigrationEnabled() {
-    return getBool("PROGRAM_MIGRATION_ENABLED");
-  }
-
   /** When enabled, admins will be able to select many applications for status updates */
   public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
     return getBool("BULK_STATUS_UPDATE_ENABLED", request);
@@ -1086,13 +1090,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enable session timeout based on inactivity and maximum duration. */
-  public boolean getSessionTimeoutEnabled() {
-    return getBool("SESSION_TIMEOUT_ENABLED");
+  public boolean getSessionTimeoutEnabled(RequestHeader request) {
+    return getBool("SESSION_TIMEOUT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star applicant UI. */
   public boolean getCustomThemeColorsEnabled(RequestHeader request) {
     return getBool("CUSTOM_THEME_COLORS_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
+  public boolean getExternalProgramCardsEnabled(RequestHeader request) {
+    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1116,6 +1125,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " set.",
                           /* isRequired= */ true,
                           SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "HIDE_CIVIC_ENTITY_NAME_IN_HEADER",
+                          "Whether the WHITELABEL_CIVIC_ENTITY_SHORT_NAME should be hidden in the"
+                              + " CiviForm header. This may be desired if the government name is"
+                              + " included in the logo. Since northstar hides the logo on smaller"
+                              + " screens, this will only hide the name if the logo is showing.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
@@ -1713,7 +1731,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   /* isRequired= */ false,
                                   SettingType.ENUM,
                                   SettingMode.HIDDEN,
-                                  ImmutableList.of("s3", "azure-blob")),
+                                  ImmutableList.of("s3", "aws-s3", "azure-blob", "gcp-s3")),
                               SettingDescription.create(
                                   "AWS_S3_BUCKET_NAME",
                                   "s3 bucket to store files in.",
@@ -1775,6 +1793,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   "Allows local [Azurite"
                                       + " emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)"
                                       + " to be used for developer deployments.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_BUCKET_NAME",
+                                  "s3 bucket to store files in.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_FILE_LIMIT_MB",
+                                  "The max size (in Mb) of files uploaded to s3.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_PUBLIC_BUCKET_NAME",
+                                  "s3 bucket to store **publicly accessible** files in.",
+                                  /* isRequired= */ false,
+                                  SettingType.STRING,
+                                  SettingMode.HIDDEN),
+                              SettingDescription.create(
+                                  "GCP_S3_PUBLIC_FILE_LIMIT_MB",
+                                  "The max size (in Mb) of **publicly accessible** files uploaded"
+                                      + " to s3.",
                                   /* isRequired= */ false,
                                   SettingType.STRING,
                                   SettingMode.HIDDEN))),
@@ -1902,6 +1945,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "AWS_REGION",
                           "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set"
                               + " to 'aws', it is also the region where the AWS s3 service exists.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.HIDDEN),
+                      SettingDescription.create(
+                          "GCP_REGION",
+                          "The GCP Region. If STORAGE_SERVICE_NAME is set to 'gcp', it is also the"
+                              + " region where the GCP s3 compatible service exists.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.HIDDEN),
@@ -2128,36 +2178,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   ImmutableList.of(),
                   ImmutableList.of(
                       SettingDescription.create(
-                          "APPLICATION_EXPORTABLE",
-                          "Enables the feature that allows completed applications to be"
-                              + " downloadable by PDF.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "DISABLED_VISIBILITY_CONDITION_ENABLED",
-                          "Enables the feature that allows programs to be disabled from CiviForm",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "CF_OPTIONAL_QUESTIONS",
-                          "If enabled, allows questions to be optional in programs. Is enabled by"
-                              + " default.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS",
                           "If enabled, CiviForm Admins are able to see all applications for all"
                               + " programs. Is disabled by default.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
-                          "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
-                              + " screen. Is disabled by default.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2244,12 +2267,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "PROGRAM_MIGRATION_ENABLED",
-                          "Enables migrating programs between deployed environments",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "BULK_STATUS_UPDATE_ENABLED",
                           "When enabled, admins will be able to select many applications for status"
                               + " updates",
@@ -2315,11 +2332,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
+                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "CUSTOM_THEME_COLORS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable using custom theme colors on North Star"
                               + " applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
+                              + " Star applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2388,19 +2412,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "CIVIFORM_IMAGE_TAG",
                           "The tag of the docker image this server is running inside. Is added as a"
-                              + " HTML meta tag with name 'civiform-build-tag'. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if CIVIFORM_VERSION is the empty string"
-                              + " or set to 'latest'.",
+                              + " HTML meta tag with name 'civiform-build-tag'.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "CIVIFORM_VERSION",
-                          "The release version of CiviForm. For example: v1.18.0. If"
-                              + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
-                              + " shown on the login page if it a value other than the empty string"
-                              + " or 'latest'.",
+                          "The release version of CiviForm. For example: v1.18.0.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_READABLE),

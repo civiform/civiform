@@ -11,7 +11,9 @@ export class AdminSettings {
 
   async gotoAdminSettings() {
     await this.page.goto(BASE_URL + `/admin/settings`)
-    await this.page.waitForSelector('h1:has-text("Settings")')
+    await expect(
+      this.page.getByRole('heading', {name: 'Settings', exact: true}),
+    ).toBeVisible()
   }
 
   async enableSetting(settingName: string) {

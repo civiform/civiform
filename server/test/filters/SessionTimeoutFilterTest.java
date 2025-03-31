@@ -22,6 +22,7 @@ import org.apache.pekko.stream.Materializer;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
+import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.test.WithApplication;
 import services.session.SessionTimeoutService;
@@ -65,9 +66,8 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testNoProfile_clearsCookie() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.empty());
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
 
     Result result = executeFilter(request);
 
@@ -80,10 +80,9 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testTimeoutDisabled_clearsCookie() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(false);
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
 
     Result result = executeFilter(request);
 
@@ -96,10 +95,9 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testTimeoutEnabled_setsCookie() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
@@ -122,10 +120,9 @@ public class SessionTimeoutFilterTest extends WithApplication {
 
   @Test
   public void testCookieProperties() throws Exception {
-    Http.RequestBuilder request = fakeRequestBuilder().method("GET").uri("/programs/1");
-    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
-        .thenReturn(Optional.of(mockProfile));
-    when(settingsManifest.getSessionTimeoutEnabled()).thenReturn(true);
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
@@ -136,10 +133,10 @@ public class SessionTimeoutFilterTest extends WithApplication {
     assertThat(cookie.get().maxAge().longValue()).isEqualTo(Duration.ofDays(2).toSeconds());
   }
 
-  private Result executeFilter(Http.RequestBuilder request) throws Exception {
+  private Result executeFilter(RequestHeader request) throws Exception {
     Function<Http.RequestHeader, CompletionStage<Result>> nextFilter =
         requestHeader -> CompletableFuture.completedFuture(play.mvc.Results.ok("Success"));
-    return filter.apply(nextFilter, request.build()).toCompletableFuture().get();
+    return filter.apply(nextFilter, request).toCompletableFuture().get();
   }
 
   private JsonNode decodeTimeoutCookie(Http.Cookie cookie) throws Exception {

@@ -10,6 +10,7 @@ import io.ebean.Transaction;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
@@ -1105,7 +1106,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
     // Adding a disabled program and verify that now we have disabled programs
-    ProgramBuilder.newDisabledActiveProgram("disabled-active-program").build();
+    ProgramBuilder.newActiveProgram("disabled-active-program", DisplayMode.DISABLED).build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
   }
 

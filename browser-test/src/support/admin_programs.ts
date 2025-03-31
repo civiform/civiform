@@ -5,6 +5,7 @@ import {
   clickAndWaitForModal,
   dismissModal,
   waitForAnyModal,
+  waitForAnyModalLocator,
   waitForPageJsLoad,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
@@ -451,11 +452,20 @@ export class AdminPrograms {
   }
 
   async setEmailNotificationPreferenceCheckbox(checked: boolean) {
-    await this.page
-      .getByRole('checkbox', {
-        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
-      })
-      .setChecked(checked)
+    const checkbox = this.page.getByRole('checkbox', {
+      name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page
+        .locator('label[for="notification-preferences-email"]')
+        .click()
+    }
   }
 
   async gotoEditDraftProgramPage(
@@ -788,6 +798,8 @@ export class AdminPrograms {
     // Animation is 150ms. Give some extra overhead to avoid flakiness on slow CPU.
     // This is currently called over 300 times which adds up.
     // https://tailwindcss.com/docs/transition-property
+
+    // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(250)
   }
 
@@ -810,9 +822,11 @@ export class AdminPrograms {
     // After question was added question bank is still open. Close it first.
     await this.closeQuestionBank()
     // Make sure the question is successfully added to the screen.
-    await this.page.waitForSelector(
-      `div.cf-program-question p:text("Admin ID: ${questionName}")`,
-    )
+    await expect(
+      this.page.locator(
+        `div.cf-program-question p:has-text("Admin ID: ${questionName}")`,
+      ),
+    ).toBeVisible()
   }
 
   async questionBankNames(universal = false): Promise<string[]> {
@@ -905,10 +919,8 @@ export class AdminPrograms {
         await optionalToggle.click()
       }
     }
-    return await this.page.$eval(
-      '#block-name-input',
-      (el) => (el as HTMLInputElement).value,
-    )
+
+    return await this.page.locator('#block-name-input').inputValue()
   }
 
   async addProgramRepeatedBlock(
@@ -1150,22 +1162,18 @@ export class AdminPrograms {
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
-  async setStatusOptionAndAwaitModal(
-    status: string,
-  ): Promise<ElementHandle<HTMLElement>> {
+  async setStatusOptionAndAwaitModal(status: string): Promise<Locator> {
     await this.page.locator(this.statusSelector()).selectOption(status)
-
-    return waitForAnyModal(this.page)
+    return waitForAnyModalLocator(this.page)
   }
-
   /**
    * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
    * containing the modal has been refreshed.
    */
-  async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
+  async confirmStatusUpdateModal(modal: Locator) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-    const confirmButton = (await modal.$('text=Confirm'))!
+    const confirmButton = modal.getByText('Confirm')
     await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
     await waitForPageJsLoad(this.page)
   }

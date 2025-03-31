@@ -300,10 +300,11 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
+
     await page.click('text=Back to client list')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h4:has-text("Search")')
+    await tiDashboard.expectSearchHeadingToBeVisible()
   })
 
   test('expect cancel button should not update client information', async ({
@@ -328,13 +329,13 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
     // update client dob
     await page.fill('#date-of-birth-input', '2022-10-13')
 
     await page.click('text=Cancel')
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h4:has-text("Search")')
+    await tiDashboard.expectSearchHeadingToBeVisible()
     // dob should not be updated
     await tiDashboard.expectDashboardContainClient(client)
   })
@@ -358,7 +359,7 @@ test.describe('Trusted intermediaries', () => {
       .getByText('Edit')
       .click()
     await waitForPageJsLoad(page)
-    await page.waitForSelector('h2:has-text("Edit Client")')
+    await tiDashboard.expectEditHeadingToBeVisible()
     await page.fill('#date-of-birth-input', '2027-12-20')
     await page.click('text="Save"')
 

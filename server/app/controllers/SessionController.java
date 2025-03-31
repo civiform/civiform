@@ -32,7 +32,7 @@ public class SessionController extends Controller {
    *     timeouts are disabled
    */
   public Result extendSession(Http.Request request) {
-    if (!settingsManifest.getSessionTimeoutEnabled()) {
+    if (!settingsManifest.getSessionTimeoutEnabled(request)) {
       return badRequest();
     }
 

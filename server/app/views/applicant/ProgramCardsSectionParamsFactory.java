@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
-import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.DateConverter;
@@ -25,7 +24,6 @@ import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import views.ProgramImageUtils;
 import views.components.Modal;
-import views.components.TextFormatter;
 
 /**
  * Factory for creating parameter info for applicant program card sections.
@@ -38,12 +36,13 @@ public final class ProgramCardsSectionParamsFactory {
   private final PublicStorageClient publicStorageClient;
   private final DateConverter dateConverter;
 
-  /** Enumerates the homepage section types, which may have different card components or styles. */
+  /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
     MY_APPLICATIONS,
     COMMON_INTAKE,
     UNFILTERED_PROGRAMS,
-    STANDARD;
+    RECOMMENDED, // Once filters are applied, these are programs that match the filters
+    DEFAULT; // Used when the card section doesn't have any special style requirements.
   }
 
   @Inject
@@ -154,7 +153,7 @@ public final class ProgramCardsSectionParamsFactory {
             .map(c -> c.getLocalizedName().getOrDefault(preferredLocale))
             .collect(ImmutableList.toImmutableList()));
 
-    String description = selectAndFormatDescription(program, preferredLocale);
+    String description = program.localizedShortDescription().getOrDefault(preferredLocale);
 
     cardBuilder
         .setTitle(program.localizedName().getOrDefault(preferredLocale))
@@ -217,24 +216,6 @@ public final class ProgramCardsSectionParamsFactory {
     }
 
     return cardBuilder.build();
-  }
-
-  /**
-   * Use the short description if present, otherwise use the long description with all markdown
-   * removed and truncated to 100 characters.
-   */
-  static String selectAndFormatDescription(ProgramDefinition program, Locale preferredLocale) {
-    String description = program.localizedShortDescription().getOrDefault(preferredLocale);
-
-    if (description.isEmpty()) {
-      description = program.localizedDescription().getOrDefault(preferredLocale);
-      // Add a space before any new line characters so when markdown is stripped off the words
-      // aren't smooshed together
-      description = String.join("&nbsp;\n", description.split("\n"));
-      description = StringUtils.abbreviate(TextFormatter.removeMarkdown(description), 100);
-    }
-
-    return description;
   }
 
   /**

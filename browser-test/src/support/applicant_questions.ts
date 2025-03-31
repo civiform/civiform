@@ -326,6 +326,14 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickBreadcrumbHomeLink() {
+    await this.page.getByRole('link', {name: 'Home'}).click()
+  }
+
+  async clickBreadcrumbProgramLink(programName: string) {
+    await this.page.getByRole('link', {name: `${programName}`}).click()
+  }
+
   async clickApplyToAnotherProgramButton() {
     await this.page.click('text="Apply to another program"')
   }
@@ -405,6 +413,33 @@ export class ApplicantQuestions {
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
   }
+
+  async expectProgramsNorthstar({
+    wantNotStartedPrograms,
+    wantInProgressOrSubmittedPrograms,
+  }: {
+    wantNotStartedPrograms: string[]
+    wantInProgressOrSubmittedPrograms: string[]
+  }) {
+    const gotNotStartedProgramNames =
+      await this.northStarProgramNamesForSection(
+        CardSectionName.ProgramsAndServices,
+      )
+    const gotInProgressOrSubmittedProgramNames =
+      await this.northStarProgramNamesForSection(CardSectionName.MyApplications)
+
+    // Sort results before comparing since we don't care about order.
+    gotNotStartedProgramNames.sort()
+    wantNotStartedPrograms.sort()
+    gotInProgressOrSubmittedProgramNames.sort()
+    wantInProgressOrSubmittedPrograms.sort()
+
+    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
+    expect(gotInProgressOrSubmittedProgramNames).toEqual(
+      wantInProgressOrSubmittedPrograms,
+    )
+  }
+
   async filterProgramsAndExpectWithFilteringEnabled(
     {
       filterCategory,
@@ -531,6 +566,16 @@ export class ApplicantQuestions {
     const commonIntakeFormSectionNames =
       await this.programNamesForSection('Get Started')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
+  }
+
+  async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
+    const sectionLocator = this.page.locator('[aria-label="Get Started"]')
+
+    const programTitlesLocator = sectionLocator.locator(
+      '.cf-application-card-title',
+    )
+
+    await expect(programTitlesLocator).toHaveText(commonIntakeFormName)
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {
@@ -1039,6 +1084,20 @@ export class ApplicantQuestions {
     await expect(
       questionLocator.locator('.cf-applicant-question-previously-answered'),
     ).toBeHidden()
+  }
+
+  async northStarValidatePreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    await expect(questionLocator.locator('.summary-answer')).toBeVisible()
+  }
+
+  async northStarValidateNoPreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    await expect(questionLocator.locator('.summary-answer')).toHaveText('-')
   }
 
   async seeStaticQuestion(questionText: string) {

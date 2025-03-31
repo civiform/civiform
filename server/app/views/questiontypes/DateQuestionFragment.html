@@ -37,7 +37,11 @@
       >
         <label class="usa-label" th:for="${monthId}">
           <span th:text="#{label.month}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -49,6 +53,7 @@
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
           th:aria-describedby="${questionId} + '-description'"
           th:autofocus="${questionRendererParams.autofocusFirstError()}"
+          th:aria-required="${!question.isOptional()}"
         >
           <option value th:text="#{placeholder.memorableDate}"></option>
           <option
@@ -120,7 +125,11 @@
       >
         <label class="usa-label" th:for="${dayId}">
           <span th:text="#{label.day}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -134,6 +143,7 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getDayValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
       <!--/* Year input */-->
@@ -143,7 +153,11 @@
       >
         <label class="usa-label" th:for="${yearId}">
           <span th:text="#{label.year}"></span>
-          <span th:if="${!question.isOptional()}" class="usa-hint--required">
+          <span
+            th:if="${!question.isOptional()}"
+            class="usa-hint--required"
+            th:aria-hidden="true"
+          >
             *</span
           >
         </label>
@@ -158,6 +172,7 @@
           pattern="[0-9]*"
           inputmode="numeric"
           th:value="${dateQuestion.getYearValue().orElse('')}"
+          th:aria-required="${!question.isOptional()}"
         />
       </div>
     </div>

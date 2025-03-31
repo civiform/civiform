@@ -6,16 +6,15 @@ import {
   validateScreenshot,
   validateAccessibility,
   enableFeatureFlag,
-  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     // Since a guest account is not created until you start applying for something,
     // we have to make a program.
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()
@@ -135,5 +134,41 @@ test.describe('Header', {tag: ['@northstar']}, () => {
 
     const headerLogo = page.locator('.cf-header-logo')
     await expect(headerLogo).toBeHidden()
+  })
+
+  test('Government name shown', async ({page}) => {
+    const headerText = page.locator('.usa-logo__text')
+    await expect(headerText).toHaveText('TestCity CiviForm')
+  })
+
+  test('Government name hidden', async ({page}) => {
+    await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+
+    await test.step('Header on desktop shows logo and hides gov name', async () => {
+      await page.setViewportSize({width: 1280, height: 720})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeVisible()
+      await expect(govName).toBeHidden()
+    })
+
+    await test.step('Header on tablet hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 800, height: 1024})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
+
+    await test.step('Header on mobile hides logo and shows gov name', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+
+      const headerLogo = page.locator('.cf-header-logo')
+      const govName = page.locator('.cf-gov-name')
+      await expect(headerLogo).toBeHidden()
+      await expect(govName).toBeVisible()
+    })
   })
 })

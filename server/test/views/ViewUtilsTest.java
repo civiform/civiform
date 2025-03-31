@@ -11,6 +11,7 @@ import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,11 +57,51 @@ public class ViewUtilsTest {
   }
 
   @Test
-  public void makeUSWDSModal_doesNotIncludeFooterIfHasFooterIsFalse() {
+  public void makeUswdsModal_doesNotIncludeFooterIfHasFooterIsFalse() {
     DivTag modal =
-        ViewUtils.makeUSWDSModal(
+        ViewUtils.makeUswdsModal(
             p("Welcome to the test modal!"), "test-modal", "header", "Button text", false, "", "");
     assertThat(modal.render()).doesNotContain("usa-modal__footer");
+  }
+
+  @Test
+  public void makeUswdsModal_includesCorrectDataAttributes() {
+    String elementIdPrefix = "test-uswds-modal";
+    DivTag modal =
+        ViewUtils.makeUswdsModal(
+            p("Test modal content"),
+            elementIdPrefix,
+            "Test Header",
+            "Open Modal Button Text",
+            true,
+            "Primary Button Text",
+            "Secondary Button Text");
+    String rendered = modal.render();
+
+    // Check modal container has correct type attribute
+    assertThat(rendered)
+        .containsPattern("class=\"usa-modal\"[^>]*data-modal-type=\"" + elementIdPrefix + "\"");
+
+    // Check primary button has all required attributes in that order(regex is attribute order
+    // sensitive).
+    assertThat(rendered)
+        .containsPattern(
+            "button[^>]*class=\"usa-button\"[^>]*data-close-modal[^>]*data-modal-primary[^>]*data-modal-type=\""
+                + elementIdPrefix
+                + "\"");
+
+    // Check secondary button has all required attributes in that order.
+    assertThat(rendered)
+        .containsPattern(
+            "button[^>]*class=\"usa-button usa-button--unstyled padding-105"
+                + " text-center\"[^>]*data-close-modal[^>]*data-modal-secondary[^>]*data-modal-type=\""
+                + elementIdPrefix
+                + "\"");
+
+    // Verify total number of modal type attributes
+    String targetString = "data-modal-type=\"" + elementIdPrefix + "\"";
+    int count = StringUtils.countMatches(rendered, targetString);
+    assertThat(count).isEqualTo(5);
   }
 
   @Test

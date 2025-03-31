@@ -138,11 +138,12 @@ public final class QuestionEditView extends BaseHtmlView {
         request, formContent, questionType, title, /* modal= */ Optional.empty());
   }
 
-  /** Render a fresh Edit Question Form. */
+  /** Render a fresh Edit Question Form with errors. */
   public Content renderEditQuestionForm(
       Request request,
       QuestionDefinition questionDefinition,
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
+      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition,
+      Optional<ToastMessage> message)
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     return renderEditQuestionForm(
@@ -150,7 +151,7 @@ public final class QuestionEditView extends BaseHtmlView {
         questionDefinition.getId(),
         questionForm,
         maybeEnumerationQuestionDefinition,
-        Optional.empty());
+        message);
   }
 
   /** Render a Edit Question form with errors. */
@@ -384,6 +385,10 @@ public final class QuestionEditView extends BaseHtmlView {
                     .isHidden()
                     .withName(QuestionForm.REDIRECT_URL_PARAM)
                     .withValue(questionForm.getRedirectUrl()),
+                input()
+                    .isHidden()
+                    .withName("concurrencyToken")
+                    .withValue(questionForm.getConcurrencyToken()),
                 requiredFieldsExplanationContent());
     formTag.with(
         h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),

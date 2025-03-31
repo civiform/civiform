@@ -69,6 +69,7 @@
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"
+    th:aria-required="${!question.isOptional()}"
   />
 </div>
 

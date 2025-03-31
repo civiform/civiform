@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.OptionalLong;
+import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -19,11 +20,13 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("help text");
+    form.setConcurrencyToken(initialToken);
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
     form.setOptions(ImmutableList.of("one", "two"));
@@ -37,6 +40,7 @@ public class MultiOptionQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(initialToken)
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
     MultiOptionQuestionDefinition expected =
@@ -60,6 +64,7 @@ public class MultiOptionQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(UUID.randomUUID())
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
     MultiOptionQuestionDefinition expectedQd =
@@ -84,6 +89,7 @@ public class MultiOptionQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(UUID.randomUUID())
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
     MultiOptionQuestionDefinition expectedQd =
@@ -105,11 +111,13 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
+    UUID initialToken = UUID.randomUUID();
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
     form.setQuestionHelpText("help text");
+    form.setConcurrencyToken(initialToken);
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
@@ -123,6 +131,7 @@ public class MultiOptionQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setConcurrencyToken(initialToken)
             .build();
     MultiOptionQuestionDefinition expected =
         new MultiOptionQuestionDefinition(

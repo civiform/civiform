@@ -59,6 +59,7 @@ public final class HtmlBundle {
   private final ArrayList<String> mainStyles = new ArrayList<>();
   private final ArrayList<MetaTag> metadata = new ArrayList<>();
   private final ArrayList<Modal> modals = new ArrayList<>();
+  private final ArrayList<DivTag> uswdsModals = new ArrayList<>();
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
   private final ViewUtils viewUtils;
@@ -138,6 +139,15 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addUswdsModals(DivTag... modalTags) {
+    return addUswdsModals(Arrays.asList(modalTags));
+  }
+
+  public HtmlBundle addUswdsModals(Collection<DivTag> modalTags) {
+    uswdsModals.addAll(modalTags);
+    return this;
+  }
+
   public HtmlBundle addModals(Modal... modalTags) {
     return addModals(Arrays.asList(modalTags));
   }
@@ -188,8 +198,12 @@ public final class HtmlBundle {
     BodyTag bodyTag = j2html.TagCreator.body();
 
     pageNotProductionBannerTag.ifPresent(bodyTag::with);
+    bodyTag.with(renderHeader(), renderMain(), renderModals());
 
-    bodyTag.with(renderHeader(), renderMain(), renderModals(), renderFooter());
+    Optional<DivTag> uswdsModal = renderUswdsModals();
+    uswdsModal.ifPresent(bodyTag::with);
+
+    bodyTag.with(renderFooter());
 
     if (bodyStyles.size() > 0) {
       bodyTag.withClasses(bodyStyles.toArray(new String[0]));
@@ -264,6 +278,12 @@ public final class HtmlBundle {
     }
 
     return mainTag;
+  }
+
+  private Optional<DivTag> renderUswdsModals() {
+    return uswdsModals.size() > 0
+        ? Optional.of(div().withId("uswds-modal-container").with(uswdsModals))
+        : Optional.empty();
   }
 
   private DivTag renderModals() {
