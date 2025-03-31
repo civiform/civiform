@@ -94,7 +94,7 @@ test.describe('Admin can manage program image', () => {
 
         await validateScreenshot(
           page.getByRole('listitem'),
-          'ns-admin-program-image-card-preview',
+          'admin-program-image-card-preview-with-tags',
         )
 
         await adminProgramImage.expectNoImagePreview()
