@@ -65,6 +65,9 @@ toast.errorMessageOutline=Error: {0}
 button.close=Close
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Review
+# An aria-label for screen readers that helps provide context for the support email. The support email is a variable,
+# so this might say "For technical support, contact example@example.com (opens in a new tab)".
+ariaLabel.technicalSupport=For technical support, contact {0} (opens in a new tab)
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
 # Aria-label for the primary navigation

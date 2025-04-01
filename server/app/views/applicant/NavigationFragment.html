@@ -345,7 +345,7 @@
                 evaluated at insertion time */-->
               <div
                 class="usa-footer__contact-info expanding-div"
-                th:aria-label="|#{footer.supportLinkDescription}, #{link.opensNewTabSr}|"
+                th:aria-label="#{ariaLabel.technicalSupport(${supportEmail})}"
                 th:with="supportLink='<a class=\'usa-link\' '
                   + 'href=\'mailto:' + ${supportEmail} + '\' '
                   + 'target=\'_blank\' '
