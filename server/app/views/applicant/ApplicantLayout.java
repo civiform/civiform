@@ -482,8 +482,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean forSummary,
       Messages messages) {
 
-    double numerator = forSummary ? blockIndex : blockIndex + 1;
-    double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
+    int progressStepCount = forSummary ? blockIndex : blockIndex + 1;
+    int totalStepCount = forSummary ? totalBlockCount : totalBlockCount + 1;
     ArrayList<String> progressClassesList =
         new ArrayList<String>(
             Arrays.asList(
@@ -498,14 +498,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
     // List of divs representing number of progress steps. Used to render correct progress
     // percentage on progress bar.
     ArrayList<DivTag> innerProgressBars = new ArrayList<DivTag>();
-    // Render a set of divs with blue civiform backgrou d
-    for (int i = 0; i < numerator; i++) {
+    // Render a set of divs with blue civiform background
+    for (int i = 0; i < progressStepCount; i++) {
       ArrayList<String> innerProgressBarClasses = new ArrayList<>(progressClassesList);
       innerProgressBarClasses.add(BaseStyles.BG_CIVIFORM_BLUE);
       if (i == 0) {
         innerProgressBarClasses.add("rounded-l-full");
       }
-      if (i == (int) numerator - 1) {
+      if (i == progressStepCount - 1) {
         innerProgressBarClasses.add("rounded-r-full");
       }
 
@@ -514,7 +514,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       innerProgressBars.add(progressInner);
     }
     // Render second set of divs with no background color set
-    for (int i = (int) numerator; i < denominator; i++) {
+    for (int i = progressStepCount; i < totalStepCount; i++) {
       DivTag progressInner = div().withClasses(progressClassesList.stream().toArray(String[]::new));
       innerProgressBars.add(progressInner);
     }

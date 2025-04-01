@@ -207,7 +207,7 @@ public final class ViewUtils {
             "place-items-center",
             "justify-center",
             "h-10",
-            "width-115",
+            "w-32",
             Joiner.on(" ").join(extraClasses))
         .with(
             Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "w-5", "h-5"),

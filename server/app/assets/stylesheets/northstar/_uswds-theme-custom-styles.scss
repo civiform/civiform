@@ -147,7 +147,8 @@ it is around the label */
   @include u-margin-top(0);
 }
 
-.list-style-type-disc {
+// Tailwind removes list style from unordered and ordered lists.
+.usa-list {
   list-style-type: disc;
 }
 

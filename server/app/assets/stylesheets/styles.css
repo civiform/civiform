@@ -49,18 +49,6 @@
     color: #71767a;
   }
 
-  .width-115 {
-    width: 115px;
-  }
-
-  .cursor-pointer {
-    cursor: pointer;
-  }
-
-  .break-word {
-    word-break: break-word;
-  }
-
   button:hover {
     @apply bg-blue-700;
   }

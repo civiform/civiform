@@ -215,7 +215,13 @@ public class ApiDocsView extends BaseHtmlView {
     apiResponseSampleDiv.with(
         pre(code(fullJsonResponsePreviewPretty))
             .withClasses(
-                "m-4", "p-2", "rounded-lg", "bg-slate-200", "break-words", "whitespace-pre-wrap"));
+                "m-4",
+                "p-2",
+                "rounded-lg",
+                "bg-slate-200",
+                "break-words",
+                "whitespace-pre-wrap",
+                "max-w-2/3"));
 
     return apiResponseSampleDiv;
   }
