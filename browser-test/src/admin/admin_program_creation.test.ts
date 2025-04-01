@@ -1052,7 +1052,7 @@ test.describe('program creation', () => {
       await adminPrograms.expectProgramBlockEditPage(programName)
     })
 
-    await test.step('edit program and confirm non-applicable steps are still disabled', async () => {
+    await test.step('edit program and confirm non-applicable fields are still disabled', async () => {
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
