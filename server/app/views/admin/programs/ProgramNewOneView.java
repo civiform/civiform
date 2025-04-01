@@ -44,7 +44,8 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     // an unset checkbox value is not included in the POST at all, so there's nothing to
     // override the value the constructor initializes and set it back to an empty array.
     programForm.setNotificationPreferences(ProgramNotificationPreference.getDefaultsForForm());
-    return render(request, programForm, Optional.empty(), Optional.empty());
+    return render(
+        request, programForm, /* toastMessage= */ Optional.empty(), /* modal= */ Optional.empty());
   }
 
   /**
@@ -52,7 +53,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
    * pre-populated based on the content of programForm.
    */
   public Content render(Request request, ProgramForm programForm, ToastMessage toastMessage) {
-    return render(request, programForm, Optional.of(toastMessage), Optional.empty());
+    return render(request, programForm, Optional.of(toastMessage), /* modal= */ Optional.empty());
   }
 
   /**
@@ -65,7 +66,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
     return render(
         request,
         programForm,
-        Optional.empty(),
+        /* toastMessage= */ Optional.empty(),
         Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
   }
 

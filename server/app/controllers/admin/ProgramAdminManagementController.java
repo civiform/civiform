@@ -49,7 +49,7 @@ public final class ProgramAdminManagementController {
   /** Displays a form for managing program admins of a given program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long programId) {
-    return this.loadProgram(request, programId, Optional.empty());
+    return this.loadProgram(request, programId, /* message= */ Optional.empty());
   }
 
   /** Removes `adminEmail` as a program admin for the program identified by `programId`. */
