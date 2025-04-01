@@ -39,6 +39,7 @@
     it is a placeholder span with the red asterisk. We need it to be html and not
     raw text to recreate the red style */-->
   <p
+    aria-hidden="true"
     th:utext="#{content.requiredFieldsNoteNorthStar(~{this :: requiredAsterisk})}"
     class="font-sans-xs"
   ></p>

@@ -22,7 +22,6 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.LabelTag;
 import java.util.List;
 import java.util.Map;
 import models.CategoryModel;
@@ -47,17 +46,19 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
-  private static final String ELIGIBILITY_IS_GATING_FIELD_NAME = "eligibilityIsGating";
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
+  // Names of form fields.
+  private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
+  private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
+  private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
@@ -153,6 +154,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
+        // Program name
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
@@ -166,6 +168,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Short description will be visible to applicants at a future date.",
             false,
             "my-2"),
+        // Short description
         FieldWithLabel.textArea()
             .setId("program-display-short-description-textarea")
             .setFieldName("localizedShortDescription")
@@ -176,7 +179,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(shortDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program url
         programUrlField(adminName, programEditStatus),
+        // Admin description
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -184,21 +189,27 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        FieldWithLabel.checkbox()
-            .setId("common-intake-checkbox")
-            .setFieldName("isCommonIntakeForm")
-            .setLabelText("Set program as pre-screener")
-            .addStyleClass("border-none")
-            .setValue("true")
-            .setChecked(isCommonIntakeForm)
-            .getCheckboxTag()
-            .with(
-                span(ViewUtils.makeSvgToolTip(
-                        "You can set one program as the ‘pre-screener’. This will pin the"
-                            + " program card to the top of the programs and services page"
-                            + " while moving other program cards below it.",
-                        Icons.INFO))
-                    .withClass("ml-2")),
+        // Common intake form
+        fieldset(
+                div(
+                        input()
+                            .withId("common-intake-checkbox")
+                            .withClasses("usa-checkbox__input")
+                            .withType("checkbox")
+                            .withName("isCommonIntakeForm")
+                            .withValue("true")
+                            .withCondChecked(isCommonIntakeForm),
+                        label("Set program as pre-screener")
+                            .withFor("common-intake-checkbox")
+                            .withClasses("usa-checkbox__label"),
+                        span(ViewUtils.makeSvgToolTip(
+                                "You can set one program as the ‘pre-screener’. This will pin the"
+                                    + " program card to the top of the programs and services page"
+                                    + " while moving other program cards below it.",
+                                Icons.INFO))
+                            .withClass("ml-2"))
+                    .withClasses("usa-checkbox"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Hidden checkbox used to signal whether or not the user has confirmed they want to
         // change which program is marked as the common intake form.
         FieldWithLabel.checkbox()
@@ -208,104 +219,85 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setChecked(false)
             .addStyleClass("hidden")
             .getCheckboxTag(),
-        fieldset()
-            .with(
+        // Program Eligibility
+        fieldset(
                 legend("Program eligibility gating")
-                    .withClass(BaseStyles.INPUT_LABEL)
-                    .with(ViewUtils.requiredQuestionIndicator())
-                    .with(p("(Not applicable if this program is the pre-screener)")),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Only allow residents to submit applications if they meet all eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(true))
-                    .setChecked(eligibilityIsGating)
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setFieldName(ELIGIBILITY_IS_GATING_FIELD_NAME)
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Allow residents to submit applications even if they don't meet eligibility"
-                            + " requirements")
-                    .setValue(String.valueOf(false))
-                    .setChecked(!eligibilityIsGating)
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                    .withClass("text-gray-600")
+                    .with(ViewUtils.requiredQuestionIndicator()),
+                buildUSWDSRadioOption(
+                    "program-eligibility-gating",
+                    ELIGIBILITY_FIELD_NAME,
+                    String.valueOf(true),
+                    eligibilityIsGating,
+                    "Only allow residents to submit applications if they meet all"
+                        + " eligibility requirements"),
+                buildUSWDSRadioOption(
+                    "program-eligibility-not-gating",
+                    ELIGIBILITY_FIELD_NAME,
+                    String.valueOf(false),
+                    !eligibilityIsGating,
+                    "Allow residents to submit applications even if they don't meet"
+                        + " eligibility requirements"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
             showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)
                 .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
-        fieldset()
-            .with(
+        // Program visibility
+        fieldset(
                 legend("Program visibility")
-                    .withClass(BaseStyles.INPUT_LABEL)
+                    .withClass("text-gray-600")
                     .with(ViewUtils.requiredQuestionIndicator()),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-public")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Publicly visible")
-                    .setValue(DisplayMode.PUBLIC.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-hidden")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Hide from applicants. Only individuals with the unique program link can"
-                            + " access this program")
-                    .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-ti-only")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Trusted intermediaries only")
-                    .setValue(DisplayMode.TI_ONLY.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag(),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-select-ti-only")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Visible to selected trusted intermediaries only")
-                    .setValue(DisplayMode.SELECT_TI.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
-                    .getRadioTag(),
+                buildUSWDSRadioOption(
+                    "program-display-mode-public",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.PUBLIC.getValue(),
+                    displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                    "Publicly visible"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-hidden",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                    displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                    "Hide from applicants. Only individuals with the unique"
+                        + " program link can access this program"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-ti-only",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.TI_ONLY.getValue(),
+                    displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                    "Trusted intermediaries only"),
+                buildUSWDSRadioOption(
+                    "program-display-mode-select-ti-only",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.SELECT_TI.getValue(),
+                    displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                    "Visible to selected trusted intermediaries only"),
                 showTiSelectionList(
                     selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
-                FieldWithLabel.radio()
-                    .setId("program-display-mode-disabled")
-                    .setFieldName("displayMode")
-                    .setAriaRequired(true)
-                    .setLabelText("Disabled")
-                    .setValue(DisplayMode.DISABLED.getValue())
-                    .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
-                    .getRadioTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        fieldset()
-            .with(
-                legend("Email notifications").withClass(BaseStyles.INPUT_LABEL),
-                FieldWithLabel.checkbox()
-                    .setFieldName("notificationPreferences")
-                    .setAriaRequired(true)
-                    .setLabelText(
-                        "Send Program Admins an email notification every time an application is"
-                            + " submitted")
-                    .setValue(
+                buildUSWDSRadioOption(
+                    "program-display-mode-disabled",
+                    DISPLAY_MODE_FIELD_NAME,
+                    DisplayMode.DISABLED.getValue(),
+                    displayMode.equals(DisplayMode.DISABLED.getValue()),
+                    "Disabled"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+        // Email notifications
+        fieldset(
+                legend("Email notifications").withClass("text-gray-600"),
+                buildUSWDSCheckboxOption(
+                    "notification-preferences-email",
+                    NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                    ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
+                    notificationPreferences.contains(
                         ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                            .getValue())
-                    .setChecked(
-                        notificationPreferences.contains(
-                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                                .getValue()))
-                    .getCheckboxTag())
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+                            .getValue()),
+                    "Send Program Admins an email notification every time an"
+                        + " application is submitted"))
+            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
+        // Program long description
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
@@ -319,6 +311,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setReadOnly(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program external link
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
@@ -332,6 +325,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Application steps will be visible to applicants at a future date.",
             false,
             "my-2"),
+        // Application steps
         div()
             .with(
                 buildApplicationStepDiv(0, applicationSteps, isCommonIntakeForm),
@@ -340,6 +334,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 buildApplicationStepDiv(3, applicationSteps, isCommonIntakeForm),
                 buildApplicationStepDiv(4, applicationSteps, isCommonIntakeForm)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
+        // Confirmation message
         FieldWithLabel.textArea()
             .setId("program-confirmation-message-textarea")
             .setFieldName("localizedConfirmationMessage")
@@ -387,7 +382,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 
-    if (indexPlusOne.equals("1")) {
+    Boolean isRequired = indexPlusOne.equals("1") && !isCommonIntakeForm;
+    if (isRequired) {
       title.setLabelText("Step 1 title").setRequired(true);
       description.setLabelText("Step 1 description").setRequired(true);
     } else {
@@ -439,49 +435,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private DomContent showTiSelectionList(ImmutableSet<Long> selectedTi, boolean selectTiChecked) {
     List<TrustedIntermediaryGroupModel> tiGroups =
         accountRepository.listTrustedIntermediaryGroups();
-    DivTag tiSelectionRenderer =
-        div()
-            // Hidden input that's always selected to allow for clearing multi-select data.
-            .with(
-                input()
-                    .withType("checkbox")
-                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
-                    .withValue("")
-                    .withCondChecked(true)
-                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
-            .with(
-                tiGroups.stream()
-                    .map(
-                        option ->
-                            renderCheckboxOption(
-                                option.getName(), option.id, selectedTi.contains(option.id))));
-    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TiList").with(tiSelectionRenderer);
 
-    return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
-  }
-
-  private DivTag renderCheckboxOption(String tiName, Long tiId, boolean selected) {
-    String id = tiId.toString();
-    LabelTag labelTag =
-        label()
-            .withClasses(
-                ReferenceClasses.RADIO_OPTION,
-                BaseStyles.CHECKBOX_LABEL,
-                BaseStyles.BORDER_CIVIFORM_BLUE)
-            .with(
-                input()
-                    .withId(id)
-                    .withType("checkbox")
-                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
-                    .withValue(String.valueOf(tiId))
-                    .withCondChecked(selected)
-                    .withClasses(
-                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
-                span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
-
-    return div()
-        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
-        .with(labelTag);
+    DivTag tiDiv =
+        div(
+                // Hidden input that's always selected to allow for clearing multi-select data.
+                buildUSWDSCheckboxOption("", TI_GROUPS_FIELD_NAME, "", true, "")
+                    .withClasses("hidden"),
+                each(
+                    tiGroups,
+                    tiGroup ->
+                        buildUSWDSCheckboxOption(
+                            tiGroup.id.toString(),
+                            TI_GROUPS_FIELD_NAME,
+                            tiGroup.id.toString(),
+                            selectedTi.contains(tiGroup.id),
+                            tiGroup.getName())))
+            .withId("TiList")
+            .withClasses("px-4", "py-2");
+    return selectTiChecked ? tiDiv : tiDiv.isHidden();
   }
 
   private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
@@ -555,5 +526,33 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return submitButton(saveProgramDetailsText)
         .withId("program-update-button")
         .withClasses(ButtonStyles.SOLID_BLUE, "mt-6");
+  }
+
+  private DivTag buildUSWDSRadioOption(
+      String id, String name, String value, Boolean isChecked, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-radio__input usa-radio__input--tile")
+                .withType("radio")
+                .withName(name)
+                .withValue(value)
+                .withCondChecked(isChecked),
+            label(label).withFor(id).withClasses("usa-radio__label"))
+        .withClasses("usa-radio");
+  }
+
+  private DivTag buildUSWDSCheckboxOption(
+      String id, String name, String value, Boolean isChecked, String label) {
+    return div(
+            input()
+                .withId(id)
+                .withClasses("usa-checkbox__input usa-checkbox__input--tile")
+                .withType("checkbox")
+                .withName(name)
+                .withValue(value)
+                .withCondChecked(isChecked),
+            label(label).withFor(id).withClasses("usa-checkbox__label"))
+        .withClasses("usa-checkbox");
   }
 }

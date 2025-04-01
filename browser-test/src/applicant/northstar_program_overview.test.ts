@@ -9,6 +9,7 @@ import {
   validateScreenshot,
   validateAccessibility,
 } from '../support'
+import {Eligibility} from '../support/admin_programs'
 
 test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   const programName = 'test'
@@ -241,11 +242,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         secondProgram,
         /* createNewDraft= */ true,
       )
-      await page
-        .getByRole('radio', {
-          name: "Allow residents to submit applications even if they don't meet eligibility requirements",
-        })
-        .click()
+      await adminPrograms.chooseEligibility(Eligibility.IS_NOT_GATING)
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
       await logout(page)

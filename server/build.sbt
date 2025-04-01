@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.5-jre",
+      "com.google.guava" % "guava" % "33.4.6-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.5-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.6-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.1",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.2",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.29",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.25",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.26",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.0"

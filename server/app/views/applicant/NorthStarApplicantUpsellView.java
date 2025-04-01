@@ -128,7 +128,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
                   Optional.of(params.profile()),
                   Optional.of(params.applicantId()),
                   params.applicantPersonalInfo(),
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
     context.setVariable("cardsSection", cardsSection);
     context.setVariable(

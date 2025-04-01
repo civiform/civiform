@@ -5,6 +5,7 @@ import {
   clickAndWaitForModal,
   dismissModal,
   waitForAnyModal,
+  waitForAnyModalLocator,
   waitForPageJsLoad,
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
@@ -34,6 +35,16 @@ export interface DownloadedApplication {
   }
 }
 
+/**
+ * List of fields in the program form. This list is not exhaustive, as fields
+ * are added when needed by a test.
+ */
+export enum FormField {
+  APPLICATION_STEPS,
+  LONG_DESCRIPTION,
+  PROGRAM_CATEGORIES,
+}
+
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
@@ -45,6 +56,21 @@ export enum ProgramVisibility {
 export enum Eligibility {
   IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export enum ProgramCategories {
+  CHILDCARE = 'Childcare',
+  ECONOMIC = 'Economic',
+  EDUCATION = 'Education',
+  EMPLOYMENT = 'Employment',
+  FOOD = 'Food',
+  GENERAL = 'General',
+  HEALTHCARE = 'Healthcare',
+  HOUSING = 'Housing',
+  INTERNET = 'Internet',
+  TRAINING = 'Training',
+  TRANSPORTATION = 'Transportation',
+  UTILITIES = 'Utilities',
 }
 
 export enum NotificationPreference {
@@ -218,17 +244,110 @@ export class AdminPrograms {
     }
   }
 
-  async expectApplicationStepsDisabled() {
-    for (let i = 0; i < 5; i++) {
-      const indexPlusOne = i + 1
-      await expect(
-        this.page.getByRole('textbox', {name: `Step ${indexPlusOne} title`}),
-      ).toBeDisabled()
-      await expect(
-        this.page.getByRole('textbox', {
-          name: `Step ${indexPlusOne} description`,
-        }),
-      ).toBeDisabled()
+  /**
+   * Verifies whether the given form field is disabled.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+
+   * @throws Will throw an error if the elements' states don't match the expected disabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldDisabled(formField: FormField) {
+    switch (formField) {
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          await expect(stepTitle).toBeDisabled()
+          await expect(stepDescription).toBeDisabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isHidden()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeDisabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeDisabled()
+          await expect(category).not.toBeChecked()
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
+    }
+  }
+
+  /**
+   * Verifies whether the given form field ais enabled.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+   *
+   * @throws Will throw an error if the elements' states don't match the expected enabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldEnabled(formField: FormField) {
+    switch (formField) {
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          await expect(stepTitle).toBeEnabled()
+          await expect(stepDescription).toBeEnabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isVisible()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeEnabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeEnabled()
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
     }
   }
 
@@ -451,11 +570,20 @@ export class AdminPrograms {
   }
 
   async setEmailNotificationPreferenceCheckbox(checked: boolean) {
-    await this.page
-      .getByRole('checkbox', {
-        name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
-      })
-      .setChecked(checked)
+    const checkbox = this.page.getByRole('checkbox', {
+      name: NotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS,
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page
+        .locator('label[for="notification-preferences-email"]')
+        .click()
+    }
   }
 
   async gotoEditDraftProgramPage(
@@ -1152,22 +1280,18 @@ export class AdminPrograms {
   /**
    * Selects the provided status option and then awaits the confirmation dialog.
    */
-  async setStatusOptionAndAwaitModal(
-    status: string,
-  ): Promise<ElementHandle<HTMLElement>> {
+  async setStatusOptionAndAwaitModal(status: string): Promise<Locator> {
     await this.page.locator(this.statusSelector()).selectOption(status)
-
-    return waitForAnyModal(this.page)
+    return waitForAnyModalLocator(this.page)
   }
-
   /**
    * Clicks the confirm button in the status update confirmation dialog and waits until the IFrame
    * containing the modal has been refreshed.
    */
-  async confirmStatusUpdateModal(modal: ElementHandle<HTMLElement>) {
+  async confirmStatusUpdateModal(modal: Locator) {
     // Confirming should cause the frame to redirect and waitForNavigation must be called prior
     // to taking the action that would trigger navigation.
-    const confirmButton = (await modal.$('text=Confirm'))!
+    const confirmButton = modal.getByText('Confirm')
     await Promise.all([this.page.waitForNavigation(), confirmButton.click()])
     await waitForPageJsLoad(this.page)
   }
@@ -1375,7 +1499,11 @@ export class AdminPrograms {
   }
 
   async clickCommonIntakeFormToggle() {
-    await this.page.click('input[name=isCommonIntakeForm]')
+    // Note: We click on the label instead of directly interacting with the checkbox
+    // because USWDS styling hides the actual checkbox input and styles the label to
+    // look like a checkbox. The actual input element is visually hidden or positioned
+    // off-screen, making it inaccessible to Playwright's direct interactions.
+    await this.page.locator('label[for="common-intake-checkbox"]').click()
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {
