@@ -399,7 +399,7 @@ public final class ReadOnlyApplicantProgramService {
   public ImmutableList<AnswerData> getSummaryDataAllQuestions() {
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
     ImmutableList<Block> blocks = getBlocks((block) -> true);
-    addDataToBuilder(blocks, builder, /* showAnswerText */ true);
+    addDataToBuilder(blocks, builder, /* showAnswerText= */ true);
     return builder.build();
   }
 

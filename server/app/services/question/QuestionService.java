@@ -60,7 +60,7 @@ public final class QuestionService {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
 
     return transactionManager.executeInTransaction(
-        /* synchronousWork */ () -> {
+        /* synchronousWork= */ () -> {
           ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
           ImmutableSet<CiviFormError> errors =
               ImmutableSet.<CiviFormError>builder()
@@ -75,7 +75,7 @@ public final class QuestionService {
           questionRepository.insertQuestionSync(question);
           return ErrorAnd.of(question.getQuestionDefinition());
         },
-        /* onSerializationFailure */ () -> {
+        /* onSerializationFailure= */ () -> {
           return ErrorAnd.error(
               ImmutableSet.of(
                   CiviFormError.of(
