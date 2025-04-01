@@ -456,9 +456,6 @@ ariaLabel.answer=Answer {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
 
-# An aria-label for screen readers that helps provide context for the category checkbox program filters.  
-ariaLabel.categories=Categories
-
 # Title for the summary of the pre-screener page
 title.commonIntakeSummary=Benefits pre-screener summary
 # Heading content at the top of the review page, where applicants can start answering questions.
@@ -995,6 +992,9 @@ category.tag.transportation=Transportation
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Utilities
+
+# An aria-label for screen readers that helps provide context for the category tags.  
+ariaLabel.categories=Categories
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
