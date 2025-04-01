@@ -30,12 +30,9 @@
 }
 
 .usa-button.usa-button--outline {
+  box-shadow: 0 0 0 2px var(--primary);
   background-color: transparent;
   color: var(--primary);
-}
-
-.usa-button.usa-button--outline {
-  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .usa-menu-btn {
