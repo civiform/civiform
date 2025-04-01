@@ -21,7 +21,7 @@ public final class RecurringJobExecutionTimeResolvers {
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDateTime.now(clock)
-          .toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now()));
+          .toInstant(clock.getZone().getRules().getOffset(Instant.now()));
     }
   }
 
