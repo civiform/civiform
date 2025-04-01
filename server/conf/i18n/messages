@@ -455,6 +455,10 @@ ariaLabel.answer=Answer {0}
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
+
+# An aria-label for screen readers that helps provide context for the category checkbox program filters.  
+ariaLabel.categories=Categories
+
 # Title for the summary of the pre-screener page
 title.commonIntakeSummary=Benefits pre-screener summary
 # Heading content at the top of the review page, where applicants can start answering questions.
