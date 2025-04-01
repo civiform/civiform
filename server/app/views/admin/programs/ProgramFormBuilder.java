@@ -42,7 +42,6 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
@@ -193,35 +192,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program type
-        fieldset(
-                div(
-                        input()
-                            .withId("common-intake-checkbox")
-                            .withClasses("usa-checkbox__input")
-                            .withType("checkbox")
-                            .withName(PROGRAM_TYPE_FIELD_NAME)
-                            .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                            .withCondChecked(isCommonIntakeForm),
-                        label("Set program as pre-screener")
-                            .withFor("common-intake-checkbox")
-                            .withClasses("usa-checkbox__label"),
-                        span(ViewUtils.makeSvgToolTip(
-                                "You can set one program as the ‘pre-screener’. This will pin the"
-                                    + " program card to the top of the programs and services page"
-                                    + " while moving other program cards below it.",
-                                Icons.INFO))
-                            .withClass("ml-2"))
-                    .withClasses("usa-checkbox"))
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        // Hidden checkbox used to signal whether or not the user has confirmed they want to
-        // change which program is marked as the common intake form.
-        FieldWithLabel.checkbox()
-            .setId("confirmed-change-common-intake-checkbox")
-            .setFieldName("confirmedChangeCommonIntakeForm")
-            .setValue("false")
-            .setChecked(false)
-            .addStyleClass("hidden")
-            .getCheckboxTag(),
+        buildProgramTypeFieldset(settingsManifest, request, programType, programEditStatus),
         // Program Eligibility
         fieldset(
                 legend("Program eligibility gating")
@@ -352,6 +323,92 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
     formTag.with(createSubmitButton(programEditStatus));
     return formTag;
+  }
+
+  private DomContent buildProgramTypeFieldset(
+      SettingsManifest settingsManifest,
+      Request request,
+      ProgramType programType,
+      ProgramEditStatus programEditStatus) {
+    DomContent programTypeFieldset;
+    if (settingsManifest.getExternalProgramCardsEnabled(request)) {
+      // When creating a program, visible program type fields are always enabled. Otherwise,
+      //   - external program is always disabled since a program cannot be changed to external after
+      //      creation
+      //   - common intake and default is disabled for external program since an external program
+      //     cannot be to another type after creation (although in a future we could allow it).
+      boolean defaultProgramFieldDisabled = false;
+      boolean commonIntakeFieldDisabled = false;
+      boolean externalProgramFieldDisabled = false;
+      if (programEditStatus.equals(ProgramEditStatus.CREATION_EDIT)
+          || programEditStatus.equals(programEditStatus.EDIT)) {
+        defaultProgramFieldDisabled = true;
+        externalProgramFieldDisabled = true;
+        commonIntakeFieldDisabled = programType.equals(ProgramType.EXTERNAL_PROGRAM);
+      }
+
+      // TODO: This will fail because buildUSWDSRadioOption() doesn't have isDisabled as parameter,
+      // yet. Once #10166 is merged, we can update this (and the parent PR).
+      programTypeFieldset =
+          fieldset(
+                  legend("Program type").withClass("text-gray-600"),
+                  buildUSWDSRadioOption(
+                      /* id= */ "default-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.DEFAULT.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.DEFAULT),
+                      /* isDisabled= */ defaultProgramFieldDisabled,
+                      /* label= */ "CiviForm program"),
+                  buildUSWDSRadioOption(
+                      /* id= */ "external-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.EXTERNAL.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.EXTERNAL),
+                      /* isDisabled= */ externalProgramFieldDisabled,
+                      /* label= */ "External program"),
+                  buildUSWDSRadioOption(
+                      /* id= */ "common-intake-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
+                      /* isDisabled= */ commonIntakeFieldDisabled,
+                      /* label= */ "Pre-screener"))
+              .withId("program-type");
+    } else {
+      programTypeFieldset =
+          fieldset(
+                  div(
+                          input()
+                              .withId("common-intake-checkbox")
+                              .withClasses("usa-checkbox__input")
+                              .withType("checkbox")
+                              .withName(PROGRAM_TYPE_FIELD_NAME)
+                              .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
+                              .withCondChecked(isCommonIntakeForm),
+                          label("Set program as pre-screener")
+                              .withFor("common-intake-checkbox")
+                              .withClasses("usa-checkbox__label"),
+                          span(ViewUtils.makeSvgToolTip(
+                                  "You can set one program as the ‘pre-screener’. This will pin the"
+                                      + " program card to the top of the programs and services page"
+                                      + " while moving other program cards below it.",
+                                  Icons.INFO))
+                              .withClass("ml-2"))
+                      .withClasses("usa-checkbox"))
+              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
+    }
+
+    return each(
+        programTypeFieldset,
+        // Hidden checkbox used to signal whether or not the user has confirmed they want to
+        // change which program is marked as the common intake form.
+        FieldWithLabel.checkbox()
+            .setId("confirmed-change-common-intake-checkbox")
+            .setFieldName("confirmedChangeCommonIntakeForm")
+            .setValue("false")
+            .setChecked(false)
+            .addStyleClass("hidden")
+            .getCheckboxTag());
   }
 
   static DivTag buildApplicationStepDiv(
