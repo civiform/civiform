@@ -992,6 +992,9 @@ category.tag.transportation=Vận tải
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Dịch vụ tiện ích
 
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Categories
+
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
 #------------------------------------------------------------------------------#
