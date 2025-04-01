@@ -1042,7 +1042,7 @@ test.describe('program creation', () => {
       await expect(commonIntakeFormInput).toBeChecked()
     })
 
-    await test.step('expect application steps to be disabled', async () => {
+    await test.step('expect non-applicable fields to be disabled', async () => {
       await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
