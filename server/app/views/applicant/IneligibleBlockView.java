@@ -24,7 +24,6 @@ import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
@@ -40,18 +39,13 @@ public final class IneligibleBlockView extends ApplicationBaseView {
   private final ApplicantLayout layout;
   private final ApplicantRoutes applicantRoutes;
   private final ApplicantService applicantService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   IneligibleBlockView(
-      ApplicantLayout layout,
-      ApplicantRoutes applicantRoutes,
-      ApplicantService applicantService,
-      SettingsManifest settingsManifest) {
+      ApplicantLayout layout, ApplicantRoutes applicantRoutes, ApplicantService applicantService) {
     this.layout = checkNotNull(layout);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.applicantService = checkNotNull(applicantService);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
