@@ -347,9 +347,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(
-              "row-element",
-                isSecondRow ? "border-t" : "")
+            .withClasses("row-element", isSecondRow ? "border-t" : "")
             .with(badge)
             .with(div().withClasses("flex-grow"))
             .with(
