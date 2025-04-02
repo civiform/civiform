@@ -89,6 +89,7 @@ public final class QuestionRepository {
           versionRepositoryProvider
               .get()
               .getQuestionByNameForVersion(definition.getName(), draftVersion);
+
       if (existingDraft.isPresent()) {
         QuestionModel updatedDraft =
             new QuestionModel(
