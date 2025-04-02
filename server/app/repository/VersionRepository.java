@@ -112,10 +112,8 @@ public final class VersionRepository {
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
-    try
-      (Transaction transaction =
-      database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))
-    {
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       VersionModel draft = getDraftVersionOrCreate();
       VersionModel active = getActiveVersion();
 
@@ -148,8 +146,7 @@ public final class VersionRepository {
           // side of the relationship rather than the Program side in order to prevent the
           // save causing the "updated" timestamp to be changed for a Program. We intend for
           // that timestamp only to be updated for actual changes to the program.
-          .forEach(
-            draft::addProgram);
+          .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
       getQuestionsForVersionWithoutCache(active).stream()
@@ -279,8 +276,7 @@ public final class VersionRepository {
               activeProgram ->
                   !programToPublishAdminName.equals(
                       programRepository.getShallowProgramDefinition(activeProgram).adminName()))
-          .forEach(
-            existingDraft::addProgram);
+          .forEach(existingDraft::addProgram);
       getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
@@ -394,9 +390,7 @@ public final class VersionRepository {
   }
 
   public CompletionStage<VersionModel> getActiveVersionAsync() {
-    return CompletableFuture.supplyAsync(
-      this::getActiveVersion,
-        databaseExecutionContext);
+    return CompletableFuture.supplyAsync(this::getActiveVersion, databaseExecutionContext);
   }
 
   /**
@@ -713,22 +707,22 @@ public final class VersionRepository {
     if (missingQuestionIds.isEmpty()) {
       return;
     }
-      ImmutableSet<Long> programIdsMissingQuestions =
-          getProgramsForVersionWithoutCache(activeVersion).stream()
-              .filter(
-                  program ->
-                      programRepository
-                          .getShallowProgramDefinition(program)
-                          .getQuestionIdsInProgram()
-                          .stream()
-                          .anyMatch(missingQuestionIds::contains))
-              .map(program -> program.id)
-              .collect(ImmutableSet.toImmutableSet());
-      throw new IllegalStateException(
-          String.format(
-              "Illegal state encountered when attempting to publish a new version. Question IDs"
-                  + " %s found in program definitions %s not found in new active version.",
-              missingQuestionIds, programIdsMissingQuestions));
+    ImmutableSet<Long> programIdsMissingQuestions =
+        getProgramsForVersionWithoutCache(activeVersion).stream()
+            .filter(
+                program ->
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram()
+                        .stream()
+                        .anyMatch(missingQuestionIds::contains))
+            .map(program -> program.id)
+            .collect(ImmutableSet.toImmutableSet());
+    throw new IllegalStateException(
+        String.format(
+            "Illegal state encountered when attempting to publish a new version. Question IDs"
+                + " %s found in program definitions %s not found in new active version.",
+            missingQuestionIds, programIdsMissingQuestions));
   }
 
   /** Validate there are no duplicate question names. */
@@ -896,7 +890,8 @@ public final class VersionRepository {
         .anyMatch(
             questionName ->
                 referencingProgramsByQuestionName.containsKey(questionName)
-                    && checkNotNull(referencingProgramsByQuestionName.get(questionName)).size() > 1);
+                    && checkNotNull(referencingProgramsByQuestionName.get(questionName)).size()
+                        > 1);
   }
 
   /**

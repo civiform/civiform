@@ -87,9 +87,7 @@ public final class ApplicationRepository {
       ProgramModel program,
       Optional<String> tiSubmitterEmail,
       EligibilityDetermination eligibilityDetermination) {
-    try
-      (Transaction transaction = database.beginTransaction())
-    {
+    try (Transaction transaction = database.beginTransaction()) {
       List<ApplicationModel> oldApplications =
           database
               .createQuery(ApplicationModel.class)
@@ -161,10 +159,11 @@ public final class ApplicationRepository {
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
         app.save();
       }
-      application.setEligibilityDetermination(eligibilityDetermination)
-      .setApplicantData(applicant.getApplicantData())
-      .setLifecycleStage(LifecycleStage.ACTIVE)
-      .setSubmitTimeToNow();
+      application
+          .setEligibilityDetermination(eligibilityDetermination)
+          .setApplicantData(applicant.getApplicantData())
+          .setLifecycleStage(LifecycleStage.ACTIVE)
+          .setSubmitTimeToNow();
       tiSubmitterEmail.ifPresent(application::setSubmitterEmail);
       application.save();
 
@@ -246,9 +245,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel createOrUpdateDraftApplicationInternal(
       ApplicantModel applicant, ProgramModel program) {
-    try
-      (Transaction transaction = database.beginTransaction())
-{
+    try (Transaction transaction = database.beginTransaction()) {
       Optional<ApplicationModel> existingDraft =
           database
               .createQuery(ApplicationModel.class)
