@@ -25,6 +25,9 @@ public final class BaseStyles {
   public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
   public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
 
+  public static final String THEME_PRIMARY_HEX = "#005ea2";
+  public static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
