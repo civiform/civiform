@@ -22,19 +22,19 @@
       <div class="grid-row grid-gap">
         <th:block th:each="categoryOption : ${categoryOptions}">
           <div
-            class="usa-checkbox desktop:grid-col-4 tablet:grid-col-6 grid-col-12"
+            class="custom-checkbox desktop:grid-col-4 tablet:grid-col-6 grid-col-12"
           >
             <input
               th:id="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
               type="checkbox"
               name="categories"
               th:value="${categoryOption}"
-              class="usa-checkbox__input"
+              class="custom-checkbox__input"
             />
             <label
               th:for="${'ns-check-category-' + #strings.replace(categoryOption, ' ', '-')}"
               th:text="${categoryOption}"
-              class="usa-checkbox__label usa-prose width-full"
+              class="custom-checkbox__label usa-prose width-full"
             ></label>
           </div>
         </th:block>
