@@ -238,6 +238,7 @@ public enum MessageKey {
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
+  FOOTER_TECHNICAL_SUPPORT_ARIA_LABEL("footer.technicalSupportAriaLabel"), // North Star only
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),
@@ -276,7 +277,6 @@ public enum MessageKey {
   LINK_CREATE_ACCOUNT_FROM_OVERVIEW("link.createAccountFromOverview"), // North Star only
   LINK_EDIT("link.edit"),
   LINK_ANSWER("link.answer"),
-  ARIA_LABEL_SUPPORT_EMAIL("ariaLabel.technicalSupport"), // North Star only
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LINK_START_AS_GUEST("link.startAsGuest"), // North Star only
   LABEL_PRIMARY_NAVIGATION("label.primaryNavigation"),
