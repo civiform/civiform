@@ -1042,7 +1042,8 @@ test.describe('program creation', () => {
       await expect(commonIntakeFormInput).toBeChecked()
     })
 
-    await test.step('expect application steps to be disabled', async () => {
+    await test.step('expect non-applicable fields to be disabled', async () => {
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
 
@@ -1051,8 +1052,9 @@ test.describe('program creation', () => {
       await adminPrograms.expectProgramBlockEditPage(programName)
     })
 
-    await test.step('edit program and confirm application steps are still disabled', async () => {
+    await test.step('edit program and confirm non-applicable fields are still disabled', async () => {
       await adminPrograms.goToProgramDescriptionPage(programName)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
   })
@@ -1306,7 +1308,10 @@ test.describe('program creation', () => {
         await expect(commonIntakeFormInput).toBeChecked()
       })
 
-      await test.step('expect fields to be unchecked and disabled', async () => {
+      await test.step('expect non-applicable fields to be unchecked and disabled', async () => {
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
         await adminPrograms.expectFormFieldDisabled(
           FormField.PROGRAM_CATEGORIES,
         )
@@ -1320,6 +1325,9 @@ test.describe('program creation', () => {
 
       await test.step('edit program and confirm fields are still disabled', async () => {
         await adminPrograms.goToProgramDescriptionPage(programName)
+        await adminPrograms.expectFormFieldDisabled(
+          FormField.PROGRAM_ELIGIBILITY,
+        )
         await adminPrograms.expectFormFieldDisabled(
           FormField.PROGRAM_CATEGORIES,
         )
@@ -1364,6 +1372,9 @@ test.describe('program creation', () => {
         })
 
         await test.step('expect fields to be unchecked and disabled', async () => {
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
           // Long description is only disabled when the northstar UI is enabled
           await adminPrograms.expectFormFieldDisabled(
             FormField.LONG_DESCRIPTION,
@@ -1380,6 +1391,9 @@ test.describe('program creation', () => {
 
         await test.step('edit program and confirm fields are still disabled', async () => {
           await adminPrograms.goToProgramDescriptionPage(programName)
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
           await adminPrograms.expectFormFieldDisabled(
             FormField.LONG_DESCRIPTION,
           )
@@ -1431,6 +1445,9 @@ test.describe('program creation', () => {
 
         await test.step('expect non-applicable fields to have disabled state', async () => {
           await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldDisabled(
             FormField.PROGRAM_CATEGORIES,
           )
           await adminPrograms.expectFormFieldDisabled(
@@ -1443,6 +1460,9 @@ test.describe('program creation', () => {
 
         await test.step('expect fields are re-enabled when toggling off common intake form', async () => {
           await adminPrograms.clickCommonIntakeFormToggle()
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_CATEGORIES,
           )
@@ -1460,6 +1480,9 @@ test.describe('program creation', () => {
 
         await test.step('edit program and confirm fields are still disabled', async () => {
           await adminPrograms.goToProgramDescriptionPage(programName)
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
           await adminPrograms.expectFormFieldDisabled(
             FormField.PROGRAM_CATEGORIES,
           )

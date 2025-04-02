@@ -225,19 +225,22 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withClass("text-gray-600")
                     .with(ViewUtils.requiredQuestionIndicator()),
                 buildUSWDSRadioOption(
-                    "program-eligibility-gating",
-                    ELIGIBILITY_FIELD_NAME,
-                    String.valueOf(true),
-                    eligibilityIsGating,
-                    "Only allow residents to submit applications if they meet all"
+                    /* id= */ "program-eligibility-gating",
+                    /* name= */ ELIGIBILITY_FIELD_NAME,
+                    /* value= */ String.valueOf(true),
+                    /* isChecked= */ eligibilityIsGating && !isCommonIntakeForm,
+                    /* isDisabled= */ isCommonIntakeForm,
+                    /* label= */ "Only allow residents to submit applications if they meet all"
                         + " eligibility requirements"),
                 buildUSWDSRadioOption(
-                    "program-eligibility-not-gating",
-                    ELIGIBILITY_FIELD_NAME,
-                    String.valueOf(false),
-                    !eligibilityIsGating,
-                    "Allow residents to submit applications even if they don't meet"
+                    /* id= */ "program-eligibility-not-gating",
+                    /* name= */ ELIGIBILITY_FIELD_NAME,
+                    /* value= */ String.valueOf(false),
+                    /* isChecked= */ !eligibilityIsGating,
+                    /* isDisabled= */ isCommonIntakeForm,
+                    /* label= */ "Allow residents to submit applications even if they don't meet"
                         + " eligibility requirements"))
+            .withId("program-eligibility")
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
         iff(
@@ -250,38 +253,43 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withClass("text-gray-600")
                     .with(ViewUtils.requiredQuestionIndicator()),
                 buildUSWDSRadioOption(
-                    "program-display-mode-public",
-                    DISPLAY_MODE_FIELD_NAME,
-                    DisplayMode.PUBLIC.getValue(),
-                    displayMode.equals(DisplayMode.PUBLIC.getValue()),
-                    "Publicly visible"),
+                    /* id= */ "program-display-mode-public",
+                    /* name= */ DISPLAY_MODE_FIELD_NAME,
+                    /* value= */ DisplayMode.PUBLIC.getValue(),
+                    /* isChecked= */ displayMode.equals(DisplayMode.PUBLIC.getValue()),
+                    /* isDisabled */ false,
+                    /* label= */ "Publicly visible"),
                 buildUSWDSRadioOption(
-                    "program-display-mode-hidden",
-                    DISPLAY_MODE_FIELD_NAME,
-                    DisplayMode.HIDDEN_IN_INDEX.getValue(),
-                    displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
-                    "Hide from applicants. Only individuals with the unique"
+                    /* id= */ "program-display-mode-hidden",
+                    /* name= */ DISPLAY_MODE_FIELD_NAME,
+                    /* value= */ DisplayMode.HIDDEN_IN_INDEX.getValue(),
+                    /* isChecked= */ displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
+                    /* isDisabled= */ false,
+                    /* label= */ "Hide from applicants. Only individuals with the unique"
                         + " program link can access this program"),
                 buildUSWDSRadioOption(
-                    "program-display-mode-ti-only",
-                    DISPLAY_MODE_FIELD_NAME,
-                    DisplayMode.TI_ONLY.getValue(),
-                    displayMode.equals(DisplayMode.TI_ONLY.getValue()),
-                    "Trusted intermediaries only"),
+                    /* id= */ "program-display-mode-ti-only",
+                    /* name= */ DISPLAY_MODE_FIELD_NAME,
+                    /* value= */ DisplayMode.TI_ONLY.getValue(),
+                    /* isChecked= */ displayMode.equals(DisplayMode.TI_ONLY.getValue()),
+                    /* isDisabled= */ false,
+                    /* label= */ "Trusted intermediaries only"),
                 buildUSWDSRadioOption(
                     "program-display-mode-select-ti-only",
-                    DISPLAY_MODE_FIELD_NAME,
-                    DisplayMode.SELECT_TI.getValue(),
-                    displayMode.equals(DisplayMode.SELECT_TI.getValue()),
-                    "Visible to selected trusted intermediaries only"),
+                    /* name= */ DISPLAY_MODE_FIELD_NAME,
+                    /* value= */ DisplayMode.SELECT_TI.getValue(),
+                    /* isChecked= */ displayMode.equals(DisplayMode.SELECT_TI.getValue()),
+                    /* isDisabled= */ false,
+                    /* label= */ " Visible to selected trusted intermediaries only"),
                 showTiSelectionList(
                     selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
                 buildUSWDSRadioOption(
-                    "program-display-mode-disabled",
-                    DISPLAY_MODE_FIELD_NAME,
-                    DisplayMode.DISABLED.getValue(),
-                    displayMode.equals(DisplayMode.DISABLED.getValue()),
-                    "Disabled"))
+                    /* id= */ "program-display-mode-disabled",
+                    /* name= */ DISPLAY_MODE_FIELD_NAME,
+                    /* value= */ DisplayMode.DISABLED.getValue(),
+                    /* isChecked= */ displayMode.equals(DisplayMode.DISABLED.getValue()),
+                    /* isDisabled= */ false,
+                    /* label= */ "Disabled"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
         fieldset(
@@ -529,7 +537,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildUSWDSRadioOption(
-      String id, String name, String value, Boolean isChecked, String label) {
+      String id, String name, String value, Boolean isChecked, Boolean isDisabled, String label) {
     return div(
             input()
                 .withId(id)
@@ -537,7 +545,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withType("radio")
                 .withName(name)
                 .withValue(value)
-                .withCondChecked(isChecked),
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
             label(label).withFor(id).withClasses("usa-radio__label"))
         .withClasses("usa-radio");
   }

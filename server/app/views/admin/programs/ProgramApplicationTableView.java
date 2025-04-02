@@ -149,7 +149,7 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                                     /* selectedApplicationUri= */ Optional.empty(),
                                     /* showDownloadModal= */ Optional.empty(),
                                     /* message= */ Optional.empty()),
-                            /* optionalMessages */ Optional.empty())));
+                            /* optionalMessages= */ Optional.empty())));
 
     HtmlBundle htmlBundle =
         layout
