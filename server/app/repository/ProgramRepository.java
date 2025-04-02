@@ -78,7 +78,7 @@ public final class ProgramRepository {
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
     // Use the cache if it is enabled and there isn't a draft version in progress.
     if (settingsManifest.getProgramCacheEnabled()
-        && !versionRepository.get().getDraftVersion().isPresent()) {
+        && versionRepository.get().getDraftVersion().isEmpty()) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
           executionContext);
@@ -183,7 +183,11 @@ public final class ProgramRepository {
         programDefinition.blockDefinitions().stream()
             .filter(BlockDefinition::hasNullQuestion)
             .collect(ImmutableList.toImmutableList());
-    if (!blocksWithNullQuestion.isEmpty()) {
+    if (blocksWithNullQuestion.isEmpty()) {
+      programDefCache.set(String.valueOf(programId), programDefinition);
+      return;
+    }
+
       String nullQuestionIds =
           blocksWithNullQuestion.stream()
               .flatMap(block -> block.programQuestionDefinitions().stream())
@@ -200,10 +204,7 @@ public final class ProgramRepository {
           nullQuestionIds,
           blocksWithNullQuestion.size(),
           programDefinition.blockDefinitions().size());
-      return;
-    }
 
-    programDefCache.set(String.valueOf(programId), programDefinition);
   }
 
   /**

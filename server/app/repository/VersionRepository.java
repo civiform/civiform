@@ -112,9 +112,10 @@ public final class VersionRepository {
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
-    Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
-    try {
+    try
+      (Transaction transaction =
+      database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))
+    {
       VersionModel draft = getDraftVersionOrCreate();
       VersionModel active = getActiveVersion();
 
@@ -148,9 +149,7 @@ public final class VersionRepository {
           // save causing the "updated" timestamp to be changed for a Program. We intend for
           // that timestamp only to be updated for actual changes to the program.
           .forEach(
-              program -> {
-                draft.addProgram(program);
-              });
+            draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
       getQuestionsForVersionWithoutCache(active).stream()
@@ -207,8 +206,6 @@ public final class VersionRepository {
       }
       transaction.commit();
       return draft;
-    } finally {
-      transaction.end();
     }
   }
 
@@ -283,9 +280,7 @@ public final class VersionRepository {
                   !programToPublishAdminName.equals(
                       programRepository.getShallowProgramDefinition(activeProgram).adminName()))
           .forEach(
-              program -> {
-                existingDraft.addProgram(program);
-              });
+            existingDraft::addProgram);
       getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
@@ -400,9 +395,7 @@ public final class VersionRepository {
 
   public CompletionStage<VersionModel> getActiveVersionAsync() {
     return CompletableFuture.supplyAsync(
-        () -> {
-          return getActiveVersion();
-        },
+      this::getActiveVersion,
         databaseExecutionContext);
   }
 
@@ -450,7 +443,7 @@ public final class VersionRepository {
   /** Returns the definitions of all the questions for a particular version. */
   public ImmutableList<QuestionDefinition> getQuestionDefinitionsForVersion(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(q -> questionRepository.getQuestionDefinition(q))
+        .map(questionRepository::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -458,14 +451,14 @@ public final class VersionRepository {
   public ImmutableList<QuestionDefinition> getQuestionDefinitionsForVersion(
       Optional<VersionModel> maybeVersion) {
     return getQuestionsForVersion(maybeVersion).stream()
-        .map(q -> questionRepository.getQuestionDefinition(q))
+        .map(questionRepository::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
   /** Returns the names of all the questions for a particular version. */
   public ImmutableSet<String> getQuestionNamesForVersion(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(q -> questionRepository.getQuestionDefinition(q))
+        .map(questionRepository::getQuestionDefinition)
         .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -520,7 +513,7 @@ public final class VersionRepository {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), () -> version.getQuestions());
+          String.valueOf(version.id), version::getQuestions);
     }
     return getQuestionsForVersionWithoutCache(version);
   }
@@ -570,7 +563,7 @@ public final class VersionRepository {
   /** Returns the names of all the programs. */
   public ImmutableSet<String> getProgramNamesForVersion(VersionModel version) {
     return getProgramsForVersion(version).stream()
-        .map(p -> programRepository.getShallowProgramDefinition(p))
+        .map(programRepository::getShallowProgramDefinition)
         .map(ProgramDefinition::adminName)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -585,7 +578,7 @@ public final class VersionRepository {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), () -> version.getPrograms());
+          String.valueOf(version.id), version::getPrograms);
     }
     return getProgramsForVersionWithoutCache(version);
   }
@@ -657,13 +650,13 @@ public final class VersionRepository {
   }
 
   public boolean isInactive(QuestionModel question) {
-    return !getQuestionsForVersion(getActiveVersion()).stream()
-        .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id));
+    return getQuestionsForVersion(getActiveVersion()).stream()
+        .noneMatch(activeQuestion -> activeQuestion.id.equals(question.id));
   }
 
   public boolean isInactive(ProgramModel program) {
-    return !getProgramsForVersion(getActiveVersion()).stream()
-        .anyMatch(activeProgram -> activeProgram.id.equals(program.id));
+    return getProgramsForVersion(getActiveVersion()).stream()
+        .noneMatch(activeProgram -> activeProgram.id.equals(program.id));
   }
 
   public boolean isDraft(QuestionModel question) {
@@ -698,7 +691,7 @@ public final class VersionRepository {
     VersionModel activeVersion = getActiveVersion();
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
-            .map(question -> questionRepository.getQuestionDefinition(question))
+            .map(questionRepository::getQuestionDefinition)
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
@@ -713,11 +706,13 @@ public final class VersionRepository {
             .filter(
                 questionId ->
                     !newActiveQuestions.stream()
-                        .map(questionDefinition -> questionDefinition.getId())
+                        .map(QuestionDefinition::getId)
                         .collect(ImmutableSet.toImmutableSet())
                         .contains(questionId))
             .collect(ImmutableSet.toImmutableSet());
-    if (!missingQuestionIds.isEmpty()) {
+    if (missingQuestionIds.isEmpty()) {
+      return;
+    }
       ImmutableSet<Long> programIdsMissingQuestions =
           getProgramsForVersionWithoutCache(activeVersion).stream()
               .filter(
@@ -726,7 +721,7 @@ public final class VersionRepository {
                           .getShallowProgramDefinition(program)
                           .getQuestionIdsInProgram()
                           .stream()
-                          .anyMatch(id -> missingQuestionIds.contains(id)))
+                          .anyMatch(missingQuestionIds::contains))
               .map(program -> program.id)
               .collect(ImmutableSet.toImmutableSet());
       throw new IllegalStateException(
@@ -734,7 +729,6 @@ public final class VersionRepository {
               "Illegal state encountered when attempting to publish a new version. Question IDs"
                   + " %s found in program definitions %s not found in new active version.",
               missingQuestionIds, programIdsMissingQuestions));
-    }
   }
 
   /** Validate there are no duplicate question names. */
@@ -827,7 +821,7 @@ public final class VersionRepository {
         return PredicateExpressionNode.create(
             leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
-    // ErrorProne will require the switch handle all types since there isn't a default, we should
+    // ErrorProne will require the switch to handle all types since there isn't a default, we should
     // never get here.
     throw new AssertionError(
         String.format("Predicate type is unhandled and must be: %s", node.getType()));
@@ -902,7 +896,7 @@ public final class VersionRepository {
         .anyMatch(
             questionName ->
                 referencingProgramsByQuestionName.containsKey(questionName)
-                    && referencingProgramsByQuestionName.get(questionName).size() > 1);
+                    && checkNotNull(referencingProgramsByQuestionName.get(questionName)).size() > 1);
   }
 
   /**
@@ -912,7 +906,7 @@ public final class VersionRepository {
    */
   private ImmutableMap<Long, String> getQuestionIdToNameMap(VersionModel version) {
     return getQuestionsForVersion(version).stream()
-        .map(q -> questionRepository.getQuestionDefinition(q))
+        .map(questionRepository::getQuestionDefinition)
         .collect(
             ImmutableMap.toImmutableMap(QuestionDefinition::getId, QuestionDefinition::getName));
   }

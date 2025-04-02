@@ -89,7 +89,6 @@ public final class QuestionRepository {
           versionRepositoryProvider
               .get()
               .getQuestionByNameForVersion(definition.getName(), draftVersion);
-      try {
         if (existingDraft.isPresent()) {
           QuestionModel updatedDraft =
               new QuestionModel(
@@ -150,7 +149,6 @@ public final class QuestionRepository {
         // Throw runtime exception so callers don't have to deal with it.
         throw new RuntimeException(e);
       }
-    }
   }
 
   /**
@@ -264,7 +262,7 @@ public final class QuestionRepository {
         .stream()
         .filter(question -> activeQuestionIds.contains(question.id))
         .sorted(Comparator.comparing(question -> getQuestionDefinition(question).getName()))
-        .map(q -> getQuestionDefinition(q))
+        .map(this::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -327,9 +325,8 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public QuestionModel insertQuestionSync(QuestionModel question) {
+  public void insertQuestionSync(QuestionModel question) {
     database.insert(question);
-    return question;
   }
 
   public CompletionStage<QuestionModel> updateQuestion(QuestionModel question) {
@@ -341,8 +338,7 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public QuestionModel updateQuestionSync(QuestionModel question) {
+  public void updateQuestionSync(QuestionModel question) {
     database.update(question);
-    return question;
   }
 }
