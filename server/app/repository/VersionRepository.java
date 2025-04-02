@@ -890,7 +890,7 @@ public final class VersionRepository {
         .anyMatch(
             questionName ->
                 referencingProgramsByQuestionName.containsKey(questionName)
-                    && checkNotNull(referencingProgramsByQuestionName.get(questionName)).size()
+                    && referencingProgramsByQuestionName.get(questionName).size()
                         > 1);
   }
 
