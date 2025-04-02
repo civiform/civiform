@@ -268,5 +268,37 @@ test.describe(
 
       // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX
     })
+
+    test('applies color theming on submitted page', async ({
+      page,
+      adminSettings,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+      await adminSettings.gotoAdminSettings()
+
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#a72f10',
+      )
+
+      await adminSettings.saveChanges()
+      await logout(page)
+
+      await test.step('Setup: submit application', async () => {
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await validateScreenshot(
+        page,
+        'submitted-page-theme',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
+    })
   },
 )

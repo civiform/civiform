@@ -872,17 +872,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     )
   })
 
-  // TODO(dwaterman): add here
   test('applies color theming on home page', async ({page, adminSettings}) => {
     await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
-    await adminSettings.setStringSetting(
-      'THEME_COLOR_PRIMARY_DARK',
-      '#a72f10',
-    )
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
     await adminSettings.saveChanges()
     await logout(page)
