@@ -274,6 +274,7 @@ test.describe(
       adminSettings,
       applicantQuestions,
     }) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
       await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
       await adminSettings.gotoAdminSettings()
 
