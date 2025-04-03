@@ -90,17 +90,15 @@ public class TransactionManagerTest extends ResetPostgres {
 
     Supplier<ErrorAnd<AccountModel, String>> modifyAccount =
         () -> {
-          AccountModel outerAccount =
-            accountRepo.lookupAccount(account.id).orElseThrow();
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
           outerAccount.setEmailAddress("updated@test.com");
 
           // Update the account in a different Transaction (requiresNew)
           // before the current one finishes to trigger a serialization
           // exception in the outer transaction.
           try (Transaction innerTransaction =
-                 DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
-            AccountModel innerAccount =
-              accountRepo.lookupAccount(account.id).orElseThrow();
+              DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
             innerAccount.setEmailAddress("innerupdated@test.com");
             innerAccount.save();
             innerTransaction.commit();
