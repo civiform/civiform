@@ -25,7 +25,6 @@ import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.Icons;
 import views.html.helper.CSRF;
-import views.style.BaseStyles;
 
 public abstract class NorthStarBaseView {
   protected final TemplateEngine templateEngine;
@@ -35,6 +34,8 @@ public abstract class NorthStarBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected static final String THEME_PRIMARY_HEX = "#005ea2";
+  protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
   protected NorthStarBaseView(
       TemplateEngine templateEngine,
@@ -109,8 +110,8 @@ public abstract class NorthStarBaseView {
     context.setVariable("logoutLink", logoutLink);
 
     // Set branding theme colors.
-    context.setVariable("themeColorPrimary", BaseStyles.THEME_PRIMARY_HEX);
-    context.setVariable("themeColorPrimaryDark", BaseStyles.THEME_PRIMARY_DARKER_HEX);
+    context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
+    context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
     if (settingsManifest.getCustomThemeColorsEnabled(request)) {
       Optional<String> themeColorPrimary = settingsManifest.getThemeColorPrimary(request);
       Optional<String> themeColorPrimaryDark = settingsManifest.getThemeColorPrimaryDark(request);

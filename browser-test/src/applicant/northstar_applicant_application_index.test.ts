@@ -887,7 +887,6 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       page,
       'program-index-page-theme',
       /* fullPage= */ true,
-      /* mobileScreenshot= */ true,
     )
   })
 })

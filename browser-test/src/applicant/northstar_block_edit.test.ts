@@ -102,7 +102,6 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
       page,
       'block-edit-page-theme',
       /* fullPage= */ true,
-      /* mobileScreenshot= */ true,
     )
   })
 })
