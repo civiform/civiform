@@ -5,7 +5,6 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   logout,
-  seedProgramsAndCategories,
   waitForPageJsLoad,
 } from './support'
 
@@ -56,6 +55,7 @@ test.describe(
       adminQuestions,
       tiDashboard,
       applicantQuestions,
+      seeding,
     }) => {
       const primaryProgramName = 'Application index primary program'
       const otherProgramName = 'Application index other program'
@@ -99,7 +99,7 @@ test.describe(
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 

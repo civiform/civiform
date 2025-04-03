@@ -190,7 +190,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                 .with(
                     TextFormatter.formatTextWithAriaLabel(
                         data.questionText(),
-                        /* preserveEmptyLines */ true,
+                        /* preserveEmptyLines= */ true,
                         !data.applicantQuestion().isOptional(),
                         messages
                             .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())

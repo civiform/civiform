@@ -54,7 +54,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository, Optional.empty(), allProgramTypes);
+    return new ActiveAndDraftPrograms(repository, /* service= */ Optional.empty(), allProgramTypes);
   }
 
   /**
@@ -65,7 +65,9 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildDisabledProgramsFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
+        repository,
+        /* service= */ Optional.empty(),
+        EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
   }
 
   /**
@@ -76,7 +78,7 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository, Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+        repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(

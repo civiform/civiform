@@ -113,7 +113,9 @@ public class SchemaView extends BaseHtmlView {
   private FormTag buildForm(Form form, ImmutableSet<String> allProgramSlugs) {
     String url =
         routes.OpenApiSchemaController.getSchemaUIRedirect(
-                Optional.empty(), Optional.empty(), Optional.empty())
+                /* programSlug= */ Optional.empty(),
+                /* stage= */ Optional.empty(),
+                /* openApiVersion= */ Optional.empty())
             .url();
 
     String[] labelClasses = {"px-3", "bg-white", "text-lg", "py-2"};

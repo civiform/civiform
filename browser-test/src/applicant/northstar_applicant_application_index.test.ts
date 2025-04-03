@@ -10,9 +10,9 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  seedProgramsAndCategories,
-  selectApplicantLanguage,
+  selectApplicantLanguageNorthstar,
   normalizeElements,
+  waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -130,7 +130,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await applicantQuestions.gotoApplicantHomePage()
-    await selectApplicantLanguage(page, 'Español')
+    await selectApplicantLanguageNorthstar(page, 'es-US')
     expect(await page.textContent('html')).not.toContain('End session')
     expect(await page.textContent('html')).not.toContain("You're a guest user")
   })
@@ -155,7 +155,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         redirectedToCallback = false
         await context.clearCookies()
         await page.goto(BASE_URL + path)
-        await page.waitForLoadState('networkidle')
+        await waitForPageJsLoad(page)
         expect(redirectedToCallback).toBe(false)
       })
     }
@@ -327,11 +327,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test.describe('program filtering', () => {
-    test.beforeEach(async ({page, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
       await test.step('seed categories', async () => {
-        await seedProgramsAndCategories(page)
+        await seeding.seedProgramsAndCategories()
         await page.goto('/')
       })
 

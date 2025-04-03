@@ -73,11 +73,12 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     String localizedProgramName = programDefinition.localizedName().getOrDefault(preferredLocale);
     context.setVariable("programName", localizedProgramName);
 
-    String localizedProgramDescription = getProgramDescription(programDefinition, preferredLocale);
+    String localizedProgramDescription =
+        getProgramDescription(programDefinition, preferredLocale, messages);
     context.setVariable("programDescription", localizedProgramDescription);
 
     ImmutableMap<String, String> applicationStepsMap =
-        getStepsMap(programDefinition, preferredLocale);
+        getStepsMap(programDefinition, preferredLocale, messages);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
     // The program data will be empty if the applicant has started or submitted an application
@@ -110,15 +111,16 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
   }
 
   private String getProgramDescription(
-      ProgramDefinition programDefinition, Locale preferredLocale) {
+      ProgramDefinition programDefinition, Locale preferredLocale, Messages messages) {
     String localizedProgramDescription =
         programDefinition.localizedDescription().getOrDefault(preferredLocale);
 
     if (!localizedProgramDescription.isEmpty()) {
-      return TextFormatter.formatTextToSanitizedHTML(
+      return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
           localizedProgramDescription,
           /* preserveEmptyLines= */ true,
-          /* addRequiredIndicator= */ false);
+          /* addRequiredIndicator= */ false,
+          messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
     }
 
     return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
@@ -153,7 +155,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
   }
 
   private ImmutableMap<String, String> getStepsMap(
-      ProgramDefinition programDefinition, Locale preferredLocale) {
+      ProgramDefinition programDefinition, Locale preferredLocale, Messages messages) {
     ImmutableMap.Builder<String, String> applicationStepsBuilder = ImmutableMap.builder();
     programDefinition
         .applicationSteps()
@@ -161,10 +163,13 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             (step) -> {
               applicationStepsBuilder.put(
                   step.getTitle().getOrDefault(preferredLocale),
-                  TextFormatter.formatTextToSanitizedHTML(
+                  TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
                       step.getDescription().getOrDefault(preferredLocale),
                       /* preserveEmptyLines= */ true,
-                      /* addRequiredIndicator= */ false));
+                      /* addRequiredIndicator= */ false,
+                      messages
+                          .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                          .toLowerCase(Locale.ROOT)));
             });
     return applicationStepsBuilder.build();
   }

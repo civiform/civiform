@@ -6,16 +6,15 @@ import {
   validateScreenshot,
   validateAccessibility,
   enableFeatureFlag,
-  seedProgramsAndCategories,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
-  test.beforeEach(async ({page, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
     // Since a guest account is not created until you start applying for something,
     // we have to make a program.
-    await seedProgramsAndCategories(page)
+    await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)
     await adminPrograms.publishAllDrafts()

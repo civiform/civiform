@@ -123,9 +123,6 @@ public final class ProgramTranslationView extends TranslationFormView {
     // Add Status Tracking messages.
     String programStatusesLink =
         controllers.admin.routes.AdminProgramStatusesController.index(program.id()).url();
-    // Boolean indicates if eligibility message feature flag is on.
-    Boolean isEligibilityMsgEnabled =
-        settingsManifest.getCustomizedEligibilityMessageEnabled(request);
 
     Preconditions.checkState(
         updateData.statuses().size() == currentStatusDefinitions.getStatuses().size());
@@ -249,7 +246,7 @@ public final class ProgramTranslationView extends TranslationFormView {
                           .setValue(screenUpdateData.localizedDescription())
                           .getInputTag(),
                       block.localizedDescription()));
-      if (isEligibilityMsgEnabled && block.localizedEligibilityMessage().isPresent()) {
+      if (block.localizedEligibilityMessage().isPresent()) {
         fieldsBuilder.add(
             fieldWithDefaultLocaleTextHint(
                 FieldWithLabel.input()

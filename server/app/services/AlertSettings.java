@@ -30,7 +30,8 @@ public record AlertSettings(
     Boolean isSlim) {
 
   public static AlertSettings empty() {
-    return new AlertSettings(false, Optional.empty(), "", AlertType.NONE);
+    return new AlertSettings(
+        /* show= */ false, /* title= */ Optional.empty(), /* text= */ "", AlertType.NONE);
   }
 
   public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {
@@ -78,9 +79,9 @@ public record AlertSettings(
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */
-  public String getFormattedAlertText(String text) {
-    return TextFormatter.formatTextToSanitizedHTML(
-        text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false);
+  public String getFormattedAlertText(String text, String ariaLabelNewTab) {
+    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, ariaLabelNewTab);
   }
 
   public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {

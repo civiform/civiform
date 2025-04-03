@@ -200,7 +200,9 @@ public class ApiDocsView extends BaseHtmlView {
                 li(a("API Schema Viewer")
                         .withHref(
                             routes.OpenApiSchemaController.getSchemaUI(
-                                    "", Optional.empty(), Optional.empty())
+                                    /* programSlug= */ "",
+                                    /* stage= */ Optional.empty(),
+                                    /* openApiVersion= */ Optional.empty())
                                 .url()))
                     .withClasses(AdminStyles.LINK_NOT_SELECTED))
             .withClasses("flex", "gap-4"))

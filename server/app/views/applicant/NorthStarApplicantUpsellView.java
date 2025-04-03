@@ -89,10 +89,14 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
 
     Locale locale = params.messages().lang().toLocale();
     String customConfirmationMessageHtml =
-        TextFormatter.formatTextToSanitizedHTML(
+        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
             params.customConfirmationMessage().getOrDefault(locale),
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ false);
+            /* addRequiredIndicator= */ false,
+            params
+                .messages()
+                .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
+                .toLowerCase(Locale.ROOT));
     context.setVariable("customConfirmationMessageHtml", customConfirmationMessageHtml);
 
     // Info for login modal
@@ -124,7 +128,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
                   Optional.of(params.profile()),
                   Optional.of(params.applicantId()),
                   params.applicantPersonalInfo(),
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
     context.setVariable("cardsSection", cardsSection);
     context.setVariable(

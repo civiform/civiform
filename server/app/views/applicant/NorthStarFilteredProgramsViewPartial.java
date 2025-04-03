@@ -92,7 +92,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
             profile,
             applicantId,
             personalInfo,
-            ProgramCardsSectionParamsFactory.SectionType.STANDARD);
+            ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED);
 
     Optional<ProgramCardsSectionParamsFactory.ProgramSectionParams> otherProgramsSection =
         Optional.empty();
@@ -110,7 +110,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
                   profile,
                   applicantId,
                   personalInfo,
-                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
 
     context.setVariable("recommendedSection", recommendedSection);

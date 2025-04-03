@@ -41,7 +41,7 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
-    return render(request, locale, question, Optional.empty());
+    return render(request, locale, question, /* message= */ Optional.empty());
   }
 
   public Content renderErrors(

@@ -58,6 +58,19 @@ it is around the label */
   @include u-border('05');
 }
 
+/* By default, the USWDS checkbox input element is positioned off-screen and the label
+ is styled to look like a checkbox.  This causes a problem with screen reader
+ linear navigation because the screen reader navigation outline (different than focus outline)
+ does not show.  These styles set that navigation outline around the label yet make it invisible
+ when the screen reader linear navigation isn't being used. Only applies to category filter checkboxes for now.*/
+[id^='ns-check-category-'] {
+  @include u-left('auto');
+  @include u-top(1);
+  width: 95%;
+  height: 85%;
+  opacity: 0;
+}
+
 /*
  * Make the file input element for program image upload fill the area it's given.
  * (This overrides the default USWDS style of a max-width of 30rem.)
@@ -279,6 +292,11 @@ it is around the label */
   }
 }
 
+// Styles the header to be vertically aligned
+.usa-header--basic .usa-nav-container {
+  align-items: center;
+}
+
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
   // Hide the logo on mobile and tablet
@@ -446,4 +464,29 @@ main {
 
 .cf-wrap-anywhere {
   overflow-wrap: anywhere;
+}
+
+// Custom styling to make the usa-language component work with buttons rather than anchors
+.usa-language__submenu-item {
+  &:focus {
+    outline-offset: units('neg-05');
+  }
+
+  &:hover {
+    color: color('white');
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  button {
+    all: unset;
+    color: color('white');
+    display: block;
+    line-height: line-height($theme-navigation-font-family, 3);
+    padding: 0;
+    padding: units(1);
+    text-decoration: none;
+    display: block;
+    width: 100%;
+  }
 }

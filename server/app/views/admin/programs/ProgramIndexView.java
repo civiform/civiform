@@ -225,7 +225,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withMethod("GET")
                     .withAction(
                         routes.AdminApplicationController.downloadDemographics(
-                                Optional.empty(), Optional.empty())
+                                /* fromDate= */ Optional.empty(), /* untilDate= */ Optional.empty())
                             .url())
                     .with(
                         p("This will download demographic data for all applications for all"

@@ -270,7 +270,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     return ok(
         readOnlyView.render(
-            request, program, block, Optional.empty(), allQuestions, allPreviousVersionQuestions));
+            request,
+            program,
+            block,
+            /* message= */ Optional.empty(),
+            allQuestions,
+            allPreviousVersionQuestions));
   }
 
   private Result renderEditViewWithMessage(
