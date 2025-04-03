@@ -113,14 +113,15 @@ public abstract class NorthStarBaseView {
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
     context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
     if (settingsManifest.getCustomThemeColorsEnabled(request)) {
-      Optional<String> themeColorPrimary = settingsManifest.getThemeColorPrimary(request);
-      Optional<String> themeColorPrimaryDark = settingsManifest.getThemeColorPrimaryDark(request);
-      if (themeColorPrimary.isPresent() && !themeColorPrimary.get().isEmpty()) {
-        context.setVariable("themeColorPrimary", themeColorPrimary.get());
-      }
-      if (themeColorPrimaryDark.isPresent() && !themeColorPrimaryDark.get().isEmpty()) {
-        context.setVariable("themeColorPrimaryDark", themeColorPrimaryDark.get());
-      }
+      settingsManifest
+          .getThemeColorPrimary(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
+      settingsManifest
+          .getThemeColorPrimaryDark(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(
+              colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
     }
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it

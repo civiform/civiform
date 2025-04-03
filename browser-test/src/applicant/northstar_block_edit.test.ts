@@ -87,6 +87,8 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
   test('applies color theming on block edit page', async ({
     page,
     adminSettings,
+    applicantQuestions,
+    applicantProgramOverview,
   }) => {
     await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
@@ -97,6 +99,11 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
 
     await adminSettings.saveChanges()
     await logout(page)
+
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+      programName,
+    )
 
     await validateScreenshot(
       page,
