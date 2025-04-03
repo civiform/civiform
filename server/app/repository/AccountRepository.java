@@ -142,9 +142,15 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    Optional<ApplicantModel> applicantOpt =
-        account.getApplicants().stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
-    return applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      Optional<ApplicantModel> applicantOpt =
+          account.getApplicants().stream()
+              .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+      var returnApplicant =
+          applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+      transaction.commit();
+      return returnApplicant;
+    }
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
@@ -292,26 +298,30 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
-    AccountModel account =
-        accountMaybe.orElseGet(
-            () -> {
-              AccountModel a = new AccountModel();
-              a.setEmailAddress(emailAddress);
-              a.save();
-              return a;
-            });
 
-    if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
-      throw new NotEligibleToBecomeTiError();
-    }
+    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+      Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+      if (tiGroup.isEmpty()) {
+        throw new NoSuchTrustedIntermediaryGroupError();
+      }
+      Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+      AccountModel account =
+          accountMaybe.orElseGet(
+              () -> {
+                AccountModel a = new AccountModel();
+                a.setEmailAddress(emailAddress);
+                a.save();
+                return a;
+              });
 
-    account.setMemberOfGroup(tiGroup.get());
-    account.save();
+      if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+        throw new NotEligibleToBecomeTiError();
+      }
+
+      account.setMemberOfGroup(tiGroup.get());
+      account.save();
+      transaction.commit();
+    }
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
