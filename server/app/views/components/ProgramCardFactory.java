@@ -50,8 +50,7 @@ public final class ProgramCardFactory {
 
     String programDescriptionText = displayProgram.localizedDescription().getDefault();
     if (northStarEnabled) {
-      programDescriptionText =
-          TextFormatter.removeMarkdown(displayProgram.localizedShortDescription().getDefault());
+      programDescriptionText = displayProgram.localizedShortDescription().getDefault();
     }
 
     String adminNoteText = displayProgram.adminDescription();
@@ -95,7 +94,7 @@ public final class ProgramCardFactory {
                                 "text-xl"))
                     .with(
                         div()
-                            .with(TextFormatter.formatText(programDescriptionText))
+                            .with(span(programDescriptionText))
                             .withClasses(
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
                                 "line-clamp-2",
