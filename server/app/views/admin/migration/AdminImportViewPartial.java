@@ -291,11 +291,13 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .with(
                 newOrDuplicateIndicator,
                 div()
-                    .with(TextFormatter.formatText(question.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(question.getQuestionText().getDefault()))
                     .withClass("font-bold")
                     .withData("testid", "question-div"));
     if (!question.getQuestionHelpText().isEmpty()) {
-      questionDiv.with(TextFormatter.formatText(question.getQuestionHelpText().getDefault()));
+      questionDiv.with(
+          TextFormatter.formatTextForAdmins(question.getQuestionHelpText().getDefault()));
     }
 
     questionDiv.with(

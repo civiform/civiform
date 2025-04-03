@@ -89,7 +89,7 @@ public class NorthStarApplicantUpsellView extends NorthStarBaseView {
 
     Locale locale = params.messages().lang().toLocale();
     String customConfirmationMessageHtml =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             params.customConfirmationMessage().getOrDefault(locale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,

@@ -150,7 +150,7 @@ public final class ApplicantQuestion {
 
   /** Sanitized HTML for the question text that processes Markdown. */
   public String getFormattedQuestionText(String ariaLabelNewTab) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+    return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ !isOptional(),
@@ -162,7 +162,7 @@ public final class ApplicantQuestion {
    * want to show required asterisks.
    */
   public String getFormattedQuestionTextWithoutRequiredAsterisk(String ariaLabelNewTab) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+    return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
@@ -190,7 +190,7 @@ public final class ApplicantQuestion {
 
   /** Sanitized HTML for the question help text that processes Markdown. */
   public String getFormattedQuestionHelpText(String ariaLabelNewTab) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+    return TextFormatter.formatTextToSanitizedHTML(
         getQuestionHelpText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,

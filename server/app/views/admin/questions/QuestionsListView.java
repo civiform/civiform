@@ -371,14 +371,19 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     String questionDescriptionString =
         definition.getQuestionHelpText().isEmpty()
             ? ""
             : definition.getQuestionHelpText().getDefault();
     DivTag questionDescription =
-        div(div().with(TextFormatter.formatText(questionDescriptionString)).withClasses("pl-10"));
+        div(
+            div()
+                .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
+                .withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));

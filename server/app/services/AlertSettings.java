@@ -80,7 +80,7 @@ public record AlertSettings(
 
   /** Sanitized HTML for the alert text that processes Markdown. */
   public String getFormattedAlertText(String text, String ariaLabelNewTab) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+    return TextFormatter.formatTextToSanitizedHTML(
         text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, ariaLabelNewTab);
   }
 
