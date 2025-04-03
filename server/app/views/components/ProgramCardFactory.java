@@ -95,7 +95,7 @@ public final class ProgramCardFactory {
                                 "text-xl"))
                     .with(
                         div()
-                            .with(TextFormatter.formatText(programDescriptionText))
+                            .with(TextFormatter.formatTextForAdmins(programDescriptionText))
                             .withClasses(
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
                                 "line-clamp-2",

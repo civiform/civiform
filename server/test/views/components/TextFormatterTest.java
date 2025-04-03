@@ -23,7 +23,8 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText("hello google.com http://internet.website https://secure.website");
+        TextFormatter.formatTextForAdmins(
+            "hello google.com http://internet.website https://secure.website");
     String htmlContent = content.get(0).render();
 
     // URLs without protocols are not turned into links
@@ -55,7 +56,7 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void textLinksRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatText("[this is a link](https://www.google.com)");
+        TextFormatter.formatTextForAdmins("[this is a link](https://www.google.com)");
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
@@ -74,7 +75,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "Enter your full legal name.",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelNewTab= */ "");
 
     assertThat(content.get(0).render())
         .isEqualTo(
@@ -88,7 +90,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "Here is some text.\n" + "* list item one\n" + "* list item two",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelNewTab= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
@@ -101,7 +104,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "Here is some text.\n" + "1. list item one\n" + "2. list item two",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelNewTab= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
@@ -117,7 +121,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "- list item one\n" + "- list item two\n" + "- list item three",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelNewTab= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
@@ -129,7 +134,8 @@ public class TextFormatterTest extends ResetPostgres {
         TextFormatter.formatText(
             "1. list item one\n" + "2. list item two\n" + "3. list item three",
             /* preserveEmptyLines= */ false,
-            /* addRequiredIndicator= */ true);
+            /* addRequiredIndicator= */ true,
+            /* ariaLabelNewTab= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
@@ -142,7 +148,7 @@ public class TextFormatterTest extends ResetPostgres {
   public void listRendersCorrectly() {
     String withList =
         "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
-    ImmutableList<DomContent> content = TextFormatter.formatText(withList);
+    ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
@@ -166,7 +172,7 @@ public class TextFormatterTest extends ResetPostgres {
         4. vanilla
         """;
 
-    ImmutableList<DomContent> content = TextFormatter.formatText(withList);
+    ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
@@ -191,7 +197,10 @@ public class TextFormatterTest extends ResetPostgres {
 
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
-            withBlankLine, /* preserveEmptyLines= */ true, /* addRequiredIndicator= */ false);
+            withBlankLine,
+            /* preserveEmptyLines= */ true,
+            /* addRequiredIndicator= */ false,
+            /* ariaLabelNewTab= */ "");
     assertThat(preservedBlanksContent.get(0).render())
         .isEqualTo(
             "<p>This is the first line of content.<br /> </p>\n"
@@ -199,7 +208,8 @@ public class TextFormatterTest extends ResetPostgres {
                 + "<p> </p>\n"
                 + "<p>This is the third (or sixth) line of content.</p>\n");
 
-    ImmutableList<DomContent> nonPreservedBlanksContent = TextFormatter.formatText(withBlankLine);
+    ImmutableList<DomContent> nonPreservedBlanksContent =
+        TextFormatter.formatTextForAdmins(withBlankLine);
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
             "<p>This is the first line of content.</p>\n"
@@ -211,7 +221,7 @@ public class TextFormatterTest extends ResetPostgres {
   public void appliesTextEmphasis() {
     String stringWithMarkdown =
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
-    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithMarkdown);
+    ImmutableList<DomContent> formattedText = TextFormatter.formatTextForAdmins(stringWithMarkdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             "<h2>Hello!</h2>\n"
@@ -222,7 +232,8 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void removesScriptTags() {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
-    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithScriptTag);
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatTextForAdmins(stringWithScriptTag);
     assertThat(formattedText.get(0).render()).isEqualTo("\n");
   }
 
@@ -235,7 +246,8 @@ public class TextFormatterTest extends ResetPostgres {
             + "and\n"
             + "### Header 3\n"
             + " should be allowed";
-    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithH1Markdown);
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatTextForAdmins(stringWithH1Markdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
             "<h2>Header 1</h2>\n"
@@ -255,7 +267,7 @@ public class TextFormatterTest extends ResetPostgres {
 
     String stringWithBadAttributesAndElements =
         "<script>console.log('uhoh')</script><div id=\"bad-id\"></div>";
-    TextFormatter.formatText(stringWithBadAttributesAndElements);
+    TextFormatter.formatTextForAdmins(stringWithBadAttributesAndElements);
 
     ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
     assertThat(logsList.get(0).getMessage())
@@ -267,7 +279,7 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void formatTextWithAriaLabel_addsAriaLabel() {
     ImmutableList<DomContent> content =
-        TextFormatter.formatTextWithAriaLabel(
+        TextFormatter.formatText(
             "[link](https://www.example.com)", false, false, "test aria label");
 
     assertThat(content.get(0).render()).contains("aria-label=\", test aria label\"");
@@ -276,7 +288,7 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void formatTextToSanitizedHTMLWithAriaLabel_addsAriaLabel() {
     String content =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             "[link](https://www.example.com)", false, false, "test aria label");
 
     assertThat(content).contains("aria-label=\", test aria label\"");
@@ -286,7 +298,7 @@ public class TextFormatterTest extends ResetPostgres {
   public void formatTextToSanitizedHTMLWithAriaLabel_removesScriptTags() {
     String stringWithScriptTag = "<script>alert('bad-time');</script>";
     String formattedText =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             stringWithScriptTag,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
@@ -299,7 +311,7 @@ public class TextFormatterTest extends ResetPostgres {
     String stringWithMarkdown =
         "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
     String formattedText =
-        TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+        TextFormatter.formatTextToSanitizedHTML(
             stringWithMarkdown,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
@@ -313,25 +325,9 @@ public class TextFormatterTest extends ResetPostgres {
 
   @Test
   public void formatTextToSanitizedHTML_emptyStringReturnsEmptyString() {
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true)).isEmpty();
-    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true)).isEmpty();
-  }
-
-  @Test
-  public void removeMarkdown_removesAllMarkdown() {
-    assertThat(
-            TextFormatter.removeMarkdown(
-                "# Hello!\n"
-                    + "This is a string with *italics* and **bold** and [a"
-                    + " link](https://www.example.com) and a list:\n"
-                    + "- one\n"
-                    + "- two\n"
-                    + "- three"))
-        .isEqualTo(
-            "Hello!\n"
-                + "This is a string with italics and bold and a link and a list:\n"
-                + "onetwothree\n"); // whitespace is removed when markdown is removed
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, false, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, false, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", false, true, "")).isEmpty();
+    assertThat(TextFormatter.formatTextToSanitizedHTML("", true, true, "")).isEmpty();
   }
 }

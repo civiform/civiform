@@ -42,7 +42,7 @@ public final class StaticContentQuestion extends AbstractQuestion {
   }
 
   public String getFormattedTextForRendering(String ariaLabel) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+    return TextFormatter.formatTextToSanitizedHTML(
         applicantQuestion.getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
