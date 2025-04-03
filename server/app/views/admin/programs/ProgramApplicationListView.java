@@ -130,7 +130,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             /* selectedApplicationUri= */ Optional.empty(),
                             /* showDownloadModal= */ Optional.empty(),
                             /* message= */ Optional.empty()),
-                    /* optionalMessages */ Optional.empty()))
+                    /* optionalMessages= */ Optional.empty()))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =

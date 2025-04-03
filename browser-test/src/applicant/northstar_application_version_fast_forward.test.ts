@@ -1487,7 +1487,7 @@ class FastForwardCiviformAdminActor {
               (question) => <QuestionSpec>{name: question},
             ),
           },
-          /* editBlockScreenDetails */ false,
+          /* editBlockScreenDetails= */ false,
         )
       })
 

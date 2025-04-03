@@ -399,7 +399,6 @@ test.describe('Admin can manage program translations', () => {
     applicantQuestions,
   }) => {
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
     const questionName = 'eligibility-question-q'
     const eligibilityMsg = 'Cutomized eligibility mesage'

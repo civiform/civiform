@@ -1171,7 +1171,8 @@ public final class ProgramService {
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
           maybeBlockDefinition.getErrors(),
-          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
+          ProgramBlockAdditionResult.of(
+              programDefinition, /* maybeAddedBlockDefinition= */ Optional.empty()));
     }
     BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
     ProgramModel program =
