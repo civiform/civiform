@@ -90,10 +90,24 @@ public class TransactionManagerTest extends ResetPostgres {
 
     Supplier<ErrorAnd<AccountModel, String>> modifyAccount =
         () -> {
-          AccountModel accountToModify = accountRepo.lookupAccount(account.id).get();
-          accountToModify.setEmailAddress("updated@test.com");
-          accountToModify.save();
-          throw new SerializableConflictException("Simulate a concurrency issue", new Exception());
+          AccountModel outerAccount =
+            accountRepo.lookupAccount(account.id).orElseThrow();
+          outerAccount.setEmailAddress("updated@test.com");
+
+          // Update the account in a different Transaction (requiresNew)
+          // before the current one finishes to trigger a serialization
+          // exception in the outer transaction.
+          try (Transaction innerTransaction =
+                 DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount =
+              accountRepo.lookupAccount(account.id).orElseThrow();
+            innerAccount.setEmailAddress("innerupdated@test.com");
+            innerAccount.save();
+            innerTransaction.commit();
+          }
+
+          outerAccount.save();
+          return ErrorAnd.of(outerAccount);
         };
     Supplier<ErrorAnd<AccountModel, String>> onFailure =
         () -> ErrorAnd.error(ImmutableSet.of("error"));
@@ -104,7 +118,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
-    assertThat(account.getEmailAddress()).isEqualTo("initial@test.com");
+    assertThat(account.getEmailAddress()).isEqualTo("innerupdated@test.com");
   }
 
   /** Simulate when the work() supplier contains another transaction. */
