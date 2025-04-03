@@ -58,6 +58,19 @@ it is around the label */
   @include u-border('05');
 }
 
+/* By default, the USWDS checkbox input element is positioned off-screen and the label
+ is styled to look like a checkbox.  This causes a problem with screen reader
+ linear navigation because the screen reader navigation outline (different than focus outline)
+ does not show.  These styles set that navigation outline around the label yet make it invisible
+ when the screen reader linear navigation isn't being used. Only applies to category filter checkboxes for now.*/
+[id^='ns-check-category-'] {
+  @include u-left('auto');
+  @include u-top(1);
+  width: 95%;
+  height: 85%;
+  opacity: 0;
+}
+
 /*
  * Make the file input element for program image upload fill the area it's given.
  * (This overrides the default USWDS style of a max-width of 30rem.)

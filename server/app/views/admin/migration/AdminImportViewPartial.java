@@ -212,7 +212,12 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
       }
     }
-    return AlertComponent.renderFullAlert(alertType, alertMessage, Optional.empty(), false, "");
+    return AlertComponent.renderFullAlert(
+        alertType,
+        alertMessage,
+        /* title= */ Optional.empty(),
+        /* hidden= */ false,
+        /* classes...= */ "");
   }
 
   private String buildAlertWithNewQuestions(int numNewQuestions) {

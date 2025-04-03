@@ -30,7 +30,8 @@ public record AlertSettings(
     Boolean isSlim) {
 
   public static AlertSettings empty() {
-    return new AlertSettings(false, Optional.empty(), "", AlertType.NONE);
+    return new AlertSettings(
+        /* show= */ false, /* title= */ Optional.empty(), /* text= */ "", AlertType.NONE);
   }
 
   public AlertSettings(Boolean show, Optional<String> title, String text, AlertType alertType) {

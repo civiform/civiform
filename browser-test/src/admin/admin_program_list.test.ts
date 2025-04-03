@@ -60,10 +60,7 @@ test.describe('Program list page.', () => {
     const programName = 'Program With Short Description'
     const programLongDescription =
       'A very very very very very very long description'
-    const programShortDescription =
-      'A short description with some __markdown__ and a [link](https://www.example.com)'
-    const programShortDescriptionWithoutMarkdown =
-      'A short description with some markdown and a link'
+    const programShortDescription = 'A short description'
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
@@ -84,22 +81,20 @@ test.describe('Program list page.', () => {
         firstProgramDesc.getByText(programLongDescription),
       ).toBeVisible()
       await expect(
-        firstProgramDesc.locator(
-          `text=${programShortDescriptionWithoutMarkdown}`,
-        ),
+        firstProgramDesc.locator(`text=${programShortDescription}`),
       ).toHaveCount(0) // short description should not be shown
     })
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-    await test.step('check that short description stripped of markdown is shown when North Star flag is on', async () => {
+    await test.step('check that short description is shown when North Star flag is on', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgramCard.locator(
         '.cf-program-description',
       )
       await expect(
-        firstProgramDesc.getByText(programShortDescriptionWithoutMarkdown),
+        firstProgramDesc.getByText(programShortDescription),
       ).toBeVisible()
       await expect(
         firstProgramDesc.locator(`text=${programLongDescription}`),

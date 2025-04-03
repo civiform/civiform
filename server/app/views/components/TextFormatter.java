@@ -79,7 +79,7 @@ public final class TextFormatter {
     String markdownText = formatTextToSanitizedHTML(text, false, false);
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder().allowElements().allowAttributes("").globally().toFactory();
-    return customPolicy.sanitize(markdownText, /* listener */ null, /* context= */ null);
+    return customPolicy.sanitize(markdownText, /* listener= */ null, /* context= */ null);
   }
 
   static void setAriaLabelForLinks(String ariaLabelNewTabString) {

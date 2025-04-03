@@ -85,15 +85,28 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @Test
   public void executeInTransaction_rollsBackTransactionSuccessfully() {
+    String innerEmail = "inneremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
     Supplier<ErrorAnd<AccountModel, String>> modifyAccount =
         () -> {
-          AccountModel accountToModify = accountRepo.lookupAccount(account.id).get();
-          accountToModify.setEmailAddress("updated@test.com");
-          accountToModify.save();
-          throw new SerializableConflictException("Simulate a concurrency issue", new Exception());
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+
+          // Update the account in a different Transaction (requiresNew)
+          // before the current one finishes to trigger a serialization
+          // exception in the outer transaction.
+          try (Transaction innerTransaction =
+              DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+            innerAccount.setEmailAddress(innerEmail);
+            innerAccount.save();
+            innerTransaction.commit();
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+          return ErrorAnd.of(outerAccount);
         };
     Supplier<ErrorAnd<AccountModel, String>> onFailure =
         () -> ErrorAnd.error(ImmutableSet.of("error"));
@@ -104,7 +117,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
-    assertThat(account.getEmailAddress()).isEqualTo("initial@test.com");
+    assertThat(account.getEmailAddress()).isEqualTo(innerEmail);
   }
 
   /** Simulate when the work() supplier contains another transaction. */

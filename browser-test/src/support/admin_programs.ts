@@ -35,6 +35,17 @@ export interface DownloadedApplication {
   }
 }
 
+/**
+ * List of fields in the program form. This list is not exhaustive, as fields
+ * are added when needed by a test.
+ */
+export enum FormField {
+  APPLICATION_STEPS,
+  LONG_DESCRIPTION,
+  PROGRAM_CATEGORIES,
+  PROGRAM_ELIGIBILITY,
+}
+
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
@@ -46,6 +57,21 @@ export enum ProgramVisibility {
 export enum Eligibility {
   IS_GATING = 'Only allow residents to submit applications if they meet all eligibility requirements',
   IS_NOT_GATING = "Allow residents to submit applications even if they don't meet eligibility requirements",
+}
+
+export enum ProgramCategories {
+  CHILDCARE = 'Childcare',
+  ECONOMIC = 'Economic',
+  EDUCATION = 'Education',
+  EMPLOYMENT = 'Employment',
+  FOOD = 'Food',
+  GENERAL = 'General',
+  HEALTHCARE = 'Healthcare',
+  HOUSING = 'Housing',
+  INTERNET = 'Internet',
+  TRAINING = 'Training',
+  TRANSPORTATION = 'Transportation',
+  UTILITIES = 'Utilities',
 }
 
 export enum NotificationPreference {
@@ -219,17 +245,131 @@ export class AdminPrograms {
     }
   }
 
-  async expectApplicationStepsDisabled() {
-    for (let i = 0; i < 5; i++) {
-      const indexPlusOne = i + 1
-      await expect(
-        this.page.getByRole('textbox', {name: `Step ${indexPlusOne} title`}),
-      ).toBeDisabled()
-      await expect(
-        this.page.getByRole('textbox', {
-          name: `Step ${indexPlusOne} description`,
-        }),
-      ).toBeDisabled()
+  /**
+   * Verifies whether the given form field is disabled.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+
+   * @throws Will throw an error if the elements' states don't match the expected disabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldDisabled(formField: FormField) {
+    switch (formField) {
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          await expect(stepTitle).toBeDisabled()
+          await expect(stepDescription).toBeDisabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isHidden()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeDisabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeDisabled()
+          await expect(category).not.toBeChecked()
+        }
+        break
+      }
+
+      case FormField.PROGRAM_ELIGIBILITY: {
+        for (const eligibilityName of Object.values(Eligibility)) {
+          const option = this.page.getByRole('radio', {
+            name: eligibilityName,
+          })
+          await expect(option).toBeDisabled()
+          await expect(option).not.toBeChecked()
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
+    }
+  }
+
+  /**
+   * Verifies whether the given form field ais enabled.
+   *
+   * @param formField - The specific form field type to verify (from FormField enum)
+   *
+   * @throws Will throw an error if the elements' states don't match the expected enabled state
+   * @throws Will throw an error if an invalid or unsupported form field type is provided
+   */
+  async expectFormFieldEnabled(formField: FormField) {
+    switch (formField) {
+      case FormField.APPLICATION_STEPS: {
+        for (let i = 0; i < 5; i++) {
+          const indexPlusOne = i + 1
+          const stepTitle = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} title`,
+          })
+          const stepDescription = this.page.getByRole('textbox', {
+            name: `Step ${indexPlusOne} description`,
+          })
+          await expect(stepTitle).toBeEnabled()
+          await expect(stepDescription).toBeEnabled()
+          if (indexPlusOne == 1) {
+            await stepTitle.locator('span').isVisible()
+          }
+        }
+        break
+      }
+
+      case FormField.LONG_DESCRIPTION: {
+        const longDescription = this.page.getByRole('textbox', {
+          name: 'Long program description (optional)',
+        })
+        await expect(longDescription).toBeEnabled()
+        break
+      }
+
+      case FormField.PROGRAM_CATEGORIES: {
+        for (const categoryName of Object.values(ProgramCategories)) {
+          const category = this.page.getByRole('checkbox', {
+            name: categoryName,
+          })
+          await expect(category).toBeEnabled()
+        }
+        break
+      }
+
+      case FormField.PROGRAM_ELIGIBILITY: {
+        for (const eligibilityName of Object.values(Eligibility)) {
+          const option = this.page.getByRole('radio', {
+            name: eligibilityName,
+          })
+          await expect(option).toBeEnabled()
+        }
+        break
+      }
+
+      default:
+        throw new Error(
+          `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
+        )
     }
   }
 
@@ -1381,7 +1521,11 @@ export class AdminPrograms {
   }
 
   async clickCommonIntakeFormToggle() {
-    await this.page.click('input[name=isCommonIntakeForm]')
+    // Note: We click on the label instead of directly interacting with the checkbox
+    // because USWDS styling hides the actual checkbox input and styles the label to
+    // look like a checkbox. The actual input element is visually hidden or positioned
+    // off-screen, making it inaccessible to Playwright's direct interactions.
+    await this.page.locator('label[for="common-intake-checkbox"]').click()
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {
