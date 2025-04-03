@@ -89,67 +89,66 @@ public final class QuestionRepository {
           versionRepositoryProvider
               .get()
               .getQuestionByNameForVersion(definition.getName(), draftVersion);
-      try {
-        if (existingDraft.isPresent()) {
-          QuestionModel updatedDraft =
-              new QuestionModel(
-                  new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
-          this.updateQuestionSync(updatedDraft);
-          transaction.commit();
-          return updatedDraft;
-        }
-        QuestionModel newDraftQuestion =
-            new QuestionModel(new QuestionDefinitionBuilder(definition).setId(null).build());
-        insertQuestionSync(newDraftQuestion);
-        // Fetch the tags off the old question.
-        QuestionModel oldQuestion = new QuestionModel(definition);
-        oldQuestion.refresh();
-        oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
 
-        // TODO (#6058): Add export state to QuestionDefinition so that the QuestionDefinition
-        // is the source of truth for the state of the tags and tags are set when creating
-        // the Question, rather than having to copy the tags from the old question.
-        //
-        // Since we track the universal question state in the QuestionDefinition,
-        // if we're adding UNIVERSAL to the question, it will add the tag when the Question
-        // is created. But if we're trying to remove UNIVERSAL, then it's going to get
-        // copied from the old question and we now need to remove it here.
-        if (!definition.isUniversal()) {
-          newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
-        }
-
-        // Similar to the UNIVERSAL question tag above, we have to remove any QuestionTags for
-        // PrimaryApplicantInfoTags that are not present.
-        PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(definition.getQuestionType())
-            .forEach(
-                primaryApplicantInfoTag -> {
-                  if (!definition.containsPrimaryApplicantInfoTag(primaryApplicantInfoTag)) {
-                    newDraftQuestion.removeTag(primaryApplicantInfoTag.getQuestionTag());
-                  }
-                });
-
-        newDraftQuestion.addVersion(draftVersion).save();
-        draftVersion.refresh();
-
-        // Update other questions that may reference the previous revision.
-        if (definition.isEnumerator()) {
-          transaction.setNestedUseSavepoint();
-          updateAllRepeatedQuestions(newDraftQuestion.id, definition.getId());
-        }
-
-        // Update programs that reference the previous question. A bit round about but this will
-        // update all questions
-        // in the program to their latest version, including the one here.
-        transaction.setNestedUseSavepoint();
-        versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(definition.getId());
+      if (existingDraft.isPresent()) {
+        QuestionModel updatedDraft =
+            new QuestionModel(
+                new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
+        this.updateQuestionSync(updatedDraft);
         transaction.commit();
-        return newDraftQuestion;
-      } catch (UnsupportedQuestionTypeException e) {
-        // This should not be able to happen since the provided question definition is inherently
-        // valid.
-        // Throw runtime exception so callers don't have to deal with it.
-        throw new RuntimeException(e);
+        return updatedDraft;
       }
+      QuestionModel newDraftQuestion =
+          new QuestionModel(new QuestionDefinitionBuilder(definition).setId(null).build());
+      insertQuestionSync(newDraftQuestion);
+      // Fetch the tags off the old question.
+      QuestionModel oldQuestion = new QuestionModel(definition);
+      oldQuestion.refresh();
+      oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
+
+      // TODO (#6058): Add export state to QuestionDefinition so that the QuestionDefinition
+      // is the source of truth for the state of the tags and tags are set when creating
+      // the Question, rather than having to copy the tags from the old question.
+      //
+      // Since we track the universal question state in the QuestionDefinition,
+      // if we're adding UNIVERSAL to the question, it will add the tag when the Question
+      // is created. But if we're trying to remove UNIVERSAL, then it's going to get
+      // copied from the old question and we now need to remove it here.
+      if (!definition.isUniversal()) {
+        newDraftQuestion.removeTag(QuestionTag.UNIVERSAL);
+      }
+
+      // Similar to the UNIVERSAL question tag above, we have to remove any QuestionTags for
+      // PrimaryApplicantInfoTags that are not present.
+      PrimaryApplicantInfoTag.getAllPaiTagsForQuestionType(definition.getQuestionType())
+          .forEach(
+              primaryApplicantInfoTag -> {
+                if (!definition.containsPrimaryApplicantInfoTag(primaryApplicantInfoTag)) {
+                  newDraftQuestion.removeTag(primaryApplicantInfoTag.getQuestionTag());
+                }
+              });
+
+      newDraftQuestion.addVersion(draftVersion).save();
+      draftVersion.refresh();
+
+      // Update other questions that may reference the previous revision.
+      if (definition.isEnumerator()) {
+        transaction.setNestedUseSavepoint();
+        updateAllRepeatedQuestions(newDraftQuestion.id, definition.getId());
+      }
+
+      // Update programs that reference the previous question. A bit round about but this will
+      // update all questions
+      // in the program to their latest version, including the one here.
+      transaction.setNestedUseSavepoint();
+      versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(definition.getId());
+      transaction.commit();
+      return newDraftQuestion;
+    } catch (UnsupportedQuestionTypeException e) {
+      // This should not be able to happen since the provided question definition is inherently
+      // valid.
+      // Throw runtime exception so callers don't have to deal with it.
+      throw new RuntimeException(e);
     }
   }
 
@@ -264,7 +263,7 @@ public final class QuestionRepository {
         .stream()
         .filter(question -> activeQuestionIds.contains(question.id))
         .sorted(Comparator.comparing(question -> getQuestionDefinition(question).getName()))
-        .map(q -> getQuestionDefinition(q))
+        .map(this::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -327,9 +326,8 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public QuestionModel insertQuestionSync(QuestionModel question) {
+  public void insertQuestionSync(QuestionModel question) {
     database.insert(question);
-    return question;
   }
 
   public CompletionStage<QuestionModel> updateQuestion(QuestionModel question) {
@@ -341,8 +339,7 @@ public final class QuestionRepository {
         executionContext);
   }
 
-  public QuestionModel updateQuestionSync(QuestionModel question) {
+  public void updateQuestionSync(QuestionModel question) {
     database.update(question);
-    return question;
   }
 }

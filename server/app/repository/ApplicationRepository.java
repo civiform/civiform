@@ -87,8 +87,7 @@ public final class ApplicationRepository {
       ProgramModel program,
       Optional<String> tiSubmitterEmail,
       EligibilityDetermination eligibilityDetermination) {
-    Transaction transaction = database.beginTransaction();
-    try {
+    try (Transaction transaction = database.beginTransaction()) {
       List<ApplicationModel> oldApplications =
           database
               .createQuery(ApplicationModel.class)
@@ -160,19 +159,16 @@ public final class ApplicationRepository {
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
         app.save();
       }
-      application.setEligibilityDetermination(eligibilityDetermination);
-      application.setApplicantData(applicant.getApplicantData());
-      application.setLifecycleStage(LifecycleStage.ACTIVE);
-      application.setSubmitTimeToNow();
-      if (tiSubmitterEmail.isPresent()) {
-        application.setSubmitterEmail(tiSubmitterEmail.get());
-      }
+      application
+          .setEligibilityDetermination(eligibilityDetermination)
+          .setApplicantData(applicant.getApplicantData())
+          .setLifecycleStage(LifecycleStage.ACTIVE)
+          .setSubmitTimeToNow();
+      tiSubmitterEmail.ifPresent(application::setSubmitterEmail);
       application.save();
 
       transaction.commit();
       return application;
-    } finally {
-      transaction.end();
     }
   }
 
@@ -249,8 +245,7 @@ public final class ApplicationRepository {
 
   private ApplicationModel createOrUpdateDraftApplicationInternal(
       ApplicantModel applicant, ProgramModel program) {
-    Transaction transaction = database.beginTransaction();
-    try {
+    try (Transaction transaction = database.beginTransaction()) {
       Optional<ApplicationModel> existingDraft =
           database
               .createQuery(ApplicationModel.class)
@@ -270,8 +265,6 @@ public final class ApplicationRepository {
       application.save();
       transaction.commit();
       return application;
-    } finally {
-      transaction.end();
     }
   }
 
@@ -362,7 +355,7 @@ public final class ApplicationRepository {
     ProgramModel program = programOptional.get();
 
     try (Transaction transaction = database.beginTransaction()) {
-      ApplicationModel existingDraft =
+      Optional<ApplicationModel> existingDraft =
           database
               .createQuery(ApplicationModel.class)
               .where()
@@ -374,11 +367,11 @@ public final class ApplicationRepository {
               .setLabel("ApplicationModel.findById")
               .setProfileLocation(
                   queryProfileLocationBuilder.create("updateDraftApplicationProgram"))
-              .findOne();
+              .findOneOrEmpty();
 
-      if (existingDraft != null) {
-        existingDraft.setProgram(program);
-        existingDraft.save();
+      if (existingDraft.isPresent()) {
+        existingDraft.get().setProgram(program);
+        existingDraft.get().save();
         transaction.commit();
       }
     }
