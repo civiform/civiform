@@ -22,7 +22,10 @@ public final class TextFormatter {
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
 
-  /** Passes provided text through Markdown formatter. */
+  /**
+   * Passes provided text through Markdown formatter. This is used by j2html to render strings
+   * containing markdown
+   */
   public static ImmutableList<DomContent> formatText(
       String text,
       boolean preserveEmptyLines,
@@ -38,7 +41,7 @@ public final class TextFormatter {
 
   /**
    * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
-   * This is used by Thymeleaf to render Static Text questions.
+   * This is used by Thymeleaf to render strings containing markdown.
    */
   public static String formatTextToSanitizedHTML(
       String text,
@@ -55,7 +58,7 @@ public final class TextFormatter {
    * and should only be used in admin facing views.
    */
   public static ImmutableList<DomContent> formatTextForAdmins(String text) {
-    return formatText(text, false, false, "");
+    return formatText(text, false, false, "opens in a new tab");
   }
 
   /** Passes provided text through Markdown formatter, generating an HTML String. */

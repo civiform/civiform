@@ -52,7 +52,7 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
               question.getQuestionText(),
               /* preserveEmptyLines= */ true,
               /* addRequiredIndicator= */ false,
-              /* ariaLabel= */ "");
+              /* ariaLabel= */ "opens in a new tab");
     }
 
     DivTag questionTextDiv =
