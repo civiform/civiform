@@ -1,6 +1,7 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.p;
@@ -8,15 +9,20 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.PTag;
+
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+
 import javax.inject.Inject;
+
+import j2html.tags.DomContent;
 import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -48,9 +54,9 @@ public final class ProgramCardFactory {
 
     String programTitleText = displayProgram.localizedName().getDefault();
 
-    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+    ImmutableList<DomContent> programDescriptionText = TextFormatter.formatText(displayProgram.localizedDescription().getDefault());
     if (northStarEnabled) {
-      programDescriptionText = displayProgram.localizedShortDescription().getDefault();
+      programDescriptionText = ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));
     }
 
     String adminNoteText = displayProgram.adminDescription();
@@ -94,7 +100,7 @@ public final class ProgramCardFactory {
                                 "text-xl"))
                     .with(
                         div()
-                            .with(span(programDescriptionText))
+                            .with(programDescriptionText)
                             .withClasses(
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
                                 "line-clamp-2",
