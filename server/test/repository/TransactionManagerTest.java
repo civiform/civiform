@@ -85,6 +85,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @Test
   public void executeInTransaction_rollsBackTransactionSuccessfully() {
+    String innerEmail = "inneremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
@@ -99,7 +100,7 @@ public class TransactionManagerTest extends ResetPostgres {
           try (Transaction innerTransaction =
               DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
             AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
-            innerAccount.setEmailAddress("innerupdated@test.com");
+            innerAccount.setEmailAddress(innerEmail);
             innerAccount.save();
             innerTransaction.commit();
           }
@@ -116,7 +117,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
-    assertThat(account.getEmailAddress()).isEqualTo("innerupdated@test.com");
+    assertThat(account.getEmailAddress()).isEqualTo(innerEmail);
   }
 
   /** Simulate when the work() supplier contains another transaction. */
