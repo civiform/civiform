@@ -55,10 +55,8 @@ public final class TransactionManager {
       return result;
     } catch (SerializableConflictException e) {
       LOGGER.info(
-          String.format(
-              "Transaction wrapper prevented a race condition from causing data integrity errors:"
-                  + " %s.",
-              e.getMessage()));
+          "Transaction wrapper prevented a race condition from causing data integrity errors: {}.",
+          e.getMessage());
       return onSerializationFailure.get();
     }
   }
