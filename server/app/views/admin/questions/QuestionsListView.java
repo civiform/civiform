@@ -88,7 +88,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("content-div")
+                    .withClasses("content-div", "space-x-4")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
@@ -347,7 +347,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses("row-element", isSecondRow ? "border-t" : "")
+            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
             .with(badge)
             .with(div().withClasses("flex-grow"))
             .with(
