@@ -18,7 +18,10 @@
 
       <!--/* Display errors for the entire question */-->
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${addressQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+          ${addressQuestion.getValidationErrors().get(question.getContextualizedPath())},
+          ${questionRendererParams},
+          ${questionId})}"
       ></div>
     </div>
 
@@ -34,7 +37,7 @@
     >
       <th:block th:if="${showFieldErrorMessages}">
         <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
         ></div>
       </th:block>
       <label class="usa-label" th:for="${inputId}">
@@ -53,6 +56,7 @@
         th:id="${inputId}"
         th:name="${streetPath}"
         th:value="${addressQuestion.getStreetValue().orElse('')}"
+        th:aria-describedby="${questionId} + '-description' + (${hasGroupErrors || hasFieldErrors} ? ' ' + ${questionId} + '-error' : '')"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-line1"
@@ -72,7 +76,7 @@
     >
       <th:block th:if="${showFieldErrorMessages}">
         <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
         ></div>
       </th:block>
       <label
@@ -86,6 +90,7 @@
         th:id="${inputId}"
         th:name="${line2Path}"
         th:value="${addressQuestion.getLine2Value().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         autocomplete="address-line2"
         th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(line2Path)}"
@@ -104,7 +109,7 @@
     >
       <th:block th:if="${showFieldErrorMessages}">
         <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
         ></div>
       </th:block>
       <label class="usa-label" th:for="${inputId}">
@@ -123,6 +128,7 @@
         th:id="${inputId}"
         th:name="${cityPath}"
         th:value="${addressQuestion.getCityValue().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-level2"
@@ -142,7 +148,7 @@
     >
       <th:block th:if="${showFieldErrorMessages}">
         <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
         ></div>
       </th:block>
       <label class="usa-label" th:for="${inputId}">
@@ -160,6 +166,7 @@
         th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
         th:id="${inputId}"
         th:name="${statePath}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="address-level1"
@@ -187,7 +194,7 @@
     >
       <th:block th:if="${showFieldErrorMessages}">
         <div
-          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+          th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${inputId})}"
         ></div>
       </th:block>
       <label class="usa-label" th:for="${inputId}">
@@ -206,6 +213,7 @@
         th:id="${inputId}"
         th:name="${zipPath}"
         th:value="${addressQuestion.getZipValue().orElse('')}"
+        th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
         th:aria-invalid="${!addressQuestion.getValidationErrors().isEmpty()}"
         th:aria-required="${!question.isOptional()}"
         autocomplete="postal-code"

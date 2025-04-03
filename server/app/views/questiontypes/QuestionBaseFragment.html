@@ -1,9 +1,10 @@
 <th:block
-  th:fragment="validationErrors(validationErrors, questionRendererParams)"
+  th:fragment="validationErrors(validationErrors, questionRendererParams, questionId)"
 >
   <div
     th:each="error: ${validationErrors}"
     th:if="${questionRendererParams.shouldShowErrors()}"
+    th:id="${questionId} + '-error'"
     th:text="#{toast.errorMessageOutline(#{${error.key.getKeyName()}(${error.args})})}"
     class="cf-question-error-message cf-applicant-question-errors"
   ></div>

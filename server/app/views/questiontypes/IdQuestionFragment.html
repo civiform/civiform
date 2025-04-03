@@ -19,11 +19,11 @@
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
   </th:block>
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
   ></div>
 
   <input
@@ -34,7 +34,7 @@
     th:name="${idQuestion.getIdPath()}"
     th:value="${idQuestion.getIdValue().orElse('')}"
     maxlength="10000"
-    th:aria-describedby="${questionId} + '-description'"
+    th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
