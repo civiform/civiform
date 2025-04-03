@@ -92,7 +92,6 @@ public class TransactionManagerTest extends ResetPostgres {
     Supplier<ErrorAnd<AccountModel, String>> modifyAccount =
         () -> {
           AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
-          outerAccount.setEmailAddress("updated@test.com");
 
           // Update the account in a different Transaction (requiresNew)
           // before the current one finishes to trigger a serialization
@@ -105,6 +104,7 @@ public class TransactionManagerTest extends ResetPostgres {
             innerTransaction.commit();
           }
 
+          outerAccount.setEmailAddress("updated@test.com");
           outerAccount.save();
           return ErrorAnd.of(outerAccount);
         };
