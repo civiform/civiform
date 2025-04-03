@@ -298,7 +298,6 @@ test.describe(
         page,
         'submitted-page-theme',
         /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
       )
     })
   },
