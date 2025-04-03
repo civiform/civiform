@@ -317,7 +317,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             "border-gray-300",
             "flex",
             "justify-between",
-            "break-all",
+            "overflow-hidden",
             "break-words");
   }
 
