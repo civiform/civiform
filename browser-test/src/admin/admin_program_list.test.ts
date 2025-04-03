@@ -60,8 +60,7 @@ test.describe('Program list page.', () => {
     const programName = 'Program With Short Description'
     const programLongDescription =
       'A very very very very very very long description'
-    const programShortDescription =
-      'A short description'
+    const programShortDescription = 'A short description'
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
@@ -82,9 +81,7 @@ test.describe('Program list page.', () => {
         firstProgramDesc.getByText(programLongDescription),
       ).toBeVisible()
       await expect(
-        firstProgramDesc.locator(
-          `text=${programShortDescription}`,
-        ),
+        firstProgramDesc.locator(`text=${programShortDescription}`),
       ).toHaveCount(0) // short description should not be shown
     })
 
