@@ -19,7 +19,7 @@
 
     <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <!--/* Render each radio button option */-->
