@@ -78,7 +78,7 @@ public final class ProgramRepository {
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
     // Use the cache if it is enabled and there isn't a draft version in progress.
     if (settingsManifest.getProgramCacheEnabled()
-        && !versionRepository.get().getDraftVersion().isPresent()) {
+        && versionRepository.get().getDraftVersion().isEmpty()) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
           executionContext);
@@ -183,27 +183,27 @@ public final class ProgramRepository {
         programDefinition.blockDefinitions().stream()
             .filter(BlockDefinition::hasNullQuestion)
             .collect(ImmutableList.toImmutableList());
-    if (!blocksWithNullQuestion.isEmpty()) {
-      String nullQuestionIds =
-          blocksWithNullQuestion.stream()
-              .flatMap(block -> block.programQuestionDefinitions().stream())
-              .map(ProgramQuestionDefinition::getQuestionDefinition)
-              .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
-              .map(QuestionDefinition::getId)
-              .map(String::valueOf)
-              .collect(Collectors.joining(", "));
-      logger.warn(
-          "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
-              + " into the cache. This is an issue in {} / {} blocks.",
-          programDefinition.slug(),
-          programDefinition.id(),
-          nullQuestionIds,
-          blocksWithNullQuestion.size(),
-          programDefinition.blockDefinitions().size());
+    if (blocksWithNullQuestion.isEmpty()) {
+      programDefCache.set(String.valueOf(programId), programDefinition);
       return;
     }
 
-    programDefCache.set(String.valueOf(programId), programDefinition);
+    String nullQuestionIds =
+        blocksWithNullQuestion.stream()
+            .flatMap(block -> block.programQuestionDefinitions().stream())
+            .map(ProgramQuestionDefinition::getQuestionDefinition)
+            .filter(qd -> qd.getQuestionType().equals(QuestionType.NULL_QUESTION))
+            .map(QuestionDefinition::getId)
+            .map(String::valueOf)
+            .collect(Collectors.joining(", "));
+    logger.warn(
+        "Program {} with ID {} has the following null question ID(s): {} so we won't set it"
+            + " into the cache. This is an issue in {} / {} blocks.",
+        programDefinition.slug(),
+        programDefinition.id(),
+        nullQuestionIds,
+        blocksWithNullQuestion.size(),
+        programDefinition.blockDefinitions().size());
   }
 
   /**

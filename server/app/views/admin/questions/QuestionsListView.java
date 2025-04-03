@@ -88,7 +88,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
+                    .withClasses("content-div", "space-x-4")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
@@ -118,7 +118,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // and has a draft.
     return div(String.format(
             "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses("float-right", "text-base", "px-4", "my-2");
+        .withClasses("question-summary");
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
@@ -347,14 +347,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(
-                "py-7",
-                "flex",
-                "flex-row",
-                "items-center",
-                StyleUtils.hover("bg-gray-100"),
-                "cursor-pointer",
-                isSecondRow ? "border-t" : "")
+            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
             .with(badge)
             .with(div().withClasses("flex-grow"))
             .with(

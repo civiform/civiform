@@ -358,25 +358,27 @@ public final class AccountRepository {
   public Long createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
-    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
-      if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
+    String formEmail = form.getEmailAddress();
+    if (!Strings.isNullOrEmpty(formEmail)) {
+      if (lookupAccountByEmail(formEmail).isPresent()) {
         throw new EmailAddressExistsException();
       }
-      newAccount.setEmailAddress(form.getEmailAddress());
+      newAccount.setEmailAddress(formEmail);
     }
-    newAccount.setManagedByGroup(tiGroup);
-    newAccount.setTiNote(form.getTiNote());
-    newAccount.save();
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(newAccount);
+    newAccount.setManagedByGroup(tiGroup).setTiNote(form.getTiNote()).save();
+
+    ApplicantModel applicant =
+        new ApplicantModel()
+            .setAccount(newAccount)
+            .setDateOfBirth(form.getDob())
+            .setEmailAddress(formEmail)
+            .setPhoneNumber(form.getPhoneNumber());
+
     applicant.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
         Optional.ofNullable(form.getNameSuffix()));
-    applicant.setDateOfBirth(form.getDob());
-    applicant.setEmailAddress(form.getEmailAddress());
-    applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
     return applicant.id;
   }
@@ -403,14 +405,14 @@ public final class AccountRepository {
                       + " Have the user log in as admin on the home page, then they can be added"
                       + " as a Program Admin.",
                   accountEmail)));
-    } else {
-      maybeAccount.ifPresent(
-          account -> {
-            account.addAdministeredProgram(program);
-            account.save();
-          });
-      return Optional.empty();
     }
+
+    maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
+    return Optional.empty();
   }
 
   /**

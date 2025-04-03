@@ -8,6 +8,7 @@ import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
@@ -48,10 +49,11 @@ public final class ProgramCardFactory {
 
     String programTitleText = displayProgram.localizedName().getDefault();
 
-    String programDescriptionText = displayProgram.localizedDescription().getDefault();
+    ImmutableList<DomContent> programDescriptionText =
+        TextFormatter.formatText(displayProgram.localizedDescription().getDefault());
     if (northStarEnabled) {
       programDescriptionText =
-          TextFormatter.removeMarkdown(displayProgram.localizedShortDescription().getDefault());
+          ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));
     }
 
     String adminNoteText = displayProgram.adminDescription();
@@ -95,7 +97,7 @@ public final class ProgramCardFactory {
                                 "text-xl"))
                     .with(
                         div()
-                            .with(TextFormatter.formatTextForAdmins(programDescriptionText))
+                            .with(programDescriptionText)
                             .withClasses(
                                 ReferenceClasses.ADMIN_PROGRAM_CARD_DESCRIPTION,
                                 "line-clamp-2",
