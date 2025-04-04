@@ -39,6 +39,7 @@ import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
 
 /**
@@ -114,6 +115,7 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
+      ApplicantService applicantService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -149,6 +151,12 @@ public final class DurableJobModule extends AbstractModule {
             new UnusedProgramImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
+
+    durableJobRegistry.register(
+      DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB, 
+      JobType.RECURRING,
+      persistedDurableJob -> new CalculateEligibilityDeterminationJob(applicantService),
+      new RecurringJobExecutionTimeResolvers.Immediately());
 
     return durableJobRegistry;
   }

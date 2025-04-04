@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.time.LocalDateTime;
 
 /**
  * Holds implementations of {@link JobExecutionTimeResolver}. A {@link DurableJob} is a recurring
@@ -15,6 +16,14 @@ import java.time.temporal.TemporalAdjusters;
  * for resolving execution times to ensure the local time zone is accounted for.
  */
 public final class RecurringJobExecutionTimeResolvers {
+
+  public static final class Immediately implements JobExecutionTimeResolver {
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDateTime.now(clock)
+          .toInstant(clock.getZone().getRules().getOffset(Instant.now()));
+    }
+  }
 
   /** Every Sunday at 2am local time. Used for the OLD_JOB_CLEANUP job. */
   public static final class Sunday2Am implements JobExecutionTimeResolver {
