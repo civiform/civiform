@@ -109,6 +109,11 @@ public class BaseHtmlLayout {
     bundle.addMetadata(
         meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
     bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
+    bundle.addMetadata(
+        meta()
+            .withName("htmx-config")
+            .withContent(
+                "{\"inlineStyleNonce\":\"" + CspUtil.getNonce(bundle.getRequest()) + "\"}"));
     if (addNoindexMetaTag) {
       bundle.addMetadata(meta().withName("robots").withContent("noindex"));
     }

@@ -208,7 +208,7 @@ public final class ProgramQuestionBank {
                 Icons.questionTypeSvgWithId(QuestionType.TEXT),
                 Icons.questionTypeSvgWithId(QuestionType.PHONE),
                 Icons.questionTypeSvgWithId(QuestionType.NULL_QUESTION))
-            .withStyle("display: none"));
+            .withClass("hidden"));
 
     return questionForm;
   }

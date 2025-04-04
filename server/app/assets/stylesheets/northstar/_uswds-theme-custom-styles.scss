@@ -160,6 +160,11 @@ it is around the label */
   @include u-margin-top(0);
 }
 
+// Tailwind removes list style from unordered and ordered lists.
+.usa-list {
+  list-style-type: disc;
+}
+
 .content-spacing {
   @include u-height('105');
 }
