@@ -28,7 +28,7 @@
     Id of the applicant whose data is requested to be accessed
 */-->
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()}">
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>

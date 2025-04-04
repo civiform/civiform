@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.awt.ComponentOrientation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -102,6 +103,12 @@ public final class LanguageUtils {
             .findFirst();
 
     return preferredLanguage.orElse(Lang.defaultLang());
+  }
+
+  public boolean shouldDisplayRtl(Http.RequestHeader request) {
+    Lang preferredLanguage = getPreferredLanguage(request);
+    return ComponentOrientation.getOrientation(preferredLanguage.locale())
+        == ComponentOrientation.RIGHT_TO_LEFT;
   }
 
   /**
