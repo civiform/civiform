@@ -14,50 +14,49 @@
         th:replace="~{components/SeparatorLineFragment :: separatorLineFragment()}"
       ></div>
 
+      <!--/* Toasts */-->
       <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8 usa-prose">
             <div th:replace="~{components/ToastFragment :: upsellToasts}"></div>
+          </div>
+        </div>
+      </div>
 
-            <section class="usa-prose section-external">
-              <h2>
-                <th:block
-                  th:text="${isTrustedIntermediary} ?
+      <!--/* Program cards */-->
+      <section class="usa-prose section-external">
+        <div class="grid-container">
+          <div class="grid-row">
+            <div class="tablet:grid-col-8 usa-prose">
+              <h2
+                th:text="${isTrustedIntermediary} ?
                   #{title.commonIntakeConfirmationTi} :
                   #{title.commonIntakeConfirmation}"
-                ></th:block>
-              </h2>
-
-              <div th:if="${eligiblePrograms.size() eq 0}">
-                <!-- utext is necessary to insert a hyperlink into a localized string. -->
-                <p
-                  th:utext="${isTrustedIntermediary} ?
-                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
-                  #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
-                ></p>
-              </div>
-
-              <th:block
-                th:if="${eligiblePrograms.size() neq 0}"
-                class="usa-prose"
-              >
+              ></h2>
+              <th:block th:if="${showProgramsCardsSection}">
                 <p
                   th:text="${isTrustedIntermediary} ?
                     #{content.commonIntakeConfirmationTi.v2} :
                     #{content.commonIntakeConfirmation.v2}"
                   class="content"
                 ></p>
-
-                <div th:each="ep : ${eligiblePrograms}">
-                  <!-- We need h4 style for the headings, but accessibility checker doesn't allow skipping from h2 to h4 -->
-                  <h3
-                    th:text="${ep.getTitle()}"
-                    class="cf-prose-h4 cf-applicant-cif-eligible-program-name"
-                  ></h3>
-                  <p th:text="${ep.getShortDescription()}"></p>
-                </div>
               </th:block>
+              <th:block th:unless="${showProgramsCardsSection}">
+                <p
+                  th:utext="${isTrustedIntermediary} ?
+                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :gtm
+                  #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
+                ></p>
+              </th:block>
+            </div>
 
+            <div class="section-internal">
+              <div
+                th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${cardsSection.get()})}"
+              ></div>
+            </div>
+
+            <div class="tablet:grid-col-8 usa-prose">
               <div class="section-internal">
                 <a
                   th:if="${!isGuest}"
@@ -75,20 +74,25 @@
                   th:text="#{button.applyToPrograms}"
                   data-open-modal
                 ></a>
-
                 <a
-                  th:if="${eligiblePrograms.size() eq 0}"
+                  th:unless="${showProgramsCardsSection}"
                   href="/"
                   class="usa-button margin-bottom-1"
                   role="button"
                   id="go-back"
                   th:text="#{button.editMyResponses}"
                   th:href="${goBackHref}"
-                >
-                </a>
+                ></a>
               </div>
-            </section>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <!--/* Alerts */-->
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="tablet:grid-col-8 usa-prose">
             <section class="section-external" th:if="${isGuest}">
               <div
                 th:replace="~{applicant/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${loginLink}, #{button.createAnAccount}, #{content.loginToExistingAccount})}"
@@ -97,6 +101,8 @@
           </div>
         </div>
       </div>
+
+      <div class="page-spacing"></div>
     </main>
 
     <div th:if="${isGuest}">

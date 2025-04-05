@@ -1,11 +1,11 @@
 package views.applicant;
 
-import com.google.common.collect.ImmutableList;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -13,8 +13,10 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
+import views.applicant.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView {
+  private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject
   NorthStarApplicantCommonIntakeUpsellView(
@@ -24,7 +26,8 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      ProgramCardsSectionParamsFactory programCardsSectionParamsFactory) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -33,6 +36,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
         settingsManifest,
         languageUtils,
         deploymentType);
+    this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 
   public String render(UpsellParams params) {
@@ -73,25 +77,33 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
     // Create account or login alert
     context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
+    // Program cards section
+    boolean showProgramsCardsSection =
+        params.eligiblePrograms().isPresent() && params.eligiblePrograms().get().size() > 0;
+    Optional<ProgramSectionParams> cardsSection = Optional.empty();
+    if (showProgramsCardsSection) {
+      cardsSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  params.request(),
+                  params.messages(),
+                  Optional.empty(),
+                  MessageKey.BUTTON_VIEW_AND_APPLY,
+                  params.eligiblePrograms().get(),
+                  /* preferredLocale= */ params.messages().lang().toLocale(),
+                  Optional.of(params.profile()),
+                  Optional.of(params.applicantId()),
+                  params.applicantPersonalInfo(),
+                  ProgramCardsSectionParamsFactory.SectionType.STANDARD));
+    }
+    context.setVariable("showProgramsCardsSection", showProgramsCardsSection);
+    context.setVariable("cardsSection", cardsSection);
+
+    // Toasts
     if (params.eligiblePrograms().isPresent()) {
-      Locale userLocale = params.messages().lang().toLocale();
-
-      ImmutableList<DisplayProgram> displayPrograms =
-          params.eligiblePrograms().orElse(ImmutableList.of()).stream()
-              .map(
-                  applicantProgramData ->
-                      new DisplayProgram(
-                          applicantProgramData.program().localizedName().getOrDefault(userLocale),
-                          applicantProgramData
-                              .program()
-                              .localizedShortDescription()
-                              .getOrDefault(userLocale)))
-              .collect(ImmutableList.toImmutableList());
-
-      context.setVariable("eligiblePrograms", displayPrograms);
-
       context.setVariable("bannerMessage", params.bannerMessage());
     }
+
     return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
   }
 
