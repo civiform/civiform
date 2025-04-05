@@ -345,14 +345,7 @@
                 evaluated at insertion time */-->
               <div
                 class="usa-footer__contact-info expanding-div"
-                th:with="supportLink='<a class=\'usa-link\' '
-                  + 'href=\'mailto:' + ${supportEmail} + '\' '
-                  + 'target=\'_blank\' '
-                  + 'rel=\'noopener noreferrer\'>'
-                  + ${supportEmail}
-                  + '</a>'"
-                th:utext="#{footer.technicalSupport(${supportLink})}"
-                data-testid="supportEmail"
+                th:utext="#{footer.technicalSupport(${supportEmailLink})}"
               ></div>
             </div>
           </div>
@@ -388,6 +381,16 @@
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
 </footer>
+
+<!-- This fragment is also used in Java so it can be composed into a
+     localized message; it is not possible to do that otherwise. -->
+<a
+  th:fragment="technicalSupportLink"
+  class="usa-link"
+  th:href="@{mailto:{to}(to=${supportEmail})}"
+  target="_blank"
+  rel="noopener noreferrer"
+  ><span th:text="${supportEmail}"></span></a>
 
 <section
   th:fragment="adminPreviewBackButton(goBackToAdminUrl)"
