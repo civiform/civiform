@@ -1257,7 +1257,7 @@ if (isLocalDevEnvironment()) {
     })
 
     test.describe('go back and edit button', () => {
-      test('clicking go back and edit on address correction goes back to page with address question', async ({
+      test('clicking go back and edit on address correction goes back to page with address questiontest', async ({
         applicantQuestions,
       }) => {
         await applicantQuestions.clickApplyProgramButton(programName)
