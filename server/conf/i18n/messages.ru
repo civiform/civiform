@@ -73,6 +73,8 @@ label.primaryNavigation=Основное меню навигации
 label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -989,6 +991,9 @@ category.tag.transportation=Транспорт
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Коммунальные услуги
+
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Categories
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

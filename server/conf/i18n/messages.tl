@@ -73,6 +73,8 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+# Link to skip to the main content of the page
+link.skipToMainContent=Skip to main content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -989,6 +991,9 @@ category.tag.transportation=Transportasyon
 
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
+
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Categories
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
