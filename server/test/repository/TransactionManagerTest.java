@@ -36,7 +36,53 @@ public class TransactionManagerTest extends ResetPostgres {
     accountRepo = instanceOf(AccountRepository.class);
   }
 
-  @SuppressWarnings("unchecked")
+  @Test
+  public void execute_runnable_runsWorkSupplier() {
+    String innerEmail = "inneremail@test.com";
+    AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
+    account.insert();
+
+    transactionManager.execute(
+        () -> {
+          AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+          innerAccount.setEmailAddress(innerEmail);
+          innerAccount.save();
+        });
+
+    account.refresh();
+    assertThat(account.getEmailAddress()).isEqualTo(innerEmail);
+  }
+
+  @Test
+  public void execute_runnable_rollsBackTransactionSuccessfully() {
+    String initialEmail = "initial@test.com";
+    AccountModel account = new AccountModel().setEmailAddress(initialEmail);
+    account.insert();
+
+    Runnable modifyAccount =
+        () -> {
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+
+          // Update the account in a different Transaction (requiresNew)
+          // before the current one finishes to trigger a serialization
+          // exception in the outer transaction.
+          try (Transaction innerTransaction =
+              DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+            innerAccount.setEmailAddress("inneremail@test.com");
+            innerAccount.save();
+            innerTransaction.commit();
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+        };
+
+    account.refresh();
+
+    assertThat(account.getEmailAddress()).isEqualTo(initialEmail);
+  }
+
   @Test
   public void executeInTransaction_runsWorkSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);

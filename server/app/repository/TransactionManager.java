@@ -52,6 +52,15 @@ public final class TransactionManager {
     }
   }
 
+  /** Calls {@link #execute} but accepts a {@link Runnable}. */
+  public void execute(Runnable synchronousWork) {
+    execute(
+        () -> {
+          synchronousWork.run();
+          return null;
+        });
+  }
+
   /**
    * Calls {@link #execute} returning its result, if it fails due to a concurrent transaction the
    * failure handler is called and its result is returned.
