@@ -5,12 +5,12 @@
 
     <div
       class="usa-prose container"
-      th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+      th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <!-- TODO(#5510): Add indicator for optional questions -->
       <span
         class="grid-col-6 left-align zero-margin mobile-truncate-3"
-        th:utext="${answerData.questionHtml(ariaLabelNewTab)}"
+        th:utext="${answerData.questionHtml(ariaLabelForNewTabs)}"
       ></span>
       <div th:replace="~{this :: multilineAnswer(${answerData})}"></div>
     </div>

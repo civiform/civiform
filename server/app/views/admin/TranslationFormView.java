@@ -121,7 +121,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 .with(
                     p("English text:").withClass("font-medium"),
                     div()
-                        .with(TextFormatter.formatText(localizedStrings.getDefault()))
+                        .with(TextFormatter.formatTextForAdmins(localizedStrings.getDefault()))
                         .withClasses("font-sans")));
   }
 
