@@ -55,8 +55,8 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @Test
   public void execute_runnable_rollsBackTransactionSuccessfully() {
-    String initialEmail = "initial@test.com";
-    AccountModel account = new AccountModel().setEmailAddress(initialEmail);
+    String innerEmail = "inneremail@test.com";
+    AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
     Runnable modifyAccount =
@@ -69,7 +69,7 @@ public class TransactionManagerTest extends ResetPostgres {
           try (Transaction innerTransaction =
               DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
             AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
-            innerAccount.setEmailAddress("inneremail@test.com");
+            innerAccount.setEmailAddress(innerEmail);
             innerAccount.save();
             innerTransaction.commit();
           }
@@ -78,11 +78,14 @@ public class TransactionManagerTest extends ResetPostgres {
           outerAccount.save();
         };
 
-    account.refresh();
+    assertThrows(
+        SerializableConflictException.class, () -> transactionManager.execute(modifyAccount));
 
-    assertThat(account.getEmailAddress()).isEqualTo(initialEmail);
+    account.refresh();
+    assertThat(account.getEmailAddress()).isEqualTo(innerEmail);
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void executeInTransaction_runsWorkSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);
