@@ -76,7 +76,7 @@ public class TextFormatterTest extends ResetPostgres {
             "Enter your full legal name.",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
 
     assertThat(content.get(0).render())
         .isEqualTo(
@@ -91,7 +91,7 @@ public class TextFormatterTest extends ResetPostgres {
             "Here is some text.\n" + "* list item one\n" + "* list item two",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
@@ -105,7 +105,7 @@ public class TextFormatterTest extends ResetPostgres {
             "Here is some text.\n" + "1. list item one\n" + "2. list item two",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
@@ -122,7 +122,7 @@ public class TextFormatterTest extends ResetPostgres {
             "- list item one\n" + "- list item two\n" + "- list item three",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
@@ -135,7 +135,7 @@ public class TextFormatterTest extends ResetPostgres {
             "1. list item one\n" + "2. list item two\n" + "3. list item three",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
@@ -200,7 +200,7 @@ public class TextFormatterTest extends ResetPostgres {
             withBlankLine,
             /* preserveEmptyLines= */ true,
             /* addRequiredIndicator= */ false,
-            /* ariaLabelNewTab= */ "");
+            /* ariaLabelForNewTabs= */ "");
     assertThat(preservedBlanksContent.get(0).render())
         .isEqualTo(
             "<p>This is the first line of content.<br /> </p>\n"

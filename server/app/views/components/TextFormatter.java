@@ -30,13 +30,26 @@ public final class TextFormatter {
       String text,
       boolean preserveEmptyLines,
       boolean addRequiredIndicator,
-      String ariaLabelNewTab) {
+      String ariaLabelForNewTabs) {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
     builder.add(
         rawHtml(
-            internalFormatTextToSanitizedHTML(
-                text, preserveEmptyLines, addRequiredIndicator, ariaLabelNewTab)));
+            formatTextToSanitizedHTML(
+                text, preserveEmptyLines, addRequiredIndicator, ariaLabelForNewTabs)));
     return builder.build();
+  }
+
+  /**
+   * Passes provided text through Markdown formatter with preserveEmptyLines and
+   * addRequiredIndicator set to false. This function does not add translated aria labels to links
+   * and should only be used in admin facing views.
+   */
+  public static ImmutableList<DomContent> formatTextForAdmins(String text) {
+    return formatText(
+        text,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        "opens in a new tab");
   }
 
   /**
@@ -47,26 +60,7 @@ public final class TextFormatter {
       String text,
       boolean preserveEmptyLines,
       boolean addRequiredIndicator,
-      String ariaLabelNewTab) {
-    return internalFormatTextToSanitizedHTML(
-        text, preserveEmptyLines, addRequiredIndicator, ariaLabelNewTab);
-  }
-
-  /**
-   * Passes provided text through Markdown formatter with preserveEmptyLines and
-   * addRequiredIndicator set to false. This function does not add translated aria labels to links
-   * and should only be used in admin facing views.
-   */
-  public static ImmutableList<DomContent> formatTextForAdmins(String text) {
-    return formatText(text, false, false, "opens in a new tab");
-  }
-
-  /** Passes provided text through Markdown formatter, generating an HTML String. */
-  static String internalFormatTextToSanitizedHTML(
-      String text,
-      boolean preserveEmptyLines,
-      boolean addRequiredIndicator,
-      String ariaLabelNewTab) {
+      String ariaLabelForNewTabs) {
     if (text.isBlank()) {
       return "";
     }
@@ -76,7 +70,7 @@ public final class TextFormatter {
     }
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
-    markdownText = addIconToLinks(markdownText, ariaLabelNewTab);
+    markdownText = addIconToLinks(markdownText, ariaLabelForNewTabs);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
@@ -97,13 +91,13 @@ public final class TextFormatter {
     return String.join("\n", lines);
   }
 
-  private static String addIconToLinks(String markdownText, String ariaLabelNewTab) {
+  private static String addIconToLinks(String markdownText, String ariaLabelForNewTabs) {
     String closingATag = "</a>";
 
     String svgIconString =
         Icons.svg(Icons.OPEN_IN_NEW)
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
-            .attr("aria-label", ", " + ariaLabelNewTab)
+            .attr("aria-label", ", " + ariaLabelForNewTabs)
             .attr("aria-hidden", false)
             .attr("role", "img")
             .toString();

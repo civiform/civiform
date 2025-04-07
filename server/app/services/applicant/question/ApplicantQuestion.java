@@ -149,24 +149,24 @@ public final class ApplicantQuestion {
   }
 
   /** Sanitized HTML for the question text that processes Markdown. */
-  public String getFormattedQuestionText(String ariaLabelNewTab) {
+  public String getFormattedQuestionText(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ !isOptional(),
-        ariaLabelNewTab);
+        ariaLabelForNewTabs);
   }
 
   /**
    * Sanitized HTML for the question text that processes Markdown, but in a context where we don't
    * want to show required asterisks.
    */
-  public String getFormattedQuestionTextWithoutRequiredAsterisk(String ariaLabelNewTab) {
+  public String getFormattedQuestionTextWithoutRequiredAsterisk(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
         getQuestionText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
-        ariaLabelNewTab);
+        ariaLabelForNewTabs);
   }
 
   /**
@@ -189,12 +189,12 @@ public final class ApplicantQuestion {
   }
 
   /** Sanitized HTML for the question help text that processes Markdown. */
-  public String getFormattedQuestionHelpText(String ariaLabelNewTab) {
+  public String getFormattedQuestionHelpText(String ariaLabelForNewTabs) {
     return TextFormatter.formatTextToSanitizedHTML(
         getQuestionHelpText(),
         /* preserveEmptyLines= */ true,
         /* addRequiredIndicator= */ false,
-        ariaLabelNewTab);
+        ariaLabelForNewTabs);
   }
 
   /**
