@@ -34,6 +34,8 @@ public abstract class NorthStarBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected static final String THEME_PRIMARY_HEX = "#005ea2";
+  protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
   protected NorthStarBaseView(
       TemplateEngine templateEngine,
@@ -106,6 +108,22 @@ public abstract class NorthStarBaseView {
     context.setVariable("tiDashboardHref", getTiDashboardHref());
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     context.setVariable("logoutLink", logoutLink);
+
+    // Set branding theme colors.
+    context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
+    context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
+    if (settingsManifest.getCustomThemeColorsEnabled(request)) {
+      settingsManifest
+          .getThemeColorPrimary(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
+      settingsManifest
+          .getThemeColorPrimaryDark(request)
+          .filter(setting -> !setting.isEmpty())
+          .ifPresent(
+              colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
+    }
+
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the guest alert in the header.

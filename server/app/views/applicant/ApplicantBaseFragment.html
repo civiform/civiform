@@ -19,6 +19,13 @@
     th:src="${uswdsJsInit}"
     type="text/javascript"
   ></script>
+
+  <style th:inline="css" th:nonce="${cspNonce}">
+    :root {
+      --primary: [(${themeColorPrimary})];
+      --primary-dark: [(${themeColorPrimaryDark})];
+    }
+  </style>
 </head>
 
 <th:block th:fragment="pageFooterScripts">
