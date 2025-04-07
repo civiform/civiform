@@ -12,7 +12,7 @@
 <div
   th:fragment="titleAndHelpTextMultipleInput(question, questionId)"
   class="margin-bottom-105"
-  th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
   <legend class="usa-legend display-flex">
@@ -22,7 +22,7 @@
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:utext="${question.getFormattedQuestionHelpText(ariaLabelNewTab)}"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
     class="font-sans-xs padding-top-05 cf-applicant-question-help-text"
   ></div>
 </div>
@@ -30,7 +30,7 @@
 <div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
   class="margin-bottom-105"
-  th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
   <label class="usa-label display-flex" th:for="${inputId}">
@@ -40,17 +40,17 @@
   <!--/* Question help text */-->
   <div
     th:id="${questionId} + '-description'"
-    th:utext="${question.getFormattedQuestionHelpText(ariaLabelNewTab)}"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
     class="cf-applicant-question-help-text"
   ></div>
 </div>
 
 <th:block
   th:fragment="titleContent(question)"
-  th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
   <span
-    th:utext="${question.getFormattedQuestionText(ariaLabelNewTab)}"
+    th:utext="${question.getFormattedQuestionText(ariaLabelForNewTabs)}"
     class="font-sans-lg cf-applicant-question-text"
   ></span>
 </th:block>

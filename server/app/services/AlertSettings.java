@@ -79,9 +79,12 @@ public record AlertSettings(
   }
 
   /** Sanitized HTML for the alert text that processes Markdown. */
-  public String getFormattedAlertText(String text, String ariaLabelNewTab) {
-    return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
-        text, /* preserveEmptyLines= */ false, /* addRequiredIndicator= */ false, ariaLabelNewTab);
+  public String getFormattedAlertText(String text, String ariaLabelForNewTabs) {
+    return TextFormatter.formatTextToSanitizedHTML(
+        text,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        ariaLabelForNewTabs);
   }
 
   public static String getTitleAriaLabel(Messages messages, AlertType alertType, String titleText) {

@@ -21,33 +21,22 @@ public final class TextFormatter {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
-  private static String ariaLabelNewTab = "opens in a new tab";
 
   /**
-   * Adds an aria label to links before passing provided text through Markdown formatter. This
-   * function should be used when the resulting html will be applicant facing.
+   * Passes provided text through Markdown formatter. This is used by j2html to render strings
+   * containing markdown
    */
-  public static ImmutableList<DomContent> formatTextWithAriaLabel(
+  public static ImmutableList<DomContent> formatText(
       String text,
       boolean preserveEmptyLines,
       boolean addRequiredIndicator,
-      String ariaLabelNewTab) {
-    setAriaLabelForLinks(ariaLabelNewTab);
-    return formatText(text, preserveEmptyLines, addRequiredIndicator);
-  }
-
-  /**
-   * Adds an aria label to links before passing provided text through Markdown formatter, returning
-   * a String with the sanitized HTML. This is used by Thymeleaf to render Static Text questions.
-   * This function should be used when the resulting html will be applicant facing.
-   */
-  public static String formatTextToSanitizedHTMLWithAriaLabel(
-      String text,
-      boolean preserveEmptyLines,
-      boolean addRequiredIndicator,
-      String ariaLabelNewTab) {
-    setAriaLabelForLinks(ariaLabelNewTab);
-    return formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator);
+      String ariaLabelForNewTabs) {
+    ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
+    builder.add(
+        rawHtml(
+            formatTextToSanitizedHTML(
+                text, preserveEmptyLines, addRequiredIndicator, ariaLabelForNewTabs)));
+    return builder.build();
   }
 
   /**
@@ -55,43 +44,23 @@ public final class TextFormatter {
    * addRequiredIndicator set to false. This function does not add translated aria labels to links
    * and should only be used in admin facing views.
    */
-  public static ImmutableList<DomContent> formatText(String text) {
-    return formatText(text, false, false);
+  public static ImmutableList<DomContent> formatTextForAdmins(String text) {
+    return formatText(
+        text,
+        /* preserveEmptyLines= */ false,
+        /* addRequiredIndicator= */ false,
+        /* ariaLabelForNewTabs= */ "opens in a new tab");
   }
 
   /**
-   * Passes provided text through Markdown formatter. This function does not add translated aria
-   * labels to links and should only be used in admin facing views.
+   * Passes provided text through Markdown formatter, returning a String with the sanitized HTML.
+   * This is used by Thymeleaf to render strings containing markdown.
    */
-  public static ImmutableList<DomContent> formatText(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
-    ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
-    builder.add(rawHtml(formatTextToSanitizedHTML(text, preserveEmptyLines, addRequiredIndicator)));
-    return builder.build();
-  }
-
-  /**
-   * Remove all markdown from the string by disallowing all elements and attributes. When calling
-   * this method, be sure to check the whitespace between words in the resulting string and adjust
-   * as neccessary.
-   */
-  public static String removeMarkdown(String text) {
-    String markdownText = formatTextToSanitizedHTML(text, false, false);
-    PolicyFactory customPolicy =
-        new HtmlPolicyBuilder().allowElements().allowAttributes("").globally().toFactory();
-    return customPolicy.sanitize(markdownText, /* listener= */ null, /* context= */ null);
-  }
-
-  static void setAriaLabelForLinks(String ariaLabelNewTabString) {
-    ariaLabelNewTab = ariaLabelNewTabString;
-  }
-
-  /**
-   * Passes provided text through Markdown formatter, generating an HTML String. This function does
-   * not add translated aria labels to links and should only be used in admin facing views.
-   */
-  static String formatTextToSanitizedHTML(
-      String text, boolean preserveEmptyLines, boolean addRequiredIndicator) {
+  public static String formatTextToSanitizedHTML(
+      String text,
+      boolean preserveEmptyLines,
+      boolean addRequiredIndicator,
+      String ariaLabelForNewTabs) {
     if (text.isBlank()) {
       return "";
     }
@@ -101,7 +70,7 @@ public final class TextFormatter {
     }
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
-    markdownText = addIconToLinks(markdownText);
+    markdownText = addIconToLinks(markdownText, ariaLabelForNewTabs);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicator(markdownText);
@@ -122,13 +91,13 @@ public final class TextFormatter {
     return String.join("\n", lines);
   }
 
-  private static String addIconToLinks(String markdownText) {
+  private static String addIconToLinks(String markdownText, String ariaLabelForNewTabs) {
     String closingATag = "</a>";
 
     String svgIconString =
         Icons.svg(Icons.OPEN_IN_NEW)
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
-            .attr("aria-label", ", " + ariaLabelNewTab)
+            .attr("aria-label", ", " + ariaLabelForNewTabs)
             .attr("aria-hidden", false)
             .attr("role", "img")
             .toString();
