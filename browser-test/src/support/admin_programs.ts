@@ -119,10 +119,16 @@ export class AdminPrograms {
   }
 
   async expectAdminProgramsPage() {
-    expect(await this.page.innerText('h1')).toEqual('Program dashboard')
-    expect(await this.page.innerText('h2')).toEqual(
-      'Create, edit and publish programs in ' + TEST_CIVIC_ENTITY_SHORT_NAME,
-    )
+    await expect(
+      this.page.getByRole('heading', {name: 'Program dashboard'}),
+    ).toBeVisible()
+    await expect(
+      this.page.getByRole('heading', {
+        name:
+          'Create, edit and publish programs in ' +
+          TEST_CIVIC_ENTITY_SHORT_NAME,
+      }),
+    ).toBeVisible()
   }
 
   async expectProgramExist(programName: string, description: string) {
@@ -379,13 +385,9 @@ export class AdminPrograms {
   }
 
   async expectProgramDetailsSaveAndContinueButton() {
-    expect(await this.page.innerText('#program-update-button')).toEqual(
-      'Save and continue to next step',
-    )
-  }
-
-  async expectProgramDetailsSaveButton() {
-    expect(await this.page.innerText('#program-update-button')).toEqual('Save')
+    await expect(
+      this.page.getByRole('button', {name: 'Save and continue to next step'}),
+    ).toBeVisible()
   }
 
   async editProgram(
@@ -704,23 +706,21 @@ export class AdminPrograms {
   }
 
   async expectDraftProgram(programName: string) {
-    expect(
-      await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
-    ).toBe(true)
+    await expect(
+      this.page.locator(this.programCardSelector(programName, 'Draft')),
+    ).toBeVisible()
   }
 
   async expectDoesNotHaveDraftProgram(programName: string) {
-    expect(
-      await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
-    ).toBe(false)
+    await expect(
+      this.page.locator(this.programCardSelector(programName, 'Draft')),
+    ).toBeHidden()
   }
 
   async expectActiveProgram(programName: string) {
-    expect(
-      await this.page.isVisible(
-        this.programCardSelector(programName, 'Active'),
-      ),
-    ).toBe(true)
+    await expect(
+      this.page.locator(this.programCardSelector(programName, 'Active')),
+    ).toBeVisible()
   }
 
   async expectProgramEditPage(programName = '') {

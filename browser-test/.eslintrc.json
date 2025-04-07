@@ -20,8 +20,7 @@
     // easier to read.
     "playwright/no-nested-step": "off",
     "playwright/no-skipped-test": "off",
-    "playwright/no-wait-for-selector": "off",
-    "playwright/prefer-web-first-assertions": "off"
+    "playwright/no-wait-for-selector": "off"
   },
   "parserOptions": {
     "project": ["./src/tsconfig.json"]
