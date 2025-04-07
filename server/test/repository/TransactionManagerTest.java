@@ -38,19 +38,19 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @Test
   public void execute_runnable_runsWorkSupplier() {
-    String innerEmail = "inneremail@test.com";
+    String outerEmail = "outeremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
     transactionManager.execute(
         () -> {
-          AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
-          innerAccount.setEmailAddress(innerEmail);
-          innerAccount.save();
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+          outerAccount.setEmailAddress(outerEmail);
+          outerAccount.save();
         });
 
     account.refresh();
-    assertThat(account.getEmailAddress()).isEqualTo(innerEmail);
+    assertThat(account.getEmailAddress()).isEqualTo(outerEmail);
   }
 
   @Test
