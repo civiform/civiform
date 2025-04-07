@@ -47,23 +47,22 @@ public final class AccountRepository {
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
+  private final TransactionManager transactionManager;
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
   private final SessionLifecycle sessionLifecycle;
-  private final TransactionManager transactionManager;
 
   @Inject
   public AccountRepository(
       DatabaseExecutionContext executionContext,
       Clock clock,
-      SettingsManifest settingsManifest,
-      TransactionManager transactionManager) {
+      SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
+    this.transactionManager = new TransactionManager();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.transactionManager = transactionManager;
 
     int sessionDurationMinutes =
         settingsManifest
