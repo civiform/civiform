@@ -49,7 +49,7 @@ public final class TextFormatter {
         text,
         /* preserveEmptyLines= */ false,
         /* addRequiredIndicator= */ false,
-        "/* ariaLabelForNewTabs= */ opens in a new tab");
+        /* ariaLabelForNewTabs= */ "opens in a new tab");
   }
 
   /**
