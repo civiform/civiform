@@ -240,7 +240,6 @@ public enum MessageKey {
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
   FOOTER_TECHNICAL_SUPPORT_V2("footer.technicalSupport.v2"), // North Star only
-  FOOTER_TECHNICAL_SUPPORT_ARIA_LABEL("footer.technicalSupportAriaLabel"), // North Star only
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),
