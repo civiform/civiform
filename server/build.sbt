@@ -43,8 +43,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.7",
-      "software.amazon.awssdk" % "ses" % "2.31.7",
+      "software.amazon.awssdk" % "s3" % "2.31.16",
+      "software.amazon.awssdk" % "ses" % "2.31.16",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
@@ -55,7 +55,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.1",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.1",
+      "org.pac4j" % "pac4j-core" % "6.1.2",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.1",
+      "org.pac4j" % "pac4j-http" % "6.1.2",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.1",
+      "org.pac4j" % "pac4j-oidc" % "6.1.2",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.1",
+      "org.pac4j" % "pac4j-saml" % "6.1.2",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",

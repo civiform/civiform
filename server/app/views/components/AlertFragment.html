@@ -46,11 +46,11 @@
 
     <div
       th:if="${alertSettings.unescapedDescription()} == true"
-      th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+      th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <p
         class="usa-alert__text"
-        th:utext="${alertSettings.getFormattedAlertText(alertSettings.text, ariaLabelNewTab)}"
+        th:utext="${alertSettings.getFormattedAlertText(alertSettings.text, ariaLabelForNewTabs)}"
       ></p>
     </div>
     <div th:if="${alertSettings.unescapedDescription()} == false">
@@ -61,21 +61,21 @@
     <ul
       th:if="${not #lists.isEmpty(alertSettings.additionalText)}"
       class="usa-list margin-top-0"
-      th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+      th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <li
         th:each="item : ${alertSettings.additionalText}"
-        th:utext="${alertSettings.getFormattedAlertText(item, ariaLabelNewTab)}"
+        th:utext="${alertSettings.getFormattedAlertText(item, ariaLabelForNewTabs)}"
       ></li>
     </ul>
 
     <div
       th:if="${alertSettings.customText.isPresent()}"
-      th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+      th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <p
         class="usa-alert__text"
-        th:utext="${alertSettings.getFormattedAlertText(alertSettings.customText.get(), ariaLabelNewTab)}"
+        th:utext="${alertSettings.getFormattedAlertText(alertSettings.customText.get(), ariaLabelForNewTabs)}"
       ></p>
     </div>
   </div>

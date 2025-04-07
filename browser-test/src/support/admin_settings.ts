@@ -44,12 +44,9 @@ export class AdminSettings {
   }
 
   async expectStringSetting(settingName: string, value: string) {
-    expect(
-      await this.page
-        .getByTestId(`string-${settingName}`)
-        .locator('input')
-        .inputValue(),
-    ).toBe(value)
+    await expect(
+      this.page.getByTestId(`string-${settingName}`).locator('input'),
+    ).toHaveValue(value)
   }
 
   async saveChanges(expectUpdated = true) {

@@ -97,7 +97,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     li().with(
                             div()
                                 .with(
-                                    TextFormatter.formatTextWithAriaLabel(
+                                    TextFormatter.formatText(
                                         question.getQuestionText(),
                                         /* preserveEmptyLines= */ true,
                                         /* addRequiredIndicator= */ false,
@@ -125,7 +125,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .with(
                 div()
                     .with(
-                        TextFormatter.formatTextWithAriaLabel(
+                        TextFormatter.formatText(
                             eligibilityMsg,
                             true,
                             false,

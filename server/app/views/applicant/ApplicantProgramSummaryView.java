@@ -188,7 +188,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag questionContent =
         div(div()
                 .with(
-                    TextFormatter.formatTextWithAriaLabel(
+                    TextFormatter.formatText(
                         data.questionText(),
                         /* preserveEmptyLines= */ true,
                         !data.applicantQuestion().isOptional(),
