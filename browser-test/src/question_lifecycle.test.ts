@@ -449,20 +449,12 @@ test.describe('normal question lifecycle', () => {
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
 
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    // Directly switching to the best practice method fails
-    // because of a locator stict mode violation. That is it
-    // returns multiple elements.
-    //
-    // Recommended prefer-web-first-assertions fix:
-    // await expect(page.locator(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeChecked()
-    expect(
-      await page.isChecked(
-        adminQuestions.selectorForExportOption(
-          AdminQuestions.EXPORT_VALUE_OPTION,
-        ),
-      ),
-    ).toBeTruthy()
+    await expect(
+      page.getByRole('radio', {
+        name: AdminQuestions.EXPORT_VALUE_OPTION,
+        exact: true,
+      }),
+    ).toBeChecked()
   })
 
   test('shows the "Remove from universal questions" confirmation modal in the right circumstances and navigation works', async ({
