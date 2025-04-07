@@ -20,13 +20,13 @@
     <!--/* Display errors */-->
     <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
       ></div>
     </th:block>
     <!--/* Display error messages for the shared date path. We actually use 3 different paths for
     inputs, but all errors are reported on the date path. */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <div class="usa-memorable-date">
@@ -51,7 +51,7 @@
           th:id="${monthId}"
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:autofocus="${questionRendererParams.autofocusFirstError()}"
           th:aria-required="${!question.isOptional()}"
         >
@@ -136,7 +136,7 @@
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${dayId}"
           th:name="${dateQuestion.getDayPath()}"
           maxlength="2"
@@ -164,7 +164,7 @@
         <input
           class="usa-input"
           th:classappend="${hasErrors ? 'usa-input--error' : ''}"
-          th:aria-describedby="${questionId} + '-description'"
+          th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"
           minlength="4"
