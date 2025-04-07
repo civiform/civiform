@@ -88,6 +88,8 @@ public final class TransactionManager {
     try {
       returnValue = Optional.of(execute(synchronousWork));
     } catch (SerializableConflictException ignored) {
+      // Ignore the exception and retry, allowing subsequent exceptions to be
+      // surfaced.
     }
 
     return returnValue.orElseGet(() -> execute(synchronousWork));
