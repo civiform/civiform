@@ -55,9 +55,7 @@ public final class AccountRepository {
 
   @Inject
   public AccountRepository(
-      DatabaseExecutionContext executionContext,
-      Clock clock,
-      SettingsManifest settingsManifest) {
+      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
     this.transactionManager = new TransactionManager();
     this.executionContext = checkNotNull(executionContext);
