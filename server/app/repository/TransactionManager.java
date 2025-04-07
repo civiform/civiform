@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * on transactions.
  */
 public final class TransactionManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
   /**
    * Run the supplied code in a {@link TxIsolation#SERIALIZABLE} transaction.
@@ -66,7 +66,7 @@ public final class TransactionManager {
     try {
       return execute(synchronousWork);
     } catch (SerializableConflictException e) {
-      LOGGER.info(
+      logger.info(
           "Concurrent transaction occurred, falling back to failure handler: {}", e.getMessage());
       return onSerializationFailure.get();
     }
@@ -78,9 +78,7 @@ public final class TransactionManager {
     Optional<T> returnValue = Optional.empty();
     try {
       returnValue = Optional.of(execute(synchronousWork));
-      LOGGER.error("Set returnValue");
     } catch (SerializableConflictException ignored) {
-      LOGGER.error("Got Exception: isPresent {}", returnValue.isPresent());
     }
 
     return returnValue.orElseGet(() -> execute(synchronousWork));

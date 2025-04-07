@@ -51,14 +51,19 @@ public final class AccountRepository {
   private final Clock clock;
   private final SettingsManifest settingsManifest;
   private final SessionLifecycle sessionLifecycle;
+  private final TransactionManager transactionManager;
 
   @Inject
   public AccountRepository(
-      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
+      DatabaseExecutionContext executionContext,
+      Clock clock,
+      SettingsManifest settingsManifest,
+      TransactionManager transactionManager) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.transactionManager = transactionManager;
 
     int sessionDurationMinutes =
         settingsManifest
@@ -142,15 +147,14 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
-      Optional<ApplicantModel> applicantOpt =
-          account.getApplicants().stream()
-              .max(Comparator.comparing(ApplicantModel::getWhenCreated));
-      var returnApplicant =
-          applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
-      transaction.commit();
-      return returnApplicant;
-    }
+    return transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApplicantModel> applicantOpt =
+              account.getApplicants().stream()
+                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+          return applicantOpt.orElseGet(
+              () -> new ApplicantModel().setAccount(account).saveAndReturn());
+        });
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
