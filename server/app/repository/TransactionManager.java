@@ -52,7 +52,7 @@ public final class TransactionManager {
     }
   }
 
-  /** Calls {@link #execute} but accepts a {@link Runnable}. */
+  /** Calls {@link #execute(Supplier)} but accepts a {@link Runnable}. */
   public void execute(Runnable synchronousWork) {
     execute(
         () -> {
@@ -62,8 +62,8 @@ public final class TransactionManager {
   }
 
   /**
-   * Calls {@link #execute} returning its result, if it fails due to a concurrent transaction the
-   * failure handler is called and its result is returned.
+   * Calls {@link #execute(Supplier)} returning its result, if it fails due to a concurrent
+   * transaction the failure handler is called and its result is returned.
    *
    * @param onSerializationFailure {@link Supplier} to run in the event of a failure due to a
    *     conflict with a concurrent transaction
@@ -81,7 +81,7 @@ public final class TransactionManager {
     }
   }
 
-  /** Calls {@link #execute} but makes two attempts before failing. */
+  /** Calls {@link #execute(Supplier)} but makes two attempts before failing. */
   public <T> T executeWithRetry(Supplier<T> synchronousWork) {
     checkNotNull(synchronousWork);
     Optional<T> returnValue = Optional.empty();
