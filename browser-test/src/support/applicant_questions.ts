@@ -316,12 +316,12 @@ export class ApplicantQuestions {
 
     // If we are as a guest, we will get a prompt to log in before continuing to the
     // application. Bypass this to continue as a guest.
-    const loginPromptButton = this.page.locator(
-      `[id^="bypass-login-prompt-button-"]`,
-    )
-    if (await loginPromptButton.isVisible()) {
-      await loginPromptButton.click()
-    }
+    const loginPromptButton = this.page.getByRole('button', {
+      name: 'Continue to application',
+    })
+
+    await expect(loginPromptButton).toBeVisible()
+    await loginPromptButton.click()
 
     await waitForPageJsLoad(this.page)
   }
