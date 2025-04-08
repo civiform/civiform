@@ -343,17 +343,14 @@
               <!--/* We construct the link inline instead of using a fragment
                 since ${supportEmail} won't be recognized when the fragment is
                 evaluated at insertion time */-->
-              <div
-                class="usa-footer__contact-info expanding-div"
-                th:with="supportLink='<a class=\'usa-link\' '
-                  + 'href=\'mailto:' + ${supportEmail} + '\' '
-                  + 'target=\'_blank\' '
-                  + 'rel=\'noopener noreferrer\'>'
-                  + ${supportEmail}
-                  + '</a>'"
-                th:utext="#{footer.technicalSupport(${supportLink})}"
+              <a
+                th:href="'mailto:' + ${supportEmail} + '\' '"
+                class="usa-footer__contact-info usa-link"
+                rel="noopener noreferrer"
+                target="_blank"
+                th:text="#{footer.technicalSupport.v2(${supportEmail})}"
                 data-testid="supportEmail"
-              ></div>
+              ></a>
             </div>
           </div>
         </address>
