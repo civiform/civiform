@@ -25,6 +25,8 @@ footer.returnToTop=상단으로 돌아가기
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=기술 지원: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=For technical support: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=게스트
@@ -492,6 +494,7 @@ heading.eligibilityCriteria=자격 요건에 관한 자세한 내용
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램 팀에 직접 문의하려면 {0}을(를) 참고하세요
+content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
 # Text shown on a webpage when the applicant is ineligible for a program.
