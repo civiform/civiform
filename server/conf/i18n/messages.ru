@@ -25,6 +25,8 @@ footer.returnToTop=Вернуться к началу страницы
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Служба технической поддержки: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=For technical support: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Гость
@@ -492,6 +494,7 @@ heading.eligibilityCriteria=Подробнее о критериях допус�
 content.eligibilityCriteria=Чтобы ознакомиться с требованиями, перейдите на страницу {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0}.
+content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Вы можете вернуться на предыдущую страницу, чтобы изменить предоставленные сведения, или подать заявку на участие в другой программе.
 # Text shown on a webpage when the applicant is ineligible for a program.
