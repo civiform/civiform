@@ -502,7 +502,6 @@ public final class AdminApplicationController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
-
     var paginationSpec =
         new PageNumberPaginationSpec(
             PAGE_SIZE_BULK_STATUS,
@@ -528,23 +527,6 @@ public final class AdminApplicationController extends CiviFormController {
                 .build(),
             showDownloadModal,
             message));
-    return ok(
-        applicationListView.render(
-            request,
-            profile,
-            program,
-            activeStatusDefinitions.getDefaultStatus(),
-            getAllApplicationStatusesForProgram(program.id()),
-            paginationSpec,
-            applications,
-            RenderFilterParams.builder()
-                .setSearch(search)
-                .setFromDate(fromDate)
-                .setUntilDate(untilDate)
-                .setSelectedApplicationStatus(applicationStatus)
-                .build(),
-            selectedApplicationUri,
-            showDownloadModal));
   }
 
   /**
