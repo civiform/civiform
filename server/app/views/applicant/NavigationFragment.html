@@ -344,7 +344,7 @@
                 since ${supportEmail} won't be recognized when the fragment is
                 evaluated at insertion time */-->
               <a
-                th:href="'mailto:' + ${supportEmail} + '\' '"
+                th:href="@{mailto:{to}(to=${supportEmail})}"
                 class="usa-footer__contact-info usa-link"
                 rel="noopener noreferrer"
                 target="_blank"
