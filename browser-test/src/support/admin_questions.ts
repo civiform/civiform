@@ -1,6 +1,11 @@
 import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
-import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import {
+  dismissModal,
+  waitForAnyModal,
+  waitForAnyModalLocator,
+  waitForPageJsLoad,
+} from './wait'
 
 type QuestionOption = {
   adminName: string
@@ -271,7 +276,9 @@ export class AdminQuestions {
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
-  async clickOnProgramReferencesModal(questionName: string) {
+  async clickOnProgramReferencesModal(
+    questionName: string,
+  ): Promise<ElementHandle<HTMLElement>> {
     await this.page.click(
       this.selectProgramReferencesFromRow(questionName) + ' a',
     )
@@ -423,8 +430,8 @@ export class AdminQuestions {
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
     if (expectModal) {
-      const modal = await waitForAnyModal(this.page)
-      expect(await modal.innerText()).toContain(
+      const modal = await waitForAnyModalLocator(this.page)
+      await expect(modal).toContainText(
         'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)

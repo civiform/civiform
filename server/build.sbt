@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.6-jre",
+      "com.google.guava" % "guava" % "33.4.7-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -43,15 +43,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.16",
-      "software.amazon.awssdk" % "ses" % "2.31.16",
+      "software.amazon.awssdk" % "s3" % "2.31.17",
+      "software.amazon.awssdk" % "ses" % "2.31.17",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.33.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.34.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.6-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.7-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.37.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.49.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.49.2",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.0",
@@ -122,15 +122,18 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.5.18",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
+      "io.swagger" % "swagger-core" % "1.6.15" exclude (
+        "javax.validation",
+        "validation-api"
+      ),
       "io.swagger" % "swagger-parser" % "1.0.73",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.29",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.30",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.26",
 
       // Logstash to write JSON formatted log lines with logback
-      "net.logstash.logback" % "logstash-logback-encoder" % "8.0"
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

@@ -11,7 +11,7 @@ import {
   FormField,
   ProgramVisibility,
 } from '../support/admin_programs'
-import {dismissModal, waitForAnyModal} from '../support/wait'
+import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
@@ -1088,8 +1088,9 @@ test.describe('program creation', () => {
     await page.fill('#program-external-link-input', 'https://example.com')
     await page.click('#program-update-button')
 
-    let modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    let modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
+
     await validateScreenshot(
       page,
       'confirm-common-intake-change-modal',
@@ -1099,8 +1100,8 @@ test.describe('program creation', () => {
     // Modal gets re-rendered if needed.
     await dismissModal(page)
     await page.click('#program-update-button')
-    modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
 
     await page.click('#confirm-common-intake-change-button')
     await waitForPageJsLoad(page)
