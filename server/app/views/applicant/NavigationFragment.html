@@ -345,10 +345,10 @@
                 evaluated at insertion time */-->
               <a
                 th:href="'mailto:' + ${supportEmail} + '\' '"
-                class="usa-footer__contact-info expanding-div usa-link"
+                class="usa-footer__contact-info usa-link"
                 rel="noopener noreferrer"
                 target="_blank"
-                th:utext="#{footer.technicalSupport.v2(${supportEmail})}"
+                th:text="#{footer.technicalSupport.v2(${supportEmail})}"
                 data-testid="supportEmail"
               ></a>
             </div>
