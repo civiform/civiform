@@ -503,31 +503,31 @@ public final class AdminApplicationController extends CiviFormController {
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-      var paginationSpec =
-          new PageNumberPaginationSpec(
-              PAGE_SIZE_BULK_STATUS,
-              page.orElse(1),
-              PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
-      PaginationResult<ApplicationModel> applications =
-          programService.getSubmittedProgramApplicationsAllVersions(
-              programId, paginationSpec, filters);
-      return ok(
-          tableView.render(
-              request,
-              profile,
-              program,
-              activeStatusDefinitions,
-              getAllApplicationStatusesForProgram(program.id()),
-              paginationSpec,
-              applications,
-              RenderFilterParams.builder()
-                  .setSearch(search)
-                  .setFromDate(fromDate)
-                  .setUntilDate(untilDate)
-                  .setSelectedApplicationStatus(applicationStatus)
-                  .build(),
-              showDownloadModal,
-              message));
+    var paginationSpec =
+        new PageNumberPaginationSpec(
+            PAGE_SIZE_BULK_STATUS,
+            page.orElse(1),
+            PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
+    PaginationResult<ApplicationModel> applications =
+        programService.getSubmittedProgramApplicationsAllVersions(
+            programId, paginationSpec, filters);
+    return ok(
+        tableView.render(
+            request,
+            profile,
+            program,
+            activeStatusDefinitions,
+            getAllApplicationStatusesForProgram(program.id()),
+            paginationSpec,
+            applications,
+            RenderFilterParams.builder()
+                .setSearch(search)
+                .setFromDate(fromDate)
+                .setUntilDate(untilDate)
+                .setSelectedApplicationStatus(applicationStatus)
+                .build(),
+            showDownloadModal,
+            message));
     return ok(
         applicationListView.render(
             request,
