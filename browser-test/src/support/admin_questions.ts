@@ -1,5 +1,5 @@
 import {expect} from '@playwright/test'
-import {ElementHandle, Page} from 'playwright'
+import {Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 
 type QuestionOption = {
@@ -1405,26 +1405,32 @@ export class AdminQuestions {
   }
 
   async expectPreviewOptions(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-question-option'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-question-option',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerText()
-      }),
-    )
+    const count = await optionLocator.count()
+
+    const existingOptions = []
+    for (let i = 0; i < count; i++) {
+      existingOptions.push(await optionLocator.nth(i).innerText())
+    }
+
     expect(existingOptions).toEqual(options)
   }
 
   async expectPreviewOptionsWithMarkdown(options: string[]) {
-    const optionElements = Array.from(
-      await this.page.$$('#sample-question .cf-multi-option-value'),
+    const optionLocator = this.page.locator(
+      '#sample-question .cf-multi-option-value',
     )
-    const existingOptions = await Promise.all(
-      optionElements.map((el) => {
-        return (el as ElementHandle<HTMLElement>).innerHTML()
-      }),
-    )
+    const count = await optionLocator.count()
+
+    await expect(optionLocator).toHaveCount(options.length)
+
+    const existingOptions = []
+    for (let i = 0; i < count; i++) {
+      existingOptions.push(await optionLocator.nth(i).innerHTML())
+    }
+
     expect(existingOptions).toEqual(options)
   }
 
