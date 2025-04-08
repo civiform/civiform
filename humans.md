@@ -33,13 +33,16 @@
 - Lianne Okada Yi
 - Lindsay Zadunayski
 - Melanie Barker
+- Michael Zetune
 - Miriam Ferhut
 - Nick Burgan
 - Pari Patel
 - Rebecca Tinkelman
+- Reema Al-Marzoog
 - Ricardo Lagos
 - Rocky Fine
 - Sarah Stefaniu
+- Sean Albert
 - Shane McDaniel
 - Sheldon (Don) Sandbekkhaug
 - Shreya Chatterjee
@@ -47,6 +50,7 @@
 - Swathi Murthi
 - Tallulah Kay
 - Tom Smith
+- Yazeed Loonat
 
 ## Did you work on CiviForm?
 
