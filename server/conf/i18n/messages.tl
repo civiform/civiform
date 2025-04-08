@@ -25,6 +25,8 @@ footer.returnToTop=Bumalik sa itaas
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Para sa technical support: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=For technical support: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
@@ -492,6 +494,7 @@ heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwal
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
+content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
