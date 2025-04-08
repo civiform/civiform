@@ -683,7 +683,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Renders an individual question, including the description and any toggles or tags that should
    * be shown next to the question in the list of questions.
    */
-  private DivTag renderQuestion(
+  public DivTag renderQuestion(
       InputTag csrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,

@@ -4,13 +4,21 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+
+import controllers.admin.AdminImportController;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -18,6 +26,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Objects;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import services.AlertType;
 import services.program.BlockDefinition;
@@ -29,11 +39,17 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
+import views.components.Icons;
+import views.components.SvgTag;
 import views.components.TextFormatter;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /** An HTMX partial for portions of the page rendered by {@link AdminImportView}. */
 public final class AdminImportViewPartial extends BaseHtmlView {
+  private static final Logger logger = LoggerFactory.getLogger(AdminImportViewPartial.class);
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -67,8 +83,11 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap,
+      ImmutableMap<String, ImmutableSet<ProgramDefinition>> existingQuestionUsageMap,
       String json,
       boolean withDuplicates) {
+
+    logger.warn("Question usage map: {}", existingQuestionUsageMap);
 
     ImmutableMap<String, String> newToOldQuestionNameMap =
         getNewToOldQuestionAdminNameMap(updatedQuestionsMap);
@@ -89,8 +108,10 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     /* classes...= */ "mb-2"))
             .condWith(!updatedQuestionsMap.isEmpty(), questionAlert)
             .with(
-                h4("Program name: " + program.localizedName().getDefault()).withClass("mb-2"),
-                h4("Admin name: " + program.adminName()).withClass("mb-2"));
+                h4(strong("Program name: ")).with(text(program.localizedName().getDefault())).withClass("mb-2"),
+                p(strong("Program summary (shown under the title in the list of programs): ")).with(text(program.localizedShortDescription().getDefault())).withClass("mb-2"),
+                p(strong("Program description (shown on the application for the program): ")).with(text(program.localizedDescription().getDefault())).withClass("mb-2"),
+                h4(strong("Admin name: ")).with(text(program.adminName())).withClass("mb-2"));
 
     ImmutableMap<Long, QuestionDefinition> questionsById = ImmutableMap.of();
 
@@ -113,7 +134,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
           renderProgramBlock(block, questionsById, newToOldQuestionNameMap, withDuplicates));
     }
 
-    FormTag hiddenForm =
+    FormTag programForm =
         form()
             .attr("hx-encoding", "application/x-www-form-urlencoded")
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
@@ -126,6 +147,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .setValue(json)
                     .getTextareaTag()
                     .withClass("hidden"))
+            .with(programDiv)
             .with(
                 div()
                     .with(
@@ -137,7 +159,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .withClasses("flex", "my-5"))
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
-    return programDiv.with(hiddenForm);
+    return programForm;
   }
 
   /** Renders a message saying the program was successfully saved. */
@@ -248,7 +270,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     DivTag blockDiv =
         div()
             .withClasses("border", "border-gray-200", "p-2")
-            .with(h4(block.name()), p(block.description()));
+            .with(h3(block.name()), p(block.description()));
     // TODO(#7087): Display eligibility and visibility predicates.
 
     if (!questionsById.isEmpty()) {
@@ -269,45 +291,95 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       ImmutableMap<String, String> newToOldQuestionNameMap,
       boolean withDuplicates) {
     String currentAdminName = question.getName();
-    boolean questionIsDuplicate =
-        !currentAdminName.equals(newToOldQuestionNameMap.get(currentAdminName));
+    String oldAdminName = newToOldQuestionNameMap.get(currentAdminName);
+    boolean questionIsDuplicate = !currentAdminName.equals(oldAdminName);
 
     String duplicateOrExistingText = withDuplicates ? "DUPLICATE QUESTION" : "EXISTING QUESTION";
 
     DivTag newOrDuplicateIndicator =
         questionIsDuplicate
-            ? div(p(duplicateOrExistingText).withClass("p-2"))
-                .withClasses("bg-yellow-100", "w-44", "flex", "justify-center")
+            ? div(div(span(duplicateOrExistingText).withClasses("usa-tag", "bg-red-600"))
+                      .withClasses("mb-2"),
+                  FieldWithLabel
+                  // TODO Set outline instead of border
+                      .radio()
+                      .setLabelText("Use existing question")
+                      .setFieldName("duplicateQuestionHandling-" + question.getId())
+                      .setValue("EXISTING")
+                      .setChecked(true)
+                      .getRadioTag(),                  
+                  FieldWithLabel
+                      // TODO Set outline instead of border
+                      .radio()
+                      .setLabelText("Create duplicate question")
+                      .setFieldName("duplicateQuestionHandling-" + question.getId())
+                      .setValue("DUPLICATE")
+                      .getRadioTag())
             : div(p("NEW QUESTION").withClass("p-2"))
                 .withClasses("bg-cyan-100", "w-32", "flex", "justify-center");
-    DivTag questionDiv =
+    DivTag ret = div()
+            .withData("testid", "question-admin-name-" + question.getName())
+            .withClasses(
+                ReferenceClasses.PROGRAM_QUESTION,
+                "my-2",
+                "px-4",
+                "py-2",
+                "items-center",
+                "rounded-md",
+                StyleUtils.hover("text-gray-800", "bg-gray-100"));
+    ret.condWith(question.isUniversal(), ViewUtils.makeUniversalBadge(question, "mt-2", "mb-4"));
+    DivTag row = div().withClasses("flex", "gap-4", "items-center");
+    SvgTag icon =
+        Icons.questionTypeSvg(question.getQuestionType())
+            .withClasses("shrink-0", "h-12", "w-6");
+    String questionHelpText =
+      question.getQuestionHelpText().isEmpty()
+            ? ""
+            : question.getQuestionHelpText().getDefault();
+    DivTag content =
         div()
-            .withClasses("p-2")
+            .withClass("flex-grow")
             .with(
-                newOrDuplicateIndicator,
                 div()
-                    .with(TextFormatter.formatText(question.getQuestionText().getDefault()))
-                    .withClass("font-bold")
-                    .withData("testid", "question-div"));
-    if (!question.getQuestionHelpText().isEmpty()) {
-      questionDiv.with(TextFormatter.formatText(question.getQuestionHelpText().getDefault()));
-    }
+                    .with(
+                        TextFormatter.formatText(
+                            question.getQuestionText().getDefault())),
+                div()
+                    .with(TextFormatter.formatText(questionHelpText))
+                    .withClasses("mt-1", "text-sm"),
+                p(String.format("Admin ID: %s", question.getName()))
+                    .withClasses("mt-1", "text-sm"));
+    row.with(icon, content);
+    return ret.with(newOrDuplicateIndicator, row);
 
-    questionDiv.with(
-        p("Admin name: " + question.getName()),
-        p("Admin description: " + question.getDescription()),
-        p("Question type: " + question.getQuestionType().name()));
+  //   DivTag questionDiv =
+  //       div()
+  //           .withClasses("p-2")
+  //           .with(
+  //               newOrDuplicateIndicator,
+  //               div()
+  //                   .with(TextFormatter.formatText(question.getQuestionText().getDefault()))
+  //                   .withClass("font-bold")
+  //                   .withData("testid", "question-div"));
+  //   if (!question.getQuestionHelpText().isEmpty()) {
+  //     questionDiv.with(TextFormatter.formatText(question.getQuestionHelpText().getDefault()));
+  //   }
 
-    // If a question offers options, show them
-    if (question.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-      UlTag optionList = ul().withClasses("list-disc", "ml-10");
-      for (QuestionOption option : multiOption.getOptions()) {
-        optionList.with(li(option.optionText().getDefault()));
-      }
-      questionDiv.with(optionList);
-    }
+  //   questionDiv.with(
+  //       p("Admin name: " + question.getName()),
+  //       p("Admin description: " + question.getDescription()),
+  //       p("Question type: " + question.getQuestionType().name()));
 
-    return questionDiv;
+  //   // If a question offers options, show them
+  //   if (question.getQuestionType().isMultiOptionType()) {
+  //     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
+  //     UlTag optionList = ul().withClasses("list-disc", "ml-10");
+  //     for (QuestionOption option : multiOption.getOptions()) {
+  //       optionList.with(li(option.optionText().getDefault()));
+  //     }
+  //     questionDiv.with(optionList);
+  //   }
+
+  //   return questionDiv;
   }
 }

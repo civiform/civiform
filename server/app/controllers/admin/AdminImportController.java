@@ -9,13 +9,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import controllers.FileController;
+
 import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import parsers.LargeFormUrlEncodedBodyParser;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.BodyParser;
@@ -40,6 +45,8 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.ActiveAndDraftQuestions;
+import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
@@ -60,6 +67,7 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
+  private static final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
 
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
@@ -69,6 +77,7 @@ public class AdminImportController extends CiviFormController {
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final QuestionService questionService;
   private final ProgramService programService;
 
   @Inject
@@ -83,6 +92,7 @@ public class AdminImportController extends CiviFormController {
       ProgramRepository programRepository,
       QuestionRepository questionRepository,
       ApplicationStatusesRepository applicationStatusesRepository,
+      QuestionService questionService,
       ProgramService programService) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
@@ -93,6 +103,7 @@ public class AdminImportController extends CiviFormController {
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
   }
 
@@ -108,7 +119,7 @@ public class AdminImportController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
-  public Result hxImportProgram(Http.Request request) {
+  public Result hxImportProgram(Http.Request request) throws Exception {
     Form<AdminProgramImportForm> form =
         formFactory
             .form(AdminProgramImportForm.class)
@@ -217,8 +228,7 @@ public class AdminImportController extends CiviFormController {
       // When we are importing without duplicate questions, we expect all drafts to be published
       // before the import process begins.
       Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
-      if (!withDuplicates
-          && draftVersion.isPresent()
+      if (draftVersion.isPresent()
           // If there are either questions or programs in the draft, we should show this error
           && (versionRepository.getProgramCountForVersion(draftVersion.get())
                   + versionRepository.getQuestionCountForVersion(draftVersion.get())
@@ -234,7 +244,14 @@ public class AdminImportController extends CiviFormController {
       if (questions == null) {
         return ok(
             adminImportViewPartial
-                .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
+                .renderProgramData(
+                    request,
+                    program, 
+                    questions, 
+                    ImmutableMap.of(), 
+                    ImmutableMap.of(), 
+                    jsonString, 
+                    /* withDuplicates= */ true)
                 .render());
       }
 
@@ -243,11 +260,36 @@ public class AdminImportController extends CiviFormController {
       // This creates a map of the old question name -> updated question data
       // We want to do this even when we don't want to save the updated admin names
       // so that we can use the count of existing questions in the alert
+      // Original name --> data including new name
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
           programMigrationService.maybeOverwriteQuestionName(questions);
 
-      if (withDuplicates) {
-        questions = ImmutableList.copyOf(updatedQuestionsMap.values());
+      ImmutableMap.Builder<String, ImmutableSet<ProgramDefinition>> questionUsageMapBuilder =
+          ImmutableMap.builder();
+      ActiveAndDraftQuestions allQs = questionService.getReadOnlyQuestionService().thenApplyAsync(
+        ros -> ros.getActiveAndDraftQuestions()).toCompletableFuture().get();
+      for (QuestionDefinition question : questions) {
+        logger.warn("Question: {}", question.getName());
+        var referencingPs = allQs.getReferencingPrograms(question.getName());
+        if (!referencingPs.activeReferences().isEmpty()) {
+            logger.warn(
+                "Question {} is already referenced by active program(s): {}",
+                question.getName(),
+                referencingPs.activeReferences());
+        }
+        if (!referencingPs.draftReferences().isEmpty()) {
+            logger.warn(
+                "Question {} is already referenced by draft program(s): {}",
+                question.getName(),
+                referencingPs.draftReferences());
+        }
+        // Store the admin name --> program usage
+        questionUsageMapBuilder.put(
+            question.getName(),
+            ImmutableSet.<ProgramDefinition>builder()
+                .addAll(referencingPs.activeReferences())
+                .addAll(referencingPs.draftReferences())
+                .build());
       }
 
       ImmutableSet<CiviFormError> questionErrors =
@@ -285,6 +327,7 @@ public class AdminImportController extends CiviFormController {
                   program,
                   questions,
                   updatedQuestionsMap,
+                  questionUsageMapBuilder.build(),
                   serializeResult.getResult(),
                   withDuplicates)
               .render());
@@ -306,6 +349,14 @@ public class AdminImportController extends CiviFormController {
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
+    logger.warn("Importing program JSON:");
+    for (String key : request.body().asFormUrlEncoded().keySet()) {
+      logger.warn(key + ": " + request.body().asFormUrlEncoded().get(key)[0]);
+    }
+    DynamicForm dynamicForm = formFactory.form().bindFromRequest(request);
+    for (var id : deserializeResult.getResult().getQuestions().stream().map(q -> q.getId()).collect(ImmutableList.toImmutableList())) {
+        logger.warn("useExistingQuestions-{}: {}", id, dynamicForm.get("useExistingQuestions-" + id));
+    }
     if (deserializeResult.isError()) {
       return ok(
           adminImportViewPartial
@@ -318,6 +369,9 @@ public class AdminImportController extends CiviFormController {
     try {
       ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
       ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
+      logger.warn("Importing program {} with questions {}",
+            programMigrationWrapper.getProgram().toString(),
+            questionsOnJson.toString());
       ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
 
       ProgramDefinition updatedProgram = programOnJson;

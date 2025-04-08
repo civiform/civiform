@@ -12,13 +12,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+
+import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.ProgramNotificationPreference;
+import models.QuestionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.QuestionRepository;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -35,6 +41,8 @@ import services.question.types.TextQuestionDefinition;
  * environments.
  */
 public final class ProgramMigrationService {
+    private static final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
+
   // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
   // name like `name - parent`.
   // It will transform to a key formatted like `%s__%s`
@@ -169,7 +177,12 @@ public final class ProgramMigrationService {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                 .build());
 
-    return questionRepository.findConflictingQuestion(testQuestion).isPresent();
+    Optional<QuestionModel> existingQuestion =
+        questionRepository.findConflictingQuestion(testQuestion);
+    if (existingQuestion.isPresent()) {
+      logger.warn("EXISTING QUESTION: {}", existingQuestion.get());
+    }
+    return existingQuestion.isPresent();
   }
 
   /**
