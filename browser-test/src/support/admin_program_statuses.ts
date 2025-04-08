@@ -1,11 +1,6 @@
-import {expect} from '@playwright/test'
-import {ElementHandle, Page} from 'playwright'
-import {
-  dismissModal,
-  waitForAnyModal,
-  waitForAnyModalLocator,
-  waitForPageJsLoad,
-} from './wait'
+import {expect, Locator} from '@playwright/test'
+import {Page} from 'playwright'
+import {dismissModal, waitForAnyModalLocator, waitForPageJsLoad} from './wait'
 
 export class AdminProgramStatuses {
   private page!: Page
@@ -75,8 +70,8 @@ export class AdminProgramStatuses {
   ) {
     await this.page.click('button:has-text("Create a new status")')
 
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Create a new status')
 
     emailBody = emailBody ?? ''
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
@@ -94,17 +89,23 @@ export class AdminProgramStatuses {
     await confirmHandle.click()
   }
 
-  async createDefaultStatusWithoutClickingConfirm(statusName: string) {
+  async createDefaultStatusWithoutClickingConfirm(
+    statusName: string,
+  ): Promise<Locator> {
     await this.page.click('button:has-text("Create a new status")')
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
-    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
+
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Create a new status')
+
+    const statusFieldHandle = modal.locator('text="Status name (required)"')
     await statusFieldHandle.fill(statusName)
-    const defaultCheckboxHandle = (await modal.$(
+
+    const defaultCheckboxHandle = modal.locator(
       'input[name="defaultStatusCheckbox"]',
-    ))!
+    )
     await defaultCheckboxHandle.check()
-    return (await modal.$('button:has-text("Confirm")'))!
+
+    return modal.locator('button:has-text("Confirm")')
   }
 
   acceptDialogWithMessage(message?: string, dialogType = 'confirm') {
@@ -145,30 +146,33 @@ export class AdminProgramStatuses {
     await this.page.click(
       this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
     )
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
-    const defaultCheckboxHandle = (await modal.$(
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Edit this status')
+
+    const defaultCheckboxHandle = modal.locator(
       'input[name="defaultStatusCheckbox"]',
-    ))!
+    )
+
     if (defaultChecked) {
       await defaultCheckboxHandle.check()
     } else {
       await defaultCheckboxHandle.uncheck()
     }
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+
+    const confirmHandle = modal.locator('button:has-text("Confirm")')
+
     if (defaultChecked) {
       this.acceptDialogWithMessage(dialogMessage)
     }
+
     await confirmHandle.click()
     await waitForPageJsLoad(this.page)
   }
 
   async expectCreateStatusModalWithError(expectErrorContains: string) {
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Create a new status')
-    if (expectErrorContains) {
-      expect(await modal.innerText()).toContain(expectErrorContains)
-    }
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Create a new status')
+    await expect(modal).toContainText(expectErrorContains)
   }
 
   async editStatus(
@@ -183,8 +187,8 @@ export class AdminProgramStatuses {
         ' button:has-text("Edit")',
     )
 
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain('Edit this status')
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Edit this status')
 
     await this.fillStatusUpdateModalValuesAndSubmit(modal, {
       statusName: editedStatusName,
@@ -194,7 +198,7 @@ export class AdminProgramStatuses {
   }
 
   async expectEditStatusModalWithError(expectErrorContains: string) {
-    const modal = await waitForAnyModal(this.page)
+    const modal = await waitForAnyModalLocator(this.page)
     expect(await modal.innerText()).toContain('Edit this status')
     if (expectErrorContains) {
       expect(await modal.innerText()).toContain(expectErrorContains)
@@ -205,9 +209,9 @@ export class AdminProgramStatuses {
     await this.page.click(
       this.programStatusItemSelector(statusName) + ' button:has-text("Delete")',
     )
-    const modal = await waitForAnyModal(this.page)
+    const modal = await waitForAnyModalLocator(this.page)
 
-    const deleteHandle = (await modal.$('button:has-text("Delete")'))!
+    const deleteHandle = modal.locator('button:has-text("Delete")')
     await deleteHandle.click()
     await waitForPageJsLoad(this.page)
   }
@@ -238,21 +242,24 @@ export class AdminProgramStatuses {
     await dismissModal(this.page)
   }
 
-  async emailTranslationWarningIsVisible(statusName: string): Promise<boolean> {
+  async expectEmailTranslationWarningVisibility(
+    statusName: string,
+    visible: boolean,
+  ) {
     await this.page.click(
       this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
     )
 
-    const modal = await waitForAnyModal(this.page)
-    const innerText = await modal.innerText()
-    expect(innerText).toContain('Edit this status')
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Edit this status')
 
     // Close the modal prior to any assertions to avoid affecting subsequent tests.
+    await expect(
+      modal.getByText(
+        'clearing the email body will also clear any associated translations',
+      ),
+    ).toBeVisible({visible: visible})
     await dismissModal(this.page)
-
-    return innerText.includes(
-      'clearing the email body will also clear any associated translations',
-    )
   }
 
   async expectProgramManageStatusesPage(programName: string) {
@@ -262,7 +269,7 @@ export class AdminProgramStatuses {
   }
 
   private async fillStatusUpdateModalValuesAndSubmit(
-    modal: ElementHandle<HTMLElement>,
+    modal: Locator,
     {
       statusName,
       emailBody,
@@ -273,14 +280,15 @@ export class AdminProgramStatuses {
   ) {
     // We perform selectors within the modal since using the typical
     // page.fill with a selector will match multiple modals on the page.
-    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
+    const statusFieldHandle = modal.locator('text="Status name (required)"')
     await statusFieldHandle.fill(statusName)
-    const emailFieldHandle = (await modal.$(
+
+    const emailFieldHandle = modal.locator(
       'text="Email the applicant about the status change"',
-    ))!
+    )
     await emailFieldHandle.fill(emailBody || '')
 
-    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    const confirmHandle = modal.locator('button:has-text("Confirm")')
     await confirmHandle.click()
   }
 
