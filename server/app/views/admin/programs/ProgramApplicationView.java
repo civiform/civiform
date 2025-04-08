@@ -41,7 +41,6 @@ import services.MessageKey;
 import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -70,18 +69,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout,
-      @EnUsLang Messages enUsMessages,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(

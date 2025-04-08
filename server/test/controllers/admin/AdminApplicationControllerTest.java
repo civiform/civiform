@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -65,7 +64,6 @@ import services.statuses.StatusDefinitions.Status;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import support.ProgramBuilder;
-import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -108,7 +106,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   private AdminApplicationController controller;
   private ProgramAdminApplicationService programAdminApplicationService;
   private ApplicationStatusesRepository repo;
-  private SettingsManifest settingsManifestMock;
   private ProfileFactory profileFactory;
 
   @Before
@@ -116,7 +113,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     controller = instanceOf(AdminApplicationController.class);
     programAdminApplicationService = instanceOf(ProgramAdminApplicationService.class);
     repo = instanceOf(ApplicationStatusesRepository.class);
-    settingsManifestMock = mock(SettingsManifest.class);
     profileFactory = instanceOf(ProfileFactory.class);
   }
 
@@ -852,7 +848,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(FormFactory.class),
         instanceOf(JsonExporterService.class),
         instanceOf(PdfExporterService.class),
-        instanceOf(ProgramApplicationListView.class),
         instanceOf(ProgramApplicationView.class),
         instanceOf(ProgramAdminApplicationService.class),
         profileUtilsNoOpTester,
@@ -861,7 +856,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
         instanceOf(VersionRepository.class),
         instanceOf(StatusService.class),
-        settingsManifestMock,
         instanceOf(ProgramApplicationTableView.class));
   }
 
