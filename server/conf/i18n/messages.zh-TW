@@ -25,6 +25,8 @@ footer.returnToTop=返回頁首
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=如需技術支援服務，請傳送電子郵件至 {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=For technical support: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=訪客
@@ -492,6 +494,7 @@ heading.eligibilityCriteria=進一步瞭解資格規定
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0}。
+content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
 # Text shown on a webpage when the applicant is ineligible for a program.
