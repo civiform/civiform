@@ -503,7 +503,6 @@ public final class AdminApplicationController extends CiviFormController {
 
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    if (settingsManifest.getBulkStatusUpdateEnabled(request)) {
       var paginationSpec =
           new PageNumberPaginationSpec(
               PAGE_SIZE_BULK_STATUS,
@@ -529,13 +528,6 @@ public final class AdminApplicationController extends CiviFormController {
                   .build(),
               showDownloadModal,
               message));
-    }
-    var paginationSpec =
-        new PageNumberPaginationSpec(
-            PAGE_SIZE, page.orElse(1), PageNumberPaginationSpec.OrderByEnum.SUBMIT_TIME);
-    PaginationResult<ApplicationModel> applications =
-        programService.getSubmittedProgramApplicationsAllVersions(
-            programId, paginationSpec, filters);
     return ok(
         applicationListView.render(
             request,

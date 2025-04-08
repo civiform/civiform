@@ -170,7 +170,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     Request request = fakeRequest();
-    when(settingsManifestMock.getBulkStatusUpdateEnabled(request)).thenReturn(true);
 
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
     repo.createOrUpdateStatusDefinitions(

@@ -1041,11 +1041,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FASTFORWARD_ENABLED", request);
   }
 
-  /** When enabled, admins will be able to select many applications for status updates */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
   /** Enables civiform admins to set up a customized eligibility message per screen. */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
@@ -2260,13 +2255,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "When enabled, existing draft applications will automatically be updated"
                               + " to use the latest version of a program when a newer version has"
                               + " been published.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "BULK_STATUS_UPDATE_ENABLED",
-                          "When enabled, admins will be able to select many applications for status"
-                              + " updates",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

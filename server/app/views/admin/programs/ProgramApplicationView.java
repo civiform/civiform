@@ -127,9 +127,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                settingsManifest.getBulkStatusUpdateEnabled(request)
-                    ? renderBackLink(programId)
-                    : div(),
+              renderBackLink(programId),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
