@@ -5,6 +5,7 @@ import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableMap;
@@ -135,7 +136,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition();
-    answer(draftProgramDefinition.id(), true);
+    answer(draftProgramDefinition.id());
 
     Result result = this.submit(applicant.id, draftProgramDefinition.id());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -158,48 +159,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_obsoleteProgram_isSuccessful_whenFastForwardDisabled() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test program", "desc")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank().nameApplicantName())
-            .buildDefinition();
-    resourceCreator().insertDraftProgram(programDefinition.adminName());
-    VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    versionRepository.publishNewSynchronizedVersion();
-
-    answer(programDefinition.id(), false);
-
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("FASTFORWARD_ENABLED", "false")
-            .call(
-                routes.ApplicantProgramReviewController.submitWithApplicantId(
-                    applicant.id, programDefinition.id()))
-            .header(skipUserProfile, "false")
-            .build();
-
-    Result result =
-        subject
-            .submitWithApplicantId(request, applicant.id, programDefinition.id())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(FOUND);
-
-    // An application was submitted
-    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
-    ImmutableSet<ApplicationModel> applications =
-        applicationRepository
-            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
-            .toCompletableFuture()
-            .join();
-    assertThat(applications).hasSize(1);
-    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(programDefinition.id());
-  }
-
-  @Test
-  public void submit_obsoleteProgram_redirectsToReviewPageForTi_whenFastForwardEnabled() {
+  public void submit_obsoleteProgram_redirectsToReviewPageForTi() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
@@ -210,12 +170,9 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     versionRepository.publishNewSynchronizedVersion();
 
-    answer(programDefinition.id(), true);
+    answer(programDefinition.id());
 
     var programId = programDefinition.id();
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build();
 
     ApplicantModel tiApplicant = createApplicant();
     AccountModel tiAccount = createTIWithMockedProfile(tiApplicant);
@@ -223,7 +180,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     Result result =
         blockController
             .updateWithApplicantId(
-                request,
+                fakeRequest(),
                 tiApplicant.id,
                 programId,
                 /* blockId= */ "1",
@@ -251,7 +208,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_obsoleteProgram_redirectsToReviewPage_whenFastForwardEnabled() {
+  public void submit_obsoleteProgram_redirectsToReviewPage() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
@@ -262,17 +219,14 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     versionRepository.publishNewSynchronizedVersion();
 
-    answer(programDefinition.id(), true);
+    answer(programDefinition.id());
 
     var programId = programDefinition.id();
-
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build();
 
     Result result =
         blockController
             .update(
-                request,
+                fakeRequest(),
                 programId,
                 /* blockId= */ "1",
                 /* inReview= */ false,
@@ -304,7 +258,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
-    answer(activeProgram.id, true);
+    answer(activeProgram.id);
 
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(FOUND);
@@ -344,7 +298,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withBlock()
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
-    answer(activeProgram.id, true);
+    answer(activeProgram.id);
     this.submit(applicant.id, activeProgram.id);
 
     // Submit the application again without editing
@@ -353,7 +307,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(noEditsResult.status()).isEqualTo(OK);
 
     // Edit the application but re-enter the same values
-    answer(activeProgram.id, true);
+    answer(activeProgram.id);
     Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
     // Error is handled and applicant is shown duplicates page
     assertThat(sameValuesResult.status()).isEqualTo(OK);
@@ -397,10 +351,9 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .join();
   }
 
-  private void answer(long programId, boolean fastforwardEnabled) {
+  private void answer(long programId) {
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("FASTFORWARD_ENABLED", Boolean.toString(fastforwardEnabled))
             .bodyForm(
                 ImmutableMap.of(
                     Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
