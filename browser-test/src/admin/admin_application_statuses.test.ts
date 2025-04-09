@@ -147,7 +147,11 @@ test.describe('view program statuses', () => {
     test.describe('when a status is changed, a confirmation dialog is shown', () => {
       test('renders', async ({page, adminPrograms}) => {
         await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
-        await validateScreenshot(page, 'change-status-modal')
+        await validateScreenshot(
+          page,
+          'change-status-modal',
+          /* fullPage= */ false,
+        )
       })
 
       test('when rejecting, the selected status is not changed', async ({
@@ -326,7 +330,7 @@ test.describe('view program statuses', () => {
       await page.evaluate(() => {
         window.scrollTo(0, 0)
       })
-      await validateScreenshot(page, 'edit-note-modal')
+      await validateScreenshot(page, 'edit-note-modal', /* fullPage= */ false)
     })
 
     test('shows the current note content', async ({adminPrograms}) => {
