@@ -9,6 +9,7 @@
   class="cf-question-enumerator cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labeledby="|${questionId}-title ${questionId}-description|" 
 >
   <fieldset
     class="usa-fieldset"
