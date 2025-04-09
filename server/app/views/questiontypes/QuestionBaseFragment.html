@@ -16,9 +16,7 @@
   th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
-  <legend 
-    th:id="${questionId} + '-title'"
-    class="usa-legend display-flex">
+  <legend th:id="${questionId} + '-title'" class="usa-legend display-flex">
     <div th:replace="~{this :: titleContent(${question})}"></div>
   </legend>
 
