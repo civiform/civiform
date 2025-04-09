@@ -92,7 +92,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       })
     })
 
-    test.only('with invalid address does not submit', async ({
+    test('with invalid address does not submit', async ({
       page,
       applicantQuestions,
     }) => {
@@ -112,11 +112,13 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Confirm aria-invalid applies only to the invalid field', async () => {
-        const addressStreet1 = page.getByRole('textbox', { name: 'Address'})
-        const addressStreet2 = page.getByRole('textbox', { name: 'Apartment, suite, etc. (' })
-        const addressCity = page.getByRole('textbox', { name: 'City' })
+        const addressStreet1 = page.getByRole('textbox', {name: 'Address'})
+        const addressStreet2 = page.getByRole('textbox', {
+          name: 'Apartment, suite, etc. (',
+        })
+        const addressCity = page.getByRole('textbox', {name: 'City'})
         const addressState = page.getByLabel('State *')
-        const addressZip = page.getByRole('textbox', { name: 'ZIP Code' })
+        const addressZip = page.getByRole('textbox', {name: 'ZIP Code'})
         await expect(addressStreet1).toHaveAttribute('aria-invalid', 'false')
         await expect(addressStreet2).toHaveAttribute('aria-invalid', 'false')
         await expect(addressCity).toHaveAttribute('aria-invalid', 'false')
