@@ -92,7 +92,7 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
       })
     })
 
-    test('with invalid address does not submit', async ({
+    test.only('with invalid address does not submit', async ({
       page,
       applicantQuestions,
     }) => {
@@ -110,9 +110,26 @@ test.describe('address applicant flow', {tag: ['@northstar']}, () => {
         )
         await applicantQuestions.clickContinue()
       })
-      const error = page.locator('.cf-address-zip-error')
-      await expect(error).toBeVisible()
-      await validateAccessibility(page)
+
+      await test.step("Confirm aria-invalid applies only to the invalid field", async () => {
+        await page.getAttribute
+        const addressStreet1 = page.locator('.cf-address-street-1 input')
+        const addressStreet2 = page.locator('.cf-address-street-2 input')
+        const addressCity = page.locator('.cf-address-city input')
+        const addressState = page.locator('.cf-address-state select')
+        const addressZip = page.locator('.cf-address-zip input')
+        await expect(addressStreet1).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressStreet2).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressCity).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressState).toHaveAttribute('aria-invalid', 'false')
+        await expect(addressZip).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      await test.step("Confirm address zip error is visible", async () => {
+        const error = page.locator('.cf-address-zip-error')
+        await expect(error).toBeVisible()
+        await validateAccessibility(page)
+      })
     })
 
     test('with partially complete address does not submit', async ({
