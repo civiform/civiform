@@ -897,11 +897,6 @@
         "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
         "type": "bool"
       },
-      "BULK_STATUS_UPDATE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, admins will be able to select many applications for status updates",
-        "type": "bool"
-      },
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
