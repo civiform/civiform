@@ -116,11 +116,11 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
         programDefinition.localizedDescription().getOrDefault(preferredLocale);
 
     if (!localizedProgramDescription.isEmpty()) {
-      return TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+      return TextFormatter.formatTextToSanitizedHTML(
           localizedProgramDescription,
           /* preserveEmptyLines= */ true,
           /* addRequiredIndicator= */ false,
-          messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+          messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()));
     }
 
     return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
@@ -163,7 +163,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
             (step) -> {
               applicationStepsBuilder.put(
                   step.getTitle().getOrDefault(preferredLocale),
-                  TextFormatter.formatTextToSanitizedHTMLWithAriaLabel(
+                  TextFormatter.formatTextToSanitizedHTML(
                       step.getDescription().getOrDefault(preferredLocale),
                       /* preserveEmptyLines= */ true,
                       /* addRequiredIndicator= */ false,

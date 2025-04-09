@@ -31,7 +31,7 @@
 
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fileUploadQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
   ></div>
 
   <!--/* Errors always rendered in the DOM and hidden, but shown by file_upload.ts when needed. */-->
@@ -65,7 +65,7 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${questionId} + '-description'"
+    th:aria-describedby="${questionId} + (${hasErrors} ? '-error' : '-description')"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
     th:disabled="${!fileUploadQuestion.canUploadFile()}"

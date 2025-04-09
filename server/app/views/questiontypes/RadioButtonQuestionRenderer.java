@@ -104,7 +104,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .with(
                 inputTag,
                 div()
-                    .with(TextFormatter.formatText(option.optionText()))
+                    .with(TextFormatter.formatTextForAdmins(option.optionText()))
                     .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()

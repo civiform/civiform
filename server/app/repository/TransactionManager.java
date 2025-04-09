@@ -7,6 +7,7 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +20,10 @@ import org.slf4j.LoggerFactory;
  * on transactions.
  */
 public final class TransactionManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
   /**
-   * Run the supplied code in a {@link TxIsolation.SERIALIZABLE} transaction, calling the failure
-   * handler if the transaction is rolled back due to a concurrent transaction.
+   * Run the supplied code in a {@link TxIsolation#SERIALIZABLE} transaction.
    *
    * <p>Warning: This has not been tested with a supplier that does work asynchronously.
    *
@@ -40,26 +40,58 @@ public final class TransactionManager {
    * </ul>
    *
    * @param synchronousWork the synchronous {@link Supplier} to run inside a transaction
-   * @param onSerializationFailure the {@link Supplier} to run in the event of a failure due to a
-   *     conflict with a concurrent transaction
    * @param <T> the return type of the suppliers
    */
-  public <T> T executeInTransaction(
-      Supplier<T> synchronousWork, Supplier<T> onSerializationFailure) {
+  public <T> T execute(Supplier<T> synchronousWork) {
     checkNotNull(synchronousWork);
-    checkNotNull(onSerializationFailure);
     try (Transaction transaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       T result = synchronousWork.get();
       transaction.commit();
       return result;
+    }
+  }
+
+  /** Calls {@link #execute(Supplier)} but accepts a {@link Runnable}. */
+  public void execute(Runnable synchronousWork) {
+    execute(
+        () -> {
+          synchronousWork.run();
+          return null;
+        });
+  }
+
+  /**
+   * Calls {@link #execute(Supplier)} returning its result, if it fails due to a concurrent
+   * transaction the failure handler is called and its result is returned.
+   *
+   * @param onSerializationFailure {@link Supplier} to run in the event of a failure due to a
+   *     conflict with a concurrent transaction
+   */
+  public <T> T executeInTransaction(
+      Supplier<T> synchronousWork, Supplier<T> onSerializationFailure) {
+    checkNotNull(synchronousWork);
+    checkNotNull(onSerializationFailure);
+    try {
+      return execute(synchronousWork);
     } catch (SerializableConflictException e) {
-      LOGGER.info(
-          String.format(
-              "Transaction wrapper prevented a race condition from causing data integrity errors:"
-                  + " %s.",
-              e.getMessage()));
+      logger.info(
+          "Concurrent transaction occurred, falling back to failure handler: {}", e.getMessage());
       return onSerializationFailure.get();
     }
+  }
+
+  /** Calls {@link #execute(Supplier)} but makes two attempts before failing. */
+  public <T> T executeWithRetry(Supplier<T> synchronousWork) {
+    checkNotNull(synchronousWork);
+    Optional<T> returnValue = Optional.empty();
+    try {
+      returnValue = Optional.of(execute(synchronousWork));
+    } catch (SerializableConflictException ignored) {
+      // Ignore the exception and retry, allowing subsequent exceptions to be
+      // surfaced.
+    }
+
+    return returnValue.orElseGet(() -> execute(synchronousWork));
   }
 }

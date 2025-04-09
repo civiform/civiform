@@ -1,6 +1,11 @@
 import {expect} from '@playwright/test'
 import {ElementHandle, Page} from 'playwright'
-import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
+import {
+  dismissModal,
+  waitForAnyModal,
+  waitForAnyModalLocator,
+  waitForPageJsLoad,
+} from './wait'
 
 type QuestionOption = {
   adminName: string
@@ -196,7 +201,10 @@ export class AdminQuestions {
     if (!exportOption) {
       throw new Error('A non-empty export option must be provided')
     }
-    await this.page.check(this.selectorForExportOption(exportOption))
+
+    await this.page
+      .getByRole('radio', {name: exportOption, exact: true})
+      .check()
   }
 
   async updateQuestionText(updateText: string) {
@@ -268,7 +276,9 @@ export class AdminQuestions {
     expect(programReferencesText).toContain(expectedProgramReferencesText)
   }
 
-  async clickOnProgramReferencesModal(questionName: string) {
+  async clickOnProgramReferencesModal(
+    questionName: string,
+  ): Promise<ElementHandle<HTMLElement>> {
     await this.page.click(
       this.selectProgramReferencesFromRow(questionName) + ' a',
     )
@@ -420,8 +430,8 @@ export class AdminQuestions {
       this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
     if (expectModal) {
-      const modal = await waitForAnyModal(this.page)
-      expect(await modal.innerText()).toContain(
+      const modal = await waitForAnyModalLocator(this.page)
+      await expect(modal).toContainText(
         'This question cannot be archived since there are still programs using it',
       )
       await dismissModal(this.page)
@@ -1375,28 +1385,13 @@ export class AdminQuestions {
     deleteEntityButtonText: string
     addEntityButtonText: string
   }) {
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    // Directly switching to the best practice method fails
-    // because of a locator stict mode violation. That is it
-    // returns multiple elements.
-    //
-    // Recommended prefer-web-first-assertions fix:
-    // await expect(this.page.locator('.cf-entity-name-input label')).toHaveText(
-    //   entityNameInputLabelText,
-    // )
-    // await expect(this.page.locator('.cf-enumerator-delete-button')).toHaveText(
-    //   deleteEntityButtonText,
-    // )
-    // await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
-    //   addEntityButtonText,
-    // )
-    expect(await this.page.innerText('.cf-entity-name-input label')).toBe(
-      entityNameInputLabelText,
-    )
-    expect(await this.page.innerText('.cf-enumerator-delete-button')).toBe(
-      deleteEntityButtonText,
-    )
-    expect(await this.page.innerText('#enumerator-field-add-button')).toBe(
+    await expect(
+      this.page.locator('.cf-entity-name-input label:visible'),
+    ).toHaveText(entityNameInputLabelText)
+    await expect(
+      this.page.locator('.cf-enumerator-delete-button:visible'),
+    ).toHaveText(deleteEntityButtonText)
+    await expect(this.page.locator('#enumerator-field-add-button')).toHaveText(
       addEntityButtonText,
     )
   }
