@@ -1639,7 +1639,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
       Http.Request request, long applicantId, long programId, CiviFormProfile profile) {
-    if (!settingsManifest.getFastforwardEnabled(request)) {
+    if (!settingsManifest.getFastforwardEnabled()) {
       return Optional.empty();
     }
 

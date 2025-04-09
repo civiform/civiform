@@ -1037,8 +1037,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * When enabled, existing draft applications will automatically be updated to use the latest
    * version of a program when a newer version has been published.
    */
-  public boolean getFastforwardEnabled(RequestHeader request) {
-    return getBool("FASTFORWARD_ENABLED", request);
+  public boolean getFastforwardEnabled() {
+    return getBool("FASTFORWARD_ENABLED");
   }
 
   /** When enabled, admins will be able to select many applications for status updates */
@@ -2262,7 +2262,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " been published.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "BULK_STATUS_UPDATE_ENABLED",
                           "When enabled, admins will be able to select many applications for status"

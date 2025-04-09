@@ -1332,7 +1332,7 @@ public final class ApplicantService {
   private ProgramDefinition getProgramDefinitionForDraftApplication(
       ImmutableList<ProgramDefinition> programList, long programId, Request request) {
 
-    if (settingsManifest.getFastforwardEnabled(request)) {
+    if (settingsManifest.getFastforwardEnabled()) {
       // Check if the draft application is using the latest version of the program. If it
       // is not, load the latest version of the program instead since we want to base this
       // list off of current programs.

@@ -77,7 +77,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
     Request request = fakeRequestBuilder().build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(false);
 
     ProgramService programService = instanceOf(ProgramService.class);
     ProgramDisabledAction action = new ProgramDisabledAction(programService, mockSettingsManifest);
@@ -102,7 +102,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(false);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -127,7 +127,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(false);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -157,7 +157,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
                 createHandlerDef(getClass().getClassLoader(), routePattern));
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(false);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -181,7 +181,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(false);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(false);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -201,7 +201,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
     Request request = fakeRequestBuilder().build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(true);
 
     ProgramService programService = instanceOf(ProgramService.class);
     ProgramDisabledAction action = new ProgramDisabledAction(programService, mockSettingsManifest);
@@ -226,7 +226,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(true);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -251,7 +251,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(true);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -281,7 +281,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
                 createHandlerDef(getClass().getClassLoader(), routePattern));
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(true);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
@@ -304,7 +304,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             .build();
 
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    when(mockSettingsManifest.getFastforwardEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getFastforwardEnabled()).thenReturn(true);
 
     ProgramDisabledAction action =
         new ProgramDisabledAction(instanceOf(ProgramService.class), mockSettingsManifest);
