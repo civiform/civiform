@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import services.ErrorAnd;
 
 public class TransactionManagerTest extends ResetPostgres {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerTest.class);
-
   TransactionManager transactionManager;
   AccountRepository accountRepo;
 
@@ -235,7 +233,6 @@ public class TransactionManagerTest extends ResetPostgres {
               innerAccount.setEmailAddress(innerEmail);
               innerAccount.save();
               innerTransaction.commit();
-              LOGGER.error("set inner email");
             }
           } else {
             // Verify the inner transaction change occurred and is visible on the retry.
