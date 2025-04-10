@@ -25,6 +25,8 @@ footer.returnToTop=Bumalik sa itaas
 # A message in the footer directing users to technical support. The placeholder is a link to
 # send an email to CiviForm technical support.
 footer.technicalSupport=Para sa technical support: {0}
+# A message in the footer directing users to technical support. The placeholder is an email.
+footer.technicalSupport.v2=For technical support: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
@@ -73,6 +75,8 @@ label.primaryNavigation=Pangunahing navigation
 label.agencyIdentifier=Identifier ng ahensya,
 # Aria-label for guest session alert
 label.guestSessionAlert=Alerto ng impormasyon ng session ng bisita
+# Link to skip to the main content of the page
+link.skipToMainContent=Lumaktaw sa pangunahing content
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -153,7 +157,7 @@ link.createAccountOrSignIn=Gumawa ng account o magsign-in
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=Home
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
-link.applicationForProgram=Application for {0}
+link.applicationForProgram=Application para sa {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Alisin ang file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -490,6 +494,7 @@ heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwal
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
+content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -729,9 +734,9 @@ validation.phoneMustBeLocalToCountry=Hindi nabibilang sa bansa ang ibinigay mong
 
 validation.invalidDateFormat=Maglagay ng petsa sa tamang format
 # Date cannot be over specified years in past.
-validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+validation.dateBeyondAllowablePast=Maglagay ng petsa sa loob ng nakaraang {0} (na) taon
 # Date cannot be over specified years in future.
-validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+validation.dateBeyondAllowableFuture=Maglagay ng petsa na hindi lalampas sa {0} (na) taon sa hinaharap
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
@@ -990,27 +995,30 @@ category.tag.transportation=Transportasyon
 # A tag used to filter the list of programs down to those that are related to utilities.
 category.tag.utilities=Mga Utility
 
+# An aria-label for screen readers that helps provide context for the category tags.
+ariaLabel.categories=Categories
+
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
 #------------------------------------------------------------------------------#
 
 # Title of the warning modal that appears when the user has been inactive for a while
-session.inactivity.warning.title=Session Inactivity Warning
+session.inactivity.warning.title=Babala sa Kawalan ng Aktibidad ng Session
 
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
-session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+session.inactivity.warning.message=Mag-e-expire ang iyong session dahil sa kawalan ng aktibidad. Gusto mo bang i-extend ang iyong session?
 
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
-session.length.warning.title=Session Length Warning
+session.length.warning.title=Babala sa Tagal ng Session
 
 # Message shown in a modal warning the user their session will end soon due to session length limit
-session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+session.length.warning.message=Malapit nang mag-expire ang iyong session dahil sa tagal. I-save ang iyong gawa at mag-log in ulit kung kailangan.
 
 # Text on a button that allows users to extend their session when shown timeout warnings
-session.extend.button=Extend Session
+session.extend.button=I-extend ang Session
 
 # Success message shown when the user's session is successfully extended after clicking the extend button
-session.extended.success=Session successfully extended
+session.extended.success=Na-extend na ang session
 
 # Error message shown when there was a problem extending the user's session
-session.extended.error=Failed to extend session
+session.extended.error=Hindi na-extend ang session
