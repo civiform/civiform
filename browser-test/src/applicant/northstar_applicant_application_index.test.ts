@@ -79,7 +79,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    expect(await page.getByText(/To get help with/).textContent()).toBeTruthy()
+    await expect(page.getByText(/To get help with/)).toBeVisible()
   })
 
   test('validate initial page load as guest user', async ({
@@ -870,6 +870,83 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       page.locator('#unfiltered-programs'),
       'applicant-homepage-cards-long-word-description',
     )
+  })
+
+  test('applies color theming on home page when enabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('applies primary color only when primary dark is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme-primary-dark-only',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('applies primary dark color only when primary is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme-primary-only',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('does not apply color theming on home page when disabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(page, 'program-index-page-initial-load-northstar')
   })
 })
 

@@ -103,17 +103,11 @@ test.describe('Admin can manage question translations', () => {
     // View the question translations and check that the Spanish translations for question help text are gone.
     await adminQuestions.goToQuestionTranslationPage(questionName)
     await adminTranslations.selectLanguage('Spanish')
-    expect(await page.inputValue('text=Question text')).toContain(
+    await expect(page.getByRole('textbox', {name: 'Question text'})).toHaveText(
       'something different',
     )
-
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    // Directly switching to the best practice method fails
-    // because of a locator stict mode violation. That is it
-    // returns multiple elements.
-    //
-    // Recommended prefer-web-first-assertions fix:
-    //   await expect(page.locator('text=Question help text')).toHaveText('')
-    expect(await page.inputValue('text=Question help text')).toEqual('')
+    await expect(
+      page.getByRole('textbox', {name: 'Question help text'}),
+    ).toHaveText('')
   })
 })

@@ -11,7 +11,7 @@ import {
   FormField,
   ProgramVisibility,
 } from '../support/admin_programs'
-import {dismissModal, waitForAnyModal} from '../support/wait'
+import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
@@ -119,30 +119,24 @@ test.describe('program creation', () => {
     await test.step('navigate back to program edit page and confirm application step values show up', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage(programName)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 1 title'}).inputValue(),
-      ).toEqual(titleOne)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 1 description'})
-          .inputValue(),
-      ).toEqual(descriptionOne)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 2 title'}).inputValue(),
-      ).toEqual(titleTwo)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 2 description'})
-          .inputValue(),
-      ).toEqual(descriptionTwo)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 3 title'}).inputValue(),
-      ).toEqual(titleThree)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 3 description'})
-          .inputValue(),
-      ).toEqual(descriptionThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 title'}),
+      ).toHaveValue(titleOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 description'}),
+      ).toHaveValue(descriptionOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 title'}),
+      ).toHaveValue(titleTwo)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 description'}),
+      ).toHaveValue(descriptionTwo)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 title'}),
+      ).toHaveValue(titleThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 description'}),
+      ).toHaveValue(descriptionThree)
     })
   })
 
@@ -183,24 +177,27 @@ test.describe('program creation', () => {
     await test.step('navigate back to program edit page and confirm previously blank step is ignored', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage(programName)
-      expect(await page.locator('#apply-step-1-title').inputValue()).toEqual(
-        titleOne,
-      )
-      expect(
-        await page.locator('#apply-step-1-description').inputValue(),
-      ).toEqual(descriptionOne)
+
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 title'}),
+      ).toHaveValue(titleOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 description'}),
+      ).toHaveValue(descriptionOne)
       // values that were entered for step three now show up under step 2
-      expect(await page.locator('#apply-step-2-title').inputValue()).toEqual(
-        titleThree,
-      )
-      expect(
-        await page.locator('#apply-step-2-description').inputValue(),
-      ).toEqual(descriptionThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 title'}),
+      ).toHaveValue(titleThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 description'}),
+      ).toHaveValue(descriptionThree)
       // step three is blank
-      expect(await page.locator('#apply-step-3-title').inputValue()).toEqual('')
-      expect(
-        await page.locator('#apply-step-3-description').inputValue(),
-      ).toEqual('')
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 title'}),
+      ).toHaveValue('')
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 description'}),
+      ).toHaveValue('')
     })
   })
 
@@ -1091,8 +1088,9 @@ test.describe('program creation', () => {
     await page.fill('#program-external-link-input', 'https://example.com')
     await page.click('#program-update-button')
 
-    let modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    let modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
+
     await validateScreenshot(
       page,
       'confirm-common-intake-change-modal',
@@ -1102,8 +1100,8 @@ test.describe('program creation', () => {
     // Modal gets re-rendered if needed.
     await dismissModal(page)
     await page.click('#program-update-button')
-    modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
 
     await page.click('#confirm-common-intake-change-button')
     await waitForPageJsLoad(page)

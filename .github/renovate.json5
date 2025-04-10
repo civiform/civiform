@@ -106,25 +106,21 @@
       ],
       "allowedVersions": "<4.0.0"
     },
-    // GitHub Actions: Pin to commit hashes and include a comment with the version
     {
-      "groupName": "GitHub Actions",
+      // Using groupName null prevents all the GitHub Actions updates being done in a single commit
+      "groupName": null,
       "matchManagers": ["github-actions"],
       "pinDigests": true,
-      "commitMessagePrefix": "[Update Github Actions]: ",
-      "commitMessageExtra": "Updated to latest release",
-      "postUpdateOptions": ["comment"],
+      "commitMessageExtra": "to latest commit",
       "rebaseWhen": "always",
       "description": "Ensures GitHub Actions use commit hashes for security and include a version comment."
     },
-    // Docker Images: Pin to SHA256 digests for security and consistency
     {
-      "groupName": "Docker Images",
+      // Using groupName null prevents all the Docker updates being done in a single commit
+      "groupName": null,
       "matchManagers": ["docker-compose", "dockerfile"],
       "pinDigests": true,
-      "commitMessagePrefix": "[Update Docker Images]: ",
-      "commitMessageExtra": "Pinned to latest digest",
-      "postUpdateOptions": ["comment"],
+      "commitMessageExtra": "to latest commit",
       "rebaseWhen": "always",
       "description": "Ensures Docker images use SHA256 digests for security and reproducibility."
     }

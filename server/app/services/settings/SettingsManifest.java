@@ -1033,23 +1033,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
-  /**
-   * When enabled, existing draft applications will automatically be updated to use the latest
-   * version of a program when a newer version has been published.
-   */
-  public boolean getFastforwardEnabled(RequestHeader request) {
-    return getBool("FASTFORWARD_ENABLED", request);
-  }
-
-  /** When enabled, admins will be able to select many applications for status updates */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per
-   * screen.
-   */
+  /** Enables civiform admins to set up a customized eligibility message per screen. */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
@@ -2259,17 +2243,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "FASTFORWARD_ENABLED",
-                          "When enabled, existing draft applications will automatically be updated"
-                              + " to use the latest version of a program when a newer version has"
-                              + " been published.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "BULK_STATUS_UPDATE_ENABLED",
-                          "When enabled, admins will be able to select many applications for status"
-                              + " updates",
+                          "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
+                          "Enables civiform admins to set up a customized eligibility message per"
+                              + " screen.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
@@ -2281,13 +2257,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       + " enable or disable in-development features.",
                   ImmutableList.of(),
                   ImmutableList.of(
-                      SettingDescription.create(
-                          "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized"
-                              + " eligibility message per screen.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED",
                           "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when"
