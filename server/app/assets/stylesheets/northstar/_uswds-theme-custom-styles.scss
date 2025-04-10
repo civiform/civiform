@@ -62,13 +62,24 @@ it is around the label */
  is styled to look like a checkbox.  This causes a problem with screen reader
  linear navigation because the screen reader navigation outline (different than focus outline)
  does not show.  These styles set that navigation outline around the label yet make it invisible
- when the screen reader linear navigation isn't being used. Only applies to category filter checkboxes for now.*/
-[id^='ns-check-category-'] {
+ when the screen reader linear navigation isn't being used.*/
+.usa-checkbox__input {
   @include u-left('auto');
+  opacity: 0;
+}
+
+// Category filters on applicant home page
+[id^='ns-check-category-'] {
   @include u-top(1);
   width: 95%;
   height: 85%;
-  opacity: 0;
+}
+
+// Checkbox question in the applicant form
+.cf-checkbox-question-input {
+  @include u-height('full');
+  @include u-width('full');
+  @include u-maxw('mobile-lg');
 }
 
 /*
