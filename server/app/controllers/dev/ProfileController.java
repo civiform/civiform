@@ -1,6 +1,7 @@
 package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+// import static j2html.TagCreator.pre;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -27,6 +28,6 @@ public final class ProfileController extends Controller {
         maybeProfile
             .map((p) -> JsonPrettifier.asPrettyJsonString(p.getProfileData()))
             .orElse("No profile present");
-    return ok(profileContent).as(Http.MimeTypes.TEXT);
+    return ok(String.format("<pre>%s</pre>", profileContent)).as(Http.MimeTypes.HTML);
   }
 }
