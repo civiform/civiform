@@ -30,12 +30,12 @@
     />
     <!--/* Render each checkbox option */-->
     <div
-      class="usa-checkbox cf-multi-option-question-option"
+      class="usa-checkbox cf-multi-option-question-option position-relative"
       th:each="option,iterator: ${multiSelectQuestion.getOptions()}"
       th:with="inputId='checkbox-' + ${question.getContextualizedPath()} + '-' + ${option.id()},ariaLabelForNewTabs=#{link.opensNewTabSr}"
     >
       <input
-        class="usa-checkbox__input usa-checkbox__input--tile"
+        class="usa-checkbox__input usa-checkbox__input--tile cf-checkbox-question-input"
         th:id="${inputId}"
         th:value="${option.id()}"
         th:name="${multiSelectQuestion.getSelectionPathAsArray()}"
