@@ -76,7 +76,7 @@ label.agencyIdentifier=기관 식별자,
 # Aria-label for guest session alert
 label.guestSessionAlert=게스트 세션 정보 알림
 # Link to skip to the main content of the page
-link.skipToMainContent=Skip to main content
+link.skipToMainContent=기본 콘텐츠로 건너뛰기
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -155,9 +155,9 @@ link.applyToAnotherProgram=다른 프로그램 신청
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=계정 만들기 또는 로그인
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
-link.home=Home
+link.home=홈
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
-link.applicationForProgram=Application for {0}
+link.applicationForProgram={0} 신청서
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=파일 삭제
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -734,9 +734,9 @@ validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가�
 
 validation.invalidDateFormat=올바른 형식의 날짜를 입력하세요.
 # Date cannot be over specified years in past.
-validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+validation.dateBeyondAllowablePast=지난 {0}년 이내의 날짜를 입력하세요
 # Date cannot be over specified years in future.
-validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+validation.dateBeyondAllowableFuture=향후 {0}년 이내의 날짜를 입력하세요
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
@@ -1003,22 +1003,22 @@ ariaLabel.categories=Categories
 #------------------------------------------------------------------------------#
 
 # Title of the warning modal that appears when the user has been inactive for a while
-session.inactivity.warning.title=Session Inactivity Warning
+session.inactivity.warning.title=세션 비활성 경고
 
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
-session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+session.inactivity.warning.message=활동이 없어 세션이 곧 만료됩니다. 세션을 연장하시겠습니까?
 
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
-session.length.warning.title=Session Length Warning
+session.length.warning.title=세션 길이 경고
 
 # Message shown in a modal warning the user their session will end soon due to session length limit
-session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+session.length.warning.message=길이 제한으로 인해 세션이 곧 만료됩니다. 작업을 저장하고 필요한 경우 다시 로그인하세요.
 
 # Text on a button that allows users to extend their session when shown timeout warnings
-session.extend.button=Extend Session
+session.extend.button=세션 연장
 
 # Success message shown when the user's session is successfully extended after clicking the extend button
-session.extended.success=Session successfully extended
+session.extended.success=세션이 연장되었습니다
 
 # Error message shown when there was a problem extending the user's session
-session.extended.error=Failed to extend session
+session.extended.error=세션을 연장할 수 없습니다
