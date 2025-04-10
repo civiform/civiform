@@ -13,7 +13,6 @@
     "@tailwindcss/line-clamp": "0.4.4",
     "@tsconfig/recommended": "1.0.8",
     "@types/cleave.js": "1.4.12",
-    "@types/dompurify": "3.2.0",
     "@types/jest": "29.5.14",
     "@types/markdown-it": "14.1.2",
     "@typescript-eslint/eslint-plugin": "8.29.1",
