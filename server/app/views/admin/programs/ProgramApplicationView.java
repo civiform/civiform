@@ -186,7 +186,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("application-table-view-")
         .setHref(backUrl)
         .setText("Back")
-        .setStyles("usa-button")
+        .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
         .asAnchorText();
   }
 
