@@ -3123,7 +3123,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join()
             .get();
 
-    // Excerise the application through a few statuses, some multiple times
+    // Exercise the application through a few statuses, some multiple times
     Instant now = Instant.now();
     addStatusEvent(
         submittedApplication, FIRST_STEP_STATUS, adminAccount, now.minus(15, ChronoUnit.MINUTES));
