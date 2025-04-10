@@ -145,13 +145,10 @@ test.describe('view program statuses', () => {
     })
 
     test.describe('when a status is changed, a confirmation dialog is shown', () => {
-      test('renders', async ({page, adminPrograms}) => {
-        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
-        await validateScreenshot(
-          page,
-          'change-status-modal',
-          /* fullPage= */ false,
-        )
+      test('renders', async ({adminPrograms}) => {
+        const statusModal =
+          await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        await validateScreenshot(statusModal, 'change-status-modal')
       })
 
       test('when rejecting, the selected status is not changed', async ({
@@ -326,11 +323,11 @@ test.describe('view program statuses', () => {
     })
 
     test('renders the note dialog', async ({page, adminPrograms}) => {
-      await adminPrograms.awaitEditNoteModal()
+      const noteModel = await adminPrograms.awaitEditNoteModal()
       await page.evaluate(() => {
         window.scrollTo(0, 0)
       })
-      await validateScreenshot(page, 'edit-note-modal', /* fullPage= */ false)
+      await validateScreenshot(noteModel, 'edit-note-modal')
     })
 
     test('shows the current note content', async ({adminPrograms}) => {
