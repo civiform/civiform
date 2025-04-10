@@ -1033,14 +1033,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
-  /**
-   * When enabled, existing draft applications will automatically be updated to use the latest
-   * version of a program when a newer version has been published.
-   */
-  public boolean getFastforwardEnabled(RequestHeader request) {
-    return getBool("FASTFORWARD_ENABLED", request);
-  }
-
   /** Enables civiform admins to set up a customized eligibility message per screen. */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
@@ -2247,14 +2239,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " not Production and that they shouldn't submit real applications."
                               + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include"
                               + " a link to your production site.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "FASTFORWARD_ENABLED",
-                          "When enabled, existing draft applications will automatically be updated"
-                              + " to use the latest version of a program when a newer version has"
-                              + " been published.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

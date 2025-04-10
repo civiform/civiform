@@ -892,11 +892,6 @@
         "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
       },
-      "FASTFORWARD_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
-        "type": "bool"
-      },
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
