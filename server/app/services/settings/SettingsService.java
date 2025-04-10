@@ -119,6 +119,7 @@ public final class SettingsService {
 
   private static final ImmutableSet<String> BOOLEAN_VALUES = ImmutableSet.of("true", "false");
 
+  // TODO(dwaterman): update this
   private ImmutableMap<String, SettingsGroupUpdateResult.UpdateError> validateSettings(
       ImmutableMap<String, String> newSettings, ImmutableMap<String, String> existingSettings) {
     ImmutableMap.Builder<String, SettingsGroupUpdateResult.UpdateError> validationErrors =
@@ -189,6 +190,18 @@ public final class SettingsService {
 
                     if (error.isPresent()) {
                       validationErrors.put(settingDescription.variableName(), error.get());
+                    } else {
+                      if (settingDescription.variableName().equals("THEME_COLOR_PRIMARY")
+                          || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
+                        if (!contrastsWithWhite(newValue)) {
+                          validationErrors.put(
+                              settingDescription.variableName(),
+                              SettingsGroupUpdateResult.UpdateError.create(
+                                  newValue,
+                                  "The color you selected does not meet accessibility requirements"
+                                      + " for contrast.")); // TODO(watermandrewc): add link/explanation
+                        }
+                      }
                     }
                     break;
                   }
@@ -208,6 +221,21 @@ public final class SettingsService {
                 new IllegalStateException(
                     String.format(
                         "No SettingDescription found in SettingsManifest for %s", variableName)));
+  }
+
+  private static boolean contrastsWithWhite(String hex) {
+    double whiteLuminescence = calculateLuminescense("#FFFFFF");
+    double chosenColorLuminescence = calculateLuminescense(hex);
+    double contrastRatio = (whiteLuminescence + 0.05) / (chosenColorLuminescence + 0.05);
+    return contrastRatio >= 4.5;
+  }
+
+  private static double calculateLuminescense(String hex) {
+    int redCode = Integer.parseInt(hex.substring(1, 2), 16);
+    int greenCode = Integer.parseInt(hex.substring(3, 4), 16);
+    int blueCode = Integer.parseInt(hex.substring(5, 6), 16);
+
+    return redCode * 0.2126 + greenCode * 0.7152 + blueCode * 0.0722;
   }
 
   private static void validateEnum(SettingDescription settingDescription, String value) {
