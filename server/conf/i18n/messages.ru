@@ -76,7 +76,7 @@ label.agencyIdentifier=Идентификатор агентства
 # Aria-label for guest session alert
 label.guestSessionAlert=Предупреждение о том, что запущен гостевой сеанс
 # Link to skip to the main content of the page
-link.skipToMainContent=Skip to main content
+link.skipToMainContent=Перейти к основному контенту
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -155,9 +155,9 @@ link.applyToAnotherProgram=Подать заявку на участие в др
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Создать аккаунт или войти
 # Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
-link.home=Home
+link.home=Главная
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
-link.applicationForProgram=Application for {0}
+link.applicationForProgram=Заявка: "{0}"
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Удалить файл
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
@@ -734,9 +734,9 @@ validation.phoneMustBeLocalToCountry=Указанный номер телефо�
 
 validation.invalidDateFormat=Укажите дату в правильном формате.
 # Date cannot be over specified years in past.
-validation.dateBeyondAllowablePast=Please enter a date in the last {0} years
+validation.dateBeyondAllowablePast=Допустимый период – последние {0} лет.
 # Date cannot be over specified years in future.
-validation.dateBeyondAllowableFuture=Please enter a date less than the {0} years in future
+validation.dateBeyondAllowableFuture=Допустимый период – следующие {0} лет.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -1003,22 +1003,22 @@ ariaLabel.categories=Categories
 #------------------------------------------------------------------------------#
 
 # Title of the warning modal that appears when the user has been inactive for a while
-session.inactivity.warning.title=Session Inactivity Warning
+session.inactivity.warning.title=Вы слишком долго были неактивны
 
 # Message shown in a modal asking the user if they want to extend their session due to inactivity
-session.inactivity.warning.message=Your session will expire soon due to inactivity. Would you like to extend your session?
+session.inactivity.warning.message=Сеанс скоро закончится. Хотите его продлить?
 
 # Title of a modal dialog displayed when a user's session is about to expire due to session length limit
-session.length.warning.title=Session Length Warning
+session.length.warning.title=Слишком долгий сеанс
 
 # Message shown in a modal warning the user their session will end soon due to session length limit
-session.length.warning.message=Your session will expire soon due to length. Please save your work and re-login if needed.
+session.length.warning.message=Сеанс скоро закончится. Сохраните изменения и, если нужно, заново войдите в аккаунт.
 
 # Text on a button that allows users to extend their session when shown timeout warnings
-session.extend.button=Extend Session
+session.extend.button=Продлить сеанс
 
 # Success message shown when the user's session is successfully extended after clicking the extend button
-session.extended.success=Session successfully extended
+session.extended.success=Сеанс продлен.
 
 # Error message shown when there was a problem extending the user's session
-session.extended.error=Failed to extend session
+session.extended.error=Не удалось продлить сеанс.
