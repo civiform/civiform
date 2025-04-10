@@ -323,11 +323,11 @@ test.describe('view program statuses', () => {
     })
 
     test('renders the note dialog', async ({page, adminPrograms}) => {
-      const noteModel = await adminPrograms.awaitEditNoteModal()
+      await adminPrograms.awaitEditNoteModal()
       await page.evaluate(() => {
         window.scrollTo(0, 0)
       })
-      await validateScreenshot(noteModel, 'edit-note-modal')
+      await validateScreenshot(page, 'edit-note-modal')
     })
 
     test('shows the current note content', async ({adminPrograms}) => {
