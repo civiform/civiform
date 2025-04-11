@@ -102,6 +102,17 @@ public final class AlertComponent {
   }
 
   /**
+   * Makes a USWDS Info Alert component with the given text.
+   *
+   * @param text The text to include in the alert.
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag renderFullAlert(String text, String... classes) {
+    return renderFullAlert(AlertType.INFO, text, Optional.empty(), false, HeadingLevel.H4, classes);
+  }
+
+  /**
    * Makes a slim version of a USWDS Alert component with the given text. Note that the slim version
    * has no title. Alert variant is determined by the classes passed in.
    * https://designsystem.digital.gov/components/alert/
@@ -119,5 +130,16 @@ public final class AlertComponent {
         /* title= */ Optional.empty(),
         hidden,
         Lists.asList(BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
+  }
+
+  /**
+   * Makes a slim version of a USWDS Info Alert component with the given text.
+   *
+   * @param text The text to include in the alert.
+   * @param classes One or more additional classes to apply to the USWDS Alert component.
+   * @return DivTag containing the alert.
+   */
+  public static DivTag renderSlimAlert(String text, String... classes) {
+    return renderSlimAlert(AlertType.INFO, text, false, classes);
   }
 }
