@@ -1088,6 +1088,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when importing
+   * programs: create a duplicate, use the existing question, or overwrite the existing question.
+   */
+  public boolean getImportDuplicateQuestionsOptionsEnabled() {
+    return getBool("IMPORT_DUPLICATE_QUESTIONS_OPTIONS_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2315,7 +2323,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " Star applicant UI.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMPORT_DUPLICATE_QUESTIONS_OPTIONS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
+                              + " when importing programs: create a duplicate, use the existing"
+                              + " question, or overwrite the existing question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
