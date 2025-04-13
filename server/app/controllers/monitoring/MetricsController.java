@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
 import com.typesafe.config.Config;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import controllers.CiviFormController;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -29,6 +31,7 @@ public final class MetricsController extends CiviFormController {
   private final boolean metricsEnabled;
   private final CollectorRegistry collectorRegistry;
   private final Database database;
+  private final play.db.Database db;
 
   // The start index we use for the metric substring. By default, the metric names start with
   // "orm.", which is why we use 4 as the start index.
@@ -44,12 +47,14 @@ public final class MetricsController extends CiviFormController {
       Config config,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      MonitoringMetricCounters monitoringMetricCounters) {
+      MonitoringMetricCounters monitoringMetricCounters,
+      play.db.Database db) {
     super(profileUtils, versionRepository);
     this.monitoringMetricCounters = monitoringMetricCounters;
     this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
     this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
     this.database = DB.getDefault();
+    this.db = db;
   }
 
   /**
@@ -124,5 +129,27 @@ public final class MetricsController extends CiviFormController {
     }
 
     return internalServerError();
+  }
+
+  public Result getPoolStats() {
+    HikariDataSource ds = (HikariDataSource) db.getDataSource();
+    HikariPoolMXBean pool = ds.getHikariPoolMXBean();
+
+    String json =
+        String.format(
+            """
+            {
+              "activeConnections": %d,
+              "idleConnections": %d,
+              "totalConnections": %d,
+              "threadsAwaitingConnection": %d
+            }
+            """,
+            pool.getActiveConnections(),
+            pool.getIdleConnections(),
+            pool.getTotalConnections(),
+            pool.getThreadsAwaitingConnection());
+
+    return ok(json).as("application/json");
   }
 }

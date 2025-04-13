@@ -298,6 +298,6 @@ GET     /dev/session                   controllers.dev.SessionDisplayController.
 
 ## Prometheus metrics export
 GET     /metrics          controllers.monitoring.MetricsController.getMetrics()
-
+GET     /pool-stats          controllers.monitoring.MetricsController.getPoolStats()
 # Nothing to see here
 GET     /teapot           controllers.HomeController.teapot()
