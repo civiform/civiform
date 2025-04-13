@@ -13,6 +13,7 @@ import forms.TiClientInfoForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
+import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.time.Clock;
 import java.time.Duration;
@@ -47,7 +48,6 @@ public final class AccountRepository {
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
-  private final TransactionManager transactionManager;
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
@@ -57,7 +57,6 @@ public final class AccountRepository {
   public AccountRepository(
       DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
-    this.transactionManager = new TransactionManager();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -144,14 +143,18 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    return transactionManager.executeWithRetry(
-        () -> {
-          Optional<ApplicantModel> applicantOpt =
-              account.getApplicants().stream()
-                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
-          return applicantOpt.orElseGet(
-              () -> new ApplicantModel().setAccount(account).saveAndReturn());
-        });
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      Optional<ApplicantModel> applicantOpt =
+          account.getApplicants().stream()
+              .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+
+      var result =
+          applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+      transaction.commit();
+      return result;
+    }
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
@@ -299,29 +302,32 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    transactionManager.execute(
-        () -> {
-          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-          if (tiGroup.isEmpty()) {
-            throw new NoSuchTrustedIntermediaryGroupError();
-          }
-          Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
-          AccountModel account =
-              accountMaybe.orElseGet(
-                  () -> {
-                    AccountModel a = new AccountModel();
-                    a.setEmailAddress(emailAddress);
-                    a.save();
-                    return a;
-                  });
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
 
-          if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
-            throw new NotEligibleToBecomeTiError();
-          }
+      Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+      if (tiGroup.isEmpty()) {
+        throw new NoSuchTrustedIntermediaryGroupError();
+      }
+      Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+      AccountModel account =
+          accountMaybe.orElseGet(
+              () -> {
+                AccountModel a = new AccountModel();
+                a.setEmailAddress(emailAddress);
+                a.save();
+                return a;
+              });
 
-          account.setMemberOfGroup(tiGroup.get());
-          account.save();
-        });
+      if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+        throw new NotEligibleToBecomeTiError();
+      }
+
+      account.setMemberOfGroup(tiGroup.get());
+      account.save();
+
+      transaction.commit();
+    }
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
