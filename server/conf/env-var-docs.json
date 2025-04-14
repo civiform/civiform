@@ -897,16 +897,6 @@
         "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
       },
-      "FASTFORWARD_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
-        "type": "bool"
-      },
-      "BULK_STATUS_UPDATE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, admins will be able to select many applications for status updates",
-        "type": "bool"
-      },
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
@@ -957,6 +947,12 @@
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI.",
+        "type": "bool",
+        "required": false
+      },
+      "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when importing/migrating programs: create a duplicate, use the existing question, or overwrite the existing question.",
         "type": "bool",
         "required": false
       }
