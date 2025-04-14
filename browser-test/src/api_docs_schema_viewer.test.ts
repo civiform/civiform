@@ -10,6 +10,10 @@ test.describe('Viewing API docs', () => {
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
+  test.use({
+    bypassCSP: true,
+  })
+
   test('Views OpenApi Schema', async ({page, adminPrograms}) => {
     await test.step('Login as admin and publish drafts', async () => {
       await page.goto('/')
@@ -32,6 +36,7 @@ test.describe('Viewing API docs', () => {
     await test.step(`Change status to draft for ${program2} shows error message`, async () => {
       await page.getByRole('combobox', {name: 'Status'}).selectOption('draft')
       await waitForPageJsLoad(page)
+      // TODO(dwaterman)
       await expect(page.getByTestId('ui-error')).toContainText(
         'A program with this status could not be found',
       )
