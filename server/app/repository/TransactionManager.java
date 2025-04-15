@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
  * A class for managing workflows that span multiple repositories, but should still be wrapped in a
  * transaction to prevent race conditions and data integrity errors.
  *
- * <p>Warning: This class does not work across Async calls, they will not see
- * the wrapping transaction due to transactions being stored thread-local.
- * <a href="https://github.com/civiform/civiform/wiki/Concurrency-and-Transactions#wrapping-logic-in-transactions">Details here</a>
+ * <p>Warning: This class does not work across Async calls, they will not see the wrapping
+ * transaction due to transactions being stored thread-local. <a
+ * href="https://github.com/civiform/civiform/wiki/Concurrency-and-Transactions#wrapping-logic-in-transactions">Details
+ * here</a>
  *
  * <p>See https://www.postgresql.org/docs/current/transaction-iso.html#XACT-SERIALIZABLE for details
  * on transactions.
