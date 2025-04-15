@@ -83,7 +83,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void execute_runsWorkSupplier() {
+  public void execute_supplier_runsWorkSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);
     when(mockWork.get()).thenReturn("work");
     Supplier<String> mockOnFailure = mock(Supplier.class);
@@ -97,7 +97,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void execute_runsFailureSupplier() {
+  public void execute_supplier_runsFailureSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);
     when(mockWork.get())
         .thenThrow(
@@ -112,7 +112,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void execute_modifiesEntitySuccessfully() {
+  public void execute_supplier_modifiesEntitySuccessfully() {
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
@@ -135,7 +135,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeSuccessfully() {
+  public void execute_supplier_Successfully() {
     String innerEmail = "inneremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
@@ -249,7 +249,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   /** Simulate when the work() supplier contains another transaction. */
   @Test
-  public void executeFails() {
+  public void execute_supplier_Fails() {
     Supplier<String> work =
         () -> {
           try (Transaction innerTransaction =
