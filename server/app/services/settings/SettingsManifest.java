@@ -1093,8 +1093,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * importing/migrating programs: create a duplicate, use the existing question, or overwrite the
    * existing question.
    */
-  public boolean getImportDuplicateHandlingOptionsEnabled() {
-    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED");
+  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
+    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2332,7 +2332,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " existing question, or overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
