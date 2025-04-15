@@ -24,6 +24,7 @@ import play.libs.typedmap.TypedKey;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
+import services.ColorUtil;
 
 /**
  * Service management of the resource backed by {@link SettingsGroupModel}.
@@ -192,7 +193,7 @@ public final class SettingsService {
                     } else {
                       if (settingDescription.variableName().equals("THEME_COLOR_PRIMARY")
                           || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
-                        if (!contrastsWithWhite(newValue)) {
+                        if (!ColorUtil.contrastsWithWhite(newValue)) {
                           validationErrors.put(
                               settingDescription.variableName(),
                               SettingsGroupUpdateResult.UpdateError.create(
@@ -222,21 +223,6 @@ public final class SettingsService {
                 new IllegalStateException(
                     String.format(
                         "No SettingDescription found in SettingsManifest for %s", variableName)));
-  }
-
-  private static boolean contrastsWithWhite(String hex) {
-    double whiteLuminescence = calculateLuminescense("#FFFFFF");
-    double chosenColorLuminescence = calculateLuminescense(hex);
-    double contrastRatio = (whiteLuminescence + 0.05) / (chosenColorLuminescence + 0.05);
-    return contrastRatio >= 4.5;
-  }
-
-  private static double calculateLuminescense(String hex) {
-    int redCode = Integer.parseInt(hex.substring(1, 2), 16);
-    int greenCode = Integer.parseInt(hex.substring(3, 4), 16);
-    int blueCode = Integer.parseInt(hex.substring(5, 6), 16);
-
-    return redCode * 0.2126 + greenCode * 0.7152 + blueCode * 0.0722;
   }
 
   private static void validateEnum(SettingDescription settingDescription, String value) {

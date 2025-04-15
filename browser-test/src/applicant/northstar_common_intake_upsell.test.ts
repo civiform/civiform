@@ -278,7 +278,7 @@ test.describe(
       await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
       await adminSettings.gotoAdminSettings()
 
-      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#910500')
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
       await adminSettings.setStringSetting(
         'THEME_COLOR_PRIMARY_DARK',
         '#a72f10',
