@@ -316,14 +316,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             "border-b",
             "border-gray-300",
             "flex",
-<<<<<<< HEAD
-            "justify-between");
-=======
             "justify-between",
             "max-w-full",
             "overflow-hidden",
             "break-words");
->>>>>>> main
   }
 
   private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
