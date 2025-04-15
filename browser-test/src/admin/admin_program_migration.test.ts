@@ -639,8 +639,30 @@ test.describe('program migration', () => {
 
     await test.step('check programs are in draft', async () => {
       await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.expectDraftProgram('Comprehensive Sample Program')
-      await adminPrograms.expectDraftProgram('Minimal Sample Program')
+
+      // This was calling {@link AdminPrograms#expectDraftProgram}. That was using
+      // page.isVisible method which would use the first result if more than one
+      // was found. Modern Playwright locataor behavior is more strict.
+      //
+      // This is getting the first result replicating it with a web first assertion,
+      // but long term this needs to be written in a way that better targets the
+      // card selector
+      await expect(
+        page
+          .locator(
+            adminPrograms.programCardSelector(
+              'Comprehensive Sample Program',
+              'Draft',
+            ),
+          )
+          .first(),
+      ).toBeVisible()
+
+      await expect(
+        page.locator(
+          adminPrograms.programCardSelector('Minimal Sample Program', 'Draft'),
+        ),
+      ).toBeVisible()
     })
 
     await test.step('publish programs', async () => {

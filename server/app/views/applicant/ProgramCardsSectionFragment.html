@@ -61,7 +61,7 @@
     </div>
 
     <!--*/ Optional image */-->
-    <div th:if="${showImage}" class="usa-card__media usa-card__media--exdent">
+    <div th:if="${showImage}" class="usa-card__media">
       <div class="usa-card__img add-aspect-16x9">
         <img
           th:src="${card.imageSourceUrl().get()}"
@@ -73,6 +73,8 @@
     <!--*/ Program categories */-->
     <div class="usa-card__body">
       <div
+        role="group"
+        th:aria-label="#{ariaLabel.categories}"
         th:if="${sectionType != 'MY_APPLICATIONS' and !card.categories().isEmpty()}"
         class="display-flex flex-wrap margin-bottom-1 cf-flex-gap"
       >

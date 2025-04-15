@@ -91,7 +91,6 @@ import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -126,7 +125,6 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -146,8 +144,7 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      MessagesApi messagesApi) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -162,7 +159,6 @@ public final class ApplicantService {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
-    this.settingsManifest = checkNotNull(settingsManifest);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -1077,7 +1073,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms, request);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             classLoaderExecutionContext.current());
   }
@@ -1086,10 +1082,9 @@ public final class ApplicantService {
    * Get all active programs that are publicly visible, as if it was a brand new guest account, but
    * without requiring the account to be created yet.
    *
-   * @param request - The request object from loading the page
    * @return - CompletionStage of the relevant programs
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant() {
     CompletionStage<VersionModel> versionFuture = versionRepository.getActiveVersionAsync();
     return versionFuture.thenApplyAsync(
         version -> {
@@ -1099,7 +1094,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
         },
         classLoaderExecutionContext.current());
   }
@@ -1165,8 +1160,7 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
-      Request request) {
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1212,16 +1206,15 @@ public final class ApplicantService {
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<ApplicationModel> maybeDraftApp =
-              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.DRAFT, /* defaultValue= */ Optional.empty());
           Optional<ApplicationModel> maybeSubmittedApp =
-              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, /* defaultValue= */ Optional.empty());
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(ApplicationModel::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             ApplicationModel draftApp = maybeDraftApp.get();
             ProgramDefinition programDefinition =
-                getProgramDefinitionForDraftApplication(
-                    allPrograms, draftApp.getProgram().id, request);
+                getProgramDefinitionForDraftApplication(allPrograms, draftApp.getProgram().id);
 
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder(programDefinition)
@@ -1330,29 +1323,27 @@ public final class ApplicantService {
    * programId.
    */
   private ProgramDefinition getProgramDefinitionForDraftApplication(
-      ImmutableList<ProgramDefinition> programList, long programId, Request request) {
+      ImmutableList<ProgramDefinition> programList, long programId) {
 
-    if (settingsManifest.getFastforwardEnabled(request)) {
-      // Check if the draft application is using the latest version of the program. If it
-      // is not, load the latest version of the program instead since we want to base this
-      // list off of current programs.
-      Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
+    // Check if the draft application is using the latest version of the program. If it
+    // is not, load the latest version of the program instead since we want to base this
+    // list off of current programs.
+    Optional<Long> latestProgramId = programRepository.getMostRecentActiveProgramId(programId);
 
-      if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
-        Optional<ProgramDefinition> programDefinitionOptional =
-            programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
+    if (latestProgramId.isPresent() && latestProgramId.get() != programId) {
+      Optional<ProgramDefinition> programDefinitionOptional =
+          programList.stream().filter(p -> p.id() == latestProgramId.get()).findFirst();
 
-        if (programDefinitionOptional.isPresent()) {
-          return programDefinitionOptional.get();
-        }
+      if (programDefinitionOptional.isPresent()) {
+        return programDefinitionOptional.get();
+      }
 
-        try {
-          // Didn't find it in the list we already had, so go fetch it
-          return programService.getFullProgramDefinition(latestProgramId.get());
-        } catch (ProgramNotFoundException e) {
-          throw new RuntimeException(
-              String.format("Can't find program id: %s", latestProgramId.get()), e);
-        }
+      try {
+        // Didn't find it in the list we already had, so go fetch it
+        return programService.getFullProgramDefinition(latestProgramId.get());
+      } catch (ProgramNotFoundException e) {
+        throw new RuntimeException(
+            String.format("Can't find program id: %s", latestProgramId.get()), e);
       }
     }
 

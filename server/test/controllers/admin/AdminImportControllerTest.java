@@ -1937,7 +1937,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 3,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "primaryApplicantInfoTags" : ["APPLICANT_DOB"]
               }
           }, {
               "type" : "name",
@@ -1961,7 +1961,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 4,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "primaryApplicantInfoTags" : ["APPLICANT_NAME"]
               }
           }, {
               "type" : "phone",
@@ -1985,7 +1985,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 5,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "primaryApplicantInfoTags" : ["APPLICANT_PHONE"]
               }
           }, {
               "type" : "email",
@@ -2009,7 +2009,7 @@ public class AdminImportControllerTest extends ResetPostgres {
               },
               "id" : 6,
               "universal" : true,
-              "primaryApplicantInfoTags" : []
+              "primaryApplicantInfoTags" : ["APPLICANT_EMAIL"]
               }
           }]
           }

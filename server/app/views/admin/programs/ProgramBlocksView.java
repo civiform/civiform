@@ -734,10 +734,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     p("Edit the program and try republishing").withClass("text-red-500")),
                 div()
                     .with(
-                        TextFormatter.formatText(
+                        TextFormatter.formatTextForAdmins(
                             questionDefinition.getQuestionText().getDefault())),
                 div()
-                    .with(TextFormatter.formatText(questionHelpText))
+                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
                     .withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
                     .withClasses("mt-1", "text-sm"));

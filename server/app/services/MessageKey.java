@@ -57,6 +57,7 @@ public enum MessageKey {
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
+  ARIA_LABEL_CATEGORIES("ariaLabel.categories"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
@@ -162,6 +163,7 @@ public enum MessageKey {
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
+  CONTENT_ELIGIBILITY_CRITERIA_V3("content.eligibilityCriteria.v3"), // North Star only
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -237,6 +239,7 @@ public enum MessageKey {
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
+  FOOTER_TECHNICAL_SUPPORT_V2("footer.technicalSupport.v2"), // North Star only
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),

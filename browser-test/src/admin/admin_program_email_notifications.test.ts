@@ -21,7 +21,7 @@ test.describe('program email notifications', () => {
         undefined,
         undefined,
         undefined,
-        /* submitNewProgram */ false,
+        /* submitNewProgram= */ false,
       )
       await adminPrograms.expectEmailNotificationPreferenceIsChecked(true)
     })

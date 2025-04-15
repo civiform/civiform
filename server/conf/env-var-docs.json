@@ -892,14 +892,9 @@
         "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
       },
-      "FASTFORWARD_ENABLED": {
+      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, existing draft applications will automatically be updated to use the latest version of a program when a newer version has been published.",
-        "type": "bool"
-      },
-      "BULK_STATUS_UPDATE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "When enabled, admins will be able to select many applications for status updates",
+        "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       }
     }
@@ -907,11 +902,6 @@
   "Experimental": {
     "group_description": "These are __NOT READY FOR PRODUCTION USE__. Use these configuration options to enable or disable in-development features.",
     "members": {
-      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables civiform admins to set up a customized eligibility message per screen.",
-        "type": "bool"
-      },
       "NO_DUPLICATE_QUESTIONS_FOR_MIGRATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Ensures duplicate questions aren't created when migrating programs between deployed environments. Note: this should only be used on new environments, since existing programs will be modified if a program with the same question gets imported.",
@@ -952,6 +942,12 @@
       "EXTERNAL_PROGRAM_CARDS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI.",
+        "type": "bool",
+        "required": false
+      },
+      "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when importing/migrating programs: create a duplicate, use the existing question, or overwrite the existing question.",
         "type": "bool",
         "required": false
       }

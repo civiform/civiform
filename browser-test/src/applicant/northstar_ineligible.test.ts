@@ -145,7 +145,6 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
     applicantQuestions,
   }) => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
-    await enableFeatureFlag(page, 'customized_eligibility_message_enabled')
 
     await test.step('Add an eligibility message with special character for markdown', async () => {
       const eligibilityMsg =
@@ -228,7 +227,7 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // All questions have been answered
-      await applicantQuestions.expectReviewPage(/* northStarEnabled */ true)
+      await applicantQuestions.expectReviewPage(/* northStarEnabled= */ true)
 
       // Edit the block (there is only one block)
       await applicantQuestions.clickEdit()

@@ -187,7 +187,8 @@ public final class ApplicantRoutes {
    * @return Route for the applicant block edit action
    */
   public Call blockEdit(long programId) {
-    return routes.ApplicantProgramBlocksController.edit(programId, "1", Optional.empty());
+    return routes.ApplicantProgramBlocksController.edit(
+        programId, /* blockId= */ "1", /* questionName= */ Optional.empty());
   }
 
   /**

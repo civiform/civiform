@@ -200,7 +200,9 @@ public class ApiDocsView extends BaseHtmlView {
                 li(a("API Schema Viewer")
                         .withHref(
                             routes.OpenApiSchemaController.getSchemaUI(
-                                    "", Optional.empty(), Optional.empty())
+                                    /* programSlug= */ "",
+                                    /* stage= */ Optional.empty(),
+                                    /* openApiVersion= */ Optional.empty())
                                 .url()))
                     .withClasses(AdminStyles.LINK_NOT_SELECTED))
             .withClasses("flex", "gap-4"))
@@ -355,16 +357,7 @@ public class ApiDocsView extends BaseHtmlView {
                     ", with anyone who needs to see API docs. It is accessible without logging in,"
                         + " so they do not need to be a CiviForm Admin or Program Admin to view"
                         + " this page.")),
-        p().withClasses("my-2")
-            .with(
-                text(
-                    "Note: These API docs do not currently support enumerator or repeated"
-                        + " questions. See GitHub Issue "),
-                new LinkElement()
-                    .setHref("https://github.com/civiform/civiform/issues/5238")
-                    .setText("#5238")
-                    .asAnchorText(),
-                text(" for progress on this.")));
+        p().withClasses("my-2"));
 
     return AccordionFactory.buildAccordion(
         Optional.of("How does this work?"), Optional.of(notesTag));

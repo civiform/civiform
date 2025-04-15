@@ -188,15 +188,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     DivTag questionContent =
         div(div()
                 .with(
-                    TextFormatter.formatTextWithAriaLabel(
+                    TextFormatter.formatText(
                         data.questionText(),
-                        /* preserveEmptyLines */ true,
+                        /* preserveEmptyLines= */ true,
                         !data.applicantQuestion().isOptional(),
                         messages
                             .at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName())
                             .toLowerCase(Locale.ROOT)))
                 .withClasses("font-semibold"))
-            .withClasses("pr-2");
+            .withClasses("pr-2", "overflow-hidden");
 
     // When applicant info is pre-populated by TI entry, the question is not
     // considered "answered" but we want the answers to show on the review screen
@@ -222,7 +222,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         answerContent = a(data.answerText()).withHref(fileLink).withClasses(BaseStyles.LINK_TEXT);
       } else {
         answerContent = div();
-        answerContent.withClasses("font-light", "text-sm");
+        answerContent.withClasses("font-light", "text-sm", "max-w-full", "break-words");
         // Add answer text, converting newlines to <br/> tags.
         String[] texts = data.answerText().split("\n");
         texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
@@ -316,7 +316,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             "border-b",
             "border-gray-300",
             "flex",
+<<<<<<< HEAD
             "justify-between");
+=======
+            "justify-between",
+            "max-w-full",
+            "overflow-hidden",
+            "break-words");
+>>>>>>> main
   }
 
   private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
