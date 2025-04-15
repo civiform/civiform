@@ -83,13 +83,13 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void executeInTransaction_runsWorkSupplier() {
+  public void execute_runsWorkSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);
     when(mockWork.get()).thenReturn("work");
     Supplier<String> mockOnFailure = mock(Supplier.class);
     when(mockOnFailure.get()).thenReturn("onFailure");
 
-    transactionManager.executeInTransaction(mockWork, mockOnFailure);
+    transactionManager.execute(mockWork, mockOnFailure);
 
     verify(mockWork).get();
     verify(mockOnFailure, times(0)).get();
@@ -97,7 +97,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void executeInTransaction_runsFailureSupplier() {
+  public void execute_runsFailureSupplier() {
     Supplier<String> mockWork = mock(Supplier.class);
     when(mockWork.get())
         .thenThrow(
@@ -105,14 +105,14 @@ public class TransactionManagerTest extends ResetPostgres {
     Supplier<String> mockOnFailure = mock(Supplier.class);
     when(mockOnFailure.get()).thenReturn("onFailure");
 
-    transactionManager.executeInTransaction(mockWork, mockOnFailure);
+    transactionManager.execute(mockWork, mockOnFailure);
 
     verify(mockWork).get();
     verify(mockOnFailure).get();
   }
 
   @Test
-  public void executeInTransaction_modifiesEntitySuccessfully() {
+  public void execute_modifiesEntitySuccessfully() {
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
 
@@ -126,8 +126,7 @@ public class TransactionManagerTest extends ResetPostgres {
     Supplier<ErrorAnd<AccountModel, String>> onFailure =
         () -> ErrorAnd.error(ImmutableSet.of("error"));
 
-    ErrorAnd<AccountModel, String> result =
-        transactionManager.executeInTransaction(modifyAccount, onFailure);
+    ErrorAnd<AccountModel, String> result = transactionManager.execute(modifyAccount, onFailure);
     account.refresh();
 
     assertThat(result.hasResult()).isTrue();
@@ -136,7 +135,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeInTransaction_rollsBackTransactionSuccessfully() {
+  public void executeSuccessfully() {
     String innerEmail = "inneremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
@@ -163,8 +162,7 @@ public class TransactionManagerTest extends ResetPostgres {
     Supplier<ErrorAnd<AccountModel, String>> onFailure =
         () -> ErrorAnd.error(ImmutableSet.of("error"));
 
-    ErrorAnd<AccountModel, String> result =
-        transactionManager.executeInTransaction(modifyAccount, onFailure);
+    ErrorAnd<AccountModel, String> result = transactionManager.execute(modifyAccount, onFailure);
     account.refresh();
 
     assertThat(result.hasResult()).isFalse();
@@ -251,7 +249,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   /** Simulate when the work() supplier contains another transaction. */
   @Test
-  public void executeInTransaction_transactionInsideSupplierRollsBackIfWrappedTransactionFails() {
+  public void executeFails() {
     Supplier<String> work =
         () -> {
           try (Transaction innerTransaction =
@@ -267,7 +265,7 @@ public class TransactionManagerTest extends ResetPostgres {
           throw new SerializableConflictException("Simulate a concurrency issue", new Exception());
         };
 
-    transactionManager.executeInTransaction(work, () -> "error");
+    transactionManager.execute(work, () -> "error");
 
     // Outside of both transactions, everything should be rolled back.
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
@@ -275,7 +273,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   /** Simulate when we use the {@link TransactionManager} from inside another transaction. */
   @Test
-  public void executeInTransaction_workInSupplierRollsBackIfOuterTransactionFails() {
+  public void executeInTransaction_workFails() {
     Supplier<String> work =
         () -> {
           new AccountModel().insert();
@@ -286,7 +284,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
     try (Transaction outerTransaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
-      transactionManager.executeInTransaction(work, () -> "error");
+      transactionManager.execute(work, () -> "error");
       // Assert that, back in the outer transaction, we see the new account
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
       outerTransaction.rollback();
@@ -297,7 +295,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeInTransaction_innerTransactionWithRequiresNewIsIndependent() {
+  public void executeWithRequiresNewIsIndependent() {
     Supplier<String> work =
         () -> {
           // Check initial number of accounts in the outer transaction's snapshot
@@ -318,7 +316,7 @@ public class TransactionManagerTest extends ResetPostgres {
           return "done";
         };
 
-    transactionManager.executeInTransaction(work, () -> "error");
+    transactionManager.execute(work, () -> "error");
 
     // Outside of both transactions, we should see the new account
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
