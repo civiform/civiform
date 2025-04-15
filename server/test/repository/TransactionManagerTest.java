@@ -322,5 +322,3 @@ public class TransactionManagerTest extends ResetPostgres {
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
   }
 }
-
-// what happens if the inner work is in a different thread?
