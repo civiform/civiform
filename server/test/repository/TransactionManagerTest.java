@@ -135,7 +135,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void execute_supplier_Successfully() {
+  public void execute_supplier_rollsBackTransactionSuccessfully() {
     String innerEmail = "inneremail@test.com";
     AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
     account.insert();
@@ -249,7 +249,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   /** Simulate when the work() supplier contains another transaction. */
   @Test
-  public void execute_supplier_Fails() {
+  public void execute_supplier_transactionInsideSupplierRollsBackIfWrappedTransactionFails() {
     Supplier<String> work =
         () -> {
           try (Transaction innerTransaction =
@@ -273,7 +273,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   /** Simulate when we use the {@link TransactionManager} from inside another transaction. */
   @Test
-  public void executeInTransaction_workFails() {
+  public void execute_supplier_workInSupplierRollsBackIfOuterTransactionFails() {
     Supplier<String> work =
         () -> {
           new AccountModel().insert();
@@ -295,7 +295,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeWithRequiresNewIsIndependent() {
+  public void execute_supplier_innerTransactionWithRequiresNewIsIndependent() {
     Supplier<String> work =
         () -> {
           // Check initial number of accounts in the outer transaction's snapshot
