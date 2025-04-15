@@ -224,7 +224,6 @@
 
 <div th:fragment="showDebugTools">
   <a
-    type="button"
     class="usa-button usa-button--outline margin-right-0"
     id="debug-content-modal-button"
     href="#debug-content-modal"
@@ -247,7 +246,7 @@
 <th:block th:fragment="loginOrLogout">
   <th:block th:if="${isGuest}">
     <a
-      type="button"
+      role="button"
       class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.login}"
       id="login-button"
@@ -258,7 +257,7 @@
 
   <th:block th:if="${!isGuest}">
     <a
-      type="button"
+      role="button"
       class="usa-button usa-button--outline margin-right-0"
       th:text="#{button.logout}"
       id="logout-button"
@@ -325,6 +324,7 @@
               class="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content"
             >
               <a
+                role="button"
                 class="usa-footer__primary-link"
                 th:href="${adminLoginUrl}"
                 th:text="#{link.adminLogin}"

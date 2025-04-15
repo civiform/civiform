@@ -128,7 +128,7 @@ public abstract class NorthStarBaseView {
     // that will be embedded in the guest alert in the header.
     context.setVariable(
         "endSessionLinkHtml",
-        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+        "<a id=\"logout-button\" class=\"usa-link\" role=\"button\" href=\""
             + logoutLink
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())
