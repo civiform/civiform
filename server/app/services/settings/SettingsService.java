@@ -119,7 +119,6 @@ public final class SettingsService {
 
   private static final ImmutableSet<String> BOOLEAN_VALUES = ImmutableSet.of("true", "false");
 
-  // TODO(dwaterman): update this
   private ImmutableMap<String, SettingsGroupUpdateResult.UpdateError> validateSettings(
       ImmutableMap<String, String> newSettings, ImmutableMap<String, String> existingSettings) {
     ImmutableMap.Builder<String, SettingsGroupUpdateResult.UpdateError> validationErrors =
