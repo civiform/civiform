@@ -199,7 +199,9 @@ public final class SettingsService {
                               SettingsGroupUpdateResult.UpdateError.create(
                                   newValue,
                                   "The color you selected does not meet accessibility requirements"
-                                      + " for contrast.")); // TODO(watermandrewc): add link/explanation
+                                      + " for contrast. You can use"
+                                      + " https://webaim.org/resources/contrastchecker/ to select a"
+                                      + " color that contrasts with white (#FFFFFF) text."));
                         }
                       }
                     }
