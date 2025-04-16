@@ -34,7 +34,7 @@ public class ValidAccountFilter extends EssentialFilter {
   private final Materializer materializer;
   private final Clock clock;
   private final Provider<SessionTimeoutService> sessionTimeoutService;
-  private final DatabaseExecutionContext databaseExecutionContext;
+  private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
   public ValidAccountFilter(
@@ -43,13 +43,13 @@ public class ValidAccountFilter extends EssentialFilter {
       Materializer materializer,
       Clock clock,
       Provider<SessionTimeoutService> sessionTimeoutService,
-      DatabaseExecutionContext databaseExecutionContext) {
+      Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
     this.sessionTimeoutService = sessionTimeoutService;
-    this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
+    this.databaseExecutionContext = databaseExecutionContext;
   }
 
   @Override
@@ -93,7 +93,7 @@ public class ValidAccountFilter extends EssentialFilter {
               }
               return isValidSession(profile);
             },
-            databaseExecutionContext)
+            databaseExecutionContext.get())
         .thenComposeAsync(
             isValidProfileAndSession -> {
               if (!isValidProfileAndSession) {
@@ -107,7 +107,7 @@ public class ValidAccountFilter extends EssentialFilter {
               // otherwise delegate to the timeout service
               return sessionTimeoutService.get().isSessionTimedOut(profile);
             },
-            databaseExecutionContext);
+            databaseExecutionContext.get());
   }
 
   private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
