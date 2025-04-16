@@ -1,4 +1,4 @@
-import {test} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
@@ -62,6 +62,63 @@ test.describe('Managing system-wide settings', () => {
 
       await adminSettings.disableSetting('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS')
       await adminSettings.saveChanges(/* expectUpdated= */ false)
+    })
+  })
+
+  test('Validates color contrast in theme settings', async ({
+    page,
+    adminSettings,
+  }) => {
+    await adminSettings.gotoAdminSettings()
+
+    await test.step('contrast ratio not met on primary color', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#19baff')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
+      await expect(
+        page.getByText(
+          'The color you selected does not meet accessibility requirements for contrast.',
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step('contrast ratio met on primary color', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#01587d')
+      await adminSettings.saveChanges(/* expectUpdated= */ true)
+    })
+
+    await test.step('contrast ratio not met on primary dark color', async () => {
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#19baff',
+      )
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
+      await expect(
+        page.getByText(
+          'The color you selected does not meet accessibility requirements for contrast.',
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step('contrast ratio met on primary dark color', async () => {
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#01587d',
+      )
+      await adminSettings.saveChanges(/* expectUpdated= */ true)
+    })
+
+    await test.step('computes validation on 3-digit hex code', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#EEE')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
     })
   })
 })
