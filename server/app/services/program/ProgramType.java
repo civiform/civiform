@@ -22,10 +22,12 @@ public enum ProgramType {
     return dbValue;
   }
 
-  public static ProgramType fromValue(String value) {
-    if (value.equals("common_intake_form")) {
-      return COMMON_INTAKE_FORM;
+  public static ProgramType fromValue(String programTypeValue) {
+    for (ProgramType programType : values()) {
+      if (programType.getValue().equals(programTypeValue)) {
+        return programType;
+      }
     }
-    return DEFAULT;
+    throw new IllegalArgumentException("Unknown ProgramType for: " + programTypeValue);
   }
 }

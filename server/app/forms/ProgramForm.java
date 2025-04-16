@@ -3,6 +3,7 @@ package forms;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import services.program.ProgramType;
 
 /** Form for updating name and description of a program. */
 public final class ProgramForm {
@@ -15,7 +16,7 @@ public final class ProgramForm {
   private String externalLink;
   private String displayMode;
   private List<String> notificationPreferences;
-  private String programType;
+  private String programTypeValue;
 
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
@@ -35,7 +36,7 @@ public final class ProgramForm {
     externalLink = "";
     displayMode = "";
     notificationPreferences = new ArrayList<>();
-    programType = "";
+    programTypeValue = "default";
     confirmedChangeCommonIntakeForm = false;
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
@@ -115,12 +116,16 @@ public final class ProgramForm {
     this.localizedShortDescription = localizedShortDescription;
   }
 
-  public String getProgramType() {
-    return programType;
+  public String getProgramTypeValue() {
+    return programTypeValue;
   }
 
-  public void setProgramType(String programType) {
-    this.programType = programType;
+  public void setProgramTypeValue(String programTypeValue) {
+    this.programTypeValue = programTypeValue;
+  }
+
+  public ProgramType getProgramType() {
+    return ProgramType.fromValue(programTypeValue);
   }
 
   public Boolean getConfirmedChangeCommonIntakeForm() {

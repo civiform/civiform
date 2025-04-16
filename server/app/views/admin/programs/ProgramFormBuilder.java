@@ -59,7 +59,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
-  private static final String PROGRAM_TYPE_FIELD_NAME = "programType";
+  private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
@@ -93,7 +93,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
-        ProgramType.fromValue(program.getProgramType()),
+        program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
         ImmutableList.copyOf(program.getCategories()),
