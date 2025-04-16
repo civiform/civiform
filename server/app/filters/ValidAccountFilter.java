@@ -97,14 +97,14 @@ public class ValidAccountFilter extends EssentialFilter {
         .thenComposeAsync(
             isValidProfileAndSession -> {
               if (!isValidProfileAndSession) {
-                // Logout if either profile or session was invalid
+                // Log out if either profile or session was invalid
                 return CompletableFuture.completedFuture(true);
               }
-              // session is valid; if timeout is disabled, keep them logged in
+              // If flag is disabled, keep them logged in if they have a valid session
               if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
                 return CompletableFuture.completedFuture(false);
               }
-              // otherwise delegate to the timeout service
+              // Otherwise, let the SessionTimeoutService decide
               return sessionTimeoutService.get().isSessionTimedOut(profile);
             },
             databaseExecutionContext.get());
