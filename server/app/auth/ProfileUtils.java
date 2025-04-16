@@ -92,20 +92,18 @@ public class ProfileUtils {
   }
 
   /** Return true if the account referenced by the profile exists. */
-  public boolean validCiviFormProfile(CiviFormProfile profile) {
-    try {
-      profile.getAccount().join();
-      return true;
-    } catch (CompletionException e) {
-      if (e.getCause() instanceof AccountNonexistentException) {
-        return false;
-      }
-      throw new RuntimeException(e);
-    }
-  }
-
-  public CompletionStage<Boolean> validCiviFormProfileAsync(CiviFormProfile profile) {
-    return profile.getAccount().thenApply(account -> true).exceptionally(ex -> false);
+  public CompletionStage<Boolean> validCiviFormProfile(CiviFormProfile profile) {
+    return profile
+        .getAccount()
+        .thenApply(account -> true)
+        .exceptionally(
+            ex -> {
+              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+              if (cause instanceof AccountNonexistentException) {
+                return false;
+              }
+              throw new CompletionException(cause);
+            });
   }
 
   /** Retrieves the applicant id from the user profile, if present. */

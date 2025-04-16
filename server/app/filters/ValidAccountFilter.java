@@ -85,7 +85,7 @@ public class ValidAccountFilter extends EssentialFilter {
       CiviFormProfile profile, RequestHeader request) {
 
     return profileUtils
-        .validCiviFormProfileAsync(profile)
+        .validCiviFormProfile(profile)
         .thenComposeAsync(
             profileValid -> {
               if (!profileValid) {
