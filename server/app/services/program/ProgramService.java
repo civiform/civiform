@@ -797,9 +797,7 @@ public final class ProgramService {
   }
 
   /**
-   * Check for validation errors on application steps. An error will be shown for default type
-   * programs when: - no application step is filled in - any application step is partially filled in
-   * (missing title or description)
+   * Adds validation errors on application steps for default programs.
    *
    * @param programType the type of the program
    * @param errorsBuilder set of program validation errors
@@ -809,22 +807,23 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
-    if (programType == ProgramType.COMMON_INTAKE_FORM
-        || programType == ProgramType.EXTERNAL) {
+    // Common intake and external programs don't have application steps.
+    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
 
+    // Default programs must have at least one application step.
     if (applicationSteps.size() == 0) {
       return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
     }
 
+    // Each application step must have a title and description.
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       String title = step.getTitle().getDefault();
       String description = step.getDescription().getDefault();
       boolean haveTitle = !title.isBlank();
       boolean haveDescription = !description.isBlank();
-      // steps must have title AND description
       if (haveTitle && !haveDescription) {
         errorsBuilder.add(
             CiviFormError.of(
