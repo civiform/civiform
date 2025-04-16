@@ -12,7 +12,6 @@ import auth.ProfileUtils;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import javax.inject.Provider;
 import models.AccountModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,6 @@ public class ValidAccountFilterTest extends WithApplication {
   private AccountModel mockAccount;
   private SessionTimeoutService sessionTimeoutService;
   private Clock clock;
-  private DatabaseExecutionContext dbContext;
 
   @Before
   public void setUp() {
@@ -43,17 +41,16 @@ public class ValidAccountFilterTest extends WithApplication {
     settingsManifest = mock(SettingsManifest.class);
     sessionTimeoutService = mock(SessionTimeoutService.class);
     clock = mock(Clock.class);
-    Provider<SettingsManifest> settingsManifestProvider = () -> this.settingsManifest;
-    dbContext = instanceOf(DatabaseExecutionContext.class);
 
     filter =
         new ValidAccountFilter(
             profileUtils,
-            settingsManifestProvider,
+            () -> settingsManifest, // Provider<SettingsManifest>
             mat,
             clock,
-            () -> sessionTimeoutService,
-            dbContext);
+            () -> sessionTimeoutService, // Provider<SessionTimeoutService>
+            () -> instanceOf(DatabaseExecutionContext.class) // Provider<DatabaseExecutionContext>
+            );
 
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
