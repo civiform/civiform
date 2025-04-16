@@ -908,7 +908,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
     await validateScreenshot(
       page,
-      'program-index-page-theme-primary-dark-only',
+      'program-index-page-theme-primary-only',
       /* fullPage= */ true,
     )
   })
@@ -928,7 +928,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
     await validateScreenshot(
       page,
-      'program-index-page-theme-primary-only',
+      'program-index-page-theme-dark-only',
       /* fullPage= */ true,
     )
   })
