@@ -14,6 +14,7 @@ final class OptionalProfileRoutes {
           "/",
           "/programs",
           "/applicants/programs",
+          "/error",
           controllers.routes.SupportController.handleUnsupportedBrowser().url());
 
   public static boolean anyMatch(RequestHeader requestHeader) {
