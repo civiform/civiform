@@ -9,6 +9,7 @@ import {
 import {
   Eligibility,
   FormField,
+  ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
 import {dismissModal, waitForAnyModalLocator} from '../support/wait'
@@ -1492,6 +1493,104 @@ test.describe('program creation', () => {
           )
         })
       })
+
+      // test('create external program', async ({page, adminPrograms}) => {
+      //   await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+      // await loginAsAdmin(page)
+      // const programName = 'External Program'
+
+      // await test.step("start the creation of a 'default' program", async () => {
+      //   // ISSUE: Adding a program creates it, and then we cannot change its
+      //   // type. We need to create a new helper method that
+      //   //   a. starts the creation but not submission, or
+      //   //   b. creates an external program
+      //   // We probably want both because we need to check the program type
+      //   // can be changed before submission, and then what happens once an
+      //   // external program is created.
+      //   await adminPrograms.addProgram(programName)
+      //   await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+      // })
+
+      // await test.step("change program type to be 'external'", async () => {
+      //   await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
+      //   // Do we really need a screenshot? if so, lets do it only that section
+      //   // await validateScreenshot(
+      //   //   page,
+      //   //   'program-description-page-with-intake-form-true',
+      //   // )
+      //   await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
+      // })
+
+      // await test.step('expect external program non-applicable fields to be disabled', async () => {
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.PROGRAM_ELIGIBILITY,
+      //   )
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.LONG_DESCRIPTION,
+      //   )
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.APPLICATION_STEPS,
+      //   )
+      // })
+
+      // await test.step('save external program', async () => {
+      //   await adminPrograms.submitProgramDetailsEdits()
+      //   await adminPrograms.expectProgramBlockEditPage(programName)
+      // })
+
+      // await test.step('edit external program and confirm non-applicable fields are still disabled', async () => {
+      //   await adminPrograms.goToProgramDescriptionPage(programName)
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.PROGRAM_ELIGIBILITY,
+      //   )
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.LONG_DESCRIPTION,
+      //   )
+      //   await adminPrograms.expectFormFieldDisabled(
+      //     FormField.APPLICATION_STEPS,
+      //   )
+      // })
+      // })
+
+      test('default or common intake program cannot be changed to be an external program after creation', async ({
+        page,
+        adminPrograms,
+      }) => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        const programName = 'External Program'
+
+        await test.step("add a 'default' program", async () => {
+          await adminPrograms.addProgram(programName)
+        })
+
+        await test.step("'default' program cannot be changed to be an 'external' program", async () => {
+          await adminPrograms.goToProgramDescriptionPage(programName)
+          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeEnabled(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+        })
+
+        await test.step("change program to be a 'common intake' program", async () => {
+          await adminPrograms.selectProgramType(ProgramType.COMMON_INTAKE_FORM)
+        })
+
+        await test.step("'common intake' program cannot be changed to be an 'external' program", async () => {
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeEnabled(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+        })
+      })
+
+      // TEST: After creating an EXTERNAL program, its type cannot be changed
     },
   )
 })

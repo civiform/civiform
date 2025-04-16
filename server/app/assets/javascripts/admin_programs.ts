@@ -33,6 +33,9 @@ class AdminPrograms {
       const commonIntakeCheckbox = <HTMLInputElement>(
         document.querySelector('#common-intake-program-option')
       )
+      const externalProgramCheckbox = <HTMLInputElement>(
+        document.querySelector('#external-program-option')
+      )
 
       // Program categories
       this.updateUSWDSCheckboxesDisabledState(
@@ -41,40 +44,47 @@ class AdminPrograms {
       )
 
       // Program eligibility
+      const disableProgramEligibility =
+        commonIntakeCheckbox.checked || externalProgramCheckbox.checked
       this.updateUSWDSCheckboxesDisabledState(
         /* fieldSelectors= */ '[id^="program-eligibility"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
+        /* shouldDisable= */ disableProgramEligibility,
       )
       this.hideRequiredIndicators(
         /* fieldSelector= */ '#program-eligibility',
-        /* shouldHide= */ commonIntakeCheckbox.checked,
+        /* shouldHide= */ disableProgramEligibility,
       )
 
       // Long program description
       const longDescription = document.getElementById(
         'program-display-description-textarea',
       ) as HTMLInputElement
-      const northStarUiEnabled =
+      const disableLongDescription =
+        (commonIntakeCheckbox.checked || externalProgramCheckbox.checked) &&
         longDescription.dataset.northstarEnabled === 'true'
       this.updateTextFieldElementDisabledState(
         /* fieldElement= */ longDescription,
-        /* shouldDisable= */ commonIntakeCheckbox.checked && northStarUiEnabled,
+        /* shouldDisable= */ disableLongDescription,
       )
 
       // Application steps
+      const disableApplicationSteps =
+        commonIntakeCheckbox.checked || externalProgramCheckbox.checked
       this.updateTextFieldSelectorsDisabledState(
         /* fieldSelectors= */ 'input[id^="apply-step"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
+        /* shouldDisable= */ disableApplicationSteps,
       )
       this.updateTextFieldSelectorsDisabledState(
         /* fieldSelectors= */ 'textarea[id^="apply-step"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
+        /* shouldDisable= */ disableApplicationSteps,
       )
-      // Step #1 should hide required indicator if it's a common intake form.
       this.hideRequiredIndicators(
         /* fieldSelector= */ '#apply-step-1-div',
-        /* shouldHide= */ commonIntakeCheckbox.checked,
+        /* shouldHide= */ disableApplicationSteps,
       )
+
+      // TODO(#10183): Disable email notification for external programs
+      // TODO(#10183): Disable confirmation message for external programs
     })
   }
 

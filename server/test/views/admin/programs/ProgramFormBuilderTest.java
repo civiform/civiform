@@ -12,8 +12,7 @@ public class ProgramFormBuilderTest {
   @Test
   public void buildApplicationStepDiv_buildsApplicationStepFormElement() {
     DivTag applicationStepsDiv =
-        ProgramFormBuilder.buildApplicationStepDiv(
-            0, ImmutableList.of(), /* isCommonIntakeForm= */ false);
+        ProgramFormBuilder.buildApplicationStepDiv(0, ImmutableList.of(), /* isDisabled= */ false);
     String renderedDiv = applicationStepsDiv.render();
 
     // field id
@@ -27,8 +26,7 @@ public class ProgramFormBuilderTest {
     assertThat(renderedDiv).contains("Step 1 description");
 
     DivTag optionalApplicationStepsDiv =
-        ProgramFormBuilder.buildApplicationStepDiv(
-            1, ImmutableList.of(), /* isCommonIntakeForm= */ false);
+        ProgramFormBuilder.buildApplicationStepDiv(1, ImmutableList.of(), /* isDisabled= */ false);
     String renderedOptionalDiv = optionalApplicationStepsDiv.render();
 
     // field label for divs other than the first one are labeled "optional"
@@ -43,7 +41,7 @@ public class ProgramFormBuilderTest {
             0,
             ImmutableList.of(
                 Map.of("title", "Step one title", "description", "Step one description")),
-            /* isCommonIntakeForm= */ false);
+            /* isDisabled= */ false);
     String renderedDiv = applicationStepDiv.render();
 
     assertThat(renderedDiv).contains("Step one title");
