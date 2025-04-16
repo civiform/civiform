@@ -1,6 +1,6 @@
 package services;
 
-public class ColorUtil {
+public final class ColorUtil {
   public static boolean contrastsWithWhite(String hex) {
     double whiteLuminance = calculateLuminance("#FFFFFF");
     double chosenColorLuminance = calculateLuminance(hex);
