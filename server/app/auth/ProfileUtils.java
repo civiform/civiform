@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKeyModel;
 import org.pac4j.core.context.WebContext;
@@ -13,7 +14,6 @@ import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
-import java.util.concurrent.CompletionStage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
 
@@ -105,9 +105,7 @@ public class ProfileUtils {
   }
 
   public CompletionStage<Boolean> validCiviFormProfileAsync(CiviFormProfile profile) {
-    return profile.getAccount()
-      .thenApply(account -> true)
-      .exceptionally(ex -> false);
+    return profile.getAccount().thenApply(account -> true).exceptionally(ex -> false);
   }
 
   /** Retrieves the applicant id from the user profile, if present. */
