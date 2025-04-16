@@ -133,7 +133,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
             applicationSteps,
-            ProgramType.fromValue(programData.getProgramType()));
+            programData.getProgramType());
     if (!errors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
@@ -141,7 +141,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM.getValue())
+    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()) {
@@ -163,7 +163,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             programData.getEligibilityIsGating(),
-            ProgramType.fromValue(programData.getProgramType()),
+            programData.getProgramType(),
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
             applicationSteps);
@@ -273,7 +273,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getCategories()),
             ImmutableList.copyOf(programData.getTiGroups()),
             applicationSteps,
-            ProgramType.fromValue(programData.getProgramType()));
+            programData.getProgramType());
     if (!validationErrors.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
@@ -282,7 +282,7 @@ public final class AdminProgramController extends CiviFormController {
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM.getValue())
+    if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()
@@ -309,7 +309,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getNotificationPreferences(),
         programData.getEligibilityIsGating(),
-        ProgramType.fromValue(programData.getProgramType()),
+        programData.getProgramType(),
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
         ImmutableList.copyOf(applicationSteps));

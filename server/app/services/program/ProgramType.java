@@ -21,11 +21,4 @@ public enum ProgramType {
   public String getValue() {
     return dbValue;
   }
-
-  public static ProgramType fromValue(String value) {
-    if (value.equals("common_intake_form")) {
-      return COMMON_INTAKE_FORM;
-    }
-    return DEFAULT;
-  }
 }
