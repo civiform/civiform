@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
+import repository.DatabaseExecutionContext;
 import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
@@ -33,6 +34,7 @@ public class ValidAccountFilter extends EssentialFilter {
   private final Materializer materializer;
   private final Clock clock;
   private final Provider<SessionTimeoutService> sessionTimeoutService;
+  private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
   public ValidAccountFilter(
@@ -40,12 +42,14 @@ public class ValidAccountFilter extends EssentialFilter {
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
       Clock clock,
-      Provider<SessionTimeoutService> sessionTimeoutService) {
+      Provider<SessionTimeoutService> sessionTimeoutService,
+      Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
     this.clock = checkNotNull(clock);
     this.sessionTimeoutService = sessionTimeoutService;
+    this.databaseExecutionContext = databaseExecutionContext;
   }
 
   @Override
@@ -77,28 +81,36 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletableFuture<Boolean> shouldLogoutUser(
+  private CompletionStage<Boolean> shouldLogoutUser(
       CiviFormProfile profile, RequestHeader request) {
-    if (!profileUtils.validCiviFormProfile(profile)) {
-      return CompletableFuture.completedFuture(true);
-    }
 
-    return isValidSession(profile)
-        .thenCompose(
-            isValid -> {
-              if (!isValid) {
+    return profileUtils
+        .validCiviFormProfile(profile)
+        .thenComposeAsync(
+            profileValid -> {
+              if (!profileValid) {
+                return CompletableFuture.completedFuture(false);
+              }
+              return isValidSession(profile);
+            },
+            databaseExecutionContext.get())
+        .thenComposeAsync(
+            isValidProfileAndSession -> {
+              if (!isValidProfileAndSession) {
+                // Log out if either profile or session was invalid
                 return CompletableFuture.completedFuture(true);
               }
-
+              // If flag is disabled, keep them logged in if they have a valid session
               if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
                 return CompletableFuture.completedFuture(false);
               }
-
+              // Otherwise, let the SessionTimeoutService decide
               return sessionTimeoutService.get().isSessionTimedOut(profile);
-            });
+            },
+            databaseExecutionContext.get());
   }
 
-  private CompletableFuture<Boolean> isValidSession(CiviFormProfile profile) {
+  private CompletionStage<Boolean> isValidSession(CiviFormProfile profile) {
     if (settingsManifest.get().getSessionReplayProtectionEnabled()) {
       return profile
           .getAccount()
