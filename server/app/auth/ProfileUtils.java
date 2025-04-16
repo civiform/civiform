@@ -13,6 +13,7 @@ import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
+import java.util.concurrent.CompletionStage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
 
@@ -101,6 +102,12 @@ public class ProfileUtils {
       }
       throw new RuntimeException(e);
     }
+  }
+
+  public CompletionStage<Boolean> validCiviFormProfileAsync(CiviFormProfile profile) {
+    return profile.getAccount()
+      .thenApply(account -> true)
+      .exceptionally(ex -> false);
   }
 
   /** Retrieves the applicant id from the user profile, if present. */
