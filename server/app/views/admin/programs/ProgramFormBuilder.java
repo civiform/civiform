@@ -343,21 +343,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     if (settingsManifest.getExternalProgramCardsEnabled(request)) {
       // When creating a program, visible program type fields are always enabled. Otherwise,
       //   - external program is always disabled since a program cannot be changed to external after
-      //      creation
-      //   - common intake and default is disabled for external program since an external program
-      //     cannot be to another type after creation (although in a future we could allow it).
+      //     creation
+      //   - common intake and default programs are disabled for external program since an external
+      //     program cannot be to another type after creation (although in a future we could allow
+      //     it).
       boolean defaultProgramFieldDisabled = false;
       boolean commonIntakeFieldDisabled = false;
       boolean externalProgramFieldDisabled = false;
       if (programEditStatus.equals(ProgramEditStatus.CREATION_EDIT)
-          || programEditStatus.equals(programEditStatus.EDIT)) {
+          || programEditStatus.equals(ProgramEditStatus.EDIT)) {
         defaultProgramFieldDisabled = true;
         externalProgramFieldDisabled = true;
-        commonIntakeFieldDisabled = programType.equals(ProgramType.EXTERNAL_PROGRAM);
+        commonIntakeFieldDisabled = programType.equals(ProgramType.EXTERNAL);
       }
 
-      // TODO: This will fail because buildUSWDSRadioOption() doesn't have isDisabled as parameter,
-      // yet. Once #10166 is merged, we can update this (and the parent PR).
       programTypeFieldset =
           fieldset(
                   legend("Program type").withClass("text-gray-600"),
@@ -393,7 +392,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                               .withType("checkbox")
                               .withName(PROGRAM_TYPE_FIELD_NAME)
                               .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                              .withCondChecked(isCommonIntakeForm),
+                              .withCondChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM)),
                           label("Set program as pre-screener")
                               .withFor("common-intake-checkbox")
                               .withClasses("usa-checkbox__label"),
