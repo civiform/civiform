@@ -71,8 +71,7 @@ public final class TransactionManager {
    * @param onSerializationFailure {@link Supplier} to run in the event of a failure due to a
    *     conflict with a concurrent transaction
    */
-  public <T> T executeInTransaction(
-      Supplier<T> synchronousWork, Supplier<T> onSerializationFailure) {
+  public <T> T execute(Supplier<T> synchronousWork, Supplier<T> onSerializationFailure) {
     checkNotNull(synchronousWork);
     checkNotNull(onSerializationFailure);
     try {
