@@ -152,6 +152,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
     boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
+    boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
+    boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
+    boolean disableLongDescription =
+        (isCommonIntakeForm || isExternalProgram)
+            && settingsManifest.getNorthStarApplicantUi(request);
+    boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
+
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
 
@@ -204,16 +211,16 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* id= */ "program-eligibility-gating",
                     /* name= */ ELIGIBILITY_FIELD_NAME,
                     /* value= */ String.valueOf(true),
-                    /* isChecked= */ eligibilityIsGating && !isCommonIntakeForm,
-                    /* isDisabled= */ isCommonIntakeForm,
+                    /* isChecked= */ eligibilityIsGating && !disableProgramEligibility,
+                    /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Only allow residents to submit applications if they meet all"
                         + " eligibility requirements"),
                 buildUSWDSRadioOption(
                     /* id= */ "program-eligibility-not-gating",
                     /* name= */ ELIGIBILITY_FIELD_NAME,
                     /* value= */ String.valueOf(false),
-                    /* isChecked= */ !eligibilityIsGating,
-                    /* isDisabled= */ isCommonIntakeForm,
+                    /* isChecked= */ !eligibilityIsGating && !disableProgramEligibility,
+                    /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Allow residents to submit applications even if they don't meet"
                         + " eligibility requirements"))
             .withId("program-eligibility")
@@ -270,13 +277,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         fieldset(
                 legend("Email notifications").withClass("text-gray-600"),
                 buildUSWDSCheckboxOption(
-                    "notification-preferences-email",
-                    NOTIFICATIONS_PREFERENCES_FIELD_NAME,
-                    ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
-                    notificationPreferences.contains(
+                    /* id= */ "notification-preferences-email",
+                    /* name= */ NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                    /* value= */ ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                        .getValue(),
+                    /* isChecked= */ notificationPreferences.contains(
                         ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                             .getValue()),
-                    "Send Program Admins an email notification every time an"
+                    /* isDisabled= */ false,
+                    /* label= */ "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
@@ -290,8 +299,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setAttribute(
                 "data-northstar-enabled",
                 String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
-            .setDisabled(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
-            .setReadOnly(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
+            .setDisabled(disableLongDescription)
+            .setReadOnly(disableLongDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program external link
@@ -311,11 +320,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         // Application steps
         div()
             .with(
-                buildApplicationStepDiv(0, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(1, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(2, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(3, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(4, applicationSteps, isCommonIntakeForm)),
+                buildApplicationStepDiv(0, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(1, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(2, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         // Confirmation message
         FieldWithLabel.textArea()
@@ -341,25 +350,37 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ProgramEditStatus programEditStatus) {
     DomContent programTypeFieldset;
     if (settingsManifest.getExternalProgramCardsEnabled(request)) {
-      // When creating a program, visible program type fields are always enabled. Otherwise,
-      //   - external program is always disabled since a program cannot be changed to external after
-      //     creation
-      //   - common intake and default programs are disabled for external program since an external
-      //     program cannot be to another type after creation (although in a future we could allow
-      //     it).
+      // When creating a program, program type fields (if visible) are never disabled.
       boolean defaultProgramFieldDisabled = false;
       boolean commonIntakeFieldDisabled = false;
       boolean externalProgramFieldDisabled = false;
-      if (programEditStatus.equals(ProgramEditStatus.CREATION_EDIT)
-          || programEditStatus.equals(ProgramEditStatus.EDIT)) {
-        defaultProgramFieldDisabled = true;
-        externalProgramFieldDisabled = true;
-        commonIntakeFieldDisabled = programType.equals(ProgramType.EXTERNAL);
+
+      // When editing a program:
+      //   - external program field is disabled when program type is default or common intake form,
+      // since a program can be changed to external after creation.
+      //   - common intake and default program fields are disabled when program type is external
+      // program, since an external program cannot change type after creation.
+      if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
+        switch (programType) {
+          case DEFAULT:
+          case COMMON_INTAKE_FORM:
+            defaultProgramFieldDisabled = false;
+            commonIntakeFieldDisabled = false;
+            externalProgramFieldDisabled = true;
+            break;
+          case EXTERNAL:
+            defaultProgramFieldDisabled = true;
+            commonIntakeFieldDisabled = true;
+            externalProgramFieldDisabled = false;
+            break;
+        }
       }
 
       programTypeFieldset =
           fieldset(
-                  legend("Program type").withClass("text-gray-600"),
+                  legend("Program type")
+                      .withClass("text-gray-600")
+                      .with(ViewUtils.requiredQuestionIndicator()),
                   buildUSWDSRadioOption(
                       /* id= */ "default-program-option",
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
@@ -381,7 +402,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                       /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
                       /* isDisabled= */ commonIntakeFieldDisabled,
                       /* label= */ "Pre-screener"))
-              .withId("program-type");
+              .withId("program-type")
+              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
     } else {
       programTypeFieldset =
           fieldset(
@@ -420,7 +442,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   static DivTag buildApplicationStepDiv(
-      int i, ImmutableList<Map<String, String>> applicationSteps, boolean isCommonIntakeForm) {
+      int i, ImmutableList<Map<String, String>> applicationSteps, boolean isDisabled) {
 
     // Fill in the existing application steps
     String titleValue = "";
@@ -437,20 +459,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("apply-step-" + indexPlusOne + "-title")
             .setFieldName("applicationSteps[" + index + "][title]")
-            .setDisabled(isCommonIntakeForm)
-            .setReadOnly(isCommonIntakeForm)
+            .setDisabled(isDisabled)
+            .setReadOnly(isDisabled)
             .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
             .setId("apply-step-" + indexPlusOne + "-description")
             .setFieldName("applicationSteps[" + index + "][description]")
-            .setDisabled(isCommonIntakeForm)
-            .setReadOnly(isCommonIntakeForm)
+            .setDisabled(isDisabled)
+            .setReadOnly(isDisabled)
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 
-    Boolean isRequired = indexPlusOne.equals("1") && !isCommonIntakeForm;
+    Boolean isRequired = indexPlusOne.equals("1") && !isDisabled;
     if (isRequired) {
       title.setLabelText("Step 1 title").setRequired(true);
       description.setLabelText("Step 1 description").setRequired(true);
@@ -465,7 +487,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FieldsetTag showCategoryCheckboxes(
-      List<CategoryModel> categoryOptions, List<Long> categories, boolean isCommonIntakeForm) {
+      List<CategoryModel> categoryOptions, List<Long> categories, boolean isDisabled) {
     return fieldset(
             legend(
                     "Tag this program with 1 or more categories to make it easier to find"
@@ -479,8 +501,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                 /* name= */ "categories" + Path.ARRAY_SUFFIX,
                                 /* value= */ String.valueOf(category.getId()),
                                 /* isChecked= */ categories.contains(category.getId())
-                                    && !isCommonIntakeForm,
-                                /* isDisabled= */ isCommonIntakeForm,
+                                    && !isDisabled,
+                                /* isDisabled= */ isDisabled,
                                 /* label= */ category.getDefaultName())
                             .withClasses("grid-col-12", "tablet:grid-col-6")))
                 .withClasses("grid-row", "grid-gap-md"))
