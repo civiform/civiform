@@ -36,7 +36,7 @@
     th:value="${textQuestion.getTextValue().orElse('')}"
     th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
     th:aria-required="${!question.isOptional()}"
-    th:aria-invalid="${!hasErrors}"
+    th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
 </div>

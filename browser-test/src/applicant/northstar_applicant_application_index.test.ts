@@ -115,7 +115,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   test('shows log in button for guest users', async ({page}) => {
     // We cannot check that the login button redirects the user to a particular
     // URL because it varies between environments, so just check for their existence.
-    await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 
   test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
