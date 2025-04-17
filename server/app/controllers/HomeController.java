@@ -8,6 +8,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRoutes;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,6 +31,7 @@ public class HomeController extends Controller {
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
+  private final Database database;
 
   @Inject
   public HomeController(
@@ -46,6 +49,7 @@ public class HomeController extends Controller {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
+    this.database = DB.getDefault();
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -96,6 +100,10 @@ public class HomeController extends Controller {
   }
 
   public Result playIndex() {
+    var result = database.sqlQuery("SELECT 1").findOneOrEmpty();
+    if (result.isEmpty()) {
+      return notFound();
+    }
     return ok("public index");
   }
 
