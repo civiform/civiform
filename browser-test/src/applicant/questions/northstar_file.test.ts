@@ -706,45 +706,40 @@ test.describe('file upload applicant flow', {tag: ['@northstar']}, () => {
       )
     })
 
-    // TODO(9467): remove ".fixme" once https://github.com/civiform/civiform/issues/9467 is resolved
-    test.fixme(
-      'remove button has correct aria-labelled by',
-      async ({applicantQuestions, page}) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
+    test('remove button has correct aria-label', async ({
+      applicantQuestions,
+      page,
+    }) => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled= */ true,
+      )
 
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload.png',
-        )
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-second.png',
-        )
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload-second.png',
+      )
 
-        await expect(page.getByText('file-upload.png')).toBeVisible()
+      await expect(page.getByText('file-upload.png')).toBeVisible()
 
-        await expect(
-          page
-            .getByRole('list', {name: 'Uploaded files'})
-            .locator('li')
-            .filter({hasText: 'file-upload.png'})
-            .getByText('Remove File'),
-        ).toHaveAttribute('aria-labelledby', 'uploaded-file-1')
+      const fileListItem = page
+        .getByRole('list', {name: 'Uploaded files'})
+        .locator('li')
 
-        await expect(page.locator('#uploaded-file-2')).toContainText(
-          'file-upload-second.png',
-        )
+      await expect(
+        fileListItem
+          .filter({hasText: 'file-upload.png'})
+          .getByRole('button', {name: 'Remove file-upload.png file'}),
+      ).toBeVisible()
 
-        await expect(
-          page
-            .getByRole('list', {name: 'Uploaded files'})
-            .locator('li')
-            .filter({hasText: 'file-upload-second.png'})
-            .getByText('Remove File'),
-        ).toHaveAttribute('aria-labelledby', 'uploaded-file-2')
-      },
-    )
+      await expect(
+        fileListItem
+          .filter({hasText: 'file-upload-second.png'})
+          .getByRole('button', {name: 'Remove file-upload-second.png file'}),
+      ).toBeVisible()
+    })
 
     test('too large file error', async ({
       page,
