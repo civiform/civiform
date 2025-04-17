@@ -928,7 +928,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
     await validateScreenshot(
       page,
-      'program-index-page-theme-dark-only',
+      'program-index-page-theme-primary-dark-only',
       /* fullPage= */ true,
     )
   })
