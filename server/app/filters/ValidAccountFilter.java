@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -16,24 +15,28 @@ import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
-import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.DatabaseExecutionContext;
-import services.session.SessionTimeoutService;
 import services.settings.SettingsManifest;
 
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
  * when the account is deleted from the database which almost will never happen in prod database.
+ *
+ * <p>NOTE: Code is commented out in this class to disable all checks for
+ * getSessionTimeoutEnabled(request) until #10330 is resolved. See
+ * https://github.com/civiform/civiform/pull/10329 for additional context.
+ *
+ * <p>TODO: Comment this code back in once #10330 is resolved.
  */
 public class ValidAccountFilter extends EssentialFilter {
 
   private final ProfileUtils profileUtils;
   private final Provider<SettingsManifest> settingsManifest;
   private final Materializer materializer;
-  private final Clock clock;
-  private final Provider<SessionTimeoutService> sessionTimeoutService;
+  // private final Clock clock;
+  // private final Provider<SessionTimeoutService> sessionTimeoutService;
   private final Provider<DatabaseExecutionContext> databaseExecutionContext;
 
   @Inject
@@ -41,14 +44,14 @@ public class ValidAccountFilter extends EssentialFilter {
       ProfileUtils profileUtils,
       Provider<SettingsManifest> settingsManifest,
       Materializer materializer,
-      Clock clock,
-      Provider<SessionTimeoutService> sessionTimeoutService,
+      // Clock clock,
+      // Provider<SessionTimeoutService> sessionTimeoutService,
       Provider<DatabaseExecutionContext> databaseExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.materializer = checkNotNull(materializer);
-    this.clock = checkNotNull(clock);
-    this.sessionTimeoutService = sessionTimeoutService;
+    // this.clock = checkNotNull(clock);
+    // this.sessionTimeoutService = sessionTimeoutService;
     this.databaseExecutionContext = databaseExecutionContext;
   }
 
@@ -63,16 +66,16 @@ public class ValidAccountFilter extends EssentialFilter {
           }
 
           CompletionStage<Accumulator<ByteString, Result>> futureAccumulator =
-              shouldLogoutUser(profile.get(), request)
+              shouldLogoutUser(profile.get())
                   .thenApply(
                       shouldLogout -> {
                         if (shouldLogout) {
                           return Accumulator.done(
                               Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
                         } else {
-                          if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
-                            profile.get().getProfileData().updateLastActivityTime(clock);
-                          }
+                          // if (settingsManifest.get().getSessionTimeoutEnabled(request)) {
+                          //   profile.get().getProfileData().updateLastActivityTime(clock);
+                          // }
                           return next.apply(request);
                         }
                       });
@@ -81,8 +84,7 @@ public class ValidAccountFilter extends EssentialFilter {
         });
   }
 
-  private CompletionStage<Boolean> shouldLogoutUser(
-      CiviFormProfile profile, RequestHeader request) {
+  private CompletionStage<Boolean> shouldLogoutUser(CiviFormProfile profile) {
 
     return profileUtils
         .validCiviFormProfile(profile)
@@ -101,11 +103,11 @@ public class ValidAccountFilter extends EssentialFilter {
                 return CompletableFuture.completedFuture(true);
               }
               // If flag is disabled, keep them logged in if they have a valid session
-              if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
-                return CompletableFuture.completedFuture(false);
-              }
+              // if (!settingsManifest.get().getSessionTimeoutEnabled(request)) {
+              return CompletableFuture.completedFuture(false);
+              // }
               // Otherwise, let the SessionTimeoutService decide
-              return sessionTimeoutService.get().isSessionTimedOut(profile);
+              // return sessionTimeoutService.get().isSessionTimedOut(profile);
             },
             databaseExecutionContext.get());
   }
