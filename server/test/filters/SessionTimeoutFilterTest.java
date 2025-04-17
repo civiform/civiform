@@ -68,6 +68,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   public void testNoProfile_clearsCookie() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
 
     Result result = executeFilter(request);
 
@@ -79,7 +80,7 @@ public class SessionTimeoutFilterTest extends WithApplication {
   }
 
   @Test
-  public void testTimeoutDisabled_clearsCookie() throws Exception {
+  public void testTimeoutDisabled_returnsSuccessful() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
@@ -87,10 +88,6 @@ public class SessionTimeoutFilterTest extends WithApplication {
     Result result = executeFilter(request);
 
     assertThat(result.status()).isEqualTo(200);
-    Optional<Http.Cookie> cookie = result.cookies().get(TIMEOUT_COOKIE_NAME);
-    assertThat(cookie).isPresent();
-    assertThat(cookie.get().maxAge().intValue()).isEqualTo(0);
-    assertThat(cookie.get().value()).isEmpty();
   }
 
   @Test
