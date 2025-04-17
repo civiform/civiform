@@ -46,6 +46,12 @@ export enum FormField {
   PROGRAM_ELIGIBILITY,
 }
 
+export enum ProgramType {
+  DEFAULT = 'CiviForm program',
+  COMMON_INTAKE_FORM = 'Pre-screener',
+  EXTERNAL = 'External program',
+}
+
 export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
@@ -377,6 +383,30 @@ export class AdminPrograms {
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
         )
     }
+  }
+
+  /**
+   * Verifies whether the program type has its corresponding field disabled.
+   *
+   * @param formField - The specific program type field to verify (from ProgramType enum)
+   */
+  async expectProgramTypeDisabled(programType: ProgramType) {
+    const programTypeOption = this.page.getByRole('radio', {
+      name: programType,
+    })
+    await expect(programTypeOption).toBeDisabled()
+  }
+
+  /**
+   * Verifies whether the program type has its corresponding field enabled.
+   *
+   * @param formField - The specific program type field to verify (from ProgramType enum)
+   */
+  async expectProgramTypeEnabled(programType: ProgramType) {
+    const programTypeOption = this.page.getByRole('radio', {
+      name: programType,
+    })
+    await expect(programTypeOption).toBeEnabled()
   }
 
   async submitProgramDetailsEdits() {
@@ -1522,6 +1552,50 @@ export class AdminPrograms {
     })
   }
 
+  /**
+   * Verifies that the program type radio button selected is the given program type
+   * checked. This should only be used when EXTERNAL_PROGRAM_CARDS feature is
+   * enabled.
+   */
+  async expectProgramTypeSelected(programTypeSelected: ProgramType) {
+    for (const programType of Object.values(ProgramType)) {
+      const programTypeOption = this.page.getByRole('radio', {
+        name: programType,
+      })
+
+      if (programType === programTypeSelected) {
+        await expect(programTypeOption).toBeChecked()
+      } else {
+        await expect(programTypeOption).not.toBeChecked()
+      }
+    }
+  }
+
+  /**
+   * Selects the program type checkbox for the given type. This should only be
+   * used when EXTERNAL_PROGRAM_CARDS feature is enabled.
+   */
+  async selectProgramType(programType: ProgramType) {
+    // Note: We click on the label instead of directly interacting with the checkbox
+    // because USWDS styling hides the actual checkbox input and styles the label to
+    // look like a checkbox. The actual input element is visually hidden or positioned
+    // off-screen, making it inaccessible to Playwright's direct interactions.
+    let programId
+    switch (programType) {
+      case ProgramType.DEFAULT:
+        programId = 'default-program-option'
+        break
+      case ProgramType.COMMON_INTAKE_FORM:
+        programId = 'common-intake-program-option'
+        break
+      case ProgramType.EXTERNAL:
+        programId = 'external-program-option'
+        break
+    }
+    await this.page.locator('label[for="' + programId + '"]').click()
+  }
+
+  // TODO(emiliapaz): Migrate callers to use selectProgramType(programType).
   async clickCommonIntakeFormToggle() {
     // Note: We click on the label instead of directly interacting with the checkbox
     // because USWDS styling hides the actual checkbox input and styles the label to
