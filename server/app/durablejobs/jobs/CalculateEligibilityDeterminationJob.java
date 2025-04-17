@@ -3,13 +3,13 @@ package durablejobs.jobs;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import durablejobs.DurableJob;
-import io.ebean.Database;
 import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.Transaction;
+import javax.inject.Inject;
 import models.ApplicationModel;
 import models.EligibilityDetermination;
 import models.PersistedDurableJobModel;
-import javax.inject.Inject;
 import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +27,19 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
   private final ApplicantService applicantService;
 
   private final Database database;
+  private final PersistedDurableJobModel persistedDurableJobModel;
 
   @Inject
-  public CalculateEligibilityDeterminationJob(ApplicantService applicantService) {
+  public CalculateEligibilityDeterminationJob(
+      ApplicantService applicantService, PersistedDurableJobModel persistedDurableJobModel) {
     this.applicantService = checkNotNull(applicantService);
+    this.persistedDurableJobModel = checkNotNull(persistedDurableJobModel);
     this.database = DB.getDefault();
   }
 
   @Override
   public PersistedDurableJobModel getPersistedDurableJob() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getPersistedDurableJob'");
+    return persistedDurableJobModel;
   }
 
   @Override
@@ -47,13 +49,13 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
     try (Transaction jobTransaction = database.beginTransaction()) {
       String filter =
           """
-           eligibility_determination = NOT_COMPUTED
+          eligibility_determination = 'NOT_COMPUTED'
           """;
       try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
         while (query.hasNext()) {
           try {
             ApplicationModel application = query.next();
-            logger.debug(
+            logger.info(
                 "Calculating eligibility determination for application id {}", application.id);
             ProgramModel pm = application.getProgram();
             ProgramDefinition programDefinition = pm.getProgramDefinition();
@@ -63,6 +65,8 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
                 applicantService.calculateEligibilityDetermination(
                     programDefinition, roAppProgramService);
             application.setEligibilityDetermination(eligibilityDetermination);
+            application.save();
+            jobTransaction.commit();
           } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);
           }
