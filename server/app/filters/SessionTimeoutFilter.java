@@ -53,6 +53,9 @@ public class SessionTimeoutFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
+    if (!settingsManifest.get().getSessionTimeoutEnabled(requestHeader)) {
+      return nextFilter.apply(requestHeader);
+    }
     if (SettingsFilter.areSettingRequestAttributesExcluded(requestHeader)) {
       return nextFilter.apply(requestHeader);
     }
