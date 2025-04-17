@@ -8,8 +8,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRoutes;
-import io.ebean.DB;
-import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -20,6 +18,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.HealthCheckRepository;
 import services.applicant.ApplicantData;
 
 /** Controller for handling methods for the landing pages. */
@@ -31,7 +30,7 @@ public class HomeController extends Controller {
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
   private final ApplicantRoutes applicantRoutes;
-  private final Database database;
+  private final HealthCheckRepository healthCheckRepository;
 
   @Inject
   public HomeController(
@@ -40,7 +39,8 @@ public class HomeController extends Controller {
       MessagesApi messagesApi,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      HealthCheckRepository healthCheckRepository) {
     checkNotNull(configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
@@ -49,7 +49,7 @@ public class HomeController extends Controller {
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
-    this.database = DB.getDefault();
+    this.healthCheckRepository = checkNotNull(healthCheckRepository);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -100,9 +100,9 @@ public class HomeController extends Controller {
   }
 
   public Result playIndex() {
-    var result = database.sqlQuery("SELECT 1").findOneOrEmpty();
+    var result = healthCheckRepository.checkDBHealth();
     if (result.isEmpty()) {
-      return notFound();
+      return badRequest();
     }
     return ok("public index");
   }
