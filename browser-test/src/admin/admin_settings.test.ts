@@ -1,4 +1,4 @@
-import {expect, test} from '../support/civiform_fixtures'
+import {test} from '../support/civiform_fixtures'
 import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
@@ -66,7 +66,6 @@ test.describe('Managing system-wide settings', () => {
   })
 
   test('Validates color contrast in theme settings', async ({
-    page,
     adminSettings,
   }) => {
     await adminSettings.gotoAdminSettings()
@@ -77,11 +76,7 @@ test.describe('Managing system-wide settings', () => {
         /* expectUpdated= */ false,
         /* expectError= */ true,
       )
-      await expect(
-        page.getByText(
-          'The color you selected does not meet accessibility requirements for contrast.',
-        ),
-      ).toBeVisible()
+      await adminSettings.expectColorContrastErrorVisible()
     })
 
     await test.step('contrast ratio met on primary color', async () => {
@@ -98,11 +93,7 @@ test.describe('Managing system-wide settings', () => {
         /* expectUpdated= */ false,
         /* expectError= */ true,
       )
-      await expect(
-        page.getByText(
-          'The color you selected does not meet accessibility requirements for contrast.',
-        ),
-      ).toBeVisible()
+      await adminSettings.expectColorContrastErrorVisible()
     })
 
     await test.step('contrast ratio met on primary dark color', async () => {

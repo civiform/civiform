@@ -64,4 +64,12 @@ export class AdminSettings {
       expect(toastMessages).toContain('No changes to save')
     }
   }
+
+  async expectColorContrastErrorVisible() {
+    await expect(
+      this.page.getByText(
+        'The color you selected does not meet accessibility requirements for contrast.',
+      ),
+    ).toBeVisible()
+  }
 }

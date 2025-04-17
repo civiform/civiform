@@ -27,4 +27,10 @@ public class ColorUtilTest {
     String black = "#000";
     assertTrue(ColorUtil.contrastsWithWhite(black));
   }
+
+  @Test
+  public void contrastsWithWhite_badHexCode() {
+    String badColor = "#000FFFEE";
+    assertFalse(ColorUtil.contrastsWithWhite(badColor));
+  }
 }
