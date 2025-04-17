@@ -82,22 +82,22 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
             .collect(ImmutableList.toImmutableList());
 
     Optional<ProgramCardsSectionParamsFactory.ProgramSectionParams> recommendedSection =
-            Optional.empty();
-        if (!filteredPrograms.isEmpty()) {
-          recommendedSection =
-              Optional.of(
-                  programCardsSectionParamsFactory.getSection(
-                      request,
-                      messages,
-                      Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION_V2),
-                      MessageKey.BUTTON_VIEW_AND_APPLY,
-                      filteredPrograms,
-                      /* preferredLocale= */ messages.lang().toLocale(),
-                      profile,
-                      applicantId,
-                      personalInfo,
-                      ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED));
-        }
+        Optional.empty();
+    if (!filteredPrograms.isEmpty()) {
+      recommendedSection =
+          Optional.of(
+              programCardsSectionParamsFactory.getSection(
+                  request,
+                  messages,
+                  Optional.of(MessageKey.TITLE_RECOMMENDED_PROGRAMS_SECTION_V2),
+                  MessageKey.BUTTON_VIEW_AND_APPLY,
+                  filteredPrograms,
+                  /* preferredLocale= */ messages.lang().toLocale(),
+                  profile,
+                  applicantId,
+                  personalInfo,
+                  ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED));
+    }
     Optional<ProgramCardsSectionParamsFactory.ProgramSectionParams> otherProgramsSection =
         Optional.empty();
 
