@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /** Implements a simple query needed to check if DB is reachable */
 public final class HealthCheckRepository {
   private final Database database;
-  private final Logger log = LoggerFactory.getLogger(HealthCheckRepository.class);
+  private final Logger logger = LoggerFactory.getLogger(HealthCheckRepository.class);
 
   @Inject
   public HealthCheckRepository() {
@@ -22,13 +22,13 @@ public final class HealthCheckRepository {
    * Does a simple query to check if the DB is reachable. In case of any exception, error is logged
    * and an empty object is returned.
    */
-  @SuppressWarnings("unchecked")
   public Optional<SqlRow> checkDBHealth() {
     Optional<SqlRow> result = Optional.empty();
+
     try {
-      result = database.sqlQuery("SELECT 1").findOneOrEmpty();
-    } catch (Exception e) {
-      log.error(e.getMessage());
+      return database.sqlQuery("SELECT 1").findOneOrEmpty();
+    } catch (RuntimeException e) {
+      logger.error(e.getMessage());
     }
     return result;
   }
