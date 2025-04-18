@@ -12,4 +12,4 @@ services:
     environment:
       - SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       - STAGING_HOSTNAME=localhost
-    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -jvm-debug "0.0.0.0:8457" -Dconfig.file=/civiform-server-0.0.1/conf/application.conf
+    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -jvm-debug "0.0.0.0:8457" -Dconfig.file=/civiform-server-0.0.1/conf/application.conf -XX:+FlightRecorder -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:StartFlightRecording=defaultrecording=true,disk=true,repository=/usr/src/server/jfr,maxage=2h,loglevel=info,dumponexit=true,dumponexitpath=/usr/src/server/jfr/flight.jfr
