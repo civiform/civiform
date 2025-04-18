@@ -55,6 +55,8 @@ services:
       POSTGRES_PASSWORD: example
     volumes:
       - ./init_postgres.sql:/docker-entrypoint-initdb.d/init_postgres.sql
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
 
   civiform:
     image: civiform-dev
