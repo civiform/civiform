@@ -110,12 +110,26 @@
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">csrfToken</stringProp>
               </elementProp>
-              <elementProp name="applicant.sample_checkbox_question.selections[]" elementType="HTTPArgument">
+              <elementProp name="applicant.sample_name_question.first_name" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.value">test first ${__threadNum}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">applicant.sample_checkbox_question.selections[]</stringProp>
+                <stringProp name="Argument.name">applicant.sample_name_question.first_name</stringProp>
+              </elementProp>
+              <elementProp name="applicant.sample_name_question.middle_name" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">applicant.sample_name_question.middle_name</stringProp>
+              </elementProp>
+              <elementProp name="applicant.sample_name_question.last_name" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">test last ${__threadNum}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">applicant.sample_name_question.last_name</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
