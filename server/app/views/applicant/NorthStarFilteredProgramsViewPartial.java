@@ -108,7 +108,7 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
                   request,
                   messages,
                   recommendedSection.isEmpty()
-                      ? Optional.empty()
+                      ? Optional.of(MessageKey.TITLE_PROGRAMS_SECTION_V2)
                       : Optional.of(MessageKey.TITLE_OTHER_PROGRAMS_SECTION_V2),
                   MessageKey.BUTTON_VIEW_AND_APPLY,
                   otherPrograms,
@@ -116,7 +116,9 @@ public class NorthStarFilteredProgramsViewPartial extends NorthStarBaseView {
                   profile,
                   applicantId,
                   personalInfo,
-                  ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
+                  filteredPrograms.isEmpty()
+                      ? ProgramCardsSectionParamsFactory.SectionType.RECOMMENDED
+                      : ProgramCardsSectionParamsFactory.SectionType.DEFAULT));
     }
 
     context.setVariable("recommendedSection", recommendedSection);

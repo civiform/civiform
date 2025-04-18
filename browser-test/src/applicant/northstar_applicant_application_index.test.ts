@@ -610,7 +610,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         ).not.toBeChecked()
 
         await expect(
-          page.locator('.usa-card-group .cf-application-card'),
+          page.locator(
+            '#not-started-programs .usa-card-group .cf-application-card',
+          ),
         ).toHaveCount(4)
 
         await expect(
