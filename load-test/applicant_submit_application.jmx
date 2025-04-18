@@ -70,7 +70,7 @@
           <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract PROGRAM_ID" enabled="true">
             <stringProp name="RegexExtractor.useHeaders">false</stringProp>
             <stringProp name="RegexExtractor.refname">PROGRAM_ID</stringProp>
-            <stringProp name="RegexExtractor.regex">/programs/(\d+)/edit"&gt;Start application as a guest</stringProp>
+            <stringProp name="RegexExtractor.regex">/programs/(\d+)/edit</stringProp>
             <stringProp name="RegexExtractor.template">$1$</stringProp>
             <stringProp name="RegexExtractor.default">NOT_FOUND</stringProp>
             <stringProp name="RegexExtractor.match_number">1</stringProp>
