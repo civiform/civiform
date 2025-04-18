@@ -4,11 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Map.Entry;
 import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -16,6 +19,7 @@ import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import parsers.LargeFormUrlEncodedBodyParser;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.BodyParser;
@@ -60,7 +64,6 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
-
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
@@ -377,15 +380,40 @@ public class AdminImportController extends CiviFormController {
     }
   }
 
-  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
-    Form<AdminProgramImportForm> form =
-        formFactory
-            .form(AdminProgramImportForm.class)
-            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+  @VisibleForTesting
+  ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    boolean duplicateHandlingOptionsEnabled =
+        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+    DynamicForm form = formFactory.form().bindFromRequest(request);
 
-    String jsonString = form.get().getProgramJson();
+    String programJsonString = form.get(AdminProgramImportForm.PROGRAM_JSON_FIELD);
+    ImmutableMap<String, String> adminNameToDuplicateHandling = ImmutableMap.of();
+    if (duplicateHandlingOptionsEnabled) {
+      // Form data for handling duplicates all share a prefix. So we are looking for fields with
+      // that prefix, and then removing the prefix to get the admin name. The form data in question
+      // looks like:
+      // `{DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX}{adminName}->{duplicateHandlingOption}`
+      adminNameToDuplicateHandling =
+          form.rawData().entrySet().stream()
+              .filter(
+                  field ->
+                      field
+                          .getKey()
+                          .startsWith(
+                              AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX))
+              .map(
+                  field ->
+                      Maps.immutableEntry(
+                          field
+                              .getKey()
+                              .replace(
+                                  AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX,
+                                  ""),
+                          field.getValue()))
+              .collect(ImmutableMap.toImmutableMap(Entry::getKey, Entry::getValue));
+    }
 
-    return programMigrationService.deserialize(jsonString);
+    return programMigrationService.deserialize(programJsonString, adminNameToDuplicateHandling);
   }
 
   /**
