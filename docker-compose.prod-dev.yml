@@ -6,7 +6,10 @@ services:
     build: prod
     image: civiform
     platform: linux/amd64
+    ports:
+      - 9000:9000
+      - 8457:8457
     environment:
       - SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       - STAGING_HOSTNAME=localhost
-    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -Dconfig.file=/civiform-server-0.0.1/conf/application.conf
+    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -jvm-debug "0.0.0.0:8457" -Dconfig.file=/civiform-server-0.0.1/conf/application.conf
