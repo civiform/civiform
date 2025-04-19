@@ -59,6 +59,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
@@ -92,14 +93,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
-        program.getIsCommonIntakeForm(),
+        program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
         ImmutableList.copyOf(program.getCategories()),
         ImmutableList.copyOf(program.getApplicationSteps()));
   }
 
-  /** Builds the form using program definition data. */
+  /* Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
       Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
@@ -116,7 +117,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(ProgramNotificationPreference::getValue)
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
-        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
+        program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
         program.categories().stream()
@@ -145,13 +146,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
-      Boolean isCommonIntakeForm,
+      ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
+    boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
+
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
@@ -190,15 +193,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Common intake form
+        // Program type
         fieldset(
                 div(
                         input()
                             .withId("common-intake-checkbox")
                             .withClasses("usa-checkbox__input")
                             .withType("checkbox")
-                            .withName("isCommonIntakeForm")
-                            .withValue("true")
+                            .withName(PROGRAM_TYPE_FIELD_NAME)
+                            .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
                             .withCondChecked(isCommonIntakeForm),
                         label("Set program as pre-screener")
                             .withFor("common-intake-checkbox")
