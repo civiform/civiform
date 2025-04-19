@@ -1,6 +1,7 @@
 package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.ProgramAcls;
@@ -196,7 +197,9 @@ public final class ProgramService {
    */
   public ProgramDefinition getFullProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getFullProgramDefinitionAsync(id).toCompletableFuture().join();
+      return programRepository
+          .getFullProgramDefinitionFromCache(id)
+          .orElse(getFullProgramDefinitionAsyncInternal(id).toCompletableFuture().join());
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
@@ -218,18 +221,20 @@ public final class ProgramService {
     return programRepository
         .getFullProgramDefinitionFromCache(id)
         .map(CompletableFuture::completedStage)
-        .orElse(
-            programRepository
-                .lookupProgram(id)
-                .thenComposeAsync(
-                    programMaybe -> {
-                      if (programMaybe.isEmpty()) {
-                        return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
-                      }
+        .orElse(getFullProgramDefinitionAsyncInternal(id));
+  }
 
-                      return syncProgramAssociations(programMaybe.get());
-                    },
-                    classLoaderExecutionContext.current()));
+  private CompletionStage<ProgramDefinition> getFullProgramDefinitionAsyncInternal(long id) {
+    return programRepository
+        .lookupProgram(id)
+        .thenComposeAsync(
+            optionalProgram -> {
+              if (optionalProgram.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+              return syncProgramAssociationsAndSaveToCacheIfActiveAsync(optionalProgram.get());
+            },
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -239,15 +244,15 @@ public final class ProgramService {
    * method is called to sync program associations, which gets the full program definition, and sets
    * the cache if enabled.
    *
-   * <p>The cache is set within the {@link #syncProgramAssociations} method, since that method
-   * already checks whether the program is not a draft program, and we only want to set the cache if
-   * the program has been published.
+   * <p>The cache is set within the {@link #syncProgramAssociationsAndSaveToCacheIfActiveAsync}
+   * method, since that method already checks whether the program is not a draft program, and we
+   * only want to set the cache if the program has been published.
    */
-  public CompletionStage<ProgramDefinition> getFullProgramDefinition(ProgramModel p) {
+  public CompletionStage<ProgramDefinition> getFullProgramDefinitionAsync(ProgramModel p) {
     return programRepository
         .getFullProgramDefinitionFromCache(p)
         .map(programDef -> CompletableFuture.completedStage(programDef))
-        .orElse(syncProgramAssociations(p));
+        .orElse(syncProgramAssociationsAndSaveToCacheIfActiveAsync(p));
   }
 
   /**
@@ -262,7 +267,8 @@ public final class ProgramService {
       String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
-        .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
+        .thenComposeAsync(
+            this::getFullProgramDefinitionAsync, classLoaderExecutionContext.current());
   }
 
   /**
@@ -275,7 +281,9 @@ public final class ProgramService {
   public ProgramDefinition getDraftFullProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
     ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
-    return syncProgramAssociations(draftProgram).toCompletableFuture().join();
+    return syncProgramAssociationsAndSaveToCacheIfActiveAsync(draftProgram)
+        .toCompletableFuture()
+        .join();
   }
 
   /**
@@ -283,43 +291,89 @@ public final class ProgramService {
    * programs with the same name).
    */
   public ImmutableList<ProgramDefinition> getAllVersionsFullProgramDefinition(long programId) {
-    return programRepository.getAllProgramVersions(programId).stream()
-        .map(p -> getFullProgramDefinition(p).toCompletableFuture().join())
+    ImmutableList<CompletionStage<ProgramDefinition>> futureSyncedProgramDefinitions =
+        programRepository.getAllProgramVersions(programId).stream()
+            .map(p -> getFullProgramDefinitionAsync(p))
+            .collect(ImmutableList.toImmutableList());
+
+    CompletableFuture.allOf(futureSyncedProgramDefinitions.toArray(new CompletableFuture[0]))
+        .join();
+
+    return futureSyncedProgramDefinitions.stream()
+        .map(f -> f.toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
+
+    // return programRepository.getAllProgramVersions(programId).stream()
+    //   .map(p -> getFullProgramDefinitionAsync(p).toCompletableFuture().join())
+    //   .collect(ImmutableList.toImmutableList());
   }
 
   /**
    * Get the program definition with the underlying question data.
    *
    * <p>Any callers of this function syncing program associations for a non-draft version should use
-   * {@link #getFullProgramDefinition(ProgramModel)} to first try getting the full program
+   * {@link #getFullProgramDefinitionAsync(ProgramModel)} to first try getting the full program
    * definition from the cache.
    */
-  private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
-    VersionModel activeVersion = versionRepository.getActiveVersion();
-    VersionModel maxVersionForProgram =
-        programRepository.getVersionsForProgram(program).stream()
-            .max(Comparator.comparingLong(p -> p.id))
-            .orElseThrow();
-    // If the max version is greater than the active version, it is a draft
-    if (maxVersionForProgram.id > activeVersion.id) {
-      // This method makes multiple calls to get questions for the active and
-      // draft versions, so we should only call it if we're syncing program
-      // associations for a draft program (which means we're in the admin flow).
-      return syncProgramDefinitionQuestions(programRepository.getShallowProgramDefinition(program))
-          .thenApply(ProgramDefinition::orderBlockDefinitions);
-    }
+  private CompletionStage<ProgramDefinition> syncProgramAssociationsAndSaveToCacheIfActiveAsync(
+      ProgramModel program) {
+    return supplyAsync(
+        () -> {
+          VersionModel activeVersion = versionRepository.getActiveVersion();
+          VersionModel maxVersionForProgram =
+              programRepository.getVersionsForProgram(program).stream()
+                  .max(Comparator.comparingLong(p -> p.id))
+                  .orElseThrow();
+          // If the max version is greater than the active version, it is a draft
+          if (maxVersionForProgram.id > activeVersion.id) {
+            // This method makes multiple calls to get questions for the active and
+            // draft versions, so we should only call it if we're syncing program
+            // associations for a draft program (which means we're in the admin flow).
+            return syncProgramDefinitionQuestions(
+                    programRepository.getShallowProgramDefinition(program))
+                .thenApply(ProgramDefinition::orderBlockDefinitions)
+                .toCompletableFuture()
+                .join();
+          }
 
-    ProgramDefinition programDefinition =
-        syncProgramDefinitionQuestions(
-            programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
+          ProgramDefinition programDefinition =
+              syncProgramDefinitionQuestions(
+                  programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
 
-    // It is safe to set the program definition cache, since we have already checked that it is
-    // not a draft program.
-    programRepository.setFullProgramDefinitionCache(
-        program.id, programDefinition.orderBlockDefinitions());
+          // It is safe to set the program definition cache, since we have already checked that it
+          // is not a draft program.
+          programRepository.setFullProgramDefinitionCache(
+              program.id, programDefinition.orderBlockDefinitions());
 
-    return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+          return programDefinition.orderBlockDefinitions();
+        },
+        classLoaderExecutionContext.current());
+
+    // VersionModel activeVersion = versionRepository.getActiveVersion();
+    // VersionModel maxVersionForProgram =
+    //     programRepository.getVersionsForProgram(program).stream()
+    //         .max(Comparator.comparingLong(p -> p.id))
+    //         .orElseThrow();
+    // // If the max version is greater than the active version, it is a draft
+    // if (maxVersionForProgram.id > activeVersion.id) {
+    //   // This method makes multiple calls to get questions for the active and
+    //   // draft versions, so we should only call it if we're syncing program
+    //   // associations for a draft program (which means we're in the admin flow).
+    //   return
+    // syncProgramDefinitionQuestions(programRepository.getShallowProgramDefinition(program))
+    //       .thenApply(ProgramDefinition::orderBlockDefinitions);
+    // }
+
+    // ProgramDefinition programDefinition =
+    //     syncProgramDefinitionQuestions(
+    //         programRepository.getShallowProgramDefinition(program), maxVersionForProgram);
+
+    // // It is safe to set the program definition cache, since we have already checked that it is
+    // // not a draft program.
+    // programRepository.setFullProgramDefinitionCache(
+    //     program.id, programDefinition.orderBlockDefinitions());
+
+    // return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
   /**

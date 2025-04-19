@@ -530,7 +530,7 @@ public final class ApplicantService {
     ApplicantModel applicant = application.getApplicant();
     ApplicantData applicantData = application.getApplicantData();
     return programService
-        .getFullProgramDefinition(applicationProgram)
+        .getFullProgramDefinitionAsync(applicationProgram)
         .thenComposeAsync(
             programDefinition -> {
               Transaction transaction = database.beginTransaction();
