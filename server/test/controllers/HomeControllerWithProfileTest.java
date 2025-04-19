@@ -19,6 +19,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Result;
 import repository.AccountRepository;
+import repository.HealthCheckRepository;
 import services.settings.SettingsManifest;
 
 public class HomeControllerWithProfileTest extends WithMockedProfiles {
@@ -60,7 +61,8 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             instanceOf(MessagesApi.class),
             instanceOf(ClassLoaderExecutionContext.class),
             languageUtils,
-            new ApplicantRoutes());
+            new ApplicantRoutes(),
+            instanceOf(HealthCheckRepository.class));
     Result result = controller.index(fakeRequest()).toCompletableFuture().join();
     assertThat(result.redirectLocation()).isNotEmpty();
     assertThat(
