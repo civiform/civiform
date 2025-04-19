@@ -18,6 +18,7 @@ import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
 import durablejobs.jobs.AddOperatorToLeafAddressServiceAreaJob;
+import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.ConvertAddressServiceAreaToArrayJob;
 import durablejobs.jobs.CopyFileKeyForMultipleFileUpload;
 import durablejobs.jobs.OldJobCleanupJob;
@@ -39,6 +40,7 @@ import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
+import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
 
 /**
@@ -156,7 +158,9 @@ public final class DurableJobModule extends AbstractModule {
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository, Environment environment) {
+      CategoryRepository categoryRepository,
+      ApplicantService applicantService,
+      Environment environment) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.registerStartupJob(
@@ -181,6 +185,12 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD,
         JobType.RUN_ONCE,
         persistedDurableJob -> new CopyFileKeyForMultipleFileUpload(persistedDurableJob));
+
+    durableJobRegistry.registerStartupJob(
+        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
+        JobType.RUN_ONCE,
+        persistedDurableJob ->
+            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob));
 
     return durableJobRegistry;
   }

@@ -475,7 +475,7 @@ public final class ApplicantService {
     }
   }
 
-  private EligibilityDetermination calculateEligibilityDetermination(
+  public EligibilityDetermination calculateEligibilityDetermination(
       ProgramDefinition programDefinition,
       ReadOnlyApplicantProgramService readOnlyApplicantProgramService) {
     if (programDefinition.hasEligibilityEnabled()) {
