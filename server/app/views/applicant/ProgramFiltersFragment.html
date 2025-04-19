@@ -56,9 +56,7 @@
             <button
               th:text="#{button.clearSelections}"
               id="clear-filters"
-              th:attr="hx-get=${refreshUrl}"
-              hx-select="#unfiltered-programs"
-              hx-target="#not-started-programs"
+              type="submit"
               class="usa-button usa-button--outline width-full"
             ></button>
           </li>

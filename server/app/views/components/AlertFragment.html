@@ -61,7 +61,11 @@
     <ul
       th:if="${not #lists.isEmpty(alertSettings.additionalText)}"
       class="usa-list margin-top-0"
+<<<<<<< HEAD
+      th:with="ariaLabelNewTab=#{link.opensNewTabSr}"
+=======
       th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+>>>>>>> main
     >
       <li
         th:each="item : ${alertSettings.additionalText}"
