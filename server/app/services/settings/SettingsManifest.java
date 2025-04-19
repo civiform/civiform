@@ -861,6 +861,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("FILE_UPLOAD_ALLOWED_FILE_TYPE_SPECIFIERS");
   }
 
+  /** Content security policy for style-src */
+  public Optional<String> getStyleSrcContentSecurityPolicy() {
+    return getString("STYLE_SRC_CONTENT_SECURITY_POLICY");
+  }
+
   /**
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
@@ -2443,6 +2448,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " Multiple are separated by commas. Default: \"image/*,.pdf\"",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "STYLE_SRC_CONTENT_SECURITY_POLICY",
+                          "Content security policy for style-src",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.HIDDEN))))
           .build();
 }
