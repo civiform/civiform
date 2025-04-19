@@ -11,11 +11,13 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.admin.ProgramMigrationWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.ProgramNotificationPreference;
@@ -79,15 +81,42 @@ public final class ProgramMigrationService {
 
   /**
    * Attempts to deserialize the provided {@code programJson} into an instance of {@link
-   * ProgramMigrationWrapper}, returning either the successfully deserialized wrapper or an error
-   * message.
+   * ProgramMigrationWrapper}.
    *
-   * <p>If an error is returned, there will always be exactly one error message.
+   * @param programJson The JSON string to deserialize.
+   * @return An {@link ErrorAnd} containing either the deserialized {@link ProgramMigrationWrapper}
+   *     or exactly error message.
    */
   public ErrorAnd<ProgramMigrationWrapper, String> deserialize(String programJson) {
+    return deserialize(programJson, ImmutableMap.of());
+  }
+
+  /**
+   * Attempts to deserialize the provided {@code programJson} into an instance of {@link
+   * ProgramMigrationWrapper}, including any {@code duplicateHandling} options that are specified.
+   *
+   * @param programJson The JSON string to deserialize.
+   * @param duplicateHandling A map of question names to handling options. Guaranteed to be empty if
+   *     the feature is not yet launched or the request is not from the right page.
+   * @return An {@link ErrorAnd} containing either the deserialized {@link ProgramMigrationWrapper}
+   *     or exactly one error message.
+   */
+  public ErrorAnd<ProgramMigrationWrapper, String> deserialize(
+      String programJson, ImmutableMap<String, String> duplicateHandling) {
     try {
       ProgramMigrationWrapper programMigrationWrapper =
           objectMapper.readValue(programJson, ProgramMigrationWrapper.class);
+      if (!duplicateHandling.isEmpty()) {
+        programMigrationWrapper.setDuplicateQuestionHandlingOptions(
+            duplicateHandling.entrySet().stream()
+                .map(
+                    e ->
+                        Maps.immutableEntry(
+                            e.getKey(),
+                            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.valueOf(
+                                e.getValue())))
+                .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+      }
       return ErrorAnd.of(programMigrationWrapper);
     } catch (RuntimeException | JsonProcessingException e) {
       return ErrorAnd.error(

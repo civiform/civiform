@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableList;
  */
 public final class AdminProgramImportForm {
   public static final String PROGRAM_JSON_FIELD = "programJson";
+  public static final String DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX =
+      "duplicateQuestionHandling-";
   public static final ImmutableList<String> FIELD_NAMES = ImmutableList.of(PROGRAM_JSON_FIELD);
 
   private String programJson;
