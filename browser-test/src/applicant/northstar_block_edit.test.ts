@@ -94,7 +94,7 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
     await adminSettings.saveChanges()

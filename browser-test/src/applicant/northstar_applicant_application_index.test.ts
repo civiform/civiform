@@ -880,7 +880,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
     await adminSettings.saveChanges()
@@ -901,14 +901,14 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
 
     await adminSettings.saveChanges()
     await logout(page)
 
     await validateScreenshot(
       page,
-      'program-index-page-theme-primary-dark-only',
+      'program-index-page-theme-primary-only',
       /* fullPage= */ true,
     )
   })
@@ -921,14 +921,14 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
     await adminSettings.saveChanges()
     await logout(page)
 
     await validateScreenshot(
       page,
-      'program-index-page-theme-primary-only',
+      'program-index-page-theme-primary-dark-only',
       /* fullPage= */ true,
     )
   })
@@ -940,7 +940,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#967efb')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
     await adminSettings.saveChanges()
