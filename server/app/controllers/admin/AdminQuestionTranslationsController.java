@@ -64,7 +64,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result redirectToFirstLocale(Http.Request request, String questionName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, "Translations are not enabled for this configuration");
     }
 
@@ -87,7 +87,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public Result edit(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
@@ -113,7 +113,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public Result update(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
-      return redirect(routes.AdminQuestionController.index().url())
+      return redirect(routes.AdminQuestionController.index(Optional.empty()).url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
     }
 
