@@ -10,7 +10,6 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRoutes;
-import java.util.Optional;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
 import play.i18n.MessagesApi;
@@ -66,7 +65,7 @@ public class HomeControllerTest extends ResetPostgres {
   @Test
   public void testPlayIndexFail() {
     HealthCheckRepository healthCheckRepository = mock(HealthCheckRepository.class);
-    when(healthCheckRepository.checkDBHealth()).thenReturn(Optional.empty());
+    when(healthCheckRepository.isDBReachable()).thenReturn(false);
     HomeController controller =
         new HomeController(
             instanceOf(Config.class),

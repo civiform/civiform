@@ -100,11 +100,10 @@ public class HomeController extends Controller {
   }
 
   public Result playIndex() {
-    var result = healthCheckRepository.checkDBHealth();
-    if (result.isEmpty()) {
-      return badRequest();
+    if (healthCheckRepository.isDBReachable()) {
+      return ok("public index");
     }
-    return ok("public index");
+    return badRequest();
   }
 
   // Redirect any browsers who, by default, request favicon from root, to the

@@ -2,8 +2,6 @@ package repository;
 
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.SqlRow;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +18,14 @@ public final class HealthCheckRepository {
 
   /**
    * Does a simple query to check if the DB is reachable. In case of any exception, error is logged
-   * and an empty object is returned.
+   * and false is returned.
    */
-  public bool checkDBHealth() {
-    Optional<SqlRow> result = Optional.empty();
-
+  public boolean isDBReachable() {
     try {
       return database.sqlQuery("SELECT 1").findOne() != null;
     } catch (RuntimeException e) {
       logger.error(e.getMessage());
     }
-    return result;
+    return false;
   }
 }
