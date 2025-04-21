@@ -39,8 +39,7 @@ public final class CiviFormProfileFilter extends Filter {
    *
    * <ul>
    *   <li>The request is for a user-facing route
-   *   <li>The request is not for a page that doesn't require a guest profile (eg. /programs,
-   *       /error)
+   *   <li>The request is not for the homepage (/ or /programs) or error page (/error)
    *   <li>The request is for a route that exists (won't result in a 404)
    *   <li>The request uses the `GET` or `HEAD` method (POST cannot be redirected back to the
    *       original URI)
