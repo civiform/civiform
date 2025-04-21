@@ -26,7 +26,7 @@ public final class HealthCheckRepository {
     Optional<SqlRow> result = Optional.empty();
 
     try {
-      return database.sqlQuery("SELECT 1").findOneOrEmpty();
+      return database.sqlQuery("SELECT 1").findOne() != null;
     } catch (RuntimeException e) {
       logger.error(e.getMessage());
     }
