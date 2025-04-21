@@ -22,7 +22,7 @@ public final class HealthCheckRepository {
    * Does a simple query to check if the DB is reachable. In case of any exception, error is logged
    * and an empty object is returned.
    */
-  public Optional<SqlRow> checkDBHealth() {
+  public bool checkDBHealth() {
     Optional<SqlRow> result = Optional.empty();
 
     try {
