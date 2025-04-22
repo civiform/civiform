@@ -808,16 +808,16 @@ test.describe('program migration', () => {
       await expect(allQuestions).toHaveCount(17)
       // Check that all the expected fields are shown (on at least one question)
       const addressQuestion = page.getByTestId(
-        'question-admin-name-Sample Address Question -_- a',
+        'question-admin-name-Sample Address Question',
       )
       // Duplicate badge
       await expect(addressQuestion).toContainText('Duplicate Question')
       // Question text & help text
       await expect(addressQuestion).toContainText('What is your address?')
       await expect(addressQuestion).toContainText('help text')
-      // admin name (should be updated with " -_- a" on the end)
+      // admin name (should be the same as the imported admin name)
       await expect(addressQuestion).toContainText(
-        'Admin ID: Sample Address Question -_- a',
+        'Admin ID: Sample Address Question',
       )
 
       // Check another question for multi-select and "New Question" badge
@@ -833,7 +833,7 @@ test.describe('program migration', () => {
 
       // Check that the universal badge is shown (on at least one question)
       await adminPrograms.expectQuestionCardUniversalBadgeState(
-        'Sample Date Question -_- a',
+        'Sample Date Question',
         true,
       )
       // Check that the UI looks the same
