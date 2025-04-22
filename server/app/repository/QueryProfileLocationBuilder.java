@@ -19,7 +19,7 @@ public final class QueryProfileLocationBuilder {
   }
 
   /**
-   * Create a ProfileLocation based on the provided function name, or gets the ProfileLocation from
+   * Create a ProfileLocation based on the provided function name, or get the ProfileLocation from
    * the cache if present.
    *
    * @param functionName The name of the function.
