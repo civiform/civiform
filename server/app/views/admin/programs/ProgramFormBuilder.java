@@ -21,6 +21,7 @@ import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.List;
 import java.util.Map;
@@ -245,8 +246,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
-            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)
-                .withClass(SPACE_BETWEEN_FORM_ELEMENTS)),
+            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
         // Program visibility
         fieldset(
                 legend("Program visibility")
@@ -295,13 +295,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         fieldset(
                 legend("Email notifications").withClass("text-gray-600"),
                 buildUSWDSCheckboxOption(
-                    "notification-preferences-email",
-                    NOTIFICATIONS_PREFERENCES_FIELD_NAME,
-                    ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue(),
-                    notificationPreferences.contains(
+                    /* id= */ "notification-preferences-email",
+                    /* name= */ NOTIFICATIONS_PREFERENCES_FIELD_NAME,
+                    /* value= */ ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                        .getValue(),
+                    /* isChecked= */ notificationPreferences.contains(
                         ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                             .getValue()),
-                    "Send Program Admins an email notification every time an"
+                    /* isDisabled= */ false,
+                    /* label= */ "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
@@ -404,40 +406,28 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .with(title.getInputTag(), description.getTextareaTag());
   }
 
-  private DivTag showCategoryCheckboxes(
+  private FieldsetTag showCategoryCheckboxes(
       List<CategoryModel> categoryOptions, List<Long> categories, boolean isCommonIntakeForm) {
-    return div(
+    return fieldset(
             legend(
                     "Tag this program with 1 or more categories to make it easier to find"
                         + " (optional)")
                 .withClass("text-gray-600"),
-            fieldset(
-                    div(each(
-                            categoryOptions,
-                            category ->
-                                div(
-                                        input()
-                                            .withClasses(
-                                                "usa-checkbox__input usa-checkbox__input--tile")
-                                            .withId(
-                                                "checkbox-category-" + category.getDefaultName())
-                                            .withType("checkbox")
-                                            .withName("categories" + Path.ARRAY_SUFFIX)
-                                            .withValue(String.valueOf(category.getId()))
-                                            .withCondDisabled(isCommonIntakeForm)
-                                            .withCondChecked(
-                                                categories.contains(category.getId())
-                                                    && !isCommonIntakeForm),
-                                        label(category.getDefaultName())
-                                            .withClasses("usa-checkbox__label")
-                                            .withFor(
-                                                "checkbox-category-" + category.getDefaultName()))
-                                    .withClasses(
-                                        "usa-checkbox", "grid-col-12", "tablet:grid-col-6")))
-                        .withClasses("grid-row", "grid-gap-md"))
-                .withId("category-checkboxes")
-                .withClasses("usa-fieldset"))
-        .withClasses("mb-2");
+            div(each(
+                    categoryOptions,
+                    category ->
+                        buildUSWDSCheckboxOption(
+                                /* id= */ "checkbox-category-" + category.getDefaultName(),
+                                /* name= */ "categories" + Path.ARRAY_SUFFIX,
+                                /* value= */ String.valueOf(category.getId()),
+                                /* isChecked= */ categories.contains(category.getId())
+                                    && !isCommonIntakeForm,
+                                /* isDisabled= */ isCommonIntakeForm,
+                                /* label= */ category.getDefaultName())
+                            .withClasses("grid-col-12", "tablet:grid-col-6")))
+                .withClasses("grid-row", "grid-gap-md"))
+        .withId("category-checkboxes")
+        .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
   }
 
   private DomContent showTiSelectionList(ImmutableSet<Long> selectedTi, boolean selectTiChecked) {
@@ -447,17 +437,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     DivTag tiDiv =
         div(
                 // Hidden input that's always selected to allow for clearing multi-select data.
-                buildUSWDSCheckboxOption("", TI_GROUPS_FIELD_NAME, "", true, "")
+                buildUSWDSCheckboxOption(
+                        /* id= */ "",
+                        /* name= */ TI_GROUPS_FIELD_NAME,
+                        /* value= */ "",
+                        /* isChecked= */ true,
+                        /* isDisabled= */ false,
+                        /* label= */ "")
                     .withClasses("hidden"),
                 each(
                     tiGroups,
                     tiGroup ->
                         buildUSWDSCheckboxOption(
-                            tiGroup.id.toString(),
-                            TI_GROUPS_FIELD_NAME,
-                            tiGroup.id.toString(),
-                            selectedTi.contains(tiGroup.id),
-                            tiGroup.getName())))
+                            /* id= */ tiGroup.id.toString(),
+                            /* name= */ TI_GROUPS_FIELD_NAME,
+                            /* value= */ tiGroup.id.toString(),
+                            /* isChecked= */ selectedTi.contains(tiGroup.id),
+                            /* isDisabled= */ false,
+                            /* label= */ tiGroup.getName())))
             .withId("TiList")
             .withClasses("px-4", "py-2");
     return selectTiChecked ? tiDiv : tiDiv.isHidden();
@@ -552,7 +549,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildUSWDSCheckboxOption(
-      String id, String name, String value, Boolean isChecked, String label) {
+      String id, String name, String value, Boolean isChecked, Boolean isDisabled, String label) {
     return div(
             input()
                 .withId(id)
@@ -560,7 +557,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withType("checkbox")
                 .withName(name)
                 .withValue(value)
-                .withCondChecked(isChecked),
+                .withCondChecked(isChecked)
+                .withCondDisabled(isDisabled),
             label(label).withFor(id).withClasses("usa-checkbox__label"))
         .withClasses("usa-checkbox");
   }

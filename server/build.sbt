@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.7-jre",
+      "com.google.guava" % "guava" % "33.4.8-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -43,15 +43,15 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.20",
-      "software.amazon.awssdk" % "ses" % "2.31.20",
+      "software.amazon.awssdk" % "s3" % "2.31.25",
+      "software.amazon.awssdk" % "ses" % "2.31.25",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.34.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.36.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.7-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.8-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",

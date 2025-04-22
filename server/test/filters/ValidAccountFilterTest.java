@@ -9,10 +9,8 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileUtils;
-import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import javax.inject.Provider;
 import models.AccountModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +19,7 @@ import play.mvc.EssentialAction;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.test.WithApplication;
-import services.session.SessionTimeoutService;
+import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
 public class ValidAccountFilterTest extends WithApplication {
@@ -32,37 +30,33 @@ public class ValidAccountFilterTest extends WithApplication {
   private CiviFormProfile mockProfile;
   private CiviFormProfileData mockProfileData;
   private AccountModel mockAccount;
-  private SessionTimeoutService sessionTimeoutService;
-  private Clock clock;
 
   @Before
   public void setUp() {
     profileUtils = mock(ProfileUtils.class);
     settingsManifest = mock(SettingsManifest.class);
-    sessionTimeoutService = mock(SessionTimeoutService.class);
-    clock = mock(Clock.class);
-    Provider<SettingsManifest> settingsManifestProvider = () -> this.settingsManifest;
 
     filter =
         new ValidAccountFilter(
-            profileUtils, settingsManifestProvider, mat, clock, () -> sessionTimeoutService);
+            profileUtils,
+            () -> settingsManifest, // Provider<SettingsManifest>
+            mat,
+            () -> instanceOf(DatabaseExecutionContext.class) // Provider<DatabaseExecutionContext>
+            );
 
     mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
     mockAccount = mock(AccountModel.class);
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);
     when(mockProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(mockAccount));
-
-    // Default setup for session timeout service
-    when(sessionTimeoutService.isSessionTimedOut(any()))
-        .thenReturn(CompletableFuture.completedFuture(false));
   }
 
   @Test
   public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
@@ -73,40 +67,11 @@ public class ValidAccountFilterTest extends WithApplication {
   }
 
   @Test
-  public void testValidProfile_sessionTimeoutEnabled_updatesLastActivityTime() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-
-    Result result = executeFilter(request);
-
-    verify(mockProfileData).updateLastActivityTime(clock);
-    assertThat(result.status()).isEqualTo(200);
-  }
-
-  @Test
-  public void testSessionTimeout_redirectsToLogout() throws Exception {
-    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
-    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
-    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(true);
-    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
-    when(sessionTimeoutService.isSessionTimedOut(mockProfile))
-        .thenReturn(CompletableFuture.completedFuture(true));
-
-    Result result = executeFilter(request);
-
-    assertThat(result.status()).isEqualTo(303);
-    assertThat(result.redirectLocation()).hasValue("/logout");
-  }
-
-  @Test
   public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(true);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
     when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
     when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
 
@@ -124,7 +89,8 @@ public class ValidAccountFilterTest extends WithApplication {
   public void testInvalidProfile_redirectsToLogout() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
 
@@ -136,7 +102,8 @@ public class ValidAccountFilterTest extends WithApplication {
   public void testAllowedEndpoint_bypassesFilter() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/playIndex").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
 
@@ -147,7 +114,8 @@ public class ValidAccountFilterTest extends WithApplication {
   public void testLogoutRequest_bypassesFilter() throws Exception {
     RequestHeader request = fakeRequestBuilder().method("GET").uri("/logout").build();
     when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
-    when(profileUtils.validCiviFormProfile(mockProfile)).thenReturn(false);
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
 
     Result result = executeFilter(request);
 

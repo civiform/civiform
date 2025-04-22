@@ -27,6 +27,7 @@ import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -37,8 +38,11 @@ import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
+import views.admin.migration.AdminProgramImportForm;
 
 public class AdminImportControllerTest extends ResetPostgres {
+  private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
+  private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private AdminImportController controller;
   private final SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
   private VersionRepository versionRepository;
@@ -949,6 +953,86 @@ public class AdminImportControllerTest extends ResetPostgres {
             .getStatusDefinitions();
 
     assertThat(statusDefinitions.getStatuses()).isEmpty();
+  }
+
+  @Test
+  public void deserializeDuplicateHandlingEnabled_malformedOption_returnsError() {
+    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled(any())).thenReturn(true);
+
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        controller.getDeserializeResult(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        PROGRAM_JSON_WITH_ONE_QUESTION,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
+                        "FOO"))
+                .build());
+
+    assertThat(deserializeResult.isError()).isTrue();
+    assertThat(deserializeResult.getErrors()).hasSize(1);
+    assertThat(deserializeResult.getErrors())
+        .contains(
+            "JSON is incorrectly formatted: No enum constant"
+                + " controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption.FOO");
+  }
+
+  @Test
+  public void deserializeDuplicateHandlingEnabled_multipleOptions_parsesCorrectly() {
+    when(mockSettingsManifest.getImportDuplicateHandlingOptionsEnabled(any())).thenReturn(true);
+
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        controller.getDeserializeResult(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        PROGRAM_JSON_WITH_ONE_QUESTION,
+                        "UnrecognizedPrefix",
+                        OVERWRITE_EXISTING,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
+                        OVERWRITE_EXISTING,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Text",
+                        CREATE_DUPLICATE))
+                .build());
+
+    assertThat(deserializeResult.isError()).isFalse();
+    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption> duplicateOptions =
+        deserializeResult.getResult().getDuplicateQuestionHandlingOptions();
+    assertThat(duplicateOptions).hasSize(2);
+    assertThat(duplicateOptions).containsKey("Name");
+    assertThat(duplicateOptions.get("Name"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    assertThat(duplicateOptions).containsKey("Text");
+    assertThat(duplicateOptions.get("Text"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
+  }
+
+  @Test
+  public void deserializeDuplicateHandlingNotEnabled_parsesProgramOnly() {
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        controller.getDeserializeResult(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        PROGRAM_JSON_WITH_ONE_QUESTION,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Name",
+                        OVERWRITE_EXISTING,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Text",
+                        CREATE_DUPLICATE,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + "Phone",
+                        "Boo"))
+                .build());
+
+    assertThat(deserializeResult.isError()).isFalse();
+    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption> duplicateOptions =
+        deserializeResult.getResult().getDuplicateQuestionHandlingOptions();
+    assertThat(duplicateOptions).isEmpty();
   }
 
   @Test
