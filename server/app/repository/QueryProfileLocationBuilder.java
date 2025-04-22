@@ -1,10 +1,13 @@
 package repository;
 
 import io.ebean.ProfileLocation;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /** Utility class for creating ProfileLocation objects. */
 public final class QueryProfileLocationBuilder {
   private final String fileName;
+  private final ConcurrentMap<String, ProfileLocation> cache = new ConcurrentHashMap<>();
 
   /**
    * Initializes the QueryUtils with a file name.
@@ -22,6 +25,6 @@ public final class QueryProfileLocationBuilder {
    * @return ProfileLocation created using the provided file name and function name.
    */
   ProfileLocation create(String functionName) {
-    return ProfileLocation.create(fileName + "." + functionName);
+    return cache.computeIfAbsent(functionName, fn -> ProfileLocation.create(fileName + "." + fn));
   }
 }
