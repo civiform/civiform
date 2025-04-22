@@ -1084,9 +1084,15 @@ if (isLocalDevEnvironment()) {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-        await applicantQuestions.editQuestionFromReviewPage(addressQuestionText, /* northStarEnabled= */ true)
+        await applicantQuestions.editQuestionFromReviewPage(
+          addressQuestionText,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.answerAddressQuestion(
           'Bogus Address',
           '',
@@ -1114,9 +1120,15 @@ if (isLocalDevEnvironment()) {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-        await applicantQuestions.editQuestionFromReviewPage(addressQuestionText, /* northStarEnabled= */ true)
+        await applicantQuestions.editQuestionFromReviewPage(
+          addressQuestionText,
+          /* northStarEnabled= */ true,
+        )
         // Fill out application with address that is contained in findAddressCandidates.json
         // (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
         await applicantQuestions.answerAddressQuestion(
@@ -1144,7 +1156,10 @@ if (isLocalDevEnvironment()) {
       test('clicking next on page with address question redirects to address correction (no suggestions)', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1167,7 +1182,10 @@ if (isLocalDevEnvironment()) {
       test('clicking next on page with address question redirects to address correction (has suggestions)', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1190,7 +1208,10 @@ if (isLocalDevEnvironment()) {
       test('address correction page saves original address when selected and redirects to next', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1224,7 +1245,10 @@ if (isLocalDevEnvironment()) {
       test('address correction page saves suggested address when selected and redirects to next', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1260,7 +1284,10 @@ if (isLocalDevEnvironment()) {
       test('address correction page saves original address when no suggestions offered and redirects to next', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1293,7 +1320,10 @@ if (isLocalDevEnvironment()) {
         page,
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1329,7 +1359,10 @@ if (isLocalDevEnvironment()) {
       test('clicking go back and edit on address correction goes back to page with address question', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
@@ -1354,7 +1387,10 @@ if (isLocalDevEnvironment()) {
       test('go back and edit does not save address selection', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(programName, /* northStarEnabled= */ true)
+        await applicantQuestions.applyProgram(
+          programName,
+          /* northStarEnabled= */ true,
+        )
         await applicantQuestions.clickReview(/* northStarEnabled= */ true)
         await applicantQuestions.editQuestionFromReviewPage(
           addressQuestionText,
