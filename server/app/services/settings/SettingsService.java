@@ -24,6 +24,7 @@ import play.libs.typedmap.TypedKey;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import repository.SettingsGroupRepository;
+import services.ColorUtil;
 
 /**
  * Service management of the resource backed by {@link SettingsGroupModel}.
@@ -189,6 +190,22 @@ public final class SettingsService {
 
                     if (error.isPresent()) {
                       validationErrors.put(settingDescription.variableName(), error.get());
+                    } else {
+                      if (settingDescription.variableName().equals("THEME_COLOR_PRIMARY")
+                          || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
+                        // Only allow admins to set theme colors that have a contrast ratio of 4.5:1
+                        // with white, for accessibility reasons.
+                        if (!ColorUtil.contrastsWithWhite(newValue)) {
+                          validationErrors.put(
+                              settingDescription.variableName(),
+                              SettingsGroupUpdateResult.UpdateError.create(
+                                  newValue,
+                                  "The color you selected does not meet accessibility requirements"
+                                      + " for contrast. You can use"
+                                      + " https://webaim.org/resources/contrastchecker/ to select a"
+                                      + " color that contrasts with white (#FFFFFF) text."));
+                        }
+                      }
                     }
                     break;
                   }
