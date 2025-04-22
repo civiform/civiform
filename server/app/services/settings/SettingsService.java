@@ -200,10 +200,10 @@ public final class SettingsService {
                               settingDescription.variableName(),
                               SettingsGroupUpdateResult.UpdateError.create(
                                   newValue,
-                                  "The color you selected does not meet accessibility requirements"
-                                      + " for contrast. You can use"
-                                      + " https://webaim.org/resources/contrastchecker/ to select a"
-                                      + " color that contrasts with white (#FFFFFF) text."));
+                                  "This color doesn't have enough contrast to be legible with white"
+                                      + " text. To meet accessibility requirements, choose a color"
+                                      + " with more contrast to white text here:"
+                                      + " https://webaim.org/resources/contrastchecker/."));
                         }
                       }
                     }
