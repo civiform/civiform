@@ -12,7 +12,7 @@ import {
 /**
  * Tests for the address correction view and navigation to and from that view.
  */
-test.describe('address correction single-block, single-address program', () => {
+test.describe('address correction single-block, single-address program', {tag: ['@northstar']}, () => {
   const singleBlockSingleAddressProgram =
     'Address correction single-block, single-address program'
   const addressWithCorrectionQuestionId = 'address-with-correction-q'
@@ -273,7 +273,7 @@ if (isLocalDevEnvironment()) {
   /**
    * Tests for the address correction view and navigation to and from that view.
    */
-  test.describe('address correction optional address program', () => {
+  test.describe('address correction optional address program', {tag: ['@northstar']}, () => {
     const optionalAddressProgram = 'Address correction optional address program'
 
     const addressWithCorrectionQuestionId = 'address-with-correction-q'
@@ -345,7 +345,7 @@ if (isLocalDevEnvironment()) {
   /**
    * Tests for the address correction view and navigation to and from that view.
    */
-  test.describe('address correction multi-block, multi-address program', () => {
+  test.describe('address correction multi-block, multi-address program', {tag: ['@northstar']}, () => {
     const multiBlockMultiAddressProgram =
       'Address correction multi-block, multi-address program'
 
@@ -457,7 +457,7 @@ if (isLocalDevEnvironment()) {
   /**
    * Tests for the address correction view and navigation to and from that view.
    */
-  test.describe('address correction single-block, multi-address program', () => {
+  test.describe('address correction single-block, multi-address program', {tag: ['@northstar']}, () => {
     const singleBlockMultiAddressProgram =
       'Address correction single-block, multi-address program'
 
@@ -555,7 +555,7 @@ if (isLocalDevEnvironment()) {
   /**
    * Tests for the buttons on a block with an address question and on the address correction screen.
    */
-  test.describe('address buttons', () => {
+  test.describe('address buttons', {tag: ['@northstar']}, () => {
     const programName = 'Test program for file upload buttons'
     const emailQuestionText = 'Test email question'
     const addressQuestionText = 'Test address question'
