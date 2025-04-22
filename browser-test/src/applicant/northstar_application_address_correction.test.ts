@@ -15,11 +15,9 @@ import {
 test.describe('address correction single-block, single-address program', () => {
   const singleBlockSingleAddressProgram =
     'Address correction single-block, single-address program'
-
   const addressWithCorrectionQuestionId = 'address-with-correction-q'
   const addressWithoutCorrectionQuestionId = 'address-without-correction-q'
   const textQuestionId = 'text-q'
-
   const addressWithCorrectionText = 'With Correction'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
@@ -71,72 +69,88 @@ test.describe('address correction single-block, single-address program', () => {
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        singleBlockSingleAddressProgram,
-        /* northStarEnabled= */ true,
-      )
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
-      await applicantQuestions.answerAddressQuestion(
-        'Legit Address',
-        '',
-        'Redlands',
-        'CA',
-        '92373',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.expectVerifyAddressPage(true)
+        await applicantQuestions.expectTitle(
+          page,
+          'Address correction single-block, single-address program — 1 of 2',
+        )
 
-      // Only doing accessibility and screenshot checks for address correction page
-      // once since they are all the same
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page.locator('main'),
-        'verify-address-with-suggestions',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      await applicantQuestions.clickConfirmAddress()
-      await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
-        addressWithCorrectionText,
-        'Address In Area',
-      )
-      await applicantQuestions.clickSubmitApplication()
-      await logout(page)
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(true)
+
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page.locator('main'),
+          'verify-address-with-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
+          addressWithCorrectionText,
+          'Address In Area',
+        )
+        await applicantQuestions.clickSubmitApplication()
+        await logout(page)
+      })
     })
 
     test('prompts user to edit if no suggestions are returned', async ({
       page,
       applicantQuestions,
     }) => {
-      await applicantQuestions.applyProgram(
-        singleBlockSingleAddressProgram,
-        /* northStarEnabled= */ true,
-      )
+      await test.step('Answer address question', async () => {
+        await applicantQuestions.applyProgram(
+          singleBlockSingleAddressProgram,
+          /* northStarEnabled= */ true,
+        )
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        'Bogus Address',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickContinue()
-      await applicantQuestions.expectVerifyAddressPage(false)
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickContinue()
+      })
 
-      await validateAccessibility(page)
-      await validateScreenshot(
-        page.locator('main'),
-        'verify-address-no-suggestions',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
+      await test.step('Validate address correction page shown', async () => {
+        await applicantQuestions.expectVerifyAddressPage(false)
 
-      // Can continue on anyway
-      await applicantQuestions.clickConfirmAddress()
-      await applicantQuestions.clickSubmitApplication()
-      await logout(page)
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page.locator('main'),
+          'verify-address-no-suggestions',
+          /* fullPage= */ true,
+          /* mobileScreenshot= */ true,
+        )
+      })
+
+      await test.step('Confirm user can confirm address and submit', async () => {
+        await applicantQuestions.clickConfirmAddress()
+        await applicantQuestions.clickSubmitApplication()
+        await logout(page)
+      })
     })
 
     test('prompts user to edit if an error is returned from the Esri service', async ({
@@ -252,156 +266,6 @@ test.describe('address correction single-block, single-address program', () => {
     )
     await applicantQuestions.clickSubmitApplication()
     await logout(page)
-  })
-
-  test.describe('with North Star flag enabled', {tag: ['@northstar']}, () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(page, 'north_star_applicant_ui')
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-    })
-
-    if (isLocalDevEnvironment()) {
-      test('can correct address single-block, single-address program', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            singleBlockSingleAddressProgram,
-            /* northStarEnabled= */ true,
-          )
-
-          await applicantQuestions.expectTitle(
-            page,
-            'Address correction single-block, single-address program — 1 of 2',
-          )
-
-          await applicantQuestions.answerAddressQuestion(
-            'Legit Address',
-            '',
-            'Redlands',
-            'CA',
-            '92373',
-          )
-          await applicantQuestions.clickContinue()
-        })
-
-        await test.step('Validate address correction page shown', async () => {
-          await applicantQuestions.expectVerifyAddressPage(true)
-
-          await validateScreenshot(
-            page.locator('main'),
-            'north-star-verify-address-with-suggestions',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-          await validateAccessibility(page)
-        })
-
-        await test.step('Confirm user can confirm address and submit', async () => {
-          await applicantQuestions.clickConfirmAddress()
-
-          await applicantQuestions.clickEdit()
-          await applicantQuestions.checkAddressQuestionValue(
-            'Address In Area',
-            '',
-            'Redlands',
-            'CA',
-            '92373',
-          )
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.clickSubmitApplication()
-        })
-      })
-
-      test('go back and edit does not save address selection', async ({
-        applicantQuestions,
-      }) => {
-        await test.step('Answer address question', async () => {
-          await applicantQuestions.applyProgram(
-            singleBlockSingleAddressProgram,
-            /* northStarEnabled= */ true,
-          )
-
-          await applicantQuestions.answerAddressQuestion(
-            'Legit Address',
-            '',
-            'Redlands',
-            'CA',
-            '92373',
-          )
-          await applicantQuestions.clickContinue()
-        })
-
-        await test.step('Validate address correction page shown', async () => {
-          await applicantQuestions.expectVerifyAddressPage(true)
-        })
-
-        await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
-          await applicantQuestions.selectAddressSuggestion(
-            'Address With No Service Area Features',
-          )
-
-          await applicantQuestions.clickGoBackAndEdit()
-
-          await applicantQuestions.validateQuestionIsOnPage(
-            addressWithCorrectionText,
-          )
-
-          // Verify the original address (not the suggested address) is filled in on the block page
-          await applicantQuestions.checkAddressQuestionValue(
-            'Legit Address',
-            '',
-            'Redlands',
-            'CA',
-            '92373',
-          )
-        })
-      })
-    }
-
-    test('prompts user to edit if no suggestions are returned', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Answer address question', async () => {
-        await applicantQuestions.applyProgram(
-          singleBlockSingleAddressProgram,
-          /* northStarEnabled= */ true,
-        )
-
-        // Fill out application and submit.
-        await applicantQuestions.answerAddressQuestion(
-          'Bogus Address',
-          '',
-          'Seattle',
-          'WA',
-          '98109',
-        )
-        await applicantQuestions.clickContinue()
-      })
-
-      await test.step('Validate address correction page shown', async () => {
-        await applicantQuestions.expectVerifyAddressPage(false)
-
-        await validateScreenshot(
-          page.locator('main'),
-          'north-star-verify-address-no-suggestions',
-          /* fullPage= */ true,
-          /* mobileScreenshot= */ true,
-        )
-        await validateAccessibility(page)
-      })
-
-      await test.step('Confirm user can confirm address and submit', async () => {
-        await applicantQuestions.clickConfirmAddress()
-        await applicantQuestions.clickSubmitApplication()
-      })
-    })
-
-    test('validate accessibility', async ({page}) => {
-      await validateAccessibility(page)
-    })
   })
 })
 
@@ -1387,44 +1251,51 @@ if (isLocalDevEnvironment()) {
       test('go back and edit does not save address selection', async ({
         applicantQuestions,
       }) => {
-        await applicantQuestions.applyProgram(
-          programName,
-          /* northStarEnabled= */ true,
-        )
-        await applicantQuestions.clickReview(/* northStarEnabled= */ true)
-        await applicantQuestions.editQuestionFromReviewPage(
-          addressQuestionText,
-          /* northStarEnabled= */ true,
-        )
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(
+            programName,
+            /* northStarEnabled= */ true,
+          )
+          await applicantQuestions.clickReview(/* northStarEnabled= */ true)
+          await applicantQuestions.editQuestionFromReviewPage(
+            addressQuestionText,
+            /* northStarEnabled= */ true,
+          )
 
-        await applicantQuestions.answerAddressQuestion(
-          'Legit Address',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectVerifyAddressPage(true)
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          await applicantQuestions.clickContinue()
+        })
 
-        // Select an address suggestion, but then click "Go back and edit",
-        // which shouldn't save the suggestion
-        await applicantQuestions.selectAddressSuggestion(
-          'Address With No Service Area Features',
-        )
+        await test.step('Validate address correction page shown', async () => {
+          await applicantQuestions.expectVerifyAddressPage(true)
+        })
 
-        await applicantQuestions.clickGoBackAndEdit()
+        await test.step('Select suggestion, but click go back and edit should not save the suggestion', async () => {
+          await applicantQuestions.selectAddressSuggestion(
+            'Address With No Service Area Features',
+          )
 
-        await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
+          await applicantQuestions.clickGoBackAndEdit()
 
-        // Verify the original address (not the suggested address) is filled in on the block page
-        await applicantQuestions.checkAddressQuestionValue(
-          'Legit Address',
-          '',
-          'Redlands',
-          'CA',
-          '92373',
-        )
+          await applicantQuestions.validateQuestionIsOnPage(
+            addressQuestionText,
+          )
+
+          // Verify the original address (not the suggested address) is filled in on the block page
+          await applicantQuestions.checkAddressQuestionValue(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+        })
       })
     })
   })
