@@ -105,8 +105,7 @@ public final class LanguageUtils {
     return preferredLanguage.orElse(Lang.defaultLang());
   }
 
-  public boolean shouldDisplayRtl(Http.RequestHeader request) {
-    Lang preferredLanguage = getPreferredLanguage(request);
+  public static boolean shouldDisplayRtl(Lang preferredLanguage) {
     return ComponentOrientation.getOrientation(preferredLanguage.locale())
         == ComponentOrientation.RIGHT_TO_LEFT;
   }
