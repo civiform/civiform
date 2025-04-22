@@ -50,4 +50,4 @@ ENV CIVIFORM_IMAGE_TAG=$image_tag
 ARG git_commit_sha
 LABEL civiform.git.commit_sha=$git_commit_sha
 
-CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]
+CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf", "-Dcom.sun.management.jmxremote", "-Dcom.sun.management.jmxremote.port=50000", "-Dcom.sun.management.jmxremote.ssl=false", "-Dcom.sun.management.jmxremote.authenticate=false", "-Dcom.sun.management.jmxremote.rmi.port=50000", "-Djava.rmi.server.hostname=0.0.0.0"]
