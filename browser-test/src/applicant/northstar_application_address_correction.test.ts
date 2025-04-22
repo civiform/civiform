@@ -1283,9 +1283,7 @@ if (isLocalDevEnvironment()) {
 
           await applicantQuestions.clickGoBackAndEdit()
 
-          await applicantQuestions.validateQuestionIsOnPage(
-            addressQuestionText,
-          )
+          await applicantQuestions.validateQuestionIsOnPage(addressQuestionText)
 
           // Verify the original address (not the suggested address) is filled in on the block page
           await applicantQuestions.checkAddressQuestionValue(
