@@ -68,7 +68,7 @@ export class AdminSettings {
   async expectColorContrastErrorVisible() {
     await expect(
       this.page.getByText(
-        'The color you selected does not meet accessibility requirements for contrast.',
+        "This color doesn't have enough contrast to be legible with white text.",
       ),
     ).toBeVisible()
   }
