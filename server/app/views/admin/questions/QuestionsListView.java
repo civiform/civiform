@@ -76,8 +76,20 @@ public final class QuestionsListView extends BaseHtmlView {
     this.viewUtils = checkNotNull(viewUtils);
   }
 
-  /** Renders a page with a list view of all questions. */
-  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+  /**
+   * Renders a page with an (optionally filtered) list view of all questions.
+   *
+   * @param activeAndDraftQuestions a list of all active and draft questions, including the programs
+   *     that use them.
+   * @param filter an optional filter with which to render the question bank. This filter will
+   *     pre-populate the search bar, and can be overriden by the user at any point.
+   * @param request the HTTP request
+   * @return the rendered page
+   */
+  public Content render(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Optional<String> filter,
+      Http.Request request) {
     String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
@@ -93,13 +105,15 @@ public final class QuestionsListView extends BaseHtmlView {
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url(),
+                            controllers.admin.routes.AdminQuestionController.index(Optional.empty())
+                                .url(),
                             /* isPrimaryButton= */ true)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
                         QuestionSortOption.ADMIN_NAME,
-                        QuestionSortOption.NUM_PROGRAMS)))
+                        QuestionSortOption.NUM_PROGRAMS),
+                    filter))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =

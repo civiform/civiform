@@ -69,7 +69,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
 
-    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
@@ -100,7 +101,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
 
-    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
@@ -132,7 +134,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
 
-    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("created");
 
     ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
@@ -236,7 +239,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = fakeRequest();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -253,7 +256,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .build();
     testQuestionBank.maybeSave(newDraftQuestion, LifecycleStage.DRAFT);
 
-    result = controller.index(request).toCompletableFuture().join();
+    result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -265,7 +268,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void index_withNoQuestions() {
-    Result result = controller.index(fakeRequest()).toCompletableFuture().join();
+    Result result = controller.index(fakeRequest(), Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -276,7 +279,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void index_showsMessageFlash() {
     Request request = fakeRequestBuilder().flash("success", "has message").build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -335,7 +338,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             originalNameQuestion.getQuestionDefinition().getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.SUCCESS).get()).contains("updated");
 
     QuestionModel updatedNameQuestion =
