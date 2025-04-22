@@ -80,16 +80,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The hex code value of the color to use as the primary branding color of the website. Not ready
-   * for production use.
+   * A primary color is the color displayed most prominently across your website. Enter the hex code
+   * for this color. Not ready for production use.
    */
   public Optional<String> getThemeColorPrimary(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY", request);
   }
 
   /**
-   * The hex code value of the color to use as the primary-dark branding color of the website. Not
-   * ready for production use.
+   * A darker version of your primary color can be applied to your website for some purposes. Enter
+   * the hex code for this color. Not ready for production use.
    */
   public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY_DARK", request);
@@ -1161,7 +1161,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
                           "A darker version of your primary color can be applied to your website"
-                              + " for some purposes. Not ready for production use.",
+                              + " for some purposes. Enter the hex code for this color. Not ready"
+                              + " for production use.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
