@@ -160,6 +160,8 @@ link.home=首頁
 link.applicationForProgram=「{0}」的申請書
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=移除檔案
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Remove {0} file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
