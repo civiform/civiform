@@ -160,6 +160,8 @@ link.home=홈
 link.applicationForProgram={0} 신청서
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=파일 삭제
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Remove {0} file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
