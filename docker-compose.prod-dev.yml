@@ -4,7 +4,7 @@
 services:
   civiform:
     build: prod
-    image: civiform
+    image: civiform/civiform
     platform: linux/amd64
     ports:
       - 9000:9000
