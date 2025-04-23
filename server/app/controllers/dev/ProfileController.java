@@ -27,6 +27,6 @@ public final class ProfileController extends Controller {
         maybeProfile
             .map((p) -> JsonPrettifier.asPrettyJsonString(p.getProfileData()))
             .orElse("No profile present");
-    return ok(String.format("<pre>%s</pre>", profileContent)).as(Http.MimeTypes.HTML);
+    return ok(String.format(profileContent)).as(Http.MimeTypes.JSON);
   }
 }

@@ -28,7 +28,7 @@ public class ProfileControllerTest extends WithMockedProfiles {
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "true").build();
     Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).isEqualTo("<pre>No profile present</pre>");
+    assertThat(contentAsString(result)).isEqualTo("No profile present");
   }
 
   @Test
