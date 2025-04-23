@@ -133,9 +133,9 @@ public class MessagesTest {
         .withFailMessage("Prohibited characters found in " + foreignLanguageFile + ".")
         .allSatisfy(
             (key, value) -> {
-              for (String prohibited : PROHIBITED_CHARACTERS) {
-                assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
-                if (value.contains(prohibited)) {
+              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+              for (String prohibitedChar : PROHIBITED_CHARACTERS) {
+                if (value.contains(prohibitedChar)) {
                   // German language has a different set of quotes, so we expect to see the left
                   // quote, but want to make sure the low right quote is also present.
                   if (foreignLanguageFile.endsWith("de")) {
@@ -147,8 +147,8 @@ public class MessagesTest {
                     assertThat(value)
                         .withFailMessage(
                             String.format(
-                                "Value for key '%s' contains prohibited character: '%s'",
-                                key, prohibited))
+                                "Value for key '%s' contains prohibited character '%s'",
+                                key, prohibitedChar))
                         .doesNotContain(PROHIBITED_CHARACTERS);
                   }
                 }
