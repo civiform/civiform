@@ -160,6 +160,8 @@ link.home=Home
 link.applicationForProgram=Application for {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Remove file
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Remove {0} file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted

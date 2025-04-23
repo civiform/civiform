@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import controllers.FlashKey;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import models.QuestionModel;
 import models.VersionModel;
@@ -59,7 +60,8 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
         controller.edit(fakeRequest(), question.getQuestionDefinition().getName(), "en-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.index(Optional.empty()).url());
     assertThat(result.flash().get(FlashKey.ERROR)).isPresent();
     assertThat(result.flash().get(FlashKey.ERROR).get())
         .isEqualTo("The en-US locale is not supported");

@@ -1517,7 +1517,9 @@ export class AdminPrograms {
   }
 
   getCommonIntakeFormToggle() {
-    return this.page.locator('input[name=isCommonIntakeForm]')
+    return this.page.getByRole('checkbox', {
+      name: 'Set program as pre-screener',
+    })
   }
 
   async clickCommonIntakeFormToggle() {

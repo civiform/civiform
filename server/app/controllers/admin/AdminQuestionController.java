@@ -40,6 +40,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
@@ -72,12 +73,16 @@ public final class AdminQuestionController extends CiviFormController {
    * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> index(Request request) {
+  public CompletionStage<Result> index(Request request, Optional<String> filter) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
+                ok(
+                    listView.render(
+                        readOnlyService.getActiveAndDraftQuestions(),
+                        filter.map(TextFormatter::sanitizeHtml),
+                        request)),
             classLoaderExecutionContext.current());
   }
 
@@ -178,7 +183,7 @@ public final class AdminQuestionController extends CiviFormController {
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     String redirectUrl =
         questionForm.getRedirectUrl().isEmpty()
-            ? routes.AdminQuestionController.index().url()
+            ? routes.AdminQuestionController.index(Optional.empty()).url()
             : questionForm.getRedirectUrl();
     return withSuccessMessage(redirect(redirectUrl), successMessage);
   }
@@ -191,7 +196,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to restore question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for archiving a question so it will not be carried over to a new version. */
@@ -202,7 +207,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to archive question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /** POST endpoint for discarding a draft for a question. */
@@ -213,7 +218,7 @@ public final class AdminQuestionController extends CiviFormController {
     } catch (InvalidUpdateException e) {
       return badRequest("Failed to discard draft question.");
     }
-    return redirect(routes.AdminQuestionController.index());
+    return redirect(routes.AdminQuestionController.index(Optional.empty()));
   }
 
   /**
@@ -327,7 +332,8 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
-    return withSuccessMessage(redirect(routes.AdminQuestionController.index()), successMessage);
+    return withSuccessMessage(
+        redirect(routes.AdminQuestionController.index(Optional.empty())), successMessage);
   }
 
   private Result withSuccessMessage(Result result, String message) {
