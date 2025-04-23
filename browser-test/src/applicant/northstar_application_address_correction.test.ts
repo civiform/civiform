@@ -568,7 +568,7 @@ if (isLocalDevEnvironment()) {
           )
 
           await applicantQuestions.answerAddressQuestion(
-            '500 Harrison',
+            'Legit Address',
             '',
             'Seattle',
             'WA',
@@ -576,7 +576,7 @@ if (isLocalDevEnvironment()) {
             0,
           )
           await applicantQuestions.answerAddressQuestion(
-            'Legit Address',
+            '500 Harrison',
             '',
             'Seattle',
             'WA',
