@@ -49,14 +49,11 @@ svg {
 }
 // -- end
 
-/* Override margin values to support RTL languages. */
-.usa-identifier__logos {
-  margin-right: 0;
-  margin-inline-end: 1rem;
-}
-
-.cf-header-logo {
-  padding-inline-end: 1rem;
+/* Make the checkbox appear to the right of the label in RTL languages. */
+[dir='rtl'] .usa-checkbox__label::before {
+  position: relative;
+  display: inline-block;
+  margin-inline-end: 10px;
 }
 
 /* Rather than having a focus outline around the checkbox or radio button,
