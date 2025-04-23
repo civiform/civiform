@@ -15,7 +15,6 @@ public final class AdminLayoutFactory {
   private final TranslationLocales translationLocales;
   private final DeploymentType deploymentType;
   private final AssetsFinder assetsFinder;
-  private final MessagesApi messagesApi;
 
   @Inject
   public AdminLayoutFactory(
@@ -23,24 +22,16 @@ public final class AdminLayoutFactory {
       SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       DeploymentType deploymentType,
-      AssetsFinder assetsFinder,
-      MessagesApi messagesApi) {
+      AssetsFinder assetsFinder) {
     this.viewUtils = viewUtils;
     this.settingsManifest = settingsManifest;
     this.translationLocales = translationLocales;
     this.deploymentType = deploymentType;
     this.assetsFinder = assetsFinder;
-    this.messagesApi = messagesApi;
   }
 
   public AdminLayout getLayout(AdminLayout.NavPage navPage) {
     return new AdminLayout(
-        viewUtils,
-        navPage,
-        settingsManifest,
-        translationLocales,
-        deploymentType,
-        assetsFinder,
-        messagesApi);
+      viewUtils, navPage, settingsManifest, translationLocales, deploymentType, assetsFinder);
   }
 }

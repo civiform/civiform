@@ -14,7 +14,6 @@ import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.title;
-import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -159,16 +158,6 @@ public class BaseHtmlLayout {
     // Best practice: add ❤️ every time you touch this file :)
     bundle.addMetadata(meta().withName("thanks").withContent("Thank you Bion ❤️❤️❤️"));
     return bundle.render();
-  }
-
-  protected void addSessionTimeoutModals(HtmlBundle bundle, Messages messages) {
-    if (settingsManifest.getSessionTimeoutEnabled(bundle.getRequest())
-        && bundle.getRequest() instanceof Http.Request) {
-      // Add the session timeout modals to the bundle
-      Http.Request request = (Http.Request) bundle.getRequest();
-      String csrfToken = getCsrfToken(request);
-      bundle.addUswdsModals(SessionTimeoutModals.render(messages, csrfToken));
-    }
   }
 
   protected String getTitleSuffix() {

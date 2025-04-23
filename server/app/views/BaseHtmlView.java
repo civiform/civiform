@@ -137,7 +137,7 @@ public abstract class BaseHtmlView {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
-  public static String getCsrfToken(Http.Request request) {
+  private static String getCsrfToken(Http.Request request) {
     return CSRF.getToken(request.asScala()).value();
   }
 

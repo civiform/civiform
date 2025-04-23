@@ -86,7 +86,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final boolean isDevOrStaging;
   private final PageNotProductionBanner pageNotProductionBanner;
   private String tiDashboardHref = getTiDashboardHref();
-  private final MessagesApi messagesApi;
 
   @Inject
   public ApplicantLayout(
@@ -98,8 +97,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       AssetsFinder assetsFinder,
-      PageNotProductionBanner pageNotProductionBanner,
-      MessagesApi messagesApi) {
+      PageNotProductionBanner pageNotProductionBanner) {
     super(viewUtils, settingsManifest, deploymentType, assetsFinder);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -107,17 +105,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.pageNotProductionBanner = checkNotNull(pageNotProductionBanner);
-    this.messagesApi = checkNotNull(messagesApi);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
-    // Add the session timeout modals to the bundle if the profile is present
-    Optional<CiviFormProfile> profile =
-        profileUtils.optionalCurrentUserProfile(bundle.getRequest());
-    if (profile.isPresent()) {
-      addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
-    }
 
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
