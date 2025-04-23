@@ -82,6 +82,15 @@ export enum ProgramCategories {
   UTILITIES = 'Utilities',
 }
 
+/**
+ * List of buttons that are displayed in the program information header. This
+ * list is not exhaustive, as fields are added when needed by a test.
+ */
+export enum ProgramHeaderButton {
+  PREVIEW_AS_APPLICANT = 'Preview as applicant',
+  DOWNLOAD_PDF_PREVIEW = 'Download PDF preview',
+}
+
 export enum NotificationPreference {
   EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS = 'Send Program Admins an email notification every time an application is submitted',
 }
@@ -437,6 +446,24 @@ export class AdminPrograms {
   async expectProgramTypeEnabled(programType: ProgramType) {
     const programTypeOption = this.getProgramTypeOption(programType)
     await expect(programTypeOption).toBeEnabled()
+  }
+
+  /**
+   * Verifies whether the program header button is hidden
+   *
+   * @param headerButton - The specific button to verify (from ProgramHeaderButton enum)
+   */
+  async expectProgramHeaderButtonHidden(headerButton: ProgramHeaderButton) {
+    const button = this.page.getByRole('button', {name: headerButton})
+    await expect(button).toBeHidden()
+  }
+
+  /**
+   * Verifies whether the block panel in the program block view is hidden
+   */
+  async expectBlockPanelHidden() {
+    const blockPanel = this.page.getByTestId('block-panel')
+    await expect(blockPanel).toBeHidden()
   }
 
   async submitProgramDetailsEdits() {
