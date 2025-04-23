@@ -114,7 +114,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
                 div()
                     .with(
-                        TextFormatter.formatTextWithAriaLabel(
+                        TextFormatter.formatText(
                             customConfirmationMessage.getOrDefault(locale),
                             /* preserveEmptyLines= */ true,
                             /* addRequiredIndicator= */ false,

@@ -44,23 +44,32 @@ export class AdminSettings {
   }
 
   async expectStringSetting(settingName: string, value: string) {
-    expect(
-      await this.page
-        .getByTestId(`string-${settingName}`)
-        .locator('input')
-        .inputValue(),
-    ).toBe(value)
+    await expect(
+      this.page.getByTestId(`string-${settingName}`).locator('input'),
+    ).toHaveValue(value)
   }
 
-  async saveChanges(expectUpdated = true) {
+  async saveChanges(expectUpdated = true, expectError = false) {
     await this.page.click('button:text("Save changes")')
 
     const toastMessages = await this.page.innerText('#toast-container')
 
     if (expectUpdated) {
       expect(toastMessages).toContain('Settings updated')
+    } else if (expectError) {
+      expect(toastMessages).toContain(
+        "Error: That update didn't look quite right. Please fix the errors in the form and try saving again.",
+      )
     } else {
       expect(toastMessages).toContain('No changes to save')
     }
+  }
+
+  async expectColorContrastErrorVisible() {
+    await expect(
+      this.page.getByText(
+        "This color doesn't have enough contrast to be legible with white text.",
+      ),
+    ).toBeVisible()
   }
 }

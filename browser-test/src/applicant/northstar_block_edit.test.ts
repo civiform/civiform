@@ -4,6 +4,7 @@ import {
   loginAsAdmin,
   logout,
   validateAccessibility,
+  validateScreenshot,
 } from '../support'
 
 test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
@@ -81,5 +82,33 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     )
 
     await validateAccessibility(page)
+  })
+
+  test('applies color theming on block edit page', async ({
+    page,
+    adminSettings,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+      programName,
+    )
+
+    await validateScreenshot(
+      page,
+      'block-edit-page-theme',
+      /* fullPage= */ true,
+    )
   })
 })

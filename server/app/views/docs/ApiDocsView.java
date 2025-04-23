@@ -216,9 +216,14 @@ public class ApiDocsView extends BaseHtmlView {
 
     apiResponseSampleDiv.with(
         pre(code(fullJsonResponsePreviewPretty))
-            .withStyle("max-width: 100ch;")
             .withClasses(
-                "m-4", "p-2", "rounded-lg", "bg-slate-200", "break-words", "whitespace-pre-wrap"));
+                "m-4",
+                "p-2",
+                "rounded-lg",
+                "bg-slate-200",
+                "break-words",
+                "whitespace-pre-wrap",
+                "max-w-2/3"));
 
     return apiResponseSampleDiv;
   }
@@ -352,16 +357,7 @@ public class ApiDocsView extends BaseHtmlView {
                     ", with anyone who needs to see API docs. It is accessible without logging in,"
                         + " so they do not need to be a CiviForm Admin or Program Admin to view"
                         + " this page.")),
-        p().withClasses("my-2")
-            .with(
-                text(
-                    "Note: These API docs do not currently support enumerator or repeated"
-                        + " questions. See GitHub Issue "),
-                new LinkElement()
-                    .setHref("https://github.com/civiform/civiform/issues/5238")
-                    .setText("#5238")
-                    .asAnchorText(),
-                text(" for progress on this.")));
+        p().withClasses("my-2"));
 
     return AccordionFactory.buildAccordion(
         Optional.of("How does this work?"), Optional.of(notesTag));

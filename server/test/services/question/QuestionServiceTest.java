@@ -79,7 +79,7 @@ public class QuestionServiceTest extends ResetPostgres {
   @Test
   public void create_handlesSerializationFailure() throws Exception {
     TransactionManager mockTransactionManager = mock(TransactionManager.class);
-    when(mockTransactionManager.executeInTransaction(any(), any()))
+    when(mockTransactionManager.execute(any(), any()))
         .then(
             invocation -> {
               Supplier<ErrorAnd<QuestionDefinition, CiviFormError>> onSerializationFailure =

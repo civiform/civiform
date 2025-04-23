@@ -32,7 +32,8 @@
 
               <!-- utext is used to insert a runtime href and localized string within a hyperlink within another localized string. -->
               <p
-                th:utext="#{content.eligibilityCriteria.v2(${programLinkHtml})}"
+                th:aria-label="#{link.programDetailsSr(${programName})}"
+                th:utext="#{content.eligibilityCriteria.v3(${programLinkHtml})}"
               ></p>
               <p th:text="#{content.changeAnswersForEligibility.v2}"></p>
             </section>

@@ -59,7 +59,7 @@ public final class QuestionService {
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
 
-    return transactionManager.executeInTransaction(
+    return transactionManager.execute(
         /* synchronousWork= */ () -> {
           ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
           ImmutableSet<CiviFormError> errors =

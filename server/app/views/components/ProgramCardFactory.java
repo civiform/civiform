@@ -50,7 +50,7 @@ public final class ProgramCardFactory {
     String programTitleText = displayProgram.localizedName().getDefault();
 
     ImmutableList<DomContent> programDescriptionText =
-        TextFormatter.formatText(displayProgram.localizedDescription().getDefault());
+        TextFormatter.formatTextForAdmins(displayProgram.localizedDescription().getDefault());
     if (northStarEnabled) {
       programDescriptionText =
           ImmutableList.of(span(displayProgram.localizedShortDescription().getDefault()));

@@ -85,11 +85,11 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items =
-        TextFormatter.formatTextWithAriaLabel(
+        TextFormatter.formatText(
             programInfo,
             /* preserveEmptyLines= */ true,
             /* addRequiredIndicator= */ false,
-            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()));
     DivTag descriptionDiv = div().withClasses("py-2").with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
