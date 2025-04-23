@@ -124,6 +124,14 @@ public final class ProgramMigrationService {
     }
   }
 
+  /** Returns only the admin names that already exist in the question bank. */
+  public ImmutableList<String> getExistingAdminNames(ImmutableList<QuestionDefinition> questions) {
+    return questions.stream()
+        .filter(q -> questionRepository.findConflictingQuestion(q).isPresent())
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   /**
    * Checks if there are existing questions that match the admin id of any of the incoming
    * questions. If a match is found, generate a new admin name of the <br>
