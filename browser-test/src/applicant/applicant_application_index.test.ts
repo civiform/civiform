@@ -12,6 +12,7 @@ import {
   validateScreenshot,
   selectApplicantLanguage,
   waitForPageJsLoad,
+  disableFeatureFlag,
 } from '../support'
 import {Page} from 'playwright'
 import {ProgramVisibility} from '../support/admin_programs'
@@ -26,6 +27,7 @@ test.describe('applicant program index page', () => {
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_filtering_enabled')
 
     // Create a program with two questions on separate blocks so that an applicant can partially
     // complete an application.
