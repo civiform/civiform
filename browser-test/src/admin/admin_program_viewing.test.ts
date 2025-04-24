@@ -225,5 +225,6 @@ test.describe('admin program view page', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
 
     await validateScreenshot(page, 'view-program-start-editing')
+
   })
 })
