@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import models.DisplayMode;
@@ -18,6 +19,8 @@ import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import parsers.LargeFormUrlEncodedBodyParser;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -64,6 +67,7 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
+  private static final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
@@ -216,11 +220,14 @@ public class AdminImportController extends CiviFormController {
 
       boolean withDuplicates =
           !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      boolean duplicateHandlingEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
 
       // When we are importing without duplicate questions, we expect all drafts to be published
       // before the import process begins.
       Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
       if (!withDuplicates
+          && !duplicateHandlingEnabled
           && draftVersion.isPresent()
           // If there are either questions or programs in the draft, we should show this error
           && (versionRepository.getProgramCountForVersion(draftVersion.get())
@@ -319,6 +326,7 @@ public class AdminImportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
+    logger.info("SAVING before any work");
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
     if (deserializeResult.isError()) {
       return ok(
@@ -328,24 +336,66 @@ public class AdminImportController extends CiviFormController {
                   deserializeResult.getErrors().stream().findFirst().orElseThrow())
               .render());
     }
+    logger.info("SAVING deserialized");
 
     try {
       ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
       ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
       ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+      ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
+          duplicateHandlingOptions = programMigrationWrapper.getDuplicateQuestionHandlingOptions();
 
       ProgramDefinition updatedProgram = programOnJson;
 
-      boolean withDuplicates =
-          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      boolean duplicateHandlingEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+      // Get the overwritten admin names
+      ImmutableList<String> overwrittenQuestions =
+          duplicateHandlingOptions.entrySet().stream()
+              .filter(
+                  entry ->
+                      entry.getValue()
+                          == ProgramMigrationWrapper.DuplicateQuestionHandlingOption
+                              .OVERWRITE_EXISTING)
+              .map(Map.Entry::getKey)
+              .collect(ImmutableList.toImmutableList());
       if (questionsOnJson != null) {
-        if (settingsManifest.getImportDuplicateHandlingOptionsEnabled(request) && withDuplicates) {
+        logger.info("SAVING we have questions");
+        if (duplicateHandlingEnabled) {
+          Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
+          logger.info("SAVING drafts: {}", draftVersion.map(VersionModel::toString).orElse("NONE"));
+
+          if (overwrittenQuestions.size() > 0
+              && draftVersion.isPresent()
+              // If there are either questions or programs in the draft, we should show this error
+              && (versionRepository.getProgramCountForVersion(draftVersion.get())
+                      + versionRepository.getQuestionCountForVersion(draftVersion.get())
+                  > 0)) {
+            return ok(
+                adminImportViewPartial
+                    .renderError(
+                        "There are draft programs and questions in the system.",
+                        "Overwriting question definitions is only supported when there are no"
+                            + " existing drafts. Please publish all drafts and try again.")
+                    .render());
+          }
           // With the new duplicate-handling UI, we do not show admins a de-duped/suffixed admin
           // name before saving the imported program. Instead, we must calculate that name at this
           // point.
           questionsOnJson =
               ImmutableList.copyOf(
-                  programMigrationService.maybeOverwriteQuestionName(questionsOnJson).values());
+                  programMigrationService
+                      .overwriteDuplicateNames(
+                          questionsOnJson,
+                          duplicateHandlingOptions.entrySet().stream()
+                              .filter(
+                                  e ->
+                                      e.getValue()
+                                          == ProgramMigrationWrapper.DuplicateQuestionHandlingOption
+                                              .CREATE_DUPLICATE)
+                              .map(Map.Entry::getKey)
+                              .collect(ImmutableList.toImmutableList()))
+                      .values());
         }
         ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
             questionsOnJson.stream()
@@ -361,28 +411,15 @@ public class AdminImportController extends CiviFormController {
             programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
       }
 
-      // TODO: #9628 - Support admin-specified duplicate handling per-question
       ProgramModel savedProgram =
           programRepository.insertProgramSync(
               new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-      // If we are re-using existing questions, we will put all programs in draft mode to ensure no
-      // errors. We could also go through each question being updated and see what program it
-      // applies to, but this is more straightforward.
-      if (!withDuplicates) {
-        ImmutableList<Long> programsInDraft =
-            versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
-                .map(p -> p.id)
-                .collect(ImmutableList.toImmutableList());
-        versionRepository
-            .getProgramsForVersion(versionRepository.getActiveVersion())
-            .forEach(
-                program -> {
-                  if (!programsInDraft.contains(program.id)) {
-                    programRepository.createOrUpdateDraft(program);
-                  }
-                });
-      }
+      boolean withDuplicates =
+          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+
+      programMigrationService.addProgramsToDraft(
+          overwrittenQuestions, withDuplicates, duplicateHandlingEnabled);
 
       // TODO(#8613) migrate application statuses for the program
       applicationStatusesRepository.createOrUpdateStatusDefinitions(
