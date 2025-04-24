@@ -162,7 +162,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     DivTag adminHeader =
         div().with(headerIcon, headerTitle).withClasses(AdminStyles.INNER_NAV_STYLES);
 
-    String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
+    String questionLink =
+        controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String programAdminProgramsLink = controllers.admin.routes.ProgramAdminController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();

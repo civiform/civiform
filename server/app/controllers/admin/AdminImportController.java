@@ -237,7 +237,14 @@ public class AdminImportController extends CiviFormController {
       if (questions == null) {
         return ok(
             adminImportViewPartial
-                .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
+                .renderProgramData(
+                    request,
+                    program,
+                    questions,
+                    /* duplicateQuestionNames= */ ImmutableList.of(),
+                    /* updatedQuestionsMap= */ ImmutableMap.of(),
+                    jsonString,
+                    true)
                 .render());
       }
 
@@ -249,7 +256,10 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
           programMigrationService.maybeOverwriteQuestionName(questions);
 
-      if (withDuplicates) {
+      boolean duplicateHandlingOptionsEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+
+      if (withDuplicates && !duplicateHandlingOptionsEnabled) {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
       }
 
@@ -287,6 +297,7 @@ public class AdminImportController extends CiviFormController {
                   request,
                   program,
                   questions,
+                  programMigrationService.getExistingAdminNames(questions),
                   updatedQuestionsMap,
                   serializeResult.getResult(),
                   withDuplicates)
@@ -325,7 +336,17 @@ public class AdminImportController extends CiviFormController {
 
       ProgramDefinition updatedProgram = programOnJson;
 
+      boolean withDuplicates =
+          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
       if (questionsOnJson != null) {
+        if (settingsManifest.getImportDuplicateHandlingOptionsEnabled(request) && withDuplicates) {
+          // With the new duplicate-handling UI, we do not show admins a de-duped/suffixed admin
+          // name before saving the imported program. Instead, we must calculate that name at this
+          // point.
+          questionsOnJson =
+              ImmutableList.copyOf(
+                  programMigrationService.maybeOverwriteQuestionName(questionsOnJson).values());
+        }
         ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
             questionsOnJson.stream()
                 .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -340,6 +361,7 @@ public class AdminImportController extends CiviFormController {
             programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
       }
 
+      // TODO: #9628 - Support admin-specified duplicate handling per-question
       ProgramModel savedProgram =
           programRepository.insertProgramSync(
               new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
@@ -347,7 +369,7 @@ public class AdminImportController extends CiviFormController {
       // If we are re-using existing questions, we will put all programs in draft mode to ensure no
       // errors. We could also go through each question being updated and see what program it
       // applies to, but this is more straightforward.
-      if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
+      if (!withDuplicates) {
         ImmutableList<Long> programsInDraft =
             versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
                 .map(p -> p.id)

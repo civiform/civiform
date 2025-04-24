@@ -609,11 +609,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.getByRole('checkbox', {name: 'General'}),
         ).not.toBeChecked()
 
-        await expect(page.locator('#unfiltered-programs')).toBeVisible()
+        await expect(page.locator('#not-started-programs')).toBeVisible()
 
         await expect(
           page.locator(
-            '#unfiltered-programs .usa-card-group .cf-application-card',
+            '#not-started-programs .usa-card-group .cf-application-card',
           ),
         ).toHaveCount(4)
 

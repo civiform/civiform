@@ -23,8 +23,10 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -59,6 +61,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private static final String DISPLAY_MODE_FIELD_NAME = "displayMode";
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
+  private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final SettingsManifest settingsManifest;
@@ -92,14 +95,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getDisplayMode(),
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
-        program.getIsCommonIntakeForm(),
+        program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
         ImmutableList.copyOf(program.getCategories()),
         ImmutableList.copyOf(program.getApplicationSteps()));
   }
 
-  /** Builds the form using program definition data. */
+  /* Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
       Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
@@ -116,7 +119,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .map(ProgramNotificationPreference::getValue)
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
-        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
+        program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
         program.categories().stream()
@@ -145,13 +148,22 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
-      Boolean isCommonIntakeForm,
+      ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
+    boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
+    boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
+    boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
+    boolean disableLongDescription =
+        (isCommonIntakeForm || isExternalProgram)
+            && settingsManifest.getNorthStarApplicantUi(request);
+    boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
+
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
+
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Program setup").withClasses("py-2", "mt-6", "font-semibold"),
@@ -190,36 +202,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Common intake form
-        fieldset(
-                div(
-                        input()
-                            .withId("common-intake-checkbox")
-                            .withClasses("usa-checkbox__input")
-                            .withType("checkbox")
-                            .withName("isCommonIntakeForm")
-                            .withValue("true")
-                            .withCondChecked(isCommonIntakeForm),
-                        label("Set program as pre-screener")
-                            .withFor("common-intake-checkbox")
-                            .withClasses("usa-checkbox__label"),
-                        span(ViewUtils.makeSvgToolTip(
-                                "You can set one program as the ‘pre-screener’. This will pin the"
-                                    + " program card to the top of the programs and services page"
-                                    + " while moving other program cards below it.",
-                                Icons.INFO))
-                            .withClass("ml-2"))
-                    .withClasses("usa-checkbox"))
-            .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-        // Hidden checkbox used to signal whether or not the user has confirmed they want to
-        // change which program is marked as the common intake form.
-        FieldWithLabel.checkbox()
-            .setId("confirmed-change-common-intake-checkbox")
-            .setFieldName("confirmedChangeCommonIntakeForm")
-            .setValue("false")
-            .setChecked(false)
-            .addStyleClass("hidden")
-            .getCheckboxTag(),
+        // Program type
+        buildProgramTypeFieldset(settingsManifest, request, programType, programEditStatus),
         // Program Eligibility
         fieldset(
                 legend("Program eligibility gating")
@@ -229,18 +213,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* id= */ "program-eligibility-gating",
                     /* name= */ ELIGIBILITY_FIELD_NAME,
                     /* value= */ String.valueOf(true),
-                    /* isChecked= */ eligibilityIsGating && !isCommonIntakeForm,
-                    /* isDisabled= */ isCommonIntakeForm,
+                    /* isChecked= */ eligibilityIsGating && !disableProgramEligibility,
+                    /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Only allow residents to submit applications if they meet all"
-                        + " eligibility requirements"),
+                        + " eligibility requirements",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-eligibility-not-gating",
                     /* name= */ ELIGIBILITY_FIELD_NAME,
                     /* value= */ String.valueOf(false),
-                    /* isChecked= */ !eligibilityIsGating,
-                    /* isDisabled= */ isCommonIntakeForm,
+                    /* isChecked= */ !eligibilityIsGating && !disableProgramEligibility,
+                    /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Allow residents to submit applications even if they don't meet"
-                        + " eligibility requirements"))
+                        + " eligibility requirements",
+                    /* description= */ Optional.empty()))
             .withId("program-eligibility")
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
@@ -258,7 +244,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* value= */ DisplayMode.PUBLIC.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.PUBLIC.getValue()),
                     /* isDisabled */ false,
-                    /* label= */ "Publicly visible"),
+                    /* label= */ "Publicly visible",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-display-mode-hidden",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
@@ -266,21 +253,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* isChecked= */ displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
                     /* isDisabled= */ false,
                     /* label= */ "Hide from applicants. Only individuals with the unique"
-                        + " program link can access this program"),
+                        + " program link can access this program",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-display-mode-ti-only",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
                     /* value= */ DisplayMode.TI_ONLY.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.TI_ONLY.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ "Trusted intermediaries only"),
+                    /* label= */ "Trusted intermediaries only",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     "program-display-mode-select-ti-only",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
                     /* value= */ DisplayMode.SELECT_TI.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.SELECT_TI.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ " Visible to selected trusted intermediaries only"),
+                    /* label= */ " Visible to selected trusted intermediaries only",
+                    /* description= */ Optional.empty()),
                 showTiSelectionList(
                     selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
                 buildUSWDSRadioOption(
@@ -289,7 +279,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* value= */ DisplayMode.DISABLED.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.DISABLED.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ "Disabled"))
+                    /* label= */ "Disabled",
+                    /* description= */ Optional.empty()))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
         fieldset(
@@ -317,8 +308,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setAttribute(
                 "data-northstar-enabled",
                 String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
-            .setDisabled(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
-            .setReadOnly(isCommonIntakeForm && settingsManifest.getNorthStarApplicantUi(request))
+            .setDisabled(disableLongDescription)
+            .setReadOnly(disableLongDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program external link
@@ -338,11 +329,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         // Application steps
         div()
             .with(
-                buildApplicationStepDiv(0, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(1, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(2, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(3, applicationSteps, isCommonIntakeForm),
-                buildApplicationStepDiv(4, applicationSteps, isCommonIntakeForm)),
+                buildApplicationStepDiv(0, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(1, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(2, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(3, applicationSteps, disableApplicationSteps),
+                buildApplicationStepDiv(4, applicationSteps, disableApplicationSteps)),
         h2("Confirmation message").withClasses("py-2", "mt-6", "font-semibold"),
         // Confirmation message
         FieldWithLabel.textArea()
@@ -361,8 +352,116 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
+  private DomContent buildProgramTypeFieldset(
+      SettingsManifest settingsManifest,
+      Request request,
+      ProgramType programType,
+      ProgramEditStatus programEditStatus) {
+    DomContent programTypeFieldset;
+    if (settingsManifest.getExternalProgramCardsEnabled(request)) {
+      // When creating a program, program type fields (if visible) are never disabled.
+      boolean defaultProgramFieldDisabled = false;
+      boolean commonIntakeFieldDisabled = false;
+      boolean externalProgramFieldDisabled = false;
+
+      // When editing a program:
+      //   - external program field is disabled when program type is default or common intake form,
+      // since a program can be changed to external after creation.
+      //   - common intake and default program fields are disabled when program type is external
+      // program, since an external program cannot change type after creation.
+      if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
+        switch (programType) {
+          case DEFAULT:
+          case COMMON_INTAKE_FORM:
+            defaultProgramFieldDisabled = false;
+            commonIntakeFieldDisabled = false;
+            externalProgramFieldDisabled = true;
+            break;
+          case EXTERNAL:
+            defaultProgramFieldDisabled = true;
+            commonIntakeFieldDisabled = true;
+            externalProgramFieldDisabled = false;
+            break;
+        }
+      }
+
+      programTypeFieldset =
+          fieldset(
+                  legend("Program type")
+                      .withClass("text-gray-600")
+                      .with(ViewUtils.requiredQuestionIndicator()),
+                  buildUSWDSRadioOption(
+                      /* id= */ "default-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.DEFAULT.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.DEFAULT),
+                      /* isDisabled= */ defaultProgramFieldDisabled,
+                      /* label= */ "CiviForm program",
+                      /* description= */ Optional.of(
+                          "This program’s informational card will open program details on the"
+                              + " CiviForm website.")),
+                  buildUSWDSRadioOption(
+                      /* id= */ "external-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.EXTERNAL.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.EXTERNAL),
+                      /* isDisabled= */ externalProgramFieldDisabled,
+                      /* label= */ "External program",
+                      /* description */ Optional.of(
+                          "This program’s informational card will open program details on an"
+                              + " external website.")),
+                  buildUSWDSRadioOption(
+                      /* id= */ "common-intake-program-option",
+                      /* name= */ PROGRAM_TYPE_FIELD_NAME,
+                      /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
+                      /* isDisabled= */ commonIntakeFieldDisabled,
+                      /* label= */ "Pre-screener",
+                      /* description */ Optional.of(
+                          "This program informational card will always appear at the top of the"
+                              + " Programs and Services page. Only one program can be a"
+                              + " screener.")))
+              .withId("program-type")
+              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
+    } else {
+      programTypeFieldset =
+          fieldset(
+                  div(
+                          input()
+                              .withId("common-intake-checkbox")
+                              .withClasses("usa-checkbox__input")
+                              .withType("checkbox")
+                              .withName(PROGRAM_TYPE_FIELD_NAME)
+                              .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
+                              .withCondChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM)),
+                          label("Set program as pre-screener")
+                              .withFor("common-intake-checkbox")
+                              .withClasses("usa-checkbox__label"),
+                          span(ViewUtils.makeSvgToolTip(
+                                  "You can set one program as the ‘pre-screener’. This will pin the"
+                                      + " program card to the top of the programs and services page"
+                                      + " while moving other program cards below it.",
+                                  Icons.INFO))
+                              .withClass("ml-2"))
+                      .withClasses("usa-checkbox"))
+              .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
+    }
+
+    return each(
+        programTypeFieldset,
+        // Hidden checkbox used to signal whether or not the user has confirmed they want to
+        // change which program is marked as the common intake form.
+        FieldWithLabel.checkbox()
+            .setId("confirmed-change-common-intake-checkbox")
+            .setFieldName("confirmedChangeCommonIntakeForm")
+            .setValue("false")
+            .setChecked(false)
+            .addStyleClass("hidden")
+            .getCheckboxTag());
+  }
+
   static DivTag buildApplicationStepDiv(
-      int i, ImmutableList<Map<String, String>> applicationSteps, boolean isCommonIntakeForm) {
+      int i, ImmutableList<Map<String, String>> applicationSteps, boolean isDisabled) {
 
     // Fill in the existing application steps
     String titleValue = "";
@@ -379,20 +478,20 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("apply-step-" + indexPlusOne + "-title")
             .setFieldName("applicationSteps[" + index + "][title]")
-            .setDisabled(isCommonIntakeForm)
-            .setReadOnly(isCommonIntakeForm)
+            .setDisabled(isDisabled)
+            .setReadOnly(isDisabled)
             .setValue(titleValue);
 
     FieldWithLabel description =
         FieldWithLabel.textArea()
             .setId("apply-step-" + indexPlusOne + "-description")
             .setFieldName("applicationSteps[" + index + "][description]")
-            .setDisabled(isCommonIntakeForm)
-            .setReadOnly(isCommonIntakeForm)
+            .setDisabled(isDisabled)
+            .setReadOnly(isDisabled)
             .setMarkdownSupported(true)
             .setValue(descriptionValue);
 
-    Boolean isRequired = indexPlusOne.equals("1") && !isCommonIntakeForm;
+    Boolean isRequired = indexPlusOne.equals("1") && !isDisabled;
     if (isRequired) {
       title.setLabelText("Step 1 title").setRequired(true);
       description.setLabelText("Step 1 description").setRequired(true);
@@ -407,7 +506,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FieldsetTag showCategoryCheckboxes(
-      List<CategoryModel> categoryOptions, List<Long> categories, boolean isCommonIntakeForm) {
+      List<CategoryModel> categoryOptions, List<Long> categories, boolean isDisabled) {
     return fieldset(
             legend(
                     "Tag this program with 1 or more categories to make it easier to find"
@@ -421,8 +520,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                 /* name= */ "categories" + Path.ARRAY_SUFFIX,
                                 /* value= */ String.valueOf(category.getId()),
                                 /* isChecked= */ categories.contains(category.getId())
-                                    && !isCommonIntakeForm,
-                                /* isDisabled= */ isCommonIntakeForm,
+                                    && !isDisabled,
+                                /* isDisabled= */ isDisabled,
                                 /* label= */ category.getDefaultName())
                             .withClasses("grid-col-12", "tablet:grid-col-6")))
                 .withClasses("grid-row", "grid-gap-md"))
@@ -534,7 +633,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildUSWDSRadioOption(
-      String id, String name, String value, Boolean isChecked, Boolean isDisabled, String label) {
+      String id,
+      String name,
+      String value,
+      Boolean isChecked,
+      Boolean isDisabled,
+      String label,
+      Optional<String> description) {
+
+    LabelTag labelTag = label().withFor(id).withClasses("usa-radio__label").withText(label);
+    if (description.isPresent()) {
+      labelTag.with(span(description.get()).withClasses("usa-checkbox__label-description"));
+    }
+
     return div(
             input()
                 .withId(id)
@@ -544,7 +655,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withValue(value)
                 .withCondChecked(isChecked)
                 .withCondDisabled(isDisabled),
-            label(label).withFor(id).withClasses("usa-radio__label"))
+            labelTag)
         .withClasses("usa-radio");
   }
 

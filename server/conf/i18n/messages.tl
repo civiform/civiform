@@ -160,6 +160,8 @@ link.home=Home
 link.applicationForProgram=Application para sa {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Alisin ang file
+# Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
+link.removeFileSr=Remove {0} file
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
