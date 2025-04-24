@@ -23,8 +23,10 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramNotificationPreference;
@@ -214,7 +216,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* isChecked= */ eligibilityIsGating && !disableProgramEligibility,
                     /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Only allow residents to submit applications if they meet all"
-                        + " eligibility requirements"),
+                        + " eligibility requirements",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-eligibility-not-gating",
                     /* name= */ ELIGIBILITY_FIELD_NAME,
@@ -222,7 +225,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* isChecked= */ !eligibilityIsGating && !disableProgramEligibility,
                     /* isDisabled= */ disableProgramEligibility,
                     /* label= */ "Allow residents to submit applications even if they don't meet"
-                        + " eligibility requirements"))
+                        + " eligibility requirements",
+                    /* description= */ Optional.empty()))
             .withId("program-eligibility")
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Program categories
@@ -240,7 +244,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* value= */ DisplayMode.PUBLIC.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.PUBLIC.getValue()),
                     /* isDisabled */ false,
-                    /* label= */ "Publicly visible"),
+                    /* label= */ "Publicly visible",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-display-mode-hidden",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
@@ -248,21 +253,24 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* isChecked= */ displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()),
                     /* isDisabled= */ false,
                     /* label= */ "Hide from applicants. Only individuals with the unique"
-                        + " program link can access this program"),
+                        + " program link can access this program",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     /* id= */ "program-display-mode-ti-only",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
                     /* value= */ DisplayMode.TI_ONLY.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.TI_ONLY.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ "Trusted intermediaries only"),
+                    /* label= */ "Trusted intermediaries only",
+                    /* description= */ Optional.empty()),
                 buildUSWDSRadioOption(
                     "program-display-mode-select-ti-only",
                     /* name= */ DISPLAY_MODE_FIELD_NAME,
                     /* value= */ DisplayMode.SELECT_TI.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.SELECT_TI.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ " Visible to selected trusted intermediaries only"),
+                    /* label= */ " Visible to selected trusted intermediaries only",
+                    /* description= */ Optional.empty()),
                 showTiSelectionList(
                     selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
                 buildUSWDSRadioOption(
@@ -271,7 +279,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* value= */ DisplayMode.DISABLED.getValue(),
                     /* isChecked= */ displayMode.equals(DisplayMode.DISABLED.getValue()),
                     /* isDisabled= */ false,
-                    /* label= */ "Disabled"))
+                    /* label= */ "Disabled",
+                    /* description= */ Optional.empty()))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
         fieldset(
@@ -387,21 +396,31 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                       /* value= */ ProgramType.DEFAULT.getValue(),
                       /* isChecked= */ programType.equals(ProgramType.DEFAULT),
                       /* isDisabled= */ defaultProgramFieldDisabled,
-                      /* label= */ "CiviForm program"),
+                      /* label= */ "CiviForm program",
+                      /* description= */ Optional.of(
+                          "This program’s informational card will open program details on the"
+                              + " CiviForm website.")),
                   buildUSWDSRadioOption(
                       /* id= */ "external-program-option",
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
                       /* value= */ ProgramType.EXTERNAL.getValue(),
                       /* isChecked= */ programType.equals(ProgramType.EXTERNAL),
                       /* isDisabled= */ externalProgramFieldDisabled,
-                      /* label= */ "External program"),
+                      /* label= */ "External program",
+                      /* description */ Optional.of(
+                          "This program’s informational card will open program details on an"
+                              + " external website.")),
                   buildUSWDSRadioOption(
                       /* id= */ "common-intake-program-option",
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
                       /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
                       /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
                       /* isDisabled= */ commonIntakeFieldDisabled,
-                      /* label= */ "Pre-screener"))
+                      /* label= */ "Pre-screener",
+                      /* description */ Optional.of(
+                          "This program informational card will always appear at the top of the"
+                              + " Programs and Services page. Only one program can be a"
+                              + " screener.")))
               .withId("program-type")
               .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS);
     } else {
@@ -614,7 +633,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DivTag buildUSWDSRadioOption(
-      String id, String name, String value, Boolean isChecked, Boolean isDisabled, String label) {
+      String id,
+      String name,
+      String value,
+      Boolean isChecked,
+      Boolean isDisabled,
+      String label,
+      Optional<String> description) {
+
+    LabelTag labelTag = label().withFor(id).withClasses("usa-radio__label").withText(label);
+    if (description.isPresent()) {
+      labelTag.with(span(description.get()).withClasses("usa-checkbox__label-description"));
+    }
+
     return div(
             input()
                 .withId(id)
@@ -624,7 +655,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 .withValue(value)
                 .withCondChecked(isChecked)
                 .withCondDisabled(isDisabled),
-            label(label).withFor(id).withClasses("usa-radio__label"))
+            labelTag)
         .withClasses("usa-radio");
   }
 
