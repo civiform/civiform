@@ -1,78 +1,139 @@
 package filters;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
-import javax.inject.Inject;
-import play.mvc.EssentialFilter;
-import play.mvc.Http;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import models.AccountModel;
+import org.junit.Before;
+import org.junit.Test;
+import play.libs.streams.Accumulator;
+import play.mvc.EssentialAction;
+import play.mvc.Http.RequestHeader;
+import play.mvc.Result;
+import play.test.WithApplication;
+import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
-/**
- * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
- * when the account is deleted from the database which almost will never happen in prod database.
- */
-public class ValidAccountFilter extends EssentialFilter {
-  private final ProfileUtils profileUtils;
-  private final Config config;
+public class ValidAccountFilterTest extends WithApplication {
 
-  @Inject
-  public ValidAccountFilter(ProfileUtils profileUtils, Config config) {
-    this.profileUtils = checkNotNull(profileUtils);
-    this.config = checkNotNull(config);
+  private ProfileUtils profileUtils;
+  private SettingsManifest settingsManifest;
+  private ValidAccountFilter filter;
+  private CiviFormProfile mockProfile;
+  private CiviFormProfileData mockProfileData;
+  private AccountModel mockAccount;
+
+  @Before
+  public void setUp() {
+    profileUtils = mock(ProfileUtils.class);
+    settingsManifest = mock(SettingsManifest.class);
+
+    filter =
+        new ValidAccountFilter(
+            profileUtils,
+            () -> settingsManifest, // Provider<SettingsManifest>
+            mat,
+            () -> instanceOf(DatabaseExecutionContext.class) // Provider<DatabaseExecutionContext>
+            );
+
+    mockProfile = mock(CiviFormProfile.class);
+    mockProfileData = mock(CiviFormProfileData.class);
+    mockAccount = mock(AccountModel.class);
+    when(mockProfile.getProfileData()).thenReturn(mockProfileData);
+    when(mockProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(mockAccount));
   }
 
-  //  @Override
-  //  public EssentialAction apply(EssentialAction next) {
-  //    return EssentialAction.of(
-  //        request -> {
-  //          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-  //          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
-  //            // The cookie is present but the profile or session is not valid, redirect to logout
-  // and
-  //            // clear the cookie.
-  //            if (!allowedEndpoint(request)) {
-  //              return Accumulator.done(
-  //                  Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-  //            }
-  //          }
-  //
-  //          return next.apply(request);
-  //        });
-  //  }
+  @Test
+  public void testValidProfile_sessionTimeoutDisabled_noUpdatesLastActivityTime() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(false);
 
-  //  private boolean shouldLogoutUser(CiviFormProfile profile) {
-  //    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
-  //  }
+    Result result = executeFilter(request);
 
-  private boolean isValidSession(CiviFormProfile profile) {
-    if (config.getBoolean("session_replay_protection_enabled")) {
-      return profile
-          .getAccount()
-          .thenApply(
-              account ->
-                  account.getActiveSession(profile.getProfileData().getSessionId()).isPresent())
-          .join();
-    }
-    return true;
+    assertThat(result.status()).isEqualTo(200);
   }
 
-  /**
-   * Return true if the endpoint does not require a profile. Logout url is necessary here to avoid
-   * infinite redirect.
-   *
-   * <p>NOTE: You might think we'd also want an OptionalProfileRoutes check here. However, this is
-   * currently only called after checking if a profile is present and valid. If the profile isn't
-   * present, we never make it here anyway. If the profile is invalid, we don't want to allow
-   * hitting those endpoints with an invalid profile, so we don't add that check here.
-   */
-  private boolean allowedEndpoint(Http.RequestHeader requestHeader) {
-    return NonUserRoutes.anyMatch(requestHeader) || isLogoutRequest(requestHeader.uri());
+  @Test
+  public void testInvalidSession_sessionTimeoutDisabled_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(true));
+    when(settingsManifest.getSessionTimeoutEnabled(request)).thenReturn(false);
+    when(settingsManifest.getSessionReplayProtectionEnabled()).thenReturn(true);
+
+    // Session ID not found in active sessions
+    when(mockAccount.getActiveSession(anyString())).thenReturn(Optional.empty());
+    when(mockProfileData.getSessionId()).thenReturn("session123");
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303); // Redirect status
+    assertThat(result.redirectLocation()).hasValue("/logout");
   }
 
-  /** Return true if the request is to the logout endpoint. */
-  private boolean isLogoutRequest(String uri) {
-    return uri.startsWith(org.pac4j.play.routes.LogoutController.logout().url());
+  @Test
+  public void testInvalidProfile_redirectsToLogout() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(303);
+    assertThat(result.redirectLocation()).hasValue("/logout");
+  }
+
+  @Test
+  public void testAllowedEndpoint_bypassesFilter() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/playIndex").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testLogoutRequest_bypassesFilter() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/logout").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.of(mockProfile));
+    when(profileUtils.validCiviFormProfile(mockProfile))
+        .thenReturn(CompletableFuture.completedFuture(false));
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testNoProfile_bypassesFilter() throws Exception {
+    RequestHeader request = fakeRequestBuilder().method("GET").uri("/programs/1").build();
+    when(profileUtils.optionalCurrentUserProfile(request)).thenReturn(Optional.empty());
+
+    Result result = executeFilter(request);
+
+    assertThat(result.status()).isEqualTo(200);
+  }
+
+  private Result executeFilter(RequestHeader request) throws Exception {
+    EssentialAction action =
+        filter.apply(
+            EssentialAction.of(requestHeader -> Accumulator.done(play.mvc.Results.ok("Success"))));
+    return action.apply(request).run(mat).toCompletableFuture().get();
   }
 }
