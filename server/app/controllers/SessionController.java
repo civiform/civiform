@@ -1,15 +1,15 @@
-//package controllers;
+// package controllers;
 //
-//import auth.ProfileUtils;
-//import java.time.Clock;
-//import javax.inject.Inject;
-//import play.mvc.Controller;
-//import play.mvc.Http;
-//import play.mvc.Result;
-//import services.settings.SettingsManifest;
+// import auth.ProfileUtils;
+// import java.time.Clock;
+// import javax.inject.Inject;
+// import play.mvc.Controller;
+// import play.mvc.Http;
+// import play.mvc.Result;
+// import services.settings.SettingsManifest;
 //
-///** Controller for managing user's session. */
-//public class SessionController extends Controller {
+/// ** Controller for managing user's session. */
+// public class SessionController extends Controller {
 //  private final ProfileUtils profileUtils;
 //  private final SettingsManifest settingsManifest;
 //  private final Clock clock;
@@ -45,4 +45,4 @@
 //            })
 //        .orElse(unauthorized());
 //  }
-//}
+// }

@@ -5,13 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.typesafe.config.Config;
-import java.util.Optional;
 import javax.inject.Inject;
-import play.libs.streams.Accumulator;
-import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
-import play.mvc.Results;
 
 /**
  * A filter to ensure the account referenced in the browser cookie is valid. This should only matter
@@ -27,27 +23,28 @@ public class ValidAccountFilter extends EssentialFilter {
     this.config = checkNotNull(config);
   }
 
-//  @Override
-//  public EssentialAction apply(EssentialAction next) {
-//    return EssentialAction.of(
-//        request -> {
-//          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
-//          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
-//            // The cookie is present but the profile or session is not valid, redirect to logout and
-//            // clear the cookie.
-//            if (!allowedEndpoint(request)) {
-//              return Accumulator.done(
-//                  Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
-//            }
-//          }
-//
-//          return next.apply(request);
-//        });
-//  }
+  //  @Override
+  //  public EssentialAction apply(EssentialAction next) {
+  //    return EssentialAction.of(
+  //        request -> {
+  //          Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
+  //          if (profile.isPresent() && shouldLogoutUser(profile.get())) {
+  //            // The cookie is present but the profile or session is not valid, redirect to logout
+  // and
+  //            // clear the cookie.
+  //            if (!allowedEndpoint(request)) {
+  //              return Accumulator.done(
+  //                  Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
+  //            }
+  //          }
+  //
+  //          return next.apply(request);
+  //        });
+  //  }
 
-//  private boolean shouldLogoutUser(CiviFormProfile profile) {
-//    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
-//  }
+  //  private boolean shouldLogoutUser(CiviFormProfile profile) {
+  //    return !profileUtils.validCiviFormProfile(profile) || !isValidSession(profile);
+  //  }
 
   private boolean isValidSession(CiviFormProfile profile) {
     if (config.getBoolean("session_replay_protection_enabled")) {

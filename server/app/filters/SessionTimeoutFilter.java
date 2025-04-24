@@ -1,28 +1,28 @@
-//package filters;
+// package filters;
 //
-//import static com.google.common.base.Preconditions.checkNotNull;
+// import static com.google.common.base.Preconditions.checkNotNull;
 //
-//import auth.CiviFormProfile;
-//import auth.ProfileUtils;
-//import com.fasterxml.jackson.databind.node.ObjectNode;
-//import java.nio.charset.StandardCharsets;
-//import java.time.Duration;
-//import java.util.Base64;
-//import java.util.Optional;
-//import java.util.concurrent.CompletableFuture;
-//import java.util.concurrent.CompletionStage;
-//import java.util.function.Function;
-//import javax.inject.Inject;
-//import javax.inject.Provider;
-//import org.apache.pekko.stream.Materializer;
-//import play.libs.Json;
-//import play.mvc.Filter;
-//import play.mvc.Http;
-//import play.mvc.Result;
-//import services.session.SessionTimeoutService;
-//import services.settings.SettingsManifest;
+// import auth.CiviFormProfile;
+// import auth.ProfileUtils;
+// import com.fasterxml.jackson.databind.node.ObjectNode;
+// import java.nio.charset.StandardCharsets;
+// import java.time.Duration;
+// import java.util.Base64;
+// import java.util.Optional;
+// import java.util.concurrent.CompletableFuture;
+// import java.util.concurrent.CompletionStage;
+// import java.util.function.Function;
+// import javax.inject.Inject;
+// import javax.inject.Provider;
+// import org.apache.pekko.stream.Materializer;
+// import play.libs.Json;
+// import play.mvc.Filter;
+// import play.mvc.Http;
+// import play.mvc.Result;
+// import services.session.SessionTimeoutService;
+// import services.settings.SettingsManifest;
 //
-///**
+/// **
 // * A filter to manage session timeouts in CiviForm.
 // *
 // * <p>NOTE: This filter is currently not called from application.conf because of issues we were
@@ -31,10 +31,11 @@
 // * <p>TODO: #9819 Re-enable this filter when we ensure there aren't performance issues.
 // *
 // * <p>This filter is responsible for setting a cookie with the current session's timeout data. The
-// * cookie is used by the frontend to determine when to show a warning to the user that their session
+// * cookie is used by the frontend to determine when to show a warning to the user that their
+// session
 // * is about to expire.
 // */
-//public class SessionTimeoutFilter extends Filter {
+// public class SessionTimeoutFilter extends Filter {
 //  private static final String TIMEOUT_COOKIE_NAME = "session_timeout_data";
 //  private static final Duration COOKIE_MAX_AGE = Duration.ofDays(2);
 //
@@ -71,7 +72,8 @@
 //        .apply(requestHeader)
 //        .thenCompose(
 //            result ->
-//                createSessionTimestampCookie(optionalProfile.get()).thenApply(result::withCookies));
+//
+// createSessionTimestampCookie(optionalProfile.get()).thenApply(result::withCookies));
 //  }
 //
 //  /**
@@ -102,7 +104,8 @@
 //
 //              String cookieValue =
 //                  Base64.getEncoder()
-//                      .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
+//
+// .encodeToString(Json.stringify(timestamps).getBytes(StandardCharsets.UTF_8));
 //
 //              return Http.Cookie.builder(TIMEOUT_COOKIE_NAME, cookieValue)
 //                  .withHttpOnly(false)
@@ -119,4 +122,4 @@
 //            .withPath("/")
 //            .build());
 //  }
-//}
+// }

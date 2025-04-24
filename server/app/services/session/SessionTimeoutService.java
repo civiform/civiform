@@ -1,16 +1,16 @@
-//package services.session;
+// package services.session;
 //
-//import auth.CiviFormProfile;
-//import java.time.Clock;
-//import java.time.Instant;
-//import java.time.temporal.ChronoUnit;
-//import java.util.concurrent.CompletableFuture;
-//import javax.inject.Inject;
-//import javax.inject.Provider;
-//import services.settings.SettingsManifest;
+// import auth.CiviFormProfile;
+// import java.time.Clock;
+// import java.time.Instant;
+// import java.time.temporal.ChronoUnit;
+// import java.util.concurrent.CompletableFuture;
+// import javax.inject.Inject;
+// import javax.inject.Provider;
+// import services.settings.SettingsManifest;
 //
-///** Service responsible for managing session timeout logic in CiviForm. */
-//public final class SessionTimeoutService {
+/// ** Service responsible for managing session timeout logic in CiviForm. */
+// public final class SessionTimeoutService {
 //  private final Provider<SettingsManifest> settingsManifest;
 //  private final Clock clock;
 //
@@ -69,7 +69,8 @@
 //                      .getSessionInactivityWarningThresholdMinutes()
 //                      .orElseThrow();
 //              int durationWarningMinutes =
-//                  settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
+//
+// settingsManifest.get().getSessionDurationWarningThresholdMinutes().orElseThrow();
 //
 //              long lastActivityTimeInSeconds =
 //                  profile.getProfileData().getLastActivityTime(clock) / 1000;
@@ -97,15 +98,18 @@
 //        .getEpochSecond();
 //  }
 //
-//  private CompletableFuture<Boolean> isSessionTimedOutDueToSessionLength(CiviFormProfile profile) {
+//  private CompletableFuture<Boolean> isSessionTimedOutDueToSessionLength(CiviFormProfile profile)
+// {
 //    long currentTimeInMillis = clock.millis();
 //    long maxSessionDurationInMillis = getMaxSessionDurationMillis();
 //    return profile
 //        .getSessionStartTime()
 //        .thenApply(
 //            optionalSessionStartTime -> {
-//              long sessionStartTimeInMillis = optionalSessionStartTime.orElse(currentTimeInMillis);
-//              return (currentTimeInMillis - sessionStartTimeInMillis) > maxSessionDurationInMillis;
+//              long sessionStartTimeInMillis =
+// optionalSessionStartTime.orElse(currentTimeInMillis);
+//              return (currentTimeInMillis - sessionStartTimeInMillis) >
+// maxSessionDurationInMillis;
 //            });
 //  }
 //
@@ -131,4 +135,4 @@
 //      long inactivityWarning,
 //      long totalWarning,
 //      long currentTime) {}
-//}
+// }

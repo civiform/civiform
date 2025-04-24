@@ -1,26 +1,26 @@
-//package services.session;
+// package services.session;
 //
-//import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.Assertions.assertThatThrownBy;
-//import static org.mockito.Mockito.mock;
-//import static org.mockito.Mockito.when;
+// import static org.assertj.core.api.Assertions.assertThat;
+// import static org.assertj.core.api.Assertions.assertThatThrownBy;
+// import static org.mockito.Mockito.mock;
+// import static org.mockito.Mockito.when;
 //
-//import auth.CiviFormProfile;
-//import auth.CiviFormProfileData;
-//import java.time.Clock;
-//import java.time.Instant;
-//import java.time.ZoneId;
-//import java.util.NoSuchElementException;
-//import java.util.Optional;
-//import java.util.concurrent.CompletableFuture;
-//import java.util.concurrent.CompletionException;
-//import javax.inject.Provider;
-//import org.junit.Before;
-//import org.junit.Test;
-//import services.session.SessionTimeoutService.TimeoutData;
-//import services.settings.SettingsManifest;
+// import auth.CiviFormProfile;
+// import auth.CiviFormProfileData;
+// import java.time.Clock;
+// import java.time.Instant;
+// import java.time.ZoneId;
+// import java.util.NoSuchElementException;
+// import java.util.Optional;
+// import java.util.concurrent.CompletableFuture;
+// import java.util.concurrent.CompletionException;
+// import javax.inject.Provider;
+// import org.junit.Before;
+// import org.junit.Test;
+// import services.session.SessionTimeoutService.TimeoutData;
+// import services.settings.SettingsManifest;
 //
-//public class SessionTimeoutServiceTest {
+// public class SessionTimeoutServiceTest {
 //  private static final long CURRENT_TIME = 1000000000L;
 //  private static final int INACTIVITY_TIMEOUT_MINUTES = 30;
 //  private static final int MAX_SESSION_DURATION_MINUTES = 600;
@@ -185,4 +185,4 @@
 //          .isInstanceOf(NoSuchElementException.class);
 //    }
 //  }
-//}
+// }

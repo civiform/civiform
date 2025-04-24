@@ -1,17 +1,17 @@
-//package views.components;
+// package views.components;
 //
-//import static j2html.TagCreator.div;
-//import static j2html.TagCreator.form;
-//import static j2html.TagCreator.input;
-//import static j2html.TagCreator.p;
-//import static j2html.TagCreator.span;
+// import static j2html.TagCreator.div;
+// import static j2html.TagCreator.form;
+// import static j2html.TagCreator.input;
+// import static j2html.TagCreator.p;
+// import static j2html.TagCreator.span;
 //
-//import j2html.tags.specialized.DivTag;
-//import play.i18n.Messages;
-//import services.MessageKey;
-//import views.ViewUtils;
+// import j2html.tags.specialized.DivTag;
+// import play.i18n.Messages;
+// import services.MessageKey;
+// import views.ViewUtils;
 //
-///**
+/// **
 // * Renders modal dialogs for session timeout notifications.
 // *
 // * <p>This class creates two types of modals:
@@ -29,7 +29,7 @@
 // *   <li>HTMX integration for AJAX form submission
 // * </ul>
 // */
-//public final class SessionTimeoutModals {
+// public final class SessionTimeoutModals {
 //
 //  public static DivTag render(Messages messages, String csrfToken) {
 //    // Create hidden elements for localized messages
@@ -55,7 +55,8 @@
 //    DivTag sessionTimeoutModals =
 //        div().withId("session-timeout-modals").with(inactivityModal, sessionLengthModal);
 //
-//    return div().withId("session-timeout-container").with(sessionTimeoutModals, localizedMessages);
+//    return div().withId("session-timeout-container").with(sessionTimeoutModals,
+// localizedMessages);
 //  }
 //
 //  private static DivTag createInactivityWarningModal(Messages messages, String csrfToken) {
@@ -102,4 +103,4 @@
 //            messages.at(MessageKey.BUTTON_CANCEL.getKeyName()))
 //        .withClasses("hidden");
 //  }
-//}
+// }
