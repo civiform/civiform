@@ -131,7 +131,7 @@
         ></span>
         <span
           th:if="${card.dateSubmitted.isEmpty()}"
-          th:text="${card.applicationStatus().get()"
+          th:text="${card.applicationStatus().get()}"
           class="cf-program-card-tag tag-submitted"
         ></span>
       </div>
@@ -156,12 +156,16 @@
 
     <!--*/Action button (usually "View and apply") */-->
     <div class="usa-card__footer cf-card-footer">
-      <a
-        th:href="${card.actionUrl()}"
-        class="usa-button usa-button--outline cf-apply-button"
-        th:text="${card.actionText()}"
-        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
-      ></a>
+      <div
+        th:class="${card.isCommonIntakeForm} ? bg-white : '' "
+      >
+        <a
+          th:href="${card.actionUrl()}"
+          class="usa-button usa-button--outline cf-apply-button"
+          th:text="${card.actionText()}"
+          th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+        ></a>
+      </div>
     </div>
   </div>
 </li>
