@@ -7,7 +7,11 @@ import {
   validateToastMessage,
   validateToastHidden,
 } from '../support'
-import {Eligibility, ProgramVisibility} from '../support/admin_programs'
+import {
+  Eligibility,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
   test.beforeEach(async ({page}) => {
@@ -85,7 +89,7 @@ test.describe('Admin can manage program image', {tag: ['@northstar']}, () => {
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ false,
+          ProgramType.DEFAULT,
           'selectedTI',
           'confirmationMessage',
           Eligibility.IS_GATING,

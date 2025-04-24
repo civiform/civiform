@@ -15,7 +15,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -649,7 +649,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ true,
+        ProgramType.COMMON_INTAKE_FORM,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(
@@ -1070,7 +1070,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)

@@ -31,7 +31,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -60,7 +60,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.DISABLED,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -103,7 +103,7 @@ test.describe('program creation', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ false,
+        ProgramType.DEFAULT,
         'selectedTI',
         'confirmationMessage',
         Eligibility.IS_GATING,
@@ -161,7 +161,7 @@ test.describe('program creation', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ false,
+        ProgramType.DEFAULT,
         'selectedTI',
         'confirmationMessage',
         Eligibility.IS_GATING,
@@ -217,7 +217,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -1071,7 +1071,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     const programName = 'Apc program'
@@ -1122,7 +1122,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1142,7 +1142,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1219,7 +1219,7 @@ test.describe('program creation', () => {
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ false,
+          ProgramType.DEFAULT,
           'selectedTI',
           'confirmationMessage',
           Eligibility.IS_GATING,
@@ -1509,7 +1509,7 @@ test.describe('program creation', () => {
             /* externalLink= */ 'https://example.com',
             /* visibility= */ undefined,
             /* adminDescription= */ undefined,
-            /* isCommonIntake= */ false,
+            /* programType= */ ProgramType.DEFAULT,
             /* selectedTI= */ undefined,
             /* confirmationMessage= */ undefined,
             /* eligibility= */ undefined,
