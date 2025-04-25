@@ -332,6 +332,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   })
 
   test.describe('program filtering', () => {
+    const externalProgramName = 'External Program'
+
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await enableFeatureFlag(page, 'program_filtering_enabled')
 
@@ -353,6 +355,25 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           /* isActive= */ true,
         )
       })
+
+      await test.step('add external program with categories', async () => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.selectProgramCategories(
+          externalProgramName,
+          [ProgramCategories.GENERAL],
+          /* isActive= */ false,
+        )
+      })
     })
 
     test('Displays category tags on program cards', async ({
@@ -366,12 +387,20 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await test.step('Navigate to homepage and check that cards in Programs and Services section have categories', async () => {
         await logout(page)
         await loginAsTestUser(page)
+
         const primaryProgramCard = page.locator('.cf-application-card', {
           has: page.getByText(primaryProgramName),
         })
         await expect(primaryProgramCard.getByText('Education')).toBeVisible()
         await expect(primaryProgramCard.getByText('Healthcare')).toBeVisible()
         await expect(primaryProgramCard.getByText('General')).toBeHidden()
+
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(externalProgramCard.getByText('Education')).toBeHidden()
+        await expect(externalProgramCard.getByText('Healthcare')).toBeHidden()
+        await expect(externalProgramCard.getByText('General')).toBeVisible()
       })
     })
 
@@ -473,6 +502,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -486,7 +516,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.locator(
             '#unfiltered-programs .usa-card-group .cf-application-card',
           ),
-        ).toHaveCount(4)
+        ).toHaveCount(5)
       })
 
       await test.step('Fill out first application block and confirm that the program appears in the "My Applications" section', async () => {
@@ -501,6 +531,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -527,6 +558,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -550,7 +582,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
-            expectedProgramsInRecommendedSection: [otherProgramName],
+            expectedProgramsInRecommendedSection: [
+              otherProgramName,
+              externalProgramName,
+            ],
             expectedProgramsInOtherProgramsSection: [
               'Minimal Sample Program',
               'Comprehensive Sample Program',
@@ -563,7 +598,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         // Check the program count in the section headings
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeVisible()
         await expect(
@@ -585,6 +620,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
               otherProgramName,
               'Minimal Sample Program',
               'Comprehensive Sample Program',
+              externalProgramName,
             ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
@@ -615,7 +651,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         // Check the program count in the section headings
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeVisible()
         await expect(
@@ -640,11 +676,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.locator(
             '#not-started-programs .usa-card-group .cf-application-card',
           ),
-        ).toHaveCount(4)
+        ).toHaveCount(5)
 
         await expect(
           page.getByRole('heading', {
-            name: 'Programs based on your selections (1)',
+            name: 'Programs based on your selections (2)',
           }),
         ).toBeHidden()
         await expect(
@@ -1253,6 +1289,79 @@ test.describe(
         await validateScreenshot(page, 'ns-program-image-all-types')
         // accessibility fails
         // await validateAccessibility(page)
+      })
+    })
+
+    test('Shows card for external program and opens external link', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const externalProgramName = 'External Program'
+
+      await test.step('add external program', async () => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.publishProgram(externalProgramName)
+        await logout(page)
+      })
+
+      await test.step("'Programs and Services' section includes a card for the external program", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [externalProgramName],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+          /* northStarEnabled= */ true,
+        )
+
+        // Button for external program card has a different text.
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(
+          externalProgramCard.getByRole('button', {name: 'View in new window'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Clicking on the external program card opens a modal', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        // Verify external program modal is visible
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await expect(
+          modal.getByRole('heading', {
+            name: 'This will open a different website',
+          }),
+        ).toBeVisible()
+        await expect(
+          modal.getByText(
+            "To go to the program's website where you can get more details and apply, click Continue",
+          ),
+        ).toBeVisible()
+        await expect(
+          modal.getByRole('button', {name: 'Continue'}),
+        ).toBeVisible()
+        await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+      })
+
+      await test.step("Accepting the modal redirects to the external program's site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await modal.getByRole('button', {name: 'Continue'}).click()
+        await expect(page).toHaveURL('https://www.usa.gov')
       })
     })
 
