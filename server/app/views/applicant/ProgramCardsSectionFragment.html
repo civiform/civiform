@@ -35,7 +35,7 @@
   >
     <th:block th:each="card : ${section.cards()}">
       <li
-        th:replace="~{applicant/ProgramCardsSectionFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
+        th:replace="${card.isCommonIntakeForm} ? ~{applicant/ProgramCardsSectionFragment :: submittedOrInProgressPreScreenerCard(addressQuestionText, /* northStarEnabled= */ true)(${card})} : ~{applicant/ProgramCardsSectionFragment :: card(${card}, ${sectionType} ?: 'DEFAULT')}"
       ></li>
     </th:block>
   </ul>
@@ -70,8 +70,8 @@
       </div>
     </div>
 
-    <!--*/ Program categories */-->
     <div class="usa-card__body">
+      <!--*/ Program categories */-->
       <div
         role="group"
         th:aria-label="#{ariaLabel.categories}"
@@ -154,11 +154,9 @@
       </div>
     </div>
 
-    <!--*/Action button (usually "View and apply") */-->
+    <!--*/Action button (usually "View and apply" or "Edit") */-->
     <div class="usa-card__footer cf-card-footer">
-      <div
-        th:class="${card.isCommonIntakeForm} ? bg-white : '' "
-      >
+      <div th:class="${card.isCommonIntakeForm} ? bg-white : '' ">
         <a
           th:href="${card.actionUrl()}"
           class="usa-button usa-button--outline cf-apply-button"
@@ -203,3 +201,64 @@
     </div>
   </div>
 </div>
+
+<li
+  th:fragment="submittedOrInProgressPreScreenerCard(addressQuestionText, /* northStarEnabled= */ true) (card)"
+  class="usa-card cf-application-card"
+>
+  <div class="usa-card__container bg-primary-lighter">
+    <!--/* Title */-->
+    <div class="usa-card__header usa-prose">
+      <h3
+        class="usa-card__heading cf-application-card-title cf-prose-h4"
+        th:text="${card.title()}"
+        th:data-program-id="${card.programId()}"
+      ></h3>
+    </div>
+
+    <div class="usa-card__body">
+      <!--*/Program description */-->
+      <div class="usa-prose">
+        <p th:text="${card.body()}" class="cf-wrap-anywhere"></p>
+      </div>
+
+      <!--*/In progress tag */-->
+      <div
+        th:if="${card.lifecycleStage.isPresent() and card.lifecycleStage.get().toString() == 'DRAFT' and !card.dateSubmitted.isPresent()}"
+        class="text-medium-margin-top"
+      >
+        <span
+          th:text="#{label.inProgress}"
+          class="cf-program-card-tag tag-in-progress"
+        ></span>
+      </div>
+
+      <!--*/Submitted tag */-->
+      <div
+        th:if="${!card.applicationStatus().isPresent() and card.dateSubmitted.isPresent()}"
+        class="text-medium-margin-top"
+      >
+        <span
+          th:if="${card.dateSubmitted.isPresent()}"
+          th:text="#{label.submittedOn(${card.dateSubmitted.get()})}"
+          class="cf-program-card-tag tag-submitted cf-bt-date"
+        ></span>
+        <span
+          th:if="${card.dateSubmitted.isEmpty()}"
+          th:text="#{label.submitted}"
+          class="cf-program-card-tag tag-submitted"
+        ></span>
+      </div>
+    </div>
+
+    <!--*/Action button (usually "View and apply" or "Edit") */-->
+    <div class="usa-card__footer cf-card-footer">
+      <a
+        th:href="${card.actionUrl()}"
+        class="usa-button usa-button--outline cf-apply-button"
+        th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+      ></a>
+    </div>
+  </div>
+</li>
