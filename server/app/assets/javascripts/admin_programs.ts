@@ -96,6 +96,13 @@ class AdminPrograms {
       /* shouldHide= */ disableProgramEligibility,
     )
 
+    // Notification preferences
+    const disableNotificationPreferences = programType === ProgramType.EXTERNAL
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="notification-preferences-email"]',
+      /* shouldDisable= */ disableNotificationPreferences,
+    )
+
     // Long program description
     const longDescription = document.getElementById(
       'program-display-description-textarea',
@@ -126,7 +133,6 @@ class AdminPrograms {
       /* shouldHide= */ disableApplicationSteps,
     )
 
-    // TODO(#10183): Disable email notification for external programs
     // TODO(#10183): Disable confirmation message for external programs
   }
 

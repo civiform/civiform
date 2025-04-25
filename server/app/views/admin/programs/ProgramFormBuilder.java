@@ -159,6 +159,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean disableLongDescription =
         (isCommonIntakeForm || isExternalProgram)
             && settingsManifest.getNorthStarApplicantUi(request);
+    boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
@@ -291,9 +292,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* value= */ ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                         .getValue(),
                     /* isChecked= */ notificationPreferences.contains(
-                        ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
-                            .getValue()),
-                    /* isDisabled= */ false,
+                            ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
+                                .getValue())
+                        && !disableEmailNotifications,
+                    /* isDisabled= */ disableEmailNotifications,
                     /* label= */ "Send Program Admins an email notification every time an"
                         + " application is submitted"))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),

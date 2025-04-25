@@ -1522,6 +1522,9 @@ test.describe('program creation', () => {
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_ELIGIBILITY,
           )
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
           await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
           await adminPrograms.expectFormFieldEnabled(
             FormField.APPLICATION_STEPS,
@@ -1534,6 +1537,9 @@ test.describe('program creation', () => {
 
           await adminPrograms.expectFormFieldDisabled(
             FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.NOTIFICATION_PREFERENCES,
           )
           await adminPrograms.expectFormFieldDisabled(
             FormField.LONG_DESCRIPTION,
@@ -1563,6 +1569,9 @@ test.describe('program creation', () => {
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_ELIGIBILITY,
           )
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
           await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
           await adminPrograms.expectFormFieldEnabled(
             FormField.APPLICATION_STEPS,
@@ -1579,6 +1588,9 @@ test.describe('program creation', () => {
           await adminPrograms.goToProgramDescriptionPage(programName)
           await adminPrograms.expectFormFieldDisabled(
             FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.NOTIFICATION_PREFERENCES,
           )
           await adminPrograms.expectFormFieldDisabled(
             FormField.LONG_DESCRIPTION,
