@@ -78,17 +78,33 @@ svg {
   right: 1.625rem;
 }
 
-[dir='rtl'] .usa-alert {
+[dir='rtl'] .usa-alert:not(.usa-alert--warning) {
   border-left-width: 0px;
   border-right-width: 8px;
   border-right-color: #00bde3;
 }
 
+[dir='rtl'] .usa-alert--warning {
+  border-left-width: 0px;
+  border-right-width: 8px;
+  border-right-color: #ffbe2e;
+}
+
 [dir='rtl'] .usa-alert .usa-alert__heading,
 [dir='rtl'] .usa-alert .usa-alert__text,
 [dir='rtl'] .usa-alert .grid-row,
-[dir='rtl'] .usa-alert p {
+[dir='rtl'] .usa-alert p,
+[dir='rtl'] .usa-alert .usa-list {
   margin-inline-start: 2.5rem;
+}
+
+// Prevent extra padding from getting added between list marker and paragraph
+[dir='rtl'] .usa-alert li p {
+  margin-inline-start: 0rem;
+}
+
+[dir='rtl'] .usa-alert .usa-alert__body .usa-list {
+  padding-inline-start: 2ch;
 }
 
 [dir='rtl'] .usa-alert .usa-button {
