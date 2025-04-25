@@ -51,6 +51,7 @@ svg {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -135,6 +136,8 @@ svg {
   // -- end
 }
 
+=======
+>>>>>>> 142032ee3 (move rtl styles to end of css file)
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -612,6 +615,7 @@ main {
 [dir='rtl'] {
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
+<<<<<<< HEAD
     position: absolute;
     display: inline-block;
     margin-inline-end: 10px;
@@ -628,6 +632,11 @@ main {
 
   .usa-banner__inner {
     padding-inline-start: 16px;
+=======
+    position: relative;
+    display: inline-block;
+    margin-inline-end: 10px;
+>>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   // -- start
@@ -641,15 +650,23 @@ main {
     right: 1.625rem;
   }
 
+<<<<<<< HEAD
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: color($theme-color-info);
+=======
+  .usa-alert:not(.usa-alert--warning) {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #00bde3;
+>>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   .usa-alert--warning {
     border-left-width: 0px;
     border-right-width: 8px;
+<<<<<<< HEAD
     border-right-color: color($theme-color-warning);
   }
 
@@ -657,6 +674,9 @@ main {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: color($theme-color-success);
+=======
+    border-right-color: #ffbe2e;
+>>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   .usa-alert .usa-alert__heading,
@@ -692,6 +712,7 @@ main {
     padding-right: 20px;
   }
   // -- end
+<<<<<<< HEAD
 
   .usa-radio__label::before {
     display: inline-block;
@@ -738,4 +759,6 @@ main {
       padding-inline-start: 2ex;
     }
   }
+=======
+>>>>>>> 142032ee3 (move rtl styles to end of css file)
 }
