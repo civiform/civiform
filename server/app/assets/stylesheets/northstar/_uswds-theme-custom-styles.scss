@@ -50,6 +50,7 @@ svg {
 // -- end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -66,64 +67,73 @@ svg {
   margin-inline-end: 10px;
 >>>>>>> 47551e72e (style checkbox for rtl)
 }
+=======
+[dir='rtl'] {
+  /* Make the checkbox appear to the right of the label in RTL languages. */
+  .usa-checkbox__label::before {
+    position: relative;
+    display: inline-block;
+    margin-inline-end: 10px;
+  }
+>>>>>>> a30c83c7a (group rtl stylings together to help make css more readable)
 
-// -- start
-/* Make the info icon appear to the right of the label in RTL languages. */
-[dir='rtl'] .usa-alert__body::before {
-  display: inline-block;
-  right: 1rem;
+  // -- start
+  /* Make the info/alert icons appear to the right of the label in RTL languages. */
+  .usa-alert__body::before {
+    display: inline-block;
+    right: 1rem;
+  }
+
+  .usa-site-alert--slim .usa-alert__body::before {
+    right: 1.625rem;
+  }
+
+  .usa-alert:not(.usa-alert--warning) {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #00bde3;
+  }
+
+  .usa-alert--warning {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #ffbe2e;
+  }
+
+  .usa-alert .usa-alert__heading,
+  .usa-alert .usa-alert__text,
+  .usa-alert .grid-row,
+  .usa-alert p,
+  .usa-alert .usa-list {
+    margin-inline-start: 2.5rem;
+  }
+
+  // Prevent extra padding from getting added between list marker and paragraph
+  .usa-alert li p {
+    margin-inline-start: 0rem;
+  }
+
+  .usa-alert .usa-alert__body .usa-list {
+    padding-inline-start: 2ch;
+  }
+
+  .usa-alert .usa-button {
+    margin-right: 0px;
+  }
+
+  .usa-process-list__item::before {
+    right: 0rem;
+  }
+
+  .usa-process-list__item {
+    padding-right: calc(calc(2.5rem / 2 - 0.25rem) * 2);
+  }
+
+  .usa-process-list {
+    padding-right: 20px;
+  }
+  // -- end
 }
-
-[dir='rtl'] .usa-site-alert--slim .usa-alert__body::before {
-  right: 1.625rem;
-}
-
-[dir='rtl'] .usa-alert:not(.usa-alert--warning) {
-  border-left-width: 0px;
-  border-right-width: 8px;
-  border-right-color: #00bde3;
-}
-
-[dir='rtl'] .usa-alert--warning {
-  border-left-width: 0px;
-  border-right-width: 8px;
-  border-right-color: #ffbe2e;
-}
-
-[dir='rtl'] .usa-alert .usa-alert__heading,
-[dir='rtl'] .usa-alert .usa-alert__text,
-[dir='rtl'] .usa-alert .grid-row,
-[dir='rtl'] .usa-alert p,
-[dir='rtl'] .usa-alert .usa-list {
-  margin-inline-start: 2.5rem;
-}
-
-// Prevent extra padding from getting added between list marker and paragraph
-[dir='rtl'] .usa-alert li p {
-  margin-inline-start: 0rem;
-}
-
-[dir='rtl'] .usa-alert .usa-alert__body .usa-list {
-  padding-inline-start: 2ch;
-}
-
-[dir='rtl'] .usa-alert .usa-button {
-  margin-right: 0px;
-}
-
-[dir='rtl'] .usa-process-list__item::before {
-  right: 0rem;
-}
-
-[dir='rtl'] .usa-process-list__item {
-  padding-right: calc(calc(2.5rem / 2 - 0.25rem) * 2);
-}
-
-[dir='rtl'] .usa-process-list {
-  padding-right: 20px;
-}
-
-// -- end
 
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
