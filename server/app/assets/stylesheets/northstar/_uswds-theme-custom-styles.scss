@@ -651,12 +651,16 @@ main {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: color($theme-color-info);
 =======
   .usa-alert:not(.usa-alert--warning) {
+=======
+  .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
+>>>>>>> d2259749c (fix success alert border)
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: #00bde3;
@@ -677,6 +681,12 @@ main {
 =======
     border-right-color: #ffbe2e;
 >>>>>>> 142032ee3 (move rtl styles to end of css file)
+  }
+
+  .usa-alert--success {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #00a91c;
   }
 
   .usa-alert .usa-alert__heading,
