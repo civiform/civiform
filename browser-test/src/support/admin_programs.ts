@@ -42,6 +42,7 @@ export interface DownloadedApplication {
 export enum FormField {
   APPLICATION_STEPS,
   LONG_DESCRIPTION,
+  NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
 }
@@ -295,10 +296,16 @@ export class AdminPrograms {
       }
 
       case FormField.LONG_DESCRIPTION: {
-        const longDescription = this.page.getByRole('textbox', {
-          name: 'Long program description (optional)',
-        })
+        const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        break
+      }
+
+      case FormField.NOTIFICATION_PREFERENCES: {
+        const notificationPreferences =
+          this.getNotificationsPreferenceCheckbox()
+        await expect(notificationPreferences).toBeDisabled()
+        await expect(notificationPreferences).not.toBeChecked()
         break
       }
 
@@ -360,10 +367,15 @@ export class AdminPrograms {
       }
 
       case FormField.LONG_DESCRIPTION: {
-        const longDescription = this.page.getByRole('textbox', {
-          name: 'Long program description (optional)',
-        })
+        const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        break
+      }
+
+      case FormField.NOTIFICATION_PREFERENCES: {
+        const notificationPreferences =
+          this.getNotificationsPreferenceCheckbox()
+        await expect(notificationPreferences).toBeEnabled()
         break
       }
 
@@ -1560,6 +1572,20 @@ export class AdminPrograms {
   getProgramTypeOption(programType: string): Locator {
     return this.page.getByRole('radio', {
       name: programType,
+    })
+  }
+
+  getLongDescriptionField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Long program description (optional)',
+    })
+  }
+
+  getNotificationsPreferenceCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name:
+        'Send Program Admins an email notification every time an ' +
+        'application is submitted',
     })
   }
 
