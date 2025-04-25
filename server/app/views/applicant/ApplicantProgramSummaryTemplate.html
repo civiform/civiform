@@ -1,8 +1,12 @@
 <!doctype html>
+<<<<<<< HEAD
 <html
   th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'"
   data-testid="programSummary"
 >
+=======
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'" data-testid="programSummary">
+>>>>>>> 482f020ce (add rtl support to applicant program summary page)
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
