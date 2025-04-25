@@ -195,7 +195,7 @@ export class AdminPrograms {
     externalLink = 'https://usa.gov',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
-    isCommonIntake = false,
+    programType: ProgramType = ProgramType.DEFAULT,
     selectedTI = 'none',
     confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
       '[This is a link](https://www.example.com)\n' +
@@ -238,9 +238,18 @@ export class AdminPrograms {
 
     await this.chooseEligibility(eligibility)
 
-    if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
+    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+    // When enabled, form has program type options. Otherwise, form has a
+    // common intake checkbox.
+    const externalProgramsFeatureEnabled =
+      await this.getProgramTypeOption(programType).isVisible()
+    if (externalProgramsFeatureEnabled) {
+      await this.selectProgramType(programType)
+    } else if (programType === ProgramType.COMMON_INTAKE_FORM) {
       await this.clickCommonIntakeFormToggle()
-    } else {
+    }
+
+    if (programType === ProgramType.DEFAULT) {
       for (let i = 0; i < applicationSteps.length; i++) {
         const indexPlusOne = i + 1
         await this.page

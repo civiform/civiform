@@ -11,7 +11,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
-import {ProgramVisibility} from '../../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
@@ -43,7 +43,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
 
         await adminPrograms.editProgramBlock(
