@@ -1,5 +1,8 @@
 <!doctype html>
-<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'" data-testid="programSummary">
+<html
+  th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'"
+  data-testid="programSummary"
+>
   <head
     th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
   ></head>
