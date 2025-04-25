@@ -76,9 +76,9 @@ svg {
 }
 
 [dir='rtl'] .usa-alert .usa-alert__heading,
-.usa-alert .usa-alert__text,
-.usa-alert .grid-row,
-.usa-alert p {
+[dir='rtl'] .usa-alert .usa-alert__text,
+[dir='rtl'] .usa-alert .grid-row,
+[dir='rtl'] .usa-alert p {
   margin-inline-start: 2.5rem;
 }
 
