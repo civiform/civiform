@@ -1511,7 +1511,7 @@ test.describe('program creation', () => {
             /* adminDescription= */ undefined,
             /* programType= */ ProgramType.DEFAULT,
             /* selectedTI= */ undefined,
-            /* confirmationMessage= */ undefined,
+            /* confirmationMessage= */ '',
             /* eligibility= */ undefined,
             /* submitNewProgram= */ false,
           )
