@@ -47,10 +47,7 @@
   class="usa-card cf-application-card"
   th:classappend="${showImage} ? usa-card--header-first : '' "
 >
-  <div
-    class="usa-card__container"
-    th:classappend="${card.isCommonIntakeForm} ? bg-primary-lighter : '' "
-  >
+  <div class="usa-card__container">
     <!--/* Title */-->
     <div class="usa-card__header usa-prose">
       <h3
@@ -156,14 +153,12 @@
 
     <!--*/Action button (usually "View and apply" or "Edit") */-->
     <div class="usa-card__footer cf-card-footer">
-      <div th:class="${card.isCommonIntakeForm} ? bg-white : '' ">
-        <a
-          th:href="${card.actionUrl()}"
-          class="usa-button usa-button--outline cf-apply-button"
-          th:text="${card.actionText()}"
-          th:aria-label="#{button.viewAndApplySr(${card.title()})}"
-        ></a>
-      </div>
+      <a
+        th:href="${card.actionUrl()}"
+        class="usa-button usa-button--outline cf-apply-button"
+        th:text="${card.actionText()}"
+        th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+      ></a>
     </div>
   </div>
 </li>
@@ -203,7 +198,7 @@
 </div>
 
 <li
-  th:fragment="submittedOrInProgressPreScreenerCard(addressQuestionText, /* northStarEnabled= */ true) (card)"
+  th:fragment="submittedOrInProgressPreScreenerCard (addressQuestionText, /* northStarEnabled= */ true) (card)"
   class="usa-card cf-application-card"
 >
   <div class="usa-card__container bg-primary-lighter">
