@@ -180,7 +180,7 @@ public class DevToolsController extends Controller {
   private boolean clearInternal() {
     try {
       logger.warn("Beginning clearing of data. Clearing memory caches.");
-      //clearCacheIfEnabled();
+      // clearCacheIfEnabled();
       logger.warn("Clearing database tables.");
       resetTables();
       logger.warn("Done clearing data.");
