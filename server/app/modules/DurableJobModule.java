@@ -116,6 +116,7 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
+      ApplicantService applicantService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -152,15 +153,20 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
+    durableJobRegistry.register(
+        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
+        JobType.RECURRING,
+        persistedDurableJob ->
+            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
     return durableJobRegistry;
   }
 
   @Provides
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
-      CategoryRepository categoryRepository,
-      ApplicantService applicantService,
-      Environment environment) {
+      CategoryRepository categoryRepository, Environment environment) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.registerStartupJob(
@@ -185,12 +191,6 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.COPY_FILE_KEY_FOR_MULTIPLE_FILE_UPLOAD,
         JobType.RUN_ONCE,
         persistedDurableJob -> new CopyFileKeyForMultipleFileUpload(persistedDurableJob));
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
-        JobType.RUN_ONCE,
-        persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(applicantService, persistedDurableJob));
 
     return durableJobRegistry;
   }

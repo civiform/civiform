@@ -47,6 +47,8 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
     logger.info("Starting job to calculate eligibility determination.");
 
     try (Transaction jobTransaction = database.beginTransaction()) {
+      int errorCount = 0;
+
       String filter =
           """
           eligibility_determination = 'NOT_COMPUTED'
@@ -66,11 +68,23 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
                     programDefinition, roAppProgramService);
             application.setEligibilityDetermination(eligibilityDetermination);
             application.save();
-            jobTransaction.commit();
           } catch (RuntimeException e) {
-            logger.error(e.getMessage(), e);
+            errorCount++;
+            logger.error(
+                "Error on application {} with error message {}", application.id, e.getMessage());
           }
         }
+      }
+
+      if (errorCount == 0) {
+        logger.info("Job succeeded");
+        jobTransaction.commit();
+      } else {
+        logger.error(
+            "Failed to compute eligibility determination for existing applications. All changes"
+                + " undone. Error: {}",
+            errorCount);
+        jobTransaction.rollback();
       }
     }
   }
