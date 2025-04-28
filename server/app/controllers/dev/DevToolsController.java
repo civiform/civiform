@@ -180,7 +180,7 @@ public class DevToolsController extends Controller {
   private boolean clearInternal() {
     try {
       logger.warn("Beginning clearing of data. Clearing memory caches.");
-      clearCacheIfEnabled();
+      //clearCacheIfEnabled();
       logger.warn("Clearing database tables.");
       resetTables();
       logger.warn("Done clearing data.");
@@ -214,14 +214,17 @@ public class DevToolsController extends Controller {
    */
   private void clearCacheIfEnabled() {
     if (settingsManifest.getVersionCacheEnabled()) {
+      logger.warn("Clearing Version Cache");
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
     }
     if (settingsManifest.getProgramCacheEnabled()) {
+      logger.warn("Clearing Program Cache");
       programCache.removeAll().toCompletableFuture().join();
       versionsByProgramCache.removeAll().toCompletableFuture().join();
     }
     if (settingsManifest.getQuestionCacheEnabled()) {
+      logger.warn("Clearing Question Cache");
       programDefCache.removeAll().toCompletableFuture().join();
     }
   }
