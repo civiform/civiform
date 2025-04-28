@@ -12,7 +12,7 @@ import repository.PersistedDurableJobRepository;
  * their execution time is older than six months.
  */
 public final class OldJobCleanupJob extends DurableJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OldJobCleanupJob.class);
+  private static final Logger logger = LoggerFactory.getLogger(OldJobCleanupJob.class);
 
   private final PersistedDurableJobRepository persistedDurableJobRepository;
   private final PersistedDurableJobModel persistedDurableJob;
@@ -32,6 +32,6 @@ public final class OldJobCleanupJob extends DurableJob {
   @Override
   public void run() {
     int numRowsDeleted = this.persistedDurableJobRepository.deleteJobsOlderThanSixMonths();
-    LOGGER.info("Deleted {} jobs older than 6 months", numRowsDeleted);
+    logger.info("Deleted {} jobs older than 6 months", numRowsDeleted);
   }
 }

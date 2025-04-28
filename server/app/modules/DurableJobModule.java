@@ -46,13 +46,13 @@ import services.cloud.PublicStorageClient;
  * recurring, their {@link JobExecutionTimeResolver}.
  */
 public final class DurableJobModule extends AbstractModule {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DurableJobModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(DurableJobModule.class);
 
   @Override
   protected void configure() {
     // Binding the scheduler class as an eager singleton runs the constructor
     // at server start time.
-    LOGGER.trace("Module Started");
+    logger.trace("Module Started");
     bind(DurableJobRunnerScheduler.class).asEagerSingleton();
   }
 
@@ -78,11 +78,11 @@ public final class DurableJobModule extends AbstractModule {
         RecurringJobScheduler recurringJobScheduler,
         StartupDurableJobRunner startupDurableJobRunner,
         StartupJobScheduler startupJobScheduler) {
-      LOGGER.trace("DurableJobRunnerScheduler - Started");
+      logger.trace("DurableJobRunnerScheduler - Started");
       int pollIntervalSeconds = config.getInt("durable_jobs.poll_interval_seconds");
 
       if (applicationEvolutions.upToDate()) {
-        LOGGER.trace("DurableJobRunnerScheduler - Task Start");
+        logger.trace("DurableJobRunnerScheduler - Task Start");
 
         // Run startup jobs. These jobs must complete before the application can start serving
         // pages.
@@ -103,9 +103,9 @@ public final class DurableJobModule extends AbstractModule {
                   recurringDurableJobRunner.runJobs();
                 },
                 executionContext);
-        LOGGER.trace("DurableJobRunnerScheduler - Task End");
+        logger.trace("DurableJobRunnerScheduler - Task End");
       } else {
-        LOGGER.trace("Evolutions Not Ready");
+        logger.trace("Evolutions Not Ready");
       }
     }
   }
