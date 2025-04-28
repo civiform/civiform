@@ -70,8 +70,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
             application.save();
           } catch (RuntimeException e) {
             errorCount++;
-            logger.error(
-                "Error on application {} with error message {}", application.id, e.getMessage());
+            logger.error("Error message {}", e.getMessage());
           }
         }
       }
