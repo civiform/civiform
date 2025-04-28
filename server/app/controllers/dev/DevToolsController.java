@@ -179,11 +179,11 @@ public class DevToolsController extends Controller {
   /** Remove all content from the program and question tables. */
   private boolean clearInternal() {
     try {
-      logger.info("Beginning clearing of data. Clearing memory caches.");
+      logger.warn("Beginning clearing of data. Clearing memory caches.");
       clearCacheIfEnabled();
-      logger.info("Clearing database tables.");
+      logger.warn("Clearing database tables.");
       resetTables();
-      logger.info("Done clearing data.");
+      logger.warn("Done clearing data.");
 
       return true;
     } catch (RuntimeException ex) {
