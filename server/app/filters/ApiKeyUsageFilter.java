@@ -33,7 +33,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
   private final Executor exec;
   private final Provider<ProfileUtils> profileUtilsProvider;
   private final ClientIpResolver clientIpResolver;
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUsageFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApiKeyUsageFilter.class);
 
   @Inject
   public ApiKeyUsageFilter(
@@ -78,7 +78,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
                           }
                         }
                       } catch (RuntimeException e) {
-                        LOGGER.error("Error updating ApiKey usage: {}", e.toString());
+                        logger.error("Error updating ApiKey usage: {}", e.toString());
                       }
 
                       return result;

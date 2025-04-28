@@ -901,11 +901,11 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_returnsErrorWhenNoSteps() {
+  public void checkApplicationStepErrors_defaultProgram_returnsErrorWhenNoSteps() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
     ImmutableSet<CiviFormError> errors =
-        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
 
     assertThat(errors.size()).isEqualTo(1);
     assertThat(
@@ -915,7 +915,8 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void checkApplicationStepErrors_returnsErrorWhenMissingTitleOrDescription() {
+  public void
+      checkApplicationStepErrors_defaultProgram_returnsErrorWhenMissingTitleOrDescription() {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableList<ApplicationStep> applicationSteps =
         ImmutableList.of(
@@ -923,12 +924,35 @@ public class ProgramServiceTest extends ResetPostgres {
             new ApplicationStep("title two", ""),
             new ApplicationStep("", "description three"));
     ImmutableSet<CiviFormError> errors =
-        ps.checkApplicationStepErrors(errorsBuilder, applicationSteps).build();
+        ps.checkApplicationStepErrors(ProgramType.DEFAULT, errorsBuilder, applicationSteps).build();
 
     assertThat(errors.size()).isEqualTo(2);
     assertThat(errors.contains(CiviFormError.of("Application step 2 is missing a description")))
         .isTrue();
     assertThat(errors.contains(CiviFormError.of("Application step 3 is missing a title"))).isTrue();
+  }
+
+  @Test
+  public void checkApplicationStepErrors_externalProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(ProgramType.EXTERNAL, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void checkApplicationStepErrors_commonIntakeProgram_returnsNoErrors() {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    ImmutableList<ApplicationStep> applicationSteps = ImmutableList.of();
+    ImmutableSet<CiviFormError> errors =
+        ps.checkApplicationStepErrors(
+                ProgramType.COMMON_INTAKE_FORM, errorsBuilder, applicationSteps)
+            .build();
+
+    assertThat(errors.size()).isEqualTo(0);
   }
 
   @Test

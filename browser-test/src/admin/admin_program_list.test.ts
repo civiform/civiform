@@ -6,7 +6,7 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
   test('view draft program', async ({page, adminPrograms}) => {
@@ -249,7 +249,7 @@ test.describe('Program list page.', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     await expectProgramListElements(adminPrograms, [programTwo, programOne])

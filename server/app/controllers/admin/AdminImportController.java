@@ -361,6 +361,7 @@ public class AdminImportController extends CiviFormController {
             programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
       }
 
+      // TODO: #9628 - Support admin-specified duplicate handling per-question
       ProgramModel savedProgram =
           programRepository.insertProgramSync(
               new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));

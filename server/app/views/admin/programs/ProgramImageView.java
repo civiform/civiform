@@ -71,7 +71,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String PAGE_TITLE = "Image upload";
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProgramImageView.class);
+  private static final Logger logger = LoggerFactory.getLogger(ProgramImageView.class);
 
   private final AdminLayout layout;
   private final String baseUrl;
@@ -157,7 +157,7 @@ public final class ProgramImageView extends BaseHtmlView {
             northStarProgramCardPreviewController.cardPreview(request, programDefinition.id());
         cardPreview = div(rawHtml(content));
       } catch (InterruptedException | ExecutionException e) {
-        LOGGER.error("Error generating card preview: " + e.getLocalizedMessage());
+        logger.error("Error generating card preview: " + e.getLocalizedMessage());
         cardPreview = div(text("Error generating card preview")).withClass("text-center");
       }
       formsAndCurrentCardContainer.with(cardPreview);
