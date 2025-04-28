@@ -522,11 +522,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
       return div.with(programQuestions, addQuestion);
-    } else {
-      div.with(blockInfoDisplay, visibilityPredicateDisplay);
-      maybeEligibilityPredicateDisplay.ifPresent(div::with);
-      return div.with(programQuestions);
     }
+
+    div.with(blockInfoDisplay, visibilityPredicateDisplay);
+    maybeEligibilityPredicateDisplay.ifPresent(div::with);
+    return div.with(programQuestions);
   }
 
   /**
@@ -577,15 +577,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // Only add the delete button if there is more than one screen in the program
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass("flex-grow"));
-      if (canDelete) {
-        buttons.with(blockDeleteModalButton);
-      } else {
-        buttons.with(
-            blockDeleteModalButton
-                .withCondDisabled(!canDelete)
-                .withCondTitle(
-                    !canDelete, "A screen can only be deleted when it has no repeated screens."));
-      }
+      blockDeleteModalButton
+          .withCondDisabled(!canDelete)
+          .withCondTitle(
+              !canDelete, "A screen can only be deleted when it has no repeated screens.");
+      buttons.with(blockDeleteModalButton);
     }
     return buttons;
   }
@@ -654,20 +650,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
-    if (program.eligibilityIsGating()) {
-      emptyPredicateContentBuilder.add(
-          text(
-              "You can add eligibility conditions to determine if an applicant qualifies for the"
-                  + " program. Applicants who do not meet the minimum requirements will be"
-                  + " blocked from submitting an application."));
-    } else {
-      emptyPredicateContentBuilder.add(
-          text(
-              "You can add eligibility conditions to determine if an applicant qualifies for the"
-                  + " program. Applicants can submit an application even if they do not meet the"
-                  + " minimum requirements."));
-    }
+    String eligibilityText =
+        program.eligibilityIsGating()
+            ? "Applicants who do not meet the minimum requirements will be blocked from submitting"
+                + " an application."
+            : "Applicants can submit an application even if they do not meet the minimum"
+                + " requirements.";
     emptyPredicateContentBuilder
+        .add(
+            text(
+                "You can add eligibility conditions to determine if an applicant qualifies for the"
+                    + " program. "))
+        .add(text(eligibilityText))
         .add(text(" You can change this in the "))
         .add(
             a().withData("testid", "goto-program-settings-link")
