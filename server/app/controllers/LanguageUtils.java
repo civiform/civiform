@@ -26,7 +26,7 @@ public final class LanguageUtils {
   private final Langs langs;
   private final SettingsManifest settingsManifest;
   private final MessagesApi messagesApi;
-  private static final Logger LOGGER = LoggerFactory.getLogger(LanguageUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(LanguageUtils.class);
 
   @Inject
   public LanguageUtils(
@@ -75,7 +75,7 @@ public final class LanguageUtils {
                 allLanguages.stream().map(Lang::code).collect(Collectors.toSet())));
 
     if (!unconfiguredLanguages.isEmpty()) {
-      LOGGER.warn(
+      logger.warn(
           "Settings for CIVIFORM_APPLICANT_ENABLED_LANGUAGES contains one or more languages not"
               + " support by the system in CIVIFORM_SUPPORTED_LANGUAGES. Unsupported language"
               + " codes: {}.",

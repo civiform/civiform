@@ -18,7 +18,7 @@ import services.geo.esri.EsriClient;
 public final class EsriModule extends AbstractModule {
   private static final String FAKE_ESRI_CLIENT_CLASS_NAME = "services.geo.esri.FakeEsriClient";
   private static final String REAL_ESRI_CLIENT_CLASS_NAME = "services.geo.esri.RealEsriClient";
-  private static final Logger LOGGER = LoggerFactory.getLogger(EsriModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(EsriModule.class);
 
   private final Environment environment;
   private final Config config;
@@ -33,7 +33,7 @@ public final class EsriModule extends AbstractModule {
     String className =
         useRealEsriClient() ? REAL_ESRI_CLIENT_CLASS_NAME : FAKE_ESRI_CLIENT_CLASS_NAME;
 
-    LOGGER.info(String.format("Using %s class for Esri client", className));
+    logger.info(String.format("Using %s class for Esri client", className));
 
     try {
       Class<? extends EsriClient> bindingClass =
@@ -56,7 +56,7 @@ public final class EsriModule extends AbstractModule {
     }
 
     if (!config.getString("esri_find_address_candidates_url").isEmpty()) {
-      LOGGER.warn(
+      logger.warn(
           "Address correction is enabled, but configured with the environment value"
               + " `ESRI_FIND_ADDRESS_CANDIDATES_URL`. Please migrate to using the"
               + " `ESRI_FIND_ADDRESS_CANDIDATES_URLS` See the latest server environment variable"
