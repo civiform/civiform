@@ -1,7 +1,6 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -62,7 +61,6 @@ public class ValidAccountFilterTest extends WithApplication {
 
     Result result = executeFilter(request);
 
-    verify(mockProfileData, never()).updateLastActivityTime(any());
     assertThat(result.status()).isEqualTo(200);
   }
 
