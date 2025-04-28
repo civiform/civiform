@@ -133,7 +133,12 @@ class AdminPrograms {
       /* shouldHide= */ disableApplicationSteps,
     )
 
-    // TODO(#10183): Disable confirmation message for external programs
+    // Confirmation message
+    const disableConfirmationMessage = programType === ProgramType.EXTERNAL
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldSelectors= */ 'input[id="program-confirmation-message-textarea"]',
+      /* shouldDisable= */ disableConfirmationMessage,
+    )
   }
 
   /**

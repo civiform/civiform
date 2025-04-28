@@ -41,6 +41,7 @@ export interface DownloadedApplication {
  */
 export enum FormField {
   APPLICATION_STEPS,
+  CONFIRMATION_MESSAGE,
   LONG_DESCRIPTION,
   NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
@@ -295,6 +296,12 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.CONFIRMATION_MESSAGE: {
+        const confirmationMessage = this.getConfirmationMessageField()
+        await expect(confirmationMessage).toBeDisabled()
+        break
+      }
+
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
@@ -363,6 +370,12 @@ export class AdminPrograms {
             await stepTitle.locator('span').isVisible()
           }
         }
+        break
+      }
+
+      case FormField.CONFIRMATION_MESSAGE: {
+        const confirmationMessage = this.getConfirmationMessageField()
+        await expect(confirmationMessage).toBeEnabled()
         break
       }
 
@@ -1586,6 +1599,16 @@ export class AdminPrograms {
       name:
         'Send Program Admins an email notification every time an ' +
         'application is submitted',
+    })
+  }
+
+  getConfirmationMessageField(): Locator {
+    return this.page.getByRole('textbox', {
+      name:
+        'A custom message that will be shown on the confirmation page ' +
+        'after an application has been submitted. You can use this ' +
+        'message to explain next steps of the application process and/or ' +
+        'highlight other programs to apply for. (optional)',
     })
   }
 

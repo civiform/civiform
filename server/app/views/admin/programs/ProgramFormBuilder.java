@@ -144,7 +144,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayDescription,
       String shortDescription,
       String externalLink,
-      String confirmationSceen,
+      String confirmationScreen,
       String displayMode,
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
@@ -161,6 +161,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             && settingsManifest.getNorthStarApplicantUi(request);
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
+    boolean disableConfirmationMessage = isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -347,7 +348,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     + " application process and/or highlight other programs to apply for."
                     + " (optional)")
             .setMarkdownSupported(true)
-            .setValue(confirmationSceen)
+            .setValue(confirmationScreen)
+            .setDisabled(disableConfirmationMessage)
+            .setReadOnly(disableConfirmationMessage)
             .getTextareaTag());
 
     formTag.with(createSubmitButton(programEditStatus));
