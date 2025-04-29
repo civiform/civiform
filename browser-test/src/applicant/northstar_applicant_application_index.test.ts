@@ -717,7 +717,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         page.locator('.cf-application-card', {
           has: page.getByText(preScreenerFormProgramName),
         }),
-        'ns-common-intake-form-in-progress',
+        'ns-pre-screener-in-progress',
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
