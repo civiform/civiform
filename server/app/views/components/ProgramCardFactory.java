@@ -104,14 +104,7 @@ public final class ProgramCardFactory {
                                 "text-sm",
                                 StyleUtils.responsiveLarge("text-base"),
                                 "mb-4"))
-                    .condWith(
-                        shouldShowCommonIntakeFormIndicator(displayProgram),
-                        div()
-                            .withClasses("text-black", "items-center", "flex", "mb-4")
-                            .with(
-                                Icons.svg(Icons.CHECK)
-                                    .withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
-                            .with(span("Pre-screener").withClasses("text-base", "font-semibold")))
+                    .with(getProgramTypeIndicator(displayProgram.programType()))
                     .condWith(
                         !adminNoteText.isBlank(),
                         p().withClasses(
@@ -226,8 +219,27 @@ public final class ProgramCardFactory {
                                 .with(programRow.extraRowActions()))));
   }
 
-  private boolean shouldShowCommonIntakeFormIndicator(ProgramDefinition displayProgram) {
-    return displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
+  private DivTag getProgramTypeIndicator(ProgramType programType) {
+    Icons icon;
+    String label;
+    switch (programType) {
+      case COMMON_INTAKE_FORM:
+        icon = Icons.CHECK;
+        label = "Pre-Screener";
+        break;
+      case EXTERNAL:
+        icon = Icons.LABEL;
+        label = "External program";
+        break;
+      case DEFAULT:
+      default:
+        return null;
+    }
+
+    return div()
+        .withClasses("text-black", "items-center", "flex", "mb-4")
+        .with(Icons.svg(icon).withClasses("inline-block", "ml-3", "mr-2", "w-5", "h-5"))
+        .with(span(label).withClasses("text-base", "font-semibold"));
   }
 
   private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {

@@ -233,17 +233,22 @@ test.describe('Program list page.', () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async ({
+  test('shows program type indicator in card', async ({
     page,
     adminPrograms,
   }) => {
+    // Feature flag is only needed for showing external program cards, other
+    // program types shouldn't be affected by it.
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
     await loginAsAdmin(page)
 
-    const programOne = 'List test program one'
-    const programTwo = 'List test program two'
-    await adminPrograms.addProgram(programOne)
+    const program = 'Program'
+    const commonIntakeProgram = 'Common intake'
+    const externalProgram = 'External'
+    await adminPrograms.addProgram(program)
     await adminPrograms.addProgram(
-      programTwo,
+      commonIntakeProgram,
       'program description',
       'short program description',
       'https://usa.gov',
@@ -251,11 +256,28 @@ test.describe('Program list page.', () => {
       'admin description',
       ProgramType.COMMON_INTAKE_FORM,
     )
+    await adminPrograms.addProgram(
+      externalProgram,
+      /* description= */ '',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.EXTERNAL,
+    )
 
-    await expectProgramListElements(adminPrograms, [programTwo, programOne])
+    // Common intake program should always be first. Then, order is by last modified.
+    await expectProgramListElements(adminPrograms, [
+      commonIntakeProgram,
+      externalProgram,
+      program,
+    ])
+
     const firstProgramCard = page.locator('.cf-admin-program-card').first()
-
     await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
+
+    const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
+    await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
   test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
