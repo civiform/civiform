@@ -718,6 +718,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
+      await validateScreenshot(
+        page.locator('.cf-application-card', {
+          has: page.getByText(commonIntakeFormProgramName),
+        }),
+        'ns-common-intake-form-in-progress',
+      )
+
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
 
       await test.step('Submit application to the common intake', async () => {
