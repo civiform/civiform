@@ -303,9 +303,7 @@ test.describe('applicant program index page', () => {
         wantInProgressPrograms: [primaryProgramName],
         wantSubmittedPrograms: [],
       })
-      await applicantQuestions.expectPreScreenerForm(
-        preScreenerFormProgramName,
-      )
+      await applicantQuestions.expectPreScreenerForm(preScreenerFormProgramName)
       await validateAccessibility(page)
     })
 

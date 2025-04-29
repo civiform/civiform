@@ -652,14 +652,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         ProgramType.PRE_SCREENER_FORM,
       )
 
-      await adminPrograms.addProgramBlockUsingSpec(
-        preScreenerFormProgramName,
-        {
-          name: 'Screen 2',
-          description: 'first block',
-          questions: [{name: 'first-q'}],
-        },
-      )
+      await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
+        name: 'Screen 2',
+        description: 'first block',
+        questions: [{name: 'first-q'}],
+      })
       await adminPrograms.publishAllDrafts()
       await logout(page)
     })
@@ -704,9 +701,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await applicantQuestions.expectProgramsWithFilteringEnabled(
         {
-          expectedProgramsInMyApplicationsSection: [
-            preScreenerFormProgramName,
-          ],
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
@@ -739,9 +734,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await applicantQuestions.expectProgramsWithFilteringEnabled(
         {
-          expectedProgramsInMyApplicationsSection: [
-            preScreenerFormProgramName,
-          ],
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
