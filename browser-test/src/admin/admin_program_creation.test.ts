@@ -16,6 +16,9 @@ import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('create program page', async ({
     page,
     adminPrograms,
