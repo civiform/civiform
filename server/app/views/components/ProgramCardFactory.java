@@ -223,7 +223,7 @@ public final class ProgramCardFactory {
     Icons icon;
     String label;
     switch (programType) {
-      case COMMON_INTAKE_FORM:
+      case PRE_SCREENER_FORM:
         icon = Icons.CHECK;
         label = "Pre-Screener";
         break;
