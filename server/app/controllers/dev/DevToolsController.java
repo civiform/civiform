@@ -26,6 +26,7 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.TransactionManager;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
@@ -51,6 +52,8 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
   private final Clock clock;
+  private final TransactionManager transactionManager =
+    new TransactionManager();
 
   @Inject
   public DevToolsController(
@@ -227,9 +230,12 @@ public class DevToolsController extends Controller {
   }
 
   private void resetTables() {
-    Models.truncate(database);
-    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
-    newActiveVersion.save();
-    settingsService.migrateConfigValuesToSettingsGroup();
+    transactionManager.execute(() -> {
+      Models.truncate(database);
+      VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
+      newActiveVersion.save();
+      settingsService.migrateConfigValuesToSettingsGroup();
+    });
   }
+
 }
