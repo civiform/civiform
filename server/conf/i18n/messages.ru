@@ -26,7 +26,7 @@ footer.returnToTop=Вернуться к началу страницы
 # send an email to CiviForm technical support.
 footer.technicalSupport=Служба технической поддержки: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=Чтобы обратиться в службу технической поддержки, используйте адрес {0}.
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Гость
@@ -161,7 +161,7 @@ link.applicationForProgram=Заявка: "{0}"
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Удалить файл
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=Удалить файл "{0}"
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=На этой странице заполнены не все поля. Вы все равно хотите покинуть ее и проверить свои ответы?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=Подробнее о критериях допус�
 content.eligibilityCriteria=Чтобы ознакомиться с требованиями, перейдите на страницу {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0}.
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=Чтобы узнать больше о критериях допуска к этой программе или связаться с ее кураторами, перейдите на страницу {0} (откроется в новой вкладке).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Вы можете вернуться на предыдущую страницу, чтобы изменить предоставленные сведения, или подать заявку на участие в другой программе.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=Транспорт
 category.tag.utilities=Коммунальные услуги
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=Категории
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
