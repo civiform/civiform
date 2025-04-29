@@ -309,7 +309,6 @@ public final class QuestionRepository {
       boolean isSamePath =
           Path.create(definition.getQuestionNameKey())
               .equals(Path.create(newQuestionDefinition.getQuestionNameKey()));
-
       if (isSameName || isSamePath) {
         conflictedQuestion = Optional.of(question);
         return true;
