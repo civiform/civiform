@@ -41,7 +41,6 @@ import services.MessageKey;
 import services.RandomStringUtils;
 import services.applicant.AnswerData;
 import services.applicant.Block;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -70,18 +69,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramApplicationView(
-      BaseHtmlLayout layout,
-      @EnUsLang Messages enUsMessages,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      BaseHtmlLayout layout, @EnUsLang Messages enUsMessages, DateConverter dateConverter) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -127,9 +121,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses("px-20")
             .with(
                 h2("Program: " + programName).withClasses("my-4"),
-                settingsManifest.getBulkStatusUpdateEnabled(request)
-                    ? renderBackLink(programId)
-                    : div(),
+                renderBackLink(programId),
                 div()
                     .withClasses(
                         "flex", "flex-wrap", "items-center", "my-4", "gap-2", "justify-between")
@@ -194,7 +186,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("application-table-view-")
         .setHref(backUrl)
         .setText("Back")
-        .setStyles("usa-button")
+        .setStyles(ButtonStyles.SOLID_BLUE_TEXT_SM)
         .asAnchorText();
   }
 

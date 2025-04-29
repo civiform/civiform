@@ -80,16 +80,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The hex code value of the color to use as the primary branding color of the website. Not ready
-   * for production use.
+   * A primary color is the color displayed most prominently across your website. Enter the hex code
+   * for this color. Not ready for production use.
    */
   public Optional<String> getThemeColorPrimary(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY", request);
   }
 
   /**
-   * The hex code value of the color to use as the primary-dark branding color of the website. Not
-   * ready for production use.
+   * A darker version of your primary color can be applied to your website for some purposes. Enter
+   * the hex code for this color. Not ready for production use.
    */
   public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
     return getString("THEME_COLOR_PRIMARY_DARK", request);
@@ -1033,19 +1033,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
-  /**
-   * When enabled, existing draft applications will automatically be updated to use the latest
-   * version of a program when a newer version has been published.
-   */
-  public boolean getFastforwardEnabled(RequestHeader request) {
-    return getBool("FASTFORWARD_ENABLED", request);
-  }
-
-  /** When enabled, admins will be able to select many applications for status updates */
-  public boolean getBulkStatusUpdateEnabled(RequestHeader request) {
-    return getBool("BULK_STATUS_UPDATE_ENABLED", request);
-  }
-
   /** Enables civiform admins to set up a customized eligibility message per screen. */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
@@ -1099,6 +1086,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** (NOT FOR PRODUCTION USE) Enable showing external program cards on North Star applicant UI. */
   public boolean getExternalProgramCardsEnabled(RequestHeader request) {
     return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED", request);
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enable options for handling duplicate questions when
+   * importing/migrating programs: create a duplicate, use the existing question, or overwrite the
+   * existing question.
+   */
+  public boolean getImportDuplicateHandlingOptionsEnabled(RequestHeader request) {
+    return getBool("IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1155,16 +1151,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY",
-                          "The hex code value of the color to use as the primary branding color of"
-                              + " the website. Not ready for production use.",
+                          "A primary color is the color displayed most prominently across your"
+                              + " website. Enter the hex code for this color. Not ready for"
+                              + " production use.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
                           Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")),
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
-                          "The hex code value of the color to use as the primary-dark branding"
-                              + " color of the website. Not ready for production use.",
+                          "A darker version of your primary color can be applied to your website"
+                              + " for some purposes. Enter the hex code for this color. Not ready"
+                              + " for production use.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
@@ -2256,21 +2254,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "FASTFORWARD_ENABLED",
-                          "When enabled, existing draft applications will automatically be updated"
-                              + " to use the latest version of a program when a newer version has"
-                              + " been published.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "BULK_STATUS_UPDATE_ENABLED",
-                          "When enabled, admins will be able to select many applications for status"
-                              + " updates",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
                           "Enables civiform admins to set up a customized eligibility message per"
                               + " screen.",
@@ -2341,6 +2324,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "EXTERNAL_PROGRAM_CARDS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable showing external program cards on North"
                               + " Star applicant UI.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMPORT_DUPLICATE_HANDLING_OPTIONS_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable options for handling duplicate questions"
+                              + " when importing/migrating programs: create a duplicate, use the"
+                              + " existing question, or overwrite the existing question.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))

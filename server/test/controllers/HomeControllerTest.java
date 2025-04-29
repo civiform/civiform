@@ -1,14 +1,22 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
+import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRoutes;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.HealthCheckRepository;
 import repository.ResetPostgres;
 import support.CfTestHelpers;
 import support.CfTestHelpers.ResultWithFinalRequestUri;
@@ -52,5 +60,22 @@ public class HomeControllerTest extends ResetPostgres {
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     Result result = route(app, request);
     assertThat(result.status()).isEqualTo(200);
+  }
+
+  @Test
+  public void testPlayIndexFail() {
+    HealthCheckRepository healthCheckRepository = mock(HealthCheckRepository.class);
+    when(healthCheckRepository.isDBReachable()).thenReturn(false);
+    HomeController controller =
+        new HomeController(
+            instanceOf(Config.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(LanguageUtils.class),
+            new ApplicantRoutes(),
+            healthCheckRepository);
+    Result result = controller.playIndex();
+    assertThat(result.status()).isEqualTo(400);
   }
 }

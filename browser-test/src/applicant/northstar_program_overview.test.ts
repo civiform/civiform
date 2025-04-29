@@ -368,7 +368,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await test.step('verify "logged in as" and logout button are visible', async () => {
       await expect(page.getByText('Logged in as')).toBeVisible()
-      await expect(page.getByRole('link', {name: 'Logout'})).toBeVisible()
+      await expect(page.getByRole('button', {name: 'Logout'})).toBeVisible()
     })
 
     const stepsAndAlertsLocator = page.getByTestId('steps-and-alerts')
@@ -394,11 +394,11 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   }) => {
     await page.goto(`/programs/${programName}`)
 
-    await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
 
     await test.step('verify the create account alert is visible', async () => {
       await expect(
-        page.getByRole('link', {name: 'Start application with an account'}),
+        page.getByRole('button', {name: 'Start application with an account'}),
       ).toBeVisible()
       await expect(
         page.getByRole('heading', {
@@ -409,7 +409,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await test.step('click "Start application as a guest" and verify that it goes to the application', async () => {
       await page
-        .getByRole('link', {name: 'Start application as a guest'})
+        .getByRole('button', {name: 'Start application as a guest'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })

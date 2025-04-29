@@ -14,7 +14,7 @@ public enum ServiceAreaState {
   // The check failed for technical reasons.
   FAILED("Failed");
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceAreaState.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServiceAreaState.class);
 
   private final String serializationFormat;
 
@@ -39,7 +39,7 @@ public enum ServiceAreaState {
       }
     }
 
-    LOGGER.error("Error getting enum from serialized format: {}", serializedFormat);
+    logger.error("Error getting enum from serialized format: {}", serializedFormat);
     throw new RuntimeException("Error getting enum from serialized format: " + serializedFormat);
   }
 }

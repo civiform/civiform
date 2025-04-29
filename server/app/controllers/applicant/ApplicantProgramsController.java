@@ -45,7 +45,7 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProgramsController.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicantProgramsController.class);
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -155,7 +155,7 @@ public final class ApplicantProgramsController extends CiviFormController {
    */
   public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
     CompletableFuture<ApplicationPrograms> programsFuture =
-        applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
+        applicantService.relevantProgramsWithoutApplicant().toCompletableFuture();
 
     return programsFuture.thenApplyAsync(
         programs -> {
@@ -304,8 +304,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     CompletableFuture<ApplicationPrograms> programsFuture;
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
     if (maybeApplicantId.isEmpty()) {
-      programsFuture =
-          applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
+      programsFuture = applicantService.relevantProgramsWithoutApplicant().toCompletableFuture();
     } else {
       programsFuture =
           applicantService
@@ -327,7 +326,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                     .as("text/html"))
         .exceptionally(
             ex -> {
-              LOGGER.error(
+              logger.error(
                   "There was an error in rendering the filtered programs"
                       + " partial view with these categories: "
                       + String.join(",", categories),
@@ -355,7 +354,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     try {
       return Optional.of(Long.parseLong(applicantId));
     } catch (NumberFormatException e) {
-      LOGGER.warn("Invalid applicantId format: " + applicantId + ": " + e.getMessage());
+      logger.warn("Invalid applicantId format: " + applicantId + ": " + e.getMessage());
       return getApplicantId(request);
     }
   }

@@ -76,8 +76,20 @@ public final class QuestionsListView extends BaseHtmlView {
     this.viewUtils = checkNotNull(viewUtils);
   }
 
-  /** Renders a page with a list view of all questions. */
-  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+  /**
+   * Renders a page with an (optionally filtered) list view of all questions.
+   *
+   * @param activeAndDraftQuestions a list of all active and draft questions, including the programs
+   *     that use them.
+   * @param filter an optional filter with which to render the question bank. This filter will
+   *     pre-populate the search bar, and can be overriden by the user at any point.
+   * @param request the HTTP request
+   * @return the rendered page
+   */
+  public Content render(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Optional<String> filter,
+      Http.Request request) {
     String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
@@ -88,18 +100,20 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
+                    .withClasses("content-div", "space-x-4")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url(),
+                            controllers.admin.routes.AdminQuestionController.index(Optional.empty())
+                                .url(),
                             /* isPrimaryButton= */ true)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
                         QuestionSortOption.ADMIN_NAME,
-                        QuestionSortOption.NUM_PROGRAMS)))
+                        QuestionSortOption.NUM_PROGRAMS),
+                    filter))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
@@ -118,7 +132,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // and has a draft.
     return div(String.format(
             "Total questions: %d", activeAndDraftQuestions.getQuestionNames().size()))
-        .withClasses("float-right", "text-base", "px-4", "my-2");
+        .withClasses("question-summary");
   }
 
   private static QuestionDefinition getDisplayQuestion(QuestionCardData cardData) {
@@ -347,14 +361,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     DivTag row =
         div()
-            .withClasses(
-                "py-7",
-                "flex",
-                "flex-row",
-                "items-center",
-                StyleUtils.hover("bg-gray-100"),
-                "cursor-pointer",
-                isSecondRow ? "border-t" : "")
+            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
             .with(badge)
             .with(div().withClasses("flex-grow"))
             .with(
@@ -378,14 +385,19 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     String questionDescriptionString =
         definition.getQuestionHelpText().isEmpty()
             ? ""
             : definition.getQuestionHelpText().getDefault();
     DivTag questionDescription =
-        div(div().with(TextFormatter.formatText(questionDescriptionString)).withClasses("pl-10"));
+        div(
+            div()
+                .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
+                .withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));

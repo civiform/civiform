@@ -77,14 +77,17 @@
               >
                 <li
                   th:each="fileKey, iter: ${fileUploadQuestion.getFileKeyListValue().get()}"
+                  th:with="fileName=${fileUploadViewStrategy.getFileName(fileUploadQuestion.getFileNameForIndex(iter.index).get())}"
                   class="grid-row margin-y-1"
                 >
                   <span
-                    th:text="${fileUploadViewStrategy.getFileName(fileUploadQuestion.getFileNameForIndex(iter.index).get())}"
+                    th:text="${fileName}"
                     class="overflow-hidden grid-col flex-fill"
                   ></span>
                   <a
                     th:text="#{link.removeFile}"
+                    th:aria-label="#{link.removeFileSr(${fileName})}"
+                    role="button"
                     th:href="${applicationParams.applicantRoutes().removeFile(
                     applicationParams.profile(),
                     applicationParams.applicantId(),

@@ -295,11 +295,11 @@ public final class ProgramPredicatesEditView extends ProgramBaseView {
                 .with(
                     div()
                         .with(
-                            TextFormatter.formatText(
+                            TextFormatter.formatTextForAdmins(
                                 questionDefinition.getQuestionText().getDefault()))
                         .withClasses("font-bold"),
                     div()
-                        .with(TextFormatter.formatText(questionHelpText))
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));

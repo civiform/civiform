@@ -13,7 +13,7 @@ import services.program.predicate.PredicateExpressionNode;
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
 public final class PredicateEvaluator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PredicateEvaluator.class);
+  private static final Logger logger = LoggerFactory.getLogger(PredicateEvaluator.class);
 
   private final ApplicantData applicantData;
   private final JsonPathPredicateGenerator predicateGenerator;
@@ -49,7 +49,7 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
-      LOGGER.error(
+      logger.error(
           "InvalidPredicateException when evaluating LeafOperationExpressionNode {}: {}",
           node,
           e.getMessage());
@@ -67,7 +67,7 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafAddressServiceAreaNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
-      LOGGER.error(
+      logger.error(
           "InvalidPredicateException when evaluating LeafAddressServiceAreaExpressionNode {}: {}",
           node,
           e.getMessage());

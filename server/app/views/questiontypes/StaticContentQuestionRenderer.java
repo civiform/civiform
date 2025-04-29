@@ -38,7 +38,7 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
     // Previews of static questions that are shown to admin will not
     if (maybeMessages.isPresent()) {
       formattedText =
-          TextFormatter.formatTextWithAriaLabel(
+          TextFormatter.formatText(
               question.getQuestionText(),
               /* preserveEmptyLines= */ true,
               /* addRequiredIndicator= */ false,
@@ -51,7 +51,8 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
           TextFormatter.formatText(
               question.getQuestionText(),
               /* preserveEmptyLines= */ true,
-              /* addRequiredIndicator= */ false);
+              /* addRequiredIndicator= */ false,
+              /* ariaLabelForNewTabs= */ "opens in a new tab");
     }
 
     DivTag questionTextDiv =

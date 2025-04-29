@@ -31,8 +31,8 @@
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
           <stringProp name="HTTPSampler.domain">${civiformUrl}</stringProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.port">${civiformPort}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">callback?client_name=FakeAdminClient&amp;adminType=TRUSTED_INTERMEDIARY</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -58,6 +58,16 @@
           <elementProp name="civiformUrl" elementType="Argument">
             <stringProp name="Argument.name">civiformUrl</stringProp>
             <stringProp name="Argument.value">${__P(civiformUrl,staging-aws.civiform.dev)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="civiformPort" elementType="Argument">
+            <stringProp name="Argument.name">civiformPort</stringProp>
+            <stringProp name="Argument.value">${__P(civiformPort,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="protocol" elementType="Argument">
+            <stringProp name="Argument.name">protocol</stringProp>
+            <stringProp name="Argument.value">${__P(protocol,https)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>

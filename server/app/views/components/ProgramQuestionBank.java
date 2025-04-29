@@ -208,7 +208,7 @@ public final class ProgramQuestionBank {
                 Icons.questionTypeSvgWithId(QuestionType.TEXT),
                 Icons.questionTypeSvgWithId(QuestionType.PHONE),
                 Icons.questionTypeSvgWithId(QuestionType.NULL_QUESTION))
-            .withStyle("display: none"));
+            .withClass("hidden"));
 
     return questionForm;
   }
@@ -264,11 +264,13 @@ public final class ProgramQuestionBank {
             .withClasses("ml-4", "grow")
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
                     .withClasses(
                         ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold", "w-3/5", "break-all"),
                 div()
-                    .with(TextFormatter.formatText(questionHelpText))
+                    .with(TextFormatter.formatTextForAdmins(questionHelpText))
                     .withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
                     .withClasses("mt-1", "text-sm"),

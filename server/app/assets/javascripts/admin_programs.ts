@@ -1,6 +1,12 @@
 import {ToastController} from './toast'
 import {addEventListenerToElements} from './util'
 
+enum ProgramType {
+  DEFAULT = 'CiviForm program',
+  COMMON_INTAKE_FORM = 'Pre-screener',
+  EXTERNAL = 'External program',
+}
+
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -25,64 +31,114 @@ class AdminPrograms {
   }
 
   /**
-   * Attaches a change event listener to the common intake checkbox to manage
-   * the disabled state of related form elements. When the common intake
-   * checkbox is checked, the following fields are disabled:
-   * 1. Program categories
-   * 2. Long program description, if NorthStar UI is enabled
-   * 3. All application steps
-   *
-   * When the checkbox is unchecked, all these elements are re-enabled and
-   * required indicators are shown again.
+   * Attaches a change event listener to the program type selector to
+   * manage the disabled state of related form elements.
    */
-  static attachCommonIntakeChangeListener() {
+  static attachProgramTypeChangeListener() {
+    // Listens for changes to the common intake checkbox.
+    // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
+    // is enabled by default, which is handled by the next listener.
     addEventListenerToElements('#common-intake-checkbox', 'click', () => {
       const commonIntakeCheckbox = <HTMLInputElement>(
         document.querySelector('#common-intake-checkbox')
       )
 
-      // Program categories
-      this.updateUSWDSCheckboxesDisabledState(
-        /* fieldSelectors= */ '[id^="checkbox-category"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
-      )
-
-      // Program eligibility
-      this.updateUSWDSCheckboxesDisabledState(
-        /* fieldSelectors= */ '[id^="program-eligibility"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
-      )
-      this.hideRequiredIndicators(
-        /* fieldSelector= */ '#program-eligibility',
-        /* shouldHide= */ commonIntakeCheckbox.checked,
-      )
-
-      // Long program description
-      const longDescription = document.getElementById(
-        'program-display-description-textarea',
-      ) as HTMLInputElement
-      const northStarUiEnabled =
-        longDescription.dataset.northstarEnabled === 'true'
-      this.updateTextFieldElementDisabledState(
-        /* fieldElement= */ longDescription,
-        /* shouldDisable= */ commonIntakeCheckbox.checked && northStarUiEnabled,
-      )
-
-      // Application steps
-      this.updateTextFieldSelectorsDisabledState(
-        /* fieldSelectors= */ 'input[id^="apply-step"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
-      )
-      this.updateTextFieldSelectorsDisabledState(
-        /* fieldSelectors= */ 'textarea[id^="apply-step"]',
-        /* shouldDisable= */ commonIntakeCheckbox.checked,
-      )
-      // Step #1 should hide required indicator if it's a common intake form.
-      this.hideRequiredIndicators(
-        /* fieldSelector= */ '#apply-step-1-div',
-        /* shouldHide= */ commonIntakeCheckbox.checked,
-      )
+      const programType = commonIntakeCheckbox.checked
+        ? ProgramType.COMMON_INTAKE_FORM
+        : ProgramType.DEFAULT
+      this.updateDisabledStateFields(programType)
     })
+
+    // Listen for changes to the program type radio button, which is only used
+    // when EXTERNAL_PROGRAM_CARDS feature is enabled.
+    addEventListenerToElements('#program-type', 'click', () => {
+      const commonIntakeCheckbox = <HTMLInputElement>(
+        document.querySelector('#common-intake-program-option')
+      )
+      const externalProgramCheckbox = <HTMLInputElement>(
+        document.querySelector('#external-program-option')
+      )
+
+      let programType = ProgramType.DEFAULT
+      if (commonIntakeCheckbox.checked) {
+        programType = ProgramType.COMMON_INTAKE_FORM
+      } else if (externalProgramCheckbox.checked) {
+        programType = ProgramType.EXTERNAL
+      }
+      this.updateDisabledStateFields(programType)
+    })
+  }
+
+  /**
+   * Updates the disabled state of form fields based on the selected program type
+   *
+   * @param programType - The type of program being configured
+   */
+  static updateDisabledStateFields(programType: ProgramType) {
+    // Program categories
+    const disableProgramCategories =
+      programType === ProgramType.COMMON_INTAKE_FORM
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="checkbox-category"]',
+      /* shouldDisable= */ disableProgramCategories,
+    )
+
+    // Program eligibility
+    const disableProgramEligibility =
+      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.EXTERNAL
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="program-eligibility"]',
+      /* shouldDisable= */ disableProgramEligibility,
+    )
+    this.hideRequiredIndicators(
+      /* fieldSelector= */ '#program-eligibility',
+      /* shouldHide= */ disableProgramEligibility,
+    )
+
+    // Notification preferences
+    const disableNotificationPreferences = programType === ProgramType.EXTERNAL
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="notification-preferences-email"]',
+      /* shouldDisable= */ disableNotificationPreferences,
+    )
+
+    // Long program description
+    const longDescription = document.getElementById(
+      'program-display-description-textarea',
+    ) as HTMLInputElement
+    const disableLongDescription =
+      (programType === ProgramType.COMMON_INTAKE_FORM ||
+        programType === ProgramType.EXTERNAL) &&
+      longDescription.dataset.northstarEnabled === 'true'
+    this.updateTextFieldElementDisabledState(
+      /* fieldElement= */ longDescription,
+      /* shouldDisable= */ disableLongDescription,
+    )
+
+    // Application steps
+    const disableApplicationSteps =
+      programType === ProgramType.COMMON_INTAKE_FORM ||
+      programType === ProgramType.EXTERNAL
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldSelectors= */ 'input[id^="apply-step"]',
+      /* shouldDisable= */ disableApplicationSteps,
+    )
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldSelectors= */ 'textarea[id^="apply-step"]',
+      /* shouldDisable= */ disableApplicationSteps,
+    )
+    this.hideRequiredIndicators(
+      /* fieldSelector= */ '#apply-step-1-div',
+      /* shouldHide= */ disableApplicationSteps,
+    )
+
+    // Confirmation message
+    const disableConfirmationMessage = programType === ProgramType.EXTERNAL
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldSelectors= */ 'input[id="program-confirmation-message-textarea"]',
+      /* shouldDisable= */ disableConfirmationMessage,
+    )
   }
 
   /**
@@ -261,7 +317,7 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
-  AdminPrograms.attachCommonIntakeChangeListener()
+  AdminPrograms.attachProgramTypeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
   AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
   AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()

@@ -44,7 +44,7 @@ import services.question.types.TextQuestionDefinition;
 
 public class CsvExporterServiceTest extends AbstractExporterTest {
 
-  private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
+  private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().get();
   private static final String SECRET_SALT = "super secret";
   private static final String BASE_URL = String.format("http://localhost:%d", testServerPort());
   private static final ImmutableList<String> metadataHeaders =

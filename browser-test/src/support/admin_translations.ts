@@ -150,10 +150,9 @@ export class AdminTranslations {
   }
 
   async expectNoProgramStatusTranslations() {
-    // Fix me! ESLint: playwright/prefer-web-first-assertions
-    expect(await this.page.isVisible(':has-text("Application status: ")')).toBe(
-      false,
-    )
+    await expect(
+      this.page.locator(':has-text("Application status: ")'),
+    ).toBeHidden()
   }
 
   async expectNoApplicationSteps() {
@@ -196,14 +195,12 @@ export class AdminTranslations {
     configuredStatusText: string
     expectStatusText: string
   }) {
-    const statusTextValue = await this.page.inputValue(
-      this.statusNameFieldSelector(configuredStatusText),
-    )
-    expect(statusTextValue).toEqual(expectStatusText)
-    const isStatusEmailVisible = await this.page.isVisible(
-      this.statusEmailFieldSelector(configuredStatusText),
-    )
-    expect(isStatusEmailVisible).toBe(false)
+    await expect(
+      this.page.locator(this.statusNameFieldSelector(configuredStatusText)),
+    ).toHaveValue(expectStatusText)
+    await expect(
+      this.page.locator(this.statusEmailFieldSelector(configuredStatusText)),
+    ).toBeHidden()
   }
 
   /**

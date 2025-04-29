@@ -147,7 +147,7 @@ public final class ApplicationEventRepository {
       // Since the Status events models have manyToOne dependency on ApplicationModel,
       // we can insert them only one at a time. To save on transaction cost, we have enabled Batch
       // processing.
-      applicationsStatusEvent.stream().forEach(event -> insertSync(event));
+      applicationsStatusEvent.forEach(this::insertSync);
 
       // Update the Applications table too with one update query.
       database

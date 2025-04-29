@@ -145,9 +145,10 @@ test.describe('view program statuses', () => {
     })
 
     test.describe('when a status is changed, a confirmation dialog is shown', () => {
-      test('renders', async ({page, adminPrograms}) => {
-        await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
-        await validateScreenshot(page, 'change-status-modal')
+      test('renders', async ({adminPrograms}) => {
+        const statusModal =
+          await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
+        await validateScreenshot(statusModal, 'change-status-modal')
       })
 
       test('when rejecting, the selected status is not changed', async ({

@@ -49,7 +49,7 @@ import services.question.types.QuestionType;
  */
 public final class DatabaseSeedTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
 
   public static final QuestionDefinition CANONICAL_NAME_QUESTION =
@@ -156,13 +156,13 @@ public final class DatabaseSeedTask {
       String errorMessages =
           result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
 
-      LOGGER.error(
+      logger.error(
           String.format(
               "Unable to create canonical question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
+      logger.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -184,7 +184,7 @@ public final class DatabaseSeedTask {
             });
       } catch (RuntimeException e) {
         // We don't want to prevent startup if seeding fails.
-        LOGGER.error("Failed to seed program categories.", e);
+        logger.error("Failed to seed program categories.", e);
       }
     }
   }
@@ -197,7 +197,7 @@ public final class DatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: {}", e);
+      logger.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

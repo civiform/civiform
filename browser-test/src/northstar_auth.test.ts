@@ -26,7 +26,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
       `Logged in as ${testUserDisplayName()}`,
     )
     await expect(
-      page.getByRole('banner').getByRole('link', {name: 'Logout'}),
+      page.getByRole('banner').getByRole('button', {name: 'Logout'}),
     ).toBeAttached()
   })
 
@@ -34,7 +34,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     page,
   }) => {
     await expect(
-      page.getByRole('banner').getByRole('link', {name: endYourSessionText}),
+      page.getByRole('banner').getByRole('button', {name: endYourSessionText}),
     ).not.toBeAttached()
   })
 
@@ -56,10 +56,10 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
     )
     await expect(page.getByTestId('login-button')).toBeAttached()
     await expect(
-      page.getByRole('link', {name: endYourSessionText}),
+      page.getByRole('button', {name: endYourSessionText}),
     ).toBeAttached()
 
-    await page.getByRole('link', {name: endYourSessionText}).click()
+    await page.getByRole('button', {name: endYourSessionText}).click()
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
@@ -79,7 +79,7 @@ test.describe('Applicant auth', {tag: ['@northstar']}, () => {
       `Logged in as ${testUserDisplayName()}`,
     )
 
-    await page.getByRole('link', {name: 'Logout'}).click()
+    await page.getByRole('button', {name: 'Logout'}).click()
 
     await validateScreenshot(page, 'central-provider-logout')
     await expect(

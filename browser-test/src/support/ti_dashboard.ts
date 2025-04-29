@@ -177,9 +177,9 @@ export class TIDashboard {
   }
 
   async expectClientContainsProgramNames(programs: string[]) {
-    const cardContainer = this.page.locator('#card_applications')
-    const programsText = await cardContainer.innerText()
-    expect(programsText).toBe(programs.join(', '))
+    await expect(this.page.locator('#card_applications')).toHaveText(
+      programs.join(', '),
+    )
   }
 
   async searchByDateOfBirth(dobDay: string, dobMonth: string, dobYear: string) {

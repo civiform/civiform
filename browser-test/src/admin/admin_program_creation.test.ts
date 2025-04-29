@@ -9,9 +9,10 @@ import {
 import {
   Eligibility,
   FormField,
+  ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
-import {dismissModal, waitForAnyModal} from '../support/wait'
+import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
@@ -30,7 +31,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -59,7 +60,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.DISABLED,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -102,7 +103,7 @@ test.describe('program creation', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ false,
+        ProgramType.DEFAULT,
         'selectedTI',
         'confirmationMessage',
         Eligibility.IS_GATING,
@@ -119,30 +120,24 @@ test.describe('program creation', () => {
     await test.step('navigate back to program edit page and confirm application step values show up', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage(programName)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 1 title'}).inputValue(),
-      ).toEqual(titleOne)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 1 description'})
-          .inputValue(),
-      ).toEqual(descriptionOne)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 2 title'}).inputValue(),
-      ).toEqual(titleTwo)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 2 description'})
-          .inputValue(),
-      ).toEqual(descriptionTwo)
-      expect(
-        await page.getByRole('textbox', {name: 'Step 3 title'}).inputValue(),
-      ).toEqual(titleThree)
-      expect(
-        await page
-          .getByRole('textbox', {name: 'Step 3 description'})
-          .inputValue(),
-      ).toEqual(descriptionThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 title'}),
+      ).toHaveValue(titleOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 description'}),
+      ).toHaveValue(descriptionOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 title'}),
+      ).toHaveValue(titleTwo)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 description'}),
+      ).toHaveValue(descriptionTwo)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 title'}),
+      ).toHaveValue(titleThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 description'}),
+      ).toHaveValue(descriptionThree)
     })
   })
 
@@ -166,7 +161,7 @@ test.describe('program creation', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ false,
+        ProgramType.DEFAULT,
         'selectedTI',
         'confirmationMessage',
         Eligibility.IS_GATING,
@@ -183,24 +178,27 @@ test.describe('program creation', () => {
     await test.step('navigate back to program edit page and confirm previously blank step is ignored', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage(programName)
-      expect(await page.locator('#apply-step-1-title').inputValue()).toEqual(
-        titleOne,
-      )
-      expect(
-        await page.locator('#apply-step-1-description').inputValue(),
-      ).toEqual(descriptionOne)
+
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 title'}),
+      ).toHaveValue(titleOne)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 1 description'}),
+      ).toHaveValue(descriptionOne)
       // values that were entered for step three now show up under step 2
-      expect(await page.locator('#apply-step-2-title').inputValue()).toEqual(
-        titleThree,
-      )
-      expect(
-        await page.locator('#apply-step-2-description').inputValue(),
-      ).toEqual(descriptionThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 title'}),
+      ).toHaveValue(titleThree)
+      await expect(
+        page.getByRole('textbox', {name: 'Step 2 description'}),
+      ).toHaveValue(descriptionThree)
       // step three is blank
-      expect(await page.locator('#apply-step-3-title').inputValue()).toEqual('')
-      expect(
-        await page.locator('#apply-step-3-description').inputValue(),
-      ).toEqual('')
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 title'}),
+      ).toHaveValue('')
+      await expect(
+        page.getByRole('textbox', {name: 'Step 3 description'}),
+      ).toHaveValue('')
     })
   })
 
@@ -219,7 +217,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'selectedTI',
       'confirmationMessage',
       Eligibility.IS_GATING,
@@ -1073,7 +1071,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     const programName = 'Apc program'
@@ -1091,8 +1089,9 @@ test.describe('program creation', () => {
     await page.fill('#program-external-link-input', 'https://example.com')
     await page.click('#program-update-button')
 
-    let modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    let modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
+
     await validateScreenshot(
       page,
       'confirm-common-intake-change-modal',
@@ -1102,8 +1101,8 @@ test.describe('program creation', () => {
     // Modal gets re-rendered if needed.
     await dismissModal(page)
     await page.click('#program-update-button')
-    modal = await waitForAnyModal(page)
-    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    modal = await waitForAnyModalLocator(page)
+    await expect(modal).toContainText('Confirm pre-screener change?')
 
     await page.click('#confirm-common-intake-change-button')
     await waitForPageJsLoad(page)
@@ -1123,7 +1122,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1143,7 +1142,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1220,7 +1219,7 @@ test.describe('program creation', () => {
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ false,
+          ProgramType.DEFAULT,
           'selectedTI',
           'confirmationMessage',
           Eligibility.IS_GATING,
@@ -1491,6 +1490,165 @@ test.describe('program creation', () => {
           )
           await adminPrograms.expectFormFieldDisabled(
             FormField.APPLICATION_STEPS,
+          )
+        })
+      })
+
+      test('create external program', async ({page, adminPrograms}) => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        const programName = 'External Program'
+
+        await test.step("start the creation of a 'default' program and verify applicable form fields are enabled", async () => {
+          // Start creation of a program, without submission.
+          await adminPrograms.addProgram(
+            programName,
+            /* description= */ '',
+            /* shortDescription= */ 'program short description',
+            /* externalLink= */ 'https://example.com',
+            /* visibility= */ undefined,
+            /* adminDescription= */ undefined,
+            /* programType= */ ProgramType.DEFAULT,
+            /* selectedTI= */ undefined,
+            /* confirmationMessage= */ '',
+            /* eligibility= */ undefined,
+            /* submitNewProgram= */ false,
+          )
+          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+
+          // We only verify the fields that are affected by program type. Tests
+          // for default programs have more exhaustive coverage.
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
+          await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.APPLICATION_STEPS,
+          )
+        })
+
+        await test.step("select 'external' program type and verify non-applicable form fields are disabled", async () => {
+          await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
+
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+          )
+
+          // Changing the program type is allowed during program creation.
+          // Therefore, all the program type options should be enabled.
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeEnabled(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+
+          await validateScreenshot(
+            page.locator('#program-details-form'),
+            'external-program-create-page',
+          )
+        })
+
+        await test.step("change program type back to 'default' and verify applicable fields are enabled", async () => {
+          await adminPrograms.selectProgramType(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
+          await adminPrograms.expectFormFieldEnabled(FormField.LONG_DESCRIPTION)
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.APPLICATION_STEPS,
+          )
+        })
+
+        await test.step('save external program', async () => {
+          await adminPrograms.selectProgramType(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeSelected(ProgramType.EXTERNAL)
+          await adminPrograms.submitProgramDetailsEdits()
+        })
+
+        await test.step('edit external program and confirm non-applicable fields are still disabled', async () => {
+          await adminPrograms.goToProgramDescriptionPage(programName)
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.PROGRAM_ELIGIBILITY,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.NOTIFICATION_PREFERENCES,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.LONG_DESCRIPTION,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.APPLICATION_STEPS,
+          )
+
+          // Changing the program type of an external program is disallowed
+          // after program creation. Therefore, only external program option
+          // should be enabled.
+          await adminPrograms.expectProgramTypeDisabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeDisabled(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+
+          await validateScreenshot(
+            page.locator('#program-details-form'),
+            'external-program-edit-page',
+          )
+        })
+      })
+
+      test('default or common intake program cannot be changed to be an external program after creation', async ({
+        page,
+        adminPrograms,
+      }) => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        const programName = 'External Program'
+
+        await test.step("add a 'default' program", async () => {
+          await adminPrograms.addProgram(programName)
+        })
+
+        await test.step("'default' program cannot be changed to be an 'external' program", async () => {
+          await adminPrograms.goToProgramDescriptionPage(programName)
+          await adminPrograms.expectProgramTypeSelected(ProgramType.DEFAULT)
+
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeEnabled(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+        })
+
+        await test.step("'common intake' program cannot be changed to be an 'external' program", async () => {
+          await adminPrograms.selectProgramType(ProgramType.COMMON_INTAKE_FORM)
+          await adminPrograms.expectProgramTypeSelected(
+            ProgramType.COMMON_INTAKE_FORM,
+          )
+
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
+          await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
+          await adminPrograms.expectProgramTypeEnabled(
+            ProgramType.COMMON_INTAKE_FORM,
           )
         })
       })

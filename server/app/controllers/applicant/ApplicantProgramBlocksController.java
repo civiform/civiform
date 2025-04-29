@@ -383,8 +383,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenApplyAsync(
             (v) -> {
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(
-                      request, applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -486,8 +485,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(
-                      request, applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
               }
@@ -1053,8 +1051,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
               Optional<Result> applicationUpdatedOptional =
-                  updateApplicationToLatestProgramVersionIfNeeded(
-                      request, applicantId, programId, profile);
+                  updateApplicationToLatestProgramVersionIfNeeded(applicantId, programId, profile);
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -1637,12 +1634,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *
    * @return {@link Result} if application was updated; empty if not
    */
-  public Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
-      Http.Request request, long applicantId, long programId, CiviFormProfile profile) {
-    if (!settingsManifest.getFastforwardEnabled(request)) {
-      return Optional.empty();
-    }
-
+  private Optional<Result> updateApplicationToLatestProgramVersionIfNeeded(
+      long applicantId, long programId, CiviFormProfile profile) {
     return applicantService
         .updateApplicationToLatestProgramVersion(applicantId, programId)
         .map(

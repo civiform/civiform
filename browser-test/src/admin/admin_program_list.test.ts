@@ -6,7 +6,7 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
   test('view draft program', async ({page, adminPrograms}) => {
@@ -60,10 +60,7 @@ test.describe('Program list page.', () => {
     const programName = 'Program With Short Description'
     const programLongDescription =
       'A very very very very very very long description'
-    const programShortDescription =
-      'A short description with some __markdown__ and a [link](https://www.example.com)'
-    const programShortDescriptionWithoutMarkdown =
-      'A short description with some markdown and a link'
+    const programShortDescription = 'A short description'
 
     await test.step('create new program', async () => {
       await loginAsAdmin(page)
@@ -84,22 +81,20 @@ test.describe('Program list page.', () => {
         firstProgramDesc.getByText(programLongDescription),
       ).toBeVisible()
       await expect(
-        firstProgramDesc.locator(
-          `text=${programShortDescriptionWithoutMarkdown}`,
-        ),
+        firstProgramDesc.locator(`text=${programShortDescription}`),
       ).toHaveCount(0) // short description should not be shown
     })
 
     await enableFeatureFlag(page, 'north_star_applicant_ui')
 
-    await test.step('check that short description stripped of markdown is shown when North Star flag is on', async () => {
+    await test.step('check that short description is shown when North Star flag is on', async () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       const firstProgramDesc = firstProgramCard.locator(
         '.cf-program-description',
       )
       await expect(
-        firstProgramDesc.getByText(programShortDescriptionWithoutMarkdown),
+        firstProgramDesc.getByText(programShortDescription),
       ).toBeVisible()
       await expect(
         firstProgramDesc.locator(`text=${programLongDescription}`),
@@ -238,29 +233,51 @@ test.describe('Program list page.', () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async ({
+  test('shows program type indicator in card', async ({
     page,
     adminPrograms,
   }) => {
+    // Feature flag is only needed for showing external program cards, other
+    // program types shouldn't be affected by it.
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
     await loginAsAdmin(page)
 
-    const programOne = 'List test program one'
-    const programTwo = 'List test program two'
-    await adminPrograms.addProgram(programOne)
+    const program = 'Program'
+    const commonIntakeProgram = 'Common intake'
+    const externalProgram = 'External'
+    await adminPrograms.addProgram(program)
     await adminPrograms.addProgram(
-      programTwo,
+      commonIntakeProgram,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
+    )
+    await adminPrograms.addProgram(
+      externalProgram,
+      /* description= */ '',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.EXTERNAL,
     )
 
-    await expectProgramListElements(adminPrograms, [programTwo, programOne])
-    const firstProgramCard = page.locator('.cf-admin-program-card').first()
+    // Common intake program should always be first. Then, order is by last modified.
+    await expectProgramListElements(adminPrograms, [
+      commonIntakeProgram,
+      externalProgram,
+      program,
+    ])
 
+    const firstProgramCard = page.locator('.cf-admin-program-card').first()
     await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
+
+    const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
+    await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
   test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({

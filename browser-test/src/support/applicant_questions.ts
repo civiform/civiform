@@ -1,7 +1,11 @@
 import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
-import {waitForAnyModal, waitForPageJsLoad, waitForHtmxReady} from './wait'
+import {
+  waitForAnyModalLocator,
+  waitForPageJsLoad,
+  waitForHtmxReady,
+} from './wait'
 import {BASE_URL} from './config'
 import {
   ApplicantProgramList,
@@ -1132,11 +1136,11 @@ export class ApplicantQuestions {
       const modalContinueButton = 'Continue to review page without saving'
       const modalFixButton = 'Stay and fix your answers'
 
-      const modal = await waitForAnyModal(this.page)
-      const modalText = await modal.innerText()
-      expect(modalText).toContain(modalContent)
-      expect(modalText).toContain(modalContinueButton)
-      expect(modalText).toContain(modalFixButton)
+      const modal = await waitForAnyModalLocator(this.page)
+      await expect(modal).toBeVisible()
+      await expect(modal).toContainText(modalContent)
+      await expect(modal).toContainText(modalContinueButton)
+      await expect(modal).toContainText(modalFixButton)
     }
   }
 
@@ -1170,11 +1174,10 @@ export class ApplicantQuestions {
         'Continue to previous questions without saving'
       const modalFixButton = 'Stay and fix your answers'
 
-      const modal = await waitForAnyModal(this.page)
-      const modalText = await modal.innerText()
-      expect(modalText).toContain(modalTitle)
-      expect(modalText).toContain(modalContinueButton)
-      expect(modalText).toContain(modalFixButton)
+      const modal = await waitForAnyModalLocator(this.page)
+      await expect(modal).toContainText(modalTitle)
+      await expect(modal).toContainText(modalContinueButton)
+      await expect(modal).toContainText(modalFixButton)
     }
   }
 
@@ -1281,7 +1284,7 @@ export class ApplicantQuestions {
   }
 
   async expectLoginModal() {
-    const modal = await waitForAnyModal(this.page)
-    expect(await modal.innerText()).toContain(`Sign in`)
+    const modal = await waitForAnyModalLocator(this.page)
+    await expect(modal).toContainText('Sign in')
   }
 }

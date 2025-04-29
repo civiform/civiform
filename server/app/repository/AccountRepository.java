@@ -47,6 +47,7 @@ public final class AccountRepository {
       new QueryProfileLocationBuilder("AccountRepository");
 
   private final Database database;
+  private final TransactionManager transactionManager;
   private final DatabaseExecutionContext executionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
@@ -56,6 +57,7 @@ public final class AccountRepository {
   public AccountRepository(
       DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
+    this.transactionManager = new TransactionManager();
     this.executionContext = checkNotNull(executionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -142,9 +144,14 @@ public final class AccountRepository {
    * we create one.
    */
   private ApplicantModel getOrCreateApplicant(AccountModel account) {
-    Optional<ApplicantModel> applicantOpt =
-        account.getApplicants().stream().max(Comparator.comparing(ApplicantModel::getWhenCreated));
-    return applicantOpt.orElseGet(() -> new ApplicantModel().setAccount(account).saveAndReturn());
+    return transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApplicantModel> applicantOpt =
+              account.getApplicants().stream()
+                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+          return applicantOpt.orElseGet(
+              () -> new ApplicantModel().setAccount(account).saveAndReturn());
+        });
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByAuthorityId(
@@ -292,26 +299,29 @@ public final class AccountRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
-    AccountModel account =
-        accountMaybe.orElseGet(
-            () -> {
-              AccountModel a = new AccountModel();
-              a.setEmailAddress(emailAddress);
-              a.save();
-              return a;
-            });
+    transactionManager.execute(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          Optional<AccountModel> accountMaybe = lookupAccountByEmail(emailAddress);
+          AccountModel account =
+              accountMaybe.orElseGet(
+                  () -> {
+                    AccountModel a = new AccountModel();
+                    a.setEmailAddress(emailAddress);
+                    a.save();
+                    return a;
+                  });
 
-    if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
-      throw new NotEligibleToBecomeTiError();
-    }
+          if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+            throw new NotEligibleToBecomeTiError();
+          }
 
-    account.setMemberOfGroup(tiGroup.get());
-    account.save();
+          account.setMemberOfGroup(tiGroup.get());
+          account.save();
+        });
   }
 
   public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
@@ -358,25 +368,27 @@ public final class AccountRepository {
   public Long createNewApplicantForTrustedIntermediaryGroup(
       TiClientInfoForm form, TrustedIntermediaryGroupModel tiGroup) {
     AccountModel newAccount = new AccountModel();
-    if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
-      if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
+    String formEmail = form.getEmailAddress();
+    if (!Strings.isNullOrEmpty(formEmail)) {
+      if (lookupAccountByEmail(formEmail).isPresent()) {
         throw new EmailAddressExistsException();
       }
-      newAccount.setEmailAddress(form.getEmailAddress());
+      newAccount.setEmailAddress(formEmail);
     }
-    newAccount.setManagedByGroup(tiGroup);
-    newAccount.setTiNote(form.getTiNote());
-    newAccount.save();
-    ApplicantModel applicant = new ApplicantModel();
-    applicant.setAccount(newAccount);
+    newAccount.setManagedByGroup(tiGroup).setTiNote(form.getTiNote()).save();
+
+    ApplicantModel applicant =
+        new ApplicantModel()
+            .setAccount(newAccount)
+            .setDateOfBirth(form.getDob())
+            .setEmailAddress(formEmail)
+            .setPhoneNumber(form.getPhoneNumber());
+
     applicant.setUserName(
         form.getFirstName(),
         Optional.ofNullable(form.getMiddleName()),
         Optional.ofNullable(form.getLastName()),
         Optional.ofNullable(form.getNameSuffix()));
-    applicant.setDateOfBirth(form.getDob());
-    applicant.setEmailAddress(form.getEmailAddress());
-    applicant.setPhoneNumber(form.getPhoneNumber());
     applicant.save();
     return applicant.id;
   }
@@ -403,14 +415,14 @@ public final class AccountRepository {
                       + " Have the user log in as admin on the home page, then they can be added"
                       + " as a Program Admin.",
                   accountEmail)));
-    } else {
-      maybeAccount.ifPresent(
-          account -> {
-            account.addAdministeredProgram(program);
-            account.save();
-          });
-      return Optional.empty();
     }
+
+    maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
+    return Optional.empty();
   }
 
   /**

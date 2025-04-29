@@ -10,7 +10,7 @@ import {
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'North Star Common Intake Upsell Tests',
@@ -30,7 +30,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
         await adminPrograms.publishProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
@@ -267,6 +267,38 @@ test.describe(
       ).toBeVisible()
 
       // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX
+    })
+
+    test('applies color theming on submitted page', async ({
+      page,
+      adminSettings,
+      applicantQuestions,
+    }) => {
+      await enableFeatureFlag(page, 'north_star_applicant_ui')
+      await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+      await adminSettings.gotoAdminSettings()
+
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#a72f10',
+      )
+
+      await adminSettings.saveChanges()
+      await logout(page)
+
+      await test.step('Setup: submit application', async () => {
+        await applicantQuestions.clickApplyProgramButton(programName)
+        await applicantQuestions.submitFromReviewPage(
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await validateScreenshot(
+        page,
+        'submitted-page-theme',
+        /* fullPage= */ true,
+      )
     })
   },
 )

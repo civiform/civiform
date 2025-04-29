@@ -186,6 +186,7 @@
     display: flex;
     flex-direction: row;
   }
+
   .question-bank-element {
     width: 100%;
     margin-top: 1rem;
@@ -195,6 +196,34 @@
     border-radius: 0.5rem;
     border-width: 1px;
     border-style: solid;
+  }
+
+  .content-div {
+    display: flex;
+    align-items: center;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .question-summary {
+    float: right;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .row-element {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .row-element:hover {
+    background-color: #f7fafc;
   }
 
 }

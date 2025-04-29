@@ -14,7 +14,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', () => {
@@ -285,7 +285,7 @@ test.describe('applicant program index page', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ true,
+        ProgramType.COMMON_INTAKE_FORM,
       )
       await adminPrograms.publishAllDrafts()
       await logout(page)
@@ -686,7 +686,7 @@ test.describe('applicant program index page with images', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     // In Progress: Image

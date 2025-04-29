@@ -163,6 +163,7 @@ public enum MessageKey {
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
+  CONTENT_ELIGIBILITY_CRITERIA_V3("content.eligibilityCriteria.v3"), // North Star only
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -238,6 +239,7 @@ public enum MessageKey {
   FOOTER_RETURN_TO_TOP("footer.returnToTop"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   FOOTER_TECHNICAL_SUPPORT("footer.technicalSupport"),
+  FOOTER_TECHNICAL_SUPPORT_V2("footer.technicalSupport.v2"), // North Star only
   GENERAL_LOGIN_MODAL_PROMPT("content.generalLoginModalPrompt"),
   GUEST("guest"),
   GUEST_INDICATOR("header.guestIndicator"),
@@ -288,6 +290,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   LINK_REMOVE_FILE("link.removeFile"),
+  LINK_REMOVE_FILE_SR("link.removeFileSr"), // North Star only
   LINK_SELECT_NEW_CLIENT("link.selectNewClient"),
   LINK_SKIP_TO_MAIN_CONTENT("link.skipToMainContent"), // North Star only
   LINK_HOME("link.home"), // North Star only

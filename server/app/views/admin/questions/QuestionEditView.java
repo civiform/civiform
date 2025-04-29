@@ -300,7 +300,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm, enumeratorQuestionDefinitions);
     String cancelUrl = questionForm.getRedirectUrl();
     if (Strings.isNullOrEmpty(cancelUrl)) {
-      cancelUrl = controllers.admin.routes.AdminQuestionController.index().url();
+      cancelUrl = controllers.admin.routes.AdminQuestionController.index(Optional.empty()).url();
     }
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag

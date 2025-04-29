@@ -34,6 +34,8 @@ import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
 public final class ProgramMigrationServiceTest extends ResetPostgres {
+  private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
+  private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private final ProgramMigrationService service =
       new ProgramMigrationService(
           instanceOf(ObjectMapper.class), instanceOf(QuestionRepository.class));
@@ -136,6 +138,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     ProgramMigrationWrapper wrapperResult = result.getResult();
     assertThat(wrapperResult.getProgram()).isNotNull();
+    assertThat(wrapperResult.getDuplicateQuestionHandlingOptions()).isNotNull();
+    assertThat(wrapperResult.getDuplicateQuestionHandlingOptions()).isEmpty();
 
     ProgramDefinition program = wrapperResult.getProgram();
     QuestionDefinition question = wrapperResult.getQuestions().get(0);
@@ -149,6 +153,52 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(question.getDescription()).isEqualTo("The applicant's name");
     assertThat(question.getQuestionText().getDefault())
         .isEqualTo("Please enter your first and last name");
+  }
+
+  @Test
+  public void deserialize_badDuplicateHandlingOptionIncluded_returnsError() {
+    ErrorAnd<ProgramMigrationWrapper, String> result =
+        service.deserialize(PROGRAM_JSON_WITH_ONE_QUESTION, ImmutableMap.of("NAME", "FOO"));
+
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).hasSize(1);
+    assertThat(result.getErrors())
+        .contains(
+            "JSON is incorrectly formatted: No enum constant"
+                + " controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption.FOO");
+  }
+
+  @Test
+  public void deserialize_duplicateHandlingOptionsIncluded_parsesEverything() {
+    ErrorAnd<ProgramMigrationWrapper, String> result =
+        service.deserialize(
+            PROGRAM_JSON_WITH_ONE_QUESTION,
+            ImmutableMap.of("NAME", OVERWRITE_EXISTING, "Text", CREATE_DUPLICATE));
+
+    assertThat(result.isError()).isFalse();
+    ProgramMigrationWrapper wrapperResult = result.getResult();
+    assertThat(wrapperResult.getProgram()).isNotNull();
+    assertThat(wrapperResult.getDuplicateQuestionHandlingOptions()).isNotNull();
+
+    ProgramDefinition program = wrapperResult.getProgram();
+    QuestionDefinition question = wrapperResult.getQuestions().get(0);
+    ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
+        duplicateQuestionHandlingOptions = wrapperResult.getDuplicateQuestionHandlingOptions();
+
+    assertThat(program.adminName()).isEqualTo("minimal-sample-program");
+    assertThat(program.adminDescription()).isEqualTo("desc");
+    assertThat(program.externalLink()).isEqualTo("https://github.com/civiform/civiform");
+    assertThat(program.displayMode()).isEqualTo(DisplayMode.PUBLIC);
+    assertThat(program.programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(question.getName()).isEqualTo("Name");
+    assertThat(question.getDescription()).isEqualTo("The applicant's name");
+    assertThat(question.getQuestionText().getDefault())
+        .isEqualTo("Please enter your first and last name");
+    assertThat(duplicateQuestionHandlingOptions).hasSize(2);
+    assertThat(duplicateQuestionHandlingOptions.get("NAME"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    assertThat(duplicateQuestionHandlingOptions.get("Text"))
+        .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
   }
 
   @Test

@@ -139,6 +139,30 @@ test.describe('Admin question list', () => {
     ])
   })
 
+  test('filters question list with URL param search query', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+    await page.goto(`/admin/questions?filter=first`)
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'first question\n',
+    ])
+    await page.goto(`/admin/questions?filter=q-`)
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'second question\n',
+      'first question\n',
+    ])
+  })
+
   test('sorts question list based on selection', async ({
     page,
     adminQuestions,

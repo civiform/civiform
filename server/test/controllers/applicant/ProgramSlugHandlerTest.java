@@ -3,6 +3,7 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
@@ -21,7 +22,6 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
@@ -44,44 +44,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      programBySlug_redirectsToPreviousProgramVersionForExistingApplications_fastForwardDisabled() {
-    ProgramDefinition programDefinition =
-        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    VersionRepository versionRepository = instanceOf(VersionRepository.class);
-
-    ApplicantModel applicant = createApplicantWithMockedProfile();
-    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
-    applicant.save();
-
-    ApplicationModel app =
-        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
-    app.save();
-
-    resourceCreator().insertDraftProgram(programDefinition.adminName());
-    versionRepository.publishNewSynchronizedVersion();
-
-    CiviFormController controller = instanceOf(CiviFormController.class);
-
-    Result result =
-        instanceOf(ProgramSlugHandler.class)
-            .showProgram(
-                controller,
-                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "false").build(),
-                programDefinition.slug())
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramReviewController.review(
-                    programDefinition.id())
-                .url());
-  }
-
-  @Test
-  public void
-      programBySlug_redirectsToActiveProgramVersionForExistingApplications_fastForwardEnabled() {
+  public void programBySlug_redirectsToActiveProgramVersionForExistingApplications() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -102,10 +65,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(ProgramSlugHandler.class)
-            .showProgram(
-                controller,
-                fakeRequestBuilder().addCiviFormSetting("FASTFORWARD_ENABLED", "true").build(),
-                programDefinition.slug())
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -187,9 +147,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
-    Langs mockLangs = Mockito.mock(Langs.class);
+    Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
-    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(
             instanceOf(AccountRepository.class),
@@ -227,9 +187,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
-    Langs mockLangs = Mockito.mock(Langs.class);
+    Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
-    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     LanguageUtils languageUtils =
         new LanguageUtils(
             instanceOf(AccountRepository.class),
@@ -269,10 +229,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     ApplicantModel applicant = createApplicantWithMockedProfile();
 
-    Langs mockLangs = Mockito.mock(Langs.class);
+    Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
-    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
 
     ApplicationModel app =
@@ -317,10 +277,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     createApplicantWithMockedProfile();
 
-    Langs mockLangs = Mockito.mock(Langs.class);
+    Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
-    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
 
     LanguageUtils languageUtils =
@@ -362,10 +322,10 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     ApplicantModel applicant = createApplicantWithMockedProfile();
 
-    Langs mockLangs = Mockito.mock(Langs.class);
+    Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
-    SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
 
     ApplicationModel app =

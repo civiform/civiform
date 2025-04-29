@@ -4,9 +4,13 @@
 services:
   civiform:
     build: prod
-    image: civiform
+    image: civiform/civiform
     platform: linux/amd64
+    ports:
+      - 9000:9000
+      - 8457:8457
+      - 50000:50000
     environment:
       - SECRET_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       - STAGING_HOSTNAME=localhost
-    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -Dconfig.file=/civiform-server-0.0.1/conf/application.conf
+    entrypoint: /__cacert_entrypoint.sh /civiform-server-0.0.1/bin/civiform-server -jvm-debug "0.0.0.0:8457" -J-Xmx1024m -J-Xms1024m -Dconfig.file=/civiform-server-0.0.1/conf/application.conf -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.rmi.port=50000 -Djava.rmi.server.hostname=0.0.0.0

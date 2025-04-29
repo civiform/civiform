@@ -190,11 +190,11 @@ public final class ProgramCardViewRenderer {
                 .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
                 .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        TextFormatter.formatTextWithAriaLabel(
+        TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ false,
-            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()).toLowerCase(Locale.ROOT));
+            messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()));
     DivTag description =
         div()
             .withId(baseId + "-description")
