@@ -1297,8 +1297,6 @@ test.describe('program creation', () => {
         adminPrograms,
         seeding,
       }) => {
-        await enableFeatureFlag(page, 'program_filtering_enabled')
-
         await test.step('seed categories', async () => {
           await seeding.seedProgramsAndCategories()
           await page.goto('/')
