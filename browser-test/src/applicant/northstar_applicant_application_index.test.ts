@@ -715,7 +715,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await validateScreenshot(
         page.locator('.cf-application-card', {
-          has: page.getByText(commonIntakeFormProgramName),
+          has: page.getByText(preScreenerFormProgramName),
         }),
         'ns-common-intake-form-in-progress',
       )
