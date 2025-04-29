@@ -158,8 +158,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ArrayList<ProgramHeaderButton> headerButtons =
         new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
-    headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
-    headerButtons.add(ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW);
+
+    // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
+    // buttons to preview or download the application.
+    if (programDefinition.programType() != ProgramType.EXTERNAL) {
+      headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
+      headerButtons.add(ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW);
+    }
 
     HtmlBundle htmlBundle =
         layout
@@ -185,22 +190,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                                 + " latest version. Edit the program and try"
                                                 + " republishing. ")
                                             .withClasses("text-center", "text-red-500")))),
-                        div()
-                            .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(renderBlockOrderPanel(request, programDefinition, blockId))
-                            .with(
-                                renderBlockPanel(
-                                    programDefinition,
-                                    blockDefinition,
-                                    blockForm,
-                                    blockQuestions,
-                                    questions,
-                                    allPreviousVersionQuestions,
-                                    blockDefinition.isEnumerator(),
-                                    csrfTag,
-                                    blockDescriptionEditModal.getButton(),
-                                    blockDeleteScreenModal.getButton(),
-                                    request))));
+                        // External programs applications are hosted outside of Civiform. Therefore,
+                        // we shouldn't show the block panel since there are no application
+                        // questions.
+                        iff(
+                            programDefinition.programType() != ProgramType.EXTERNAL,
+                            div()
+                                .withClasses("flex", "flex-grow", "-mx-2")
+                                .withData("testid", "block-panel")
+                                .with(renderBlockOrderPanel(request, programDefinition, blockId))
+                                .with(
+                                    renderBlockPanel(
+                                        programDefinition,
+                                        blockDefinition,
+                                        blockForm,
+                                        blockQuestions,
+                                        questions,
+                                        allPreviousVersionQuestions,
+                                        blockDefinition.isEnumerator(),
+                                        csrfTag,
+                                        blockDescriptionEditModal.getButton(),
+                                        blockDeleteScreenModal.getButton(),
+                                        request)))));
 
     // Add top level UI that is only visible in the editable version.
     if (viewAllowsEditingProgram()) {
