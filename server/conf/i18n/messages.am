@@ -26,7 +26,7 @@ footer.returnToTop=ወደ ላይ ተመለስ
 # send an email to CiviForm technical support.
 footer.technicalSupport=ለቴክኒካዊ ድጋፍ፦ {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=ለቴክኒካዊ ድጋፍ፦ ለ{0} ኢሜይል ይላኩ
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=እንግዳ
@@ -161,7 +161,7 @@ link.applicationForProgram=የ{0} መተግበሪያ
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=ፋይል አስወግድ
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr={0} ፋይልን አስወግድ
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=በዚህ ገጽ ላይ ያሉ ጥያቄዎች አልተሟሉም። አሁንም ትተው መሄድ እና ግምገማ መጀመር ይፈልጋሉ?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=ስለብቁነት መስፈርቶች ተጨማሪ
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=ስለዚህ ፕሮግራም የብቁነት ደንቦች የበለጠ ለመረዳት ወይም የፕሮግራሙን ቡድን በቀጥታ ለማነጋገር እባክዎ {0} የሚለውን ይመልከቱ።
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=ስለዚህ ፕሮግራም የብቁነት ደንቦች የበለጠ ለመረዳት ወይም የፕሮግራም ቡድኑን በቀጥታ ለማነጋገር እባክዎ {0} የሚለውን ይመልከቱ (በአዲስ ትር ውስጥ ይከፈታል)።
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=መጓጓዣ
 category.tag.utilities=መገልገያዎች
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=ምድቦች
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
