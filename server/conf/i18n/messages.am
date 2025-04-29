@@ -214,11 +214,11 @@ button.viewAndApplySr=በ{0} ላይ አሳይ እና ተግብር
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
+button.startHerePreScreenerSr={0}ን በመሙላት እዚህ ይጀምሩ
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
+button.editPreScreenerSr=ለ{0} የገባ መረጃን ያርትዑ
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
+button.continuePreScreenerSr={0}ን መሙላት ይቀጥሉ
 # Text describing the date the application was last submitted.
 content.submittedDate={0} ገብቷል
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer=መልስ {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0}ን አርትዕ
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
+title.preScreenerSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=እንጀምር።
 title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=እርስዎ ወደ መለያ አልገቡም።
 content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ፕሮግራሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
-title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+title.preScreenerConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ፕሮግራሞች
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.preScreenerConfirmation=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=በምላሾችዎ ላይ በመመስረት ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
+content.preScreenerConfirmation.v2=በምላሾችዎ ላይ በመመስረት ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
+content.preScreenerConfirmationTi=እርስዎ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ በእነዚህ ፕሮግራሞች ውስጥ መመዝገብ ይችሉ ይሆናል።
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=በምላሾችዎ ላይ በመመስረት ደንበኛዎ ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
+content.preScreenerConfirmationTi.v2=በምላሾችዎ ላይ በመመስረት ደንበኛዎ ለሚከተሉት ፕሮግራሞች ብቁ ሊሆኑ ይችላሉ፦
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+content.preScreenerNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+content.preScreenerNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለፕሮግራሞች ማመልከት ይችላሉ። ወይም ተጨማሪ ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
+content.preScreenerNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ሊወዷቸው የሚችሏቸው ሌሎች ፕሮግራሞች
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.

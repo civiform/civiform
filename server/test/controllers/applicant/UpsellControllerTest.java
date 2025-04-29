@@ -67,8 +67,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void
-      considerRegister_redirectsToUpsellViewForPreScreenerWithNoRecommendedProgramsFound() {
+  public void considerRegister_redirectsToUpsellViewForPreScreenerWithNoRecommendedProgramsFound() {
     QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()

@@ -14,10 +14,10 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.NorthStarBaseView;
 
-public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView {
+public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
 
   @Inject
-  NorthStarApplicantCommonIntakeUpsellView(
+  NorthStarApplicantPreScreenerUpsellView(
       TemplateEngine templateEngine,
       ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
       AssetsFinder assetsFinder,
@@ -58,8 +58,8 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
         controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
 
     // In Thymeleaf, there's no easy way to construct a hyperlink inside a localized string
-    String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
-    String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
+    String linkHref = settingsManifest.getPreScreenerMoreResourcesLinkHref(params.request()).get();
+    String linkText = settingsManifest.getPreScreenerMoreResourcesLinkText(params.request()).get();
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
@@ -92,7 +92,7 @@ public class NorthStarApplicantCommonIntakeUpsellView extends NorthStarBaseView 
 
       context.setVariable("bannerMessage", params.bannerMessage());
     }
-    return templateEngine.process("applicant/ApplicantCommonIntakeUpsellTemplate", context);
+    return templateEngine.process("applicant/ApplicantPreScreenerUpsellTemplate", context);
   }
 
   /* Provides syntactic sugar for displaying user-facing program information in HTML. */

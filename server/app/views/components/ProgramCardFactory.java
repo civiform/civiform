@@ -276,7 +276,7 @@ public final class ProgramCardFactory {
     Comparator<ProgramCardData> c =
         Comparator.comparingInt(
             (cardData) ->
-                getDisplayProgram(cardData).programType().equals(ProgramType.COMMON_INTAKE_FORM)
+                getDisplayProgram(cardData).programType().equals(ProgramType.PRE_SCREENER_FORM)
                     ? 0
                     : 1);
     return c.thenComparing(

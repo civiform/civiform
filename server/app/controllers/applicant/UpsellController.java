@@ -35,9 +35,9 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
+import views.applicant.ApplicantPreScreenerUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
-import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
+import views.applicant.NorthStarApplicantPreScreenerUpsellView;
 import views.applicant.NorthStarApplicantUpsellView;
 import views.applicant.UpsellParams;
 import views.components.ToastMessage;
@@ -50,9 +50,9 @@ public final class UpsellController extends CiviFormController {
   private final ApplicationService applicationService;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
-  private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
+  private final ApplicantPreScreenerUpsellCreateAccountView cifUpsellView;
   private final NorthStarApplicantUpsellView northStarUpsellView;
-  private final NorthStarApplicantCommonIntakeUpsellView northStarCommonIntakeUpsellView;
+  private final NorthStarApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -66,9 +66,9 @@ public final class UpsellController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
-      ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
+      ApplicantPreScreenerUpsellCreateAccountView cifUpsellView,
       NorthStarApplicantUpsellView northStarApplicantUpsellView,
-      NorthStarApplicantCommonIntakeUpsellView northStarApplicantCommonIntakeUpsellView,
+      NorthStarApplicantPreScreenerUpsellView northStarApplicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
@@ -82,7 +82,7 @@ public final class UpsellController extends CiviFormController {
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
-    this.northStarCommonIntakeUpsellView = checkNotNull(northStarApplicantCommonIntakeUpsellView);
+    this.northStarPreScreenerUpsellView = checkNotNull(northStarApplicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -99,10 +99,10 @@ public final class UpsellController extends CiviFormController {
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    CompletableFuture<Boolean> isCommonIntake =
+    CompletableFuture<Boolean> isPreScreener =
         programService
             .getFullProgramDefinitionAsync(programId)
-            .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
+            .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
             .toCompletableFuture();
 
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
@@ -127,11 +127,11 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
-            isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
+            isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
-              if (!isCommonIntake.join()) {
-                // Only the common intake form needs to get the applicant's eligible
+              if (!isPreScreener.join()) {
+                // Only the pre-screener form needs to get the applicant's eligible
                 // programs this way.
                 Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
                 return CompletableFuture.completedFuture(result);
@@ -179,12 +179,12 @@ public final class UpsellController extends CiviFormController {
                         .setApplicantId(applicantId)
                         .setDateSubmitted(formattedDate);
 
-                if (isCommonIntake.join()) {
+                if (isPreScreener.join()) {
                   UpsellParams upsellParams =
                       paramsBuilder
                           .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
                           .build();
-                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                  return ok(northStarPreScreenerUpsellView.render(upsellParams))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   UpsellParams upsellParams =
@@ -194,7 +194,7 @@ public final class UpsellController extends CiviFormController {
                           .build();
                   return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
                 }
-              } else if (isCommonIntake.join()) {
+              } else if (isPreScreener.join()) {
                 return ok(
                     cifUpsellView.render(
                         request,

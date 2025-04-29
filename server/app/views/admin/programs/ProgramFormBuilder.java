@@ -153,14 +153,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
-    boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
+    boolean isPreScreenerForm = programType.equals(ProgramType.PRE_SCREENER_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
-    boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
+    boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription =
-        (isCommonIntakeForm || isExternalProgram)
+        (isPreScreenerForm || isExternalProgram)
             && settingsManifest.getNorthStarApplicantUi(request);
     boolean disableEmailNotifications = isExternalProgram;
-    boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
+    boolean disableApplicationSteps = isPreScreenerForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
@@ -234,7 +234,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
-            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
+            showCategoryCheckboxes(categoryOptions, categories, isPreScreenerForm)),
         // Program visibility
         fieldset(
                 legend("Program visibility")
@@ -366,25 +366,25 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     if (settingsManifest.getExternalProgramCardsEnabled(request)) {
       // When creating a program, program type fields (if visible) are never disabled.
       boolean defaultProgramFieldDisabled = false;
-      boolean commonIntakeFieldDisabled = false;
+      boolean preScreenerFieldDisabled = false;
       boolean externalProgramFieldDisabled = false;
 
       // When editing a program:
-      //   - external program field is disabled when program type is default or common intake form,
+      //   - external program field is disabled when program type is default or pre-screener form,
       // since a program can be changed to external after creation.
-      //   - common intake and default program fields are disabled when program type is external
+      //   - pre-screener and default program fields are disabled when program type is external
       // program, since an external program cannot change type after creation.
       if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
         switch (programType) {
           case DEFAULT:
-          case COMMON_INTAKE_FORM:
+          case PRE_SCREENER_FORM:
             defaultProgramFieldDisabled = false;
-            commonIntakeFieldDisabled = false;
+            preScreenerFieldDisabled = false;
             externalProgramFieldDisabled = true;
             break;
           case EXTERNAL:
             defaultProgramFieldDisabled = true;
-            commonIntakeFieldDisabled = true;
+            preScreenerFieldDisabled = true;
             externalProgramFieldDisabled = false;
             break;
         }
@@ -416,11 +416,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                           "This program’s informational card will open program details on an"
                               + " external website.")),
                   buildUSWDSRadioOption(
-                      /* id= */ "common-intake-program-option",
+                      /* id= */ "pre-screener-program-option",
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
-                      /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
-                      /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
-                      /* isDisabled= */ commonIntakeFieldDisabled,
+                      /* value= */ ProgramType.PRE_SCREENER_FORM.getValue(),
+                      /* isChecked= */ programType.equals(ProgramType.PRE_SCREENER_FORM),
+                      /* isDisabled= */ preScreenerFieldDisabled,
                       /* label= */ "Pre-screener",
                       /* description */ Optional.of(
                           "This program informational card will always appear at the top of the"
@@ -433,14 +433,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
           fieldset(
                   div(
                           input()
-                              .withId("common-intake-checkbox")
+                              .withId("pre-screener-checkbox")
                               .withClasses("usa-checkbox__input")
                               .withType("checkbox")
                               .withName(PROGRAM_TYPE_FIELD_NAME)
-                              .withValue(ProgramType.COMMON_INTAKE_FORM.getValue())
-                              .withCondChecked(programType.equals(ProgramType.COMMON_INTAKE_FORM)),
+                              .withValue(ProgramType.PRE_SCREENER_FORM.getValue())
+                              .withCondChecked(programType.equals(ProgramType.PRE_SCREENER_FORM)),
                           label("Set program as pre-screener")
-                              .withFor("common-intake-checkbox")
+                              .withFor("pre-screener-checkbox")
                               .withClasses("usa-checkbox__label"),
                           span(ViewUtils.makeSvgToolTip(
                                   "You can set one program as the ‘pre-screener’. This will pin the"
@@ -455,10 +455,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return each(
         programTypeFieldset,
         // Hidden checkbox used to signal whether or not the user has confirmed they want to
-        // change which program is marked as the common intake form.
+        // change which program is marked as the pre-screener form.
         FieldWithLabel.checkbox()
-            .setId("confirmed-change-common-intake-checkbox")
-            .setFieldName("confirmedChangeCommonIntakeForm")
+            .setId("confirmed-change-pre-screener-checkbox")
+            .setFieldName("confirmedChangePreScreenerForm")
             .setValue("false")
             .setChecked(false)
             .addStyleClass("hidden")
@@ -591,13 +591,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .withClass(SPACE_BETWEEN_FORM_ELEMENTS);
   }
 
-  protected Modal buildConfirmCommonIntakeChangeModal(String existingCommonIntakeFormDisplayName) {
+  protected Modal buildConfirmPreScreenerChangeModal(String existingPreScreenerFormDisplayName) {
     DivTag content =
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
                 p("The pre-screener will be updated from ")
-                    .with(span(existingCommonIntakeFormDisplayName).withClass("font-bold"))
+                    .with(span(existingPreScreenerFormDisplayName).withClass("font-bold"))
                     .withText(" to the current program."))
             .with(p("Would you like to confirm the change?"))
             .with(
@@ -607,10 +607,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .with(
                         submitButton("Confirm")
                             .withForm("program-details-form")
-                            .withId("confirm-common-intake-change-button")
+                            .withId("confirm-pre-screener-change-button")
                             .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
-        .setModalId("confirm-common-intake-change")
+        .setModalId("confirm-pre-screener-change")
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(content)
         .setModalTitle("Confirm pre-screener change?")

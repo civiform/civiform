@@ -39,7 +39,7 @@ public final class ProgramCardsSectionParamsFactory {
   /** Enumerates the card section types, which may have different card components or styles. */
   public enum SectionType {
     MY_APPLICATIONS,
-    COMMON_INTAKE,
+    PRE_SCREENER,
     UNFILTERED_PROGRAMS,
     RECOMMENDED, // Once filters are applied, these are programs that match the filters
     DEFAULT; // Used when the card section doesn't have any special style requirements.
@@ -140,7 +140,7 @@ public final class ProgramCardsSectionParamsFactory {
             applicantRoutes,
             program.id(),
             program.slug(),
-            program.isCommonIntakeForm(),
+            program.isPreScreenerForm(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
             profile);
@@ -160,7 +160,7 @@ public final class ProgramCardsSectionParamsFactory {
         .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
-        .setIsCommonIntakeForm(program.isCommonIntakeForm())
+        .setIsPreScreenerForm(program.isPreScreenerForm())
         .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()))
         .setProgramId(program.id());
@@ -228,7 +228,7 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantRoutes applicantRoutes,
       Long programId,
       String programSlug,
-      boolean isCommonIntakeForm,
+      boolean isPreScreenerForm,
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile) {
@@ -259,9 +259,9 @@ public final class ProgramCardsSectionParamsFactory {
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
       }
-      // If they are completing the common intake form for the first time, skip the program overview
+      // If they are completing the pre-screener form for the first time, skip the program overview
       // page
-    } else if (isCommonIntakeForm) {
+    } else if (isPreScreenerForm) {
       actionUrl =
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
@@ -344,7 +344,7 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract boolean isGuest();
 
-    public abstract boolean isCommonIntakeForm();
+    public abstract boolean isPreScreenerForm();
 
     public abstract Optional<String> loginModalId();
 
@@ -389,7 +389,7 @@ public final class ProgramCardsSectionParamsFactory {
 
       public abstract Builder setIsGuest(Boolean isGuest);
 
-      public abstract Builder setIsCommonIntakeForm(Boolean isCommonIntakeForm);
+      public abstract Builder setIsPreScreenerForm(Boolean isPreScreenerForm);
 
       public abstract Builder setLoginModalId(String loginModalId);
 
