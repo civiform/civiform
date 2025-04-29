@@ -68,7 +68,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void
-      considerRegister_redirectsToUpsellViewForCommonIntakeWithNoRecommendedProgramsFound() {
+      considerRegister_redirectsToUpsellViewForPreScreenerWithNoRecommendedProgramsFound() {
     QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -97,13 +97,13 @@ public class UpsellControllerTest extends WithMockedProfiles {
     QuestionAnswerer.addMetadata(applicant.getApplicantData(), colorPath, 456L, 12345L);
     applicant.save();
 
-    ProgramDefinition commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("commonintake")
+    ProgramDefinition preScreenerForm =
+        ProgramBuilder.newActivePreScreenerForm("prescreener")
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
     ApplicationModel application =
-        resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
+        resourceCreator.insertActiveApplication(applicant, preScreenerForm.toProgram());
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
@@ -112,7 +112,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .considerRegister(
                 fakeRequest(),
                 applicant.id,
-                commonIntakeForm.id(),
+                preScreenerForm.id(),
                 application.id,
                 redirectLocation,
                 application.getSubmitTime().toString())
@@ -127,7 +127,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void considerRegister_redirectsToUpsellViewForCommonIntakeWithRecommendedPrograms() {
+  public void considerRegister_redirectsToUpsellViewForPreScreenerWithRecommendedPrograms() {
     QuestionModel predicateQuestion = testQuestionBank().textApplicantFavoriteColor();
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -156,13 +156,13 @@ public class UpsellControllerTest extends WithMockedProfiles {
     QuestionAnswerer.addMetadata(applicant.getApplicantData(), colorPath, 456L, 12345L);
     applicant.save();
 
-    ProgramDefinition commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("commonintake")
+    ProgramDefinition preScreenerForm =
+        ProgramBuilder.newActivePreScreenerForm("prescreener")
             .withBlock()
             .withRequiredQuestion(predicateQuestion)
             .buildDefinition();
     ApplicationModel application =
-        resourceCreator.insertActiveApplication(applicant, commonIntakeForm.toProgram());
+        resourceCreator.insertActiveApplication(applicant, preScreenerForm.toProgram());
     application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
     String redirectLocation = "someUrl";
 
@@ -171,7 +171,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             .considerRegister(
                 fakeRequest(),
                 applicant.id,
-                commonIntakeForm.id(),
+                preScreenerForm.id(),
                 application.id,
                 redirectLocation,
                 application.getSubmitTime().toString())

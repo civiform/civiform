@@ -84,7 +84,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setNotificationPreferences(
                 ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setProgramType(ProgramType.PRE_SCREENER_FORM)
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
@@ -116,7 +116,7 @@ public class ProgramModelTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
-        .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+        .isEqualTo(ProgramType.PRE_SCREENER_FORM);
     assertThat(found.getProgramDefinition().eligibilityIsGating()).isEqualTo(false);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
     assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);

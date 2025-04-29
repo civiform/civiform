@@ -631,29 +631,29 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('common intake form not present', async ({page}) => {
-    await validateScreenshot(page, 'ns-common-intake-form-not-set')
+  test('pre-screener form not present', async ({page}) => {
+    await validateScreenshot(page, 'ns-pre-screener-form-not-set')
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
+  test.describe('pre-screener form present', () => {
+    const preScreenerFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
+        preScreenerFormProgramName,
         'program description',
         'short program description',
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(
-        commonIntakeFormProgramName,
+        preScreenerFormProgramName,
         {
           name: 'Screen 2',
           description: 'first block',
@@ -664,13 +664,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await logout(page)
     })
 
-    test('shows common intake form card when an application has not been started', async ({
+    test('shows pre-screener form card when an application has not been started', async ({
       page,
       applicantQuestions,
     }) => {
       await validateScreenshot(
         page.getByLabel('Get Started'),
-        'ns-common-intake-form',
+        'ns-pre-screener-form',
       )
       await applicantQuestions.expectProgramsWithFilteringEnabled(
         {
@@ -687,13 +687,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       )
     })
 
-    test('puts common intake card in My applications section when application is in progress or submitted', async ({
+    test('puts pre-screener card in My applications section when application is in progress or submitted', async ({
       applicantQuestions,
       page,
     }) => {
-      await test.step('Start applying to the common intake', async () => {
+      await test.step('Start applying to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
@@ -705,7 +705,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectProgramsWithFilteringEnabled(
         {
           expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
+            preScreenerFormProgramName,
           ],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
@@ -727,9 +727,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
 
-      await test.step('Submit application to the common intake', async () => {
+      await test.step('Submit application to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
@@ -740,7 +740,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectProgramsWithFilteringEnabled(
         {
           expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
+            preScreenerFormProgramName,
           ],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
@@ -756,23 +756,23 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
     })
 
-    test('shows common intake form', async ({page, applicantQuestions}) => {
+    test('shows pre-screener form', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
 
-      await validateScreenshot(page, 'ns-common-intake-form-sections')
+      await validateScreenshot(page, 'ns-pre-screener-form-sections')
       await applicantQuestions.expectProgramsNorthstar({
         wantNotStartedPrograms: [otherProgramName],
         wantInProgressOrSubmittedPrograms: [primaryProgramName],
       })
-      await applicantQuestions.expectCommonIntakeFormNorthstar(
-        commonIntakeFormProgramName,
+      await applicantQuestions.expectPreScreenerFormNorthstar(
+        preScreenerFormProgramName,
       )
     })
 
-    test('shows a different title for the common intake form', async ({
+    test('shows a different title for the pre-screener form', async ({
       page,
       applicantQuestions,
     }) => {
@@ -1069,15 +1069,15 @@ test.describe(
 
       await test.step('create program with image as admin', async () => {
         await loginAsAdmin(page)
-        const commonIntakeFormProgramName = 'Benefits finder'
+        const preScreenerFormProgramName = 'Benefits finder'
         await adminPrograms.addProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           'program description',
           'short program description',
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.COMMON_INTAKE_FORM,
+          ProgramType.PRE_SCREENER_FORM,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)
