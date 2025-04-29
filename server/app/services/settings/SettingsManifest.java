@@ -1157,7 +1157,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")),
+                          Pattern.compile("(^#(?:[0-9a-fA-F]{3}){1,2}$)?")),
                       SettingDescription.create(
                           "THEME_COLOR_PRIMARY_DARK",
                           "A darker version of your primary color can be applied to your website"
@@ -1166,7 +1166,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^#(?:[0-9a-fA-F]{3}){1,2}$")))))
+                          Pattern.compile("(^#(?:[0-9a-fA-F]{3}){1,2}$)?")))))
           .put(
               "External Services",
               SettingsSection.create(
