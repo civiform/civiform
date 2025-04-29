@@ -129,12 +129,12 @@ public final class ApplicantPreScreenerUpsellCreateAccountView extends Applicant
     var eligibleProgramsSection = section();
 
     if (eligiblePrograms.isEmpty()) {
-      String linkText = settingsManifest.getPreScreenerMoreResourcesLinkText(request).get();
+      String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(request).get();
       var moreLink =
           new LinkElement()
               .setStyles("underline")
               .setText(linkText)
-              .setHref(settingsManifest.getPreScreenerMoreResourcesLinkHref(request).get())
+              .setHref(settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get())
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()

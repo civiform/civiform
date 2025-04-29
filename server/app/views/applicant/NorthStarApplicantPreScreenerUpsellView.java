@@ -58,8 +58,8 @@ public class NorthStarApplicantPreScreenerUpsellView extends NorthStarBaseView {
         controllers.routes.LoginController.applicantLogin(Optional.of(applyToProgramsUrl)).url());
 
     // In Thymeleaf, there's no easy way to construct a hyperlink inside a localized string
-    String linkHref = settingsManifest.getPreScreenerMoreResourcesLinkHref(params.request()).get();
-    String linkText = settingsManifest.getPreScreenerMoreResourcesLinkText(params.request()).get();
+    String linkHref = settingsManifest.getCommonIntakeMoreResourcesLinkHref(params.request()).get();
+    String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(params.request()).get();
     String linkHtml =
         "<a href=\"" + linkHref + "\" target=\"_blank\" class=\"usa-link\">" + linkText + "</a>";
     context.setVariable("moreResourcesLinkHtml", linkHtml);
