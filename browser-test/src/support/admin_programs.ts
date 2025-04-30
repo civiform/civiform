@@ -257,7 +257,7 @@ export class AdminPrograms {
     if (externalProgramsFeatureEnabled) {
       await this.selectProgramType(programType)
     } else if (programType === ProgramType.PRE_SCREENER_FORM) {
-      await this.clickCommonIntakeFormToggle()
+      await this.clickPreScreenerFormToggle()
     }
 
     if (programType === ProgramType.DEFAULT) {
@@ -1603,16 +1603,6 @@ export class AdminPrograms {
     await this.page.waitForLoadState()
   }
 
-  /**
-   *
-   * @deprecated prefer using {@link getPreScreenerFormToggle} instead.
-   */
-  getCommonIntakeFormToggle() {
-    return this.page.getByRole('checkbox', {
-      name: 'Set program as pre-screener',
-    })
-  }
-
   getPreScreenerFormToggle() {
     return this.page.getByRole('checkbox', {
       name: 'Set program as pre-screener',
@@ -1688,19 +1678,6 @@ export class AdminPrograms {
         break
     }
     await this.page.locator('label[for="' + programId + '"]').click()
-  }
-
-  /**
-   * @todo (#10363): Migrate callers to use selectProgramType(programType) once
-   * EXTERNAL_PROGRAM_CARDS is enabled by default.
-   * @deprecated prefer using {@link clickPreScreenerFormToggle} instead.
-   */
-  async clickCommonIntakeFormToggle() {
-    // Note: We click on the label instead of directly interacting with the checkbox
-    // because USWDS styling hides the actual checkbox input and styles the label to
-    // look like a checkbox. The actual input element is visually hidden or positioned
-    // off-screen, making it inaccessible to Playwright's direct interactions.
-    await this.page.locator('label[for="common-intake-checkbox"]').click()
   }
 
   // TODO(#10363): Migrate callers to use selectProgramType(programType) once

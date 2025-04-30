@@ -16,9 +16,9 @@ test.describe('Applicant navigation flow', () => {
   test.beforeEach(async ({page}) => {
     await enableFeatureFlag(page, 'program_filtering_enabled')
   })
-  test.describe('navigation with common intake', () => {
-    // Create two programs, one is common intake
-    const commonIntakeProgramName = 'Test Common Intake Form Program'
+  test.describe('navigation with pre-screener', () => {
+    // Create two programs, one is pre-screener
+    const preScreenerProgramName = 'Test Pre-Screener Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
@@ -32,9 +32,9 @@ test.describe('Applicant navigation flow', () => {
           questionName: eligibilityQuestionId,
         })
 
-        // Set up common intake form
+        // Set up pre-screener form
         await adminPrograms.addProgram(
-          commonIntakeProgramName,
+          preScreenerProgramName,
           'program description',
           'short program description',
           'https://usa.gov',
@@ -44,7 +44,7 @@ test.describe('Applicant navigation flow', () => {
         )
 
         await adminPrograms.editProgramBlock(
-          commonIntakeProgramName,
+          preScreenerProgramName,
           'first description',
           [eligibilityQuestionId],
         )
@@ -79,14 +79,14 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       await loginAsTestUser(page)
-      // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with non-eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -106,14 +106,14 @@ test.describe('Applicant navigation flow', () => {
       applicantQuestions,
     }) => {
       await loginAsTestUser(page)
-      // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -132,14 +132,14 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with non-eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -158,14 +158,14 @@ test.describe('Applicant navigation flow', () => {
       page,
       applicantQuestions,
     }) => {
-      // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -188,18 +188,18 @@ test.describe('Applicant navigation flow', () => {
       )
     })
 
-    test('shows intake form as submitted after completion', async ({
+    test('shows pre-screener form as submitted after completion', async ({
       page,
       applicantQuestions,
     }) => {
-      // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -235,14 +235,14 @@ test.describe('Applicant navigation flow', () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
 
-      // Fill out common intake form, with non-eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with non-eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
@@ -276,14 +276,14 @@ test.describe('Applicant navigation flow', () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
 
-      // Fill out common intake form, with eligible response
-      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(preScreenerProgramName)
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickNext()
-      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.expectPreScreenerReviewPage()
       await applicantQuestions.clickSubmit()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPage(
+      await applicantQuestions.expectPreScreenerConfirmationPage(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],

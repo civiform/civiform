@@ -19,9 +19,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
     await enableFeatureFlag(page, 'north_star_applicant_ui')
   })
 
-  test.describe('navigation with common intake', () => {
-    // Create two programs, one is common intake
-    const commonIntakeProgramName = 'Test Common Intake Form Program'
+  test.describe('navigation with pre-screener', () => {
+    // Create two programs, one is pre-screener
+    const preScreenerProgramName = 'Test Pre-Screener Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
@@ -35,9 +35,9 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
           questionName: eligibilityQuestionId,
         })
 
-        // Set up common intake form
+        // Set up pre-screener form
         await adminPrograms.addProgram(
-          commonIntakeProgramName,
+          preScreenerProgramName,
           'program description',
           'short program description',
           'https://usa.gov',
@@ -47,7 +47,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         )
 
         await adminPrograms.editProgramBlock(
-          commonIntakeProgramName,
+          preScreenerProgramName,
           'first description',
           [eligibilityQuestionId],
         )
@@ -82,18 +82,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await loginAsTestUser(page)
-      // Fill out common intake form, with non-eligible response
+      // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -107,18 +107,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       applicantQuestions,
     }) => {
       await loginAsTestUser(page)
-      // Fill out common intake form, with eligible response
+      // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -131,18 +131,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      // Fill out common intake form, with non-eligible response
+      // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [],
@@ -161,18 +161,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       page,
       applicantQuestions,
     }) => {
-      // Fill out common intake form, with eligible response
+      // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -183,23 +183,23 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await applicantQuestions.expectLoginModal()
     })
 
-    test('shows intake form as submitted after completion', async ({
+    test('shows pre-screener form as submitted after completion', async ({
       page,
       applicantQuestions,
       applicantProgramList,
     }) => {
-      // Fill out common intake form, with eligible response
+      // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ true,
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
@@ -212,13 +212,13 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         applicantProgramList
           .getCardLocator(
             CardSectionName.MyApplications,
-            commonIntakeProgramName,
+            preScreenerProgramName,
           )
           .locator('div.bg-primary-lighter'),
       ).toBeVisible()
       await applicantProgramList.expectSubmittedTag(
         CardSectionName.MyApplications,
-        commonIntakeProgramName,
+        preScreenerProgramName,
       )
       // Validate hidden label for accessibility.
       await expect(page.getByText('For your information: ')).toBeVisible()
@@ -245,18 +245,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
 
-      // Fill out common intake form, with non-eligible response
+      // Fill out pre-screener form, with non-eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion('4')
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [],
@@ -283,18 +283,18 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       await tiDashboard.expectDashboardContainClient(client)
       await tiDashboard.clickOnViewApplications()
 
-      // Fill out common intake form, with eligible response
+      // Fill out pre-screener form, with eligible response
       await applicantQuestions.applyProgram(
-        commonIntakeProgramName,
+        preScreenerProgramName,
         /* northStarEnabled= */ true,
-        // common intake programs skip the program overview page
+        // pre-screener programs skip the program overview page
         /* showProgramOverviewPage= */ false,
       )
       await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
       await applicantQuestions.clickContinue()
       await applicantQuestions.clickSubmitApplication()
 
-      await applicantQuestions.expectCommonIntakeConfirmationPageNorthStar(
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
         /* wantUpsell= */ false,
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
