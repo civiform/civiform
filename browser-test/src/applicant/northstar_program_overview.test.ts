@@ -1,13 +1,14 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  ClientInformation,
   enableFeatureFlag,
   loginAsAdmin,
-  logout,
   loginAsTrustedIntermediary,
-  ClientInformation,
   loginAsTestUser,
-  validateScreenshot,
+  logout,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
+  validateScreenshot,
 } from '../support'
 import {Eligibility} from '../support/admin_programs'
 
@@ -412,6 +413,25 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         .getByRole('button', {name: 'Start application as a guest'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
+    })
+  })
+
+  test('renders right to left', async ({
+    page,
+    applicantProgramOverview: applicantProgramOverview,
+  }) => {
+    await selectApplicantLanguageNorthstar(page, 'ar')
+    await page.goto(`/programs/${programName}`)
+
+    await validateAccessibility(page)
+
+    await test.step('renders right to left', async () => {
+      await validateScreenshot(
+        page.locator('main'),
+        'program-overview-right-to-left',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
   })
 })
