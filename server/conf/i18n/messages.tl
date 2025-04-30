@@ -214,11 +214,11 @@ button.viewAndApplySr=Tingnan at mag-apply sa {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
+button.startHerePreScreenerSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=I-edit ang isinumiteng impormasyon para sa {0}
+button.editPreScreenerSr=I-edit ang isinumiteng impormasyon para sa {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Ipagpatuloy ang pagsasagot ng {0}
+button.continuePreScreenerSr=Ipagpatuloy ang pagsasagot ng {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer=Sagot {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Buod ng pre-screener para sa mga benepisyo
+title.preScreenerSummary=Buod ng pre-screener para sa mga benepisyo
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Magsimula na tayo
 title.programSummary=Buod ng application para sa programa
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo 
 content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.commonIntakeConfirmation=Mga programa kung saan puwede kang maging kwalipikado
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
+title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipikado
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
+content.preScreenerConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
+content.preScreenerConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
+content.preScreenerConfirmationTi.v2=Batay sa iyong mga sagot, posbileng kwalipikado ang kliyente mo sa mga sumusunod na programa:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.preScreenerNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
+content.preScreenerNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+content.preScreenerNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
