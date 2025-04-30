@@ -26,7 +26,7 @@ footer.returnToTop=Kor ku noqo
 # send an email to CiviForm technical support.
 footer.technicalSupport=Wixii taageero farsamo ah: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=Wixii taageero farsamo ah: Iimeyl {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Marti
@@ -161,7 +161,7 @@ link.applicationForProgram=Codsiga {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Ka saar faylka
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=Ka saar faylka {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Su'aalaha boggan ku yaalo ma dhammaystirna. Weli ma jeclaan lahayd inaad ka baxdo oo aadna bilawdo inaad dib u eegto?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=Wax badan oo ku saabsan shuruudaha u qalmitaanka
 content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Si aad wax badan oo ku saabsan sharciyada u qalmitaanka barnaamijkan u ogaato ama aad si toos ah ula xiriirto kooxda barnaamijka, fadlan eeg {0}.
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=Si aad wax badan uga ogaato shuruudaha u-qalmitaanka barnaamijkan mise aad si toos ah ula xiriirto kooxda barnaamijka, fadlan eeg {0} (waxay ku furmaysaa bog cusub).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=Gaadiidka
 category.tag.utilities=Adeegyada lagama maarmaanka ah
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=Qaybaha
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
