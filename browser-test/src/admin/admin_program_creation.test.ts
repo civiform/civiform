@@ -16,6 +16,9 @@ import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from 'playwright'
 
 test.describe('program creation', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('create program page', async ({
     page,
     adminPrograms,
@@ -1016,13 +1019,27 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('create common intake form', async ({page, adminPrograms}) => {
+  test('create common intake form', async ({page, adminPrograms, seeding}) => {
+    await test.step('seed categories', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+    })
+
     await loginAsAdmin(page)
     const programName = 'Apc program'
 
     await test.step('create new program that is not an intake form', async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramDescriptionPage(programName)
+
+      await validateScreenshot(
+        page.locator('#program-details-form'),
+        'program-edit-page-with-intake-form-false',
+      )
+    })
+
+    await test.step('add category to program', async () => {
+      await page.getByText('Education').check()
     })
 
     const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
@@ -1034,14 +1051,15 @@ test.describe('program creation', () => {
     await test.step('click common intake toggle and expect it to be checked', async () => {
       await adminPrograms.clickCommonIntakeFormToggle()
       await validateScreenshot(
-        page,
-        'program-description-page-with-intake-form-true',
+        page.locator('#program-details-form'),
+        'program-edit-page-with-intake-form-true',
       )
       await expect(commonIntakeFormInput).toBeChecked()
     })
 
-    await test.step('expect non-applicable fields to be disabled', async () => {
+    await test.step('expect non-applicable fields to be unchecked and disabled', async () => {
       await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_CATEGORIES)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
 
@@ -1050,9 +1068,10 @@ test.describe('program creation', () => {
       await adminPrograms.expectProgramBlockEditPage(programName)
     })
 
-    await test.step('edit program and confirm non-applicable fields are still disabled', async () => {
+    await test.step('edit program and confirm fields are still disabled', async () => {
       await adminPrograms.goToProgramDescriptionPage(programName)
       await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_CATEGORIES)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
   })
@@ -1197,141 +1216,71 @@ test.describe('program creation', () => {
     )
   })
 
-  test.describe('create and update programs with program filtering enabled', () => {
-    test.beforeEach(async ({page, seeding}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
-      await seeding.seedProgramsAndCategories()
-      await page.goto('/')
+  test('create and update program with categories', async ({
+    page,
+    adminPrograms,
+    seeding,
+  }) => {
+    await seeding.seedProgramsAndCategories()
+    await page.goto('/')
+
+    const programName = 'program with categories'
+
+    await test.step('create new program', async () => {
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(
+        programName,
+        'description',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        ProgramType.DEFAULT,
+        'selectedTI',
+        'confirmationMessage',
+        Eligibility.IS_GATING,
+        /* submitNewProgram= */ false,
+      )
     })
 
-    test('create and update program with categories', async ({
-      page,
-      adminPrograms,
-    }) => {
-      const programName = 'program with categories'
+    await test.step('add categories to program', async () => {
+      await page.getByText('Education').check()
+      await page.getByText('Healthcare').check()
+    })
 
-      await test.step('create new program', async () => {
-        await loginAsAdmin(page)
-        await adminPrograms.addProgram(
-          programName,
-          'description',
-          'short program description',
-          'https://usa.gov',
-          ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.DEFAULT,
-          'selectedTI',
-          'confirmationMessage',
-          Eligibility.IS_GATING,
-          /* submitNewProgram= */ false,
-        )
-      })
+    await test.step('validate screenshot', async () => {
+      await validateScreenshot(
+        page.locator('#program-details-form'),
+        'program-creation-with-categories',
+      )
+    })
 
-      await test.step('add categories to program', async () => {
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-      })
+    await expect(page.getByText('Education')).toBeChecked()
+    await expect(page.getByText('Healthcare')).toBeChecked()
 
-      await test.step('validate screenshot', async () => {
-        await validateScreenshot(
-          page.locator('#program-details-form'),
-          'program-creation-with-categories',
-        )
-      })
+    await test.step('submit and publish program', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.publishProgram(programName)
+    })
 
+    await test.step('go to program edit form and check that categories are still pre-selected', async () => {
+      await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
+      await page.getByRole('button', {name: 'Edit program details'}).click()
+      await waitForPageJsLoad(page)
       await expect(page.getByText('Education')).toBeChecked()
       await expect(page.getByText('Healthcare')).toBeChecked()
-
-      await test.step('submit and publish program', async () => {
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.publishProgram(programName)
-      })
-
-      await test.step('go to program edit form and check that categories are still pre-selected', async () => {
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
-          programName,
-        )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await waitForPageJsLoad(page)
-        await expect(page.getByText('Education')).toBeChecked()
-        await expect(page.getByText('Healthcare')).toBeChecked()
-      })
-
-      await test.step('add another category', async () => {
-        await page.getByText('Internet').check()
-      })
-
-      await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.goToProgramDescriptionPage(programName)
-        await expect(page.getByText('Education')).toBeChecked()
-        await expect(page.getByText('Healthcare')).toBeChecked()
-        await expect(page.getByText('Internet')).toBeChecked()
-      })
     })
 
-    // This test will replace the similar test when the feature flag is removed
-    test('create common intake form with program filtering enabled', async ({
-      page,
-      adminPrograms,
-    }) => {
-      await loginAsAdmin(page)
-      const programName = 'Apc program'
+    await test.step('add another category', async () => {
+      await page.getByText('Internet').check()
+    })
 
-      await test.step('create new program that is not an intake form', async () => {
-        await adminPrograms.addProgram(programName)
-        await adminPrograms.goToProgramDescriptionPage(programName)
-
-        await validateScreenshot(
-          page.locator('#program-details-form'),
-          'program-edit-page-with-intake-form-false-filtering-enabled',
-        )
-      })
-
-      const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
-
-      await test.step('expect common intake toggle not to be checked', async () => {
-        await expect(commonIntakeFormInput).not.toBeChecked()
-      })
-
-      await test.step('add category to program', async () => {
-        await page.getByText('Education').check()
-      })
-
-      await test.step('click common intake toggle and expect it to be checked', async () => {
-        await adminPrograms.clickCommonIntakeFormToggle()
-        await validateScreenshot(
-          page.locator('#program-details-form'),
-          'program-edit-page-with-intake-form-true-filtering-enabled',
-        )
-        await expect(commonIntakeFormInput).toBeChecked()
-      })
-
-      await test.step('expect non-applicable fields to be unchecked and disabled', async () => {
-        await adminPrograms.expectFormFieldDisabled(
-          FormField.PROGRAM_ELIGIBILITY,
-        )
-        await adminPrograms.expectFormFieldDisabled(
-          FormField.PROGRAM_CATEGORIES,
-        )
-        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
-      })
-
-      await test.step('save program', async () => {
-        await adminPrograms.submitProgramDetailsEdits()
-        await adminPrograms.expectProgramBlockEditPage(programName)
-      })
-
-      await test.step('edit program and confirm fields are still disabled', async () => {
-        await adminPrograms.goToProgramDescriptionPage(programName)
-        await adminPrograms.expectFormFieldDisabled(
-          FormField.PROGRAM_ELIGIBILITY,
-        )
-        await adminPrograms.expectFormFieldDisabled(
-          FormField.PROGRAM_CATEGORIES,
-        )
-        await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
-      })
+    await test.step('submit and return to edit form to ensure categories are still pre-selected', async () => {
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.goToProgramDescriptionPage(programName)
+      await expect(page.getByText('Education')).toBeChecked()
+      await expect(page.getByText('Healthcare')).toBeChecked()
+      await expect(page.getByText('Internet')).toBeChecked()
     })
   })
 
@@ -1343,73 +1292,11 @@ test.describe('program creation', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('create common intake form with northstar UI enabled', async ({
-        page,
-        adminPrograms,
-      }) => {
-        await loginAsAdmin(page)
-        const programName = 'Apc program'
-
-        await test.step('create new program that is not an intake form', async () => {
-          await adminPrograms.addProgram(programName)
-          await adminPrograms.goToProgramDescriptionPage(programName)
-        })
-
-        const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
-
-        await test.step('expect common intake toggle not to be checked', async () => {
-          await expect(commonIntakeFormInput).not.toBeChecked()
-        })
-
-        await test.step('click common intake toggle and expect it to be checked', async () => {
-          await adminPrograms.clickCommonIntakeFormToggle()
-          await validateScreenshot(
-            page.locator('#program-details-form'),
-            'program-edit-page-with-intake-form-true-northstar-enabled',
-          )
-          await expect(commonIntakeFormInput).toBeChecked()
-        })
-
-        await test.step('expect fields to be unchecked and disabled', async () => {
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          // Long description is only disabled when the northstar UI is enabled
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-        })
-
-        await test.step('save program', async () => {
-          await adminPrograms.submitProgramDetailsEdits()
-          await adminPrograms.expectProgramBlockEditPage(programName)
-        })
-
-        await test.step('edit program and confirm fields are still disabled', async () => {
-          await adminPrograms.goToProgramDescriptionPage(programName)
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.PROGRAM_ELIGIBILITY,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.LONG_DESCRIPTION,
-          )
-          await adminPrograms.expectFormFieldDisabled(
-            FormField.APPLICATION_STEPS,
-          )
-        })
-      })
-
-      // This test will replace the similar test above when the feature flag is removed
-      test('create common intake form with with northstar UI and program filtering enabled', async ({
+      test('create common intake form with with northstar UI enabled', async ({
         page,
         adminPrograms,
         seeding,
       }) => {
-        await enableFeatureFlag(page, 'program_filtering_enabled')
-
         await test.step('seed categories', async () => {
           await seeding.seedProgramsAndCategories()
           await page.goto('/')
@@ -1437,7 +1324,7 @@ test.describe('program creation', () => {
           await adminPrograms.clickCommonIntakeFormToggle()
           await validateScreenshot(
             page.locator('#program-details-form'),
-            'program-edit-page-with-intake-form-true-northstar-enabled-filtering-enabled',
+            'program-edit-page-with-intake-form-true-northstar-enabled',
           )
           await expect(commonIntakeFormInput).toBeChecked()
         })
