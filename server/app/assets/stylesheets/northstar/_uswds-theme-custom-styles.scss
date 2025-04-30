@@ -59,6 +59,11 @@ svg {
   padding-inline-end: 1rem;
 }
 
+/* Override margin values to support RTL languages. */
+.usa-identifier__logos {
+  margin-right: 0;
+  margin-inline-end: 1rem;
+}
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
 .usa-checkbox__input:focus + [class*='__label']::before,

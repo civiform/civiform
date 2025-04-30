@@ -26,7 +26,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
-  private static final Logger LOGGER =
+  private static final Logger logger =
       LoggerFactory.getLogger(ReadOnlyCurrentQuestionServiceImpl.class);
 
   public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
@@ -97,7 +97,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
       return questionsById.get(id);
     }
 
-    LOGGER.error("Question not found for ID: {}", id);
+    logger.error("Question not found for ID: {}", id);
     return new NullQuestionDefinition(id);
   }
 }

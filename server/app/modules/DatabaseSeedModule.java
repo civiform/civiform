@@ -13,11 +13,11 @@ import services.seeding.DatabaseSeedTask;
  * start time.
  */
 public final class DatabaseSeedModule extends AbstractModule {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseSeedModule.class);
 
   @Override
   protected void configure() {
-    LOGGER.trace("Module Started");
+    logger.trace("Module Started");
     bind(DatabaseSeedScheduler.class).asEagerSingleton();
   }
 
@@ -34,14 +34,14 @@ public final class DatabaseSeedModule extends AbstractModule {
     public DatabaseSeedScheduler(
         ApplicationEvolutions applicationEvolutions,
         Provider<DatabaseSeedTask> databaseSeedTaskProvider) {
-      LOGGER.trace("DatabaseSeedScheduler - Started");
+      logger.trace("DatabaseSeedScheduler - Started");
 
       if (applicationEvolutions.upToDate()) {
-        LOGGER.trace("DatabaseSeedScheduler - Task Start");
+        logger.trace("DatabaseSeedScheduler - Task Start");
         databaseSeedTaskProvider.get().run();
-        LOGGER.trace("DatabaseSeedScheduler - Task End");
+        logger.trace("DatabaseSeedScheduler - Task End");
       } else {
-        LOGGER.trace("Evolutions Not Ready");
+        logger.trace("Evolutions Not Ready");
       }
     }
   }

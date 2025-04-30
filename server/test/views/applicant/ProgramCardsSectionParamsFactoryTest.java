@@ -7,18 +7,12 @@ import static org.mockito.Mockito.when;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
-import auth.ProgramAcls;
-import com.google.common.collect.ImmutableList;
 import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
-import models.DisplayMode;
 import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
-import services.LocalizedStrings;
-import services.program.ProgramDefinition;
-import services.program.ProgramType;
 
 public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   private CiviFormProfile testProfile;
@@ -162,24 +156,5 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile));
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
-  }
-
-  private ProgramDefinition createProgramDefinition(
-      String shortDescription, String longDescription) {
-    return ProgramDefinition.builder()
-        .setId(1L)
-        .setAdminName("program-name")
-        .setAdminDescription("admin description")
-        .setLocalizedName(LocalizedStrings.withDefaultValue("program name"))
-        .setLocalizedDescription(LocalizedStrings.withDefaultValue(longDescription))
-        .setLocalizedShortDescription(LocalizedStrings.withDefaultValue(shortDescription))
-        .setExternalLink("https://www.example.com")
-        .setDisplayMode(DisplayMode.PUBLIC)
-        .setProgramType(ProgramType.DEFAULT)
-        .setEligibilityIsGating(false)
-        .setAcls(new ProgramAcls())
-        .setCategories(ImmutableList.of())
-        .setApplicationSteps(ImmutableList.of())
-        .build();
   }
 }

@@ -8,11 +8,15 @@ import {
   logout,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
 } from '../support'
 import {TEST_USER_DISPLAY_NAME} from '../support/config'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Validate program visibility is correct for applicants and TIs', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('Create a new hidden program, verify applicants cannot see it on the home page', async ({
     page,
     adminPrograms,
@@ -146,7 +150,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'groupTwo',
     )
     await adminPrograms.publishAllDrafts()
@@ -226,7 +230,7 @@ test.describe('Validate program visibility is correct for applicants and TIs', (
       'https://usa.gov',
       ProgramVisibility.SELECT_TI,
       'admin description',
-      /* isCommonIntake= */ false,
+      ProgramType.DEFAULT,
       'groupTwo',
     )
     await adminPrograms.publishAllDrafts()

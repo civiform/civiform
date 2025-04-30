@@ -85,7 +85,7 @@ import services.statuses.StatusService;
  */
 public final class DevDatabaseSeedTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevDatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
 
   private final QuestionService questionService;
@@ -134,7 +134,7 @@ public final class DevDatabaseSeedTask {
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : sampleQuestionDefinitions) {
       if (existingSampleQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
+        logger.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingSampleQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
@@ -155,13 +155,13 @@ public final class DevDatabaseSeedTask {
       String errorMessages =
           result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
 
-      LOGGER.error(
+      logger.error(
           String.format(
               "Unable to create sample question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Sample sample question \"{}\"", questionDefinition.getName());
+      logger.info("Sample sample question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -399,7 +399,7 @@ public final class DevDatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: {}", e);
+      logger.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

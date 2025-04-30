@@ -10,7 +10,7 @@ import {
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'North Star Common Intake Upsell Tests',
@@ -30,7 +30,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
         await adminPrograms.publishProgram(programName)
         await adminPrograms.expectActiveProgram(programName)

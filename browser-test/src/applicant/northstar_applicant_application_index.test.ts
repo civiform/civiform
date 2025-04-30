@@ -15,7 +15,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -429,6 +429,36 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
     })
 
+    test('formats filter chips correctly for right to left languages', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step('change applicant language to Arabic', async () => {
+        await selectApplicantLanguageNorthstar(page, 'ar')
+        await page.goto('/')
+      })
+
+      await test.step('validate screenshot desktop', async () => {
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'filter-chips-right-to-left-desktop')
+      })
+
+      await test.step('validate screenshot mobile', async () => {
+        await page.setViewportSize({width: 360, height: 800})
+        await validateAccessibility(page)
+        await validateScreenshot(
+          page,
+          'filter-chips-right-to-left-mobile',
+          /* fullPage= */ false,
+        )
+      })
+    })
+
     test('with program filters enabled, categorizes programs correctly', async ({
       page,
       adminPrograms,
@@ -649,7 +679,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ true,
+        ProgramType.COMMON_INTAKE_FORM,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(
@@ -716,6 +746,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         },
         /* filtersOn= */ false,
         /* northStarEnabled= */ true,
+      )
+
+      await validateScreenshot(
+        page.locator('.cf-application-card', {
+          has: page.getByText(commonIntakeFormProgramName),
+        }),
+        'ns-common-intake-form-in-progress',
       )
 
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
@@ -870,6 +907,30 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       page.locator('#unfiltered-programs'),
       'applicant-homepage-cards-long-word-description',
     )
+  })
+
+  test('formats index page correctly for right to left languages', async ({
+    page,
+  }) => {
+    await test.step('change applicant language to Arabic', async () => {
+      await selectApplicantLanguageNorthstar(page, 'ar')
+      await page.goto('/')
+    })
+
+    await test.step('validate screenshot desktop', async () => {
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'applicant-homepage-right-to-left-desktop')
+    })
+
+    await test.step('validate screenshot mobile', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+      await validateAccessibility(page)
+      await validateScreenshot(
+        page,
+        'applicant-homepage-right-to-left-mobile',
+        /* fullPage= */ false,
+      )
+    })
   })
 
   test('applies color theming on home page when enabled', async ({
@@ -1070,7 +1131,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)
