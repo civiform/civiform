@@ -416,9 +416,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('renders right to left', async ({
-    page,
-  }) => {
+  test('renders right to left', async ({page}) => {
     await selectApplicantLanguageNorthstar(page, 'ar')
     await page.goto(`/programs/${programName}`)
 
