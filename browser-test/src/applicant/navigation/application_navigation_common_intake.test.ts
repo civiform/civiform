@@ -8,10 +8,14 @@ import {
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
 } from '../../support'
 import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test.describe('navigation with common intake', () => {
     // Create two programs, one is common intake
     const commonIntakeProgramName = 'Test Common Intake Form Program'
