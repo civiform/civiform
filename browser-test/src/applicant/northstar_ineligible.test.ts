@@ -4,6 +4,7 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
+  selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateAccessibility,
   loginAsTrustedIntermediary,
@@ -244,5 +245,34 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
     })
+  })
+
+  test('Applicant ineligible page renders right to left', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+
+      await selectApplicantLanguageNorthstar(page, 'ar')
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinueArabic()
+    })
+
+    await validateScreenshot(
+      page,
+      'northstar-ineligible-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+
+    await validateAccessibility(page)
   })
 })
