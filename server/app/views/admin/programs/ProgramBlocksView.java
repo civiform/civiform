@@ -473,7 +473,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (!program.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
+    if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(

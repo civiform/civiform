@@ -391,8 +391,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -410,8 +410,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -426,8 +426,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_promptsUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_promptsUserToConfirmPreScreenerChange() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -445,8 +445,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -456,11 +456,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
-  public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
+  public void create_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() {
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -478,8 +478,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -507,8 +507,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_allowsChangingCommonIntakeAfterConfirming() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+  public void create_allowsChangingPreScreenerAfterConfirming() {
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     String adminName = "internal-program-name";
     String programName = "External program name";
@@ -527,8 +527,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "true",
                     "tiGroups[]",
                     "1",
@@ -543,7 +543,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
         versionRepository.getProgramByNameForVersion(
             adminName, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
-    assertThat(newProgram.get().getProgramDefinition().isCommonIntakeForm()).isTrue();
+    assertThat(newProgram.get().getProgramDefinition().isPreScreenerForm()).isTrue();
 
     Result programDashboard = controller.index(fakeRequest());
     assertThat(contentAsString(programDashboard)).contains(programName);
@@ -690,7 +690,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
                     "tiGroups[]",
                     "1",
                     "applicationSteps[0][title]",
@@ -821,10 +821,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_showsErrorsBeforePromptingUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
@@ -843,8 +843,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -860,10 +860,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
+  public void update_promptsUserToConfirmPreScreenerChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
@@ -882,8 +882,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -894,11 +894,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
         controller.update(requestBuilder.build(), program.id, ProgramEditStatus.EDIT.name());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+    assertThat(contentAsString(result)).contains("confirm-pre-screener-change");
   }
 
   @Test
-  public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
+  public void update_doesNotPromptUserToConfirmPreScreenerChangeIfNoneExists() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
@@ -919,8 +919,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "false",
                     "applicationSteps[0][title]",
                     "step one title",
@@ -946,10 +946,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
+  public void update_allowsChangingPreScreenerAfterConfirming() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActivePreScreenerForm("Old pre-screener").build();
 
     String newProgramName = "External program name";
     String newProgramDescription = "New external program description";
@@ -970,8 +970,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "programTypeValue",
-                    ProgramType.COMMON_INTAKE_FORM.getValue(),
-                    "confirmedChangeCommonIntakeForm",
+                    ProgramType.PRE_SCREENER_FORM.getValue(),
+                    "confirmedChangePreScreenerForm",
                     "true",
                     "applicationSteps[0][title]",
                     "step one title",

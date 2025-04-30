@@ -19,8 +19,8 @@ public final class ProgramForm {
   private String programTypeValue;
 
   // Represents whether or not the user has confirmed that they want to change which program is
-  // marked as the common intake form.
-  private Boolean confirmedChangeCommonIntakeForm;
+  // marked as the pre-screener form.
+  private Boolean confirmedChangePreScreenerForm;
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;
   private List<Long> categories;
@@ -37,7 +37,7 @@ public final class ProgramForm {
     displayMode = "";
     notificationPreferences = new ArrayList<>();
     programTypeValue = "default";
-    confirmedChangeCommonIntakeForm = false;
+    confirmedChangePreScreenerForm = false;
     eligibilityIsGating = true;
     tiGroups = new ArrayList<>();
     categories = new ArrayList<>();
@@ -128,12 +128,12 @@ public final class ProgramForm {
     return ProgramType.fromValue(programTypeValue);
   }
 
-  public Boolean getConfirmedChangeCommonIntakeForm() {
-    return confirmedChangeCommonIntakeForm;
+  public Boolean getConfirmedChangePreScreenerForm() {
+    return confirmedChangePreScreenerForm;
   }
 
-  public void setConfirmedChangeCommonIntakeForm(Boolean confirmedChangeCommonIntakeForm) {
-    this.confirmedChangeCommonIntakeForm = confirmedChangeCommonIntakeForm;
+  public void setConfirmedChangePreScreenerForm(Boolean confirmedChangePreScreenerForm) {
+    this.confirmedChangePreScreenerForm = confirmedChangePreScreenerForm;
   }
 
   public boolean getEligibilityIsGating() {

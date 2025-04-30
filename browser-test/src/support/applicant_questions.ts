@@ -566,20 +566,20 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeForm(commonIntakeFormName: string) {
-    const commonIntakeFormSectionNames =
+  async expectPreScreenerForm(preScreenerFormName: string) {
+    const preScreenerFormSectionNames =
       await this.programNamesForSection('Get Started')
-    expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
+    expect(preScreenerFormSectionNames).toEqual([preScreenerFormName])
   }
 
-  async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
+  async expectPreScreenerFormNorthstar(preScreenerFormName: string) {
     const sectionLocator = this.page.locator('[aria-label="Get Started"]')
 
     const programTitlesLocator = sectionLocator.locator(
       '.cf-application-card-title',
     )
 
-    await expect(programTitlesLocator).toHaveText(commonIntakeFormName)
+    await expect(programTitlesLocator).toHaveText(preScreenerFormName)
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {
@@ -853,13 +853,13 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeReviewPage() {
+  async expectPreScreenerReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Benefits pre-screener summary',
     )
   }
 
-  async expectCommonIntakeConfirmationPage(
+  async expectPreScreenerConfirmationPage(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
@@ -895,7 +895,7 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeConfirmationPageNorthStar(
+  async expectPreScreenerConfirmationPageNorthStar(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],

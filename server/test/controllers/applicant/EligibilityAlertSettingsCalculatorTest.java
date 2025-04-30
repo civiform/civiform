@@ -397,17 +397,17 @@ public class EligibilityAlertSettingsCalculatorTest {
   }
 
   @Test
-  public void build_expected_eligibility_alert_settings_when_program_is_common_intake()
+  public void build_expected_eligibility_alert_settings_when_program_is_pre_screener()
       throws ProgramNotFoundException {
 
-    var commonIntakeProgram =
+    var preScreenerProgram =
         ProgramDefinition.builder()
             .setId(1L)
             .setAdminName("")
             .setAdminDescription("")
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setProgramType(ProgramType.PRE_SCREENER_FORM)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls())
             .setCategories(ImmutableList.of())
@@ -417,7 +417,7 @@ public class EligibilityAlertSettingsCalculatorTest {
     MessagesApi messagesApiMock = getMessagesApiMock();
     ProgramService programServiceMock = mock(ProgramService.class);
     when(programServiceMock.getFullProgramDefinition(any(Long.class)))
-        .thenReturn(commonIntakeProgram);
+        .thenReturn(preScreenerProgram);
 
     EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator =
         new EligibilityAlertSettingsCalculator(programServiceMock, messagesApiMock);

@@ -214,11 +214,11 @@ button.viewAndApplySr=查看及申請「{0}」
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=按這裡開始填寫「{0}」
+button.startHerePreScreenerSr=按這裡開始填寫「{0}」
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=編輯您針對「{0}」提交的資訊
+button.editPreScreenerSr=編輯您針對「{0}」提交的資訊
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=繼續填寫「{0}」
+button.continuePreScreenerSr=繼續填寫「{0}」
 # Text describing the date the application was last submitted.
 content.submittedDate=提交於 {0}
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer=回答以下問題：{0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=編輯「{0}」
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=福利預先篩選表單摘要
+title.preScreenerSummary=福利預先篩選表單摘要
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=開始填寫
 title.programSummary=計畫申請摘要
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將
 content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。登入之後，您就可以申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
-title.commonIntakeConfirmation=您可能有資格參加的計畫
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=您的客戶可能有資格參加的計畫
+title.preScreenerConfirmation=您可能有資格參加的計畫
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=您的客戶可能有資格參加的計畫
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
+content.preScreenerConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=根據您的回覆，您可能符合下列計畫的資格：
+content.preScreenerConfirmation.v2=根據您的回覆，您可能符合下列計畫的資格：
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
+content.preScreenerConfirmationTi=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您的客戶就有可能加入這些計畫。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=根據您的回覆，您的客戶可能符合下列計畫的資格：
+content.preScreenerConfirmationTi.v2=根據您的回覆，您的客戶可能符合下列計畫的資格：
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+content.preScreenerNoMatchingPrograms=預先篩選工具目前找不到您可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
+content.preScreenerNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能有資格參加的計畫。不過，您隨時可以點選「申請參加計畫」提出計畫申請，或是前往「{0}」查看其他計畫
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
+content.preScreenerNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=您可能會感興趣的其他計畫
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.

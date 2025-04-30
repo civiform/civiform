@@ -1485,7 +1485,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setNotificationPreferences(
                 ImmutableList.of(ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS))
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setProgramType(ProgramType.PRE_SCREENER_FORM)
             .setEligibilityIsGating(true)
             .setAcls(new ProgramAcls(ImmutableSet.of(987L, 65L, 4321L)))
             .setCategories(ImmutableList.of())
@@ -1541,7 +1541,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(result.notificationPreferences())
         .containsExactlyInAnyOrder(
             ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS);
-    assertThat(result.programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.programType()).isEqualTo(ProgramType.PRE_SCREENER_FORM);
     assertThat(result.eligibilityIsGating()).isTrue();
     assertThat(result.acls().getTiProgramViewAcls()).containsExactlyInAnyOrder(987L, 65L, 4321L);
 

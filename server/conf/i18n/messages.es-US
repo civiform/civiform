@@ -214,11 +214,11 @@ button.viewAndApplySr=Ver y aplicar a {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Continuar a la solicitud
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
+button.startHerePreScreenerSr=Comenzar aquí completando la solicitud {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=Editar la información enviada para {0}
+button.editPreScreenerSr=Editar la información enviada para {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Continuar completando la solicitud {0}
+button.continuePreScreenerSr=Continuar completando la solicitud {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=Enviada el {0}
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer=Responder {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Editar {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Resumen del proceso de evaluación para acceder a los beneficios
+title.preScreenerSummary=Resumen del proceso de evaluación para acceder a los beneficios
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Comencemos.
 title.programSummary=Resumen de la inscripción al programa
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar 
 content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás enviar solicitudes de inscripción a varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continuar sin una cuenta
-title.commonIntakeConfirmation=Programas para los que cumples los requisitos
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Programas para los que tu cliente cumple los requisitos
+title.preScreenerConfirmation=Programas para los que cumples los requisitos
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Programas para los que tu cliente cumple los requisitos
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.preScreenerConfirmation=Puedes inscribirte en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Según tus respuestas, es posible que califiques para los siguientes programas:
+content.preScreenerConfirmation.v2=Según tus respuestas, es posible que califiques para los siguientes programas:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
+content.preScreenerConfirmationTi=Puedes inscribir a tu cliente en estos programas si completas la solicitud en línea haciendo clic en ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Según tus respuestas, es posible que tu cliente califique para los siguientes programas:
+content.preScreenerConfirmationTi.v2=Según tus respuestas, es posible que tu cliente califique para los siguientes programas:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.preScreenerNoMatchingPrograms=El proceso de evaluación no pudo encontrar programas para los que cumplas los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
+content.preScreenerNoMatchingProgramsTi=El proceso de evaluación no pudo encontrar programas para los que tu cliente cumpla los requisitos en este momento. Sin embargo, puedes enviar una solicitud de inscripción para los programas en cualquier momento haciendo clic en ''Apply to programs''. Para ver programas adicionales, puedes visitar {0}.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
+content.preScreenerNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Otros programas que te pueden interesar
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.

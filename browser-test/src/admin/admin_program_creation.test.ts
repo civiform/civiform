@@ -1016,28 +1016,28 @@ test.describe('program creation', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  test('create common intake form', async ({page, adminPrograms}) => {
+  test('create pre-screener form', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
     const programName = 'Apc program'
 
-    await test.step('create new program that is not an intake form', async () => {
+    await test.step('create new program that is not an pre-screener form', async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramDescriptionPage(programName)
     })
 
-    const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+    const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
 
-    await test.step('expect common intake toggle not to be checked', async () => {
-      await expect(commonIntakeFormInput).not.toBeChecked()
+    await test.step('expect pre-screener toggle not to be checked', async () => {
+      await expect(preScreenerFormInput).not.toBeChecked()
     })
 
-    await test.step('click common intake toggle and expect it to be checked', async () => {
-      await adminPrograms.clickCommonIntakeFormToggle()
+    await test.step('click pre-screener toggle and expect it to be checked', async () => {
+      await adminPrograms.clickPreScreenerFormToggle()
       await validateScreenshot(
         page,
-        'program-description-page-with-intake-form-true',
+        'program-description-page-with-pre-screener-form-true',
       )
-      await expect(commonIntakeFormInput).toBeChecked()
+      await expect(preScreenerFormInput).toBeChecked()
     })
 
     await test.step('expect non-applicable fields to be disabled', async () => {
@@ -1057,28 +1057,28 @@ test.describe('program creation', () => {
     })
   })
 
-  test('correctly renders common intake form change confirmation modal', async ({
+  test('correctly renders pre-screener form change confirmation modal', async ({
     page,
     adminPrograms,
   }) => {
     await loginAsAdmin(page)
 
-    const commonIntakeFormProgramName = 'Benefits finder'
+    const preScreenerFormProgramName = 'Benefits finder'
     await adminPrograms.addProgram(
-      commonIntakeFormProgramName,
+      preScreenerFormProgramName,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER_FORM,
     )
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
 
     await adminPrograms.goToProgramDescriptionPage(programName)
-    await adminPrograms.clickCommonIntakeFormToggle()
+    await adminPrograms.clickPreScreenerFormToggle()
     await page.fill('#program-external-link-input', 'badlink')
     await page.click('#program-update-button')
 
@@ -1094,7 +1094,7 @@ test.describe('program creation', () => {
 
     await validateScreenshot(
       page,
-      'confirm-common-intake-change-modal',
+      'confirm-pre-screener-change-modal',
       /* fullPage= */ false,
     )
 
@@ -1104,7 +1104,7 @@ test.describe('program creation', () => {
     modal = await waitForAnyModalLocator(page)
     await expect(modal).toContainText('Confirm pre-screener change?')
 
-    await page.click('#confirm-common-intake-change-button')
+    await page.click('#confirm-pre-screener-change-button')
     await waitForPageJsLoad(page)
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
@@ -1129,7 +1129,7 @@ test.describe('program creation', () => {
     expect(await page.innerText('main')).toContain('Eligibility')
   })
 
-  test('common intake form does not have eligibility conditions', async ({
+  test('pre-screener form does not have eligibility conditions', async ({
     page,
     adminPrograms,
   }) => {
@@ -1142,7 +1142,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER_FORM,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1271,40 +1271,40 @@ test.describe('program creation', () => {
     })
 
     // This test will replace the similar test when the feature flag is removed
-    test('create common intake form with program filtering enabled', async ({
+    test('create pre-screener form with program filtering enabled', async ({
       page,
       adminPrograms,
     }) => {
       await loginAsAdmin(page)
       const programName = 'Apc program'
 
-      await test.step('create new program that is not an intake form', async () => {
+      await test.step('create new program that is not an pre-screener form', async () => {
         await adminPrograms.addProgram(programName)
         await adminPrograms.goToProgramDescriptionPage(programName)
 
         await validateScreenshot(
           page.locator('#program-details-form'),
-          'program-edit-page-with-intake-form-false-filtering-enabled',
+          'program-edit-page-with-pre-screener-form-false-filtering-enabled',
         )
       })
 
-      const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+      const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
 
-      await test.step('expect common intake toggle not to be checked', async () => {
-        await expect(commonIntakeFormInput).not.toBeChecked()
+      await test.step('expect pre-screener toggle not to be checked', async () => {
+        await expect(preScreenerFormInput).not.toBeChecked()
       })
 
       await test.step('add category to program', async () => {
         await page.getByText('Education').check()
       })
 
-      await test.step('click common intake toggle and expect it to be checked', async () => {
-        await adminPrograms.clickCommonIntakeFormToggle()
+      await test.step('click pre-screener toggle and expect it to be checked', async () => {
+        await adminPrograms.clickPreScreenerFormToggle()
         await validateScreenshot(
           page.locator('#program-details-form'),
-          'program-edit-page-with-intake-form-true-filtering-enabled',
+          'program-edit-page-with-pre-screener-form-true-filtering-enabled',
         )
-        await expect(commonIntakeFormInput).toBeChecked()
+        await expect(preScreenerFormInput).toBeChecked()
       })
 
       await test.step('expect non-applicable fields to be unchecked and disabled', async () => {
@@ -1343,31 +1343,31 @@ test.describe('program creation', () => {
         await enableFeatureFlag(page, 'north_star_applicant_ui')
       })
 
-      test('create common intake form with northstar UI enabled', async ({
+      test('create pre-screener form with northstar UI enabled', async ({
         page,
         adminPrograms,
       }) => {
         await loginAsAdmin(page)
         const programName = 'Apc program'
 
-        await test.step('create new program that is not an intake form', async () => {
+        await test.step('create new program that is not an pre-screener form', async () => {
           await adminPrograms.addProgram(programName)
           await adminPrograms.goToProgramDescriptionPage(programName)
         })
 
-        const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+        const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
 
-        await test.step('expect common intake toggle not to be checked', async () => {
-          await expect(commonIntakeFormInput).not.toBeChecked()
+        await test.step('expect pre-screener toggle not to be checked', async () => {
+          await expect(preScreenerFormInput).not.toBeChecked()
         })
 
-        await test.step('click common intake toggle and expect it to be checked', async () => {
-          await adminPrograms.clickCommonIntakeFormToggle()
+        await test.step('click pre-screener toggle and expect it to be checked', async () => {
+          await adminPrograms.clickPreScreenerFormToggle()
           await validateScreenshot(
             page.locator('#program-details-form'),
-            'program-edit-page-with-intake-form-true-northstar-enabled',
+            'program-edit-page-with-pre-screener-form-true-northstar-enabled',
           )
-          await expect(commonIntakeFormInput).toBeChecked()
+          await expect(preScreenerFormInput).toBeChecked()
         })
 
         await test.step('expect fields to be unchecked and disabled', async () => {
@@ -1403,7 +1403,7 @@ test.describe('program creation', () => {
       })
 
       // This test will replace the similar test above when the feature flag is removed
-      test('create common intake form with with northstar UI and program filtering enabled', async ({
+      test('create pre-screener form with with northstar UI and program filtering enabled', async ({
         page,
         adminPrograms,
         seeding,
@@ -1418,28 +1418,28 @@ test.describe('program creation', () => {
         await loginAsAdmin(page)
         const programName = 'Apc program'
 
-        await test.step('create new program that is not an intake form', async () => {
+        await test.step('create new program that is not an pre-screener form', async () => {
           await adminPrograms.addProgram(programName)
           await adminPrograms.goToProgramDescriptionPage(programName)
         })
 
-        const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+        const preScreenerFormInput = adminPrograms.getPreScreenerFormToggle()
 
-        await test.step('expect common intake toggle not to be checked', async () => {
-          await expect(commonIntakeFormInput).not.toBeChecked()
+        await test.step('expect pre-screener toggle not to be checked', async () => {
+          await expect(preScreenerFormInput).not.toBeChecked()
         })
 
         await test.step('add category to program', async () => {
           await page.getByText('Education').check()
         })
 
-        await test.step('click common intake toggle and expect it to be checked', async () => {
-          await adminPrograms.clickCommonIntakeFormToggle()
+        await test.step('click pre-screener toggle and expect it to be checked', async () => {
+          await adminPrograms.clickPreScreenerFormToggle()
           await validateScreenshot(
             page.locator('#program-details-form'),
-            'program-edit-page-with-intake-form-true-northstar-enabled-filtering-enabled',
+            'program-edit-page-with-pre-screener-form-true-northstar-enabled-filtering-enabled',
           )
-          await expect(commonIntakeFormInput).toBeChecked()
+          await expect(preScreenerFormInput).toBeChecked()
         })
 
         await test.step('expect non-applicable fields to have disabled state', async () => {
@@ -1457,8 +1457,8 @@ test.describe('program creation', () => {
           )
         })
 
-        await test.step('expect fields are re-enabled when toggling off common intake form', async () => {
-          await adminPrograms.clickCommonIntakeFormToggle()
+        await test.step('expect fields are re-enabled when toggling off pre-screener form', async () => {
+          await adminPrograms.clickPreScreenerFormToggle()
           await adminPrograms.expectFormFieldEnabled(
             FormField.PROGRAM_ELIGIBILITY,
           )
@@ -1471,8 +1471,8 @@ test.describe('program creation', () => {
           )
         })
 
-        await test.step('click common intake toggle again and save program', async () => {
-          await adminPrograms.clickCommonIntakeFormToggle()
+        await test.step('click pre-screener toggle again and save program', async () => {
+          await adminPrograms.clickPreScreenerFormToggle()
           await adminPrograms.submitProgramDetailsEdits()
           await adminPrograms.expectProgramBlockEditPage(programName)
         })
@@ -1553,7 +1553,7 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
           )
 
           await validateScreenshot(
@@ -1605,7 +1605,7 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeDisabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeDisabled(
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
           )
 
           await validateScreenshot(
@@ -1615,7 +1615,7 @@ test.describe('program creation', () => {
         })
       })
 
-      test('default or common intake program cannot be changed to be an external program after creation', async ({
+      test('default or pre-screener program cannot be changed to be an external program after creation', async ({
         page,
         adminPrograms,
       }) => {
@@ -1635,20 +1635,20 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
           )
         })
 
-        await test.step("'common intake' program cannot be changed to be an 'external' program", async () => {
-          await adminPrograms.selectProgramType(ProgramType.COMMON_INTAKE_FORM)
+        await test.step("'pre-screener' program cannot be changed to be an 'external' program", async () => {
+          await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER_FORM)
           await adminPrograms.expectProgramTypeSelected(
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
           )
 
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.COMMON_INTAKE_FORM,
+            ProgramType.PRE_SCREENER_FORM,
           )
         })
       })

@@ -65,7 +65,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
 
     context.setVariable("pageTitle", messages.at(MessageKey.CONTENT_FIND_PROGRAMS.getKeyName()));
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
-    Optional<ProgramSectionParams> intakeSection = Optional.empty();
+    Optional<ProgramSectionParams> preScreenerSection = Optional.empty();
     Optional<ProgramSectionParams> unfilteredSection = Optional.empty();
 
     Locale preferredLocale = messages.lang().toLocale();
@@ -79,19 +79,19 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (isUnstartedCommonIntakeForm(applicationPrograms.commonIntakeForm())) {
-      intakeSection =
+    if (isUnstartedPreScreenerForm(applicationPrograms.preScreenerForm())) {
+      preScreenerSection =
           Optional.of(
-              getCommonIntakeFormSection(
+              getPreScreenerFormSection(
                   messages,
                   request,
-                  applicationPrograms.commonIntakeForm().get(),
+                  applicationPrograms.preScreenerForm().get(),
                   profile,
                   applicantId,
                   personalInfo));
     }
 
-    if (!applicationPrograms.inProgressIncludingCommonIntake().isEmpty()
+    if (!applicationPrograms.inProgressIncludingPreScreener().isEmpty()
         || !applicationPrograms.submitted().isEmpty()) {
       myApplicationsSection =
           Optional.of(
@@ -101,7 +101,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
-                          applicationPrograms.inProgressIncludingCommonIntake().stream(),
+                          applicationPrograms.inProgressIncludingPreScreener().stream(),
                           applicationPrograms.submitted().stream())
                       .collect(ImmutableList.toImmutableList()),
                   /* preferredLocale= */ messages.lang().toLocale(),
@@ -128,7 +128,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     }
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
-    context.setVariable("commonIntakeSection", intakeSection);
+    context.setVariable("preScreenerSection", preScreenerSection);
 
     context.setVariable("unfilteredSection", unfilteredSection);
     context.setVariable(
@@ -148,10 +148,10 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
     return templateEngine.process("applicant/ProgramIndexTemplate", context);
   }
 
-  private ProgramSectionParams getCommonIntakeFormSection(
+  private ProgramSectionParams getPreScreenerFormSection(
       Messages messages,
       Request request,
-      ApplicantProgramData commonIntakeForm,
+      ApplicantProgramData preScreenerForm,
       Optional<CiviFormProfile> profile,
       Optional<Long> applicantId,
       ApplicantPersonalInfo personalInfo) {
@@ -161,20 +161,20 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
         messages,
         Optional.of(MessageKey.TITLE_FIND_SERVICES_SECTION),
         MessageKey.BUTTON_START_SURVEY,
-        ImmutableList.of(commonIntakeForm),
+        ImmutableList.of(preScreenerForm),
         /* preferredLocale= */ messages.lang().toLocale(),
         profile,
         applicantId,
         personalInfo,
-        ProgramCardsSectionParamsFactory.SectionType.COMMON_INTAKE);
+        ProgramCardsSectionParamsFactory.SectionType.PRE_SCREENER);
   }
 
-  private boolean isUnstartedCommonIntakeForm(
-      Optional<ApplicantProgramData> commonIntakeFormOptional) {
-    if (commonIntakeFormOptional.isEmpty()) {
+  private boolean isUnstartedPreScreenerForm(
+      Optional<ApplicantProgramData> preScreenerFormOptional) {
+    if (preScreenerFormOptional.isEmpty()) {
       return false;
     }
-    return commonIntakeFormOptional
+    return preScreenerFormOptional
         .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
         .isEmpty();
   }

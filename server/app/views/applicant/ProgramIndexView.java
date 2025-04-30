@@ -240,7 +240,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
+    if (relevantPrograms.preScreenerForm().isPresent()) {
       content.with(
           findServicesSection(
               request,
@@ -495,8 +495,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<CiviFormProfile> profile,
       DivTag content,
       String cardContainerStyles) {
-    // Intake form
-    if (relevantPrograms.commonIntakeForm().isPresent()) {
+    // Pre-screener form
+    if (relevantPrograms.preScreenerForm().isPresent()) {
       content.with(
           findServicesSection(
               request,
@@ -540,19 +540,19 @@ public final class ProgramIndexView extends BaseHtmlView {
       Locale preferredLocale,
       HtmlBundle bundle,
       Optional<CiviFormProfile> profile) {
-    Optional<LifecycleStage> commonIntakeFormApplicationStatus =
-        relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
+    Optional<LifecycleStage> preScreenerFormApplicationStatus =
+        relevantPrograms.preScreenerForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
-    if (commonIntakeFormApplicationStatus.isPresent()) {
-      switch (commonIntakeFormApplicationStatus.get()) {
+    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_PRE_SCREENER_SR;
+    if (preScreenerFormApplicationStatus.isPresent()) {
+      switch (preScreenerFormApplicationStatus.get()) {
         case ACTIVE:
           buttonText = MessageKey.BUTTON_EDIT;
-          buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
+          buttonScreenReaderText = MessageKey.BUTTON_EDIT_PRE_SCREENER_SR;
           break;
         case DRAFT:
           buttonText = MessageKey.BUTTON_CONTINUE;
-          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
+          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_PRE_SCREENER_SR;
           break;
         default:
           // Leave button text as is.
@@ -576,7 +576,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
-                ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+                ImmutableList.of(relevantPrograms.preScreenerForm().get()),
                 buttonText,
                 buttonScreenReaderText,
                 bundle,

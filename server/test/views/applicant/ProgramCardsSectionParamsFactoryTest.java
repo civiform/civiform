@@ -36,7 +36,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             // empty lifecycle stage means this is their first time filling out this application
             /* lifeCycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
@@ -52,7 +52,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             // empty lifecycle stage means this is their first time filling out this application
             /* lifeCycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
@@ -68,7 +68,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.empty(),
@@ -84,7 +84,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.of(1L),
@@ -100,7 +100,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             Optional.of(
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
@@ -117,7 +117,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            /* isPreScreenerForm= */ false,
             Optional.of(
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
@@ -127,14 +127,14 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntake() {
+  public void getActionUrl_returnsEditUrlWhenPreScreener() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ true,
+            /* isPreScreenerForm= */ true,
             // empty lifecycle stage means this is their first time filling out this application
             /* lifeCycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
@@ -143,14 +143,14 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getActionUrl_returnsEditUrlWhenCommonIntakeWithApplicantIdWhenPresent() {
+  public void getActionUrl_returnsEditUrlWhenPreScreenerWithApplicantIdWhenPresent() {
     ApplicantRoutes applicantRoutes = new ApplicantRoutes();
     String url =
         ProgramCardsSectionParamsFactory.getActionUrl(
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ true,
+            /* isPreScreenerForm= */ true,
             // empty lifecycle stage means this is their first time filling out this application
             /* lifeCycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),

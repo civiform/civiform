@@ -23,8 +23,8 @@
               <h2>
                 <th:block
                   th:text="${isTrustedIntermediary} ?
-                  #{title.commonIntakeConfirmationTi} :
-                  #{title.commonIntakeConfirmation}"
+                  #{title.preScreenerConfirmationTi} :
+                  #{title.preScreenerConfirmation}"
                 ></th:block>
               </h2>
 
@@ -32,8 +32,8 @@
                 <!-- utext is necessary to insert a hyperlink into a localized string. -->
                 <p
                   th:utext="${isTrustedIntermediary} ?
-                  #{content.commonIntakeNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
-                  #{content.commonIntakeNoMatchingPrograms(${moreResourcesLinkHtml})}"
+                  #{content.preScreenerNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
+                  #{content.preScreenerNoMatchingPrograms(${moreResourcesLinkHtml})}"
                 ></p>
               </div>
 
@@ -43,8 +43,8 @@
               >
                 <p
                   th:text="${isTrustedIntermediary} ?
-                    #{content.commonIntakeConfirmationTi.v2} :
-                    #{content.commonIntakeConfirmation.v2}"
+                    #{content.preScreenerConfirmationTi.v2} :
+                    #{content.preScreenerConfirmation.v2}"
                   class="content"
                 ></p>
 

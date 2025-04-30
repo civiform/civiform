@@ -138,8 +138,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
-            ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
+        params.programType().equals(ProgramType.PRE_SCREENER_FORM)
+            ? messages.at(MessageKey.TITLE_PRE_SCREENER_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     Optional<DivTag> maybeBackToAdminViewButton =
