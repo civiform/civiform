@@ -50,7 +50,6 @@ export enum FormField {
 
 export enum ProgramType {
   DEFAULT = 'CiviForm program',
-  COMMON_INTAKE_FORM = 'Pre-screener',
   PRE_SCREENER_FORM = 'Pre-screener',
   EXTERNAL = 'External program',
 }
@@ -1605,7 +1604,7 @@ export class AdminPrograms {
   }
 
   /**
-   * 
+   *
    * @deprecated prefer using {@link getPreScreenerFormToggle} instead.
    */
   getCommonIntakeFormToggle() {
@@ -1680,9 +1679,6 @@ export class AdminPrograms {
     switch (programType) {
       case ProgramType.DEFAULT:
         programId = 'default-program-option'
-        break
-      case ProgramType.COMMON_INTAKE_FORM:
-        programId = 'common-intake-program-option'
         break
       case ProgramType.PRE_SCREENER_FORM:
         programId = 'common-intake-program-option'

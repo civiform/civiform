@@ -539,8 +539,8 @@ export class ApplicantQuestions {
 
   /**
    * @deprecated prefer using {@link expectPreScreenerForm} instead
-   * 
-   * @param commonIntakeFormName 
+   *
+   * @param commonIntakeFormName
    */
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
@@ -555,8 +555,8 @@ export class ApplicantQuestions {
   }
 
   /**
-   * 
-   * @param commonIntakeFormName 
+   *
+   * @param commonIntakeFormName
    * @deprecated prefer using {@link expectPreScreenerFormNorthstar} instead
    */
   async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
@@ -867,10 +867,10 @@ export class ApplicantQuestions {
 
   /**
    * @deprecated prefer using {@link expectPreScreenerConfirmationPage} instead
-   * 
-   * @param wantUpsell 
-   * @param wantTrustedIntermediary 
-   * @param wantEligiblePrograms 
+   *
+   * @param wantUpsell
+   * @param wantTrustedIntermediary
+   * @param wantEligiblePrograms
    */
   async expectCommonIntakeConfirmationPage(
     wantUpsell: boolean,
@@ -946,10 +946,10 @@ export class ApplicantQuestions {
 
   /**
    * @deprecated prefer using {@link expectPreScreenerConfirmationPageNorthStar} instead
-   * 
-   * @param wantUpsell 
-   * @param wantTrustedIntermediary 
-   * @param wantEligiblePrograms 
+   *
+   * @param wantUpsell
+   * @param wantTrustedIntermediary
+   * @param wantEligiblePrograms
    */
   async expectCommonIntakeConfirmationPageNorthStar(
     wantUpsell: boolean,

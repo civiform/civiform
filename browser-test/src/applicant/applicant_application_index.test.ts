@@ -240,7 +240,7 @@ test.describe('applicant program index page', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER_FORM,
       )
       await adminPrograms.publishAllDrafts()
       await logout(page)
@@ -641,7 +641,7 @@ test.describe('applicant program index page with images', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER_FORM,
     )
 
     // In Progress: Image
