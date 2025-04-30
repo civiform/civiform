@@ -1604,7 +1604,7 @@ export class AdminPrograms {
   }
 
   /**
-   * 
+   *
    * @deprecated prefer using {@link getPreScreenerFormToggle} instead.
    */
   getCommonIntakeFormToggle() {
