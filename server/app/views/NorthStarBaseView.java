@@ -91,7 +91,9 @@ public abstract class NorthStarBaseView {
     context.setVariable("goBackIcon", Icons.ARROW_LEFT);
 
     // Language selector params
-    context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
+    Lang preferredLanguage = languageUtils.getPreferredLanguage(request);
+    context.setVariable("preferredLanguage", preferredLanguage);
+    context.setVariable("shouldDisplayRtl", LanguageUtils.shouldDisplayRtl(preferredLanguage));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
     context.setVariable("requestUri", request.uri());
