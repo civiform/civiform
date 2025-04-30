@@ -274,7 +274,9 @@ test.describe('Program list page.', () => {
     ])
 
     const firstProgramCard = page.locator('.cf-admin-program-card').first()
-    await expect(firstProgramCard.getByText('Pre-screener program')).toBeVisible()
+    await expect(
+      firstProgramCard.getByText('Pre-screener program'),
+    ).toBeVisible()
 
     const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
     await expect(secondProgramCard.getByText('External program')).toBeVisible()
