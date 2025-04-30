@@ -243,7 +243,7 @@ public class DevToolsController extends Controller {
   /**
    * Removes rows from all tables but otherwise doesn't modify them.
    *
-   * <p>Row key counters are not reset for instance.
+   * <p>Row id sequence counters are not reset for instance.
    */
   private void truncateTables() {
     transactionManager.execute(
