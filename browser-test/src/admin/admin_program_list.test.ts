@@ -9,6 +9,9 @@ import {
 import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -32,6 +35,12 @@ test.describe('Program list page.', () => {
     const programCard = page.locator('.cf-admin-program-card').first()
     await expect(programCard.getByText('Draft')).toBeHidden()
     await expect(programCard.getByText('Active')).toBeVisible()
+
+    await test.step('check that program visibility is displayed', async () => {
+      await expect(
+        programCard.getByText('Visibility state: Public'),
+      ).toBeVisible()
+    })
 
     // full page screenshot
     await validateScreenshot(page, 'program-list-one-active-program')
@@ -107,7 +116,6 @@ test.describe('Program list page.', () => {
     adminPrograms,
     seeding,
   }) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
     const programLongDescription =
       'A very very very very very very long description'
@@ -129,12 +137,6 @@ test.describe('Program list page.', () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       await expect(firstProgramCard.getByText('Categories: None')).toBeVisible()
-    })
-    await test.step('check that program visibility is displayed', async () => {
-      const firstProgramCard = page.locator('.cf-admin-program-card').first()
-      await expect(
-        firstProgramCard.getByText('Visibility state: Public'),
-      ).toBeVisible()
     })
 
     await test.step('add two categories', async () => {
