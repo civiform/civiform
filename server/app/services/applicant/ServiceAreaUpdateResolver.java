@@ -65,20 +65,22 @@ final class ServiceAreaUpdateResolver {
             block.getLeafAddressNodeServiceAreaIds().get());
     Optional<ApplicantQuestion> maybeAddressQuestion =
         block.getAddressQuestionWithCorrectionEnabled();
+    ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
+    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
 
     if (maybeAddressQuestion.isEmpty() || maybeOptions.isEmpty()) {
-      return CompletableFuture.completedFuture(Optional.empty());
+      return CompletableFuture.completedFuture(
+          Optional.of(ServiceAreaUpdate.create(serviceAreaPath, ImmutableList.of())));
     }
 
     ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
-    ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
     Boolean hasCorrectedAddress = doesUpdateContainCorrectedAddress(addressQuestion, updateMap);
 
     if (!hasCorrectedAddress) {
-      return CompletableFuture.completedFuture(Optional.empty());
+      return CompletableFuture.completedFuture(
+          Optional.of(ServiceAreaUpdate.create(serviceAreaPath, ImmutableList.of())));
     }
 
-    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
     ImmutableList<ServiceAreaInclusion> existingServiceAreaInclusionGroup =
         getExistingServiceAreaInclusionGroup(serviceAreaPath, updateMap);
 
