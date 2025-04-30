@@ -65,9 +65,7 @@ test.describe('Managing system-wide settings', () => {
     })
   })
 
-  test('Validates theme settings', async ({
-    adminSettings,
-  }) => {
+  test('Validates theme settings', async ({adminSettings}) => {
     await adminSettings.gotoAdminSettings()
 
     await test.step('contrast ratio not met on primary color', async () => {

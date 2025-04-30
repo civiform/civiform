@@ -40,7 +40,7 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "A primary color is the color displayed most prominently across your website. Enter the hex code for this color. Not ready for production use.",
         "type": "string",
-        "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)?",
+        "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
           {"val": "#f12345", "should_match": true},
           {"val": "#c13", "should_match": true},
@@ -53,7 +53,7 @@
         "description": "A darker version of your primary color can be applied to your website for some purposes. Enter the hex code for this color. Not ready for production use.",
         "type": "string",
         "required": false,
-        "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)?",
+        "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
           {"val": "#f12345", "should_match": true},
           {"val": "#c13", "should_match": true},
