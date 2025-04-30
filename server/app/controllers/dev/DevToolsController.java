@@ -165,7 +165,7 @@ public class DevToolsController extends Controller {
     return ok(String.format("Added one-time run of %s", jobName));
   }
 
-  /** Remove all content from all application tables. */
+  /** Remove all content from all server application tables. */
   public Result clear() {
     Result result = redirect(routes.DevToolsController.index().url());
     return clearInternal()
@@ -178,18 +178,17 @@ public class DevToolsController extends Controller {
     return clearInternal() ? ok() : internalServerError();
   }
 
-  /** Remove all content from all application tables and clear the responding
-   * server's memory caches. Should only be used for testing.
-   * <p>
-   * Note: This is best-effort and is not a full reset of the DB. Be careful
-   * using this in a multitask environment as the deployment DB will have its
-   * tables wiped, but only the responding server will have its memory caches
-   * cleared.
-   * <p>
-   * As a practical matter though, clearing the databases doesn't reset the
-   * DB table primary-key id generators, so any uncleared caches will only
-   * matter in as much as a request can be made for old ids in the servers
-   * cache. And even then ebean will fail if data is written with foreign
+  /**
+   * Remove all content from all server application tables and clear the responding server's memory
+   * caches. Should only be used for testing.
+   *
+   * <p>Note: This is best-effort and is not a full reset of the DB. Be careful using this in a
+   * multitask environment as the deployment DB will have its tables wiped, but only the responding
+   * server will have its memory caches cleared.
+   *
+   * <p>As a practical matter though, clearing the databases doesn't reset the DB table primary-key
+   * id generators, so any uncleared caches will only matter in as much as a request can be made for
+   * old ids in the servers cache. And even then ebean will fail if data is written with foreign
    * keys that don't exist, etc.
    */
   private boolean clearInternal() {
@@ -224,10 +223,8 @@ public class DevToolsController extends Controller {
   /**
    * Clear cache if it is enabled in settings.
    *
-   * <p>Note: this is possibly not safe to do in a multitask environment
-   * depending on the desired outcome as only a singular task will respond
-   * and clear its caches, while others will not.
-   *
+   * <p>Note: this is possibly not safe to do in a multitask environment depending on the desired
+   * outcome as only a singular task will respond and clear its caches, while others will not.
    */
   private void clearCacheIfEnabled() {
     if (settingsManifest.getVersionCacheEnabled()) {
@@ -245,8 +242,8 @@ public class DevToolsController extends Controller {
 
   /**
    * Removes rows from all tables but otherwise doesn't modify them.
-   * <p>
-   * Row key counters are not reset for instance.
+   *
+   * <p>Row key counters are not reset for instance.
    */
   private void truncateTables() {
     transactionManager.execute(
