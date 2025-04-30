@@ -104,7 +104,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
                 div()
-                    .with(TextFormatter.formatText(option.optionText()))
+                    .with(TextFormatter.formatTextForAdmins(option.optionText()))
                     .withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()

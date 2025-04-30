@@ -79,7 +79,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    expect(await page.getByText(/To get help with/).textContent()).toBeTruthy()
+    await expect(page.getByText(/To get help with/)).toBeVisible()
   })
 
   test('validate initial page load as guest user', async ({
@@ -115,7 +115,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   test('shows log in button for guest users', async ({page}) => {
     // We cannot check that the login button redirects the user to a particular
     // URL because it varies between environments, so just check for their existence.
-    await expect(page.getByRole('link', {name: 'Log in'})).toBeVisible()
+    await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
   })
 
   test('does not show "End session" and "You\'re a guest user" when first arriving at the page', async ({
@@ -639,11 +639,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
           page.getByRole('checkbox', {name: 'General'}),
         ).not.toBeChecked()
 
-        await expect(page.locator('#unfiltered-programs')).toBeVisible()
+        await expect(page.locator('#not-started-programs')).toBeVisible()
 
         await expect(
           page.locator(
-            '#unfiltered-programs .usa-card-group .cf-application-card',
+            '#not-started-programs .usa-card-group .cf-application-card',
           ),
         ).toHaveCount(4)
 
@@ -924,6 +924,83 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         /* fullPage= */ false,
       )
     })
+  })
+
+  test('applies color theming on home page when enabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('applies primary color only when primary dark is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme-primary-only',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('applies primary dark color only when primary is empty', async ({
+    page,
+    adminSettings,
+  }) => {
+    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(
+      page,
+      'program-index-page-theme-primary-dark-only',
+      /* fullPage= */ true,
+    )
+  })
+
+  test('does not apply color theming on home page when disabled', async ({
+    page,
+    adminSettings,
+  }) => {
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
+    await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
+
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await validateScreenshot(page, 'program-index-page-initial-load-northstar')
   })
 })
 

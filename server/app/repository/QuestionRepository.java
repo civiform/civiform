@@ -172,6 +172,7 @@ public final class QuestionRepository {
                           new QuestionModel(
                               new QuestionDefinitionBuilder(questionDefinition)
                                   .setId(null)
+                                  // Clear PAI tags off question before saving
                                   .setPrimaryApplicantInfoTags(ImmutableSet.of())
                                   .build());
                       newDraftQuestion.addVersion(draftVersion);

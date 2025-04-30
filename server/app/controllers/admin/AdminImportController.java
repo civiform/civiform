@@ -4,11 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Map.Entry;
 import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -16,6 +19,7 @@ import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import parsers.LargeFormUrlEncodedBodyParser;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.BodyParser;
@@ -60,7 +64,6 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
-
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
@@ -234,7 +237,14 @@ public class AdminImportController extends CiviFormController {
       if (questions == null) {
         return ok(
             adminImportViewPartial
-                .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
+                .renderProgramData(
+                    request,
+                    program,
+                    questions,
+                    /* duplicateQuestionNames= */ ImmutableList.of(),
+                    /* updatedQuestionsMap= */ ImmutableMap.of(),
+                    jsonString,
+                    true)
                 .render());
       }
 
@@ -246,7 +256,10 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
           programMigrationService.maybeOverwriteQuestionName(questions);
 
-      if (withDuplicates) {
+      boolean duplicateHandlingOptionsEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+
+      if (withDuplicates && !duplicateHandlingOptionsEnabled) {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
       }
 
@@ -284,6 +297,7 @@ public class AdminImportController extends CiviFormController {
                   request,
                   program,
                   questions,
+                  programMigrationService.getExistingAdminNames(questions),
                   updatedQuestionsMap,
                   serializeResult.getResult(),
                   withDuplicates)
@@ -322,7 +336,17 @@ public class AdminImportController extends CiviFormController {
 
       ProgramDefinition updatedProgram = programOnJson;
 
+      boolean withDuplicates =
+          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
       if (questionsOnJson != null) {
+        if (settingsManifest.getImportDuplicateHandlingOptionsEnabled(request) && withDuplicates) {
+          // With the new duplicate-handling UI, we do not show admins a de-duped/suffixed admin
+          // name before saving the imported program. Instead, we must calculate that name at this
+          // point.
+          questionsOnJson =
+              ImmutableList.copyOf(
+                  programMigrationService.maybeOverwriteQuestionName(questionsOnJson).values());
+        }
         ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
             questionsOnJson.stream()
                 .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
@@ -344,7 +368,7 @@ public class AdminImportController extends CiviFormController {
       // If we are re-using existing questions, we will put all programs in draft mode to ensure no
       // errors. We could also go through each question being updated and see what program it
       // applies to, but this is more straightforward.
-      if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
+      if (!withDuplicates) {
         ImmutableList<Long> programsInDraft =
             versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
                 .map(p -> p.id)
@@ -377,15 +401,40 @@ public class AdminImportController extends CiviFormController {
     }
   }
 
-  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
-    Form<AdminProgramImportForm> form =
-        formFactory
-            .form(AdminProgramImportForm.class)
-            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+  @VisibleForTesting
+  ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    boolean duplicateHandlingOptionsEnabled =
+        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+    DynamicForm form = formFactory.form().bindFromRequest(request);
 
-    String jsonString = form.get().getProgramJson();
+    String programJsonString = form.get(AdminProgramImportForm.PROGRAM_JSON_FIELD);
+    ImmutableMap<String, String> adminNameToDuplicateHandling = ImmutableMap.of();
+    if (duplicateHandlingOptionsEnabled) {
+      // Form data for handling duplicates all share a prefix. So we are looking for fields with
+      // that prefix, and then removing the prefix to get the admin name. The form data in question
+      // looks like:
+      // `{DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX}{adminName}->{duplicateHandlingOption}`
+      adminNameToDuplicateHandling =
+          form.rawData().entrySet().stream()
+              .filter(
+                  field ->
+                      field
+                          .getKey()
+                          .startsWith(
+                              AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX))
+              .map(
+                  field ->
+                      Maps.immutableEntry(
+                          field
+                              .getKey()
+                              .replace(
+                                  AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX,
+                                  ""),
+                          field.getValue()))
+              .collect(ImmutableMap.toImmutableMap(Entry::getKey, Entry::getValue));
+    }
 
-    return programMigrationService.deserialize(jsonString);
+    return programMigrationService.deserialize(programJsonString, adminNameToDuplicateHandling);
   }
 
   /**

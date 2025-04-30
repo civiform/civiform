@@ -9,6 +9,7 @@
   class="cf-question-enumerator cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
+  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
@@ -21,7 +22,7 @@
 
     <!--/* Display question level errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
     <div

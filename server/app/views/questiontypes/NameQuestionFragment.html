@@ -17,7 +17,10 @@
     ></div>
 
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+      ${nameQuestion.getValidationErrors().get(question.getContextualizedPath())},
+      ${questionRendererParams},
+      ${questionId})}"
     ></div>
   </div>
 
@@ -32,7 +35,7 @@
   >
     <th:block th:if="${showFieldErrorMessages}">
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(firstNamePath)}, ${questionRendererParams}, ${questionId})}"
       ></div>
     </th:block>
     <label class="usa-label" th:for="${firstNameId}">
@@ -53,6 +56,7 @@
       th:id="${firstNameId}"
       autocomplete="given-name"
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
+      th:aria-describedby="${questionId} + '-description' + (${hasGroupErrors || hasFieldErrors} ? ' ' + ${questionId} + '-error' : '')"
       th:name="${firstNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
       th:aria-required="${!question.isOptional()}"
@@ -90,7 +94,7 @@
   >
     <th:block th:if="${showFieldErrorMessages}">
       <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams})}"
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${nameQuestion.getValidationErrors().get(lastNamePath)}, ${questionRendererParams}, ${inputId})}"
       ></div>
     </th:block>
     <label class="usa-label" th:for="${lastNameId}">
@@ -111,6 +115,7 @@
       th:id="${lastNameId}"
       autocomplete="family-name"
       th:value="${nameQuestion.getLastNameValue().orElse('')}"
+      th:aria-describedby="${hasFieldErrors} ? ${inputId} + '-error'"
       th:name="${lastNamePath}"
       th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(lastNamePath)}"
       th:aria-required="${!question.isOptional()}"

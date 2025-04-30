@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.4.6-jre",
+      "com.google.guava" % "guava" % "33.4.8-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.7",
-      "software.amazon.awssdk" % "ses" % "2.31.7",
+      "software.amazon.awssdk" % "s3" % "2.31.25",
+      "software.amazon.awssdk" % "ses" % "2.31.25",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.33.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.36.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.2",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.27.3" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.4.6-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.4.8-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.2",
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.1",
+      "org.pac4j" % "pac4j-core" % "6.1.2",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.1",
+      "org.pac4j" % "pac4j-http" % "6.1.2",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.1",
+      "org.pac4j" % "pac4j-oidc" % "6.1.2",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.1",
+      "org.pac4j" % "pac4j-saml" % "6.1.2",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -97,7 +97,7 @@ lazy val root = (project in file("."))
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.37.0",
-      "org.checkerframework" % "dataflow-errorprone" % "3.49.1",
+      "org.checkerframework" % "dataflow-errorprone" % "3.49.2",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.2",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.3",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -122,15 +122,18 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.5.18",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.15" exclude ("javax.validation", "validation-api"),
+      "io.swagger" % "swagger-core" % "1.6.15" exclude (
+        "javax.validation",
+        "validation-api"
+      ),
       "io.swagger" % "swagger-parser" % "1.0.73",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.29",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.30",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.26",
 
       // Logstash to write JSON formatted log lines with logback
-      "net.logstash.logback" % "logstash-logback-encoder" % "8.0"
+      "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
     ),
     javacOptions ++= {
       val defaultCompilerOptions = Seq(

@@ -411,7 +411,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       container.with(
           div(
                   div()
-                      .with(TextFormatter.formatText(qd.getQuestionText().getDefault()))
+                      .with(TextFormatter.formatTextForAdmins(qd.getQuestionText().getDefault()))
                       .withClasses(
                           BaseStyles.INPUT,
                           "text-gray-500",
@@ -485,11 +485,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .with(
                     div()
                         .with(
-                            TextFormatter.formatText(
+                            TextFormatter.formatTextForAdmins(
                                 questionDefinition.getQuestionText().getDefault()))
                         .withClasses("font-bold"),
                     div()
-                        .with(TextFormatter.formatText(questionHelpText))
+                        .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm"),
                     div(String.format("Admin ID: %s", questionDefinition.getName()))
                         .withClasses("mt-1", "text-sm")));

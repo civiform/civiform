@@ -76,8 +76,20 @@ public final class QuestionsListView extends BaseHtmlView {
     this.viewUtils = checkNotNull(viewUtils);
   }
 
-  /** Renders a page with a list view of all questions. */
-  public Content render(ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+  /**
+   * Renders a page with an (optionally filtered) list view of all questions.
+   *
+   * @param activeAndDraftQuestions a list of all active and draft questions, including the programs
+   *     that use them.
+   * @param filter an optional filter with which to render the question bank. This filter will
+   *     pre-populate the search bar, and can be overriden by the user at any point.
+   * @param request the HTTP request
+   * @return the rendered page
+   */
+  public Content render(
+      ActiveAndDraftQuestions activeAndDraftQuestions,
+      Optional<String> filter,
+      Http.Request request) {
     String title = "All questions";
 
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
@@ -93,13 +105,15 @@ public final class QuestionsListView extends BaseHtmlView {
                         h1(title),
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index().url(),
+                            controllers.admin.routes.AdminQuestionController.index(Optional.empty())
+                                .url(),
                             /* isPrimaryButton= */ true)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
                         QuestionSortOption.ADMIN_NAME,
-                        QuestionSortOption.NUM_PROGRAMS)))
+                        QuestionSortOption.NUM_PROGRAMS),
+                    filter))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
@@ -371,14 +385,19 @@ public final class QuestionsListView extends BaseHtmlView {
                     .withClasses("w-6", "h-6", "shrink-0"))
             .with(
                 div()
-                    .with(TextFormatter.formatText(definition.getQuestionText().getDefault()))
+                    .with(
+                        TextFormatter.formatTextForAdmins(
+                            definition.getQuestionText().getDefault()))
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "pl-4", "text-xl"));
     String questionDescriptionString =
         definition.getQuestionHelpText().isEmpty()
             ? ""
             : definition.getQuestionHelpText().getDefault();
     DivTag questionDescription =
-        div(div().with(TextFormatter.formatText(questionDescriptionString)).withClasses("pl-10"));
+        div(
+            div()
+                .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
+                .withClasses("pl-10"));
     return div()
         .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
         .with(div().with(questionText).with(questionDescription));

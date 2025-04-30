@@ -21,4 +21,13 @@ public enum ProgramType {
   public String getValue() {
     return dbValue;
   }
+
+  public static ProgramType fromValue(String programTypeValue) {
+    for (ProgramType programType : values()) {
+      if (programType.getValue().equals(programTypeValue)) {
+        return programType;
+      }
+    }
+    throw new IllegalArgumentException("Unknown ProgramType for: " + programTypeValue);
+  }
 }
