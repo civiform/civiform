@@ -245,4 +245,33 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
       )
     })
   })
+
+  // TODO: test for TI as well
+  test('Applicant ineligible page renders right to left', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await validateScreenshot(
+      page,
+      'northstar-ineligible-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+
+    await validateAccessibility(page)
+  })
 })
