@@ -1,7 +1,15 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  ProgramHeaderButton,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
@@ -21,7 +29,6 @@ test.describe('admin program view page', () => {
     seeding,
   }) => {
     const programName = 'Active Program'
-    await enableFeatureFlag(page, 'program_filtering_enabled')
 
     await seeding.seedProgramsAndCategories()
 
@@ -225,5 +232,45 @@ test.describe('admin program view page', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
 
     await validateScreenshot(page, 'view-program-start-editing')
+  })
+
+  test('view external program', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+    await loginAsAdmin(page)
+
+    const programName = 'External Program'
+    await adminPrograms.addProgram(
+      programName,
+      /* description= */ '',
+      /* shortDescription= */ 'short program description',
+      /* externalLink= */ 'https://usa.gov',
+      /* visibility= */ ProgramVisibility.PUBLIC,
+      /* adminDescription= */ 'admin description',
+      /* programType= */ ProgramType.EXTERNAL,
+    )
+
+    // On draft mode, external programs should not have preview and download
+    // header buttons or the block panel.
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
+
+    // On active mode, external programs should not have preview and download
+    // header buttons or the block panel
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.gotoViewActiveProgramPage(programName)
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.PREVIEW_AS_APPLICANT,
+    )
+    await adminPrograms.expectProgramHeaderButtonHidden(
+      ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
+    )
+    await adminPrograms.expectBlockPanelHidden()
   })
 })

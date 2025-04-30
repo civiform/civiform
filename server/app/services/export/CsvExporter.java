@@ -32,7 +32,7 @@ import services.program.ProgramDefinition;
  * CSVPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
+  private static final Logger logger = LoggerFactory.getLogger(CsvExporter.class);
   private final String EMPTY_VALUE = "";
 
   private final ImmutableList<Column> columns;
@@ -74,7 +74,7 @@ public final class CsvExporter implements AutoCloseable {
                     // should be unique, but due to #9212 there sometimes are. They point at the
                     // same location in the applicant data so it doesn't matter which one we keep.
                     (existing, replacement) -> {
-                      LOGGER.warn(
+                      logger.warn(
                           "Duplicate questions with path '{}', which may be resulting in data"
                               + " loss.",
                           existing.getContextualizedPath());
