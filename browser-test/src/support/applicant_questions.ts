@@ -537,12 +537,28 @@ export class ApplicantQuestions {
     }
   }
 
+  /**
+   * @deprecated prefer using {@link expectPreScreenerForm} instead
+   * 
+   * @param commonIntakeFormName 
+   */
   async expectCommonIntakeForm(commonIntakeFormName: string) {
     const commonIntakeFormSectionNames =
       await this.programNamesForSection('Find services')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
+  async expectPreScreenerForm(preScreenerFormName: string) {
+    const preScreenerFormSectionNames =
+      await this.programNamesForSection('Get Started')
+    expect(preScreenerFormSectionNames).toEqual([preScreenerFormName])
+  }
+
+  /**
+   * 
+   * @param commonIntakeFormName 
+   * @deprecated prefer using {@link expectPreScreenerFormNorthstar} instead
+   */
   async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
     const sectionLocator = this.page.locator('[aria-label="Get Started"]')
 
@@ -551,6 +567,16 @@ export class ApplicantQuestions {
     )
 
     await expect(programTitlesLocator).toHaveText(commonIntakeFormName)
+  }
+
+  async expectPreScreenerFormNorthstar(preScreenerFormName: string) {
+    const sectionLocator = this.page.locator('[aria-label="Get Started"]')
+
+    const programTitlesLocator = sectionLocator.locator(
+      '.cf-application-card-title',
+    )
+
+    await expect(programTitlesLocator).toHaveText(preScreenerFormName)
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {
@@ -824,12 +850,28 @@ export class ApplicantQuestions {
     }
   }
 
+  /**
+   * @deprecated prefer using {@link expectPreScreenerReviewPage} instead
+   */
   async expectCommonIntakeReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Benefits pre-screener summary',
     )
   }
 
+  async expectPreScreenerReviewPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'Benefits pre-screener summary',
+    )
+  }
+
+  /**
+   * @deprecated prefer using {@link expectPreScreenerConfirmationPage} instead
+   * 
+   * @param wantUpsell 
+   * @param wantTrustedIntermediary 
+   * @param wantEligiblePrograms 
+   */
   async expectCommonIntakeConfirmationPage(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
@@ -866,7 +908,89 @@ export class ApplicantQuestions {
     }
   }
 
+  async expectPreScreenerConfirmationPage(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      expect(await this.page.innerText('h1')).toContain(
+        'Programs your client may qualify for',
+      )
+    } else {
+      expect(await this.page.innerText('h1')).toContain(
+        'Programs you may qualify for',
+      )
+    }
+
+    const upsellLocator = this.page.locator(
+      ':text("Create an account or sign in"):visible',
+    )
+    if (wantUpsell) {
+      expect(await upsellLocator.count()).toEqual(1)
+    } else {
+      expect(await upsellLocator.count()).toEqual(0)
+    }
+
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
+  /**
+   * @deprecated prefer using {@link expectPreScreenerConfirmationPageNorthStar} instead
+   * 
+   * @param wantUpsell 
+   * @param wantTrustedIntermediary 
+   * @param wantEligiblePrograms 
+   */
   async expectCommonIntakeConfirmationPageNorthStar(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      await expect(
+        this.page.getByRole('heading', {
+          name: 'Programs your client may qualify for',
+        }),
+      ).toBeVisible()
+    } else {
+      await expect(
+        this.page.getByRole('heading', {name: 'Programs you may qualify for'}),
+      ).toBeVisible()
+    }
+
+    const createAccountHeading = this.page.getByRole('heading', {
+      name: 'To access your application later, create an account',
+    })
+    if (wantUpsell) {
+      await expect(createAccountHeading).toBeVisible()
+    } else {
+      await expect(createAccountHeading).toBeHidden()
+    }
+
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
+
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
+  }
+
+  async expectPreScreenerConfirmationPageNorthStar(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
