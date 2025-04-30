@@ -26,7 +26,7 @@ footer.returnToTop=ページ上部に戻る
 # send an email to CiviForm technical support.
 footer.technicalSupport=テクニカル サポート: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=テクニカル サポートへのお問い合わせ: Email {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=ゲスト
@@ -161,7 +161,7 @@ link.applicationForProgram={0}の申請
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=ファイルを削除
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr={0} ファイルを削除
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=このページの質問はまだ完了していません。このまま離れて、確認を開始しますか？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=資格要件の詳細
 content.eligibilityCriteria=資格要件については {0} をご覧ください
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=このプログラムの資格規定の詳細確認、またはプログラム チームに直接問い合わせるには、{0} をご確認ください。
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=このプログラムの資格規則の詳細、またはプログラム チームへの直接のお問い合わせについては、{0} をご覧ください（新しいタブで開きます）。
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=前のページに戻って回答を編集するか、別のプログラムに申請してください。
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=輸送
 category.tag.utilities=ユーティリティ
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=カテゴリ
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

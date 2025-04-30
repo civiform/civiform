@@ -26,7 +26,7 @@ footer.returnToTop=返回頁首
 # send an email to CiviForm technical support.
 footer.technicalSupport=如需技術支援服務，請傳送電子郵件至 {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=如需技術支援，請傳送電子郵件至 {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=訪客
@@ -161,7 +161,7 @@ link.applicationForProgram=「{0}」的申請書
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=移除檔案
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=移除「{0}」檔案
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=您尚未答完這個頁面的問題。仍要離開並開始確認嗎？
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=進一步瞭解資格規定
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0}。
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=如要進一步瞭解這項計畫的資格條件，或是想直接與計畫團隊聯絡，請參閱{0} (在新分頁中開啟)。
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=交通運輸
 category.tag.utilities=公用事業
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=類別
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

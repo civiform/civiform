@@ -26,7 +26,7 @@ footer.returnToTop=Quay lại đầu trang
 # send an email to CiviForm technical support.
 footer.technicalSupport=Để được hỗ trợ kỹ thuật: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=Để được hỗ trợ kỹ thuật, vui lòng gửi email tới {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Khách
@@ -161,7 +161,7 @@ link.applicationForProgram=Đơn đăng ký tham gia {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Xoá tệp
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=Xoá tệp {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Bạn chưa trả lời hết các câu hỏi trên trang này. Bạn vẫn muốn rời đi và bắt đầu đánh giá?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=Tìm hiểu thêm về điều kiện
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Để tìm hiểu thêm các quy định về điều kiện tham gia chương trình này hoặc liên hệ trực tiếp với đội ngũ của chương trình, vui lòng xem {0}.
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=Để tìm hiểu thêm các quy định về điều kiện tham gia chương trình này hoặc liên hệ trực tiếp với đội ngũ chương trình, vui lòng xem {0} (mở trong một thẻ mới).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=Vận tải
 category.tag.utilities=Dịch vụ tiện ích
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=Danh mục
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

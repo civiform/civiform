@@ -26,7 +26,7 @@ footer.returnToTop=العودة إلى أعلى الصفحة
 # send an email to CiviForm technical support.
 footer.technicalSupport=للحصول على الدعم الفني: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=للحصول على دعم فني، يُرجى إرسال رسالة إلكترونية إلى {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=ضيف
@@ -161,7 +161,7 @@ link.applicationForProgram=طلب خاص ببرنامج {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=حذف الملف
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=إزالة الملف {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=الأسئلة على هذه الصفحة غير مكتملة. هل يزال يهمّك المغادرة وبدء المراجعة؟
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=المزيد حول متطلبات الأهلية
 content.eligibilityCriteria=للاطّلاع على معايير الأهلية، يُرجى الانتقال إلى {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=لمزيد من المعلومات حول شروط الأهلية للانضمام إلى هذا البرنامج أو للتواصل مع الفريق المسؤول عنه مباشرةً، يُرجى الانتقال إلى {0}.
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=لمزيد من المعلومات حول شروط الأهلية للانضمام إلى هذا البرنامج أو للتواصل مع الفريق المسؤول عنه مباشرةً، يُرجى الانتقال إلى {0} (يفتح الرابط في علامة تبويب جديدة).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=يمكنك الرجوع إلى الصفحة السابقة لتعديل إجاباتك أو إرسال طلب للانضمام إلى برنامج آخر.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=النقل
 category.tag.utilities=شركات الطاقة
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=الفئات
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

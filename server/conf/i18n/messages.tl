@@ -26,7 +26,7 @@ footer.returnToTop=Bumalik sa itaas
 # send an email to CiviForm technical support.
 footer.technicalSupport=Para sa technical support: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=Para sa technical support: Mag-email sa {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=Bisita
@@ -161,7 +161,7 @@ link.applicationForProgram=Application para sa {0}
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=Alisin ang file
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr=Alisin ang file na {0}
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=Hindi kumpleto ang mga tanong sa page na ito. Gusto mo pa rin bang umalis at simulan ang pagsusuri?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=Higit pa tungkol sa mga requirement sa pagiging kwal
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o direktang makipag-ugnayan sa programa, pakitingnan ang {0}.
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=Para matuto pa tungkol sa mga panuntunan sa pagiging kwalipikado ng programang ito o para direktang makipag-ugnayan sa team ng programa, basahin ang {0} (bubukas sa bagong tab).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=Puwede kang bumalik sa nakaraang page para i-edit ang iyong mga sagot. O mag-apply sa isa pang programa.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=Transportasyon
 category.tag.utilities=Mga Utility
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=Mga Kategorya
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #

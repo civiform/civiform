@@ -26,7 +26,7 @@ footer.returnToTop=상단으로 돌아가기
 # send an email to CiviForm technical support.
 footer.technicalSupport=기술 지원: {0}
 # A message in the footer directing users to technical support. The placeholder is an email.
-footer.technicalSupport.v2=For technical support: Email {0}
+footer.technicalSupport.v2=기술 지원이 필요하면 다음 주소로 이메일을 보내 주세요. {0}
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 guest=게스트
@@ -161,7 +161,7 @@ link.applicationForProgram={0} 신청서
 # Anchor which when clicked removes a file the user has previously uploaded.
 link.removeFile=파일 삭제
 # Screen reader text for a link which when clicked removes a file the user has previously uploaded. {0} is the file name.
-link.removeFileSr=Remove {0} file
+link.removeFileSr={0} 파일 삭제
 # The title of a pop-up informing the user that they tried to go to the review page but there were errors in the information that they inputted
 modal.errorSaving.review.title=이 페이지의 질문이 완료되지 않았습니다. 그래도 페이지에서 나가 검토를 시작하시겠습니까?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
@@ -496,7 +496,7 @@ heading.eligibilityCriteria=자격 요건에 관한 자세한 내용
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
 # Describes how to learn more about eligibility criteria for a program. The variable text is "program details", which will become a hyperlink to another webpage.
 content.eligibilityCriteria.v2=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램 팀에 직접 문의하려면 {0}을(를) 참고하세요
-content.eligibilityCriteria.v3=To learn more about this program''s eligibility rules or contact the program team directly, please see {0} (opens in a new tab).
+content.eligibilityCriteria.v3=이 프로그램의 자격 요건 규칙에 관해 자세히 알아보거나 프로그램팀에 직접 문의하려면 {0}을(를) 참고하세요(새 탭에서 열림).
 # Text shown to explain what the user can do since they are not eligible for the program with their current answers.
 content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
 # Text shown on a webpage when the applicant is ineligible for a program.
@@ -998,7 +998,7 @@ category.tag.transportation=교통
 category.tag.utilities=유틸리티
 
 # An aria-label for screen readers that helps provide context for the category tags.
-ariaLabel.categories=Categories
+ariaLabel.categories=카테고리
 
 #------------------------------------------------------------------------------#
 #  Session timeout messages                                                    #
