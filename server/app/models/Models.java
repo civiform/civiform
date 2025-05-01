@@ -27,5 +27,7 @@ public final class Models {
   /** Get the complete list of ebean models to truncate. */
   public static void truncate(Database database) {
     database.truncate(MODELS.toArray(new Class[0]));
+    // Truncate the relational tables we don't want to have models for.
+    database.truncate("programs_categories", "versions_programs", "versions_questions");
   }
 }
