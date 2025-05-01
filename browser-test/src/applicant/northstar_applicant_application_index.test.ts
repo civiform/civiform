@@ -7,6 +7,7 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  setDirRtl,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -15,7 +16,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -168,7 +169,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await loginAsTestUser(page)
 
     await test.step('Programs start in Programs and Services section', async () => {
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
           expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
@@ -196,7 +197,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await applicantQuestions.gotoApplicantHomePage()
     })
     await test.step('Expect primary program application is in "My applications" section', async () => {
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
           expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [otherProgramName],
@@ -225,7 +226,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       )
     })
     await test.step('Expect primary program application is still in "My applications" section', async () => {
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
           expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [otherProgramName],
@@ -265,7 +266,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await test.step('When logged out, everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487)', async () => {
       await logout(page, false)
 
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
           expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
@@ -429,6 +430,33 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
     })
 
+    test('formats filter chips correctly for right to left languages', async ({
+      page,
+      adminPrograms,
+    }) => {
+      await test.step('publish programs with categories', async () => {
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step('change html to right to left', async () => {
+        await setDirRtl(page)
+      })
+
+      await test.step('validate screenshot desktop', async () => {
+        await validateScreenshot(page, 'filter-chips-right-to-left-desktop')
+      })
+
+      await test.step('validate screenshot mobile', async () => {
+        await page.setViewportSize({width: 360, height: 800})
+        await validateScreenshot(
+          page,
+          'filter-chips-right-to-left-mobile',
+          /* fullPage= */ false,
+        )
+      })
+    })
+
     test('with program filters enabled, categorizes programs correctly', async ({
       page,
       adminPrograms,
@@ -440,7 +468,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
         await logout(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [],
             expectedProgramsInProgramsAndServicesSection: [
@@ -469,7 +497,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await applicantQuestions.answerTextQuestion('first answer')
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
@@ -495,7 +523,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await applicantQuestions.clickContinue()
         await applicantQuestions.submitFromReviewPage(true)
         await applicantQuestions.returnToProgramsFromSubmissionPage(true)
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
@@ -521,7 +549,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Verify the contents of the Recommended and Other programs sections', async () => {
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
@@ -552,7 +580,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
 
       await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
         await logout(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [],
             expectedProgramsInProgramsAndServicesSection: [
@@ -631,48 +659,45 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('common intake form not present', async ({page}) => {
-    await validateScreenshot(page, 'ns-common-intake-form-not-set')
+  test('pre-screener form not present', async ({page}) => {
+    await validateScreenshot(page, 'ns-pre-screener-form-not-set')
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
+  test.describe('pre-screener form present', () => {
+    const preScreenerFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
+        preScreenerFormProgramName,
         'program description',
         'short program description',
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ true,
+        ProgramType.PRE_SCREENER,
       )
 
-      await adminPrograms.addProgramBlockUsingSpec(
-        commonIntakeFormProgramName,
-        {
-          name: 'Screen 2',
-          description: 'first block',
-          questions: [{name: 'first-q'}],
-        },
-      )
+      await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
+        name: 'Screen 2',
+        description: 'first block',
+        questions: [{name: 'first-q'}],
+      })
       await adminPrograms.publishAllDrafts()
       await logout(page)
     })
 
-    test('shows common intake form card when an application has not been started', async ({
+    test('shows pre-screener form card when an application has not been started', async ({
       page,
       applicantQuestions,
     }) => {
       await validateScreenshot(
         page.getByLabel('Get Started'),
-        'ns-common-intake-form',
+        'ns-pre-screener-form',
       )
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
           expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
@@ -687,13 +712,13 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       )
     })
 
-    test('puts common intake card in My applications section when application is in progress or submitted', async ({
+    test('puts pre-screener card in My applications section when application is in progress or submitted', async ({
       applicantQuestions,
       page,
     }) => {
-      await test.step('Start applying to the common intake', async () => {
+      await test.step('Start applying to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
@@ -702,11 +727,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await applicantQuestions.gotoApplicantHomePage()
       })
 
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
-          expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
-          ],
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
@@ -718,11 +741,18 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
 
+      await validateScreenshot(
+        page.locator('.cf-application-card', {
+          has: page.getByText(preScreenerFormProgramName),
+        }),
+        'ns-pre-screener-form-in-progress',
+      )
+
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
 
-      await test.step('Submit application to the common intake', async () => {
+      await test.step('Submit application to the pre-screener', async () => {
         await applicantQuestions.applyProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           /* northStarEnabled= */ true,
           /* showProgramOverviewPage= */ false,
         )
@@ -730,11 +760,9 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await applicantQuestions.gotoApplicantHomePage()
       })
 
-      await applicantQuestions.expectProgramsWithFilteringEnabled(
+      await applicantQuestions.expectProgramsinCorrectSections(
         {
-          expectedProgramsInMyApplicationsSection: [
-            commonIntakeFormProgramName,
-          ],
+          expectedProgramsInMyApplicationsSection: [preScreenerFormProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
             otherProgramName,
@@ -749,23 +777,23 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       await expect(page.getByLabel('Get Started')).toHaveCount(0)
     })
 
-    test('shows common intake form', async ({page, applicantQuestions}) => {
+    test('shows pre-screener form', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(primaryProgramName, true)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickContinue()
       await applicantQuestions.gotoApplicantHomePage()
 
-      await validateScreenshot(page, 'ns-common-intake-form-sections')
+      await validateScreenshot(page, 'ns-pre-screener-form-sections')
       await applicantQuestions.expectProgramsNorthstar({
         wantNotStartedPrograms: [otherProgramName],
         wantInProgressOrSubmittedPrograms: [primaryProgramName],
       })
-      await applicantQuestions.expectCommonIntakeFormNorthstar(
-        commonIntakeFormProgramName,
+      await applicantQuestions.expectPreScreenerFormNorthstar(
+        preScreenerFormProgramName,
       )
     })
 
-    test('shows a different title for the common intake form', async ({
+    test('shows a different title for the pre-screener form', async ({
       page,
       applicantQuestions,
     }) => {
@@ -870,6 +898,27 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       page.locator('#unfiltered-programs'),
       'applicant-homepage-cards-long-word-description',
     )
+  })
+
+  test('formats index page correctly for right to left languages', async ({
+    page,
+  }) => {
+    await test.step('change html to right to left', async () => {
+      await setDirRtl(page)
+    })
+
+    await test.step('validate screenshot desktop', async () => {
+      await validateScreenshot(page, 'applicant-homepage-right-to-left-desktop')
+    })
+
+    await test.step('validate screenshot mobile', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+      await validateScreenshot(
+        page,
+        'applicant-homepage-right-to-left-mobile',
+        /* fullPage= */ false,
+      )
+    })
   })
 
   test('applies color theming on home page when enabled', async ({
@@ -1062,15 +1111,15 @@ test.describe(
 
       await test.step('create program with image as admin', async () => {
         await loginAsAdmin(page)
-        const commonIntakeFormProgramName = 'Benefits finder'
+        const preScreenerFormProgramName = 'Benefits finder'
         await adminPrograms.addProgram(
-          commonIntakeFormProgramName,
+          preScreenerFormProgramName,
           'program description',
           'short program description',
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)

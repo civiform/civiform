@@ -45,7 +45,7 @@ import views.components.ToastMessage;
  */
 public final class ApplicantProgramsController extends CiviFormController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProgramsController.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicantProgramsController.class);
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -211,9 +211,15 @@ public final class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> showWithApplicantId(
       Request request, long applicantId, String programName) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
-    return programSlugHandler.showProgramWithApplicantId(
-        this, request, programName, applicantId, profile);
+    if (StringUtils.isNumeric(programName)) {
+      // We no longer support (or provide) links to numeric program ID (See issue #8599), redirect
+      // to home.
+      return CompletableFuture.completedFuture(redirectToHome());
+    } else {
+      CiviFormProfile profile = profileUtils.currentUserProfile(request);
+      return programSlugHandler.showProgramWithApplicantId(
+          this, request, programName, applicantId, profile);
+    }
   }
 
   @Secure
@@ -326,7 +332,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                     .as("text/html"))
         .exceptionally(
             ex -> {
-              LOGGER.error(
+              logger.error(
                   "There was an error in rendering the filtered programs"
                       + " partial view with these categories: "
                       + String.join(",", categories),
@@ -354,7 +360,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     try {
       return Optional.of(Long.parseLong(applicantId));
     } catch (NumberFormatException e) {
-      LOGGER.warn("Invalid applicantId format: " + applicantId + ": " + e.getMessage());
+      logger.warn("Invalid applicantId format: " + applicantId + ": " + e.getMessage());
       return getApplicantId(request);
     }
   }

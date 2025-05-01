@@ -4,7 +4,9 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  setDirRtl,
   validateAccessibility,
+  validateScreenshot,
   validateToastMessage,
 } from '../support'
 
@@ -133,6 +135,16 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         await expect(page.getByText(programShortDescription)).toBeVisible()
 
         await validateAccessibility(page)
+      })
+
+      await test.step('Verify program summary page renders right to left correctly', async () => {
+        await setDirRtl(page);
+        await validateScreenshot(
+          page,
+          'program-summary-right-to-left',
+          /* fullPage= */ false,
+          /* mobileScreenshot= */ true,
+        )
       })
     })
 

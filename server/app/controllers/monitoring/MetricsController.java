@@ -24,7 +24,7 @@ import services.monitoring.MonitoringMetricCounters;
  * customized to allow disabling via configuration flag.
  */
 public final class MetricsController extends CiviFormController {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MetricsController.class);
+  private static final Logger logger = LoggerFactory.getLogger(MetricsController.class);
 
   private final boolean metricsEnabled;
   private final CollectorRegistry collectorRegistry;
@@ -118,9 +118,9 @@ public final class MetricsController extends CiviFormController {
           time. This is safe to ignore. The metrics will be included on the next successful call.
           """;
 
-      LOGGER.info(errorMsg.stripIndent(), e);
+      logger.info(errorMsg.stripIndent(), e);
     } catch (Exception e) {
-      LOGGER.error(e.getMessage());
+      logger.error(e.getMessage());
     }
 
     return internalServerError();

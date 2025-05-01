@@ -389,35 +389,6 @@ export class ApplicantQuestions {
     expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
   }
 
-  async expectPrograms({
-    wantNotStartedPrograms,
-    wantInProgressPrograms,
-    wantSubmittedPrograms,
-  }: {
-    wantNotStartedPrograms: string[]
-    wantInProgressPrograms: string[]
-    wantSubmittedPrograms: string[]
-  }) {
-    const gotNotStartedProgramNames =
-      await this.programNamesForSection('Not started')
-    const gotInProgressProgramNames =
-      await this.programNamesForSection('In progress')
-    const gotSubmittedProgramNames =
-      await this.programNamesForSection('Submitted')
-
-    // Sort results before comparing since we don't care about order.
-    gotNotStartedProgramNames.sort()
-    wantNotStartedPrograms.sort()
-    gotInProgressProgramNames.sort()
-    wantInProgressPrograms.sort()
-    gotSubmittedProgramNames.sort()
-    wantSubmittedPrograms.sort()
-
-    expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
-    expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
-    expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
-  }
-
   async expectProgramsNorthstar({
     wantNotStartedPrograms,
     wantInProgressOrSubmittedPrograms,
@@ -475,7 +446,7 @@ export class ApplicantQuestions {
       }),
     ).toBeVisible()
 
-    await this.expectProgramsWithFilteringEnabled(
+    await this.expectProgramsinCorrectSections(
       {
         expectedProgramsInMyApplicationsSection,
         expectedProgramsInProgramsAndServicesSection,
@@ -487,7 +458,7 @@ export class ApplicantQuestions {
     )
   }
 
-  async expectProgramsWithFilteringEnabled(
+  async expectProgramsinCorrectSections(
     {
       expectedProgramsInMyApplicationsSection,
       expectedProgramsInProgramsAndServicesSection,
@@ -566,20 +537,20 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeForm(commonIntakeFormName: string) {
-    const commonIntakeFormSectionNames =
-      await this.programNamesForSection('Get Started')
-    expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
+  async expectPreScreenerForm(preScreenerFormName: string) {
+    const preScreenerFormSectionNames =
+      await this.programNamesForSection('Find services')
+    expect(preScreenerFormSectionNames).toEqual([preScreenerFormName])
   }
 
-  async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
+  async expectPreScreenerFormNorthstar(preScreenerFormName: string) {
     const sectionLocator = this.page.locator('[aria-label="Get Started"]')
 
     const programTitlesLocator = sectionLocator.locator(
       '.cf-application-card-title',
     )
 
-    await expect(programTitlesLocator).toHaveText(commonIntakeFormName)
+    await expect(programTitlesLocator).toHaveText(preScreenerFormName)
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {
@@ -853,13 +824,13 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeReviewPage() {
+  async expectPreScreenerReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Benefits pre-screener summary',
     )
   }
 
-  async expectCommonIntakeConfirmationPage(
+  async expectPreScreenerConfirmationPage(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],
@@ -895,7 +866,7 @@ export class ApplicantQuestions {
     }
   }
 
-  async expectCommonIntakeConfirmationPageNorthStar(
+  async expectPreScreenerConfirmationPageNorthStar(
     wantUpsell: boolean,
     wantTrustedIntermediary: boolean,
     wantEligiblePrograms: string[],

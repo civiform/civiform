@@ -32,7 +32,7 @@ import services.PhoneValidationUtils;
  * implementations of the two abstract methods.
  */
 public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicantProfileCreator.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicantProfileCreator.class);
 
   @VisibleForTesting final StandardClaimsAttributeNames standardClaimsAttributeNames;
 
@@ -96,7 +96,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
 
                 return "";
               } catch (RuntimeException ex) {
-                LOGGER.warn("Unable to parse phone number from OIDC profile.");
+                logger.warn("Unable to parse phone number from OIDC profile.");
                 return "";
               }
             })

@@ -42,7 +42,7 @@ public final class SettingsService {
   public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
       TypedKey.create("CIVIFORM_SETTINGS");
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SettingsService.class);
+  private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
   private final SettingsGroupRepository settingsGroupRepository;
   private final SettingsManifest settingsManifest;
@@ -74,7 +74,7 @@ public final class SettingsService {
         .thenApply(
             maybeSettings -> {
               if (maybeSettings.isEmpty()) {
-                LOGGER.error("No settings found when serving request.");
+                logger.error("No settings found when serving request.");
                 return request;
               }
 
@@ -195,7 +195,7 @@ public final class SettingsService {
                           || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
                         // Only allow admins to set theme colors that have a contrast ratio of 4.5:1
                         // with white, for accessibility reasons.
-                        if (!ColorUtil.contrastsWithWhite(newValue)) {
+                        if (!newValue.isEmpty() && !ColorUtil.contrastsWithWhite(newValue)) {
                           validationErrors.put(
                               settingDescription.variableName(),
                               SettingsGroupUpdateResult.UpdateError.create(
@@ -287,7 +287,7 @@ public final class SettingsService {
     var group = new SettingsGroupModel(settings, "system");
     group.save();
 
-    LOGGER.info("Migrated {} settings from config to database.", settings.size());
+    logger.info("Migrated {} settings from config to database.", settings.size());
 
     return group;
   }

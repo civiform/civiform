@@ -30,7 +30,7 @@ public final class FakeEsriClient extends EsriClient {
   private JsonNode serviceAreaFeatures;
   private JsonNode serviceAreaNoFeatures;
   private JsonNode serviceAreaNotInArea;
-  private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
@@ -76,7 +76,7 @@ public final class FakeEsriClient extends EsriClient {
           addressCandidates = Json.parse(inputStream);
           optionalResponse = mapJsonNodeToResponse(addressCandidates);
         } catch (FileNotFoundException e) {
-          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "Bogus Address":
@@ -90,7 +90,7 @@ public final class FakeEsriClient extends EsriClient {
           noAddressCandidates = Json.parse(inputStream);
           optionalResponse = mapJsonNodeToResponse(noAddressCandidates);
         } catch (FileNotFoundException e) {
-          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "Error Address":
@@ -135,7 +135,7 @@ public final class FakeEsriClient extends EsriClient {
           serviceAreaFeatures = Json.parse(inputStream);
           maybeJson = Optional.of(serviceAreaFeatures);
         } catch (FileNotFoundException e) {
-          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "101.0":
@@ -149,7 +149,7 @@ public final class FakeEsriClient extends EsriClient {
           serviceAreaNoFeatures = Json.parse(inputStream);
           maybeJson = Optional.of(serviceAreaNoFeatures);
         } catch (FileNotFoundException e) {
-          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "102.0":
@@ -163,7 +163,7 @@ public final class FakeEsriClient extends EsriClient {
           serviceAreaNotInArea = Json.parse(inputStream);
           maybeJson = Optional.of(serviceAreaNotInArea);
         } catch (FileNotFoundException e) {
-          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+          logger.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
         }
         break;
       case "103.0":

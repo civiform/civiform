@@ -775,9 +775,7 @@ public final class ProgramService {
       errorsBuilder.add(CiviFormError.of(INVALID_CATEGORY_MSG));
     }
 
-    if (!programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-      checkApplicationStepErrors(errorsBuilder, applicationSteps);
-    }
+    checkApplicationStepErrors(programType, errorsBuilder, applicationSteps);
 
     return errorsBuilder.build();
   }
@@ -799,30 +797,33 @@ public final class ProgramService {
   }
 
   /**
-   * Check for validation errors on application steps. An error will be shown if: - no application
-   * step is filled in - any application step is partially filled in (missing title or description)
+   * Adds validation errors on application steps for default programs.
    *
-   * <p>Prescreener programs do not require application steps so validation is not checked for those
-   * programs.
-   *
+   * @param programType the type of the program
    * @param errorsBuilder set of program validation errors
    * @param applicationSteps the {@link Locale} to update
    */
   ImmutableSet.Builder<CiviFormError> checkApplicationStepErrors(
+      ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
+    // Common intake and external programs don't have application steps.
+    if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
+      return errorsBuilder;
+    }
 
+    // Default programs must have at least one application step.
     if (applicationSteps.size() == 0) {
       return errorsBuilder.add(CiviFormError.of(MISSING_APPLICATION_STEP_MSG));
     }
 
+    // Each application step must have a title and description.
     for (int i = 0; i < applicationSteps.size(); i++) {
       ApplicationStep step = applicationSteps.get(i);
       String title = step.getTitle().getDefault();
       String description = step.getDescription().getDefault();
       boolean haveTitle = !title.isBlank();
       boolean haveDescription = !description.isBlank();
-      // steps must have title AND description
       if (haveTitle && !haveDescription) {
         errorsBuilder.add(
             CiviFormError.of(

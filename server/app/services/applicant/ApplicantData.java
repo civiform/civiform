@@ -131,7 +131,10 @@ public class ApplicantData extends CfJsonDocumentContext {
   public void putServiceAreaInclusionEntities(
       Path path, ImmutableList<ServiceAreaInclusion> entityNames) {
     if (entityNames.isEmpty()) {
-      putArray(path, ImmutableList.of());
+      // entityNames will be empty if this is the first time they are answering this question, or if
+      // they are re-answering the question but there were no address suggestions found. In the
+      // second scenario, we need to clear existing service area info off the json data.
+      maybeClearArray(path);
     } else {
       for (int i = 0; i < entityNames.size(); i++) {
         putString(

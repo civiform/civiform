@@ -41,9 +41,17 @@ export interface DownloadedApplication {
  */
 export enum FormField {
   APPLICATION_STEPS,
+  CONFIRMATION_MESSAGE,
   LONG_DESCRIPTION,
+  NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
+}
+
+export enum ProgramType {
+  DEFAULT = 'CiviForm program',
+  PRE_SCREENER = 'Pre-screener',
+  EXTERNAL = 'External program',
 }
 
 export enum ProgramVisibility {
@@ -72,6 +80,15 @@ export enum ProgramCategories {
   TRAINING = 'Training',
   TRANSPORTATION = 'Transportation',
   UTILITIES = 'Utilities',
+}
+
+/**
+ * List of buttons that are displayed in the program information header. This
+ * list is not exhaustive, as fields are added when needed by a test.
+ */
+export enum ProgramHeaderButton {
+  PREVIEW_AS_APPLICANT = 'Preview as applicant',
+  DOWNLOAD_PDF_PREVIEW = 'Download PDF preview',
 }
 
 export enum NotificationPreference {
@@ -189,7 +206,7 @@ export class AdminPrograms {
     externalLink = 'https://usa.gov',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
-    isCommonIntake = false,
+    programType: ProgramType = ProgramType.DEFAULT,
     selectedTI = 'none',
     confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
       '[This is a link](https://www.example.com)\n' +
@@ -232,9 +249,18 @@ export class AdminPrograms {
 
     await this.chooseEligibility(eligibility)
 
-    if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
-      await this.clickCommonIntakeFormToggle()
-    } else {
+    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+    // When enabled, form has program type options. Otherwise, form has a
+    // pre-screener checkbox.
+    const externalProgramsFeatureEnabled =
+      await this.getProgramTypeOption(programType).isVisible()
+    if (externalProgramsFeatureEnabled) {
+      await this.selectProgramType(programType)
+    } else if (programType === ProgramType.PRE_SCREENER) {
+      await this.clickPreScreenerFormToggle()
+    }
+
+    if (programType === ProgramType.DEFAULT) {
       for (let i = 0; i < applicationSteps.length; i++) {
         const indexPlusOne = i + 1
         await this.page
@@ -252,13 +278,13 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies whether the given form field is disabled.
-   *
-   * @param formField - The specific form field type to verify (from FormField enum)
+     * Verifies whether the given form field is disabled.
+     *
+     * @param formField - The specific form field type to verify (from FormField enum)
 
-   * @throws Will throw an error if the elements' states don't match the expected disabled state
-   * @throws Will throw an error if an invalid or unsupported form field type is provided
-   */
+    * @throws Will throw an error if the elements' states don't match the expected disabled state
+    * @throws Will throw an error if an invalid or unsupported form field type is provided
+    */
   async expectFormFieldDisabled(formField: FormField) {
     switch (formField) {
       case FormField.APPLICATION_STEPS: {
@@ -279,11 +305,23 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.CONFIRMATION_MESSAGE: {
+        const confirmationMessage = this.getConfirmationMessageField()
+        await expect(confirmationMessage).toBeDisabled()
+        break
+      }
+
       case FormField.LONG_DESCRIPTION: {
-        const longDescription = this.page.getByRole('textbox', {
-          name: 'Long program description (optional)',
-        })
+        const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        break
+      }
+
+      case FormField.NOTIFICATION_PREFERENCES: {
+        const notificationPreferences =
+          this.getNotificationsPreferenceCheckbox()
+        await expect(notificationPreferences).toBeDisabled()
+        await expect(notificationPreferences).not.toBeChecked()
         break
       }
 
@@ -344,11 +382,22 @@ export class AdminPrograms {
         break
       }
 
+      case FormField.CONFIRMATION_MESSAGE: {
+        const confirmationMessage = this.getConfirmationMessageField()
+        await expect(confirmationMessage).toBeEnabled()
+        break
+      }
+
       case FormField.LONG_DESCRIPTION: {
-        const longDescription = this.page.getByRole('textbox', {
-          name: 'Long program description (optional)',
-        })
+        const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        break
+      }
+
+      case FormField.NOTIFICATION_PREFERENCES: {
+        const notificationPreferences =
+          this.getNotificationsPreferenceCheckbox()
+        await expect(notificationPreferences).toBeEnabled()
         break
       }
 
@@ -377,6 +426,44 @@ export class AdminPrograms {
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
         )
     }
+  }
+
+  /**
+   * Verifies whether the program type has its corresponding field disabled.
+   *
+   * @param formField - The specific program type field to verify (from ProgramType enum)
+   */
+  async expectProgramTypeDisabled(programType: ProgramType) {
+    const programTypeOption = this.getProgramTypeOption(programType)
+    await expect(programTypeOption).toBeDisabled()
+  }
+
+  /**
+   * Verifies whether the program type has its corresponding field enabled.
+   *
+   * @param formField - The specific program type field to verify (from ProgramType enum)
+   */
+  async expectProgramTypeEnabled(programType: ProgramType) {
+    const programTypeOption = this.getProgramTypeOption(programType)
+    await expect(programTypeOption).toBeEnabled()
+  }
+
+  /**
+   * Verifies whether the program header button is hidden
+   *
+   * @param headerButton - The specific button to verify (from ProgramHeaderButton enum)
+   */
+  async expectProgramHeaderButtonHidden(headerButton: ProgramHeaderButton) {
+    const button = this.page.getByRole('button', {name: headerButton})
+    await expect(button).toBeHidden()
+  }
+
+  /**
+   * Verifies whether the block panel in the program block view is hidden
+   */
+  async expectBlockPanelHidden() {
+    const blockPanel = this.page.getByTestId('block-panel')
+    await expect(blockPanel).toBeHidden()
   }
 
   async submitProgramDetailsEdits() {
@@ -1516,13 +1603,86 @@ export class AdminPrograms {
     await this.page.waitForLoadState()
   }
 
-  getCommonIntakeFormToggle() {
+  getPreScreenerFormToggle() {
     return this.page.getByRole('checkbox', {
       name: 'Set program as pre-screener',
     })
   }
 
-  async clickCommonIntakeFormToggle() {
+  getProgramTypeOption(programType: string): Locator {
+    return this.page.getByRole('radio', {
+      name: programType,
+    })
+  }
+
+  getLongDescriptionField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Long program description (optional)',
+    })
+  }
+
+  getNotificationsPreferenceCheckbox(): Locator {
+    return this.page.getByRole('checkbox', {
+      name:
+        'Send Program Admins an email notification every time an ' +
+        'application is submitted',
+    })
+  }
+
+  getConfirmationMessageField(): Locator {
+    return this.page.getByRole('textbox', {
+      name:
+        'A custom message that will be shown on the confirmation page ' +
+        'after an application has been submitted. You can use this ' +
+        'message to explain next steps of the application process and/or ' +
+        'highlight other programs to apply for. (optional)',
+    })
+  }
+
+  /**
+   * Verifies that the program type radio button checked correspond to
+   * `programTypeSelected`. This should only be used when EXTERNAL_PROGRAM_CARDS
+   * feature is enabled.
+   */
+  async expectProgramTypeSelected(programTypeSelected: ProgramType) {
+    for (const programType of Object.values(ProgramType)) {
+      const programTypeOption = this.getProgramTypeOption(programType)
+
+      if (programType === programTypeSelected) {
+        await expect(programTypeOption).toBeChecked()
+      } else {
+        await expect(programTypeOption).not.toBeChecked()
+      }
+    }
+  }
+
+  /**
+   * Selects the program type radio button for `programType`. This should only
+   * be used when EXTERNAL_PROGRAM_CARDS feature is enabled.
+   */
+  async selectProgramType(programType: ProgramType) {
+    // Note: We click on the label instead of directly interacting with the button
+    // because USWDS styling hides the actual button input and styles the label to
+    // look like a checkbox. The actual input element is visually hidden or positioned
+    // off-screen, making it inaccessible to Playwright's direct interactions.
+    let programId
+    switch (programType) {
+      case ProgramType.DEFAULT:
+        programId = 'default-program-option'
+        break
+      case ProgramType.PRE_SCREENER:
+        programId = 'common-intake-program-option'
+        break
+      case ProgramType.EXTERNAL:
+        programId = 'external-program-option'
+        break
+    }
+    await this.page.locator('label[for="' + programId + '"]').click()
+  }
+
+  // TODO(#10363): Migrate callers to use selectProgramType(programType) once
+  // EXTERNAL_PROGRAM_CARDS is enabled by default.
+  async clickPreScreenerFormToggle() {
     // Note: We click on the label instead of directly interacting with the checkbox
     // because USWDS styling hides the actual checkbox input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
