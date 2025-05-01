@@ -96,6 +96,7 @@ public final class TransactionManager {
 
     return returnValue.orElseGet(() -> execute(synchronousWork));
   }
+
   /** Calls {@link #execute(Supplier)} but makes two attempts before failing. */
   public void executeWithRetry(Runnable synchronousWork) {
     checkNotNull(synchronousWork);
