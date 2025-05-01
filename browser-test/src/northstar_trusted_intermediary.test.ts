@@ -151,7 +151,7 @@ test.describe(
         await applicantQuestions.clickContinue()
         await applicantQuestions.gotoApplicantHomePage()
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
@@ -196,7 +196,7 @@ test.describe(
         await applicantQuestions.expectConfirmationPage(true)
         await applicantQuestions.clickBackToHomepageButton()
         await tiDashboard.clickOnViewApplications()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [
