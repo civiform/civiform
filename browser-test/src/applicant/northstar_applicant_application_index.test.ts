@@ -439,30 +439,16 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await logout(page)
       })
 
-<<<<<<< HEAD
       await test.step('change html to right to left', async () => {
         await setDirRtl(page)
       })
 
       await test.step('validate screenshot desktop', async () => {
-=======
-      await test.step('change applicant language to Arabic', async () => {
-        await selectApplicantLanguageNorthstar(page, 'ar')
-        await page.goto('/')
-      })
-
-      await test.step('validate screenshot desktop', async () => {
-        await validateAccessibility(page)
->>>>>>> main
         await validateScreenshot(page, 'filter-chips-right-to-left-desktop')
       })
 
       await test.step('validate screenshot mobile', async () => {
         await page.setViewportSize({width: 360, height: 800})
-<<<<<<< HEAD
-=======
-        await validateAccessibility(page)
->>>>>>> main
         await validateScreenshot(
           page,
           'filter-chips-right-to-left-mobile',
@@ -924,14 +910,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   test('formats index page correctly for right to left languages', async ({
     page,
   }) => {
-<<<<<<< HEAD
     await test.step('change html to right to left', async () => {
       await setDirRtl(page)
-=======
-    await test.step('change applicant language to Arabic', async () => {
-      await selectApplicantLanguageNorthstar(page, 'ar')
-      await page.goto('/')
->>>>>>> main
     })
 
     await test.step('validate screenshot desktop', async () => {
