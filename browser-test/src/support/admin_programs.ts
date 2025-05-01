@@ -50,7 +50,7 @@ export enum FormField {
 
 export enum ProgramType {
   DEFAULT = 'CiviForm program',
-  PRE_SCREENER_FORM = 'Pre-screener',
+  PRE_SCREENER = 'Pre-screener',
   EXTERNAL = 'External program',
 }
 
@@ -256,7 +256,7 @@ export class AdminPrograms {
       await this.getProgramTypeOption(programType).isVisible()
     if (externalProgramsFeatureEnabled) {
       await this.selectProgramType(programType)
-    } else if (programType === ProgramType.PRE_SCREENER_FORM) {
+    } else if (programType === ProgramType.PRE_SCREENER) {
       await this.clickPreScreenerFormToggle()
     }
 
@@ -1670,7 +1670,7 @@ export class AdminPrograms {
       case ProgramType.DEFAULT:
         programId = 'default-program-option'
         break
-      case ProgramType.PRE_SCREENER_FORM:
+      case ProgramType.PRE_SCREENER:
         programId = 'common-intake-program-option'
         break
       case ProgramType.EXTERNAL:

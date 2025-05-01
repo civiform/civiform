@@ -225,7 +225,7 @@ test.describe('Admin can manage program translations', () => {
         'https://www.example.com',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.PRE_SCREENER_FORM,
+        ProgramType.PRE_SCREENER,
       )
     })
 
@@ -562,7 +562,7 @@ test.describe('Admin can manage program translations', () => {
           'https://www.example.com',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.PRE_SCREENER_FORM,
+          ProgramType.PRE_SCREENER,
         )
       })
 

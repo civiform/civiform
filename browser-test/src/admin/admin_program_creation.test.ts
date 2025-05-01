@@ -1090,7 +1090,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.PRE_SCREENER_FORM,
+      ProgramType.PRE_SCREENER,
     )
 
     const programName = 'Apc program'
@@ -1161,7 +1161,7 @@ test.describe('program creation', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.PRE_SCREENER_FORM,
+      ProgramType.PRE_SCREENER,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -1440,7 +1440,7 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER_FORM,
+            ProgramType.PRE_SCREENER,
           )
 
           await validateScreenshot(
@@ -1492,7 +1492,7 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeDisabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeDisabled(
-            ProgramType.PRE_SCREENER_FORM,
+            ProgramType.PRE_SCREENER,
           )
 
           await validateScreenshot(
@@ -1522,20 +1522,20 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER_FORM,
+            ProgramType.PRE_SCREENER,
           )
         })
 
         await test.step("'pre-screener' program cannot be changed to be an 'external' program", async () => {
-          await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER_FORM)
+          await adminPrograms.selectProgramType(ProgramType.PRE_SCREENER)
           await adminPrograms.expectProgramTypeSelected(
-            ProgramType.PRE_SCREENER_FORM,
+            ProgramType.PRE_SCREENER,
           )
 
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER_FORM,
+            ProgramType.PRE_SCREENER,
           )
         })
       })

@@ -256,7 +256,7 @@ test.describe('Program list page.', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.PRE_SCREENER_FORM,
+      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addProgram(
       externalProgram,

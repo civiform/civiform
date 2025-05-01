@@ -679,7 +679,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.PRE_SCREENER_FORM,
+        ProgramType.PRE_SCREENER,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
@@ -1124,7 +1124,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.PRE_SCREENER_FORM,
+          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)

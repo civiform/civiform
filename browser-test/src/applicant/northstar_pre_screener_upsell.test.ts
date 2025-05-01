@@ -30,7 +30,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.PRE_SCREENER_FORM,
+          ProgramType.PRE_SCREENER,
         )
         await adminPrograms.publishProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
