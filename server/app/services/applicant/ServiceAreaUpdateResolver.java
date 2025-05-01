@@ -52,7 +52,7 @@ final class ServiceAreaUpdateResolver {
    * <p>Returns empty under the following conditions:
    *
    * <ul>
-   *   <li>The block does not contain and address question with address correction enabled.
+   *   <li>The block does not contain an address question with address correction enabled.
    *   <li>There are no {@link EsriServiceAreaValidationOption}s corresponding to service area ideas
    *       configured for eligibility.
    *   <li>The address has not been corrected.
@@ -65,14 +65,13 @@ final class ServiceAreaUpdateResolver {
             block.getLeafAddressNodeServiceAreaIds().get());
     Optional<ApplicantQuestion> maybeAddressQuestion =
         block.getAddressQuestionWithCorrectionEnabled();
-    ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
-    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
 
     if (maybeAddressQuestion.isEmpty() || maybeOptions.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          Optional.of(ServiceAreaUpdate.create(serviceAreaPath, ImmutableList.of())));
+      return CompletableFuture.completedFuture(Optional.empty());
     }
 
+    ApplicantQuestion addressQuestion = maybeAddressQuestion.get();
+    Path serviceAreaPath = addressQuestion.getContextualizedPath().join(Scalar.SERVICE_AREAS);
     ImmutableList<EsriServiceAreaValidationOption> serviceAreaOptions = maybeOptions.get();
     Boolean hasCorrectedAddress = doesUpdateContainCorrectedAddress(addressQuestion, updateMap);
 
