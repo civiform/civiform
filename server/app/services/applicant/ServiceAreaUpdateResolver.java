@@ -55,8 +55,10 @@ final class ServiceAreaUpdateResolver {
    *   <li>The block does not contain an address question with address correction enabled.
    *   <li>There are no {@link EsriServiceAreaValidationOption}s corresponding to service area ideas
    *       configured for eligibility.
-   *   <li>The address has not been corrected.
    * </ul>
+   *
+   * <p>Returns a ServiceAreaUpdate with an empty ServiceAreaInclusion list for addresses that have
+   * not been corrected
    */
   public CompletionStage<Optional<ServiceAreaUpdate>> getServiceAreaUpdate(
       Block block, ImmutableMap<String, String> updateMap) {
