@@ -13,16 +13,16 @@ import {
 import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
-  'North Star Common Intake Upsell Tests',
+  'North Star Pre-Screener Upsell Tests',
   {tag: ['@northstar']},
   () => {
-    const programName = 'Common Intake Program'
+    const programName = 'Pre-Screener Program'
     const eligibleProgram1 = 'Eligible Program 1'
 
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await test.step('Setup: Publish common intake program', async () => {
+      await test.step('Setup: Publish pre-screener program', async () => {
         await adminPrograms.addProgram(
           programName,
           'Display description',
@@ -30,7 +30,7 @@ test.describe(
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.COMMON_INTAKE_FORM,
+          ProgramType.PRE_SCREENER,
         )
         await adminPrograms.publishProgram(programName)
         await adminPrograms.expectActiveProgram(programName)
@@ -67,7 +67,7 @@ test.describe(
 
         await validateScreenshot(
           page,
-          'upsell-north-star-common-intake',
+          'upsell-north-star-pre-screener',
           /* fullPage= */ true,
           /* mobileScreenshot= */ true,
         )
@@ -143,7 +143,7 @@ test.describe(
       ).toBeVisible()
 
       // TODO(#8178): Click "Edit my responses" and verify after behavior is finalized by UX.
-      // Then return to the common intake ineligible page
+      // Then return to the pre-screener ineligible page
 
       await test.step('Click "Apply to Programs" and return to homepage', async () => {
         await applicantQuestions.clickApplyToProgramsButton()
@@ -170,7 +170,7 @@ test.describe(
 
       await validateScreenshot(
         page,
-        'upsell-north-star-common-intake-login',
+        'upsell-north-star-pre-screener-login',
         /* fullPage= */ false,
       )
 

@@ -1696,7 +1696,7 @@ public final class ApplicantService {
       }
     }
 
-    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
+    if (serviceAreaUpdate.isPresent()) {
       applicantData.putServiceAreaInclusionEntities(
           serviceAreaUpdate
               .get()

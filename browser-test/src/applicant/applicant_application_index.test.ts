@@ -223,49 +223,47 @@ test.describe('applicant program index page', () => {
     await validateScreenshot(page, 'program-details-visibility')
   })
 
-  test('common intake form not present', async ({page}) => {
-    await validateScreenshot(page, 'common-intake-form-not-set')
+  test('pre-screener form not present', async ({page}) => {
+    await validateScreenshot(page, 'pre-screener-form-not-set')
     await validateAccessibility(page)
   })
 
-  test.describe('common intake form present', () => {
-    const commonIntakeFormProgramName = 'Benefits finder'
+  test.describe('pre-screener form present', () => {
+    const preScreenerFormProgramName = 'Benefits finder'
 
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
-        commonIntakeFormProgramName,
+        preScreenerFormProgramName,
         'program description',
         'short program description',
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER,
       )
       await adminPrograms.publishAllDrafts()
       await logout(page)
     })
 
-    test('shows common intake form', async ({page, applicantQuestions}) => {
+    test('shows pre-screener form', async ({page, applicantQuestions}) => {
       await applicantQuestions.applyProgram(primaryProgramName)
       await applicantQuestions.answerTextQuestion('first answer')
       await applicantQuestions.clickNext()
       await applicantQuestions.gotoApplicantHomePage()
 
-      await validateScreenshot(page, 'common-intake-form-sections')
+      await validateScreenshot(page, 'pre-screener-form-sections')
       await applicantQuestions.expectProgramsinCorrectSections({
         expectedProgramsInMyApplicationsSection: [primaryProgramName],
         expectedProgramsInProgramsAndServicesSection: [otherProgramName],
         expectedProgramsInRecommendedSection: [],
         expectedProgramsInOtherProgramsSection: [],
       })
-      await applicantQuestions.expectCommonIntakeForm(
-        commonIntakeFormProgramName,
-      )
+      await applicantQuestions.expectPreScreenerForm(preScreenerFormProgramName)
       await validateAccessibility(page)
     })
 
-    test('shows a different title for the common intake form', async ({
+    test('shows a different title for the pre-screener form', async ({
       page,
       applicantQuestions,
     }) => {
@@ -631,17 +629,17 @@ test.describe('applicant program index page with images', () => {
   }) => {
     test.slow()
 
-    // Common Intake: Basic (no image or status)
+    // Pre-screener: Basic (no image or status)
     await loginAsAdmin(page)
-    const commonIntakeFormProgramName = 'Benefits finder'
+    const preScreenerFormProgramName = 'Benefits finder'
     await adminPrograms.addProgram(
-      commonIntakeFormProgramName,
+      preScreenerFormProgramName,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER,
     )
 
     // In Progress: Image
