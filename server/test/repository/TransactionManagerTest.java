@@ -171,7 +171,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeWithRetry_throws() {
+  public void executeWithRetry_supplier_throws() {
     // Force the workload to fail by running other transactions that conflict.
 
     List<String> innerEmails = ImmutableList.of("inneremail1@test.com", "inneremail2@test.com");
@@ -207,7 +207,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeWithRetry() {
+  public void executeWithRetry_supplier() {
     final String innerEmail = "inneremail@test.com";
     AtomicReference<Boolean> innerTransactionHasRun = new AtomicReference<>(false);
     AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
@@ -241,9 +241,83 @@ public class TransactionManagerTest extends ResetPostgres {
           return outerAccount;
         };
 
-    transactionManager.executeWithRetry(modifyAccount);
-    initialAccount.refresh();
+    var outerAccount = transactionManager.executeWithRetry(modifyAccount);
+    assertThat(outerAccount.getEmailAddress()).isEqualTo("updated@test.com");
 
+    initialAccount.refresh();
+    assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
+  }
+
+  @Test
+  public void executeWithRetry_runnable_throws() {
+    // Force the workload to fail by running other transactions that conflict.
+
+    List<String> innerEmails = ImmutableList.of("inneremail1@test.com", "inneremail2@test.com");
+    AtomicReference<Integer> counter = new AtomicReference<>(0);
+    AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
+    account.insert();
+
+    Runnable modifyAccount =
+        () -> {
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+
+          // Update the account in a different Transaction (requiresNew) before the current one
+          // finishes to trigger a serialization/ exception in the outer transaction.
+          // We need a different email each time as save() is a no-op if nothing changes.
+          try (Transaction innerTransaction =
+              DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+            innerAccount.setEmailAddress(innerEmails.get(counter.getAndSet(counter.get() + 1)));
+            innerAccount.save();
+            innerTransaction.commit();
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+        };
+
+    assertThrows(
+        SerializableConflictException.class,
+        () -> transactionManager.executeWithRetry(modifyAccount));
+    account.refresh();
+    assertThat(innerEmails.get(1)).isEqualTo(account.getEmailAddress());
+  }
+
+  @Test
+  public void executeWithRetry_runnable() {
+    final String innerEmail = "inneremail@test.com";
+    AtomicReference<Boolean> innerTransactionHasRun = new AtomicReference<>(false);
+    AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
+    initialAccount.insert();
+    long accountId = initialAccount.id;
+
+    Runnable modifyAccount =
+        () -> {
+          AccountModel outerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+
+          // Cause a concurrency error on the first run.
+          if (!innerTransactionHasRun.getAndSet(true)) {
+            // Update the account in a different Transaction (requiresNew)
+            // before the current one finishes to trigger a serialization
+            // exception in the outer transaction.
+            try (Transaction innerTransaction =
+                DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+              AccountModel innerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+              innerAccount.setEmailAddress(innerEmail);
+              innerAccount.save();
+              innerTransaction.commit();
+            }
+          } else {
+            // Verify the inner transaction change occurred and is visible on the retry.
+            AccountModel innerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+            assertThat(innerAccount.getEmailAddress()).isEqualTo(innerEmail);
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+        };
+
+    initialAccount.refresh();
     assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
   }
 
