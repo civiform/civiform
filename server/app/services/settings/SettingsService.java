@@ -195,7 +195,7 @@ public final class SettingsService {
                           || settingDescription.variableName().equals("THEME_COLOR_PRIMARY_DARK")) {
                         // Only allow admins to set theme colors that have a contrast ratio of 4.5:1
                         // with white, for accessibility reasons.
-                        if (!ColorUtil.contrastsWithWhite(newValue)) {
+                        if (!newValue.isEmpty() && !ColorUtil.contrastsWithWhite(newValue)) {
                           validationErrors.put(
                               settingDescription.variableName(),
                               SettingsGroupUpdateResult.UpdateError.create(

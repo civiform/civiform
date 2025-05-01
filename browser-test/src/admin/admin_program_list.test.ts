@@ -246,17 +246,17 @@ test.describe('Program list page.', () => {
     await loginAsAdmin(page)
 
     const program = 'Program'
-    const commonIntakeProgram = 'Common intake'
+    const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
     await adminPrograms.addProgram(
-      commonIntakeProgram,
+      preScreenerProgram,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addProgram(
       externalProgram,
@@ -268,9 +268,9 @@ test.describe('Program list page.', () => {
       ProgramType.EXTERNAL,
     )
 
-    // Common intake program should always be first. Then, order is by last modified.
+    // Pre-screener program should always be first. Then, order is by last modified.
     await expectProgramListElements(adminPrograms, [
-      commonIntakeProgram,
+      preScreenerProgram,
       externalProgram,
       program,
     ])
