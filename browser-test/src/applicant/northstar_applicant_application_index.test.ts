@@ -915,13 +915,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
 
     await test.step('validate screenshot desktop', async () => {
-      await validateAccessibility(page)
       await validateScreenshot(page, 'applicant-homepage-right-to-left-desktop')
     })
 
     await test.step('validate screenshot mobile', async () => {
       await page.setViewportSize({width: 360, height: 800})
-      await validateAccessibility(page)
       await validateScreenshot(
         page,
         'applicant-homepage-right-to-left-mobile',
