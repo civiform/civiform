@@ -4,11 +4,11 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
   validateScreenshot,
   validateAccessibility,
   loginAsTrustedIntermediary,
   ClientInformation,
+  setDirRtl,
 } from '../support'
 
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
@@ -260,10 +260,12 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
         /* northStarEnabled=*/ true,
       )
 
-      await selectApplicantLanguageNorthstar(page, 'ar')
-
       await applicantQuestions.answerNumberQuestion('0')
-      await applicantQuestions.clickContinueArabic()
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Setup: set html direction to rtl', async () => {
+      await setDirRtl(page)
     })
 
     await validateScreenshot(
