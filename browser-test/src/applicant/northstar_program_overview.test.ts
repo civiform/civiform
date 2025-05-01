@@ -6,9 +6,9 @@ import {
   loginAsTrustedIntermediary,
   loginAsTestUser,
   logout,
-  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
+  setDirRtl,
 } from '../support'
 import {Eligibility} from '../support/admin_programs'
 
@@ -417,18 +417,16 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   })
 
   test('renders right to left', async ({page}) => {
-    await selectApplicantLanguageNorthstar(page, 'ar')
     await page.goto(`/programs/${programName}`)
+    await setDirRtl(page)
 
     await validateAccessibility(page)
 
-    await test.step('renders right to left', async () => {
-      await validateScreenshot(
-        page.locator('main'),
-        'program-overview-right-to-left',
-        /* fullPage= */ true,
-        /* mobileScreenshot= */ true,
-      )
-    })
+    await validateScreenshot(
+      page.locator('main'),
+      'program-overview-right-to-left',
+      /* fullPage= */ true,
+      /* mobileScreenshot= */ true,
+    )
   })
 })
