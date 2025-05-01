@@ -26,6 +26,7 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.TransactionManager;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
@@ -36,7 +37,7 @@ import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
 public class DevToolsController extends Controller {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DevToolsController.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DevToolsView view;
@@ -51,6 +52,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
   private final Clock clock;
+  private final TransactionManager transactionManager = new TransactionManager();
 
   @Inject
   public DevToolsController(
@@ -112,7 +114,7 @@ public class DevToolsController extends Controller {
       devDatabaseSeedTask.seedQuestions();
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to seed questions", ex);
+      logger.error("Failed to seed questions", ex);
       return false;
     }
   }
@@ -139,7 +141,7 @@ public class DevToolsController extends Controller {
 
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to seed programs.", ex);
+      logger.error("Failed to seed programs.", ex);
       return false;
     }
   }
@@ -179,12 +181,15 @@ public class DevToolsController extends Controller {
   /** Remove all content from the program and question tables. */
   private boolean clearInternal() {
     try {
+      logger.warn("Beginning clearing of data. Clearing memory caches.");
       clearCacheIfEnabled();
+      logger.warn("Clearing database tables.");
       resetTables();
+      logger.warn("Done clearing data.");
 
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to clear cache or tables.", ex);
+      logger.error("Failed to clear cache or tables.", ex);
       return false;
     }
   }
@@ -224,9 +229,12 @@ public class DevToolsController extends Controller {
   }
 
   private void resetTables() {
-    Models.truncate(database);
-    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
-    newActiveVersion.save();
-    settingsService.migrateConfigValuesToSettingsGroup();
+    transactionManager.execute(
+        () -> {
+          Models.truncate(database);
+          VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
+          newActiveVersion.save();
+          settingsService.migrateConfigValuesToSettingsGroup();
+        });
   }
 }

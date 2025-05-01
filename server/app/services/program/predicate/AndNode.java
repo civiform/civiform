@@ -20,7 +20,7 @@ import services.question.types.QuestionDefinition;
 @AutoValue
 public abstract class AndNode implements ConcretePredicateExpressionNode {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AndNode.class);
+  private static final Logger logger = LoggerFactory.getLogger(AndNode.class);
 
   /**
    * Create a new AND node.
@@ -68,7 +68,7 @@ public abstract class AndNode implements ConcretePredicateExpressionNode {
                     .map(QuestionDefinition::getName)
                     .orElseGet(
                         () -> {
-                          LOGGER.error(
+                          logger.error(
                               "Question not found for node question IDs: {}, provided questions:"
                                   + " {}",
                               node.getQuestions(),

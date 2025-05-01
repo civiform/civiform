@@ -8,10 +8,14 @@ import {
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
+  enableFeatureFlag,
 } from '../../support'
-import {ProgramVisibility} from '../../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../../support/admin_programs'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test.describe('navigation with common intake', () => {
     // Create two programs, one is common intake
     const commonIntakeProgramName = 'Test Common Intake Form Program'
@@ -36,7 +40,7 @@ test.describe('Applicant navigation flow', () => {
           'https://usa.gov',
           ProgramVisibility.PUBLIC,
           'admin description',
-          /* isCommonIntake= */ true,
+          ProgramType.COMMON_INTAKE_FORM,
         )
 
         await adminPrograms.editProgramBlock(

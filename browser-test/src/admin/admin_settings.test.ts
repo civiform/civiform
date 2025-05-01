@@ -65,9 +65,7 @@ test.describe('Managing system-wide settings', () => {
     })
   })
 
-  test('Validates color contrast in theme settings', async ({
-    adminSettings,
-  }) => {
+  test('Validates theme settings', async ({adminSettings}) => {
     await adminSettings.gotoAdminSettings()
 
     await test.step('contrast ratio not met on primary color', async () => {
@@ -109,6 +107,15 @@ test.describe('Managing system-wide settings', () => {
       await adminSettings.saveChanges(
         /* expectUpdated= */ false,
         /* expectError= */ true,
+      )
+    })
+
+    await test.step('can remove settings', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '')
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ true,
+        /* expectError= */ false,
       )
     })
   })

@@ -6,9 +6,12 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('view draft program', async ({page, adminPrograms}) => {
     await loginAsAdmin(page)
 
@@ -32,6 +35,12 @@ test.describe('Program list page.', () => {
     const programCard = page.locator('.cf-admin-program-card').first()
     await expect(programCard.getByText('Draft')).toBeHidden()
     await expect(programCard.getByText('Active')).toBeVisible()
+
+    await test.step('check that program visibility is displayed', async () => {
+      await expect(
+        programCard.getByText('Visibility state: Public'),
+      ).toBeVisible()
+    })
 
     // full page screenshot
     await validateScreenshot(page, 'program-list-one-active-program')
@@ -107,7 +116,6 @@ test.describe('Program list page.', () => {
     adminPrograms,
     seeding,
   }) => {
-    await enableFeatureFlag(page, 'program_filtering_enabled')
     const programName = 'Program with Categories'
     const programLongDescription =
       'A very very very very very very long description'
@@ -129,12 +137,6 @@ test.describe('Program list page.', () => {
       await adminPrograms.gotoAdminProgramsPage()
       const firstProgramCard = page.locator('.cf-admin-program-card').first()
       await expect(firstProgramCard.getByText('Categories: None')).toBeVisible()
-    })
-    await test.step('check that program visibility is displayed', async () => {
-      const firstProgramCard = page.locator('.cf-admin-program-card').first()
-      await expect(
-        firstProgramCard.getByText('Visibility state: Public'),
-      ).toBeVisible()
     })
 
     await test.step('add two categories', async () => {
@@ -233,29 +235,51 @@ test.describe('Program list page.', () => {
     ])
   })
 
-  test('shows which program is the common intake when enabled', async ({
+  test('shows program type indicator in card', async ({
     page,
     adminPrograms,
   }) => {
+    // Feature flag is only needed for showing external program cards, other
+    // program types shouldn't be affected by it.
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+
     await loginAsAdmin(page)
 
-    const programOne = 'List test program one'
-    const programTwo = 'List test program two'
-    await adminPrograms.addProgram(programOne)
+    const program = 'Program'
+    const commonIntakeProgram = 'Common intake'
+    const externalProgram = 'External'
+    await adminPrograms.addProgram(program)
     await adminPrograms.addProgram(
-      programTwo,
+      commonIntakeProgram,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
+    )
+    await adminPrograms.addProgram(
+      externalProgram,
+      /* description= */ '',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.EXTERNAL,
     )
 
-    await expectProgramListElements(adminPrograms, [programTwo, programOne])
-    const firstProgramCard = page.locator('.cf-admin-program-card').first()
+    // Common intake program should always be first. Then, order is by last modified.
+    await expectProgramListElements(adminPrograms, [
+      commonIntakeProgram,
+      externalProgram,
+      program,
+    ])
 
+    const firstProgramCard = page.locator('.cf-admin-program-card').first()
     await expect(firstProgramCard.getByText('Pre-screener')).toBeVisible()
+
+    const secondProgramCard = page.locator('.cf-admin-program-card').nth(1)
+    await expect(secondProgramCard.getByText('External program')).toBeVisible()
   })
 
   test('shows information about universal questions when the flag is enabled and at least one universal question is set', async ({
