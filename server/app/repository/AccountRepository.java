@@ -239,11 +239,13 @@ public final class AccountRepository {
   public CompletionStage<ApplicantModel> mergeApplicants(
       ApplicantModel left, ApplicantModel right, AccountModel account) {
     return supplyAsync(
-        () -> {
-          left.setAccount(account).save();
-          right.setAccount(account).save();
-          return mergeApplicants(left, right).saveAndReturn();
-        },
+        () ->
+            transactionManager.execute(
+                () -> {
+                  left.setAccount(account).save();
+                  right.setAccount(account).save();
+                  return mergeApplicants(left, right).saveAndReturn();
+                }),
         executionContext);
   }
 
@@ -277,11 +279,14 @@ public final class AccountRepository {
   }
 
   public void deleteTrustedIntermediaryGroup(long id) {
-    Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
-    if (tiGroup.isEmpty()) {
-      throw new NoSuchTrustedIntermediaryGroupError();
-    }
-    database.delete(tiGroup.get());
+    transactionManager.executeWithRetry(
+        () -> {
+          Optional<TrustedIntermediaryGroupModel> tiGroup = getTrustedIntermediaryGroup(id);
+          if (tiGroup.isEmpty()) {
+            throw new NoSuchTrustedIntermediaryGroupError();
+          }
+          database.delete(tiGroup.get());
+        });
   }
 
   public Optional<TrustedIntermediaryGroupModel> getTrustedIntermediaryGroup(long id) {
