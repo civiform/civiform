@@ -9,9 +9,13 @@ import {
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('Program admin review of submitted applications', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test('all major steps with multiple file upload flag', async ({
     page,
     adminQuestions,

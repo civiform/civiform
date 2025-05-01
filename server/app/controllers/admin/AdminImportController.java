@@ -4,46 +4,37 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import java.util.Map.Entry;
 import java.util.Optional;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import parsers.LargeFormUrlEncodedBodyParser;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
-import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.migration.ProgramMigrationService;
 import services.program.BlockDefinition;
-import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
-import services.program.predicate.AndNode;
-import services.program.predicate.LeafAddressServiceAreaExpressionNode;
-import services.program.predicate.LeafExpressionNode;
-import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.OrNode;
-import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
-import services.statuses.StatusDefinitions;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -60,15 +51,12 @@ import views.admin.migration.AdminProgramImportForm;
  * environment (e.g. production).
  */
 public class AdminImportController extends CiviFormController {
-
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final SettingsManifest settingsManifest;
   private final ProgramRepository programRepository;
-  private final QuestionRepository questionRepository;
-  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
 
   @Inject
@@ -81,8 +69,6 @@ public class AdminImportController extends CiviFormController {
       SettingsManifest settingsManifest,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      QuestionRepository questionRepository,
-      ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
@@ -91,8 +77,6 @@ public class AdminImportController extends CiviFormController {
     this.programMigrationService = checkNotNull(programMigrationService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programRepository = checkNotNull(programRepository);
-    this.questionRepository = checkNotNull(questionRepository);
-    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
   }
 
@@ -234,7 +218,14 @@ public class AdminImportController extends CiviFormController {
       if (questions == null) {
         return ok(
             adminImportViewPartial
-                .renderProgramData(request, program, questions, ImmutableMap.of(), jsonString, true)
+                .renderProgramData(
+                    request,
+                    program,
+                    questions,
+                    /* duplicateQuestionNames= */ ImmutableList.of(),
+                    /* updatedQuestionsMap= */ ImmutableMap.of(),
+                    jsonString,
+                    true)
                 .render());
       }
 
@@ -246,7 +237,10 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
           programMigrationService.maybeOverwriteQuestionName(questions);
 
-      if (withDuplicates) {
+      boolean duplicateHandlingOptionsEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+
+      if (withDuplicates && !duplicateHandlingOptionsEnabled) {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
       }
 
@@ -284,6 +278,7 @@ public class AdminImportController extends CiviFormController {
                   request,
                   program,
                   questions,
+                  programMigrationService.getExistingAdminNames(questions),
                   updatedQuestionsMap,
                   serializeResult.getResult(),
                   withDuplicates)
@@ -320,52 +315,21 @@ public class AdminImportController extends CiviFormController {
       ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
       ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
 
-      ProgramDefinition updatedProgram = programOnJson;
-
-      if (questionsOnJson != null) {
-        ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
-            questionsOnJson.stream()
-                .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
-
-        ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-            updateEnumeratorIdsAndSaveAllQuestions(questionsOnJson, questionsOnJsonById);
-
-        ImmutableList<BlockDefinition> updatedBlockDefinitions =
-            updateBlockDefinitions(programOnJson, questionsOnJsonById, updatedQuestionsMap);
-
-        updatedProgram =
-            programOnJson.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
-      }
+      boolean withDuplicates =
+          !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
+      boolean duplicateHandlingEnabled =
+          settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
 
       ProgramModel savedProgram =
-          programRepository.insertProgramSync(
-              new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
-
-      // If we are re-using existing questions, we will put all programs in draft mode to ensure no
-      // errors. We could also go through each question being updated and see what program it
-      // applies to, but this is more straightforward.
-      if (settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request)) {
-        ImmutableList<Long> programsInDraft =
-            versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
-                .map(p -> p.id)
-                .collect(ImmutableList.toImmutableList());
-        versionRepository
-            .getProgramsForVersion(versionRepository.getActiveVersion())
-            .forEach(
-                program -> {
-                  if (!programsInDraft.contains(program.id)) {
-                    programRepository.createOrUpdateDraft(program);
-                  }
-                });
-      }
-
-      // TODO(#8613) migrate application statuses for the program
-      applicationStatusesRepository.createOrUpdateStatusDefinitions(
-          updatedProgram.adminName(), new StatusDefinitions());
+          programMigrationService.saveImportedProgram(
+              programOnJson, questionsOnJson, withDuplicates, duplicateHandlingEnabled);
+      ProgramDefinition savedProgramDefinition =
+          programRepository.getShallowProgramDefinition(savedProgram);
 
       return ok(
           adminImportViewPartial
-              .renderProgramSaved(request, updatedProgram.adminName(), savedProgram.id)
+              .renderProgramSaved(
+                  request, savedProgramDefinition.adminName(), savedProgramDefinition.id())
               .render());
     } catch (RuntimeException error) {
       return ok(
@@ -377,214 +341,39 @@ public class AdminImportController extends CiviFormController {
     }
   }
 
-  private ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
-    Form<AdminProgramImportForm> form =
-        formFactory
-            .form(AdminProgramImportForm.class)
-            .bindFromRequest(request, AdminProgramImportForm.FIELD_NAMES.toArray(new String[0]));
+  @VisibleForTesting
+  ErrorAnd<ProgramMigrationWrapper, String> getDeserializeResult(Http.Request request) {
+    boolean duplicateHandlingOptionsEnabled =
+        settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
+    DynamicForm form = formFactory.form().bindFromRequest(request);
 
-    String jsonString = form.get().getProgramJson();
-
-    return programMigrationService.deserialize(jsonString);
-  }
-
-  /**
-   * Save all questions and then update enumerator child questions with the correct ids of their
-   * newly saved parent questions.
-   */
-  private ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
-      ImmutableList<QuestionDefinition> questionsOnJson,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
-
-    // Save all the questions
-    ImmutableList<QuestionModel> newlySavedQuestions =
-        questionRepository.bulkCreateQuestions(questionsOnJson);
-
-    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
-        newlySavedQuestions.stream()
-            .map(question -> question.getQuestionDefinition())
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-
-    ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
-        newlySavedQuestions.stream()
-            .map(
-                question -> {
-                  QuestionDefinition qd = question.getQuestionDefinition();
-                  if (qd.getEnumeratorId().isPresent()) {
-                    // The child question was saved with the incorrect enumerator id so we need to
-                    // update it
-                    Long oldEnumeratorId = qd.getEnumeratorId().get();
-                    // Use the old enumerator id to get the admin name of the parent question off
-                    // the old question map
-                    String parentQuestionAdminName =
-                        questionsOnJsonById.get(oldEnumeratorId).getName();
-                    // Use the admin name to get the updated id for the parent question off the new
-                    // question map
-                    Long newlySavedParentQuestionId =
-                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
-                    // Update the child question with the correct id and save the question
-                    qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
-                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
-                  }
-                  return qd;
-                })
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-
-    return fullyUpdatedQuestions;
-  }
-
-  /**
-   * Update the block definitions on the program with the newly saved questions before saving the
-   * program.
-   */
-  private ImmutableList<BlockDefinition> updateBlockDefinitions(
-      ProgramDefinition programOnJson,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    return programOnJson.blockDefinitions().stream()
-        .map(
-            blockDefinition -> {
-              ImmutableList<ProgramQuestionDefinition> updatedProgramQuestionDefinitions =
-                  blockDefinition.programQuestionDefinitions().stream()
-                      .map(
-                          pqd ->
-                              updateProgramQuestionDefinition(
-                                  pqd, questionsOnJsonById, updatedQuestionsMap))
-                      .collect(ImmutableList.toImmutableList());
-
-              BlockDefinition.Builder blockDefinitionBuilder =
-                  maybeUpdatePredicates(blockDefinition, questionsOnJsonById, updatedQuestionsMap);
-              blockDefinitionBuilder.setProgramQuestionDefinitions(
-                  updatedProgramQuestionDefinitions);
-
-              return blockDefinitionBuilder.build();
-            })
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  /**
-   * Map through each imported question and create a new ProgramQuestionDefinition to save on the
-   * program. We use the old question id from the json to fetch the question admin name and match it
-   * to the newly saved question so we can create a ProgramQuestionDefinition with the updated
-   * question.
-   */
-  private ProgramQuestionDefinition updateProgramQuestionDefinition(
-      ProgramQuestionDefinition programQuestionDefinitionFromJson,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    Long id = programQuestionDefinitionFromJson.id();
-    String adminName = questionsOnJsonById.get(id).getName();
-    QuestionDefinition updatedQuestion = updatedQuestionsMap.get(adminName);
-    return ProgramQuestionDefinition.create(
-        updatedQuestion,
-        Optional.empty(),
-        programQuestionDefinitionFromJson.optional(),
-        programQuestionDefinitionFromJson.addressCorrectionEnabled());
-  }
-
-  /**
-   * If there are eligibility and/or visibility predicates on the questions, update those with the
-   * id of the newly saved question.
-   */
-  private BlockDefinition.Builder maybeUpdatePredicates(
-      BlockDefinition blockDefinition,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    BlockDefinition.Builder blockDefinitionBuilder = blockDefinition.toBuilder();
-
-    if (blockDefinition.visibilityPredicate().isPresent()) {
-      PredicateDefinition visibilityPredicateDefinition =
-          blockDefinition.visibilityPredicate().get();
-      PredicateDefinition newPredicateDefinition =
-          updatePredicateDefinition(
-              visibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
-      blockDefinitionBuilder.setVisibilityPredicate(newPredicateDefinition);
+    String programJsonString = form.get(AdminProgramImportForm.PROGRAM_JSON_FIELD);
+    ImmutableMap<String, String> adminNameToDuplicateHandling = ImmutableMap.of();
+    if (duplicateHandlingOptionsEnabled) {
+      // Form data for handling duplicates all share a prefix. So we are looking for fields with
+      // that prefix, and then removing the prefix to get the admin name. The form data in question
+      // looks like:
+      // `{DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX}{adminName}->{duplicateHandlingOption}`
+      adminNameToDuplicateHandling =
+          form.rawData().entrySet().stream()
+              .filter(
+                  field ->
+                      field
+                          .getKey()
+                          .startsWith(
+                              AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX))
+              .map(
+                  field ->
+                      Maps.immutableEntry(
+                          field
+                              .getKey()
+                              .replace(
+                                  AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX,
+                                  ""),
+                          field.getValue()))
+              .collect(ImmutableMap.toImmutableMap(Entry::getKey, Entry::getValue));
     }
-    if (blockDefinition.eligibilityDefinition().isPresent()) {
-      PredicateDefinition eligibilityPredicateDefinition =
-          blockDefinition.eligibilityDefinition().get().predicate();
-      PredicateDefinition newPredicateDefinition =
-          updatePredicateDefinition(
-              eligibilityPredicateDefinition, questionsOnJsonById, updatedQuestionsMap);
-      EligibilityDefinition newEligibilityDefinition =
-          EligibilityDefinition.builder().setPredicate(newPredicateDefinition).build();
-      blockDefinitionBuilder.setEligibilityDefinition(newEligibilityDefinition);
-    }
-    return blockDefinitionBuilder;
-  }
 
-  /**
-   * Update the predicate definition by updating the predicate expression, starting with the root
-   * node.
-   */
-  private PredicateDefinition updatePredicateDefinition(
-      PredicateDefinition predicateDefinition,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    return PredicateDefinition.create(
-        updatePredicateExpression(
-            predicateDefinition.rootNode(), questionsOnJsonById, updatedQuestionsMap),
-        predicateDefinition.action());
-  }
-
-  /**
-   * Update the eligibility or visibility predicate with the id from the newly saved question. We
-   * use the old question id from the json to fetch the question admin name and match it to the
-   * newly saved question so we can set the new question id on the predicate definition. We
-   * recursively call this function on predicates with children.
-   */
-  private PredicateExpressionNode updatePredicateExpression(
-      PredicateExpressionNode predicateExpressionNode,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-
-    switch (predicateExpressionNode.getType()) {
-      case OR:
-        OrNode orNode = predicateExpressionNode.getOrNode();
-        ImmutableList<PredicateExpressionNode> orNodeChildren =
-            orNode.children().stream()
-                .map(
-                    child ->
-                        updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
-                .collect(ImmutableList.toImmutableList());
-        return PredicateExpressionNode.create(OrNode.create(orNodeChildren));
-      case AND:
-        AndNode andNode = predicateExpressionNode.getAndNode();
-        ImmutableList<PredicateExpressionNode> andNodeChildren =
-            andNode.children().stream()
-                .map(
-                    child ->
-                        updatePredicateExpression(child, questionsOnJsonById, updatedQuestionsMap))
-                .collect(ImmutableList.toImmutableList());
-        return PredicateExpressionNode.create(AndNode.create(andNodeChildren));
-      case LEAF_ADDRESS_SERVICE_AREA:
-        LeafAddressServiceAreaExpressionNode leafAddressNode =
-            predicateExpressionNode.getLeafAddressNode();
-        return PredicateExpressionNode.create(
-            leafAddressNode.toBuilder()
-                .setQuestionId(
-                    getNewQuestionid(leafAddressNode, questionsOnJsonById, updatedQuestionsMap))
-                .build());
-      case LEAF_OPERATION:
-        LeafOperationExpressionNode leafNode = predicateExpressionNode.getLeafOperationNode();
-        return PredicateExpressionNode.create(
-            leafNode.toBuilder()
-                .setQuestionId(getNewQuestionid(leafNode, questionsOnJsonById, updatedQuestionsMap))
-                .build());
-      default:
-        throw new IllegalStateException(
-            String.format(
-                "Unsupported predicate expression type for import: %s",
-                predicateExpressionNode.getType()));
-    }
-  }
-
-  private Long getNewQuestionid(
-      LeafExpressionNode leafNode,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap) {
-    Long oldQuestionId = leafNode.questionId();
-    String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
-    return updatedQuestionsMap.get(questionAdminName).getId();
+    return programMigrationService.deserialize(programJsonString, adminNameToDuplicateHandling);
   }
 }

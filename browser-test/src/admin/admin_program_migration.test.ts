@@ -1,6 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -8,6 +8,10 @@ test.describe('program migration', () => {
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_INFO = 'usa-alert--info'
   const ALERT_SUCCESS = 'usa-alert--success'
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
 
   test('export a program', async ({
     page,
@@ -268,7 +272,7 @@ test.describe('program migration', () => {
         'https://usa.gov',
         ProgramVisibility.SELECT_TI,
         'admin description',
-        false,
+        ProgramType.DEFAULT,
         'groupOne',
       )
       await adminPrograms.gotoAdminProgramsPage()
@@ -692,6 +696,200 @@ test.describe('program migration', () => {
       downloadedMinimalProgram = downloadedMinimalProgram.replace(
         'Sample Name Question',
         'Sample Name Question-new-no-dups',
+      )
+      await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question to the question bank.',
+        ALERT_INFO,
+      )
+      await adminProgramMigration.clickButton('Save')
+    })
+
+    await test.step('navigate to the program edit page', async () => {
+      await adminProgramMigration.clickButton('View program')
+      await expect(page.locator('#program-title')).toContainText(
+        'Minimal Sample Program New',
+      )
+      await expect(page.locator('#header_edit_button')).toBeVisible()
+    })
+  })
+
+  test('export then import with duplicate-handling UI enabled', async ({
+    page,
+    adminPrograms,
+    adminProgramMigration,
+    seeding,
+  }) => {
+    await test.step('seed programs', async () => {
+      await seeding.seedProgramsAndCategories()
+      await page.goto('/')
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'import_duplicate_handling_options_enabled')
+    })
+
+    let downloadedComprehensiveProgram: string
+    await test.step('export comprehensive program', async () => {
+      await adminPrograms.goToExportProgramPage(
+        'Comprehensive Sample Program',
+        'DRAFT',
+      )
+      downloadedComprehensiveProgram =
+        await adminProgramMigration.downloadJson()
+      expect(downloadedComprehensiveProgram).toContain(
+        'comprehensive-sample-program',
+      )
+    })
+
+    let downloadedMinimalProgram: string
+    await test.step('export minimal program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.goToExportProgramPage(
+        'Minimal Sample Program',
+        'DRAFT',
+      )
+      downloadedMinimalProgram = await adminProgramMigration.downloadJson()
+      expect(downloadedMinimalProgram).toContain('minimal-sample-program')
+    })
+
+    await test.step('import comprehensive program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
+
+      // Replace the admin name so you don't get an error
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'comprehensive-sample-program',
+        'comprehensive-sample-program-new',
+      )
+
+      // Replace one admin name of a question so we can see the "New Question" badge
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Sample Checkbox',
+        'Sample Checkbox-new',
+      )
+
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+
+      // Assert the title and admin name are shown
+      await expect(
+        page.getByRole('heading', {
+          name: 'Comprehensive Sample Program',
+        }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Admin name: comprehensive-sample-program-new',
+        }),
+      ).toBeVisible()
+
+      // Assert all the blocks are shown
+      await expect(page.getByRole('heading', {name: 'Screen 1'})).toBeVisible()
+      await expect(page.getByRole('heading', {name: 'Screen 2'})).toBeVisible()
+      // 'exact: true' distinguishes this heading from the 'repeated screen for enumerator' heading
+      await expect(
+        page.getByRole('heading', {name: 'enumerator', exact: true}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {name: 'repeated screen for enumerator'}),
+      ).toBeVisible()
+      await expect(page.getByRole('heading', {name: 'Screen 3'})).toBeVisible()
+      await expect(
+        page.getByRole('heading', {name: 'Screen with Predicate'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', {name: 'file upload'}),
+      ).toBeVisible()
+
+      // Assert the warning about duplicate question names is shown
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        ALERT_WARNING,
+      )
+
+      // Assert all the questions are shown
+      const allQuestions = page.getByTestId('question-div')
+      await expect(allQuestions).toHaveCount(17)
+      // Check that all the expected fields are shown (on at least one question)
+      const addressQuestion = page.getByTestId(
+        'question-admin-name-Sample Address Question',
+      )
+      // Duplicate badge
+      await expect(addressQuestion).toContainText('Duplicate Question')
+      // Question text & help text
+      await expect(addressQuestion).toContainText('What is your address?')
+      await expect(addressQuestion).toContainText('help text')
+      // admin name (should be the same as the imported admin name)
+      await expect(addressQuestion).toContainText(
+        'Admin ID: Sample Address Question',
+      )
+
+      // Check another question for multi-select and "New Question" badge
+      const checkboxQuestion = page.getByTestId(
+        'question-admin-name-Sample Checkbox-new Question',
+      )
+      // Question options (for multi-select question)
+      await expect(checkboxQuestion).toContainText('Toaster')
+      await expect(checkboxQuestion).toContainText('Pepper Grinder')
+      await expect(checkboxQuestion).toContainText('Garlic Press')
+      // Badges
+      await expect(checkboxQuestion).toContainText('New Question')
+
+      // Check that the universal badge is shown (on at least one question)
+      await adminPrograms.expectQuestionCardUniversalBadgeState(
+        'Sample Date Question',
+        true,
+      )
+      // Check that the UI looks the same
+      await validateScreenshot(
+        page.locator('main'),
+        'import-page-with-data-new-ui',
+      )
+    })
+
+    await test.step('delete the program and start over without saving', async () => {
+      await adminProgramMigration.clickButton('Delete and start over')
+      await adminProgramMigration.expectImportPage()
+      await expect(page.getByRole('textbox')).toHaveValue('')
+    })
+
+    await test.step('save the comprehensive sample program', async () => {
+      await adminProgramMigration.submitProgramJson(
+        downloadedComprehensiveProgram,
+      )
+      await adminProgramMigration.expectAlert(
+        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        ALERT_WARNING,
+      )
+      await adminProgramMigration.clickButton('Save')
+      await adminProgramMigration.expectAlert(
+        'Your program has been successfully imported',
+        ALERT_SUCCESS,
+      )
+      await validateScreenshot(page, 'saved-program-success')
+    })
+
+    await test.step('return to import page', async () => {
+      await adminProgramMigration.clickButton('Import another program')
+      await adminProgramMigration.expectImportPage()
+      await expect(page.getByRole('textbox')).toHaveValue('')
+    })
+
+    await test.step('save the minimal sample program', async () => {
+      // Replace the admin name so you don't get an error
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'minimal-sample-program',
+        'minimal-sample-program-new',
+      )
+      // Replace the program title so we can check the new one shows up
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Minimal Sample Program',
+        'Minimal Sample Program New',
+      )
+      // Replace the question admin id so we can see the "new question" info box
+      downloadedMinimalProgram = downloadedMinimalProgram.replace(
+        'Sample Name Question',
+        'Sample Name Question-new',
       )
       await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
       await adminProgramMigration.expectAlert(

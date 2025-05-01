@@ -14,7 +14,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Page} from 'playwright'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', () => {
@@ -25,6 +25,7 @@ test.describe('applicant program index page', () => {
   const secondQuestionText = 'This is the second question'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
     await loginAsAdmin(page)
 
     // Create a program with two questions on separate blocks so that an applicant can partially
@@ -175,52 +176,6 @@ test.describe('applicant program index page', () => {
     )
   })
 
-  test('categorizes programs for draft and applied applications', async ({
-    page,
-    applicantQuestions,
-  }) => {
-    await loginAsTestUser(page)
-    // Navigate to the applicant's program index and validate that both programs appear in the
-    // "Not started" section.
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [primaryProgramName, otherProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [],
-    })
-
-    // Fill out first application block and confirm that the program appears in the "In progress"
-    // section.
-    await applicantQuestions.applyProgram(primaryProgramName)
-    await applicantQuestions.answerTextQuestion('first answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.gotoApplicantHomePage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName],
-      wantInProgressPrograms: [primaryProgramName],
-      wantSubmittedPrograms: [],
-    })
-
-    // Finish the application and confirm that the program appears in the "Submitted" section.
-    await applicantQuestions.applyProgram(primaryProgramName)
-    await applicantQuestions.answerTextQuestion('second answer')
-    await applicantQuestions.clickNext()
-    await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [primaryProgramName],
-    })
-
-    // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
-    await logout(page)
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [otherProgramName, primaryProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [],
-    })
-  })
-
   test('Do not show program details anchor if no external link is present', async ({
     page,
     adminPrograms,
@@ -285,7 +240,7 @@ test.describe('applicant program index page', () => {
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
         'admin description',
-        /* isCommonIntake= */ true,
+        ProgramType.COMMON_INTAKE_FORM,
       )
       await adminPrograms.publishAllDrafts()
       await logout(page)
@@ -298,10 +253,11 @@ test.describe('applicant program index page', () => {
       await applicantQuestions.gotoApplicantHomePage()
 
       await validateScreenshot(page, 'common-intake-form-sections')
-      await applicantQuestions.expectPrograms({
-        wantNotStartedPrograms: [otherProgramName],
-        wantInProgressPrograms: [primaryProgramName],
-        wantSubmittedPrograms: [],
+      await applicantQuestions.expectProgramsinCorrectSections({
+        expectedProgramsInMyApplicationsSection: [primaryProgramName],
+        expectedProgramsInProgramsAndServicesSection: [otherProgramName],
+        expectedProgramsInRecommendedSection: [],
+        expectedProgramsInOtherProgramsSection: [],
       })
       await applicantQuestions.expectCommonIntakeForm(
         commonIntakeFormProgramName,
@@ -338,10 +294,11 @@ test.describe('applicant program index page', () => {
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
-    await applicantQuestions.expectPrograms({
-      wantNotStartedPrograms: [primaryProgramName],
-      wantInProgressPrograms: [],
-      wantSubmittedPrograms: [otherProgramName],
+    await applicantQuestions.expectProgramsinCorrectSections({
+      expectedProgramsInMyApplicationsSection: [otherProgramName],
+      expectedProgramsInProgramsAndServicesSection: [primaryProgramName],
+      expectedProgramsInRecommendedSection: [],
+      expectedProgramsInOtherProgramsSection: [],
     })
 
     // Check that the question repeated in the program with two questions shows previously answered.
@@ -379,10 +336,8 @@ test.describe('applicant program index page', () => {
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
 
-  test.describe('applicant program index page with program filtering', () => {
+  test.describe('with program filtering', () => {
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
-      await enableFeatureFlag(page, 'program_filtering_enabled')
-
       await seeding.seedProgramsAndCategories()
 
       await test.step('go to program edit form and add categories to primary program', async () => {
@@ -475,7 +430,7 @@ test.describe('applicant program index page', () => {
       await validateAccessibility(page)
     })
 
-    test('with program filters enabled, categorizes programs correctly', async ({
+    test('categorizes programs correctly', async ({
       page,
       adminPrograms,
       applicantQuestions,
@@ -487,7 +442,7 @@ test.describe('applicant program index page', () => {
       await test.step('Navigate to program index and validate that all programs appear in Programs and Services', async () => {
         await logout(page)
         await loginAsTestUser(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
+        await applicantQuestions.expectProgramsinCorrectSections({
           expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
@@ -510,7 +465,7 @@ test.describe('applicant program index page', () => {
         await applicantQuestions.answerTextQuestion('first answer')
         await applicantQuestions.clickNext()
         await applicantQuestions.gotoApplicantHomePage()
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
+        await applicantQuestions.expectProgramsinCorrectSections({
           expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             otherProgramName,
@@ -528,7 +483,7 @@ test.describe('applicant program index page', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.submitFromReviewPage()
         await applicantQuestions.returnToProgramsFromSubmissionPage()
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
+        await applicantQuestions.expectProgramsinCorrectSections({
           expectedProgramsInMyApplicationsSection: [primaryProgramName],
           expectedProgramsInProgramsAndServicesSection: [
             otherProgramName,
@@ -542,7 +497,7 @@ test.describe('applicant program index page', () => {
 
       await test.step('Click on a filter and see the Recommended and Other programs sections', async () => {
         await page.locator('#category-filter-form').getByText('General').check()
-        await applicantQuestions.expectProgramsWithFilteringEnabled(
+        await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [primaryProgramName],
             expectedProgramsInProgramsAndServicesSection: [],
@@ -574,7 +529,7 @@ test.describe('applicant program index page', () => {
 
       await test.step('Logout, then login as guest and confirm that everything appears unsubmitted', async () => {
         await logout(page)
-        await applicantQuestions.expectProgramsWithFilteringEnabled({
+        await applicantQuestions.expectProgramsinCorrectSections({
           expectedProgramsInMyApplicationsSection: [],
           expectedProgramsInProgramsAndServicesSection: [
             primaryProgramName,
@@ -686,7 +641,7 @@ test.describe('applicant program index page with images', () => {
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      /* isCommonIntake= */ true,
+      ProgramType.COMMON_INTAKE_FORM,
     )
 
     // In Progress: Image

@@ -64,4 +64,59 @@ test.describe('Managing system-wide settings', () => {
       await adminSettings.saveChanges(/* expectUpdated= */ false)
     })
   })
+
+  test('Validates theme settings', async ({adminSettings}) => {
+    await adminSettings.gotoAdminSettings()
+
+    await test.step('contrast ratio not met on primary color', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#19baff')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
+      await adminSettings.expectColorContrastErrorVisible()
+    })
+
+    await test.step('contrast ratio met on primary color', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#01587d')
+      await adminSettings.saveChanges(/* expectUpdated= */ true)
+    })
+
+    await test.step('contrast ratio not met on primary dark color', async () => {
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#19baff',
+      )
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
+      await adminSettings.expectColorContrastErrorVisible()
+    })
+
+    await test.step('contrast ratio met on primary dark color', async () => {
+      await adminSettings.setStringSetting(
+        'THEME_COLOR_PRIMARY_DARK',
+        '#01587d',
+      )
+      await adminSettings.saveChanges(/* expectUpdated= */ true)
+    })
+
+    await test.step('computes validation on 3-digit hex code', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#EEE')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ false,
+        /* expectError= */ true,
+      )
+    })
+
+    await test.step('can remove settings', async () => {
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '')
+      await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '')
+      await adminSettings.saveChanges(
+        /* expectUpdated= */ true,
+        /* expectError= */ false,
+      )
+    })
+  })
 })

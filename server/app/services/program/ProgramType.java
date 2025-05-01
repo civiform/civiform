@@ -9,7 +9,8 @@ import io.ebean.annotation.DbEnumValue;
  */
 public enum ProgramType {
   DEFAULT("default"),
-  COMMON_INTAKE_FORM("common_intake_form");
+  COMMON_INTAKE_FORM("common_intake_form"),
+  EXTERNAL("external");
 
   private final String dbValue;
 
@@ -20,5 +21,14 @@ public enum ProgramType {
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {
     return dbValue;
+  }
+
+  public static ProgramType fromValue(String programTypeValue) {
+    for (ProgramType programType : values()) {
+      if (programType.getValue().equals(programTypeValue)) {
+        return programType;
+      }
+    }
+    throw new IllegalArgumentException("Unknown ProgramType for: " + programTypeValue);
   }
 }

@@ -91,7 +91,9 @@ public abstract class NorthStarBaseView {
     context.setVariable("goBackIcon", Icons.ARROW_LEFT);
 
     // Language selector params
-    context.setVariable("preferredLanguage", languageUtils.getPreferredLanguage(request));
+    Lang preferredLanguage = languageUtils.getPreferredLanguage(request);
+    context.setVariable("preferredLanguage", preferredLanguage);
+    context.setVariable("shouldDisplayRtl", LanguageUtils.shouldDisplayRtl(preferredLanguage));
     context.setVariable("enabledLanguages", enabledLanguages());
     context.setVariable("updateLanguageAction", getUpdateLanguageAction(applicantId));
     context.setVariable("requestUri", request.uri());
@@ -128,7 +130,7 @@ public abstract class NorthStarBaseView {
     // that will be embedded in the guest alert in the header.
     context.setVariable(
         "endSessionLinkHtml",
-        "<a id=\"logout-button\" class=\"usa-link\" href=\""
+        "<a id=\"logout-button\" class=\"usa-link\" role=\"button\" href=\""
             + logoutLink
             + "\">"
             + messages.at(MessageKey.END_YOUR_SESSION.getKeyName())

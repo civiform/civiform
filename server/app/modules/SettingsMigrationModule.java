@@ -13,11 +13,11 @@ import services.settings.SettingsService;
  * settings. Runs each time the server is started.
  */
 public class SettingsMigrationModule extends AbstractModule {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SettingsMigrationModule.class);
+  private static final Logger logger = LoggerFactory.getLogger(SettingsMigrationModule.class);
 
   @Override
   protected void configure() {
-    LOGGER.trace("Module Started");
+    logger.trace("Module Started");
     bind(SettingsMigrator.class).asEagerSingleton();
   }
 
@@ -34,14 +34,14 @@ public class SettingsMigrationModule extends AbstractModule {
     public SettingsMigrator(
         ApplicationEvolutions applicationEvolutions,
         Provider<SettingsService> settingsServiceProvider) {
-      LOGGER.trace("SettingsMigrator - Started");
+      logger.trace("SettingsMigrator - Started");
 
       if (applicationEvolutions.upToDate()) {
-        LOGGER.trace("SettingsMigrator - Task Start");
+        logger.trace("SettingsMigrator - Task Start");
         settingsServiceProvider.get().migrateConfigValuesToSettingsGroup();
-        LOGGER.trace("SettingsMigrator - Task End");
+        logger.trace("SettingsMigrator - Task End");
       } else {
-        LOGGER.trace("Evolutions Not Ready");
+        logger.trace("Evolutions Not Ready");
       }
     }
   }
