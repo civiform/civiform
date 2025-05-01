@@ -96,4 +96,17 @@ public final class TransactionManager {
 
     return returnValue.orElseGet(() -> execute(synchronousWork));
   }
+  /** Calls {@link #execute(Supplier)} but makes two attempts before failing. */
+  public void executeWithRetry(Runnable synchronousWork) {
+    checkNotNull(synchronousWork);
+    try {
+      execute(synchronousWork);
+      return;
+    } catch (SerializableConflictException ignored) {
+      // Ignore the exception and retry, allowing subsequent exceptions to be
+      // surfaced.
+    }
+
+    execute(synchronousWork);
+  }
 }
