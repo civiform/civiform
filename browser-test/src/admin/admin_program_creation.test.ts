@@ -1439,9 +1439,7 @@ test.describe('program creation', () => {
           // Therefore, all the program type options should be enabled.
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER,
-          )
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
 
           await validateScreenshot(
             page.locator('#program-details-form'),
@@ -1521,9 +1519,7 @@ test.describe('program creation', () => {
 
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER,
-          )
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
         })
 
         await test.step("'pre-screener' program cannot be changed to be an 'external' program", async () => {
@@ -1534,9 +1530,7 @@ test.describe('program creation', () => {
 
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeDisabled(ProgramType.EXTERNAL)
-          await adminPrograms.expectProgramTypeEnabled(
-            ProgramType.PRE_SCREENER,
-          )
+          await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
         })
       })
     },
