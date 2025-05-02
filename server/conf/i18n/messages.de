@@ -679,7 +679,7 @@ label.addressLine2=Apartment, suite, etc. (optional)
 label.city=City
 label.state=State
 label.selectState=Select State
-label.street=Address
+label.street=Adresse
 label.zipcode=ZIP Code
 
 # Validation errors that are shown when a user enters an invalid address.
