@@ -122,13 +122,13 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     await applicantProgramOverview.startApplicationFromProgramOverviewPage(
       programName,
     )
-    await setDirRtl(page);
-  
+    await setDirRtl(page)
+
     await validateScreenshot(
       page,
       'block-edit-page-right-to-left',
       /* fullPage= */ false,
-      /* mobileScreenshot= */ true
+      /* mobileScreenshot= */ true,
     )
   })
 })
