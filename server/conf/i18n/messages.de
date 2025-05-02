@@ -646,7 +646,7 @@ alert.createAccount=Erstellen Sie ein Konto, um später auf Ihren Antrag zugreif
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Wenn Sie Ihre Daten in einem Konto speichern, können Sie den Status Ihres Antrags prüfen und schnell andere Programme beantragen.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=Bei einem bestehenden Konto anmelden
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
