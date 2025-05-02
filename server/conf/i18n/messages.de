@@ -678,7 +678,7 @@ button.homePage=Zurück zur Startseite
 label.addressLine2=Wohnung, Suite, Zimmer usw. (optional)
 label.city=Stadt
 label.state=Staat
-label.selectState=Select State
+label.selectState=Wählen Sie einen Staat
 label.street=Adresse
 label.zipcode=ZIP Code
 
