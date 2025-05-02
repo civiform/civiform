@@ -830,14 +830,14 @@ validation.tooManySelections.v2=Please select at most {0}.
 # Name question labels - these are shown as the field label before an input box.
 label.firstName=Vorname
 label.lastName=Last name
-label.middleName=Middle name
+label.middleName=zweiter Vorname
 # Label for name suffix field in name question
 label.nameSuffix=Suffix
 
 # Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=Vorname
 placeholder.lastName=Last name
-placeholder.middleName=Middle name
+placeholder.middleName=zweiter Vorname
 # Placeholder for name suffix field in name question
 placeholder.nameSuffix=Suffix
 
