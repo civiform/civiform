@@ -6,7 +6,11 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramCategories,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
   test.beforeEach(async ({page}) => {
@@ -140,12 +144,11 @@ test.describe('Program list page.', () => {
     })
 
     await test.step('add two categories', async () => {
-      await adminPrograms.gotoEditDraftProgramPage(programName)
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ false,
+      )
     })
 
     await test.step('check that selected categories show on program card', async () => {
