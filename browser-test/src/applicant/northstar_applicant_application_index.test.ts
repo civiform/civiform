@@ -984,10 +984,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     page,
     adminSettings,
   }) => {
+    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
-    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
-
+    
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY_DARK', '#a72f10')
 
