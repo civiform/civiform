@@ -677,7 +677,7 @@ button.homePage=Zurück zur Startseite
 # Address question labels - these are shown as the field label before an input box.
 label.addressLine2=Wohnung, Suite, Zimmer usw. (optional)
 label.city=Stadt
-label.state=State
+label.state=Staat
 label.selectState=Select State
 label.street=Adresse
 label.zipcode=ZIP Code
