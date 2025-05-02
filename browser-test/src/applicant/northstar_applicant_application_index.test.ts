@@ -16,7 +16,11 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramCategories,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -336,25 +340,18 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await page.goto('/')
       })
 
-      await test.step('go to program edit form and add categories to primary program', async () => {
+      await test.step('add categories to primary and other program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           primaryProgramName,
+          [ProgramCategories.EDUCATION, ProgramCategories.HEALTHCARE],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-        await adminPrograms.submitProgramDetailsEdits()
-      })
-
-      await test.step('add different categories to other program', async () => {
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           otherProgramName,
+          [ProgramCategories.GENERAL, ProgramCategories.UTILITIES],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('General').check()
-        await page.getByText('Utilities').check()
-        await adminPrograms.submitProgramDetailsEdits()
       })
     })
 
