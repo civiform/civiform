@@ -514,7 +514,7 @@ tag.mayQualify=Sie können sich qualifizieren
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayQualifyTi=Your client may qualify
 # Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
-tag.mayNotQualify=You may not qualify
+tag.mayNotQualify=Sie sind möglicherweise nicht qualifiziert
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Your client may not qualify
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
