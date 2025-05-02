@@ -828,7 +828,7 @@ validation.tooManySelections.v2=Please select at most {0}.
 #---------------------------------------------------#
 
 # Name question labels - these are shown as the field label before an input box.
-label.firstName=First name
+label.firstName=Vorname
 label.lastName=Last name
 label.middleName=Middle name
 # Label for name suffix field in name question
