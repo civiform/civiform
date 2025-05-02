@@ -1256,6 +1256,75 @@ test.describe(
       })
     })
 
+    test('Shows card for external program and opens external link', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const externalProgramName = 'External Program'
+
+      await test.step('add external program', async () => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.publishProgram(externalProgramName)
+        await logout(page)
+      })
+
+      await test.step("'Programs and Services' section includes a card for the external program", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [externalProgramName],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+          /* northStarEnabled= */ true,
+        )
+
+        // Button for external program card has a different text.
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(
+          externalProgramCard.getByRole('button', {name: 'View in new window'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Clicking on the external program card opens a modal', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        // Verify external program modal is visible
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await expect(
+          modal.getByRole('heading', {
+            name: 'This will open a different website',
+          }),
+        ).toBeVisible()
+        await expect(
+          modal.getByText(
+            "To go to the program's website where you can get more details and apply, click Continue",
+          ),
+        ).toBeVisible()
+        await expect(
+          modal.getByRole('button', {name: 'Continue'}),
+        ).toBeVisible()
+        await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+      })
+
+      // TODO(#10184): Accepting modal should redirect to the external program site
+    })
+
     async function submitApplicationAndApplyStatus(
       page: Page,
       programName: string,

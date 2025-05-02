@@ -414,3 +414,64 @@
     </div>
   </div>
 </div>
+
+<div
+  th:fragment="externalProgramModal"
+  id="modal-container"
+  class="display-none position-fixed height-viewport width-full z-100"
+>
+  <div
+    class="usa-modal cf-ns-modal"
+    id="external-program-modal"
+    aria-labelledby="external-program-modal-heading"
+    aria-describedby="external-program-modal-description"
+  >
+    <div class="usa-modal__content">
+      <div class="usa-modal__main">
+        <h2
+          class="usa-modal__heading"
+          id="external-program-modal-heading"
+          th:text="#{title.externalProgramModal}"
+        ></h2>
+        <div class="usa-prose">
+          <p
+            id="external-program-modal-description"
+            th:text="#{content.externalProgramModal}"
+            class="margin-y-2"
+          ></p>
+        </div>
+        <div class="usa-modal__footer">
+          <ul class="usa-button-group">
+            <li class="usa-button-group__item">
+              <button
+                type="button"
+                class="usa-button"
+                th:text="#{button.continue}"
+                data-close-modal
+              ></button>
+            </li>
+            <li class="usa-button-group__item">
+              <button
+                type="button"
+                class="usa-button usa-button--unstyled padding-105 text-center"
+                th:text="#{button.goBack}"
+                data-close-modal
+              ></button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="usa-button usa-modal__close"
+        th:aria-label="#{button.close}"
+        data-close-modal
+      >
+        <svg
+          th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+        ></svg>
+      </button>
+    </div>
+  </div>
+</div>

@@ -193,15 +193,33 @@
   ></span>
 </div>
 
-<!-- Standard Card Action button (usually "View and apply" or "Edit") -->
+<!-- Standard Card Action button -->
 <div
   th:fragment="cardActionButton (card)"
   class="usa-card__footer cf-card-footer"
 >
-  <a
-    th:href="${card.actionUrl()}"
-    class="usa-button usa-button--outline cf-apply-button"
-    th:text="${card.actionText()}"
-    th:aria-label="#{button.viewAndApplySr(${card.title()})}"
-  ></a>
+  <th:block th:if="${card.programType().toString() == 'EXTERNAL'}">
+    <a
+      class="usa-button usa-button--outline cf-apply-button"
+      href="#external-program-modal"
+      aria-controls="external-program-modal"
+      data-open-modal
+    >
+      <svg
+        th:replace="~{applicant/ApplicantBaseFragment :: icon(${launchIcon})}"
+      ></svg>
+      <span th:text="${card.actionText()}"></span>
+    </a>
+
+    <div th:replace="~{applicant/ModalFragment:: externalProgramModal}"></div>
+  </th:block>
+
+  <th:block th:unless="${card.programType().toString() == 'EXTERNAL'}">
+    <a
+      th:href="${card.actionUrl()}"
+      class="usa-button usa-button--outline cf-apply-button"
+      th:text="${card.actionText()}"
+      th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+    ></a>
+  </th:block>
 </div>
