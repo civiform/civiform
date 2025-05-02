@@ -6,7 +6,11 @@ import {
   loginAsAdmin,
   validateScreenshot,
 } from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramCategories,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('Program list page.', () => {
   test.beforeEach(async ({page}) => {
@@ -140,12 +144,11 @@ test.describe('Program list page.', () => {
     })
 
     await test.step('add two categories', async () => {
-      await adminPrograms.gotoEditDraftProgramPage(programName)
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ false,
+      )
     })
 
     await test.step('check that selected categories show on program card', async () => {
@@ -246,17 +249,17 @@ test.describe('Program list page.', () => {
     await loginAsAdmin(page)
 
     const program = 'Program'
-    const commonIntakeProgram = 'Common intake'
+    const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
     await adminPrograms.addProgram(
-      commonIntakeProgram,
+      preScreenerProgram,
       'program description',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
       'admin description',
-      ProgramType.COMMON_INTAKE_FORM,
+      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addProgram(
       externalProgram,
@@ -268,9 +271,9 @@ test.describe('Program list page.', () => {
       ProgramType.EXTERNAL,
     )
 
-    // Common intake program should always be first. Then, order is by last modified.
+    // Pre-screener program should always be first. Then, order is by last modified.
     await expectProgramListElements(adminPrograms, [
-      commonIntakeProgram,
+      preScreenerProgram,
       externalProgram,
       program,
     ])

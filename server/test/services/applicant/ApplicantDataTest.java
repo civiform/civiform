@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
@@ -10,6 +11,8 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaState;
 
 public class ApplicantDataTest extends ResetPostgres {
 
@@ -93,5 +96,58 @@ public class ApplicantDataTest extends ResetPostgres {
 
     assertThat(data1.isDuplicateOf(data2)).isTrue();
     assertThat(data2.isDuplicateOf(data1)).isTrue();
+  }
+
+  @Test
+  public void putServiceAreaInclusionEntities_setsCorrectValues() {
+    Path path = Path.create("applicant.address").join(Scalar.SERVICE_AREAS.name()).asArrayElement();
+    ImmutableList<ServiceAreaInclusion> entityNames =
+        ImmutableList.of(
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("cityvilleTownship")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build());
+    ApplicantData data = new ApplicantData("{\"applicant\":{}}");
+    data.putServiceAreaInclusionEntities(path, entityNames);
+    String expectedJson =
+        "{\"applicant\":{\"address\":{\"service_areas\":[{\"service_area_id\":\"cityvilleTownship\",\"service_area_state\":\"IN_AREA\",\"timestamp\":1709069741}]}}}";
+
+    assertThat(data.asJsonString()).isEqualTo(expectedJson);
+  }
+
+  @Test
+  public void putServiceAreaInclusionEntities_doesNotSetValuesWhenEmpty() {
+    Path path = Path.create("applicant.address").join(Scalar.SERVICE_AREAS.name()).asArrayElement();
+    ImmutableList<ServiceAreaInclusion> entityNames = ImmutableList.of();
+    ApplicantData data = new ApplicantData("{\"applicant\":{}}");
+    data.putServiceAreaInclusionEntities(path, entityNames);
+    String expectedJson = "{\"applicant\":{\"address\":{}}}";
+
+    assertThat(data.asJsonString()).isEqualTo(expectedJson);
+  }
+
+  @Test
+  public void putServiceAreaInclusionEntities_clearsValuesWhenEmpty() {
+    Path path = Path.create("applicant.address").join(Scalar.SERVICE_AREAS.name()).asArrayElement();
+    ImmutableList<ServiceAreaInclusion> entityNames =
+        ImmutableList.of(
+            ServiceAreaInclusion.builder()
+                .setServiceAreaId("cityvilleTownship")
+                .setState(ServiceAreaState.IN_AREA)
+                .setTimeStamp(1709069741L)
+                .build());
+    ApplicantData data = new ApplicantData("{\"applicant\":{}}");
+    data.putServiceAreaInclusionEntities(path, entityNames);
+    String expectedJsonWithEntities =
+        "{\"applicant\":{\"address\":{\"service_areas\":[{\"service_area_id\":\"cityvilleTownship\",\"service_area_state\":\"IN_AREA\",\"timestamp\":1709069741}]}}}";
+
+    assertThat(data.asJsonString()).isEqualTo(expectedJsonWithEntities);
+
+    ImmutableList<ServiceAreaInclusion> emptyEntities = ImmutableList.of();
+    data.putServiceAreaInclusionEntities(path, emptyEntities);
+    String expectedJsonWithoutEntitites = "{\"applicant\":{\"address\":{}}}";
+
+    assertThat(data.asJsonString()).isEqualTo(expectedJsonWithoutEntitites);
   }
 }

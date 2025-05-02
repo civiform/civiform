@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {
+  ProgramCategories,
   ProgramHeaderButton,
   ProgramType,
   ProgramVisibility,
@@ -48,12 +49,11 @@ test.describe('admin program view page', () => {
     })
 
     await test.step('add two categories', async () => {
-      await page.getByRole('button', {name: 'Edit program'}).click()
-      await page.getByRole('button', {name: 'Edit program details'}).click()
-
-      await page.getByText('Internet').check()
-      await page.getByText('Education').check()
-      await adminPrograms.submitProgramDetailsEdits()
+      await adminPrograms.selectProgramCategories(
+        programName,
+        [ProgramCategories.INTERNET, ProgramCategories.EDUCATION],
+        /* isActive= */ true,
+      )
     })
 
     await test.step('expect to see the two categories on details page', async () => {

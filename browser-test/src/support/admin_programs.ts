@@ -50,7 +50,7 @@ export enum FormField {
 
 export enum ProgramType {
   DEFAULT = 'CiviForm program',
-  COMMON_INTAKE_FORM = 'Pre-screener',
+  PRE_SCREENER = 'Pre-screener',
   EXTERNAL = 'External program',
 }
 
@@ -251,13 +251,13 @@ export class AdminPrograms {
 
     // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
     // When enabled, form has program type options. Otherwise, form has a
-    // common intake checkbox.
+    // pre-screener checkbox.
     const externalProgramsFeatureEnabled =
       await this.getProgramTypeOption(programType).isVisible()
     if (externalProgramsFeatureEnabled) {
       await this.selectProgramType(programType)
-    } else if (programType === ProgramType.COMMON_INTAKE_FORM) {
-      await this.clickCommonIntakeFormToggle()
+    } else if (programType === ProgramType.PRE_SCREENER) {
+      await this.clickPreScreenerFormToggle()
     }
 
     if (programType === ProgramType.DEFAULT) {
@@ -1603,7 +1603,7 @@ export class AdminPrograms {
     await this.page.waitForLoadState()
   }
 
-  getCommonIntakeFormToggle() {
+  getPreScreenerFormToggle() {
     return this.page.getByRole('checkbox', {
       name: 'Set program as pre-screener',
     })
@@ -1670,7 +1670,7 @@ export class AdminPrograms {
       case ProgramType.DEFAULT:
         programId = 'default-program-option'
         break
-      case ProgramType.COMMON_INTAKE_FORM:
+      case ProgramType.PRE_SCREENER:
         programId = 'common-intake-program-option'
         break
       case ProgramType.EXTERNAL:
@@ -1682,12 +1682,37 @@ export class AdminPrograms {
 
   // TODO(#10363): Migrate callers to use selectProgramType(programType) once
   // EXTERNAL_PROGRAM_CARDS is enabled by default.
-  async clickCommonIntakeFormToggle() {
+  async clickPreScreenerFormToggle() {
     // Note: We click on the label instead of directly interacting with the checkbox
     // because USWDS styling hides the actual checkbox input and styles the label to
     // look like a checkbox. The actual input element is visually hidden or positioned
     // off-screen, making it inaccessible to Playwright's direct interactions.
     await this.page.locator('label[for="common-intake-checkbox"]').click()
+  }
+
+  /**
+   * Selects categories for a program.
+   *
+   * @param programName - Name of the program
+   * @param categories - Categories to select for the program
+   * @param isActive - Whether the program is on active mode
+   */
+  async selectProgramCategories(
+    programName: string,
+    categories: ProgramCategories[],
+    isActive: boolean,
+  ) {
+    if (isActive) {
+      await this.gotoViewActiveProgramPageAndStartEditing(programName)
+    } else {
+      await this.gotoEditDraftProgramPage(programName)
+    }
+
+    await this.page.getByRole('button', {name: 'Edit program details'}).click()
+    for (const category of categories) {
+      await this.page.getByText(category).click()
+    }
+    await this.submitProgramDetailsEdits()
   }
 
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {

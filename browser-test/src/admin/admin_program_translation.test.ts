@@ -209,14 +209,14 @@ test.describe('Admin can manage program translations', () => {
     })
   })
 
-  test('Common intake form translations', async ({
+  test('Pre-screener form translations', async ({
     page,
     adminPrograms,
     adminTranslations,
   }) => {
-    const programName = 'Common intake program'
+    const programName = 'Pre-screener program'
 
-    await test.step('Add a common intake program', async () => {
+    await test.step('Add a pre-screener program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram(
         programName,
@@ -225,7 +225,7 @@ test.describe('Admin can manage program translations', () => {
         'https://www.example.com',
         ProgramVisibility.PUBLIC,
         'admin description',
-        ProgramType.COMMON_INTAKE_FORM,
+        ProgramType.PRE_SCREENER,
       )
     })
 
@@ -242,7 +242,7 @@ test.describe('Admin can manage program translations', () => {
         blockName: 'Spanish block name - bloque uno',
         blockDescription: 'Spanish block description',
         statuses: [],
-        programType: 'common intake',
+        programType: 'pre-screener',
       })
     })
 
@@ -258,7 +258,7 @@ test.describe('Admin can manage program translations', () => {
         expectProgramName: 'Spanish name',
         expectProgramDescription: 'Spanish description',
         expectProgramShortDescription: 'Spanish short description',
-        programType: 'common intake',
+        programType: 'pre-screener',
       })
     })
   })
@@ -546,14 +546,14 @@ test.describe('Admin can manage program translations', () => {
       })
     })
 
-    test('Common intake form translations - north star', async ({
+    test('Pre-screener form translations - north star', async ({
       page,
       adminPrograms,
       adminTranslations,
     }) => {
-      const programName = 'Common intake program'
+      const programName = 'Pre-screener program'
 
-      await test.step('Add a common intake program', async () => {
+      await test.step('Add a pre-screener program', async () => {
         await loginAsAdmin(page)
         await adminPrograms.addProgram(
           programName,
@@ -562,7 +562,7 @@ test.describe('Admin can manage program translations', () => {
           'https://www.example.com',
           ProgramVisibility.PUBLIC,
           'admin description',
-          ProgramType.COMMON_INTAKE_FORM,
+          ProgramType.PRE_SCREENER,
         )
       })
 
@@ -579,7 +579,7 @@ test.describe('Admin can manage program translations', () => {
           blockName: 'Spanish block name - bloque uno',
           blockDescription: 'Spanish block description',
           statuses: [],
-          programType: 'common intake',
+          programType: 'pre-screener',
           northStar: true,
         })
       })
@@ -595,7 +595,7 @@ test.describe('Admin can manage program translations', () => {
         await adminTranslations.expectProgramTranslation({
           expectProgramName: 'Spanish name',
           expectProgramShortDescription: 'Spanish description',
-          programType: 'common intake',
+          programType: 'pre-screener',
           northStar: true,
         })
       })

@@ -46,11 +46,11 @@ heading.successAriaLabelPrefix=Success: {0}
 toast.sessionEnded=Your session has ended.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=You''re a guest user.
-# Message with user''s name to show who you are logged in as.
+# Message with user's name to show who you are logged in as.
 header.userName=Logged in as {0}
 # Error message to answer a required question
 validation.isRequired=This question is required.
-# Validation error that is shown when the user input couldn''t be converted for any reason.
+# Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 # Error message announced to screen reader when there are errors on the current page.
 validation.errorAnnouncementSr=There are errors in the form. Please fix before continuing.
@@ -87,7 +87,7 @@ title.login=Login
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
 # The text on the button an applicant clicks to create an account.
-button.createAnAccount=Create an account
+button.createAnAccount=Ein Konto erstellen
 # The text on the button an applicant clicks to log in to their session.
 button.login=Anmelden
 # The text on the button an applicant clicks to sign in to their session.
@@ -133,7 +133,7 @@ button.previousScreen=Previous
 # The label on a button that will navigate the user to the previous section of the form.
 button.back=Zurück
 # The label on a button that will save user answers and navigate to the summary of the application.
-button.reviewAndExit=Review and submit
+button.reviewAndExit=Überprüfen und senden
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 # The current screen the user is on ({0}) out of the number of total screens in the application.
@@ -146,7 +146,7 @@ content.blockProgressLabel=Application progress
 heading.reviewAndSubmit=Überprüfen und senden
 # Label on a section of a progress bar. The first placeholder is the section number and second is section name (eg: "2. Contact info")
 label.blockIndexLabel={0}. {1}
-# A toast message that displays when a program is not fully localized to the applicant''s preferred locale.
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 # A link that logs out a guest user after they submit an application.
 link.allDone=I''m all done
@@ -154,7 +154,7 @@ link.allDone=I''m all done
 link.applyToAnotherProgram=Apply to another program
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Create account or sign in
-# Displayed in breadcrumbs to link back to the main entry point of the applicant''s portal. In effect a shortening of "Homepage".
+# Displayed in breadcrumbs to link back to the main entry point of the applicant's portal. In effect a shortening of "Homepage".
 link.home=Home
 # Displayed in breadcrumbs to indicate this is an application of the supplied program name.
 link.applicationForProgram=Application for {0}
@@ -166,9 +166,9 @@ link.removeFileSr=Remove {0} file
 modal.errorSaving.review.title=Questions on this page are not complete. Would you still like to leave and begin reviewing?
 # The title of a pop-up informing the user that they tried to go to the previous page but there were errors in the information that they inputted
 modal.errorSaving.previous.title=Questions on this page are not complete. Would you still like to leave and go to the previous page?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they''ve inputted and continue to the application review page.
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the application review page.
 modal.errorSaving.review.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the review page without saving your answers?
-# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they''ve inputted and continue to the previous page of the application.
+# A message informing the user that there were errors in the information that they inputted. This message also asks the user if they want to (1) stay and fix their answers or (2) discard the information they've inputted and continue to the previous page of the application.
 modal.errorSaving.previous.content=There are some errors with the information you''ve filled in. Would you like to stay and fix your answers, or go to the previous question page without saving your answers?
 # Text for a button. When the button is clicked, then all the information the user has inputted will be discarded and they will be taken to the application review page.
 modal.errorSaving.review.noSaveButton=Continue to review page without saving
@@ -190,7 +190,7 @@ modal.errorSaving.continueButton.previous=Go to the previous page without saving
 modal.errorSaving.fixButton=Stay here and fix your answers
 
 #----------------------------------------------------------------------------#
-# APPLICANT HOME PAGE - contains text specific to the applicant''s home page. #
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
 # The text on the button an applicant clicks to apply to a specific program.
@@ -206,7 +206,7 @@ button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
 # The text on the button an applicant clicks to start filling out a pre-screener form.
-button.startSurvey=Start survey
+button.startSurvey=Umfrage starten
 # The text on a button to view and apply to a program. Clicking the button leads to the program overview page.
 button.viewAndApply=Ansehen und beantragen
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
@@ -230,7 +230,7 @@ content.saveTimeServices=Save time applying for programs and services
 # Main home page heading
 heading.homepage=Hier Gesundheits- und Sozialhilfeprogramme beantragen
 # Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the authentication provider''s name
+# {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply to programs without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 # Main home page intro text
 content.homepageIntro=Klicken Sie auf eine der Optionen unten, um zum Beispiel Unterstützung bezüglich Lebensmitteln, Mobilität/Verkehrsmitteln, Kinderbetreuung und Energieversorgung zu erhalten. Sie können jeweils nur Unterstützung für eine Option beantragen.
@@ -261,10 +261,10 @@ title.activeProgramsUpdated=Not started
 # Title of the section on the home page with the benefits finder form.
 title.benefitsFinderSection.v2=Find services
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection=My applications ({0})
+title.myApplicationsSection=Meine Bewerbungen ({0})
 # Title of the section on the home page that shows programs for which the applicant has already started or submitted applications.
-title.myApplicationsSection.v2=My applications
-# Title of the section on the home page that shows any programs that don''t match the selected filters, with the number of programs in parentheses.
+title.myApplicationsSection.v2=Meine Bewerbungen
+# Title of the section on the home page that shows any programs that don't match the selected filters, with the number of programs in parentheses.
 title.otherProgramsSection.v2=Other programs and services ({0})
 # Title of the section on the home page that shows all programs when no filter is selected, with the number of programs in parentheses.
 title.programsSection.v2=Programs and services ({0})
@@ -281,11 +281,11 @@ toast.applicationSaved=Successfully saved application: application ID {0}
 # Alert banner when an application was already completed
 toast.programCompleted=Application was already completed.
 # Informational tag on an in-progress application card
-label.inProgress=Not yet submitted
+label.inProgress=Noch nicht eingereicht
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
 label.submitted=Submitted
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=Eingereicht am {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} on {1}
 
@@ -295,7 +295,7 @@ label.statusOn={0} on {1}
 
 # Message that appears when a user attempts to delete an account and it fails.
 banner.acctDeleteError=This account cannot be deleted.
-# Reason included with the account delete error, which explains the account can''t be deleted due to applications the client has open
+# Reason included with the account delete error, which explains the account can't be deleted due to applications the client has open
 banner.acctDeleteErrorReason=This account cannot be deleted since it has open applications.
 # Message when information about a client, like their name or contact information is updated.
 banner.clientInfoUpdated=Client info has been successfully updated.
@@ -317,7 +317,7 @@ button.backToEditing=Back to editing
 button.cancel=Cancel
 # Button that allows the user to clear any search parameters they have already entered.
 button.clearSearch=Clear search
-# Button for a user to delete their client''s account
+# Button for a user to delete their client's account
 button.deleteAcct=Delete account
 # Button option when asked if the user is sure they want to delete an account.
 button.keepAcct=Keep account
@@ -350,7 +350,7 @@ content.warning=There are no applications submitted for this client, so no appli
 content.noEmailAddress=(no email address)
 # The status of an organization member when they have been enrolled but have never logged into CiviForm.
 content.notLoggedIn=Not yet logged in
-# The status of an organization member when they have logged in but haven''t applied on behalf of a client.
+# The status of an organization member when they have logged in but haven't applied on behalf of a client.
 content.noApplications=Logged in, no applications submitted
 # The status of an organization member showing the date of the last application that they submitted for a client.
 content.lastApplicationDate=Last submitted application on {0}
@@ -440,7 +440,7 @@ button.submitApplication=Antrag senden
 button.continue=Weiter
 # Button text on a button that will allow the user to start filling out a section of questions.
 button.start=Start
-# A toast message shown after submitting an application when it''s been determined the application is incomplete typically due to external changes.
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
 # Help text at the top of the review page instructing applicants with how to start applying for programs.
@@ -510,11 +510,11 @@ toast.mayQualifyTi=Based on your responses, your client may qualify for the {0}.
 # Toast message that shows that an applicant is likely eligible for a program, based on their responses.
 toast.mayQualify=Based on your responses, you may qualify for the {0}. To proceed, continue filling out the application.
 # Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
-tag.mayQualify=You may qualify
+tag.mayQualify=Sie können sich qualifizieren
 # Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayQualifyTi=Your client may qualify
 # Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
-tag.mayNotQualify=You may not qualify
+tag.mayNotQualify=Sie sind möglicherweise nicht qualifiziert
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Your client may not qualify
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
@@ -601,13 +601,13 @@ content.generalLoginModalPrompt=You are not logged in to an account. Without an 
 content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
-title.commonIntakeConfirmation=Programs you may qualify for
+title.commonIntakeConfirmation=Programme, für die Sie sich möglicherweise qualifizieren
 # Title on the page after a trusted intermediary has successfully filled out the common intake form.
 title.commonIntakeConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.commonIntakeConfirmation.v2=Basierend auf Ihren Antworten können Sie sich für die folgenden Programme qualifizieren:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.commonIntakeConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
@@ -646,7 +646,7 @@ alert.createAccount=Erstellen Sie ein Konto, um später auf Ihren Antrag zugreif
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Wenn Sie Ihre Daten in einem Konto speichern, können Sie den Status Ihres Antrags prüfen und schnell andere Programme beantragen.
 # Hyperlink to log in to an existing account
-content.loginToExistingAccount=Sign in to an existing account
+content.loginToExistingAccount=Bei einem bestehenden Konto anmelden
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -675,12 +675,12 @@ button.homePage=Zurück zur Startseite
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Apartment, suite, etc. (optional)
-label.city=City
-label.state=State
-label.selectState=Select State
-label.street=Address
-label.zipcode=ZIP Code
+label.addressLine2=Wohnung, Suite, Zimmer usw. (optional)
+label.city=Stadt
+label.state=Staat
+label.selectState=Wählen Sie einen Staat
+label.street=Adresse
+label.zipcode=PLZ
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
@@ -828,16 +828,16 @@ validation.tooManySelections.v2=Please select at most {0}.
 #---------------------------------------------------#
 
 # Name question labels - these are shown as the field label before an input box.
-label.firstName=First name
-label.lastName=Last name
-label.middleName=Middle name
+label.firstName=Vorname
+label.lastName=Nachname
+label.middleName=zweiter Vorname
 # Label for name suffix field in name question
 label.nameSuffix=Suffix
 
 # Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=First name
-placeholder.lastName=Last name
-placeholder.middleName=Middle name
+placeholder.firstName=Vorname
+placeholder.lastName=Nachname
+placeholder.middleName=zweiter Vorname
 # Placeholder for name suffix field in name question
 placeholder.nameSuffix=Suffix
 
