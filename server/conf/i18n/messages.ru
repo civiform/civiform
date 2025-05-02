@@ -67,6 +67,8 @@ toast.errorMessageOutline=Ошибка: {0}.
 button.close=Закрыть
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Проверить ответы
+# Button taxt that will go back to the previous page.
+button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=Пройти опрос
 button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Узнать больше и подать заявку на участие в программе "{0}"
+# The text on a button to view program on a new window. This is used for external programs.
+button.viewInNewWindow=View in new window
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -288,6 +292,10 @@ label.submitted=Заявка подана
 label.submittedOn=Заявка подана {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=This will open a different website
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
