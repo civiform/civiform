@@ -111,4 +111,23 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
       /* fullPage= */ true,
     )
   })
+
+  test('renders right to left on block edit page', async ({
+    page,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+      programName,
+    )
+    await setDirRtl(page)
+
+    await validateScreenshot(
+      page,
+      'block-edit-page-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+  })
 })
