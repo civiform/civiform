@@ -142,7 +142,6 @@ public final class ProgramCardsSectionParamsFactory {
             program.id(),
             program.slug(),
             program.programType(),
-            program.externalLink(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
             profile);
@@ -235,13 +234,9 @@ public final class ProgramCardsSectionParamsFactory {
       Long programId,
       String programSlug,
       ProgramType programType,
-      String programExternalLink,
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile) {
-    if (programType.equals(ProgramType.EXTERNAL)) {
-      return programExternalLink;
-    }
 
     boolean haveApplicant = profile.isPresent() && applicantId.isPresent();
 
