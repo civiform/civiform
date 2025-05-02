@@ -5,12 +5,15 @@ import {
   logout,
   selectApplicantLanguage,
   validateScreenshot,
+  enableFeatureFlag,
 } from './support'
 
 test.describe('navigating to a deep link', () => {
   const questionText = 'What is your address?'
 
   test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+
     // Arrange
     await loginAsAdmin(page)
 

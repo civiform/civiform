@@ -10,13 +10,15 @@ import {
   closeWarningMessage,
   AdminPredicates,
   testUserDisplayName,
+  enableFeatureFlag,
 } from '../support'
 import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
 import {Browser, Locator, Page} from '@playwright/test'
 
 test.describe('Application Version Fast-Forward Flow', () => {
-  test.beforeEach(async ({seeding}) => {
+  test.beforeEach(async ({seeding, page}) => {
     await seeding.clearDatabase()
+    await enableFeatureFlag(page, 'program_filtering_enabled')
   })
 
   test('all major steps', async ({browser}) => {
@@ -167,17 +169,20 @@ test.describe('Application Version Fast-Forward Flow', () => {
 
         await expect(
           applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.NotStarted,
+            ApplicationStatusCardGroupName.ProgramsAndServices,
+            1,
           ),
         ).toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.InProgress,
+          applicantActor.getCardInProgressTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).not.toBeAttached()
         await expect(
           applicantActor.getCardHeadingLocator(
-            ApplicationStatusCardGroupName.NotStarted,
+            ApplicationStatusCardGroupName.ProgramsAndServices,
+            1,
           ),
         ).toBeAttached()
       })
@@ -202,17 +207,20 @@ test.describe('Application Version Fast-Forward Flow', () => {
 
         await expect(
           applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.NotStarted,
+            ApplicationStatusCardGroupName.ProgramsAndServices,
+            1,
           ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.InProgress,
+          applicantActor.getCardInProgressTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatusCardGroupName.InProgress,
+          ApplicationStatusCardGroupName.MyApplications,
+          1,
         )
         await expect(headingLocator).toBeAttached()
 
@@ -224,12 +232,14 @@ test.describe('Application Version Fast-Forward Flow', () => {
       await test.step('check program list shows eligible tag', async () => {
         await expect(
           applicantActor.getCardEligibleTagLocator(
-            ApplicationStatusCardGroupName.InProgress,
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeVisible()
         await expect(
           applicantActor.getCardNotEligibleTagLocator(
-            ApplicationStatusCardGroupName.InProgress,
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).not.toBeAttached()
       })
@@ -320,17 +330,20 @@ test.describe('Application Version Fast-Forward Flow', () => {
 
         await expect(
           applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.NotStarted,
+            ApplicationStatusCardGroupName.ProgramsAndServices,
+            1,
           ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.InProgress,
+          applicantActor.getCardInProgressTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatusCardGroupName.InProgress,
+          ApplicationStatusCardGroupName.MyApplications,
+          1,
         )
         await expect(headingLocator).toBeAttached()
         expect(
@@ -349,17 +362,20 @@ test.describe('Application Version Fast-Forward Flow', () => {
         await applicantActor.gotoApplicantHomePage()
         await expect(
           applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.NotStarted,
+            ApplicationStatusCardGroupName.ProgramsAndServices,
+            1,
           ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.InProgress,
+          applicantActor.getCardInProgressTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatusCardGroupName.InProgress,
+          ApplicationStatusCardGroupName.MyApplications,
+          1,
         )
         await expect(headingLocator).toBeAttached()
         expect(
@@ -437,18 +453,21 @@ test.describe('Application Version Fast-Forward Flow', () => {
       await test.step('As applicant - check program list has one submitted application for program v3', async () => {
         await applicantActor.gotoApplicantHomePage()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.InProgress,
+          applicantActor.getCardInProgressTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).not.toBeAttached()
         await expect(
-          applicantActor.getCardListLocator(
-            ApplicationStatusCardGroupName.Submitted,
+          applicantActor.getCardSubmittedTagLocator(
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeAttached()
 
         const headingLocator = applicantActor.getCardHeadingLocator(
-          ApplicationStatusCardGroupName.Submitted,
+          ApplicationStatusCardGroupName.MyApplications,
+          1,
         )
         await expect(headingLocator).toBeAttached()
 
@@ -461,13 +480,15 @@ test.describe('Application Version Fast-Forward Flow', () => {
       await test.step('check program list shows eligible tag', async () => {
         await expect(
           applicantActor.getCardEligibleTagLocator(
-            ApplicationStatusCardGroupName.Submitted,
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).toBeVisible()
 
         await expect(
           applicantActor.getCardNotEligibleTagLocator(
-            ApplicationStatusCardGroupName.Submitted,
+            ApplicationStatusCardGroupName.MyApplications,
+            1,
           ),
         ).not.toBeAttached()
       })
@@ -844,56 +865,100 @@ class FastForwardApplicantActor {
   }
 
   /**
-   * Get the card list locator for the desired application status card group name
+   * Get the card list locator for the desired application status card group name with the program card count
    * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
    * @returns {Locator} Locator to the card list
    */
   getCardListLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
   ): Locator {
-    return this.page.getByRole('list', {name: applicationStatusCardGroupName})
+    return this.page.getByRole('list', {
+      name: `${applicationStatusCardGroupName} (${cardCount})`,
+    })
   }
 
   /**
    * Get the locator for program card heading in the desired list
    * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
    * @returns {Locator} Locator for program card in the desired list
    */
   getCardHeadingLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).getByRole(
-      'heading',
-      {
-        name: this.programName,
-      },
-    )
+    return this.getCardListLocator(
+      applicationStatusCardGroupName,
+      cardCount,
+    ).getByRole('heading', {
+      name: this.programName,
+    })
   }
 
   /**
    * Get the eligibile tag for the desired application status card group name
    * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
    * @returns {Locator} Locator to the eligible tag
    */
   getCardEligibleTagLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-eligible-tag',
-    )
+    return this.getCardListLocator(
+      applicationStatusCardGroupName,
+      cardCount,
+    ).locator('.cf-eligible-tag')
   }
 
   /**
    * Get the not eligibile tag for the desired application status card group name
    * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
    * @returns {Locator} Locator to the not eligible tag
    */
   getCardNotEligibleTagLocator(
     applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
   ): Locator {
-    return this.getCardListLocator(applicationStatusCardGroupName).locator(
-      '.cf-not-eligible-tag',
-    )
+    return this.getCardListLocator(
+      applicationStatusCardGroupName,
+      cardCount,
+    ).locator('.cf-not-eligible-tag')
+  }
+
+  /**
+   * Get the 'Submitted' tag for the desired application status card group name
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
+   * @returns {Locator} Locator to the 'submitted' tag
+   */
+  getCardSubmittedTagLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
+  ): Locator {
+    return this.getCardListLocator(
+      applicationStatusCardGroupName,
+      cardCount,
+    ).getByText('Submitted')
+  }
+
+  /**
+   * Get the 'In progress' tag for the desired application status card group name
+   * @param {ApplicationStatusCardGroupName} applicationStatusCardGroupName to find
+   * @param cardCount number of cards in the list
+   * @returns {Locator} Locator to the 'in progress' tag
+   */
+  getCardInProgressTagLocator(
+    applicationStatusCardGroupName: ApplicationStatusCardGroupName,
+    cardCount: number,
+  ): Locator {
+    return this.getCardListLocator(
+      applicationStatusCardGroupName,
+      cardCount,
+    ).getByText('In progress')
   }
 
   /**
@@ -1173,7 +1238,6 @@ enum Block {
  * used in relation to what the user sees on the `/programs` page
  */
 enum ApplicationStatusCardGroupName {
-  InProgress = 'In progress',
-  NotStarted = 'Not started',
-  Submitted = 'Submitted',
+  MyApplications = 'My applications',
+  ProgramsAndServices = 'Programs and services',
 }

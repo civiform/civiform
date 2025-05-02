@@ -26,6 +26,7 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.TransactionManager;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
@@ -36,7 +37,7 @@ import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
 public class DevToolsController extends Controller {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DevToolsController.class);
+  private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DevToolsView view;
@@ -51,6 +52,7 @@ public class DevToolsController extends Controller {
   private final AsyncCacheApi programDefCache;
   private final AsyncCacheApi versionsByProgramCache;
   private final Clock clock;
+  private final TransactionManager transactionManager = new TransactionManager();
 
   @Inject
   public DevToolsController(
@@ -112,7 +114,7 @@ public class DevToolsController extends Controller {
       devDatabaseSeedTask.seedQuestions();
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to seed questions", ex);
+      logger.error("Failed to seed questions", ex);
       return false;
     }
   }
@@ -139,7 +141,7 @@ public class DevToolsController extends Controller {
 
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to seed programs.", ex);
+      logger.error("Failed to seed programs.", ex);
       return false;
     }
   }
@@ -163,7 +165,7 @@ public class DevToolsController extends Controller {
     return ok(String.format("Added one-time run of %s", jobName));
   }
 
-  /** Remove all content from the program and question tables. */
+  /** Remove all content from all server application tables. */
   public Result clear() {
     Result result = redirect(routes.DevToolsController.index().url());
     return clearInternal()
@@ -176,15 +178,30 @@ public class DevToolsController extends Controller {
     return clearInternal() ? ok() : internalServerError();
   }
 
-  /** Remove all content from the program and question tables. */
+  /**
+   * Remove all content from all server application tables and clear the responding server's memory
+   * caches. Should only be used for testing.
+   *
+   * <p>Note: This is best-effort and is not a full reset of the DB. Be careful using this in a
+   * multitask environment as the deployment DB will have its tables wiped, but only the responding
+   * server will have its memory caches cleared.
+   *
+   * <p>As a practical matter though, clearing the databases doesn't reset the DB table primary-key
+   * id generators, so any uncleared caches will only matter in as much as a request can be made for
+   * old ids in the servers cache. And even then ebean will fail if data is written with foreign
+   * keys that don't exist, etc.
+   */
   private boolean clearInternal() {
     try {
+      logger.warn("Beginning clearing of data. Clearing memory caches.");
       clearCacheIfEnabled();
-      resetTables();
+      logger.warn("Clearing database tables.");
+      truncateTables();
+      logger.warn("Done clearing data.");
 
       return true;
     } catch (RuntimeException ex) {
-      LOGGER.error("Failed to clear cache or tables.", ex);
+      logger.error("Failed to clear cache or tables.", ex);
       return false;
     }
   }
@@ -206,8 +223,8 @@ public class DevToolsController extends Controller {
   /**
    * Clear cache if it is enabled in settings.
    *
-   * <p>Note: this is not safe to do in most deployed instances, because there may be multiple
-   * tasks, but we assume all dev instances only have one task.
+   * <p>Note: this is possibly not safe to do in a multitask environment depending on the desired
+   * outcome as only a singular task will respond and clear its caches, while others will not.
    */
   private void clearCacheIfEnabled() {
     if (settingsManifest.getVersionCacheEnabled()) {
@@ -223,10 +240,18 @@ public class DevToolsController extends Controller {
     }
   }
 
-  private void resetTables() {
-    Models.truncate(database);
-    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
-    newActiveVersion.save();
-    settingsService.migrateConfigValuesToSettingsGroup();
+  /**
+   * Removes rows from all tables but otherwise doesn't modify them.
+   *
+   * <p>Row id sequence counters are not reset for instance.
+   */
+  private void truncateTables() {
+    transactionManager.execute(
+        () -> {
+          Models.truncate(database);
+          VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
+          newActiveVersion.save();
+          settingsService.migrateConfigValuesToSettingsGroup();
+        });
   }
 }

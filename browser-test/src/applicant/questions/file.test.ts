@@ -4,9 +4,13 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  enableFeatureFlag,
 } from '../../support'
 
 test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
   test.describe('test multiple file upload with max files', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'

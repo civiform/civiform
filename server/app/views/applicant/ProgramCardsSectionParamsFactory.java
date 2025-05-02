@@ -22,6 +22,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.ProgramImageUtils;
 import views.components.Modal;
 
@@ -140,7 +141,7 @@ public final class ProgramCardsSectionParamsFactory {
             applicantRoutes,
             program.id(),
             program.slug(),
-            program.isCommonIntakeForm(),
+            program.programType(),
             programDatum.latestApplicationLifecycleStage(),
             applicantId,
             profile);
@@ -160,10 +161,10 @@ public final class ProgramCardsSectionParamsFactory {
         .setBody(description)
         .setActionUrl(actionUrl)
         .setIsGuest(isGuest)
-        .setIsCommonIntakeForm(program.isCommonIntakeForm())
         .setCategories(categoriesBuilder.build())
         .setActionText(messages.at(buttonText.getKeyName()))
-        .setProgramId(program.id());
+        .setProgramId(program.id())
+        .setProgramType(program.programType());
 
     if (isGuest) {
       cardBuilder.setLoginModalId("login-dialog-" + program.id());
@@ -228,7 +229,7 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantRoutes applicantRoutes,
       Long programId,
       String programSlug,
-      boolean isCommonIntakeForm,
+      ProgramType programType,
       Optional<LifecycleStage> optionalLifecycleStage,
       Optional<Long> applicantId,
       Optional<CiviFormProfile> profile) {
@@ -261,7 +262,7 @@ public final class ProgramCardsSectionParamsFactory {
       }
       // If they are completing the common intake form for the first time, skip the program overview
       // page
-    } else if (isCommonIntakeForm) {
+    } else if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
       actionUrl =
           haveApplicant
               ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
@@ -344,8 +345,6 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract boolean isGuest();
 
-    public abstract boolean isCommonIntakeForm();
-
     public abstract Optional<String> loginModalId();
 
     public abstract Optional<Boolean> eligible();
@@ -371,6 +370,8 @@ public final class ProgramCardsSectionParamsFactory {
 
     public abstract long programId();
 
+    public abstract ProgramType programType();
+
     public static Builder builder() {
       return new AutoValue_ProgramCardsSectionParamsFactory_ProgramCardParams.Builder();
     }
@@ -388,8 +389,6 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setActionUrl(String actionUrl);
 
       public abstract Builder setIsGuest(Boolean isGuest);
-
-      public abstract Builder setIsCommonIntakeForm(Boolean isCommonIntakeForm);
 
       public abstract Builder setLoginModalId(String loginModalId);
 
@@ -412,6 +411,8 @@ public final class ProgramCardsSectionParamsFactory {
       public abstract Builder setCategories(ImmutableList<String> categories);
 
       public abstract Builder setProgramId(long id);
+
+      public abstract Builder setProgramType(ProgramType programType);
 
       public abstract ProgramCardParams build();
     }

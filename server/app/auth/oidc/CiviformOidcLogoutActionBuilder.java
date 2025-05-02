@@ -44,7 +44,7 @@ import services.settings.SettingsManifest;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private static final Logger LOGGER =
+  private static final Logger logger =
       LoggerFactory.getLogger(CiviformOidcLogoutActionBuilder.class);
   private String postLogoutRedirectParam;
   private final String clientId;
@@ -112,7 +112,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     try {
       return Optional.of(JWTParser.parse(idToken.get()));
     } catch (ParseException e) {
-      LOGGER.warn("Could not parse id token for account {}", accountId);
+      logger.warn("Could not parse id token for account {}", accountId);
       return Optional.empty();
     }
   }

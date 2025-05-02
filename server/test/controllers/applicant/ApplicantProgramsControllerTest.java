@@ -296,6 +296,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showWithApplicantId_withProgramIdRedirects() {
+    Result result =
+        controller.showWithApplicantId(fakeRequest(), 1, "123").toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
   public void showWithApplicantId_withStringProgramParam_redirectsToReview() {
     ProgramModel program = resourceCreator().insertActiveProgram("program");
 

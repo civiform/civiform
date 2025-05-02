@@ -22,7 +22,7 @@ public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private final Config config;
-  private static final Logger LOGGER = LoggerFactory.getLogger("SettingsManifest");
+  private static final Logger logger = LoggerFactory.getLogger("SettingsManifest");
 
   public AbstractSettingsManifest(Config config) {
     this.config = checkNotNull(config);
@@ -119,7 +119,7 @@ public abstract class AbstractSettingsManifest {
 
   protected boolean getBool(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      LOGGER.warn(
+      logger.warn(
           String.format(
               "Settings not found on request when looking up value for %s", variableName));
       return getBool(variableName);
@@ -147,7 +147,7 @@ public abstract class AbstractSettingsManifest {
 
   protected Optional<String> getString(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      LOGGER.warn(
+      logger.warn(
           String.format(
               "Settings not found on request when looking up value for %s", variableName));
       return getString(variableName);
@@ -175,7 +175,7 @@ public abstract class AbstractSettingsManifest {
 
   protected Optional<Integer> getInt(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      LOGGER.warn(
+      logger.warn(
           String.format(
               "Settings not found on request when looking up value for %s", variableName));
       return getInt(variableName);
@@ -204,7 +204,7 @@ public abstract class AbstractSettingsManifest {
   protected Optional<ImmutableList<String>> getListOfStrings(
       String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      LOGGER.warn(
+      logger.warn(
           String.format(
               "Settings not found on request when looking up value for %s", variableName));
       return getListOfStrings(variableName);

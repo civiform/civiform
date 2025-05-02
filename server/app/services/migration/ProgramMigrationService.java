@@ -3,6 +3,7 @@ package services.migration;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProgramAcls;
+import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,10 +21,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import models.ProgramModel;
 import models.ProgramNotificationPreference;
+import models.QuestionModel;
+import repository.ApplicationStatusesRepository;
+import repository.ProgramRepository;
 import repository.QuestionRepository;
+import repository.VersionRepository;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -31,6 +38,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import services.statuses.StatusDefinitions;
 
 /**
  * A service responsible for helping admins migrate program definitions between different
@@ -42,20 +50,30 @@ public final class ProgramMigrationService {
   // It will transform to a key formatted like `%s__%s`
   private static final String CONFLICTING_QUESTION_FORMAT = "%s -_- %s";
   private static final Pattern SUFFIX_PATTERN = Pattern.compile(" -_- [a-z]+$");
-  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
+  private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ObjectMapper objectMapper;
+  private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
+  private final VersionRepository versionRepository;
 
   @Inject
-  public ProgramMigrationService(ObjectMapper objectMapper, QuestionRepository questionRepository) {
+  public ProgramMigrationService(
+      ApplicationStatusesRepository applicationStatusesRepository,
+      ObjectMapper objectMapper,
+      ProgramRepository programRepository,
+      QuestionRepository questionRepository,
+      VersionRepository versionRepository) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
         checkNotNull(objectMapper)
             .registerModule(new GuavaModule())
             .registerModule(new Jdk8Module())
             .configure(Feature.INCLUDE_SOURCE_IN_LOCATION, true);
+    this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
+    this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   /**
@@ -138,6 +156,8 @@ public final class ProgramMigrationService {
    * format `orginal admin name -_- a`.
    *
    * <p>Return a map of old_question_name -> updated_question_data
+   *
+   * <p>TODO: #9628 - Make private once legacy UI is cleaned up
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
@@ -168,7 +188,6 @@ public final class ProgramMigrationService {
     if (!nameHasConflict(adminName, newNamesSoFar)) {
       return adminName;
     }
-
     // If the question name contains a suffix of the form " -_- a" (for example "admin name -_- a"),
     // we want to strip off the " -_- n" to find the base name. This also allows us to correctly
     // increment the suffix of the base admin name so we don't end up with admin names like "admin
@@ -184,7 +203,8 @@ public final class ProgramMigrationService {
     do {
       extension++;
       newName =
-          CONFLICTING_QUESTION_FORMAT.formatted(adminNameBase, convertNumberToSuffix(extension));
+          CONFLICTING_QUESTION_FORMAT.formatted(
+              adminNameBase, Utils.convertNumberToSuffix(extension));
     } while (nameHasConflict(newName, newNamesSoFar));
 
     return newName;
@@ -197,7 +217,6 @@ public final class ProgramMigrationService {
     if (newNamesSoFar.contains(name)) {
       return true;
     }
-
     QuestionDefinition testQuestion =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -207,33 +226,6 @@ public final class ProgramMigrationService {
                 .build());
 
     return questionRepository.findConflictingQuestion(testQuestion).isPresent();
-  }
-
-  /**
-   * Convert a number to the equivalent "excel column name".
-   *
-   * <p>For example, 5 maps to "e", and 28 maps to "ab".
-   *
-   * @param num to convert
-   * @return The "excel column name" form of the number
-   */
-  String convertNumberToSuffix(int num) {
-    String result = "";
-
-    // Division algorithm to convert from base 10 to "base 26"
-    int dividend = num; // 28
-    while (dividend > 0) {
-      // Subtract one so we're doing math with a zero-based index.
-      // We need "a" to be 0, and "z" to be 25, so that 26 wraps around
-      // to be "aa". "a" is "ten" in base 26.
-      dividend = dividend - 1;
-      int remainder = dividend % 26;
-      result = ALPHABET.charAt(remainder) + result;
-      dividend = dividend / 26;
-      ;
-    }
-
-    return result;
   }
 
   /**
@@ -267,5 +259,117 @@ public final class ProgramMigrationService {
     return programDefinition.toBuilder()
         .setNotificationPreferences(ProgramNotificationPreference.getDefaults())
         .build();
+  }
+
+  /**
+   * Saves the specified program to the DB, and processes all questions associated with it.
+   *
+   * @param programDefinition the {@link ProgramDefinition} to save
+   * @param questionDefinitions the {@link QuestionDefinition}s associated with the program
+   * @param withDuplicates whether to allow duplicate question names
+   * @param duplicateHandlingEnabled whether to allow admin-specified duplicate handling
+   */
+  public ProgramModel saveImportedProgram(
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      boolean withDuplicates,
+      boolean duplicateHandlingEnabled) {
+    ProgramDefinition updatedProgram = programDefinition;
+    if (questionDefinitions != null) {
+      if (duplicateHandlingEnabled && withDuplicates) {
+        // With the new duplicate-handling UI, we do not show admins a de-duped/suffixed admin
+        // name before saving the imported program. Instead, we must calculate that name at this
+        // point.
+        questionDefinitions =
+            ImmutableList.copyOf(maybeOverwriteQuestionName(questionDefinitions).values());
+      }
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
+          questionDefinitions.stream()
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
+
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+          updateEnumeratorIdsAndSaveAllQuestions(questionDefinitions, questionsOnJsonById);
+
+      ImmutableList<BlockDefinition> updatedBlockDefinitions =
+          Utils.updateBlockDefinitions(programDefinition, questionsOnJsonById, updatedQuestionsMap);
+
+      updatedProgram =
+          programDefinition.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
+    }
+
+    // TODO: #9628 - Support admin-specified duplicate handling per-question
+    ProgramModel savedProgram =
+        programRepository.insertProgramSync(
+            new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
+
+    // If we are re-using existing questions, we will put all programs in draft mode to ensure no
+    // errors. We could also go through each question being updated and see what program it
+    // applies to, but this is more straightforward.
+    if (!withDuplicates) {
+      ImmutableList<Long> programsInDraft =
+          versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
+              .map(p -> p.id)
+              .collect(ImmutableList.toImmutableList());
+      versionRepository
+          .getProgramsForVersion(versionRepository.getActiveVersion())
+          .forEach(
+              program -> {
+                if (!programsInDraft.contains(program.id)) {
+                  programRepository.createOrUpdateDraft(program);
+                }
+              });
+    }
+
+    // TODO(#8613) migrate application statuses for the program
+    applicationStatusesRepository.createOrUpdateStatusDefinitions(
+        updatedProgram.adminName(), new StatusDefinitions());
+
+    return savedProgram;
+  }
+
+  /**
+   * Save all questions and then update enumerator child questions with the correct ids of their
+   * newly saved parent questions.
+   */
+  @VisibleForTesting
+  ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
+
+    // Save all the questions
+    ImmutableList<QuestionModel> newlySavedQuestions =
+        questionRepository.bulkCreateQuestions(questionDefinitions);
+
+    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
+        newlySavedQuestions.stream()
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
+        newlySavedQuestions.stream()
+            .map(
+                question -> {
+                  QuestionDefinition qd = question.getQuestionDefinition();
+                  if (qd.getEnumeratorId().isPresent()) {
+                    // The child question was saved with the incorrect enumerator id so we need to
+                    // update it
+                    Long oldEnumeratorId = qd.getEnumeratorId().get();
+                    // Use the old enumerator id to get the admin name of the parent question off
+                    // the old question map
+                    String parentQuestionAdminName =
+                        questionsOnJsonById.get(oldEnumeratorId).getName();
+                    // Use the admin name to get the updated id for the parent question off the new
+                    // question map
+                    Long newlySavedParentQuestionId =
+                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
+                    // Update the child question with the correct id and save the question
+                    qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
+                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
+                  }
+                  return qd;
+                })
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+
+    return fullyUpdatedQuestions;
   }
 }

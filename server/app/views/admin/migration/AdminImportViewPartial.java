@@ -1,10 +1,14 @@
 package views.admin.migration;
 
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -17,12 +21,16 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.UlTag;
 import java.util.Objects;
 import java.util.Optional;
 import play.mvc.Http;
 import services.AlertType;
+import services.RandomStringUtils;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -35,8 +43,10 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.SvgTag;
 import views.components.TextFormatter;
+import views.questiontypes.RadioButtonQuestionRenderer;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -129,18 +139,18 @@ public final class AdminImportViewPartial extends BaseHtmlView {
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
     }
 
-    for (BlockDefinition block : program.blockDefinitions()) {
-      programDiv.with(
-          renderProgramBlock(
-              block,
-              questionsById,
-              duplicateQuestionNames,
-              newToOldQuestionNameMap,
-              withDuplicates,
-              duplicateHandlingOptionsEnabled));
-    }
+    DivTag formButtons =
+        div()
+            .with(
+                submitButton("Save").withClasses("usa-button", "mr-2"),
+                asRedirectElement(
+                        button("Delete and start over"), routes.AdminImportController.index().url())
+                    .withClasses("usa-button", "usa-button--outline"))
+            .withClasses("flex", "my-5");
 
-    FormTag hiddenForm =
+    // In the duplicate-handling UI, all program content is displayed inside this form, so that the
+    // radio options may be submitted along with the program JSON.
+    FormTag programForm =
         form()
             .attr("hx-encoding", "application/x-www-form-urlencoded")
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
@@ -153,18 +163,26 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .setValue(json)
                     .getTextareaTag()
                     .withClass("hidden"))
-            .with(
-                div()
-                    .with(
-                        submitButton("Save").withClasses("usa-button", "mr-2"),
-                        asRedirectElement(
-                                button("Delete and start over"),
-                                routes.AdminImportController.index().url())
-                            .withClasses("usa-button", "usa-button--outline"))
-                    .withClasses("flex", "my-5"))
+            .condWith(!duplicateHandlingOptionsEnabled, formButtons)
+            // TODO: #9628 - Add styling to signal that the program is saving, as it can take a few
+            // seconds
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
-    return programDiv.with(hiddenForm);
+    for (BlockDefinition block : program.blockDefinitions()) {
+      // Before the duplicate-handling UI is launched, we still keep the form separate (solely for
+      // JSON), and display everything else in a regular div ahead of it.
+      (duplicateHandlingOptionsEnabled ? programForm : programDiv)
+          .with(
+              renderProgramBlock(
+                  block,
+                  questionsById,
+                  duplicateQuestionNames,
+                  newToOldQuestionNameMap,
+                  withDuplicates,
+                  duplicateHandlingOptionsEnabled));
+    }
+
+    return programDiv.with(programForm.condWith(duplicateHandlingOptionsEnabled, formButtons));
   }
 
   /** Renders a top-level program container. */
@@ -471,7 +489,11 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
                     : null);
 
-    DivTag row = div().withClasses("flex", "gap-4", "items-center").with(icon, content);
+    DivTag row =
+        div()
+            .withClasses("flex", "gap-4", "items-center")
+            .with(icon, content)
+            .condWith(questionIsDuplicate, renderDuplicateQuestionHandlingOptions(adminName));
     return cardDiv.with(row);
   }
 
@@ -513,5 +535,73 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             "text-white",
             String.join(" ", classes))
         .with(span(text));
+  }
+
+  /**
+   * Renders a radio group with USWDS style. We prefer this to {@link RadioButtonQuestionRenderer}
+   * for higher information density.
+   *
+   * @param adminName the admin name of the question, used for both the cross-link to the question
+   *     bank and the HTML form data specifying how to handle this duplicate question.
+   * @return a radio group with options for how to handle the duplicate question.
+   */
+  private static FieldsetTag renderDuplicateQuestionHandlingOptions(String adminName) {
+    return fieldset()
+        .withClasses("usa-fieldset", "shrink-0", "mb-4")
+        .with(
+            legend("How do you want to handle this duplicate question?")
+                .withClasses("usa-legend", "font-semibold", "text-base"),
+            renderRadioOption(
+                AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
+                "CREATE_DUPLICATE",
+                "Create a new duplicate question",
+                true),
+            renderRadioOption(
+                AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
+                "OVERWRITE_EXISTING",
+                span("Overwrite all instances of ")
+                    .with(
+                        new LinkElement()
+                            .setText("existing question")
+                            .setHref(
+                                routes.AdminQuestionController.index(
+                                        Optional.of("Admin ID: " + adminName))
+                                    .url())
+                            .opensInNewTab()
+                            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+                            .asAnchorText()),
+                false));
+  }
+
+  /**
+   * Renders a radio option with USWDS style. We prefer this to {@link RadioButtonQuestionRenderer}
+   * for higher information density.
+   */
+  private static DivTag renderRadioOption(
+      String name, String value, DomContent text, boolean checked) {
+    String id = RandomStringUtils.randomAlphabetic(8);
+
+    InputTag inputTag =
+        input()
+            .withId(id)
+            .withType("radio")
+            .withName(name)
+            .withValue(value)
+            .withCondChecked(checked)
+            .withClasses("usa-radio__input");
+
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .withClasses("usa-radio__label", "inline-block", "w-full", "h-full", "text-base")
+            .with(text);
+
+    // A fully-styled USWDS radio would include the "usa-radio" class. However, we omit it to avoid
+    // the default white background.
+    return div().with(inputTag, labelTag);
+  }
+
+  private static DivTag renderRadioOption(String name, String value, String text, boolean checked) {
+    return renderRadioOption(name, value, text(text), checked);
   }
 }

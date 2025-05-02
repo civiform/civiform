@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * <li>Any failure will rollback the entire changeset
  */
 public final class RemoveOperatorFromLeafAddressServiceAreaJob extends DurableJob {
-  private static final Logger LOGGER =
+  private static final Logger logger =
       LoggerFactory.getLogger(RemoveOperatorFromLeafAddressServiceAreaJob.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -64,7 +64,7 @@ Most likely you should NOT use this job.
 
   @Override
   public void run() {
-    LOGGER.debug("Run - Begin");
+    logger.debug("Run - Begin");
 
     String selectSql =
         """
@@ -81,14 +81,14 @@ OR jsonb_path_exists(block_definitions, '$.eligibilityDefinition.predicate.rootN
       int errorCount = 0;
 
       for (SqlRow program : programs) {
-        LOGGER.debug("id: {}", program.getLong("id"));
+        logger.debug("id: {}", program.getLong("id"));
 
         try {
           JsonNode rootJsonNode = objectMapper.readTree(program.getString("block_definitions"));
           int startingRootJsonNodeHashCode = rootJsonNode.hashCode();
 
           if (!rootJsonNode.isArray()) {
-            LOGGER.error("block_definitions is not an array");
+            logger.error("block_definitions is not an array");
             continue;
           }
 
@@ -108,7 +108,7 @@ OR jsonb_path_exists(block_definitions, '$.eligibilityDefinition.predicate.rootN
           }
 
           if (startingRootJsonNodeHashCode == rootJsonNode.hashCode()) {
-            LOGGER.debug("No changes made to JsonNode. No need to update the database.");
+            logger.debug("No changes made to JsonNode. No need to update the database.");
             continue;
           }
 
@@ -127,24 +127,24 @@ OR jsonb_path_exists(block_definitions, '$.eligibilityDefinition.predicate.rootN
                 .execute();
 
             stepTransaction.commit();
-            LOGGER.debug("JsonNode change. Updated database.");
+            logger.debug("JsonNode change. Updated database.");
           }
 
         } catch (Exception e) {
-          LOGGER.error(e.getMessage(), e);
+          logger.error(e.getMessage(), e);
           errorCount++;
         }
       }
       if (errorCount == 0) {
-        LOGGER.debug("Job succeeded.");
+        logger.debug("Job succeeded.");
         jobTransaction.commit();
       } else {
-        LOGGER.error("Job failed to add operator. All changes undone. Error count: {}", errorCount);
+        logger.error("Job failed to add operator. All changes undone. Error count: {}", errorCount);
         jobTransaction.rollback();
       }
     }
 
-    LOGGER.debug("Run - End");
+    logger.debug("Run - End");
   }
 
   public void removeOperatorFromLeafAddressServiceAreaNode(JsonNode nodeJsonNode) {

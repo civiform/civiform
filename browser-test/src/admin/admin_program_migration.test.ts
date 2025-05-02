@@ -1,6 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-import {ProgramVisibility} from '../support/admin_programs'
+import {ProgramType, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -8,6 +8,10 @@ test.describe('program migration', () => {
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_INFO = 'usa-alert--info'
   const ALERT_SUCCESS = 'usa-alert--success'
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
 
   test('export a program', async ({
     page,
@@ -268,7 +272,7 @@ test.describe('program migration', () => {
         'https://usa.gov',
         ProgramVisibility.SELECT_TI,
         'admin description',
-        false,
+        ProgramType.DEFAULT,
         'groupOne',
       )
       await adminPrograms.gotoAdminProgramsPage()

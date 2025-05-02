@@ -30,7 +30,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
   private static final String FILE_KEY_LIST_PROPERTY =
       Scalar.FILE_KEY_LIST.name().toLowerCase(Locale.ROOT);
 
-  private static final Logger LOGGER =
+  private static final Logger logger =
       LoggerFactory.getLogger(CopyFileKeyForMultipleFileUpload.class);
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -50,7 +50,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
 
   @Override
   public void run() {
-    LOGGER.info("Copying file keys for applicants.");
+    logger.info("Copying file keys for applicants.");
 
     // Filter to only include rows that have a file_key key. Vastly improves the run time
     // cutting out a large number of unneeded records.
@@ -64,7 +64,7 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
           database.find(ApplicantModel.class).where().raw(filter).findIterate()) {
         while (applicants.hasNext()) {
           try {
-            LOGGER.debug("Applicant row count: {}", rowCount);
+            logger.debug("Applicant row count: {}", rowCount);
             rowCount++;
             ApplicantModel applicant = applicants.next();
             ApplicantData migratedData = migrateApplicantData(applicant.getApplicantData());
@@ -72,18 +72,18 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
             applicant.save(jobTransaction);
           } catch (Exception e) {
             errorCount++;
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
           }
         }
       }
 
-      LOGGER.info("Copying file keys for applications.");
+      logger.info("Copying file keys for applications.");
       rowCount = 1;
 
       try (QueryIterator<ApplicationModel> applications =
           database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
         while (applications.hasNext()) {
-          LOGGER.debug("Application row count: {}", rowCount);
+          logger.debug("Application row count: {}", rowCount);
           rowCount++;
           try {
             ApplicationModel application = applications.next();
@@ -91,16 +91,16 @@ public final class CopyFileKeyForMultipleFileUpload extends DurableJob {
             application.save(jobTransaction);
           } catch (Exception e) {
             errorCount++;
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
           }
         }
       }
 
       if (errorCount == 0) {
-        LOGGER.info("Finished copying file keys for multiple file upload feature.");
+        logger.info("Finished copying file keys for multiple file upload feature.");
         jobTransaction.commit();
       } else {
-        LOGGER.error(
+        logger.error(
             "Failed to copy file keys for multiple file upload feature. See previous logs for"
                 + " failures. Total failures: {0}",
             errorCount);

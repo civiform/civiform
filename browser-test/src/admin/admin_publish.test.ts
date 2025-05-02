@@ -1,5 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot, enableFeatureFlag} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
@@ -15,6 +15,8 @@ test.describe(
     const draftQuestionText = `${questionText} new version`
 
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+      await enableFeatureFlag(page, 'program_filtering_enabled')
+
       await loginAsAdmin(page)
 
       // Create a hidden program with no questions
