@@ -615,11 +615,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
-  async clickContinueArabic() {
-    await this.page.click('text="متابعة"')
-    await waitForPageJsLoad(this.page)
-  }
-
   async clickContinueEditing() {
     await this.page.click('text="Continue editing"')
     await waitForPageJsLoad(this.page)
