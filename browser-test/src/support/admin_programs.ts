@@ -1690,6 +1690,31 @@ export class AdminPrograms {
     await this.page.locator('label[for="common-intake-checkbox"]').click()
   }
 
+  /**
+   * Selects categories for a program.
+   *
+   * @param programName - Name of the program
+   * @param categories - Categories to select for the program
+   * @param isActive - Whether the program is on active mode
+   */
+  async selectProgramCategories(
+    programName: string,
+    categories: ProgramCategories[],
+    isActive: boolean,
+  ) {
+    if (isActive) {
+      await this.gotoViewActiveProgramPageAndStartEditing(programName)
+    } else {
+      await this.gotoEditDraftProgramPage(programName)
+    }
+
+    await this.page.getByRole('button', {name: 'Edit program details'}).click()
+    for (const category of categories) {
+      await this.page.getByText(category).click()
+    }
+    await this.submitProgramDetailsEdits()
+  }
+
   async isPaginationVisibleForApplicationTable(): Promise<boolean> {
     const applicationListDiv = this.page.getByTestId('application-table')
     return applicationListDiv.locator('.usa-pagination').isVisible()

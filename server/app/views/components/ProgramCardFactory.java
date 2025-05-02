@@ -148,11 +148,8 @@ public final class ProgramCardFactory {
       ProgramCardData.ProgramRow programRow,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
-    String updatedPrefix = "Edited on ";
+    String updatedPrefix = isActive ? "Published on " : "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
-    if (isActive) {
-      updatedPrefix = "Published on ";
-    }
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -266,10 +263,10 @@ public final class ProgramCardFactory {
     // isProgramFilteringEnabled.
     if (image.isPresent()) {
       return div().withClasses("w-16", "h-9").with(image.get());
-    } else {
-      // Show a grayed-out placeholder image if there's no program image.
-      return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
     }
+
+    // Show a grayed-out placeholder image if there's no program image.
+    return div().with(Icons.svg(Icons.IMAGE).withClasses("w-16", "h-9", "text-gray-300"));
   }
 
   public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
