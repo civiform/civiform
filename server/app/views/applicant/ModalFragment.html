@@ -71,13 +71,16 @@
   th:with="dialogId=${'login-dialog-' + #strings.randomAlphanumeric(8)}"
 >
   <div
-    th:replace="~{this :: loginPromptModal(${dialogId},
-                                         ${slugBypassUrl},
-                                         ${slugLoginUrl},
-                                         #{content.initialLoginModalPrompt(${authProviderName})},
-                                         #{button.continueToApplication},
-                                         'program_slug_login_prompt',
-                                         true)}"
+    th:replace="~{this :: baseModal(${dialogId},
+                                    #{title.signInModal},
+                                    #{content.initialLoginModalPrompt(${authProviderName})}
+                                    #{button.continueToApplication},
+                                    ${slugBypassUrl},
+                                    #{button.signIn},
+                                    ${slugLoginUrl},
+                                    true,
+                                    'program_slug_login_prompt',
+                                    true)}"
   ></div>
   <!--/* Create an invisible button that we will use to trigger this modal on load */-->
   <a
@@ -97,74 +100,17 @@
   class="display-none position-fixed height-viewport width-full z-100"
 >
   <div
-    th:replace="~{this :: loginPromptModal('login-dialog-upsell',
-                                   ${upsellBypassUrl},
-                                   ${upsellLoginUrl},
-                                   #{content.signInModal},
-                                   #{button.continueWithoutAnAccount},
-                                   null,
-                                   false)}"
+    th:replace="~{this :: baseModal('login-dialog-upsell',
+                                    #{title.signInModal},
+                                    #{content.signInModal},
+                                    #{button.continueWithoutAnAccount},
+                                    ${upsellBypassUrl},
+                                    #{button.signIn},
+                                    ${upsellLoginUrl},
+                                    true,
+                                    null,
+                                    false)}"
   ></div>
-</div>
-
-<div
-  th:fragment="loginPromptModal(dialogId, bypassUrl, loginLink, descriptionText, bypassButtonText, onlyShowOnceGroup, showOnLoad)"
-  class="usa-modal cf-modal cf-ns-modal"
-  th:id="${dialogId}"
-  th:aria-labelledby="${dialogId + '-heading'}"
-  th:aria-describedby="${dialogId + '-description'}"
-  th:only-show-once-group="${onlyShowOnceGroup}"
-  th:show-on-load="${showOnLoad ? 'true' : null}"
-  data-testid="login"
-  th:attr="bypass-url=${bypassUrl},dialog-id=${dialogId}"
->
-  <div class="usa-modal__content">
-    <div class="usa-modal__main">
-      <h2
-        class="usa-modal__heading"
-        th:id="${dialogId + '-heading'}"
-        th:text="#{title.signInModal}"
-      ></h2>
-      <div class="usa-prose">
-        <p
-          th:id="${dialogId + '-description'}"
-          th:text="${descriptionText}"
-          class="margin-y-2"
-        ></p>
-      </div>
-      <div class="usa-modal__footer">
-        <ul class="usa-button-group">
-          <li class="usa-button-group__item">
-            <a
-              class="usa-button"
-              th:text="${bypassButtonText}"
-              th:href="${bypassUrl}"
-              th:id="${'bypass-login-prompt-button-' + dialogId}"
-            ></a>
-          </li>
-          <li class="usa-button-group__item">
-            <a
-              class="usa-button usa-button--outline padding-105 text-center"
-              data-close-modal
-              role="button"
-              th:text="#{button.signIn}"
-              th:href="${loginLink}"
-            ></a>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <button
-      type="button"
-      class="usa-button usa-modal__close"
-      th:aria-label="#{button.close}"
-      data-close-modal
-    >
-      <svg
-        th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
-      ></svg>
-    </button>
-  </div>
 </div>
 
 <div th:fragment="blockValidation">
@@ -421,58 +367,83 @@
   class="display-none position-fixed height-viewport width-full z-100"
 >
   <div
-    class="usa-modal cf-ns-modal"
-    id="external-program-modal"
-    aria-labelledby="external-program-modal-heading"
-    aria-describedby="external-program-modal-description"
-  >
-    <div class="usa-modal__content">
-      <div class="usa-modal__main">
-        <h2
-          class="usa-modal__heading"
-          id="external-program-modal-heading"
-          th:text="#{title.externalProgramModal}"
-        ></h2>
-        <div class="usa-prose">
-          <p
-            id="external-program-modal-description"
-            th:text="#{content.externalProgramModal}"
-            class="margin-y-2"
-          ></p>
-        </div>
-        <div class="usa-modal__footer">
-          <ul class="usa-button-group">
-            <li class="usa-button-group__item">
-              <button
-                type="button"
-                class="usa-button"
-                th:text="#{button.continue}"
-                th:data-redirect-to="${externalLink}"
-                data-close-modal
-              ></button>
-            </li>
-            <li class="usa-button-group__item">
-              <button
-                type="button"
-                class="usa-button usa-button--unstyled padding-105 text-center"
-                th:text="#{button.goBack}"
-                data-close-modal
-              ></button>
-            </li>
-          </ul>
-        </div>
-      </div>
+    th:replace="~{this :: baseModal('external-program-modal',
+                                  #{title.externalProgramModal},
+                                  #{content.externalProgramModal},
+                                  #{button.continue},
+                                  ${externalLink},
+                                  #{button.goBack},
+                                  '',
+                                  false,
+                                  false,
+                                  false)}"
+  ></div>
+</div>
 
-      <button
-        type="button"
-        class="usa-button usa-modal__close"
-        th:aria-label="#{button.close}"
-        data-close-modal
-      >
-        <svg
-          th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
-        ></svg>
-      </button>
+<div
+  th:fragment="baseModal(dialogId,
+                         title,
+                         description,
+                         primaryButtonText,
+                         primaryButtonUrl,
+                         secondaryButtonText,
+                         secondaryButtonUrl,
+                         secondaryButtonOutline,
+                         onlyShowOnceGroup,
+                         showOnLoad)"
+  class="usa-modal cf-modal cf-ns-modal"
+  th:id="${dialogId}"
+  th:aria-labelledby="${dialogId + '-heading'}"
+  th:aria-describedby="${dialogId + '-description'}"
+  th:only-show-once-group="${onlyShowOnceGroup}"
+  th:show-on-load="${showOnLoad ? 'true' : null}"
+>
+  <div class="usa-modal__content">
+    <div class="usa-modal__main">
+      <h2
+        class="usa-modal__heading"
+        th:id="${dialogId + '-heading'}"
+        th:text="${title}"
+      ></h2>
+      <div class="usa-prose">
+        <p th:id="${dialogId + '-description'}" th:text="${description}"></p>
+      </div>
+      <div class="usa-modal__footer">
+        <ul class="usa-button-group">
+          <li class="usa-button-group__item">
+            <button
+              type="button"
+              class="usa-button"
+              th:id="${dialogId + '-primaryButton'}"
+              th:text="${primaryButtonText}"
+              th:data-redirect-to="${primaryButtonUrl}"
+              data-close-modal
+            ></button>
+          </li>
+          <li class="usa-button-group__item">
+            <button
+              type="button"
+              th:class="'usa-button padding-105 text-center ' +
+                ${secondaryButtonOutline ? 'usa-button--outline' :
+                'usa-button--unstyled'}"
+              th:id="${dialogId + '-secondaryButton'}"
+              th:text="${secondaryButtonText}"
+              th:data-redirect-to="${secondaryButtonUrl}"
+              data-close-modal
+            ></button>
+          </li>
+        </ul>
+      </div>
     </div>
+    <button
+      type="button"
+      class="usa-button usa-modal__close"
+      th:aria-label="#{button.close}"
+      data-close-modal
+    >
+      <svg
+        th:replace="~{applicant/ApplicantBaseFragment :: icon(${closeIcon})}"
+      ></svg>
+    </button>
   </div>
 </div>
