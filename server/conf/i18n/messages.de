@@ -285,7 +285,7 @@ label.inProgress=Noch nicht eingereicht
 # Informational tag on a submitted application card. Used when the date of submission is unknown.
 label.submitted=Submitted
 # Informational tag on a submitted application card. The parameter is the date of the submission.
-label.submittedOn=Submitted on {0}
+label.submittedOn=Eingereicht am {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} on {1}
 
