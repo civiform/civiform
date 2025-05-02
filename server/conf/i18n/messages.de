@@ -835,7 +835,7 @@ label.middleName=Middle name
 label.nameSuffix=Suffix
 
 # Placeholder text - this is shown inside the input box, before a user enters an answer.
-placeholder.firstName=First name
+placeholder.firstName=Vorname
 placeholder.lastName=Last name
 placeholder.middleName=Middle name
 # Placeholder for name suffix field in name question
