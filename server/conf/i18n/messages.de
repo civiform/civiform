@@ -680,7 +680,7 @@ label.city=Stadt
 label.state=Staat
 label.selectState=Wählen Sie einen Staat
 label.street=Adresse
-label.zipcode=ZIP Code
+label.zipcode=PLZ
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
