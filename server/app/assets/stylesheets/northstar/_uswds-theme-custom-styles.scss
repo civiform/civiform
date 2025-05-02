@@ -537,3 +537,63 @@ main {
     width: 100%;
   }
 }
+
+[dir='rtl'] {
+  /* Make the checkbox appear to the right of the label in RTL languages. */
+  .usa-checkbox__label::before {
+    position: relative;
+    display: inline-block;
+    margin-inline-end: 10px;
+  }
+
+  // -- start
+  /* Make the info icon appear to the right of the label in RTL languages. */
+  .usa-alert__body::before {
+    display: inline-block;
+    right: 1rem;
+  }
+
+  .usa-site-alert--slim .usa-alert__body::before {
+    right: 1.625rem;
+  }
+
+  .usa-alert {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #00bde3;
+  }
+
+  .usa-alert .usa-alert__heading,
+  .usa-alert .usa-alert__text,
+  .usa-alert .grid-row,
+  .usa-alert p {
+    margin-inline-start: 2.5rem;
+  }
+
+  .usa-alert .usa-button {
+    margin-right: 0px;
+  }
+
+  .usa-process-list__item::before {
+    right: 0rem;
+  }
+
+  .usa-process-list__item {
+    padding-right: calc(calc(2.5rem / 2 - 0.25rem) * 2);
+  }
+
+  .usa-process-list {
+    padding-right: 20px;
+  }
+  // -- end
+}
+
+/* Override margin values to support RTL languages. */
+.usa-identifier__logos {
+  margin-right: 0;
+  margin-inline-end: 1rem;
+}
+
+.cf-header-logo {
+  padding-inline-end: 1rem;
+}
