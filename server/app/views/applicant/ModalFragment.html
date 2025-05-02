@@ -416,7 +416,7 @@
 </div>
 
 <div
-  th:fragment="externalProgramModal"
+  th:fragment="externalProgramModal(externalLink)"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
@@ -447,6 +447,7 @@
                 type="button"
                 class="usa-button"
                 th:text="#{button.continue}"
+                th:data-redirect-to="${externalLink}"
                 data-close-modal
               ></button>
             </li>
