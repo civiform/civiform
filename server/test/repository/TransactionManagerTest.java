@@ -330,6 +330,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
           outerAccount.setEmailAddress("updated@test.com");
           outerAccount.save();
+
           // The first time through save() will throw the exception due to
           // innerTransaction.  The second time will execute the entire method.
           // Counting here ensures that the test setup is correct.
