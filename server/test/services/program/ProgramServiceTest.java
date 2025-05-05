@@ -249,6 +249,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult()).isNotNull();
+    assertThat(result.getResult().id()).isPositive();
   }
 
   @Test
