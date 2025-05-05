@@ -235,31 +235,40 @@ public final class AccountRepository {
         .findOneOrEmpty();
   }
 
-  /** Merge the older applicant data into the newer applicant, and set both to the given account. */
+  /**
+   * Merge the older applicant data into the newer applicant, and set both to the given account.
+   *
+   * @return The updated newer applicant.
+   */
   public CompletionStage<ApplicantModel> mergeApplicants(
-      ApplicantModel left, ApplicantModel right, AccountModel account) {
+      ApplicantModel applicant1, ApplicantModel applicant2, AccountModel account) {
     return supplyAsync(
         () ->
             transactionManager.execute(
                 () -> {
-                  left.setAccount(account).save();
-                  right.setAccount(account).save();
-                  return mergeApplicants(left, right).saveAndReturn();
+                  applicant1.setAccount(account).save();
+                  applicant2.setAccount(account).save();
+                  return mergeApplicants(applicant1, applicant2).saveAndReturn();
                 }),
         executionContext);
   }
 
-  /** Merge the applicant data from older applicant into the newer applicant. */
-  private ApplicantModel mergeApplicants(ApplicantModel left, ApplicantModel right) {
-    if (left.getWhenCreated().isAfter(right.getWhenCreated())) {
-      ApplicantModel tmp = left;
-      left = right;
-      right = tmp;
+  /**
+   * Merge the applicant data from the older applicant into the newer applicant.
+   *
+   * @return The updated newer applicant.
+   */
+  private ApplicantModel mergeApplicants(ApplicantModel applicant1, ApplicantModel applicant2) {
+    ApplicantModel older = applicant1;
+    ApplicantModel newer = applicant2;
+    if (applicant1.getWhenCreated().isAfter(applicant2.getWhenCreated())) {
+      newer = applicant1;
+      older = applicant2;
     }
-    // At this point, "left" is older, "right" is newer, we will merge "left" into "right", because
-    // the newer applicant is always preferred when more than one applicant matches an account.
-    right.getApplicantData().mergeFrom(left.getApplicantData());
-    return right;
+    // The newer applicant is always preferred when more than one applicant
+    // matches an account.
+    newer.getApplicantData().mergeFrom(older.getApplicantData());
+    return newer;
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
