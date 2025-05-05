@@ -489,6 +489,9 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
                     : null);
 
+    // TODO: #9628 - If this is a repeated Q, and its parent is a duplicate for which the admin opts
+    // to create a new admin name, then we should dynamically add a badge here that indicates this
+    // Q's parent will *not* be the existing parent, but rather this new duplicated enumerator Q.
     DivTag row =
         div()
             .withClasses("flex", "gap-4", "items-center")
@@ -551,26 +554,32 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         .with(
             legend("How do you want to handle this duplicate question?")
                 .withClasses("usa-legend", "font-semibold", "text-base"),
+            // TODO: #9628 - Add dynamic disabling for the "use existing" options if this question
+            // has a parent enumerator question that is being duplicated with a new admin name
+            renderRadioOption(
+                AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
+                "USE_EXISTING",
+                span("Use the ").with(renderExistingQuestionLink(adminName)),
+                true),
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "CREATE_DUPLICATE",
                 "Create a new duplicate question",
-                true),
+                false),
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "OVERWRITE_EXISTING",
-                span("Overwrite all instances of ")
-                    .with(
-                        new LinkElement()
-                            .setText("existing question")
-                            .setHref(
-                                routes.AdminQuestionController.index(
-                                        Optional.of("Admin ID: " + adminName))
-                                    .url())
-                            .opensInNewTab()
-                            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-                            .asAnchorText()),
+                span("Overwrite all instances of ").with(renderExistingQuestionLink(adminName)),
                 false));
+  }
+
+  private static DomContent renderExistingQuestionLink(String adminName) {
+    return new LinkElement()
+        .setText("existing question")
+        .setHref(routes.AdminQuestionController.index(Optional.of("Admin ID: " + adminName)).url())
+        .opensInNewTab()
+        .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+        .asAnchorText();
   }
 
   /**
