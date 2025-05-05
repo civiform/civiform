@@ -126,7 +126,7 @@ lazy val root = (project in file("."))
         "javax.validation",
         "validation-api"
       ),
-      "io.swagger" % "swagger-parser" % "1.0.73",
+      "io.swagger" % "swagger-parser" % "1.0.74",
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.30",
