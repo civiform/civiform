@@ -176,7 +176,7 @@ public class OidcClientProviderTest extends ResetPostgres {
   @Test
   @TestCaseName("{index} {0} config get() should return null config")
   @Parameters(method = "provideConfigsForInvalidConfig")
-  @SuppressWarnings("unused")
+  @SuppressWarnings("unused") // name is only used in TestCaseName.
   public void get_invalidConfig(String name, ImmutableMap<String, String> c) {
     Config bad_secret_config = ConfigFactory.parseMap(c);
     assertThatThrownBy(
