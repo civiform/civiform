@@ -138,8 +138,9 @@ public class MessagesTest {
                 if (value.contains(prohibitedChar)) {
                   // German language has a different set of quotes, so we expect to see the left
                   // quote, but want to make sure the low right quote is also present.
-                  if (foreignLanguageFile.endsWith("de") && (!value.contains(LEFT_DOUBLE_QUOTATION_MARK)
-                        && !value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK))) {
+                  if (foreignLanguageFile.endsWith("de")
+                      && (!value.contains(LEFT_DOUBLE_QUOTATION_MARK)
+                          && !value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK))) {
                     assertThat(value)
                         .withFailMessage(
                             String.format(
