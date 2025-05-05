@@ -211,7 +211,9 @@
       <span th:text="${card.actionText()}"></span>
     </a>
 
-    <div th:replace="~{applicant/ModalFragment:: externalProgramModal}"></div>
+    <div
+      th:replace="~{applicant/ModalFragment:: externalProgramModal(${card.actionUrl()})}"
+    ></div>
   </th:block>
 
   <th:block th:unless="${card.programType().toString() == 'EXTERNAL'}">

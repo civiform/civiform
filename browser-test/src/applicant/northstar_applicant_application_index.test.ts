@@ -1324,7 +1324,11 @@ test.describe(
         await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
       })
 
-      // TODO(#10184): Accepting modal should redirect to the external program site
+      await test.step("Accepting the modal redirects to the external program's site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await modal.getByRole('button', {name: 'Continue'}).click()
+        await expect(page).toHaveURL('https://www.usa.gov')
+      })
     })
 
     async function submitApplicationAndApplyStatus(
