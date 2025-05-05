@@ -23,13 +23,11 @@ import support.ProgramBuilder;
 public class StatusServiceTest extends ResetPostgres {
   private ApplicationStatusesRepository applicationStatusesRepo;
   private StatusService service;
-  private ProgramService ps;
 
   @Before
   public void setup() {
     applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
     service = instanceOf(StatusService.class);
-    ps = instanceOf(ProgramService.class);
   }
 
   private static final StatusDefinitions.Status APPROVED_STATUS =
