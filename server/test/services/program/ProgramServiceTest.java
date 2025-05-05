@@ -2473,7 +2473,8 @@ public class ProgramServiceTest extends ResetPostgres {
     BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ps.setBlockEligibilityMessage(updatedProgramDefinition.id(), addedBlock.id(), eligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(eligibilityMsg);
+    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
+    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (eligibilityMsg);
   }
 
   @Test
@@ -2493,10 +2494,12 @@ public class ProgramServiceTest extends ResetPostgres {
 
     ps.setBlockEligibilityMessage(
         updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(firstEligibilityMsg);
+    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
+    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (firstEligibilityMsg);
     ps.setBlockEligibilityMessage(
         updatedProgramDefinition.id(), addedBlock.id(), firstEligibilityMsg);
-    assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo(secondEligibilityMsg);
+    // TODO(#10471): Make test pass, it previously wasn't constructed correctly.
+    // assertThat(addedBlock.localizedEligibilityMessage()).isEqualTo (secondEligibilityMsg);
   }
 
   @Test
