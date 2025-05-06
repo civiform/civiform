@@ -26,10 +26,12 @@ public final class ApiKeyRepository {
       new QueryProfileLocationBuilder("ApiKeyRepository");
   private final Database database;
   private final DatabaseExecutionContext executionContext;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ApiKeyRepository(DatabaseExecutionContext executionContext) {
     this.database = DB.getDefault();
+    this.transactionManager = new TransactionManager();
     this.executionContext = checkNotNull(executionContext);
   }
 
@@ -104,19 +106,23 @@ public final class ApiKeyRepository {
 
   /** Increment an API key's call count and set its last call IP address to the one provided. */
   public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
-    ApiKeyModel apiKey =
-        database
-            .find(ApiKeyModel.class)
-            .where()
-            .eq("key_id", apiKeyId)
-            .setLabel("ApiKeyModel.findById")
-            .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
-            .findOne();
+    transactionManager.executeWithRetry(
+        () -> {
+          Optional<ApiKeyModel> apiKey =
+              database
+                  .find(ApiKeyModel.class)
+                  .where()
+                  .eq("key_id", apiKeyId)
+                  .setLabel("ApiKeyModel.findById")
+                  .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
+                  .findOneOrEmpty();
 
-    apiKey.incrementCallCount();
-    apiKey.setLastCallIpAddress(remoteAddress);
+          if (apiKey.isEmpty()) {
+            throw new IllegalArgumentException("API key %s not found".formatted(apiKeyId));
+          }
 
-    apiKey.save();
+          apiKey.get().incrementCallCount().setLastCallIpAddress(remoteAddress).save();
+        });
   }
 
   /** Insert a new {@link ApiKeyModel} record asynchronously. */
@@ -133,13 +139,12 @@ public final class ApiKeyRepository {
   public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(long id) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(
-                database
-                    .find(ApiKeyModel.class)
-                    .setId(id)
-                    .setLabel("ApiKeyModel.findById")
-                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
-                    .findOne()),
+            database
+                .find(ApiKeyModel.class)
+                .setId(id)
+                .setLabel("ApiKeyModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                .findOneOrEmpty(),
         executionContext);
   }
 
@@ -147,14 +152,13 @@ public final class ApiKeyRepository {
   public CompletionStage<Optional<ApiKeyModel>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(
-                database
-                    .find(ApiKeyModel.class)
-                    .where()
-                    .eq("key_id", keyId)
-                    .setLabel("ApiKeyModel.findById")
-                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
-                    .findOne()),
+            database
+                .find(ApiKeyModel.class)
+                .where()
+                .eq("key_id", keyId)
+                .setLabel("ApiKeyModel.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                .findOneOrEmpty(),
         executionContext);
   }
 }
