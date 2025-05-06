@@ -1,12 +1,14 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ClientIpResolver;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -27,18 +29,23 @@ import services.settings.SettingsManifest;
 public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   private LogoutAllSessionsController controller;
   private CiviFormProfile testProfile;
+  private ProfileUtils profileUtils;
   private AccountRepository accountRepository;
   private ClientIpResolver clientIpResolver;
   private SettingsManifest settingsManifest;
 
   @Before
   public void setup() {
-    controller = instanceOf(LogoutAllSessionsController.class);
     accountRepository = instanceOf(AccountRepository.class);
 
+    profileUtils = mock(ProfileUtils.class);
     testProfile = mock(CiviFormProfile.class);
     clientIpResolver = mock(ClientIpResolver.class);
     settingsManifest = mock(SettingsManifest.class);
+
+    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class))).thenReturn(Optional.of(testProfile));
+
+    controller = new LogoutAllSessionsController(profileUtils, accountRepository, settingsManifest, clientIpResolver);
   }
 
   @Test
