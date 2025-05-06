@@ -89,4 +89,28 @@ export class AdminProgramMigration {
     await this.page.getByRole('button', {name: buttonText}).click()
     await waitForPageJsLoad(this.page)
   }
+
+  async selectCreateDuplicateForQuestion(adminName: string) {
+    await this.selectDuplicateHandlingOptionForQuestion(
+      'Create a new duplicate question',
+      adminName,
+    )
+  }
+
+  async selectOverwriteExistingForQuestion(adminName: string) {
+    await this.selectDuplicateHandlingOptionForQuestion(
+      'Overwrite all instances',
+      adminName,
+    )
+  }
+
+  async selectDuplicateHandlingOptionForQuestion(
+    option: string,
+    adminName: string,
+  ) {
+    await this.page
+      .getByTestId('question-admin-name-' + adminName)
+      .getByText(option)
+      .click()
+  }
 }

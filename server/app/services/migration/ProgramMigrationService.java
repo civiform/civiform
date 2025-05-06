@@ -14,16 +14,23 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
+import controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
 import models.QuestionModel;
+import models.VersionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
@@ -33,6 +40,8 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.question.ActiveAndDraftQuestions;
+import services.question.QuestionService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -45,6 +54,7 @@ import services.statuses.StatusDefinitions;
  * environments.
  */
 public final class ProgramMigrationService {
+  private static final Logger logger = LoggerFactory.getLogger(ProgramMigrationService.class);
   // We use `-_-` as the delimiter because it's unlikely to already be used in a question with a
   // name like `name - parent`.
   // It will transform to a key formatted like `%s__%s`
@@ -55,6 +65,7 @@ public final class ProgramMigrationService {
   private final ObjectMapper objectMapper;
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
+  private final QuestionService questionService;
   private final VersionRepository versionRepository;
 
   @Inject
@@ -63,6 +74,7 @@ public final class ProgramMigrationService {
       ObjectMapper objectMapper,
       ProgramRepository programRepository,
       QuestionRepository questionRepository,
+      QuestionService questionService,
       VersionRepository versionRepository) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
@@ -73,6 +85,7 @@ public final class ProgramMigrationService {
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
+    this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
   }
 
@@ -157,17 +170,61 @@ public final class ProgramMigrationService {
    *
    * <p>Return a map of old_question_name -> updated_question_data
    *
-   * <p>TODO: #9628 - Make private once legacy UI is cleaned up
+   * <p>TODO: #9628 - Make private once usage in {@link AdminImportController} is cleaned up
    */
   public ImmutableMap<String, QuestionDefinition> maybeOverwriteQuestionName(
       ImmutableList<QuestionDefinition> questions) {
-    List<String> newNamesSoFar = new ArrayList<>();
+    return overwriteDuplicateNames(questions, ImmutableList.of(), true);
+  }
+
+  /**
+   * Creates a new (unique) admin name for the specified questions.
+   *
+   * @param questions all the questions in the program
+   * @param duplicates the names of questions that are already in the db
+   * @return a map of old_question_name -> updated_question_data
+   */
+  private ImmutableMap<String, QuestionDefinition> overwriteDuplicateNames(
+      ImmutableList<QuestionDefinition> questions, ImmutableList<String> duplicates) {
+    return overwriteDuplicateNames(questions, duplicates, false);
+  }
+
+  private ImmutableMap<String, QuestionDefinition> overwriteDuplicateNames(
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> duplicates,
+      boolean checkAll) {
+    // If checkAll is true, then the admin has not manually specified which questions to create
+    // duplicate names for, and we should check every single question to figure out if it's a
+    // duplicate.
+    // If the admin has specified some questions which should be created as duplicates, we add all
+    // the other question names to the `newNamesSoFar` list right off the bat so that the
+    // duplicate-suffixing logic can't accidentally choose the same name as one of those other
+    // questions. See the saveImportedProgram_duplicateHandlingEnabled_newAndDuplicateNamesCollide
+    // test for an example.
+    List<String> newNamesSoFar =
+        checkAll
+            ? new ArrayList<>()
+            : questions.stream()
+                .map(QuestionDefinition::getName)
+                .filter(name -> !duplicates.contains(name))
+                .collect(Collectors.toList());
     return questions.stream()
         .collect(
             ImmutableMap.toImmutableMap(
                 QuestionDefinition::getName,
                 question -> {
-                  String newAdminName = findUniqueAdminName(question.getName(), newNamesSoFar);
+                  // If checkAll is true, then duplicate-handling is not specified by the admin, so
+                  // we should check every single question to figure out if it's a duplicate.
+                  // Otherwise, we can rely on the admin-specified duplicates input to tell us which
+                  // questions' admin names should be overwritten.
+                  boolean nameHasConflict =
+                      checkAll
+                          ? nameHasConflict(question.getName(), newNamesSoFar)
+                          : duplicates.contains(question.getName());
+                  String newAdminName =
+                      nameHasConflict
+                          ? generateUniqueAdminName(question.getName(), newNamesSoFar)
+                          : question.getName();
                   newNamesSoFar.add(newAdminName);
                   try {
                     return new QuestionDefinitionBuilder(question).setName(newAdminName).build();
@@ -183,11 +240,11 @@ public final class ProgramMigrationService {
    * saved. For example if the admin name is "sample question" and we already have <br>
    * "sample question -_- a" and "sample question -_- b" saved in the db, the generated name will be
    * "sample question -_- c".
+   *
+   * <p>Note: always generates a new name. Callers should ensure that the {@code adminName} already
+   * exists before calling this method.
    */
-  String findUniqueAdminName(String adminName, List<String> newNamesSoFar) {
-    if (!nameHasConflict(adminName, newNamesSoFar)) {
-      return adminName;
-    }
+  String generateUniqueAdminName(String adminName, List<String> newNamesSoFar) {
     // If the question name contains a suffix of the form " -_- a" (for example "admin name -_- a"),
     // we want to strip off the " -_- n" to find the base name. This also allows us to correctly
     // increment the suffix of the base admin name so we don't end up with admin names like "admin
@@ -266,22 +323,46 @@ public final class ProgramMigrationService {
    *
    * @param programDefinition the {@link ProgramDefinition} to save
    * @param questionDefinitions the {@link QuestionDefinition}s associated with the program
+   * @param duplicateHandlingOptions the {@link DuplicateQuestionHandlingOption} for each question
+   *     adminName
    * @param withDuplicates whether to allow duplicate question names
    * @param duplicateHandlingEnabled whether to allow admin-specified duplicate handling
+   * @return either the saved {@link ProgramModel} or a single error message
    */
-  public ProgramModel saveImportedProgram(
+  public ErrorAnd<ProgramModel, String> saveImportedProgram(
       ProgramDefinition programDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions,
+      ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
+          duplicateHandlingOptions,
       boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
     ProgramDefinition updatedProgram = programDefinition;
+    // Get the overwritten admin names
+    ImmutableList<String> overwrittenQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+
     if (questionDefinitions != null) {
-      if (duplicateHandlingEnabled && withDuplicates) {
-        // With the new duplicate-handling UI, we do not show admins a de-duped/suffixed admin
-        // name before saving the imported program. Instead, we must calculate that name at this
-        // point.
+      if (duplicateHandlingEnabled) {
+        if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
+          return ErrorAnd.error(
+              ImmutableSet.of(
+                  "Overwriting question definitions is only supported when there are no"
+                      + " existing drafts. Please publish all drafts and try again."));
+        }
+        // When admins can select how to handle duplicate questions, we do not show admins a
+        // de-duped/suffixed admin name before saving the imported program. We must calculate that
+        // name at this point.
         questionDefinitions =
-            ImmutableList.copyOf(maybeOverwriteQuestionName(questionDefinitions).values());
+            ImmutableList.copyOf(
+                overwriteDuplicateNames(
+                        questionDefinitions,
+                        Utils.getQuestionNamesForDuplicateHandling(
+                            duplicateHandlingOptions,
+                            ProgramMigrationWrapper.DuplicateQuestionHandlingOption
+                                .CREATE_DUPLICATE))
+                    .values());
       }
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
           questionDefinitions.stream()
@@ -297,34 +378,24 @@ public final class ProgramMigrationService {
           programDefinition.toBuilder().setBlockDefinitions(updatedBlockDefinitions).build();
     }
 
-    // TODO: #9628 - Support admin-specified duplicate handling per-question
     ProgramModel savedProgram =
         programRepository.insertProgramSync(
             new ProgramModel(updatedProgram, versionRepository.getDraftVersionOrCreate()));
 
-    // If we are re-using existing questions, we will put all programs in draft mode to ensure no
-    // errors. We could also go through each question being updated and see what program it
-    // applies to, but this is more straightforward.
-    if (!withDuplicates) {
-      ImmutableList<Long> programsInDraft =
-          versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
-              .map(p -> p.id)
-              .collect(ImmutableList.toImmutableList());
-      versionRepository
-          .getProgramsForVersion(versionRepository.getActiveVersion())
-          .forEach(
-              program -> {
-                if (!programsInDraft.contains(program.id)) {
-                  programRepository.createOrUpdateDraft(program);
-                }
-              });
-    }
-
+    addProgramsToDraft(overwrittenQuestions, withDuplicates, duplicateHandlingEnabled);
     // TODO(#8613) migrate application statuses for the program
     applicationStatusesRepository.createOrUpdateStatusDefinitions(
         updatedProgram.adminName(), new StatusDefinitions());
 
-    return savedProgram;
+    return ErrorAnd.of(savedProgram);
+  }
+
+  private boolean draftIsPopulated() {
+    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
+    return draftVersion.isPresent()
+        && (versionRepository.getProgramCountForVersion(draftVersion.get())
+                + versionRepository.getQuestionCountForVersion(draftVersion.get())
+            > 0);
   }
 
   /**
@@ -371,5 +442,54 @@ public final class ProgramMigrationService {
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return fullyUpdatedQuestions;
+  }
+
+  /**
+   * Adds programs to the draft version. Notably, we put all programs in the draft if the
+   * duplicate-handling UI is not used and we have no-duplicates enabled. And if the
+   * duplicate-handling UI is used, we put only the relevant programs in the draft.
+   */
+  @VisibleForTesting
+  void addProgramsToDraft(
+      ImmutableList<String> overwrittenAdminNames,
+      boolean withDuplicates,
+      boolean duplicateHandlingEnabled) {
+    if (duplicateHandlingEnabled) {
+      // If the admin has elected to overwrite some question definition(s), then we put only the
+      // programs that use that question(s) into the new draft.
+      ActiveAndDraftQuestions allQuestions =
+          questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions();
+      ImmutableList<ProgramDefinition> referencingPrograms =
+          overwrittenAdminNames.stream()
+              .map(name -> allQuestions.getReferencingPrograms(name))
+              .flatMap(references -> references.activeReferences().stream())
+              .distinct()
+              .collect(ImmutableList.toImmutableList());
+      for (ProgramDefinition referencingProgram : referencingPrograms) {
+        logger.info(
+            "Creating draft for program {} (ID: {}) since it references the overwritten"
+                + " question(s)",
+            referencingProgram.adminName(),
+            referencingProgram.id());
+        programRepository.createOrUpdateDraft(referencingProgram);
+      }
+    } else if (withDuplicates) {
+      // If the admin is not overwriting any question definitions, we don't need to put any programs
+      // into the draft.
+      return;
+    } else {
+      ImmutableList<Long> programsInDraft =
+          versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()).stream()
+              .map(p -> p.id)
+              .collect(ImmutableList.toImmutableList());
+      versionRepository
+          .getProgramsForVersion(versionRepository.getActiveVersion())
+          .forEach(
+              program -> {
+                if (!programsInDraft.contains(program.id)) {
+                  programRepository.createOrUpdateDraft(program);
+                }
+              });
+    }
   }
 }

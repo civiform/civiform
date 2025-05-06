@@ -1,20 +1,22 @@
 package controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ClientIpResolver;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.junit.Before;
@@ -27,18 +29,26 @@ import services.settings.SettingsManifest;
 public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   private LogoutAllSessionsController controller;
   private CiviFormProfile testProfile;
+  private ProfileUtils profileUtils;
   private AccountRepository accountRepository;
   private ClientIpResolver clientIpResolver;
   private SettingsManifest settingsManifest;
 
   @Before
   public void setup() {
-    controller = instanceOf(LogoutAllSessionsController.class);
     accountRepository = instanceOf(AccountRepository.class);
 
+    profileUtils = mock(ProfileUtils.class);
     testProfile = mock(CiviFormProfile.class);
     clientIpResolver = mock(ClientIpResolver.class);
     settingsManifest = mock(SettingsManifest.class);
+
+    when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
+        .thenReturn(Optional.of(testProfile));
+
+    controller =
+        new LogoutAllSessionsController(
+            profileUtils, accountRepository, settingsManifest, clientIpResolver);
   }
 
   @Test
@@ -49,7 +59,7 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testIndexWithProfile_withSession() {
+  public void testIndexWithProfile_withSession() throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     ApplicantModel applicant = createApplicantWithMockedProfile();
@@ -60,18 +70,18 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     when(testProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(account));
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    controller
-        .index(request)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+
+    CompletionStage<Result> resultStage = controller.index(request);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
-  public void testIndexWithProfile_withMultipleSessions() {
+  public void testIndexWithProfile_withMultipleSessions()
+      throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     ApplicantModel applicant = createApplicantWithMockedProfile();
@@ -83,18 +93,18 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     when(testProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(account));
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    controller
-        .index(request)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+
+    CompletionStage<Result> resultStage = controller.index(request);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
-  public void testLogoutWithAuthorityId_withSession() {
+  public void testLogoutWithAuthorityId_withSession()
+      throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
@@ -103,18 +113,18 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     String authorityId = setAndGetEncodedAuthorityId(account);
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    controller
-        .logoutFromAuthorityId(request, authorityId)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+
+    CompletionStage<Result> resultStage = controller.logoutFromAuthorityId(request, authorityId);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
-  public void testLogoutWithAuthorityId_withMultipleSessions() {
+  public void testLogoutWithAuthorityId_withMultipleSessions()
+      throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
@@ -124,18 +134,18 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     String authorityId = setAndGetEncodedAuthorityId(account);
 
     Http.Request request = fakeRequestBuilder().header(skipUserProfile, "false").build();
-    controller
-        .logoutFromAuthorityId(request, authorityId)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+
+    CompletionStage<Result> resultStage = controller.logoutFromAuthorityId(request, authorityId);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
-  public void testLogoutWithAuthorityId_withAllowedIps_allowed() {
+  public void testLogoutWithAuthorityId_withAllowedIps_allowed()
+      throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
@@ -149,18 +159,17 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
         .thenReturn(Optional.of(ImmutableList.of("allowed.ip")));
     when(clientIpResolver.resolveClientIp(request)).thenReturn("allowed.ip");
 
-    controller
-        .logoutFromAuthorityId(request, authorityId)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+    CompletionStage<Result> resultStage = controller.logoutFromAuthorityId(request, authorityId);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   @Test
-  public void testLogoutWithAuthorityId_withAllowedIps_notAllowed() {
+  public void testLogoutWithAuthorityId_withAllowedIps_notAllowed()
+      throws InterruptedException, ExecutionException {
     // Add active session to account
     Clock clock = Clock.fixed(Instant.ofEpochSecond(10), ZoneOffset.UTC);
     AccountModel account = new AccountModel();
@@ -174,14 +183,12 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
         .thenReturn(Optional.of(ImmutableList.of("allowed.ip")));
     when(clientIpResolver.resolveClientIp(request)).thenReturn("not.allowed.ip");
 
-    controller
-        .logoutFromAuthorityId(request, authorityId)
-        .thenAccept(
-            result -> {
-              AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
-              assertThat(updatedAccount.getActiveSessions()).isNotEmpty();
-              assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
-            });
+    CompletionStage<Result> resultStage = controller.logoutFromAuthorityId(request, authorityId);
+    Result result = resultStage.toCompletableFuture().get();
+
+    AccountModel updatedAccount = accountRepository.lookupAccount(account.id).get();
+    assertThat(updatedAccount.getActiveSessions()).isNotEmpty();
+    assertThat(result.redirectLocation()).isEqualTo(Optional.of("/"));
   }
 
   private String setAndGetEncodedAuthorityId(AccountModel account) {
@@ -189,6 +196,6 @@ public class LogoutAllSessionsControllerTest extends WithMockedProfiles {
     String authorityId = "iss: auth0 sub:" + account.id.toString();
     account.setAuthorityId(authorityId);
     account.save();
-    return URLEncoder.encode(authorityId, StandardCharsets.UTF_8);
+    return authorityId;
   }
 }

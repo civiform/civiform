@@ -15,6 +15,8 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import models.AccountModel;
@@ -171,7 +173,7 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeWithRetry_throws() {
+  public void executeWithRetry_supplier_throws() {
     // Force the workload to fail by running other transactions that conflict.
 
     List<String> innerEmails = ImmutableList.of("inneremail1@test.com", "inneremail2@test.com");
@@ -207,9 +209,13 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void executeWithRetry() {
+  public void executeWithRetry_supplier() {
     final String innerEmail = "inneremail@test.com";
-    AtomicReference<Boolean> innerTransactionHasRun = new AtomicReference<>(false);
+    AtomicBoolean innerTransactionHasRun = new AtomicBoolean(false);
+    // How many times setEmailAddress was successfully saved on outerAccount.
+    // Helps verify the test setup works; in that .save() is throwing an
+    // exception the first time.
+    AtomicInteger outerSetNumberOfTime = new AtomicInteger();
     AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
     initialAccount.insert();
     long accountId = initialAccount.id;
@@ -238,13 +244,101 @@ public class TransactionManagerTest extends ResetPostgres {
 
           outerAccount.setEmailAddress("updated@test.com");
           outerAccount.save();
+          // The first time through save() will throw the exception due to
+          // innerTransaction.  The second time will execute the entire method.
+          // Counting here ensures that the test setup is correct.
+          outerSetNumberOfTime.incrementAndGet();
           return outerAccount;
         };
 
-    transactionManager.executeWithRetry(modifyAccount);
-    initialAccount.refresh();
+    var outerAccount = transactionManager.executeWithRetry(modifyAccount);
+    assertThat(outerAccount.getEmailAddress()).isEqualTo("updated@test.com");
 
+    initialAccount.refresh();
     assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
+    assertThat(outerSetNumberOfTime.get()).isEqualTo(1);
+  }
+
+  @Test
+  public void executeWithRetry_runnable_throws() {
+    // Force the workload to fail by running other transactions that conflict.
+
+    List<String> innerEmails = ImmutableList.of("inneremail1@test.com", "inneremail2@test.com");
+    AtomicReference<Integer> counter = new AtomicReference<>(0);
+    AccountModel account = new AccountModel().setEmailAddress("initial@test.com");
+    account.insert();
+
+    Runnable modifyAccount =
+        () -> {
+          AccountModel outerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+
+          // Update the account in a different Transaction (requiresNew) before the current one
+          // finishes to trigger a serialization/ exception in the outer transaction.
+          // We need a different email each time as save() is a no-op if nothing changes.
+          try (Transaction innerTransaction =
+              DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+            AccountModel innerAccount = accountRepo.lookupAccount(account.id).orElseThrow();
+            innerAccount.setEmailAddress(innerEmails.get(counter.getAndSet(counter.get() + 1)));
+            innerAccount.save();
+            innerTransaction.commit();
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+        };
+
+    assertThrows(
+        SerializableConflictException.class,
+        () -> transactionManager.executeWithRetry(modifyAccount));
+    account.refresh();
+    assertThat(innerEmails.get(1)).isEqualTo(account.getEmailAddress());
+  }
+
+  @Test
+  public void executeWithRetry_runnable() {
+    final String innerEmail = "inneremail@test.com";
+    AtomicBoolean innerTransactionHasRun = new AtomicBoolean(false);
+    // How many times setEmailAddress was successfully saved on outerAccount.
+    // Helps verify the test setup works; in that .save() is throwing an
+    // exception the first time.
+    AtomicInteger outerSetNumberOfTime = new AtomicInteger();
+    AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
+    initialAccount.insert();
+    long accountId = initialAccount.id;
+
+    transactionManager.executeWithRetry(
+        () -> {
+          AccountModel outerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+
+          // Cause a concurrency error on the first run.
+          if (!innerTransactionHasRun.getAndSet(true)) {
+            // Update the account in a different Transaction (requiresNew)
+            // before the current one finishes to trigger a serialization
+            // exception in the outer transaction.
+            try (Transaction innerTransaction =
+                DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+              AccountModel innerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+              innerAccount.setEmailAddress(innerEmail);
+              innerAccount.save();
+              innerTransaction.commit();
+            }
+          } else {
+            // Verify the inner transaction change occurred and is visible on the retry.
+            AccountModel innerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
+            assertThat(innerAccount.getEmailAddress()).isEqualTo(innerEmail);
+          }
+
+          outerAccount.setEmailAddress("updated@test.com");
+          outerAccount.save();
+          // The first time through save() will throw the exception due to
+          // innerTransaction.  The second time will execute the entire method.
+          // Counting here ensures that the test setup is correct.
+          outerSetNumberOfTime.incrementAndGet();
+        });
+
+    initialAccount.refresh();
+    assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
+    assertThat(outerSetNumberOfTime.get()).isEqualTo(1);
   }
 
   /** Simulate when the work() supplier contains another transaction. */

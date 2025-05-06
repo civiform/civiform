@@ -1589,327 +1589,328 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   // Can't use multistring here because of escaped characters in predicates
   public static final String PROGRAM_JSON_WITH_PREDICATES =
-      "{\n"
-          + "  \"program\" : {\n"
-          + "    \"id\" : 1,\n"
-          + "    \"adminName\" : \"visibility-eligibility\",\n"
-          + "    \"adminDescription\" : \"\",\n"
-          + "    \"externalLink\" : \"\",\n"
-          + "    \"displayMode\" : \"PUBLIC\",\n"
-          + "    \"notificationPreferences\" : [ ],\n"
-          + "    \"localizedName\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"visibility and eligibility test\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedDescription\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"visibility and eligibility test\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"localizedConfirmationMessage\" : {\n"
-          + "      \"translations\" : {\n"
-          + "        \"en_US\" : \"\"\n"
-          + "      },\n"
-          + "      \"isRequired\" : true\n"
-          + "    },\n"
-          + "    \"blockDefinitions\" : [ {\n"
-          + "      \"id\" : 1,\n"
-          + "      \"name\" : \"Screen 1\",\n"
-          + "      \"description\" : \"Screen 1 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 1 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"or\",\n"
-          + "              \"children\" : [ {\n"
-          + "                \"node\" : {\n"
-          + "                  \"type\" : \"and\",\n"
-          + "                  \"children\" : [ {\n"
-          + "                    \"node\" : {\n"
-          + "                      \"type\" : \"leaf\",\n"
-          + "                      \"questionId\" : 3,\n"
-          + "                      \"scalar\" : \"SELECTIONS\",\n"
-          + "                      \"operator\" : \"ANY_OF\",\n"
-          + "                      \"value\" : {\n"
-          + "                        \"value\" : \"[\\\"0\\\", \\\"9\\\", \\\"11\\\"]\",\n"
-          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
-          + "                      }\n"
-          + "                    }\n"
-          + "                  }, {\n"
-          + "                    \"node\" : {\n"
-          + "                      \"type\" : \"leaf\",\n"
-          + "                      \"questionId\" : 3,\n"
-          + "                      \"scalar\" : \"SELECTION\",\n"
-          + "                      \"operator\" : \"IN\",\n"
-          + "                      \"value\" : {\n"
-          + "                        \"value\" : \"[\\\"1\\\"]\",\n"
-          + "                        \"type\" : \"LIST_OF_STRINGS\"\n"
-          + "                      }\n"
-          + "                    }\n"
-          + "                  } ]\n"
-          + "                }\n"
-          + "              } ]\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 3,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 2,\n"
-          + "      \"name\" : \"Screen 2\",\n"
-          + "      \"description\" : \"Screen 2 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 2\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 2 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : {\n"
-          + "        \"rootNode\" : {\n"
-          + "          \"node\" : {\n"
-          + "            \"type\" : \"leaf\",\n"
-          + "            \"questionId\" : 3,\n"
-          + "            \"scalar\" : \"ID\",\n"
-          + "            \"operator\" : \"EQUAL_TO\",\n"
-          + "            \"value\" : {\n"
-          + "              \"value\" : \"\\\"1\\\"\",\n"
-          + "              \"type\" : \"STRING\"\n"
-          + "            }\n"
-          + "          }\n"
-          + "        },\n"
-          + "        \"action\" : \"HIDE_BLOCK\"\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 4,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : false\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 3,\n"
-          + "      \"name\" : \"Screen 3\",\n"
-          + "      \"description\" : \"Screen 3 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 3 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"leafAddressServiceArea\",\n"
-          + "              \"questionId\" : 5,\n"
-          + "              \"serviceAreaId\" : \"Seattle\",\n"
-          + "              \"operator\" : \"IN_SERVICE_AREA\"\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 5,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : true\n"
-          + "      } ]\n"
-          + "    }, {\n"
-          + "      \"id\" : 4,\n"
-          + "      \"name\" : \"Screen 4\",\n"
-          + "      \"description\" : \"Screen 4 description\",\n"
-          + "      \"localizedName\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"localizedDescription\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Screen 4 description\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"repeaterId\" : null,\n"
-          + "      \"hidePredicate\" : null,\n"
-          + "      \"eligibilityDefinition\" : {\n"
-          + "        \"predicate\" : {\n"
-          + "          \"rootNode\" : {\n"
-          + "            \"node\" : {\n"
-          + "              \"type\" : \"leafAddressServiceArea\",\n"
-          + "              \"questionId\" : 6,\n"
-          + "              \"serviceAreaId\" : \"Seattle\",\n"
-          + "              \"operator\" : \"NOT_IN_SERVICE_AREA\"\n"
-          + "            }\n"
-          + "          },\n"
-          + "          \"action\" : \"ELIGIBLE_BLOCK\"\n"
-          + "        }\n"
-          + "      },\n"
-          + "      \"optionalPredicate\" : null,\n"
-          + "      \"questionDefinitions\" : [ {\n"
-          + "        \"id\" : 6,\n"
-          + "        \"optional\" : false,\n"
-          + "        \"addressCorrectionEnabled\" : true\n"
-          + "      } ]\n"
-          + "    } ],\n"
-          + "    \"programType\" : \"DEFAULT\",\n"
-          + "    \"eligibilityIsGating\" : true,\n"
-          + "    \"acls\" : {\n"
-          + "      \"tiProgramViewAcls\" : [ ]\n"
-          + "    },\n"
-          + "    \"localizedSummaryImageDescription\" : null,\n"
-          + "    \"categories\" : [ ],\n"
-          + "    \"applicationSteps\" : [ {\n"
-          + "      \"title\" : {\n"
-          + "         \"translations\" : {\n"
-          + "           \"en_US\" : \"step one\"\n"
-          + "         },\n"
-          + "         \"isRequired\" : true\n"
-          + "     },\n"
-          + "     \"description\" : {\n"
-          + "        \"translations\" : {\n"
-          + "        \"en_US\" : \"step one\"\n"
-          + "     },\n"
-          + "       \"isRequired\" : true\n"
-          + "     }\n"
-          + "   }]\n"
-          + "  },\n"
-          + "  \"questions\" : [ {\n"
-          + "    \"type\" : \"id\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"id-test\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Enter a number\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"id\",\n"
-          + "        \"minLength\" : null,\n"
-          + "        \"maxLength\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 3,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"text\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"text test\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"text test\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"text\",\n"
-          + "        \"minLength\" : null,\n"
-          + "        \"maxLength\" : null\n"
-          + "      },\n"
-          + "      \"id\" : 4,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"address\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"Address\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"What is your address?\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : { },\n"
-          + "        \"isRequired\" : false\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"address\",\n"
-          + "        \"disallowPoBox\" : false\n"
-          + "      },\n"
-          + "      \"id\" : 5,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  }, {\n"
-          + "    \"type\" : \"address\",\n"
-          + "    \"config\" : {\n"
-          + "      \"name\" : \"second-address\",\n"
-          + "      \"description\" : \"\",\n"
-          + "      \"questionText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Second address question\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"questionHelpText\" : {\n"
-          + "        \"translations\" : {\n"
-          + "          \"en_US\" : \"Second address question\"\n"
-          + "        },\n"
-          + "        \"isRequired\" : true\n"
-          + "      },\n"
-          + "      \"validationPredicates\" : {\n"
-          + "        \"type\" : \"address\",\n"
-          + "        \"disallowPoBox\" : false\n"
-          + "      },\n"
-          + "      \"id\" : 6,\n"
-          + "      \"universal\" : false,\n"
-          + "      \"primaryApplicantInfoTags\" : [ ]\n"
-          + "    }\n"
-          + "  } ]\n"
-          + "}";
+      """
+      {
+        "program" : {
+          "id" : 1,
+          "adminName" : "visibility-eligibility",
+          "adminDescription" : "",
+          "externalLink" : "",
+          "displayMode" : "PUBLIC",
+          "notificationPreferences" : [ ],
+          "localizedName" : {
+            "translations" : {
+              "en_US" : "visibility and eligibility test"
+            },
+            "isRequired" : true
+          },
+          "localizedDescription" : {
+            "translations" : {
+              "en_US" : "visibility and eligibility test"
+            },
+            "isRequired" : true
+          },
+          "localizedConfirmationMessage" : {
+            "translations" : {
+              "en_US" : ""
+            },
+            "isRequired" : true
+          },
+          "blockDefinitions" : [ {
+            "id" : 1,
+            "name" : "Screen 1",
+            "description" : "Screen 1 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 1 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "or",
+                    "children" : [ {
+                      "node" : {
+                        "type" : "and",
+                        "children" : [ {
+                          "node" : {
+                            "type" : "leaf",
+                            "questionId" : 3,
+                            "scalar" : "SELECTIONS",
+                            "operator" : "ANY_OF",
+                            "value" : {
+                              "value" : "[\\"0\\", \\"9\\", \\"11\\"]",
+                              "type" : "LIST_OF_STRINGS"
+                            }
+                          }
+                        }, {
+                          "node" : {
+                            "type" : "leaf",
+                            "questionId" : 3,
+                            "scalar" : "SELECTION",
+                            "operator" : "IN",
+                            "value" : {
+                              "value" : "[\\"1\\"]",
+                              "type" : "LIST_OF_STRINGS"
+                            }
+                          }
+                        } ]
+                      }
+                    } ]
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 3,
+              "optional" : false,
+              "addressCorrectionEnabled" : false
+            } ]
+          }, {
+            "id" : 2,
+            "name" : "Screen 2",
+            "description" : "Screen 2 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 2"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 2 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : {
+              "rootNode" : {
+                "node" : {
+                  "type" : "leaf",
+                  "questionId" : 3,
+                  "scalar" : "ID",
+                  "operator" : "EQUAL_TO",
+                  "value" : {
+                    "value" : "\\"1\\"",
+                    "type" : "STRING"
+                  }
+                }
+              },
+              "action" : "HIDE_BLOCK"
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 4,
+              "optional" : false,
+              "addressCorrectionEnabled" : false
+            } ]
+          }, {
+            "id" : 3,
+            "name" : "Screen 3",
+            "description" : "Screen 3 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 3"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 3 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "leafAddressServiceArea",
+                    "questionId" : 5,
+                    "serviceAreaId" : "Seattle",
+                    "operator" : "IN_SERVICE_AREA"
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 5,
+              "optional" : false,
+              "addressCorrectionEnabled" : true
+            } ]
+          }, {
+            "id" : 4,
+            "name" : "Screen 4",
+            "description" : "Screen 4 description",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 4"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 4 description"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "eligibilityDefinition" : {
+              "predicate" : {
+                "rootNode" : {
+                  "node" : {
+                    "type" : "leafAddressServiceArea",
+                    "questionId" : 6,
+                    "serviceAreaId" : "Seattle",
+                    "operator" : "NOT_IN_SERVICE_AREA"
+                  }
+                },
+                "action" : "ELIGIBLE_BLOCK"
+              }
+            },
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 6,
+              "optional" : false,
+              "addressCorrectionEnabled" : true
+            } ]
+          } ],
+          "programType" : "DEFAULT",
+          "eligibilityIsGating" : true,
+          "acls" : {
+            "tiProgramViewAcls" : [ ]
+          },
+          "localizedSummaryImageDescription" : null,
+          "categories" : [ ],
+          "applicationSteps" : [ {
+            "title" : {
+               "translations" : {
+                 "en_US" : "step one"
+               },
+               "isRequired" : true
+           },
+           "description" : {
+              "translations" : {
+              "en_US" : "step one"
+           },
+             "isRequired" : true
+           }
+         }]
+        },
+        "questions" : [ {
+          "type" : "id",
+          "config" : {
+            "name" : "id-test",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "Enter a number"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "id",
+              "minLength" : null,
+              "maxLength" : null
+            },
+            "id" : 3,
+            "universal" : false,
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "text",
+          "config" : {
+            "name" : "text test",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "text test"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "text",
+              "minLength" : null,
+              "maxLength" : null
+            },
+            "id" : 4,
+            "universal" : false,
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "address",
+          "config" : {
+            "name" : "Address",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "What is your address?"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "address",
+              "disallowPoBox" : false
+            },
+            "id" : 5,
+            "universal" : false,
+            "primaryApplicantInfoTags" : [ ]
+          }
+        }, {
+          "type" : "address",
+          "config" : {
+            "name" : "second-address",
+            "description" : "",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "Second address question"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : {
+                "en_US" : "Second address question"
+              },
+              "isRequired" : true
+            },
+            "validationPredicates" : {
+              "type" : "address",
+              "disallowPoBox" : false
+            },
+            "id" : 6,
+            "universal" : false,
+            "primaryApplicantInfoTags" : [ ]
+          }
+        } ]
+      }""";
 
   public static final String PROGRAM_JSON_WITH_PAI_TAGS =
       """

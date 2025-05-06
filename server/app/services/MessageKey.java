@@ -99,6 +99,7 @@ public enum MessageKey {
   BUTTON_EDIT_SR("button.editSr"),
   BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),
   BUTTON_EXIT_APPLICATION("button.exitApplication"),
+  BUTTON_GO_BACK("button.goBack"),
   BUTTON_GO_BACK_AND_EDIT("button.goBackAndEdit"),
   BUTTON_LANGUAGES("button.languages"), // North Star only
   BUTTON_LOGIN("button.login"),
@@ -134,6 +135,7 @@ public enum MessageKey {
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
+  BUTTON_VIEW_IN_NEW_WINDOW("button.viewInNewWindow"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),
@@ -164,6 +166,7 @@ public enum MessageKey {
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
   CONTENT_ELIGIBILITY_CRITERIA_V3("content.eligibilityCriteria.v3"), // North Star only
+  CONTENT_EXTERNAL_PROGRAM_MODAL("content.externalProgramModal"),
   CONTENT_EMAIL_TOOLTIP("content.emailTooltip"),
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
@@ -393,6 +396,7 @@ public enum MessageKey {
   TITLE_DISPLAY_MULTI_CLIENTS("title.displayingMultiClients"),
   TITLE_DISPLAY_ONE_CLIENT("title.displayingOneClient"),
   TITLE_EDIT_CLIENT("title.editClient"),
+  TITLE_EXTERNAL_PROGRAM_MODAL("title.externalProgramModal"),
   TITLE_FIND_SERVICES_SECTION("title.getStartedSection"),
   TITLE_GET_STARTED("title.getStarted"),
   TITLE_INELIGIBLE("title.ineligible"),

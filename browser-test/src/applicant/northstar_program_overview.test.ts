@@ -1,13 +1,14 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  ClientInformation,
   enableFeatureFlag,
   loginAsAdmin,
-  logout,
   loginAsTrustedIntermediary,
-  ClientInformation,
   loginAsTestUser,
-  validateScreenshot,
+  logout,
   validateAccessibility,
+  validateScreenshot,
+  setDirRtl,
 } from '../support'
 import {Eligibility} from '../support/admin_programs'
 
@@ -413,5 +414,19 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
+  })
+
+  test('renders right to left', async ({page}) => {
+    await page.goto(`/programs/${programName}`)
+    await setDirRtl(page)
+
+    await validateAccessibility(page)
+
+    await validateScreenshot(
+      page.locator('main'),
+      'program-overview-right-to-left',
+      /* fullPage= */ true,
+      /* mobileScreenshot= */ true,
+    )
   })
 })

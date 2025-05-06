@@ -8,6 +8,7 @@ import {
   validateAccessibility,
   loginAsTrustedIntermediary,
   ClientInformation,
+  setDirRtl,
 } from '../support'
 
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
@@ -244,5 +245,36 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
         /* northStarEnabled= */ true,
       )
     })
+  })
+
+  test('Applicant ineligible page renders right to left', async ({
+    page,
+    applicantQuestions,
+  }) => {
+    await loginAsTestUser(page)
+    await enableFeatureFlag(page, 'north_star_applicant_ui')
+
+    await test.step('Setup: submit application', async () => {
+      await applicantQuestions.applyProgram(
+        programName,
+        /* northStarEnabled=*/ true,
+      )
+
+      await applicantQuestions.answerNumberQuestion('0')
+      await applicantQuestions.clickContinue()
+    })
+
+    await test.step('Setup: set html direction to rtl', async () => {
+      await setDirRtl(page)
+    })
+
+    await validateScreenshot(
+      page,
+      'northstar-ineligible-right-to-left',
+      /* fullPage= */ false,
+      /* mobileScreenshot= */ true,
+    )
+
+    await validateAccessibility(page)
   })
 })

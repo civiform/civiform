@@ -25,12 +25,12 @@ public final class ApiKeyRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("ApiKeyRepository");
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
-  public ApiKeyRepository(DatabaseExecutionContext executionContext) {
+  public ApiKeyRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /**
@@ -126,7 +126,7 @@ public final class ApiKeyRepository {
           database.insert(apiKey);
           return apiKey;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   /** Find an ApiKey record by database primary ID asynchronously. */
@@ -140,7 +140,7 @@ public final class ApiKeyRepository {
                     .setLabel("ApiKeyModel.findById")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
                     .findOne()),
-        executionContext);
+        dbExecutionContext);
   }
 
   /** Find an ApiKey record by the key's string ID asynchronously. */
@@ -155,6 +155,6 @@ public final class ApiKeyRepository {
                     .setLabel("ApiKeyModel.findById")
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
                     .findOne()),
-        executionContext);
+        dbExecutionContext);
   }
 }

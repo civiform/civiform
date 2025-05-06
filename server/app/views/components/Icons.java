@@ -265,6 +265,11 @@ public enum Icons {
           + " 10.812Q16.583 10.417 16.583 9.979Q16.583 9.562 16.542 9.167Q16.5 8.771 16.396"
           + " 8.396H13.646Q13.708 8.938 13.74 9.302Q13.771 9.667 13.771 9.979Q13.771 10.312 13.74"
           + " 10.677Q13.708 11.042 13.646 11.583Z"),
+  // USWDS icon
+  LAUNCH(
+      24,
+      "M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83"
+          + " 9.83 1.41 1.41L19 6.41V10h2V3h-7z"),
   // Note that this icon is not from Google, but, rather, from USWDS.  It is part of the banner
   // component.
   LOCK(

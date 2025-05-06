@@ -49,21 +49,6 @@ svg {
 }
 // -- end
 
-/* Make the checkbox appear to the right of the label in RTL languages. */
-[dir='rtl'] .usa-checkbox__label::before {
-  position: relative;
-  display: inline-block;
-  margin-inline-end: 10px;
-}
-
-[dir='rtl'] .usa-logo {
-  margin-inline-start: 16px;
-}
-
-[dir='rtl'] .usa-banner__inner {
-  padding-inline-start: 16px;
-}
-
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -544,6 +529,14 @@ main {
     position: relative;
     display: inline-block;
     margin-inline-end: 10px;
+  }
+
+  .usa-logo {
+    margin-inline-start: 16px;
+  }
+
+  .usa-banner__inner {
+    padding-inline-start: 16px;
   }
 
   // -- start
