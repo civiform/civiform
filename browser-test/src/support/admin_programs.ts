@@ -1673,9 +1673,6 @@ export class AdminPrograms {
       case ProgramType.PRE_SCREENER:
         programId = 'common-intake-program-option'
         break
-      case ProgramType.PRE_SCREENER_FORM:
-        programId = 'common-intake-program-option'
-        break
       case ProgramType.EXTERNAL:
         programId = 'external-program-option'
         break

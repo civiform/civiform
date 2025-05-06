@@ -539,23 +539,8 @@ export class ApplicantQuestions {
 
   async expectPreScreenerForm(preScreenerFormName: string) {
     const preScreenerFormSectionNames =
-      await this.programNamesForSection('Get Started')
+      await this.programNamesForSection('Find services')
     expect(preScreenerFormSectionNames).toEqual([preScreenerFormName])
-  }
-
-  /**
-   *
-   * @param commonIntakeFormName
-   * @deprecated prefer using {@link expectPreScreenerFormNorthstar} instead
-   */
-  async expectCommonIntakeFormNorthstar(commonIntakeFormName: string) {
-    const sectionLocator = this.page.locator('[aria-label="Get Started"]')
-
-    const programTitlesLocator = sectionLocator.locator(
-      '.cf-application-card-title',
-    )
-
-    await expect(programTitlesLocator).toHaveText(preScreenerFormName)
   }
 
   async expectPreScreenerFormNorthstar(preScreenerFormName: string) {
