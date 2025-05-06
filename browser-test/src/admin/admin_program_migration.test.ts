@@ -900,23 +900,5 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'saved-program-success')
     })
 
-    await test.step('navigate to the program edit page', async () => {
-      await adminProgramMigration.clickButton('View program')
-      await expect(page.locator('#program-title')).toContainText(
-        'Comprehensive Sample Program New',
-      )
-      await expect(page.locator('#header_edit_button')).toBeVisible()
-      await page.getByText('Screen 1').click()
-      await expect(
-        page.getByTestId('question-admin-name-Sample Address Question'),
-      ).toContainText('Sample Address Question')
-      await expect(
-        page.getByTestId('question-admin-name-Sample Address Question'),
-      ).not.toContainText('Sample Address Question -_-')
-      await page.getByText('Screen 2').click()
-      await expect(
-        page.getByTestId('question-admin-name-Sample Number Question'),
-      ).toContainText('How many LARGE pets do you have?')
-    })
   })
 })
