@@ -1258,6 +1258,49 @@ test.describe(
       })
     })
 
+    test('External program card is not shown when feature flag is off', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const externalProgramName = 'External Program'
+
+      await test.step('add external program as an admin', async () => {
+        await loginAsAdmin(page)
+
+        // Feature flag must be enabled to be able to add an external program
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.publishProgram(externalProgramName)
+        await logout(page)
+      })
+
+      await test.step('disable feature flag', async () => {
+        await disableFeatureFlag(page, 'external_program_cards_enabled')
+      })
+
+      await test.step('external program card is not shown to applicant', async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+          /* northStarEnabled= */ true,
+        )
+      })
+    })
+
     test('Shows card for external program and opens external link', async ({
       page,
       adminPrograms,
