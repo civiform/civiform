@@ -47,17 +47,15 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
     logger.info("Starting job to calculate eligibility determination.");
 
     try (Transaction jobTransaction = database.beginTransaction()) {
+      transaction.setBatchMode(true);
       int errorCount = 0;
-      int applicationCount = 0;
 
       String filter =
           """
           eligibility_determination = 'NOT_COMPUTED'
           """;
       try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
-        // only execute 5000 applications per run to avoid crash
-        while (query.hasNext() && applicationCount < 5000) {
-          applicationCount++;
+        while (query.hasNext()) {
           try {
             ApplicationModel application = query.next();
             logger.info(
