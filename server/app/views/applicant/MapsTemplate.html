@@ -1,0 +1,28 @@
+<!doctype html>
+<html th:attr="lang=${preferredLanguage.code()},dir=${shouldDisplayRtl}? 'rtl'">
+  <head
+    th:replace="~{applicant/ApplicantBaseFragment :: pageHeaderScriptsAndLinks}"
+  ></head>
+  <body>
+    <div th:replace="~{applicant/ApplicantBaseFragment :: skipNav}"></div>
+    <div th:replace="~{applicant/NavigationFragment :: pageHeader}"></div>
+    <main id="main-content" tabindex="-1">
+      <div th:replace="~{components/ToastFragment :: programIndexToasts}"></div>
+      <div
+        id="top-content"
+        class="bg-primary-darker border-y border-primary padding-y-4 padding-x-2"
+      >
+        <div class="grid-container text-white usa-prose">
+          <h1 th:text="#{heading.homepage}"></h1>
+          <div th:text="#{content.homepageIntro}"></div>
+        </div>
+      </div>
+      <div class="display-flex flex-justify-center">
+        <!-- Map that will get populated by javascript in `maps.ts` -->
+        <div style="margin: 10px; height: 400px; width: 400px" id="map"></div>
+        <div style="margin: 10px; height: 400px; width: 400px">Test</div>
+      </div>
+    </main>
+    <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
+  </body>
+</html>
