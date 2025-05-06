@@ -269,7 +269,7 @@ public final class ProgramCardsSectionParamsFactory {
                 ? applicantRoutes.edit(profile.get(), applicantId.get(), programId).url()
                 : applicantRoutes.edit(programId).url();
       }
-      // If they are completing the common intake form for the first time, skip the program overview
+      // If they are completing the pre-screener form for the first time, skip the program overview
       // page
     } else if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
       actionUrl =
