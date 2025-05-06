@@ -184,7 +184,12 @@ public class TextFormatterTest extends ResetPostgres {
         .isEqualTo(
             """
                 <p>This is my list:</p>
-                <ul class="list-disc mx-8"><li>cream cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li></ul>
+                <ul class="list-disc mx-8">\
+                <li>cream cheese</li>\
+                <li>eggs</li>\
+                <li>sugar</li>\
+                <li>vanilla</li>\
+                </ul>
                 """);
   }
 
