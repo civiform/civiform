@@ -35,21 +35,23 @@ public class TextFormatterTest extends ResetPostgres {
     List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
-        "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
-            + " noreferrer\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\""
-            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
-            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
-            + " align-text-top\" aria-label=\", opens in a new tab\" role=\"img\">",
+      """
+        <a href="http://internet.website" class="text-blue-900 font-bold opacity-75 underline\
+         hover:opacity-100" target="_blank" rel="nofollow noopener\
+         noreferrer">http://internet.website<svg xmlns="http://www.w3.org/2000/svg"\
+         fill="currentColor" stroke="currentColor" stroke-width="1%"\
+         aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1\
+         align-text-top" aria-label=", opens in a new tab" role="img">""",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
-            + " noreferrer\">https://secure.website<svg xmlns=\"http://www.w3.org/2000/svg\""
-            + " fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\""
-            + " aria-hidden=\"false\" viewBox=\"0 0 24 24\" class=\"shrink-0 h-5 w-auto inline ml-1"
-            + " align-text-top\" aria-label=\", opens in a new tab\" role=\"img\">",
+      """
+        <a href="https://secure.website" class="text-blue-900 font-bold opacity-75 underline\
+         hover:opacity-100" target="_blank" rel="nofollow noopener\
+         noreferrer">https://secure.website<svg xmlns="http://www.w3.org/2000/svg"\
+         fill="currentColor" stroke="currentColor" stroke-width="1%"\
+         aria-hidden="false" viewBox="0 0 24 24" class="shrink-0 h-5 w-auto inline ml-1\
+         align-text-top" aria-label=", opens in a new tab" role="img">""",
         "</svg></a></p>\n");
   }
 
@@ -60,12 +62,13 @@ public class TextFormatterTest extends ResetPostgres {
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline"
-            + " hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is"
-            + " a link<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\""
-            + " stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"false\" viewBox=\"0 0 24"
-            + " 24\" class=\"shrink-0 h-5 w-auto inline ml-1 align-text-top\" aria-label=\", opens"
-            + " in a new tab\" role=\"img\">",
+      """
+        <a href="https://www.google.com" class="text-blue-900 font-bold opacity-75 underline\
+         hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">this is\
+         a link<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"\
+         stroke="currentColor" stroke-width="1%" aria-hidden="false" viewBox="0 0 24\
+         24" class="shrink-0 h-5 w-auto inline ml-1 align-text-top" aria-label=", opens\
+         in a new tab" role="img">""",
         "</svg></a></p>\n");
   }
 
@@ -80,82 +83,109 @@ public class TextFormatterTest extends ResetPostgres {
 
     assertThat(content.get(0).render())
         .isEqualTo(
-            "<p>Enter your full legal name.<span class=\"text-red-600"
-                + " font-semibold\" aria-hidden=\"true\">\u00a0*</span></p>\n");
+          """
+            <p>Enter your full legal name.<span class="text-red-600\
+             font-semibold" aria-hidden="true">\u00a0*</span></p>
+            """);
   }
 
   @Test
   public void insertsRequiredIndicatorBeforeLists() {
     ImmutableList<DomContent> contentWithUnorderedList =
         TextFormatter.formatText(
-            "Here is some text.\n" + "* list item one\n" + "* list item two",
+            """
+            Here is some text.
+            * list item one
+            * list item two""",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
-                + " *</span></p>\n"
-                + "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item"
-                + " two</li></ul>\n");
+            """
+                <p>Here is some text.<span class="text-red-600 font-semibold" aria-hidden="true"> *</span></p>
+                <ul class="list-disc mx-8"><li>list item one</li><li>list item two</li></ul>
+                """);
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
-            "Here is some text.\n" + "1. list item one\n" + "2. list item two",
+            """
+            Here is some text.
+            1. list item one
+            2. list item two""",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            "<p>Here is some text.<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
-                + " *</span></p>\n"
-                + "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item"
-                + " two</li></ol>\n");
+            """
+                <p>Here is some text.<span class="text-red-600 font-semibold" aria-hidden="true"> *</span></p>
+                <ol class="list-decimal mx-8"><li>list item one</li><li>list item two</li></ol>
+                """);
   }
 
   @Test
   public void insertsRequiredIndicatorAfterLists() {
     ImmutableList<DomContent> contentWithUnorderedList =
         TextFormatter.formatText(
-            "- list item one\n" + "- list item two\n" + "- list item three",
+          """
+            - list item one
+            - list item two
+            - list item three""",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            "<ul class=\"list-disc mx-8\"><li>list item one</li><li>list item two</li><li>list item"
-                + " three<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
-                + " *</span></li></ul>\n");
+          """
+            <ul class="list-disc mx-8"><li>list item one</li><li>list item two</li><li>list item\
+             three<span class="text-red-600 font-semibold" aria-hidden="true">\
+             *</span></li></ul>
+            """);
 
     ImmutableList<DomContent> contentWithOrderedList =
         TextFormatter.formatText(
-            "1. list item one\n" + "2. list item two\n" + "3. list item three",
+            """
+            1. list item one
+            2. list item two
+            3. list item three""",
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            "<ol class=\"list-decimal mx-8\"><li>list item one</li><li>list item two</li><li>list"
-                + " item three<span class=\"text-red-600 font-semibold\" aria-hidden=\"true\">"
-                + " *</span></li></ol>\n");
+            """
+            <ol class="list-decimal mx-8">\
+            <li>list item one</li>\
+            <li>list item two</li>\
+            <li>list item three\
+            <span class="text-red-600 font-semibold" aria-hidden="true"> *</span>\
+            </li></ol>
+            """);
   }
 
   @Test
   public void listRendersCorrectly() {
     String withList =
-        "This is my list:\n" + "* cream cheese\n" + "* eggs\n" + "* sugar\n" + "* vanilla";
+        """
+        This is my list:
+        * cream cheese
+        * eggs
+        * sugar
+        * vanilla""";
     ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
     assertThat(htmlContent)
         .isEqualTo(
-            "<p>This is my list:</p>\n"
-                + "<ul class=\"list-disc mx-8\"><li>cream"
-                + " cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li></ul>\n");
+            """
+                <p>This is my list:</p>
+                <ul class="list-disc mx-8"><li>cream cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li></ul>
+                """);
   }
 
   @Test
@@ -178,22 +208,23 @@ public class TextFormatterTest extends ResetPostgres {
     assertThat(htmlContent)
         .isEqualTo(
             """
-<p>This is my list:</p>
-<ol class="list-decimal mx-8"><li>cream cheese</li></ol>
-<p><strong>hello</strong></p>
-<ol start="2" class="list-decimal mx-8"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
-""");
+            <p>This is my list:</p>
+            <ol class="list-decimal mx-8"><li>cream cheese</li></ol>
+            <p><strong>hello</strong></p>
+            <ol start="2" class="list-decimal mx-8"><li>eggs</li><li>sugar</li><li>vanilla</li></ol>
+            """);
   }
 
   @Test
   public void preservesLines() {
     String withBlankLine =
-        "This is the first line of content.\n"
-            + "\n"
-            + "This is the second (or third) line of content.\n"
-            + "\n"
-            + "\n"
-            + "This is the third (or sixth) line of content.";
+      """
+        This is the first line of content.
+        
+        This is the second (or third) line of content.
+        
+        
+        This is the third (or sixth) line of content.""";
 
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
@@ -203,18 +234,22 @@ public class TextFormatterTest extends ResetPostgres {
             /* ariaLabelForNewTabs= */ "");
     assertThat(preservedBlanksContent.get(0).render())
         .isEqualTo(
-            "<p>This is the first line of content.<br /> </p>\n"
-                + "<p>This is the second (or third) line of content.<br /> </p>\n"
-                + "<p> </p>\n"
-                + "<p>This is the third (or sixth) line of content.</p>\n");
+          """
+            <p>This is the first line of content.<br /> </p>
+            <p>This is the second (or third) line of content.<br /> </p>
+            <p> </p>
+            <p>This is the third (or sixth) line of content.</p>
+            """);
 
     ImmutableList<DomContent> nonPreservedBlanksContent =
         TextFormatter.formatTextForAdmins(withBlankLine);
     assertThat(nonPreservedBlanksContent.get(0).render())
         .isEqualTo(
-            "<p>This is the first line of content.</p>\n"
-                + "<p>This is the second (or third) line of content.</p>\n"
-                + "<p>This is the third (or sixth) line of content.</p>\n");
+            """
+                <p>This is the first line of content.</p>
+                <p>This is the second (or third) line of content.</p>
+                <p>This is the third (or sixth) line of content.</p>
+                """);
   }
 
   @Test
@@ -224,9 +259,11 @@ public class TextFormatterTest extends ResetPostgres {
     ImmutableList<DomContent> formattedText = TextFormatter.formatTextForAdmins(stringWithMarkdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
-            "<h2>Hello!</h2>\n"
-                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
-                + " <code>inline code</code></p>\n");
+          """
+            <h2>Hello!</h2>
+            <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
+             <code>inline code</code></p>
+            """);
   }
 
   @Test
@@ -240,22 +277,25 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void replacesH1Tags() {
     String stringWithH1Markdown =
-        "# Header 1\n"
-            + "should be changed to h2 but\n"
-            + "## Header 2\n"
-            + "and\n"
-            + "### Header 3\n"
-            + " should be allowed";
+        """
+        # Header 1
+        should be changed to h2 but
+        ## Header 2
+        and
+        ### Header 3
+        should be allowed""";
     ImmutableList<DomContent> formattedText =
         TextFormatter.formatTextForAdmins(stringWithH1Markdown);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
-            "<h2>Header 1</h2>\n"
-                + "<p>should be changed to h2 but</p>\n"
-                + "<h2>Header 2</h2>\n"
-                + "<p>and</p>\n"
-                + "<h3 class=\"text-lg\">Header 3</h3>\n"
-                + "<p>should be allowed</p>\n");
+          """
+            <h2>Header 1</h2>
+            <p>should be changed to h2 but</p>
+            <h2>Header 2</h2>
+            <p>and</p>
+            <h3 class="text-lg">Header 3</h3>
+            <p>should be allowed</p>
+            """);
   }
 
   @Test
@@ -309,7 +349,9 @@ public class TextFormatterTest extends ResetPostgres {
   @Test
   public void formatTextToSanitizedHTMLWithAriaLabel_appliesMarkdownFormatting() {
     String stringWithMarkdown =
-        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+      """
+        # Hello!
+        This is a string with *italics* and **bold** and `inline code`""";
     String formattedText =
         TextFormatter.formatTextToSanitizedHTML(
             stringWithMarkdown,
@@ -318,9 +360,11 @@ public class TextFormatterTest extends ResetPostgres {
             "aria ");
     assertThat(formattedText)
         .isEqualTo(
-            "<h2>Hello!</h2>\n"
-                + "<p>This is a string with <em>italics</em> and <strong>bold</strong> and"
-                + " <code>inline code</code></p>\n");
+          """
+            <h2>Hello!</h2>
+            <p>This is a string with <em>italics</em> and <strong>bold</strong> and\
+             <code>inline code</code></p>
+            """);
   }
 
   @Test
