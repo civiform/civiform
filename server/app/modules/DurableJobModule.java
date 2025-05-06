@@ -73,7 +73,7 @@ public final class DurableJobModule extends AbstractModule {
         ApplicationEvolutions applicationEvolutions,
         ActorSystem actorSystem,
         Config config,
-        ExecutionContext executionContext,
+        ExecutionContext scalaExecutionContext,
         RecurringDurableJobRunner recurringDurableJobRunner,
         RecurringJobScheduler recurringJobScheduler,
         StartupDurableJobRunner startupDurableJobRunner,
@@ -102,7 +102,7 @@ public final class DurableJobModule extends AbstractModule {
                   recurringJobScheduler.scheduleJobs();
                   recurringDurableJobRunner.runJobs();
                 },
-                executionContext);
+                scalaExecutionContext);
         logger.trace("DurableJobRunnerScheduler - Task End");
       } else {
         logger.trace("Evolutions Not Ready");

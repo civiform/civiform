@@ -22,12 +22,12 @@ public final class StoredFileRepository {
       new QueryProfileLocationBuilder("StoredFileRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
-  public StoredFileRepository(DatabaseExecutionContext executionContext) {
+  public StoredFileRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /** Return all files in a set. */
@@ -39,7 +39,7 @@ public final class StoredFileRepository {
                 .setLabel("StoredFile.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("list"))
                 .findSet(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<List<StoredFileModel>> lookupFiles(ImmutableList<String> keyNames) {
@@ -52,7 +52,7 @@ public final class StoredFileRepository {
                 .where()
                 .in("name", keyNames)
                 .findList(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<StoredFileModel>> lookupFile(String keyName) {
@@ -66,7 +66,7 @@ public final class StoredFileRepository {
                     .where()
                     .eq("name", keyName)
                     .findOne()),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<StoredFileModel>> lookupFile(Long id) {
@@ -79,7 +79,7 @@ public final class StoredFileRepository {
                     .setProfileLocation(queryProfileLocationBuilder.create("lookupFile"))
                     .setId(id)
                     .findOne()),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> update(StoredFileModel storedFile) {
@@ -88,7 +88,7 @@ public final class StoredFileRepository {
           database.update(storedFile);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<StoredFileModel> insert(StoredFileModel file) {
@@ -97,6 +97,6 @@ public final class StoredFileRepository {
           database.insert(file);
           return file;
         },
-        executionContext);
+        dbExecutionContext);
   }
 }
