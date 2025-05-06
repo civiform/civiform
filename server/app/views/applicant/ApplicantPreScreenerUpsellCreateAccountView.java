@@ -34,14 +34,14 @@ import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
-/** Renders a confirmation page after application submission, for the common intake form. */
-public final class ApplicantCommonIntakeUpsellCreateAccountView extends ApplicantUpsellView {
+/** Renders a confirmation page after application submission, for the pre-screener form. */
+public final class ApplicantPreScreenerUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
   private final SettingsManifest settingsManifest;
 
   @Inject
-  public ApplicantCommonIntakeUpsellCreateAccountView(
+  public ApplicantPreScreenerUpsellCreateAccountView(
       ApplicantLayout layout, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -99,8 +99,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
 
     String title =
         profile.isTrustedIntermediary()
-            ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
-            : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
+            ? messages.at(MessageKey.TITLE_PRE_SCREENER_CONFIRMATION_TI.getKeyName())
+            : messages.at(MessageKey.TITLE_PRE_SCREENER_CONFIRMATION.getKeyName());
     var content =
         createMainContent(
             title,
@@ -150,15 +150,15 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           p(isTrustedIntermediary
                   ? rawHtml(
                       messages.at(
-                          MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI.getKeyName(),
+                          MessageKey.CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_TI.getKeyName(),
                           moreLink))
                   : rawHtml(
                       messages.at(
-                          MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS.getKeyName(),
+                          MessageKey.CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS.getKeyName(),
                           moreLink)))
               .withClasses("mb-4"),
           p(messages.at(
-                  MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP.getKeyName()))
+                  MessageKey.CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_NEXT_STEP.getKeyName()))
               .withClasses("mb-4"));
     }
 
@@ -180,8 +180,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                             .withClasses("mb-4")))),
         section(
             p(isTrustedIntermediary
-                    ? messages.at(MessageKey.CONTENT_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
-                    : messages.at(MessageKey.CONTENT_COMMON_INTAKE_CONFIRMATION.getKeyName()))
+                    ? messages.at(MessageKey.CONTENT_PRE_SCREENER_CONFIRMATION_TI.getKeyName())
+                    : messages.at(MessageKey.CONTENT_PRE_SCREENER_CONFIRMATION.getKeyName()))
                 .withClasses("mb-4")));
   }
 }

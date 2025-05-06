@@ -35,9 +35,9 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
+import views.applicant.ApplicantPreScreenerUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
-import views.applicant.NorthStarApplicantCommonIntakeUpsellView;
+import views.applicant.NorthStarApplicantPreScreenerUpsellView;
 import views.applicant.NorthStarApplicantUpsellView;
 import views.applicant.UpsellParams;
 import views.components.ToastMessage;
@@ -50,9 +50,9 @@ public final class UpsellController extends CiviFormController {
   private final ApplicationService applicationService;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
-  private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
+  private final ApplicantPreScreenerUpsellCreateAccountView cifUpsellView;
   private final NorthStarApplicantUpsellView northStarUpsellView;
-  private final NorthStarApplicantCommonIntakeUpsellView northStarCommonIntakeUpsellView;
+  private final NorthStarApplicantPreScreenerUpsellView northStarPreScreenerUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
   private final SettingsManifest settingsManifest;
@@ -66,9 +66,9 @@ public final class UpsellController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
-      ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
+      ApplicantPreScreenerUpsellCreateAccountView cifUpsellView,
       NorthStarApplicantUpsellView northStarApplicantUpsellView,
-      NorthStarApplicantCommonIntakeUpsellView northStarApplicantCommonIntakeUpsellView,
+      NorthStarApplicantPreScreenerUpsellView northStarApplicantPreScreenerUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
       SettingsManifest settingsManifest,
@@ -82,7 +82,7 @@ public final class UpsellController extends CiviFormController {
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.northStarUpsellView = checkNotNull(northStarApplicantUpsellView);
-    this.northStarCommonIntakeUpsellView = checkNotNull(northStarApplicantCommonIntakeUpsellView);
+    this.northStarPreScreenerUpsellView = checkNotNull(northStarApplicantPreScreenerUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -184,7 +184,7 @@ public final class UpsellController extends CiviFormController {
                       paramsBuilder
                           .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
                           .build();
-                  return ok(northStarCommonIntakeUpsellView.render(upsellParams))
+                  return ok(northStarPreScreenerUpsellView.render(upsellParams))
                       .as(Http.MimeTypes.HTML);
                 } else {
                   UpsellParams upsellParams =

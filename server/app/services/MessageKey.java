@@ -88,7 +88,7 @@ public enum MessageKey {
   BUTTON_CLOSE("button.close"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
-  BUTTON_CONTINUE_COMMON_INTAKE_SR("button.continueCommonIntakeSr"),
+  BUTTON_CONTINUE_PRE_SCREENER_SR("button.continuePreScreenerSr"),
   BUTTON_CONTINUE_EDITING("button.continueEditing"),
   BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT("button.continueWithoutAnAccount"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
@@ -97,7 +97,7 @@ public enum MessageKey {
   BUTTON_DOWNLOAD_PDF("button.downloadPdf"),
   BUTTON_EDIT("button.edit"),
   BUTTON_EDIT_SR("button.editSr"),
-  BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),
+  BUTTON_EDIT_PRE_SCREENER_SR("button.editPreScreenerSr"),
   BUTTON_EXIT_APPLICATION("button.exitApplication"),
   BUTTON_GO_BACK("button.goBack"),
   BUTTON_GO_BACK_AND_EDIT("button.goBackAndEdit"),
@@ -127,7 +127,7 @@ public enum MessageKey {
   BUTTON_START_SURVEY("button.startSurvey"),
   BUTTON_START_APP("button.startApp"),
   BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
-  BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
+  BUTTON_START_HERE_PRE_SCREENER_SR("button.startHerePreScreenerSr"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_SUBMIT_APPLICATION("button.submitApplication"), // North Star only
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
@@ -153,15 +153,15 @@ public enum MessageKey {
   CONTENT_CONFIRMED("content.confirmed"),
   CONTENT_DOES_NOT_QUALIFY("content.doesNotQualify"),
   CONTENT_DISABLED_PROGRAM_INFO("content.disabledProgramInfo"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION("content.commonIntakeConfirmation"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION_V2("content.commonIntakeConfirmation.v2"), // North Star only
-  CONTENT_COMMON_INTAKE_CONFIRMATION_TI("content.commonIntakeConfirmationTi"),
-  CONTENT_COMMON_INTAKE_CONFIRMATION_TI_V2(
-      "content.commonIntakeConfirmationTi.v2"), // North Star only
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS("content.commonIntakeNoMatchingPrograms"),
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
-      "content.commonIntakeNoMatchingProgramsNextStep"),
+  CONTENT_PRE_SCREENER_CONFIRMATION("content.preScreenerConfirmation"),
+  CONTENT_PRE_SCREENER_CONFIRMATION_V2("content.preScreenerConfirmation.v2"), // North Star only
+  CONTENT_PRE_SCREENER_CONFIRMATION_TI("content.preScreenerConfirmationTi"),
+  CONTENT_PRE_SCREENER_CONFIRMATION_TI_V2(
+      "content.preScreenerConfirmationTi.v2"), // North Star only
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS("content.preScreenerNoMatchingPrograms"),
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_TI("content.preScreenerNoMatchingProgramsTi"),
+  CONTENT_PRE_SCREENER_NO_MATCHING_PROGRAMS_NEXT_STEP(
+      "content.preScreenerNoMatchingProgramsNextStep"),
   CONTENT_OTHER_PROGRAMS_TO_APPLY_FOR("content.otherProgramsToApplyFor"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_ELIGIBILITY_CRITERIA_V2("content.eligibilityCriteria.v2"), // North Star only
@@ -383,14 +383,14 @@ public enum MessageKey {
   TITLE_ALL_CLIENTS("title.allClients"),
   TITLE_ALL_PROGRAMS_SECTION("title.allProgramsSection"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
-  TITLE_COMMON_INTAKE_CONFIRMATION("title.commonIntakeConfirmation"),
-  TITLE_COMMON_INTAKE_CONFIRMATION_TI("title.commonIntakeConfirmationTi"),
+  TITLE_PRE_SCREENER_CONFIRMATION("title.preScreenerConfirmation"),
+  TITLE_PRE_SCREENER_CONFIRMATION_TI("title.preScreenerConfirmationTi"),
   TITLE_CREATE_CLIENT("title.createClient"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_AVAILABLE_PROGRAMS_SECTION("title.availableProgramsSection"), // North Star only
   TITLE_BENEFITS_FINDER_SECTION_V2("title.benefitsFinderSection.v2"),
-  TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
+  TITLE_PRE_SCREENER_SUMMARY("title.preScreenerSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_DISPLAY_ALL_CLIENTS("title.displayingAllClients"),
   TITLE_DISPLAY_MULTI_CLIENTS("title.displayingMultiClients"),
