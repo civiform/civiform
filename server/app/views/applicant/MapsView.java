@@ -6,7 +6,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.mz.coronavirus.models.LocationStats;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -17,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 import modules.ThymeleafModule;
+import org.jetbrains.annotations.NotNull;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -129,16 +129,10 @@ public class MapsView extends NorthStarBaseView {
                   ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
 
-    List<LocationStats> locationStats = new ArrayList<>();
-    LocationStats location = new LocationStats();
-    location.setState("California");
-    location.setCountry("US");
-    location.setLatitude(37.877102);
-    location.setLongitude(-122.289917);
-    location.setLatestTotalCases(1);
-    locationStats.add(location);
+    List<Provider> allProviders = getProviderList();
+
     context.setVariable("myApplicationsSection", myApplicationsSection);
-    context.setVariable("locationStats", locationStats);
+    context.setVariable("allProviders", allProviders);
     context.setVariable("commonIntakeSection", intakeSection);
 
     context.setVariable("unfilteredSection", unfilteredSection);
@@ -157,6 +151,42 @@ public class MapsView extends NorthStarBaseView {
     context.setVariable("bannerMessage", bannerMessage);
 
     return templateEngine.process("applicant/MapsTemplate", context);
+  }
+
+  @NotNull
+  private static List<Provider> getProviderList() {
+    List<Provider> providerStats = new ArrayList<>();
+    Provider provider = new Provider();
+    provider.setName("Little Explorers Preschool");
+    provider.setAddress("123 Maple St, Seattle, WA 98101");
+    provider.setLatitude(47.6101);
+    provider.setLongitude(-122.3421);
+    providerStats.add(provider);
+    provider = new Provider();
+    provider.setName("Bright Beginnings Academy");
+    provider.setAddress("456 Pine St, Seattle, WA 98101");
+    provider.setLatitude(47.6119);
+    provider.setLongitude(-122.335);
+    providerStats.add(provider);
+    provider = new Provider();
+    provider.setName("Rainier Kids Center");
+    provider.setAddress("789 Rainier Ave S, Seattle, WA 98144");
+    provider.setLatitude(47.5902);
+    provider.setLongitude(-122.308);
+    providerStats.add(provider);
+    provider = new Provider();
+    provider.setName("Greenwood Daycare");
+    provider.setAddress("101 Greenwood Ave N, Seattle, WA 98103");
+    provider.setLatitude(47.6941);
+    provider.setLongitude(-122.355);
+    providerStats.add(provider);
+    provider = new Provider();
+    provider.setName("Capitol Hill Child Care");
+    provider.setAddress("202 Broadway E, Seattle, WA 98102");
+    provider.setLatitude(47.6215);
+    provider.setLongitude(-122.3208);
+    providerStats.add(provider);
+    return providerStats;
   }
 
   private ProgramSectionParams getCommonIntakeFormSection(

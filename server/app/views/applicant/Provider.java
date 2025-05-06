@@ -1,56 +1,25 @@
-package com.mz.coronavirus.models;
+package views.applicant;
 
-public class LocationStats {
+import lombok.Getter;
 
-  private String state;
-  private String country;
-  private int latestTotalCases;
-  private int diffFromPrevDay;
+@Getter
+public class Provider {
+
+  private String name;
+  private String address;
   private double latitude;
   private double longitude;
 
-  public int getDiffFromPrevDay() {
-    return diffFromPrevDay;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  public void setDiffFromPrevDay(int diffFromPrevDay) {
-    this.diffFromPrevDay = diffFromPrevDay;
-  }
-
-  public String getState() {
-    return state;
-  }
-
-  public void setState(String state) {
-    this.state = state;
-  }
-
-  public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
-  }
-
-  public int getLatestTotalCases() {
-    return latestTotalCases;
-  }
-
-  public void setLatestTotalCases(int latestTotalCases) {
-    this.latestTotalCases = latestTotalCases;
-  }
-
-  public double getLatitude() {
-    return latitude;
+  public void setAddress(String address) {
+    this.address = address;
   }
 
   public void setLatitude(double latitude) {
     this.latitude = latitude;
-  }
-
-  public double getLongitude() {
-    return longitude;
   }
 
   public void setLongitude(double longitude) {
@@ -59,21 +28,18 @@ public class LocationStats {
 
   @Override
   public String toString() {
-    return "LocationStats{"
-        + "state='"
-        + state
-        + '\''
-        + ", country='"
-        + country
-        + '\''
-        + ", latestTotalCases="
-        + latestTotalCases
-        + ", diffFromPrevDay="
-        + diffFromPrevDay
-        + ", latitude="
+    return "{"
+        + "\"name\":\""
+        + name
+        + "\", "
+        + "\"address\":\""
+        + address
+        + "\", "
+        + "\"latitude\":"
         + latitude
-        + ", longitude="
+        + ", "
+        + "\"longitude\":"
         + longitude
-        + '}';
+        + "}";
   }
 }

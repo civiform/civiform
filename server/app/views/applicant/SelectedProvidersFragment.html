@@ -1,0 +1,8 @@
+<tr
+  th:fragment="selectedProvider(name, address, hidden, fieldId)"
+  th:id="${fieldId}"
+  th:classappend="${hidden ? 'hidden' : ''}"
+>
+  <td th:text="${name}"></td>
+  <td th:text="${address}"></td>
+</tr>

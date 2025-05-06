@@ -20,9 +20,29 @@
       <div class="display-flex flex-justify-center">
         <!-- Map that will get populated by javascript in `maps.ts` -->
         <div style="margin: 10px; height: 400px; width: 400px" id="map"></div>
-        <div style="margin: 10px; height: 400px; width: 400px">Test</div>
-      </div>
-    </main>
+        <div id="all-providers" hidden th:value="${allProviders}"></div>
+        <table class="usa-table usa-table--borderless">
+          <caption>
+            Your selected providers
+          </caption>          
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Address</th>
+            </tr>          
+          </thead>
+          <tbody id="selected-providers">
+            <tr
+              th:replace="~{applicant/SelectedProvidersFragment :: selectedProvider(
+                name='', 
+                address='', 
+                hidden=true, 
+                fieldId=selected-provider-template
+              )}"
+             ></tr>
+          </tbody>
+        </table>
+        </div>
     <footer th:replace="~{applicant/NavigationFragment :: pageFooter}"></footer>
   </body>
 </html>

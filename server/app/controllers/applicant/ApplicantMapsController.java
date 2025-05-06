@@ -136,4 +136,17 @@ public final class ApplicantMapsController extends CiviFormController {
     }
     return indexWithApplicantId(request, applicantId.get(), categories);
   }
+
+  //  public Result getProviders() {
+  //    List<Provider> providerStats = new ArrayList<>();
+  //    Provider provider = new Provider();
+  //    provider.setState("California");
+  //    provider.setAddress("US");
+  //    provider.setLatitude(37.877102);
+  //    provider.setLongitude(-122.289917);
+  //    provider.setLatestTotalCases(1);
+  //    providerStats.add(provider);
+  //    System.out.println(providerStats);
+  //    return ok(providerStats.toString());
+  //  }
 }
