@@ -5,6 +5,7 @@ import {
   isLocalDevEnvironment,
   loginAsAdmin,
   logout,
+  setDirRtl,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -100,6 +101,16 @@ test.describe(
           await validateScreenshot(
             page.locator('main'),
             'verify-address-with-suggestions',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
+        })
+
+        await test.step('Validate address correction page rendered right to left', async () => {
+          await setDirRtl(page)
+          await validateScreenshot(
+            page.locator('main'),
+            'verify-address-with-suggestions-right-to-left',
             /* fullPage= */ true,
             /* mobileScreenshot= */ true,
           )
