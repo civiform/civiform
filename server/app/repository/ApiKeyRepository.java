@@ -132,7 +132,7 @@ public final class ApiKeyRepository {
           database.insert(apiKey);
           return apiKey;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   /** Find an ApiKey record by database primary ID asynchronously. */
