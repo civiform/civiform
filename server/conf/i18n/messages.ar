@@ -218,11 +218,11 @@ button.viewInNewWindow=View in new window
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=المتابعة إلى الطلب
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=البدء هنا من خلال ملء {0}
+button.startHerePreScreenerSr=Start here by filling out {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=تعديل المعلومات المُرسلة إلى {0}
+button.editPreScreenerSr=Edit submitted information for {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=متابعة ملء {0}
+button.continuePreScreenerSr=Continue filling out {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=تم إرسال الطلب في ‎{0}
 # Text for applicants to understand the section is for finding programs
@@ -468,7 +468,7 @@ ariaLabel.answer=يُرجى الإجابة عن السؤال "{0}"
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=يُرجى تعديل الإجابة عن السؤال "{0}"
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=ملخص مزايا برنامج الفحص المُسبق للطلبات
+title.preScreenerSummary=Benefits pre-screener summary
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=لنبدأ بالإجابة عن الأسئلة.
 title.programSummary=ملخّص طلب البرنامج
@@ -609,23 +609,23 @@ content.generalLoginModalPrompt=لم يتم تسجيل الدخول إلى حس�
 content.initialLoginModalPrompt=قبل المتابعة، يُرجى تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد. سيتيح لك ذلك إرسال طلبات للانضمام إلى عدة برامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات والاطّلاع على حالتها.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=المتابعة بدون حساب
-title.commonIntakeConfirmation=برامج قد يكون حسابك مؤهلاً للانضمام إليها
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=برامج قد يكون عميلك مؤهلاً للانضمام إليها
+title.preScreenerConfirmation=Programs you may qualify for
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=قد يكون بإمكانك التسجيل في هذه البرامج من خلال إرسال طلب على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
+content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=بناءً على ردودك، قد يكون حسابك مؤهلاً للانضمام إلى البرامج التالية:
+content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=قد يكون بإمكان عميلك التسجيل في هذه البرامج إذا أرسلت طلبًا على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
+content.preScreenerConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=بناءً على ردودك، قد يكون حساب عميلك مؤهلاً للانضمام إلى البرامج التالية:
+content.preScreenerConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون حسابك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
+content.preScreenerNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون عميلك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
+content.preScreenerNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
+content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
