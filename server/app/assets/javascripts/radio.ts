@@ -8,8 +8,6 @@ class RadioController {
   static selectedRadioClasses = ['border-civiform-blue', 'bg-blue-200']
   static unselectedRadioClasses = ['border-gray-500', 'bg-white']
 
-  // not this class's fault I don't think
-  // is there a uswds js or ts file?
   constructor() {
     this.addRadioListeners()
   }
@@ -21,7 +19,6 @@ class RadioController {
    * is shown so that the BF cache doesn't put us in a bad state.
    */
   public static initializeRadios() {
-    console.log("initializeRadios");
     const radios = Array.from(
       document.querySelectorAll(RadioController.radioInputClass),
     )
@@ -30,7 +27,6 @@ class RadioController {
       const container = radio.closest(RadioController.radioOptionClass)
       const radioChecked = (radio as HTMLInputElement).checked
       if (container) {
-        console.log("there is container");
         RadioController.selectedRadioClasses.forEach((selectedClass) =>
           container.classList.toggle(selectedClass, radioChecked),
         )
@@ -40,14 +36,12 @@ class RadioController {
 
   /** Add listeners to radio buttons to change style on selection. */
   addRadioListeners() {
-    console.log("addRadioListeners");
     const radios = Array.from(
       document.querySelectorAll(RadioController.radioInputClass),
     )
     radios.forEach((radio) => {
       // Add listener to radio button.
       radio.addEventListener('change', (e) => {
-        console.log("radio event listener");
         const targetElement = e.target as HTMLInputElement
         const radioName = assertNotNull(targetElement.getAttribute('name'))
         let checkCount = 0

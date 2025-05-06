@@ -594,14 +594,18 @@ main {
   }
   // -- end
 
-  // .usa-radio__label::before {
-  //   display: inline-block;
-  //   right: 1rem;
-  // }
+  .usa-radio__label::before {
+    display: inline-block;
+    right: 1rem;
+  }
 
-  // .usa-radio__label > div {
-  //   margin-inline-start: 2.5rem;
-  // }
+  .usa-radio__label > div {
+    margin-inline-start: 2.5rem;
+  }
+
+  .usa-radio__input {
+    position: fixed;
+  }
 
   #summary-multiline-list {
     margin: 0;
