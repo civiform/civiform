@@ -29,11 +29,13 @@ public final class ApplicationEventRepository {
       new QueryProfileLocationBuilder("ApplicationEventRepository");
   private final Database database;
   private final DatabaseExecutionContext dbExecutionContext;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ApplicationEventRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = checkNotNull(DB.getDefault());
     this.dbExecutionContext = checkNotNull(dbExecutionContext);
+    this.transactionManager = new TransactionManager();
   }
 
   /**
@@ -89,7 +91,7 @@ public final class ApplicationEventRepository {
     ApplicationEventModel event = new ApplicationEventModel(application, optionalAdmin, details);
     return supplyAsync(
         () -> {
-          try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
+          transactionManager.execute(()-> {
             insertSync(event);
             // Saves the latest note on the applications table too.
             // If the status is removed from an application, then the latest_status column needs
@@ -111,8 +113,7 @@ public final class ApplicationEventRepository {
                 .eq("id", application.id)
                 .update();
             application.save();
-            transaction.commit();
-          }
+          });
           return event;
         },
         dbExecutionContext.current());
