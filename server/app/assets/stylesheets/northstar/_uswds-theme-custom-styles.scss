@@ -49,21 +49,6 @@ svg {
 }
 // -- end
 
-/* Make the checkbox appear to the right of the label in RTL languages. */
-[dir='rtl'] .usa-checkbox__label::before {
-  position: relative;
-  display: inline-block;
-  margin-inline-end: 10px;
-}
-
-[dir='rtl'] .usa-logo {
-  margin-inline-start: 16px;
-}
-
-[dir='rtl'] .usa-banner__inner {
-  padding-inline-start: 16px;
-}
-
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -546,8 +531,16 @@ main {
     margin-inline-end: 10px;
   }
 
+  .usa-logo {
+    margin-inline-start: 16px;
+  }
+
+  .usa-banner__inner {
+    padding-inline-start: 16px;
+  }
+
   // -- start
-  /* Make the info icon appear to the right of the label in RTL languages. */
+  /* Make the info/alert icons appear to the right of the label in RTL languages. */
   .usa-alert__body::before {
     display: inline-block;
     right: 1rem;
@@ -557,17 +550,33 @@ main {
     right: 1.625rem;
   }
 
-  .usa-alert {
+  .usa-alert:not(.usa-alert--warning) {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: #00bde3;
   }
 
+  .usa-alert--warning {
+    border-left-width: 0px;
+    border-right-width: 8px;
+    border-right-color: #ffbe2e;
+  }
+
   .usa-alert .usa-alert__heading,
   .usa-alert .usa-alert__text,
   .usa-alert .grid-row,
-  .usa-alert p {
+  .usa-alert p,
+  .usa-alert .usa-list {
     margin-inline-start: 2.5rem;
+  }
+
+  // Prevent extra padding from getting added between list marker and paragraph
+  .usa-alert li p {
+    margin-inline-start: 0rem;
+  }
+
+  .usa-alert .usa-alert__body .usa-list {
+    padding-inline-start: 2ch;
   }
 
   .usa-alert .usa-button {
@@ -586,14 +595,4 @@ main {
     padding-right: 20px;
   }
   // -- end
-}
-
-/* Override margin values to support RTL languages. */
-.usa-identifier__logos {
-  margin-right: 0;
-  margin-inline-end: 1rem;
-}
-
-.cf-header-logo {
-  padding-inline-end: 1rem;
 }
