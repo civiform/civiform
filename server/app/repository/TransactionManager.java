@@ -89,9 +89,10 @@ public final class TransactionManager {
     Optional<T> returnValue = Optional.empty();
     try {
       returnValue = Optional.of(execute(synchronousWork));
-    } catch (SerializableConflictException ignored) {
-      // Ignore the exception and retry, allowing subsequent exceptions to be
+    } catch (SerializableConflictException sce) {
+      // Log the exception and retry, allowing subsequent exceptions to be
       // surfaced.
+      logRetriedException(sce);
     }
 
     return returnValue.orElseGet(() -> execute(synchronousWork));
@@ -103,11 +104,20 @@ public final class TransactionManager {
     try {
       execute(synchronousWork);
       return;
-    } catch (SerializableConflictException ignored) {
-      // Ignore the exception and retry, allowing subsequent exceptions to be
+    } catch (SerializableConflictException sce) {
+      // Log the exception and retry, allowing subsequent exceptions to be
       // surfaced.
+      logRetriedException(sce);
     }
 
     execute(synchronousWork);
+  }
+
+  private void logRetriedException(SerializableConflictException sce) {
+    logger.info(
+        "DB concurrency collision occurred and retried. In isolation "
+            + "this is working as intended. If there are more it may indicate a "
+            + "coding error or a more severe issue.",
+        sce);
   }
 }
