@@ -25,14 +25,14 @@ public final class ApiKeyRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("ApiKeyRepository");
   private final Database database;
-  private final DatabaseExecutionContext dbExecutionContext;
   private final TransactionManager transactionManager;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
   public ApiKeyRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = DB.getDefault();
-    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.transactionManager = new TransactionManager();
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /**
