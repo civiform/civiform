@@ -37,18 +37,18 @@ public final class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final AccountRepository accountRepository;
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
   private static final Logger logger = LoggerFactory.getLogger(ApplicationRepository.class);
 
   @Inject
   public ApplicationRepository(
       ProgramRepository programRepository,
       AccountRepository accountRepository,
-      DatabaseExecutionContext executionContext) {
+      DatabaseExecutionContext dbExecutionContext) {
     this.programRepository = checkNotNull(programRepository);
     this.accountRepository = checkNotNull(accountRepository);
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   @VisibleForTesting
@@ -61,7 +61,7 @@ public final class ApplicationRepository {
         () ->
             submitApplicationInternal(
                 applicant, program, tiSubmitterEmail, eligibilityDetermination),
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /**
@@ -273,7 +273,7 @@ public final class ApplicationRepository {
       ApplicantModel applicant, ProgramModel program) {
     return supplyAsync(
         () -> createOrUpdateDraftApplicationInternal(applicant, program),
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /**
@@ -298,7 +298,7 @@ public final class ApplicationRepository {
                 .setLabel("ApplicationModel.findById")
                 .setProfileLocation(queryProfileLocationBuilder.create("getApplication"))
                 .findOneOrEmpty(),
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   public List<ApplicationModel> getApplications(ImmutableList<Long> applicationIds) {
@@ -335,7 +335,7 @@ public final class ApplicationRepository {
               .stream()
               .collect(ImmutableSet.toImmutableSet());
         },
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /**

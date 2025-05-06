@@ -51,7 +51,7 @@ public final class ProgramRepository {
       new QueryProfileLocationBuilder("ProgramRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
@@ -60,14 +60,14 @@ public final class ProgramRepository {
 
   @Inject
   public ProgramRepository(
-      DatabaseExecutionContext executionContext,
+      DatabaseExecutionContext dbExecutionContext,
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
       @NamedCache("full-program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
@@ -81,9 +81,9 @@ public final class ProgramRepository {
         && versionRepository.get().getDraftVersion().isEmpty()) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
-          executionContext);
+          dbExecutionContext);
     }
-    return supplyAsync(() -> lookupProgramSync(id), executionContext);
+    return supplyAsync(() -> lookupProgramSync(id), dbExecutionContext);
   }
 
   public boolean checkProgramAdminNameExists(String name) {
@@ -310,7 +310,7 @@ public final class ProgramRepository {
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /** Get the current draft program with the provided slug. */
