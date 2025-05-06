@@ -48,17 +48,17 @@ public final class AccountRepository {
 
   private final Database database;
   private final TransactionManager transactionManager;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Clock clock;
   private final SettingsManifest settingsManifest;
   private final SessionLifecycle sessionLifecycle;
 
   @Inject
   public AccountRepository(
-      DatabaseExecutionContext executionContext, Clock clock, SettingsManifest settingsManifest) {
+      DatabaseExecutionContext dbExecutionContext, Clock clock, SettingsManifest settingsManifest) {
     this.database = DB.getDefault();
     this.transactionManager = new TransactionManager();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.clock = clock;
     this.settingsManifest = checkNotNull(settingsManifest);
 
@@ -79,7 +79,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("listApplicants"))
                 .findSet(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicant(long id) {
@@ -91,7 +91,7 @@ public final class AccountRepository {
                 .setLabel("ApplicantModel.findById")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupApplicant"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public Optional<AccountModel> lookupAccountByAuthorityId(String authorityId) {
@@ -134,7 +134,7 @@ public final class AccountRepository {
                 .setLabel("AccountModel.findByEmail")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupAccountByEmailAsync"))
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   /**
@@ -158,12 +158,12 @@ public final class AccountRepository {
       String authorityId) {
     return supplyAsync(
         () -> lookupAccountByAuthorityId(authorityId).map(this::getOrCreateApplicant),
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
-        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), executionContext);
+        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), dbExecutionContext);
   }
 
   public CompletionStage<Void> insertApplicant(ApplicantModel applicant) {
@@ -172,7 +172,7 @@ public final class AccountRepository {
           database.insert(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> updateApplicant(ApplicantModel applicant) {
@@ -181,7 +181,7 @@ public final class AccountRepository {
           database.update(applicant);
           return null;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public void updateTiClient(
@@ -246,7 +246,7 @@ public final class AccountRepository {
                   right.setAccount(account).save();
                   return mergeApplicants(left, right).saveAndReturn();
                 }),
-        executionContext);
+        dbExecutionContext);
   }
 
   /** Merge the applicant data from older applicant into the newer applicant. */
