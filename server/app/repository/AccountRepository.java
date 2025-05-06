@@ -163,7 +163,8 @@ public final class AccountRepository {
 
   public CompletionStage<Optional<ApplicantModel>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
-        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), dbExecutionContext);
+        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant),
+        dbExecutionContext);
   }
 
   public CompletionStage<Void> insertApplicant(ApplicantModel applicant) {
