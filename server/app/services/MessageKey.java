@@ -171,6 +171,7 @@ public enum MessageKey {
   CONTENT_FIND_PROGRAMS("content.findPrograms"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),
   CONTENT_HOMEPAGE_INTRO("content.homepageIntro"), // North Star only
+  CONTENT_HOMEPAGE_INTRO_V2("content.homepageIntro.v2"), // North Star only
   CONTENT_LAST_APPLICATION_DATE("content.lastApplicationDate"),
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_DISABLED_PROMPT("content.loginDisabledPrompt"),
@@ -257,6 +258,7 @@ public enum MessageKey {
   HEADING_FOR_YOUR_RECORDS("heading.forYourRecords"), // North Star only
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
   HEADING_HOMEPAGE("heading.homepage"), // North Star only
+  HEADING_HOMEPAGE_V2("heading.homepage.v2"), // North Star only
   HEADING_NEXT_STEPS("heading.nextSteps"), // North Star only
   HEADING_PROGRAM_OVERVIEW("heading.programOverview"), // North Star only
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
