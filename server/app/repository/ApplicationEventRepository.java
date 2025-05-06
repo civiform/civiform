@@ -28,12 +28,12 @@ public final class ApplicationEventRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("ApplicationEventRepository");
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
 
   @Inject
-  public ApplicationEventRepository(DatabaseExecutionContext executionContext) {
+  public ApplicationEventRepository(DatabaseExecutionContext dbExecutionContext) {
     this.database = checkNotNull(DB.getDefault());
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
   }
 
   /**
@@ -115,7 +115,7 @@ public final class ApplicationEventRepository {
           }
           return event;
         },
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /**

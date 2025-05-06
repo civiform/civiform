@@ -143,14 +143,13 @@ public class MessagesTest {
                         && value.contains(LOW_RIGHT_DOUBLE_QUOTATION_MARK)) {
                       continue;
                     }
-                  } else {
-                    assertThat(value)
-                        .withFailMessage(
-                            String.format(
-                                "Value for key '%s' contains prohibited character '%s'",
-                                key, prohibitedChar))
-                        .doesNotContain(PROHIBITED_CHARACTERS);
                   }
+                  assertThat(value)
+                      .withFailMessage(
+                          String.format(
+                              "Value for key '%s' contains prohibited character '%s'",
+                              key, prohibitedChar))
+                      .doesNotContain(PROHIBITED_CHARACTERS);
                 }
               }
             });

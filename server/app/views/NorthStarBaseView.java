@@ -89,6 +89,7 @@ public abstract class NorthStarBaseView {
     boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     context.setVariable("userIsAdmin", userIsAdmin);
     context.setVariable("goBackIcon", Icons.ARROW_LEFT);
+    context.setVariable("launchIcon", Icons.LAUNCH);
 
     // Language selector params
     Lang preferredLanguage = languageUtils.getPreferredLanguage(request);

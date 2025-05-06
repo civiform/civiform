@@ -38,15 +38,15 @@ public final class QuestionRepository {
       new QueryProfileLocationBuilder("QuestionRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionRepository(
-      DatabaseExecutionContext executionContext,
+      DatabaseExecutionContext dbExecutionContext,
       Provider<VersionRepository> versionRepositoryProvider) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
@@ -58,7 +58,7 @@ public final class QuestionRepository {
                 .setLabel("QuestionModel.findSet")
                 .setProfileLocation(queryProfileLocationBuilder.create("listQuestions"))
                 .findSet(),
-        executionContext);
+        dbExecutionContext);
   }
 
   public QuestionDefinition getQuestionDefinition(QuestionModel question) {
@@ -74,7 +74,7 @@ public final class QuestionRepository {
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
                 .setId(id)
                 .findOneOrEmpty(),
-        executionContext);
+        dbExecutionContext);
   }
 
   /**
@@ -323,7 +323,7 @@ public final class QuestionRepository {
           database.insert(question);
           return question;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public void insertQuestionSync(QuestionModel question) {
@@ -336,7 +336,7 @@ public final class QuestionRepository {
           database.update(question);
           return question;
         },
-        executionContext);
+        dbExecutionContext);
   }
 
   public void updateQuestionSync(QuestionModel question) {

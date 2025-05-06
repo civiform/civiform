@@ -2,6 +2,8 @@ package services.migration;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.admin.ProgramMigrationWrapper;
+import java.util.Map;
 import java.util.Optional;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
@@ -203,5 +205,15 @@ final class Utils {
     Long oldQuestionId = leafNode.questionId();
     String questionAdminName = questionsOnJsonById.get(oldQuestionId).getName();
     return updatedQuestionsMap.get(questionAdminName).getId();
+  }
+
+  static ImmutableList<String> getQuestionNamesForDuplicateHandling(
+      ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
+          duplicateHandlingPerQuestion,
+      ProgramMigrationWrapper.DuplicateQuestionHandlingOption duplicateHandling) {
+    return duplicateHandlingPerQuestion.entrySet().stream()
+        .filter(entry -> entry.getValue() == duplicateHandling)
+        .map(Map.Entry::getKey)
+        .collect(ImmutableList.toImmutableList());
   }
 }

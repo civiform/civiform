@@ -13,6 +13,7 @@ import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import services.program.ProgramType;
 
 public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
   private CiviFormProfile testProfile;
@@ -36,9 +37,10 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
-            /* lifeCycleStage= */ Optional.empty(),
+            /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty());
     assertThat(url).isEqualTo("/programs/fake-program");
@@ -52,9 +54,10 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
-            /* lifeCycleStage= */ Optional.empty(),
+            /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile));
     assertThat(url).isEqualTo("/applicants/1/programs/fake-program");
@@ -68,7 +71,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.empty(),
@@ -84,7 +88,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             Optional.of(
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.of(1L),
@@ -100,7 +105,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             Optional.of(
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
@@ -117,7 +123,8 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ false,
+            ProgramType.DEFAULT,
+            /* programExternalLink= */ "",
             Optional.of(
                 LifecycleStage
                     .ACTIVE), // active lifecycle stage means they have submitted the application
@@ -134,9 +141,10 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ true,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
-            /* lifeCycleStage= */ Optional.empty(),
+            /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty());
     assertThat(url).isEqualTo("/programs/1/edit");
@@ -150,11 +158,29 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             applicantRoutes,
             /* programId= */ 1L,
             /* programSlug= */ "fake-program",
-            /* isCommonIntakeForm= */ true,
+            ProgramType.COMMON_INTAKE_FORM,
+            /* programExternalLink= */ "",
             // empty lifecycle stage means this is their first time filling out this application
-            /* lifeCycleStage= */ Optional.empty(),
+            /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile));
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
+  }
+
+  @Test
+  public void getActionUrl_returnsExternalLinkWhenExternalProgram() {
+    ApplicantRoutes applicantRoutes = new ApplicantRoutes();
+    String url =
+        ProgramCardsSectionParamsFactory.getActionUrl(
+            applicantRoutes,
+            /* programId= */ 1L,
+            /* programSlug= */ "fake-program",
+            ProgramType.EXTERNAL,
+            /* programExternalLink= */ "https://usa.gov",
+            // empty lifecycle stage means this is their first time filling out this application
+            /* optionalLifecycleStage= */ Optional.empty(),
+            /* applicantId= */ Optional.empty(),
+            /* profile= */ Optional.empty());
+    assertThat(url).isEqualTo("https://usa.gov");
   }
 }
