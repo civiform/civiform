@@ -1589,7 +1589,7 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   // Can't use multistring here because of escaped characters in predicates
   public static final String PROGRAM_JSON_WITH_PREDICATES =
-    """
+      """
       {
         "program" : {
           "id" : 1,
