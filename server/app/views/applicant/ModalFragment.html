@@ -416,26 +416,26 @@
 </div>
 
 <div
-  th:fragment="externalProgramModal(externalLink)"
-  id="modal-container"
+  th:fragment="externalProgramModal(externalLink, modalId)"
+  th:id="${'modal-container-' + modalId}"
   class="display-none position-fixed height-viewport width-full z-100"
 >
   <div
     class="usa-modal cf-ns-modal"
-    id="external-program-modal"
-    aria-labelledby="external-program-modal-heading"
-    aria-describedby="external-program-modal-description"
+    th:id="${'external-program-modal-' + modalId}"
+    th:aria-labelledby="${'external-program-modal-heading-' + modalId}"
+    th:aria-describedby="${'external-program-modal-description-' + modalId}"
   >
     <div class="usa-modal__content">
       <div class="usa-modal__main">
         <h2
           class="usa-modal__heading"
-          id="external-program-modal-heading"
+          th:id="${'external-program-modal-heading-' + modalId}"
           th:text="#{title.externalProgramModal}"
         ></h2>
         <div class="usa-prose">
           <p
-            id="external-program-modal-description"
+            th:id="${'external-program-modal-description-' + modalId}"
             th:text="#{content.externalProgramModal}"
             class="margin-y-2"
           ></p>
