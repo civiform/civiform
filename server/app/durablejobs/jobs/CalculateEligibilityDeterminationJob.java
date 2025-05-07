@@ -47,7 +47,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
     logger.info("Starting job to calculate eligibility determination.");
 
     try (Transaction jobTransaction = database.beginTransaction()) {
-      transaction.setBatchMode(true);
+      jobTransaction.setBatchMode(true);
       int errorCount = 0;
 
       String filter =
