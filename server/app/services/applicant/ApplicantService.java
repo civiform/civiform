@@ -88,9 +88,11 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -118,6 +120,7 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
+  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -144,7 +147,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -162,6 +166,7 @@ public final class ApplicantService {
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -1073,7 +1078,7 @@ public final class ApplicantService {
               ImmutableSet<ApplicationModel> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms);
+                  activeProgramDefinitions, applications, allPrograms, request);
             },
             classLoaderExecutionContext.current());
   }
@@ -1084,7 +1089,7 @@ public final class ApplicantService {
    *
    * @return - CompletionStage of the relevant programs
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant() {
+  public CompletionStage<ApplicationPrograms> relevantProgramsWithoutApplicant(Request request) {
     CompletionStage<VersionModel> versionFuture = versionRepository.getActiveVersionAsync();
     return versionFuture.thenApplyAsync(
         version -> {
@@ -1094,7 +1099,7 @@ public final class ApplicantService {
                   .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return relevantProgramsForApplicantInternal(
-              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions);
+              activeProgramDefinitions, ImmutableSet.of(), activeProgramDefinitions, request);
         },
         classLoaderExecutionContext.current());
   }
@@ -1160,7 +1165,8 @@ public final class ApplicantService {
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,
-      ImmutableList<ProgramDefinition> allPrograms) {
+      ImmutableList<ProgramDefinition> allPrograms,
+      Request request) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -1304,9 +1310,12 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(applicant, program));
           }
 
-          if (program.isCommonIntakeForm()) {
+          ProgramType programType = program.programType();
+          if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
             relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-          } else {
+          } else if (programType.equals(ProgramType.DEFAULT)
+              || (programType.equals(ProgramType.EXTERNAL)
+                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });

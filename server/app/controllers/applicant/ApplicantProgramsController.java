@@ -155,7 +155,7 @@ public final class ApplicantProgramsController extends CiviFormController {
    */
   public CompletionStage<Result> indexWithoutApplicantId(Request request, List<String> categories) {
     CompletableFuture<ApplicationPrograms> programsFuture =
-        applicantService.relevantProgramsWithoutApplicant().toCompletableFuture();
+        applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
 
     return programsFuture.thenApplyAsync(
         programs -> {
@@ -310,7 +310,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     CompletableFuture<ApplicationPrograms> programsFuture;
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
     if (maybeApplicantId.isEmpty()) {
-      programsFuture = applicantService.relevantProgramsWithoutApplicant().toCompletableFuture();
+      programsFuture =
+          applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
     } else {
       programsFuture =
           applicantService
