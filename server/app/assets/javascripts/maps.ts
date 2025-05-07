@@ -7,6 +7,7 @@ import {assertNotNull} from './util'
 let selectedProviderNames: Array<string> = []
 
 export function init() {
+  selectedProviderNames = []
   const providers = JSON.parse(
     document.getElementById('all-providers')?.getAttribute('value') as string,
   )
@@ -33,43 +34,21 @@ export function init() {
 export function addLocationToMyList(providerName: string, providerAddress: string) {
   if (selectedProviderNames.includes(providerName)) {
     alert(`${providerName} has already been added!`)
-    return
+  } else {
+    // Copy the selected provider template
+    const newField = assertNotNull(
+      document.getElementById('selected-provider-template'),
+    ).cloneNode(true) as HTMLElement
+    newField.classList.remove('hidden')
+    newField.removeAttribute('id')
+    newField.innerHTML=`<td>${providerName}</td><td>${providerAddress}</td>`
+
+    // Add to the end of selected-providers table.
+    const selectedProviders = assertNotNull(
+      document.getElementById('selected-providers'),
+    )
+
+    selectedProviders.appendChild(newField)
+    selectedProviderNames.push(providerName)
   }
-
-  // Copy the selected provider template
-  const newField = assertNotNull(
-    document.getElementById('selected-provider-template'),
-  ).cloneNode(true) as HTMLElement
-  newField.classList.remove('hidden')
-  newField.removeAttribute('id')
-  newField.innerHTML=`<td>${providerName}</td><td>${providerAddress}</td>`
-
-  // Add to the end of selected-providers table.
-  const selectedProviders = assertNotNull(
-    document.getElementById('selected-providers'),
-  )
-
-  selectedProviders.appendChild(newField)
-  selectedProviderNames.push(providerName)
 }
-
-// /**
-//  * When selected providers are added or removed from the page we need to repaint
-//  * the label and button text to update the index
-//  * @param {Element} field The element containing the button and label to be relabeled
-//  * @param {number} index The index to add to the button and label
-//  */
-// function addIndexToLabelAndButton(field: Element, index: number) {
-//   const indexString = ` #${index + 1}`
-//   const labelBaseText = assertNotNull(
-//     document.querySelector('div[data-label-text]'),
-//   ).getAttribute('data-label-text')
-//   const labelElement = assertNotNull(field.querySelector('label'))
-//   labelElement.innerText = labelBaseText ? labelBaseText + indexString : ''
-
-//   const buttonBaseText = assertNotNull(
-//     document.querySelector('div[data-button-text]'),
-//   ).getAttribute('data-button-text')
-//   const buttonElement = assertNotNull(field.querySelector('button'))
-//   buttonElement.innerText = buttonBaseText ? buttonBaseText + indexString : ''
-// }
