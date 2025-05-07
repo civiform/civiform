@@ -15,6 +15,8 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import models.AccountModel;
@@ -209,7 +211,11 @@ public class TransactionManagerTest extends ResetPostgres {
   @Test
   public void executeWithRetry_supplier() {
     final String innerEmail = "inneremail@test.com";
-    AtomicReference<Boolean> innerTransactionHasRun = new AtomicReference<>(false);
+    AtomicBoolean innerTransactionHasRun = new AtomicBoolean(false);
+    // How many times setEmailAddress was successfully saved on outerAccount.
+    // Helps verify the test setup works; in that .save() is throwing an
+    // exception the first time.
+    AtomicInteger outerSetNumberOfTime = new AtomicInteger();
     AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
     initialAccount.insert();
     long accountId = initialAccount.id;
@@ -238,6 +244,10 @@ public class TransactionManagerTest extends ResetPostgres {
 
           outerAccount.setEmailAddress("updated@test.com");
           outerAccount.save();
+          // The first time through save() will throw the exception due to
+          // innerTransaction.  The second time will execute the entire method.
+          // Counting here ensures that the test setup is correct.
+          outerSetNumberOfTime.incrementAndGet();
           return outerAccount;
         };
 
@@ -246,6 +256,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
     initialAccount.refresh();
     assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
+    assertThat(outerSetNumberOfTime.get()).isEqualTo(1);
   }
 
   @Test
@@ -286,12 +297,16 @@ public class TransactionManagerTest extends ResetPostgres {
   @Test
   public void executeWithRetry_runnable() {
     final String innerEmail = "inneremail@test.com";
-    AtomicReference<Boolean> innerTransactionHasRun = new AtomicReference<>(false);
+    AtomicBoolean innerTransactionHasRun = new AtomicBoolean(false);
+    // How many times setEmailAddress was successfully saved on outerAccount.
+    // Helps verify the test setup works; in that .save() is throwing an
+    // exception the first time.
+    AtomicInteger outerSetNumberOfTime = new AtomicInteger();
     AccountModel initialAccount = new AccountModel().setEmailAddress("initial@test.com");
     initialAccount.insert();
     long accountId = initialAccount.id;
 
-    Runnable modifyAccount =
+    transactionManager.executeWithRetry(
         () -> {
           AccountModel outerAccount = accountRepo.lookupAccount(accountId).orElseThrow();
 
@@ -315,10 +330,15 @@ public class TransactionManagerTest extends ResetPostgres {
 
           outerAccount.setEmailAddress("updated@test.com");
           outerAccount.save();
-        };
+          // The first time through save() will throw the exception due to
+          // innerTransaction.  The second time will execute the entire method.
+          // Counting here ensures that the test setup is correct.
+          outerSetNumberOfTime.incrementAndGet();
+        });
 
     initialAccount.refresh();
     assertThat(initialAccount.getEmailAddress()).isEqualTo("updated@test.com");
+    assertThat(outerSetNumberOfTime.get()).isEqualTo(1);
   }
 
   /** Simulate when the work() supplier contains another transaction. */

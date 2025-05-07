@@ -56,7 +56,7 @@ public class SessionTimeoutServiceTest {
   }
 
   private long getTimeMinutesAgo(int minutes) {
-    return CURRENT_TIME * 1000L - minutes * 60 * 1000L;
+    return CURRENT_TIME * 1000L - minutes * 60L * 1000L;
   }
 
   @Test

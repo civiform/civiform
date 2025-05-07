@@ -292,6 +292,9 @@ test.describe('program migration', () => {
     })
   })
 
+  // TODO: #9628 - add a test for import errors with duplicate-handling UI enabled, such as "Overwriting
+  // question definitions is only supported when there are no existing drafts"
+
   test('export then import', async ({
     page,
     adminPrograms,
@@ -760,11 +763,20 @@ test.describe('program migration', () => {
         'comprehensive-sample-program',
         'comprehensive-sample-program-new',
       )
-
+      // Replace the program title so we can validate the new one shows up
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'Comprehensive Sample Program',
+        'Comprehensive Sample Program New',
+      )
       // Replace one admin name of a question so we can see the "New Question" badge
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'Sample Checkbox',
         'Sample Checkbox-new',
+      )
+      // Replace the question text of a question so we can overwrite its existing definition
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'How many pets do you have?',
+        'How many LARGE pets do you have?',
       )
 
       await adminProgramMigration.submitProgramJson(
@@ -840,6 +852,13 @@ test.describe('program migration', () => {
         'Sample Date Question',
         true,
       )
+      // Select "overwrite" on a few questions to validate the UI (default is "duplicate")
+      await adminProgramMigration.selectOverwriteExistingForQuestion(
+        'Sample Address Question',
+      )
+      await adminProgramMigration.selectOverwriteExistingForQuestion(
+        'Sample Number Question',
+      )
       // Check that the UI looks the same
       await validateScreenshot(
         page.locator('main'),
@@ -854,12 +873,24 @@ test.describe('program migration', () => {
     })
 
     await test.step('save the comprehensive sample program', async () => {
+      // Publish all drafts so we can overwrite questions without an error
+      await adminPrograms.publishAllDrafts()
+      await adminProgramMigration.goToImportPage()
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
       await adminProgramMigration.expectAlert(
         'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
         ALERT_WARNING,
+      )
+      // Select "overwrite" on a few questions to validate the backend behavior
+      await adminProgramMigration.selectOverwriteExistingForQuestion(
+        // Has the same definition - basically just won't create a duplicate
+        'Sample Address Question',
+      )
+      await adminProgramMigration.selectOverwriteExistingForQuestion(
+        // Changes the question text
+        'Sample Number Question',
       )
       await adminProgramMigration.clickButton('Save')
       await adminProgramMigration.expectAlert(
@@ -869,42 +900,23 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'saved-program-success')
     })
 
-    await test.step('return to import page', async () => {
-      await adminProgramMigration.clickButton('Import another program')
-      await adminProgramMigration.expectImportPage()
-      await expect(page.getByRole('textbox')).toHaveValue('')
-    })
-
-    await test.step('save the minimal sample program', async () => {
-      // Replace the admin name so you don't get an error
-      downloadedMinimalProgram = downloadedMinimalProgram.replace(
-        'minimal-sample-program',
-        'minimal-sample-program-new',
-      )
-      // Replace the program title so we can check the new one shows up
-      downloadedMinimalProgram = downloadedMinimalProgram.replace(
-        'Minimal Sample Program',
-        'Minimal Sample Program New',
-      )
-      // Replace the question admin id so we can see the "new question" info box
-      downloadedMinimalProgram = downloadedMinimalProgram.replace(
-        'Sample Name Question',
-        'Sample Name Question-new',
-      )
-      await adminProgramMigration.submitProgramJson(downloadedMinimalProgram)
-      await adminProgramMigration.expectAlert(
-        'Importing this program will add 1 new question to the question bank.',
-        ALERT_INFO,
-      )
-      await adminProgramMigration.clickButton('Save')
-    })
-
     await test.step('navigate to the program edit page', async () => {
       await adminProgramMigration.clickButton('View program')
       await expect(page.locator('#program-title')).toContainText(
-        'Minimal Sample Program New',
+        'Comprehensive Sample Program New',
       )
       await expect(page.locator('#header_edit_button')).toBeVisible()
+      await page.getByText('Screen 1').click()
+      await expect(
+        page.getByTestId('question-admin-name-Sample Address Question'),
+      ).toContainText('Sample Address Question')
+      await expect(
+        page.getByTestId('question-admin-name-Sample Address Question'),
+      ).not.toContainText('Sample Address Question -_-')
+      await page.getByText('Screen 2').click()
+      await expect(
+        page.getByTestId('question-admin-name-Sample Number Question'),
+      ).toContainText('How many LARGE pets do you have?')
     })
   })
 })

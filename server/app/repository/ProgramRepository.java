@@ -51,7 +51,7 @@ public final class ProgramRepository {
       new QueryProfileLocationBuilder("ProgramRepository");
 
   private final Database database;
-  private final DatabaseExecutionContext executionContext;
+  private final DatabaseExecutionContext dbExecutionContext;
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi programCache;
@@ -60,14 +60,14 @@ public final class ProgramRepository {
 
   @Inject
   public ProgramRepository(
-      DatabaseExecutionContext executionContext,
+      DatabaseExecutionContext dbExecutionContext,
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
       @NamedCache("program") SyncCacheApi programCache,
       @NamedCache("full-program-definition") SyncCacheApi programDefCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
-    this.executionContext = checkNotNull(executionContext);
+    this.dbExecutionContext = checkNotNull(dbExecutionContext);
     this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
@@ -81,9 +81,9 @@ public final class ProgramRepository {
         && versionRepository.get().getDraftVersion().isEmpty()) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
-          executionContext);
+          dbExecutionContext);
     }
-    return supplyAsync(() -> lookupProgramSync(id), executionContext);
+    return supplyAsync(() -> lookupProgramSync(id), dbExecutionContext);
   }
 
   public boolean checkProgramAdminNameExists(String name) {
@@ -211,27 +211,27 @@ public final class ProgramRepository {
    * DRAFT if necessary.
    */
   public ProgramModel createOrUpdateDraft(ProgramModel existingProgram) {
+    return createOrUpdateDraft(getShallowProgramDefinition(existingProgram));
+  }
+
+  public ProgramModel createOrUpdateDraft(ProgramDefinition existingProgram) {
     VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
     Optional<ProgramModel> existingDraftOpt =
         versionRepository
             .get()
-            .getProgramByNameForVersion(
-                getShallowProgramDefinition(existingProgram).adminName(), draftVersion);
+            .getProgramByNameForVersion(existingProgram.adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       ProgramModel existingDraft = existingDraftOpt.get();
-      if (!existingDraft.id.equals(existingProgram.id)) {
+      if (!existingDraft.id.equals(existingProgram.id())) {
         // This may be indicative of a coding error, as it does a reset of the draft and not an
         // update of the draft, so log it.
         logger.warn(
             "Replacing Draft revision {} with definition from a different revision {}.",
             existingDraft.id,
-            existingProgram.id);
+            existingProgram.id());
       }
       ProgramModel updatedDraft =
-          getShallowProgramDefinition(existingProgram).toBuilder()
-              .setId(existingDraft.id)
-              .build()
-              .toProgram();
+          existingProgram.toBuilder().setId(existingDraft.id).build().toProgram();
       return updateProgramSync(updatedDraft);
     }
 
@@ -241,9 +241,7 @@ public final class ProgramRepository {
     try {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
-      ProgramModel newDraft =
-          new ProgramModel(
-              getShallowProgramDefinition(existingProgram).toBuilder().build(), draftVersion);
+      ProgramModel newDraft = new ProgramModel(existingProgram.toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -253,7 +251,7 @@ public final class ProgramRepository {
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
       // Ensure we didn't add a duplicate with other code running at the same time.
-      String programName = getShallowProgramDefinition(existingProgram).adminName();
+      String programName = existingProgram.adminName();
       Preconditions.checkState(
           versionRepository.get().getProgramsForVersion(draftVersion).stream()
                   .map(this::getShallowProgramDefinition)
@@ -312,7 +310,7 @@ public final class ProgramRepository {
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },
-        executionContext.current());
+        dbExecutionContext.current());
   }
 
   /** Get the current draft program with the provided slug. */

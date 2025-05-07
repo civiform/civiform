@@ -543,16 +543,16 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
+    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_PRE_SCREENER_SR;
     if (commonIntakeFormApplicationStatus.isPresent()) {
       switch (commonIntakeFormApplicationStatus.get()) {
         case ACTIVE:
           buttonText = MessageKey.BUTTON_EDIT;
-          buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
+          buttonScreenReaderText = MessageKey.BUTTON_EDIT_PRE_SCREENER_SR;
           break;
         case DRAFT:
           buttonText = MessageKey.BUTTON_CONTINUE;
-          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
+          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_PRE_SCREENER_SR;
           break;
         default:
           // Leave button text as is.

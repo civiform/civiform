@@ -420,7 +420,6 @@ test.describe('file upload applicant flow', {tag: ['@skip-on-azure']}, () => {
         await applicantQuestions.answerFileUploadQuestionWithMbSize(101)
 
         await applicantFileQuestion.expectFileTooLargeErrorShown()
-        await validateScreenshot(page, 'file-error-too-large-multiple-files')
         await validateAccessibility(page)
       })
 

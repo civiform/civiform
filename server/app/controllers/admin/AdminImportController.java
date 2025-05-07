@@ -314,17 +314,31 @@ public class AdminImportController extends CiviFormController {
       ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
       ImmutableList<QuestionDefinition> questionsOnJson = programMigrationWrapper.getQuestions();
       ProgramDefinition programOnJson = programMigrationWrapper.getProgram();
+      ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
+          duplicateHandlingOptions = programMigrationWrapper.getDuplicateQuestionHandlingOptions();
 
       boolean withDuplicates =
           !settingsManifest.getNoDuplicateQuestionsForMigrationEnabled(request);
       boolean duplicateHandlingEnabled =
           settingsManifest.getImportDuplicateHandlingOptionsEnabled(request);
 
-      ProgramModel savedProgram =
+      ErrorAnd<ProgramModel, String> savedProgram =
           programMigrationService.saveImportedProgram(
-              programOnJson, questionsOnJson, withDuplicates, duplicateHandlingEnabled);
+              programOnJson,
+              questionsOnJson,
+              duplicateHandlingOptions,
+              withDuplicates,
+              duplicateHandlingEnabled);
+      if (savedProgram.isError()) {
+        return ok(
+            adminImportViewPartial
+                .renderError(
+                    "Error saving program",
+                    savedProgram.getErrors().stream().findFirst().orElseThrow())
+                .render());
+      }
       ProgramDefinition savedProgramDefinition =
-          programRepository.getShallowProgramDefinition(savedProgram);
+          programRepository.getShallowProgramDefinition(savedProgram.getResult());
 
       return ok(
           adminImportViewPartial

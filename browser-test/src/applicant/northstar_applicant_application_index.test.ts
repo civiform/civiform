@@ -2,21 +2,26 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
+  normalizeElements,
+  selectApplicantLanguageNorthstar,
   setDirRtl,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
-  selectApplicantLanguageNorthstar,
-  normalizeElements,
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramCategories,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -336,25 +341,18 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await page.goto('/')
       })
 
-      await test.step('go to program edit form and add categories to primary program', async () => {
+      await test.step('add categories to primary and other program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           primaryProgramName,
+          [ProgramCategories.EDUCATION, ProgramCategories.HEALTHCARE],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('Education').check()
-        await page.getByText('Healthcare').check()
-        await adminPrograms.submitProgramDetailsEdits()
-      })
-
-      await test.step('add different categories to other program', async () => {
-        await adminPrograms.gotoViewActiveProgramPageAndStartEditing(
+        await adminPrograms.selectProgramCategories(
           otherProgramName,
+          [ProgramCategories.GENERAL, ProgramCategories.UTILITIES],
+          /* isActive= */ true,
         )
-        await page.getByRole('button', {name: 'Edit program details'}).click()
-        await page.getByText('General').check()
-        await page.getByText('Utilities').check()
-        await adminPrograms.submitProgramDetailsEdits()
       })
     })
 
@@ -986,6 +984,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     page,
     adminSettings,
   }) => {
+    await disableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await loginAsAdmin(page)
     await adminSettings.gotoAdminSettings()
 
@@ -1256,6 +1255,79 @@ test.describe(
         await validateScreenshot(page, 'ns-program-image-all-types')
         // accessibility fails
         // await validateAccessibility(page)
+      })
+    })
+
+    test('Shows card for external program and opens external link', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const externalProgramName = 'External Program'
+
+      await test.step('add external program', async () => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          /* externalLink= */ 'https://usa.gov',
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.publishProgram(externalProgramName)
+        await logout(page)
+      })
+
+      await test.step("'Programs and Services' section includes a card for the external program", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [externalProgramName],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+          /* northStarEnabled= */ true,
+        )
+
+        // Button for external program card has a different text.
+        const externalProgramCard = page.locator('.cf-application-card', {
+          has: page.getByText(externalProgramName),
+        })
+        await expect(
+          externalProgramCard.getByRole('button', {name: 'View in new window'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Clicking on the external program card opens a modal', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        // Verify external program modal is visible
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await expect(
+          modal.getByRole('heading', {
+            name: 'This will open a different website',
+          }),
+        ).toBeVisible()
+        await expect(
+          modal.getByText(
+            "To go to the program's website where you can get more details and apply, click Continue",
+          ),
+        ).toBeVisible()
+        await expect(
+          modal.getByRole('button', {name: 'Continue'}),
+        ).toBeVisible()
+        await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+      })
+
+      await test.step("Accepting the modal redirects to the external program's site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await modal.getByRole('button', {name: 'Continue'}).click()
+        await expect(page).toHaveURL('https://www.usa.gov')
       })
     })
 
