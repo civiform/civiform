@@ -233,11 +233,15 @@ content.findProgramsDescription=CiviForm は、{0} で対象となり得るプ�
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
 # Main home page heading
 heading.homepage=政府の補助を申請するにはこちらから
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Apply for government programs online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
 # Main home page intro text
 content.homepageIntro=食料、交通、育児、公共料金などに関する支援を受けるには、以下のオプションのいずれかをクリックしてください。一度に申請できるプログラムは 1 つのみです。
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # The label for the program filter checkboxes
