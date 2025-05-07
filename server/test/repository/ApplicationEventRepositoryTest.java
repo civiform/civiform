@@ -44,7 +44,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .build();
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    ApplicationEventModel insertedEvent = repo.insertSync(event);
+    ApplicationEventModel insertedEvent = repo.insertAndRefreshSync(event);
     // Generated values.
     assertThat(insertedEvent.id).isNotNull();
     assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
@@ -244,12 +244,12 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
     ApplicationEventModel event1 =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    ApplicationEventModel insertedEvent1 = repo.insertSync(event1);
+    ApplicationEventModel insertedEvent1 = repo.insertAndRefreshSync(event1);
 
     ApplicationEventModel event2 =
         new ApplicationEventModel(application, Optional.of(actor), details);
 
-    ApplicationEventModel insertedEvent2 = repo.insertSync(event2);
+    ApplicationEventModel insertedEvent2 = repo.insertAndRefreshSync(event2);
 
     // Evaluate.
     assertThat(insertedEvent1.id).isNotEqualTo(insertedEvent2.id);
@@ -280,7 +280,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
             .build();
     ApplicationEventModel event =
         new ApplicationEventModel(application, Optional.of(actor), details);
-    repo.insertSync(event);
+    repo.insertAndRefreshSync(event);
 
     // Execute
     ImmutableList<ApplicationEventModel> gotEvents =
