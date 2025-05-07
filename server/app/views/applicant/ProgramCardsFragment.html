@@ -201,8 +201,8 @@
   <th:block th:if="${card.programType().toString() == 'EXTERNAL'}">
     <a
       class="usa-button usa-button--outline cf-apply-button"
-      href="#external-program-modal"
-      aria-controls="external-program-modal"
+      th:href="${'#external-program-modal-' + card.programId()}"
+      th:aria-controls="${'external-program-modal-' + card.programId()}"
       data-open-modal
     >
       <svg
@@ -212,7 +212,7 @@
     </a>
 
     <div
-      th:replace="~{applicant/ModalFragment:: externalProgramModal(${card.actionUrl()})}"
+      th:replace="~{applicant/ModalFragment:: externalProgramModal(${card.actionUrl()}, ${card.programId()})}"
     ></div>
   </th:block>
 
