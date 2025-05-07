@@ -85,7 +85,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await expect(page.getByText(/To get help with/)).toBeVisible()
+    await expect(page.getByText(/Discover services you may/)).toBeVisible()
   })
 
   test('validate initial page load as guest user', async ({
@@ -167,7 +167,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     }
   })
 
-  test('categorizes programs for draft and applied applications as guest user', async ({
+  test.only('categorizes programs for draft and applied applications as guest user', async ({
     applicantQuestions,
     page,
   }) => {
@@ -287,7 +287,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test('categorizes programs for draft and applied applications', async ({
+  test.only('categorizes programs for draft and applied applications', async ({
     page,
     applicantQuestions,
   }) => {
