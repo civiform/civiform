@@ -97,10 +97,8 @@ public final class ApplicationEventRepository {
                   insertAndRefreshSync(event);
                   // Saves the latest note on the applications table too.
                   // If the status is removed from an application, then the latest_status column
-                  // needs
-                  // to be set to null to indicate the application has no status and not a status
-                  // with
-                  // empty string.
+                  // needs to be set to null to indicate the application has no status and not a
+                  // status with empty string.
                   database
                       .update(ApplicationModel.class)
                       .set(
