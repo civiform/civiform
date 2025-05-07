@@ -222,7 +222,7 @@ button.startHerePreScreenerSr={0}ን በመሙላት እዚህ ይጀምሩ
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr=ለ{0} የገባ መረጃን ያርትዑ
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Continue filling out {0}
+button.continuePreScreenerSr={0}ን መሙላት ይቀጥሉ
 # Text describing the date the application was last submitted.
 content.submittedDate={0} ገብቷል
 # Text for applicants to understand the section is for finding programs
