@@ -233,11 +233,15 @@ content.findProgramsDescription=Matutulungan ka ng CiviForm na humanap ng mga pr
 content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbisyo
 # Main home page heading
 heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Apply for government programs online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
 content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # The label for the program filter checkboxes
