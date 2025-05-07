@@ -233,11 +233,15 @@ content.findProgramsDescription=يساعدك CiviForm في العثور على �
 content.saveTimeServices=توفير الوقت الذي يستغرقه طلب الانضمام إلى البرامج والخدمات
 # Main home page heading
 heading.homepage=طلب مساعدة حكومية هنا
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Apply for government programs online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
 content.homepageIntro=للحصول على مساعدة بشأن الطعام والنقل ورعاية الأطفال والمرافق والمزيد، يُرجى النقر على أحد الخيارات أدناه. يمكنك إرسال طلب للانضمام إلى برنامج واحد في كل مرة.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
 # The label for the program filter checkboxes
