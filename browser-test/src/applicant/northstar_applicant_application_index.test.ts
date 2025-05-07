@@ -167,7 +167,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     }
   })
 
-  test.only('categorizes programs for draft and applied applications as guest user', async ({
+  test('categorizes programs for draft and applied applications as guest user', async ({
     applicantQuestions,
     page,
   }) => {
@@ -287,7 +287,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     })
   })
 
-  test.only('categorizes programs for draft and applied applications', async ({
+  test('categorizes programs for draft and applied applications', async ({
     page,
     applicantQuestions,
   }) => {
