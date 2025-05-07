@@ -1173,14 +1173,23 @@ export class ApplicantQuestions {
     lastName: string,
     email: string,
     phone: string,
+    northStarEnabled = false,
   ) {
-    await this.applyProgram(programName)
+    await this.applyProgram(programName, northStarEnabled)
     await this.answerNameQuestion(firstName, lastName, middleName)
     await this.answerEmailQuestion(email)
     await this.answerPhoneQuestion(phone)
-    await this.clickNext()
-    await this.submitFromReviewPage()
-    await this.page.click('text=End session')
+    if (northStarEnabled) {
+      await this.clickContinue()
+    } else {
+      await this.clickNext()
+    }
+    await this.submitFromReviewPage(northStarEnabled)
+    if (northStarEnabled) {
+      await this.page.getByRole('button', {name: 'End your session'}).click()
+    } else {
+      await this.page.click('text=End session')
+    }
   }
 
   async expectMayBeEligibileAlertToBeVisible() {
