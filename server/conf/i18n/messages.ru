@@ -233,11 +233,15 @@ content.findProgramsDescription=CiviForm позволяет находить п�
 content.saveTimeServices=Экономьте время на подаче заявок для получения услуг и участия в программах
 # Main home page heading
 heading.homepage=Подайте заявку на государственную поддержку
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Apply for government programs online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
 content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # The label for the program filter checkboxes
