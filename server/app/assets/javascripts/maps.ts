@@ -1,5 +1,4 @@
 // Javascript handling for maps
-// This file requires that main.ts is also added to the page.
 
 import L from 'leaflet'
 import {assertNotNull} from './util'
