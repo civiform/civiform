@@ -629,7 +629,7 @@ content.preScreenerNoMatchingPrograms=Trình sàng lọc sơ bộ không thể t
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn tham gia vào lúc này. Tuy nhiên, bạn có thể đăng ký tham gia chương trình bất cứ lúc nào bằng cách nhấp vào ''Đăng ký tham gia chương trình''. Hoặc để xem thêm chương trình, bạn có thể truy cập {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+content.preScreenerNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Các chương trình khác bạn có thể quan tâm
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
