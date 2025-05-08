@@ -617,7 +617,7 @@ title.preScreenerConfirmation=자격 요건에 해당될 수 있는 프로그램
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=고객이 자격 요건에 해당될 수 있는 프로그램
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청하면 등록될 가능성이 있는 프로그램입니다.
 # A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
