@@ -629,7 +629,7 @@ content.preScreenerNoMatchingPrograms=لم يتمكن الفحص المُسبق 
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=لم يتمكن الفحص المُسبق للطلبات من العثور على برامج قد يكون عميلك مؤهلاً للانضمام إليها حاليًا. ومع ذلك، قد يكون بإمكانك إرسال طلبات في أي وقت بالنقر على "إرسال طلبات للانضمام إلى البرامج"، أو الاطّلاع على برامج إضافية من خلال الانتقال إلى {0}.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+content.preScreenerNoMatchingProgramsNextStep=يمكنك أيضًا الرجوع إلى الصفحة السابقة لتعديل إجاباتك.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=برامج أخرى قد تهمّك
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
