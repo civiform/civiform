@@ -1183,14 +1183,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     blankApplicant.refresh();
     // All saved PAI values should be null/empty
-    assertThat(blankApplicant.getFirstName().isEmpty());
-    assertThat(blankApplicant.getMiddleName().isEmpty());
-    assertThat(blankApplicant.getLastName().isEmpty());
-    assertThat(blankApplicant.getSuffix().isEmpty());
-    assertThat(blankApplicant.getDateOfBirth().isEmpty());
-    assertThat(blankApplicant.getEmailAddress().isEmpty());
-    assertThat(blankApplicant.getPhoneNumber().isEmpty());
-    assertThat(blankApplicant.getCountryCode().isEmpty());
+    assertThat(blankApplicant.getFirstName()).isEmpty();
+    assertThat(blankApplicant.getMiddleName()).isEmpty();
+    assertThat(blankApplicant.getLastName()).isEmpty();
+    assertThat(blankApplicant.getSuffix()).isEmpty();
+    assertThat(blankApplicant.getDateOfBirth()).isEmpty();
+    assertThat(blankApplicant.getEmailAddress()).isEmpty();
+    assertThat(blankApplicant.getPhoneNumber()).isEmpty();
+    assertThat(blankApplicant.getCountryCode()).isEmpty();
   }
 
   @Test
