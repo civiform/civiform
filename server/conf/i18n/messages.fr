@@ -615,7 +615,7 @@ content.initialLoginModalPrompt=Avant de continuer, connectez-vous à votre comp
 button.continueWithoutAnAccount=Continuer sans compte
 title.preScreenerConfirmation=Programmes auxquels vous pouvez être éligible
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
-title.preScreenerConfirmationTi=Programs your client may qualify for
+title.preScreenerConfirmationTi=Programmes auxquels votre client peut être éligible
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
