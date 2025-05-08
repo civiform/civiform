@@ -472,7 +472,7 @@ ariaLabel.answer=回答以下問題：{0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=編輯「{0}」
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Benefits pre-screener summary
+title.preScreenerSummary=福利預先篩選表單摘要
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=開始填寫
 title.programSummary=計畫申請摘要
@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將
 content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再繼續操作。登入之後，您就可以申請參加多項計畫，而不必一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=您可能有資格參加的計畫
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
