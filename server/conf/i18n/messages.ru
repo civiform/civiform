@@ -629,7 +629,7 @@ content.preScreenerNoMatchingPrograms=Функция предварительн�
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть доступны вашему клиенту. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+content.preScreenerNoMatchingProgramsNextStep=Вы также можете вернуться на предыдущую страницу и изменить свои ответы.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Другие программы, которые могут быть вам интересны
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
