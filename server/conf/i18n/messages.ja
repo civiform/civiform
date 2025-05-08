@@ -472,7 +472,7 @@ ariaLabel.answer={0} に回答
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} を編集
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Benefits pre-screener summary
+title.preScreenerSummary=資格要件に関する事前チェックの概要
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=さっそく始めましょう。
 title.programSummary=プログラム申請の概要
