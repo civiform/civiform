@@ -218,7 +218,7 @@ button.viewInNewWindow=View in new window
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHerePreScreenerSr=Start here by filling out {0}
+button.startHerePreScreenerSr={0} を入力してここから開始
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr=Edit submitted information for {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
