@@ -623,7 +623,7 @@ content.preScreenerConfirmation.v2=귀하의 답변에 따라 귀하는 다음�
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmationTi=관리자가 '프로그램 신청'을 클릭하여 온라인으로 신청하면 고객이 등록될 가능성이 있는 프로그램입니다.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.preScreenerConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
+content.preScreenerConfirmationTi.v2=귀하의 답변에 따라 고객이 다음과 같은 프로그램의 자격 요건을 충족할 수도 있습니다.
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
