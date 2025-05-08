@@ -615,7 +615,7 @@ content.initialLoginModalPrompt=請先登入「{0}」帳戶或建立帳戶，再
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.preScreenerConfirmation=您可能有資格參加的計畫
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
-title.preScreenerConfirmationTi=Programs your client may qualify for
+title.preScreenerConfirmationTi=您的客戶可能有資格參加的計畫
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
