@@ -619,7 +619,7 @@ title.preScreenerConfirmationTi=您的客戶可能有資格參加的計畫
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=如果點選「申請參加計畫」，並填寫線上申請書提出申請，您就有可能加入這些計畫。
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.preScreenerConfirmation.v2=根據您的回覆，您可能符合下列計畫的資格：
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
