@@ -617,7 +617,7 @@ title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipik
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmation=Posibleng makapag-enroll ka sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
