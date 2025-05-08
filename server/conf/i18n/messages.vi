@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào
 content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Chương trình bạn có thể đủ tiêu chuẩn tham gia
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
