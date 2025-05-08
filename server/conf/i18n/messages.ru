@@ -472,7 +472,7 @@ ariaLabel.answer=Ответить на вопрос "{0}"
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Изменить ответ на вопрос "{0}"
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Benefits pre-screener summary
+title.preScreenerSummary=Сводные данные об этой форме
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Давайте начнем
 title.programSummary=Сводные данные о заявке на участие в программе
