@@ -615,7 +615,7 @@ content.initialLoginModalPrompt=続行する前に {0} アカウントにログ�
 button.continueWithoutAnAccount=アカウントなしで続行する
 title.preScreenerConfirmation=対象の可能性があるプログラム
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
-title.preScreenerConfirmationTi=Programs your client may qualify for
+title.preScreenerConfirmationTi=クライアントに対象の可能性があるプログラム
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
