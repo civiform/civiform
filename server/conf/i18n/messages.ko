@@ -472,7 +472,7 @@ ariaLabel.answer={0}에 답변
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} 편집
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Benefits pre-screener summary
+title.preScreenerSummary=혜택 사전 선별 요약
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=시작하기
 title.programSummary=프로그램 신청 요약
