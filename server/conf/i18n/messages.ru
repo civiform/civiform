@@ -627,7 +627,7 @@ content.preScreenerConfirmationTi.v2=На основе ваших ответов
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingPrograms=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть вам доступны. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.preScreenerNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for programs at any time, by clicking ''Apply to programs''. Or to view additional programs you can visit {0}
+content.preScreenerNoMatchingProgramsTi=Функция предварительного подбора не обнаружила программ, которые сейчас могут быть доступны вашему клиенту. Однако вы в любое время можете подавать заявки, нажав "Зарегистрироваться в программах". Чтобы посмотреть дополнительные программы, перейдите на сайт {0}.
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
 content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 # A header above a list of other programs the applicant might be interested in applying to.
