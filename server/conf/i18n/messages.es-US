@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=No accediste a una cuenta. No podrás modificar 
 content.initialLoginModalPrompt=Antes de continuar, accede a tu cuenta de {0} o crea una. Podrás enviar solicitudes de inscripción a varios programas sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continuar sin una cuenta
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Programas para los que cumples los requisitos
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
