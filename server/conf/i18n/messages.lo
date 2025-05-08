@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=ທ່ານບໍ່ໄດ້ເຂົ້າສ
 content.initialLoginModalPrompt=ກ່ອນທ່ານສືບຕໍ່, ໃຫ້ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ. ທ່ານຈະສາມາດສະໝັກຫຼາຍໂຄງການໄດ້ໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດແກ້ໄຂໃບສະໝັກ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=ສືບຕໍ່ໂດຍບໍ່ຕ້ອງມີບັນຊີ
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=ໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
