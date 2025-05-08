@@ -139,8 +139,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .anyMatch(BlockDefinition::hasNullQuestion)).isTrue();
+            program.getProgramDefinition().blockDefinitions().stream()
+                .anyMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isEmpty();
   }
 
@@ -159,8 +160,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .noneMatch(BlockDefinition::hasNullQuestion)).isTrue();
+            program.getProgramDefinition().blockDefinitions().stream()
+                .noneMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isNotEmpty();
   }
 
@@ -909,7 +911,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             new RowIdSequentialAccessPaginationSpec(
-                /* pageSize= */ 2, /* currentRowId= */ paginationResult.getPageContents().get(1).id),
+                /* pageSize= */ 2,
+                /* currentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
     // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
