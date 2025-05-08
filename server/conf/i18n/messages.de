@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=You are not logged in to an account. Without an 
 content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for multiple programs without having to enter the same information again. You can also edit applications and check your application statuses.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Programme, für die Sie sich möglicherweise qualifizieren
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
