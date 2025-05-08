@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=アカウントにログインしていません
 content.initialLoginModalPrompt=続行する前に {0} アカウントにログインするか、アカウントを作成してください。同じ情報を再度入力することなく、複数のプログラムに申請できるようになります。また、申請内容の編集や申請状況の確認も可能です。
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=アカウントなしで続行する
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=対象の可能性があるプログラム
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
