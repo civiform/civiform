@@ -220,7 +220,7 @@ button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHerePreScreenerSr=Ka bilow halkan addoo buuxinaya {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=Edit submitted information for {0}
+button.editPreScreenerSr=Wax ka beddel macluumaadka la gudbiyay {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continuePreScreenerSr=Continue filling out {0}
 # Text describing the date the application was last submitted.
