@@ -617,7 +617,7 @@ title.preScreenerConfirmation=برامج قد يكون حسابك مؤهلاً �
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=برامج قد يكون عميلك مؤهلاً للانضمام إليها
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmation=قد يكون بإمكانك التسجيل في هذه البرامج من خلال إرسال طلب على الإنترنت بالنقر على "إرسال طلبات للانضمام إلى البرامج".
 # A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
