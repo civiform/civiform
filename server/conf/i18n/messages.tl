@@ -621,7 +621,7 @@ content.preScreenerConfirmation=Posibleng makapag-enroll ka sa mga programang it
 # A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=Batay sa iyong mga sagot, posibleng kwalipikado ka sa mga sumusunod na programa:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmationTi=Posibleng makapag-enroll ang kliyente mo sa mga programang ito kung mag-a-apply ka sa pamamagitan ng online na aplikasyon sa pamamagitan ng pag-click sa "Mag-apply sa mga programa."
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
 content.preScreenerConfirmationTi.v2=Based on your responses, your client may qualify for the following programs:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
