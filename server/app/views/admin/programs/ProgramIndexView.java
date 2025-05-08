@@ -37,6 +37,7 @@ import services.AlertType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
 import services.question.types.QuestionDefinition;
@@ -510,13 +511,14 @@ public final class ProgramIndexView extends BaseHtmlView {
               });
 
       draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
+
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
           renderManageTranslationsLink(draftProgram.get());
-      if (maybeManageTranslationsLink.isPresent()) {
-        draftRowExtraActions.add(maybeManageTranslationsLink.get());
-      }
-      draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      maybeManageTranslationsLink.ifPresent(draftRowExtraActions::add);
+      Optional<ButtonTag> manageApplicationsLink =
+          maybeRenderManageApplications(draftProgram.get());
+      manageApplicationsLink.ifPresent(draftRowExtraActions::add);
       draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
 
       draftRow =
@@ -534,6 +536,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
 
+      activeRowActions.add(renderViewLink(activeProgram.get(), request));
+      activeRowActions.add(renderShareLink(activeProgram.get()));
+
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
@@ -542,8 +547,6 @@ public final class ProgramIndexView extends BaseHtmlView {
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      activeRowActions.add(renderViewLink(activeProgram.get(), request));
-      activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
 
       activeRow =
@@ -626,18 +629,30 @@ public final class ProgramIndexView extends BaseHtmlView {
         ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
   }
 
-  private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
+  private Optional<ButtonTag> maybeRenderManageApplications(ProgramDefinition program) {
+    // External programs don't have applications hosted on CiviForm
+    ProgramType programType = program.programType();
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return asRedirectElement(button, linkDestination);
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
       ProgramDefinition activeProgram,
       Optional<CiviFormProfile> maybeUserProfile,
       Http.Request request) {
+    // External programs don't have applications hosted on CiviForm
+    ProgramType programType = activeProgram.programType();
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     if (maybeUserProfile.isEmpty()) {
       return Optional.empty();
     }
@@ -665,7 +680,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* message= */ Optional.empty())
               .url();
 
-      String buttonText = activeProgram.isCommonIntakeForm() ? "Forms" : "Applications";
+      String buttonText =
+          programType.equals(ProgramType.COMMON_INTAKE_FORM) ? "Forms" : "Applications";
       ButtonTag button =
           makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
       return Optional.of(asRedirectElement(button, editLink));

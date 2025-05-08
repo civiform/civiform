@@ -82,6 +82,20 @@ export enum ProgramCategories {
   UTILITIES = 'Utilities',
 }
 
+export enum ProgramLifecycle {
+  DRAFT = 'Draft',
+  ACTIVE = 'Active',
+}
+
+export enum ProgramExtraAction {
+  VIEW_APPLICATIONS = 'Applications',
+  EDIT = 'Edit',
+  EXPORT = 'Export program',
+  MANAGE_ADMINS = 'Manage program admins',
+  MANAGE_APPLICATIONS = 'Manage application statuses',
+  MANAGE_TRANSLATIONS = 'Manage translations',
+}
+
 /**
  * List of buttons that are displayed in the program information header. This
  * list is not exhaustive, as fields are added when needed by a test.
@@ -1636,6 +1650,23 @@ export class AdminPrograms {
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
         'highlight other programs to apply for. (optional)',
+    })
+  }
+
+  getProgramExtraActionsButton(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+  ): string {
+    return this.withinProgramCardSelector(
+      programName,
+      lifecycle,
+      '.cf-with-dropdown',
+    )
+  }
+
+  getProgramExtraAction(action: ProgramExtraAction): Locator {
+    return this.page.getByRole('button', {
+      name: action,
     })
   }
 
