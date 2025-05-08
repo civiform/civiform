@@ -220,7 +220,7 @@ button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHerePreScreenerSr=Заполнить форму "{0}"
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=Edit submitted information for {0}
+button.editPreScreenerSr=Изменить сведения, указанные в форме "{0}"
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continuePreScreenerSr=Continue filling out {0}
 # Text describing the date the application was last submitted.
