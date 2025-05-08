@@ -222,7 +222,7 @@ button.startHerePreScreenerSr={0} を入力してここから開始
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr={0} の送信済み情報を編集
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Continue filling out {0}
+button.continuePreScreenerSr={0} の入力を続ける
 # Text describing the date the application was last submitted.
 content.submittedDate={0} に送信済み
 # Text for applicants to understand the section is for finding programs
