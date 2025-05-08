@@ -1434,6 +1434,9 @@ test.describe('program creation', () => {
           await adminPrograms.expectFormFieldDisabled(
             FormField.APPLICATION_STEPS,
           )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.CONFIRMATION_MESSAGE,
+          )
 
           // Changing the program type is allowed during program creation.
           // Therefore, all the program type options should be enabled.
@@ -1461,6 +1464,9 @@ test.describe('program creation', () => {
           await adminPrograms.expectFormFieldEnabled(
             FormField.APPLICATION_STEPS,
           )
+          await adminPrograms.expectFormFieldEnabled(
+            FormField.CONFIRMATION_MESSAGE,
+          )
         })
 
         await test.step('save external program', async () => {
@@ -1482,6 +1488,9 @@ test.describe('program creation', () => {
           )
           await adminPrograms.expectFormFieldDisabled(
             FormField.APPLICATION_STEPS,
+          )
+          await adminPrograms.expectFormFieldDisabled(
+            FormField.CONFIRMATION_MESSAGE,
           )
 
           // Changing the program type of an external program is disallowed

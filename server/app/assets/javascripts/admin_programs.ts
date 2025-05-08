@@ -136,7 +136,7 @@ class AdminPrograms {
     // Confirmation message
     const disableConfirmationMessage = programType === ProgramType.EXTERNAL
     this.updateTextFieldSelectorsDisabledState(
-      /* fieldSelectors= */ 'input[id="program-confirmation-message-textarea"]',
+      /* fieldSelectors= */ 'textarea[id="program-confirmation-message-textarea"]',
       /* shouldDisable= */ disableConfirmationMessage,
     )
   }
