@@ -615,7 +615,7 @@ content.initialLoginModalPrompt=Прежде чем продолжить, вой
 button.continueWithoutAnAccount=Продолжить без входа в аккаунт
 title.preScreenerConfirmation=Программы, которые могут быть вам доступны
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
-title.preScreenerConfirmationTi=Programs your client may qualify for
+title.preScreenerConfirmationTi=Программы, которые могут быть доступны вашему клиенту
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
