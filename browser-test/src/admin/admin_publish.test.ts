@@ -130,6 +130,10 @@ test.describe(
 )
 
 test.describe('publishing all programs with universal questions feature flag on', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
+
   test('shows a modal with information about universal questions', async ({
     page,
     adminPrograms,
