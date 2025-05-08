@@ -222,7 +222,7 @@ button.startHerePreScreenerSr={0} 작성
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editPreScreenerSr={0}에 대해 제출한 정보 수정
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Continue filling out {0}
+button.continuePreScreenerSr={0} 계속 작성
 # Text describing the date the application was last submitted.
 content.submittedDate=제출 날짜: {0}
 # Text for applicants to understand the section is for finding programs
