@@ -595,4 +595,9 @@ main {
     padding-right: 20px;
   }
   // -- end
+
+  /* Prevent `position: absolute` from breaking CSS when usa-sr-only elements are focused on when rendering rtl. */
+  .usa-sr-only {
+    position: fixed;
+  }
 }
