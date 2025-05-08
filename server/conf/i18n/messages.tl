@@ -472,7 +472,7 @@ ariaLabel.answer=Sagot {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
 # Title for the summary of the pre-screener page
-title.preScreenerSummary=Benefits pre-screener summary
+title.preScreenerSummary=Buod ng pre-screener para sa mga benepisyo
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Magsimula na tayo
 title.programSummary=Buod ng application para sa programa
