@@ -617,7 +617,7 @@ title.preScreenerConfirmation=ໂຄງການທີ່ທ່ານອາດ�
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=ໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmation=ທ່ານອາດຈະສາມາດລົງທະບຽນໃນໂຄງການເຫຼົ່ານີ້ໄດ້ ຫາກທ່ານສະໝັກຜ່ານໃບສະໝັກທາງອອນລາຍໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.
 # A message explaining that the applicant may be eligible for the following list of programs.
 content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
