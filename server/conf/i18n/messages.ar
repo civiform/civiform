@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=لم يتم تسجيل الدخول إلى حس�
 content.initialLoginModalPrompt=قبل المتابعة، يُرجى تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد. سيتيح لك ذلك إرسال طلبات للانضمام إلى عدة برامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات والاطّلاع على حالتها.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=المتابعة بدون حساب
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=برامج قد يكون حسابك مؤهلاً للانضمام إليها
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
