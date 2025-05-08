@@ -629,7 +629,7 @@ content.preScreenerNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກໂຄງການໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''. ຫຼື ເພື່ອເບິ່ງໂຄງການເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+content.preScreenerNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=ໂປຣແກຣມອື່ນທີ່ທ່ານອາດສົນໃຈ
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
