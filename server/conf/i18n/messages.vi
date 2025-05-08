@@ -617,9 +617,9 @@ title.preScreenerConfirmation=Chương trình bạn có thể đủ tiêu chuẩ
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Chương trình khách hàng của bạn có thể đủ tiêu chuẩn tham gia
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
+content.preScreenerConfirmation=Bạn có thể đăng ký tham gia các chương trình này nếu đăng ký thông qua đơn đăng ký trực tuyến bằng cách nhấp vào ''Đăng ký tham gia chương trình''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.preScreenerConfirmation.v2=Based on your responses, you may qualify for the following programs:
+content.preScreenerConfirmation.v2=Dựa trên câu trả lời của bạn, bạn có thể đủ điều kiện tham gia các chương trình sau:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmationTi=Your client may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
