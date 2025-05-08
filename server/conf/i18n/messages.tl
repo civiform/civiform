@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo 
 content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} account o gumawa ng account. Makakapag-apply ka para sa maraming programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipikado
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
