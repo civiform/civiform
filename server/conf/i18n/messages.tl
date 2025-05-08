@@ -615,7 +615,7 @@ content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong {0} acco
 button.continueWithoutAnAccount=Magpatuloy nang walang account
 title.preScreenerConfirmation=Mga programa kung saan puwede kang maging kwalipikado
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
-title.preScreenerConfirmationTi=Programs your client may qualify for
+title.preScreenerConfirmationTi=Mga programa kung saan puwedeng maging kwalipikado ang kliyente mo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
 content.preScreenerConfirmation=You may be able to enroll in these programs if you apply through the online application by clicking ''Apply to programs''.
 # A message explaining that the applicant may be eligible for the following list of programs.
