@@ -220,9 +220,9 @@ button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHerePreScreenerSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editPreScreenerSr=Edit submitted information for {0}
+button.editPreScreenerSr=I-edit ang isinumiteng impormasyon para sa {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continuePreScreenerSr=Continue filling out {0}
+button.continuePreScreenerSr=Ipagpatuloy ang pagsasagot ng {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=Isinumite noong {0}
 # Text for applicants to understand the section is for finding programs
