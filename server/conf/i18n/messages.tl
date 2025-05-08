@@ -629,7 +629,7 @@ content.preScreenerNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga pr
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
 content.preScreenerNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang kliyente mo sa panahong ito. Pero puwede kang mag-apply sa mga programa anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tumingin ng mga karagdagang programa, puwede kang pumunta sa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.preScreenerNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+content.preScreenerNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Ibang programang posibleng kainteresan mo
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.
