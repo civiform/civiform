@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=Вы не вошли в аккаунт. Без �
 content.initialLoginModalPrompt=Прежде чем продолжить, войдите в свой аккаунт, зарегистрированный в сервисе "{0}". Тогда вам не придется повторно вводить свою информацию при подаче нескольких заявок. Вы также сможете изменять заполненные заявки и проверять их статус. Если у вас нет аккаунта, вы можете его создать.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Продолжить без входа в аккаунт
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Программы, которые могут быть вам доступны
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
