@@ -613,7 +613,7 @@ content.generalLoginModalPrompt=Vous n''êtes connecté à aucun compte. Sans co
 content.initialLoginModalPrompt=Avant de continuer, connectez-vous à votre compte {0} ou créez-en un. Vous pourrez vous inscrire à plusieurs programmes sans avoir à saisir de nouveau les mêmes informations. Vous pourrez également modifier vos demandes et vérifier leur état.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continuer sans compte
-title.preScreenerConfirmation=Programs you may qualify for
+title.preScreenerConfirmation=Programmes auxquels vous pouvez être éligible
 # Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
 title.preScreenerConfirmationTi=Programs your client may qualify for
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
