@@ -1466,6 +1466,109 @@ test.describe(
       })
     })
 
+    test('External program cards are included in program filters', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+      seeding,
+    }) => {
+      const externalProgramName = 'External Program'
+      const externalProgramLink = 'https://civiform.us'
+
+      await test.step('enable required features', async () => {
+        await enableFeatureFlag(page, 'program_filtering_enabled')
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+      })
+
+      await test.step('seed categories', async () => {
+        // The program filtering feature requires seeding the categories. This
+        // will add two programs: "Comprehensive Sample Program" and "Minimal
+        // Sample Program".
+        await seeding.seedProgramsAndCategories()
+        await page.goto('/')
+      })
+
+      await test.step("add an external program with 'Education' category", async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          externalProgramName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          externalProgramLink,
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+
+        await adminPrograms.selectProgramCategories(
+          externalProgramName,
+          [ProgramCategories.EDUCATION],
+          /* isActive= */ false,
+        )
+
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step("filter programs by 'Education' category", async () => {
+        await loginAsTestUser(page)
+        await applicantQuestions.filterProgramsByCategory('Education')
+      })
+
+      await test.step("external program card appeasrs in the 'Recommended' section", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [externalProgramName],
+            expectedProgramsInOtherProgramsSection: [
+              'Comprehensive Sample Program',
+              'Minimal Sample Program',
+            ],
+          },
+          /* filtersOn= */ true,
+          /* northStarEnabled= */ true,
+        )
+      })
+
+      await test.step('clicking on external program card opens a modal', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step("selecting 'go back' closes the modal", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const goBackButton = modal.getByRole('button', {name: 'Go back'})
+        await expect(goBackButton).toBeVisible()
+        await goBackButton.click()
+        await expect(modal).toBeHidden()
+      })
+
+      await test.step('trigger the external program modal again', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step("selecting 'continue' redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
+        await continueButton.click()
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramLink)
+
+        await newPage.close()
+      })
+    })
+
     async function submitApplicationAndApplyStatus(
       page: Page,
       programName: string,
