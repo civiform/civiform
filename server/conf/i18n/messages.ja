@@ -214,11 +214,11 @@ button.viewAndApplySr=確認して {0} に申請
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr={0} を入力してここから開始
+button.startHerePreScreenerSr={0} を入力してここから開始
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr={0} の送信済み情報を編集
+button.editPreScreenerSr={0} の送信済み情報を編集
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr={0} の入力を続ける
+button.continuePreScreenerSr={0} の入力を続ける
 # Text describing the date the application was last submitted.
 content.submittedDate={0} に送信済み
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer={0} に回答
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} を編集
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=資格要件に関する事前チェックの概要
+title.preScreenerSummary=資格要件に関する事前チェックの概要
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=さっそく始めましょう。
 title.programSummary=プログラム申請の概要
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=アカウントにログインしていません
 content.initialLoginModalPrompt=続行する前に {0} アカウントにログインするか、アカウントを作成してください。同じ情報を再度入力することなく、複数のプログラムに申請できるようになります。また、申請内容の編集や申請状況の確認も可能です。
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=アカウントなしで続行する
-title.commonIntakeConfirmation=対象の可能性があるプログラム
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=クライアントに対象の可能性があるプログラム
+title.preScreenerConfirmation=対象の可能性があるプログラム
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=クライアントに対象の可能性があるプログラム
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=[プログラムに申請] をクリックしてオンライン申請で申請した場合、これらのプログラムに登録できる場合があります。
+content.preScreenerConfirmation=[プログラムに申請] をクリックしてオンライン申請で申請した場合、これらのプログラムに登録できる場合があります。
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=回答によると、以下のプログラムの対象となる可能性があります。
+content.preScreenerConfirmation.v2=回答によると、以下のプログラムの対象となる可能性があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=[プログラムに申請] をクリックしてオンライン申請で申請した場合、クライアントはこれらのプログラムに登録できる場合があります。
+content.preScreenerConfirmationTi=[プログラムに申請] をクリックしてオンライン申請で申請した場合、クライアントはこれらのプログラムに登録できる場合があります。
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=回答によると、クライアントは以下のプログラムの対象となる可能性があります。
+content.preScreenerConfirmationTi.v2=回答によると、クライアントは以下のプログラムの対象となる可能性があります。
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=事前チェックでは、現時点で対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
+content.preScreenerNoMatchingPrograms=事前チェックでは、現時点で対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=事前チェックでは、現時点でクライアントが対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
+content.preScreenerNoMatchingProgramsTi=事前チェックでは、現時点でクライアントが対象となる可能性のあるプログラムが見つかりませんでした。ただし、[プログラムに申請] をクリックすることで、いつでもプログラムに申請できます。{0} にアクセスしてその他のプログラムを表示することも可能です
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=前のページに戻って、回答を編集することもできます。
+content.preScreenerNoMatchingProgramsNextStep=前のページに戻って、回答を編集することもできます。
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=あなたが興味を持ちそうなその他のプログラム
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.

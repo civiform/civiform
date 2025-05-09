@@ -214,11 +214,11 @@ button.viewAndApplySr=Eeg oo codso {0}
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
-button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
+button.startHerePreScreenerSr=Ka bilow halkan addoo buuxinaya {0}
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
-button.editCommonIntakeSr=Wax ka beddel macluumaadka la gudbiyay {0}
+button.editPreScreenerSr=Wax ka beddel macluumaadka la gudbiyay {0}
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
-button.continueCommonIntakeSr=Sii wad buuxinta {0}
+button.continuePreScreenerSr=Sii wad buuxinta {0}
 # Text describing the date the application was last submitted.
 content.submittedDate=La gudbiyay {0}
 # Text for applicants to understand the section is for finding programs
@@ -460,7 +460,7 @@ ariaLabel.answer=Jawaab {0}
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Wax ka beddel {0}
 # Title for the summary of the pre-screener page
-title.commonIntakeSummary=Faa'iidooyinka hore u baadhaha oo kooban
+title.preScreenerSummary=Faa'iidooyinka hore u baadhaha oo kooban
 # Heading content at the top of the review page, where applicants can start answering questions.
 title.getStarted=Aan bilowno.
 title.programSummary=Soo koobida barnaamijka codsiga
@@ -601,23 +601,23 @@ content.generalLoginModalPrompt=Adigu akoon kuma aanad soo galin. Akoon la'aanti
 content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal {0} akoonkaaga ama samayso akoon. Waxaad awoodi doontaa inaad codsatid dhowr barnaamij adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
-title.commonIntakeConfirmation=Barnaamijyada aad u qalmi karaysid
-# Title on the page after a trusted intermediary has successfully filled out the common intake form.
-title.commonIntakeConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
+title.preScreenerConfirmation=Barnaamijyada aad u qalmi karaysid
+# Title on the page after a trusted intermediary has successfully filled out the pre-screener form.
+title.preScreenerConfirmationTi=Barnaamijyada macmiilkaagu u qalmi karayo
 # A message explaining that the applicant may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
+content.preScreenerConfirmation=Waxaad awoodi kartaa inaad iska-diwaan galisid barnaamijyadan hadii aad ku codsatid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''.
 # A message explaining that the applicant may be eligible for the following list of programs.
-content.commonIntakeConfirmation.v2=Iyada oo lagu saleynayo jawaabahaaga, waxaa laga yaabaa inaad u qalanto barnaamijyada soo socda:
+content.preScreenerConfirmation.v2=Iyada oo lagu saleynayo jawaabahaaga, waxaa laga yaabaa inaad u qalanto barnaamijyada soo socda:
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs, and that they need to apply to them.
-content.commonIntakeConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
+content.preScreenerConfirmationTi=Macmiilkaagu wuxuu awoodi karaa inuu iska diwaangaliyo barnaamijyadan hadii aad codsiga ugu dalabtid/buuxisid qaabka codsiga onlaynka ah adigoo gujinaya ''Codso barnaamijyada''
 # A message explaining that the trusted intermediary's client may be eligible for the following list of programs.
-content.commonIntakeConfirmationTi.v2=Iyada oo lagu saleynayo jawaabahaaga, macmiilkaagu waxaa laga yaabaa inuu u qalmo barnaamijyada soo socda:
+content.preScreenerConfirmationTi.v2=Iyada oo lagu saleynayo jawaabahaaga, macmiilkaagu waxaa laga yaabaa inuu u qalmo barnaamijyada soo socda:
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.preScreenerNoMatchingPrograms=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
-content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
+content.preScreenerNoMatchingProgramsTi=Qiimeeyaha-hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa barnaamijyada wakhti kasta, adigoo gujinaya "Codso barnaamiyada". Ama si aad u eegtid barnaamijyo dheeraad ah waxaad booqan kartaa {0}
 # A message explaining a second option when there are no eligible programs, which is to edit your responses.
-content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
+content.preScreenerNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 # A header above a list of other programs the applicant might be interested in applying to.
 content.otherProgramsToApplyFor=Barnaamijyada kale ee laga yaabo inaad xiisaynayso
 # Button on the "Application Submitted" page. Clicking it downloads the user's application.

@@ -85,7 +85,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     await adminSettings.saveChanges()
     await logout(page)
 
-    await expect(page.getByText(/To get help with/)).toBeVisible()
+    await expect(page.getByText(/Discover services you may/)).toBeVisible()
   })
 
   test('validate initial page load as guest user', async ({
@@ -1258,17 +1258,18 @@ test.describe(
       })
     })
 
-    test('Shows card for external program and opens external link', async ({
+    test('External program card is not shown when feature flag is off', async ({
       page,
       adminPrograms,
       applicantQuestions,
     }) => {
       const externalProgramName = 'External Program'
 
-      await test.step('add external program', async () => {
-        await enableFeatureFlag(page, 'external_program_cards_enabled')
-
+      await test.step('add external program as an admin', async () => {
         await loginAsAdmin(page)
+
+        // Feature flag must be enabled to be able to add an external program
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
         await adminPrograms.addProgram(
           externalProgramName,
           /* description= */ '',
@@ -1282,11 +1283,68 @@ test.describe(
         await logout(page)
       })
 
-      await test.step("'Programs and Services' section includes a card for the external program", async () => {
+      await test.step('disable feature flag', async () => {
+        await disableFeatureFlag(page, 'external_program_cards_enabled')
+      })
+
+      await test.step('external program card is not shown to applicant', async () => {
         await applicantQuestions.expectProgramsinCorrectSections(
           {
             expectedProgramsInMyApplicationsSection: [],
-            expectedProgramsInProgramsAndServicesSection: [externalProgramName],
+            expectedProgramsInProgramsAndServicesSection: [],
+            expectedProgramsInRecommendedSection: [],
+            expectedProgramsInOtherProgramsSection: [],
+          },
+          /* filtersOn= */ false,
+          /* northStarEnabled= */ true,
+        )
+      })
+    })
+
+    test('External program cards are show when feature flag is on', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const externalProgramAName = 'External Program A'
+      const externalProgramALink = 'https://www.usa.gov'
+      const externalProgramBName = 'External Program B'
+      const externalProgramBLink = 'https://civiform.us'
+
+      await test.step('add external programs', async () => {
+        await enableFeatureFlag(page, 'external_program_cards_enabled')
+
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(
+          externalProgramAName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          externalProgramALink,
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.addProgram(
+          externalProgramBName,
+          /* description= */ '',
+          /* shortDescription= */ 'description',
+          externalProgramBLink,
+          ProgramVisibility.PUBLIC,
+          /* adminDescription= */ 'admin description',
+          ProgramType.EXTERNAL,
+        )
+        await adminPrograms.publishAllDrafts()
+        await logout(page)
+      })
+
+      await test.step("'Programs and Services' section includes cards for the external programs", async () => {
+        await applicantQuestions.expectProgramsinCorrectSections(
+          {
+            expectedProgramsInMyApplicationsSection: [],
+            expectedProgramsInProgramsAndServicesSection: [
+              externalProgramAName,
+              externalProgramBName,
+            ],
             expectedProgramsInRecommendedSection: [],
             expectedProgramsInOtherProgramsSection: [],
           },
@@ -1296,15 +1354,17 @@ test.describe(
 
         // Button for external program card has a different text.
         const externalProgramCard = page.locator('.cf-application-card', {
-          has: page.getByText(externalProgramName),
+          has: page.getByText(externalProgramAName),
         })
         await expect(
           externalProgramCard.getByRole('button', {name: 'View in new window'}),
         ).toBeVisible()
+
+        await validateAccessibility(page)
       })
 
-      await test.step('Clicking on the external program card opens a modal', async () => {
-        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+      await test.step("card for external program A opens a modal which redirects to the extenal program A's site", async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramAName)
 
         // Verify external program modal is visible
         const modal = page.getByRole('dialog', {state: 'visible'})
@@ -1318,16 +1378,31 @@ test.describe(
             "To go to the program's website where you can get more details and apply, click Continue",
           ),
         ).toBeVisible()
-        await expect(
-          modal.getByRole('button', {name: 'Continue'}),
-        ).toBeVisible()
+        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
         await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+
+        // Clicking continue should redirect to the external program A's site
+        await continueButton.click()
+        await expect(page).toHaveURL(externalProgramALink)
       })
 
-      await test.step("Accepting the modal redirects to the external program's site", async () => {
+      await test.step('go back to the applicant home page', async () => {
+        await page.goto(BASE_URL)
+      })
+
+      await test.step("card for external program B opens a modal which redirects to the external program B's site", async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramBName)
+
+        // Verify external program modal is visible. We don't need to check
+        // every element since last step verified it
         const modal = page.getByRole('dialog', {state: 'visible'})
-        await modal.getByRole('button', {name: 'Continue'}).click()
-        await expect(page).toHaveURL('https://www.usa.gov')
+        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+
+        // Clicking continue should redirect to the external program B's site
+        await continueButton.click()
+        await expect(page).toHaveURL(externalProgramBLink)
       })
     })
 
