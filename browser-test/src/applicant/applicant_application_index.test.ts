@@ -540,6 +540,10 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(page, 'program_filtering_enabled')
+  })
+
   test('shows program with wide image', async ({
     page,
     adminPrograms,
