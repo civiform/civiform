@@ -566,48 +566,42 @@ test.describe('Program list page.', () => {
     await expectProgramListElements(adminPrograms, [externalProgram])
 
     // On draft mode, 'manage applications' button is hidden
-    await page.click(
-      adminPrograms.getProgramExtraActionsButton(
-        externalProgram,
-        ProgramLifecycle.DRAFT,
-      ),
-    )
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.MANAGE_ADMINS),
-    ).toBeVisible()
-    await expect(
-      adminPrograms.getProgramExtraAction(
+    await adminPrograms
+      .getProgramExtraActionsButton(externalProgram, ProgramLifecycle.DRAFT)
+      .click()
+    await adminPrograms.expectProgramExtraActionsVisible(
+      externalProgram,
+      ProgramLifecycle.DRAFT,
+      [
+        ProgramExtraAction.MANAGE_ADMINS,
         ProgramExtraAction.MANAGE_TRANSLATIONS,
-      ),
-    ).toBeVisible()
-    await expect(
-      adminPrograms.getProgramExtraAction(
-        ProgramExtraAction.MANAGE_APPLICATIONS,
-      ),
-    ).toBeHidden()
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.EXPORT),
-    ).toBeVisible()
+        ProgramExtraAction.EXPORT,
+      ],
+    )
+    await adminPrograms.expectProgramExtraActionsHidden(
+      externalProgram,
+      ProgramLifecycle.DRAFT,
+      [ProgramExtraAction.MANAGE_APPLICATIONS],
+    )
 
     // On active mode, 'applications' button is hidden
     await adminPrograms.publishProgram(externalProgram)
-    await page.click(
-      adminPrograms.getProgramExtraActionsButton(
-        externalProgram,
-        ProgramLifecycle.ACTIVE,
-      ),
+    await adminPrograms
+      .getProgramExtraActionsButton(externalProgram, ProgramLifecycle.ACTIVE)
+      .click()
+    await adminPrograms.expectProgramExtraActionsVisible(
+      externalProgram,
+      ProgramLifecycle.ACTIVE,
+      [
+        ProgramExtraAction.EDIT,
+        ProgramExtraAction.MANAGE_ADMINS,
+        ProgramExtraAction.EXPORT,
+      ],
     )
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.VIEW_APPLICATIONS),
-    ).toBeHidden()
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.EDIT),
-    ).toBeVisible()
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.MANAGE_ADMINS),
-    ).toBeVisible()
-    await expect(
-      adminPrograms.getProgramExtraAction(ProgramExtraAction.EXPORT),
-    ).toBeVisible()
+    await adminPrograms.expectProgramExtraActionsHidden(
+      externalProgram,
+      ProgramLifecycle.ACTIVE,
+      [ProgramExtraAction.VIEW_APPLICATIONS],
+    )
   })
 })
