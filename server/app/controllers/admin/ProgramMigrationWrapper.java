@@ -88,6 +88,9 @@ public final class ProgramMigrationWrapper {
 
   /** Enum representing the options for handling duplicate questions during program import. */
   public enum DuplicateQuestionHandlingOption {
+    /** Reuse the existing question definition in the question bank. */
+    USE_EXISTING,
+
     /**
      * Create a new question with the same definition as the imported one. A unique admin name is
      * guaranteed.
