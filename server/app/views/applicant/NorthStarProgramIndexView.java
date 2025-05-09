@@ -18,6 +18,8 @@ import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
+import services.AlertSettings;
+import services.AlertType;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
@@ -126,6 +128,16 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   personalInfo,
                   ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
+
+    AlertSettings noProgramsAlertSettings =
+        new AlertSettings(
+            /* show= */ true,
+            Optional.empty(),
+            messages.at(MessageKey.ALERT_NO_PROGRAMS_AVAILABLE.getKeyName()),
+            AlertType.INFO,
+            ImmutableList.of(),
+            /* isSlim= */ true);
+    context.setVariable("noProgramsAlertSettings", noProgramsAlertSettings);
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("commonIntakeSection", intakeSection);

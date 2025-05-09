@@ -77,6 +77,13 @@
               th:replace="~{applicant/ProgramCardsSectionFragment :: cardsSection(${unfilteredSection.get()})}"
             ></div>
           </th:block>
+          <th:block th:if="${!unfilteredSection.isPresent()}">
+            <div class="section usa-prose">
+              <div
+                th:replace="~{components/AlertFragment :: alert(alertSettings=${noProgramsAlertSettings}, headingLevel='H3')}"
+              ></div>
+            </div>
+          </th:block>
         </div>
       </div>
     </main>
