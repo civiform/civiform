@@ -67,7 +67,7 @@ toast.errorMessageOutline=Error: {0}
 button.close=Close
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Review
-# Button taxt that will go back to the previous page.
+# Button text that will go back to the previous page.
 button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=opens in a new tab
