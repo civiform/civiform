@@ -616,4 +616,9 @@ main {
   .usa-sr-only {
     position: fixed;
   }
+
+  /* Make numbered text render correctly in rtl. */
+  .usa-step-indicator__total-steps {
+    unicode-bidi: plaintext;
+  }
 }
