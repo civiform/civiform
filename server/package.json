@@ -14,6 +14,7 @@
     "@tsconfig/recommended": "1.0.8",
     "@types/cleave.js": "1.4.12",
     "@types/jest": "29.5.14",
+    "@types/leaflet": "^1.9.17",
     "@types/markdown-it": "14.1.2",
     "@typescript-eslint/eslint-plugin": "8.31.0",
     "@typescript-eslint/parser": "8.31.0",
@@ -41,6 +42,7 @@
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
     "dompurify": "3.2.5",
+    "leaflet": "^1.9.4",
     "markdown-it": "14.1.0",
     "swagger-ui-dist": "^5.18.2"
   },
