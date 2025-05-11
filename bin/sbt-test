@@ -5,6 +5,9 @@
 source bin/lib.sh
 docker::set_project_name_unit_tests
 
+# Check available disk space for docker.
+docker::check_disk_space
+
 bin/pull-image
 
 docker::compose_unit_test_dev up -d --wait

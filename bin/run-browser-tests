@@ -9,6 +9,10 @@
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
+
+# Check available disk space for docker.
+docker::check_disk_space
+
 bin/pull-image
 
 readonly CONTAINER_NAME="civiform-browser-test-runner"
