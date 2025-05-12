@@ -388,7 +388,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeEnabled()
+          // expect(stepTitle.getAttribute('readonly')).toBeNull()
           await expect(stepDescription).toBeEnabled()
+          // expect(stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isVisible()
           }
