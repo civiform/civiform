@@ -67,7 +67,7 @@ toast.errorMessageOutline=ስህተት: {0}
 button.close=ዝጋ
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=ገምግም
-# Button taxt that will go back to the previous page.
+# Button text that will go back to the previous page.
 button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=በአዲስ ትር ውስጥ ይከፍታል
@@ -657,6 +657,8 @@ alert.submitted=የ{0} ማመልከቻዎን አስገብተዋል
 alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መለያ ይፍጠሩ
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁኔታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
