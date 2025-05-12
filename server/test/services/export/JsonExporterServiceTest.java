@@ -1110,9 +1110,6 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
             testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
             "taylor",
             ImmutableList.of("test-file-key"))
-        //
-        // .answerFileUploadQuestion(testQuestionBank.fileUploadRepeatedHouseholdMemberFile(),
-        // "taylor", "test-file-key")
         .submit();
 
     JsonExporterService exporter = instanceOf(JsonExporterService.class);
