@@ -34,6 +34,7 @@ import services.pagination.PageNumberPaginationSpec;
 import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
@@ -138,8 +139,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .anyMatch(block -> block.hasNullQuestion()));
+            program.getProgramDefinition().blockDefinitions().stream()
+                .anyMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isEmpty();
   }
 
@@ -158,8 +160,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getFullProgramDefinitionFromCache(program);
 
     assertThat(
-        program.getProgramDefinition().blockDefinitions().stream()
-            .noneMatch(block -> block.hasNullQuestion()));
+            program.getProgramDefinition().blockDefinitions().stream()
+                .noneMatch(BlockDefinition::hasNullQuestion))
+        .isTrue();
     assertThat(programDefFromCache).isNotEmpty();
   }
 
@@ -811,6 +814,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
+    @SuppressWarnings("unused")
     ApplicationModel applicationOne =
         resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
@@ -855,7 +859,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             new SubmitTimeSequentialAccessPaginationSpec(
                 /* pageSize= */ 2,
                 /* currentSubmitTime= */ paginationResult.getPageContents().get(1).getSubmitTime(),
-                /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+                /* currentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
     // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
@@ -872,6 +876,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
     ProgramModel originalVersion = resourceCreator.insertActiveProgram("test program");
 
+    @SuppressWarnings("unused")
     ApplicationModel applicationOne =
         resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
@@ -882,8 +887,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
     ApplicantModel applicantThree =
         resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    @SuppressWarnings("unused")
     ApplicationModel applicationTwo =
         resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    @SuppressWarnings("unused")
     ApplicationModel applicationThree =
         resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
@@ -904,7 +911,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             new RowIdSequentialAccessPaginationSpec(
-                /* pageSize= */ 2, /* curentRowId= */ paginationResult.getPageContents().get(1).id),
+                /* pageSize= */ 2,
+                /* currentRowId= */ paginationResult.getPageContents().get(1).id),
             SubmittedApplicationFilter.EMPTY);
 
     // Sequential paging returns (1) in the numpages, it only counts the pages from the starting
@@ -1005,10 +1013,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsDifferentProgramIdWhichIsTheLatest() {
     ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-1");
     ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -1019,10 +1024,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsSameProgramIdWhichIsTheLatest() {
     ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -1032,12 +1033,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getMostRecentActiveProgramVersion_returnsEmptyWhenIdDoesNotExist() {
-    ProgramModel programModel1 = resourceCreator.insertActiveProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
-    ProgramModel programModel5 = resourceCreator.insertDraftProgram("program-name-1");
-
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(-1);
 
     assertThat(latestId.isEmpty()).isTrue();
@@ -1046,9 +1041,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void getMostRecentActiveProgramVersion_returnsEmptyWhenNoActiveProgramExists() {
     ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
-    ProgramModel programModel2 = resourceCreator.insertActiveProgram("program-name-2");
-    ProgramModel programModel3 = resourceCreator.insertActiveProgram("program-name-3");
-    ProgramModel programModel4 = resourceCreator.insertActiveProgram("program-name-4");
 
     Optional<Long> latestId = repo.getMostRecentActiveProgramId(programModel1.id);
 
@@ -1060,7 +1052,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ProgramModel programModel1 = resourceCreator.insertDraftProgram("program-name-1");
 
     boolean existsOne =
-        repo.checkProgramAdminNameExists("program-name-1"); // same admin name as saved program
+        repo.checkProgramAdminNameExists(programModel1.getProgramDefinition().adminName());
     boolean existsTwo = repo.checkProgramAdminNameExists("another-admin-name");
 
     assertThat(existsOne).isTrue();

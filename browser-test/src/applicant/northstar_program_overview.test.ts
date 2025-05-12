@@ -303,7 +303,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       expect(page.url()).toContain('/programs')
       await expect(
         page.getByRole('heading', {
-          name: 'Apply for government assistance here',
+          name: 'Apply for government programs online',
         }),
       ).toBeVisible()
     })
@@ -346,7 +346,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
     await expect(
       page.getByRole('heading', {
-        name: 'Apply for government assistance here',
+        name: 'Apply for government programs online',
       }),
     ).toBeAttached()
   })

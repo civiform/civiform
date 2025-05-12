@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -1182,14 +1183,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     blankApplicant.refresh();
     // All saved PAI values should be null/empty
-    assertThat(blankApplicant.getFirstName().isEmpty());
-    assertThat(blankApplicant.getMiddleName().isEmpty());
-    assertThat(blankApplicant.getLastName().isEmpty());
-    assertThat(blankApplicant.getSuffix().isEmpty());
-    assertThat(blankApplicant.getDateOfBirth().isEmpty());
-    assertThat(blankApplicant.getEmailAddress().isEmpty());
-    assertThat(blankApplicant.getPhoneNumber().isEmpty());
-    assertThat(blankApplicant.getCountryCode().isEmpty());
+    assertThat(blankApplicant.getFirstName()).isEmpty();
+    assertThat(blankApplicant.getMiddleName()).isEmpty();
+    assertThat(blankApplicant.getLastName()).isEmpty();
+    assertThat(blankApplicant.getSuffix()).isEmpty();
+    assertThat(blankApplicant.getDateOfBirth()).isEmpty();
+    assertThat(blankApplicant.getEmailAddress()).isEmpty();
+    assertThat(blankApplicant.getPhoneNumber()).isEmpty();
+    assertThat(blankApplicant.getCountryCode()).isEmpty();
   }
 
   @Test
@@ -2204,7 +2205,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ProgramModel program3 = ProgramBuilder.newActiveProgram("program_three").withBlock().build();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsWithoutApplicant().toCompletableFuture().join();
+        subject.relevantProgramsWithoutApplicant(fakeRequest()).toCompletableFuture().join();
 
     assertThat(result.inProgress().size()).isEqualTo(0);
     assertThat(result.submitted().size()).isEqualTo(0);
@@ -2473,6 +2474,44 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_externalProgram() {
+    ApplicantModel applicant = createTestApplicant();
+    ProgramModel externalProgram =
+        ProgramBuilder.newActiveProgram(
+                "External Program",
+                "External Program",
+                "",
+                DisplayMode.PUBLIC,
+                ProgramType.EXTERNAL)
+            .build();
+
+    // External program is not included in 'unapplied' list when request does not have the feature
+    // enabled
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "false").build();
+    ApplicantService.ApplicationPrograms result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, request)
+            .toCompletableFuture()
+            .join();
+    // programDefinition is created during test set up.
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+
+    // External program is included in 'unapplied' list when request has the feature enabled
+    Request requestWithFeature =
+        fakeRequestBuilder().addCiviFormSetting("EXTERNAL_PROGRAM_CARDS_ENABLED", "true").build();
+    ApplicantService.ApplicationPrograms resultWithFeature =
+        subject
+            .relevantProgramsForApplicant(
+                applicant.id, trustedIntermediaryProfile, requestWithFeature)
+            .toCompletableFuture()
+            .join();
+    assertThat(resultWithFeature.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(externalProgram.id, programDefinition.id());
   }
 
   @Test

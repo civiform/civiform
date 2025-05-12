@@ -581,97 +581,105 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- NO FILE SELECTED --\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- NO FILE SELECTED --
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_FIVE_STRING_SINGLE_FILE =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- my-file-key UPLOADED (click to download) --\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_FIVE_STRING =
-      "Optional.empty (558)\n"
-          + "Program Name : Fake Optional Question Program\n"
-          + "Status: none\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant name\n"
-          + "Example Five\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "my-file-key-1\n"
-          + "my-file-key-2\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      my-file-key-1
+      my-file-key-2
+      Answered on : 1969-12-31
+      """;
 
   public static final String APPLICATION_ONE_STRING =
-      "Optional.empty (48)\n"
-          + "Program Name : Fake Program\n"
-          + "Status: "
-          + STATUS_VALUE
-          + "\n"
-          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
-          + " \n"
-          + "applicant address\n"
-          + "street st\n"
-          + "apt 100\n"
-          + "city, AB 54321\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant birth date\n"
-          + "01/01/1980\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant email address\n"
-          + "one@example.com\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant favorite color\n"
-          + "Some Value \" containing ,,, special characters\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant favorite season\n"
-          + "Winter\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant file\n"
-          + "-- my-file-key UPLOADED (click to download) --\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant household members\n"
-          + "item1\n"
-          + "item2\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant ice cream\n"
-          + "Strawberry\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant id\n"
-          + "012\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant monthly income\n"
-          + "1234.56\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant name\n"
-          + "Alice M Appleton Jr\n"
-          + "Answered on : 1969-12-31\n"
-          + "applicant phone\n"
-          + "+1 615-757-1010\n"
-          + "Answered on : 1969-12-31\n"
-          + "kitchen tools\n"
-          + "Toaster\n"
-          + "Pepper Grinder\n"
-          + "Answered on : 1969-12-31\n"
-          + "number of items applicant can juggle\n"
-          + "123456\n"
-          + "Answered on : 1969-12-31\n";
+      """
+      Optional.empty (48)
+      Program Name : Fake Program
+      Status: \
+      %s
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant address
+      street st
+      apt 100
+      city, AB 54321
+      Answered on : 1969-12-31
+      applicant birth date
+      01/01/1980
+      Answered on : 1969-12-31
+      applicant email address
+      one@example.com
+      Answered on : 1969-12-31
+      applicant favorite color
+      Some Value " containing ,,, special characters
+      Answered on : 1969-12-31
+      applicant favorite season
+      Winter
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      applicant household members
+      item1
+      item2
+      Answered on : 1969-12-31
+      applicant ice cream
+      Strawberry
+      Answered on : 1969-12-31
+      applicant id
+      012
+      Answered on : 1969-12-31
+      applicant monthly income
+      1234.56
+      Answered on : 1969-12-31
+      applicant name
+      Alice M Appleton Jr
+      Answered on : 1969-12-31
+      applicant phone
+      +1 615-757-1010
+      Answered on : 1969-12-31
+      kitchen tools
+      Toaster
+      Pepper Grinder
+      Answered on : 1969-12-31
+      number of items applicant can juggle
+      123456
+      Answered on : 1969-12-31
+      """
+          .formatted(STATUS_VALUE);
 }

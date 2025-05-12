@@ -6,6 +6,7 @@ import {
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
+  enableFeatureFlag,
 } from '../../support'
 import {Eligibility} from '../../support/admin_programs'
 
@@ -17,6 +18,7 @@ test.describe('Applicant navigation flow', () => {
 
     test.beforeEach(
       async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
+        await enableFeatureFlag(page, 'program_filtering_enabled')
         await loginAsAdmin(page)
 
         await adminQuestions.addNumberQuestion({

@@ -8,6 +8,8 @@ import {
 } from '../support'
 import {
   ProgramCategories,
+  ProgramExtraAction,
+  ProgramLifecycle,
   ProgramType,
   ProgramVisibility,
 } from '../support/admin_programs'
@@ -545,5 +547,67 @@ test.describe('Program list page.', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.gotoAdminProgramsPage()
     await page.getByText('Import existing program').isVisible()
+  })
+
+  test('external program card actions', async ({page, adminPrograms}) => {
+    await enableFeatureFlag(page, 'external_program_cards_enabled')
+    await loginAsAdmin(page)
+
+    const externalProgram = 'External'
+    await adminPrograms.addProgram(
+      externalProgram,
+      /* description= */ '',
+      'short program description',
+      'https://usa.gov',
+      ProgramVisibility.PUBLIC,
+      'admin description',
+      ProgramType.EXTERNAL,
+    )
+    await expectProgramListElements(adminPrograms, [externalProgram])
+
+    // On draft mode, 'manage applications' button is hidden
+    await page.click(
+      adminPrograms.getProgramExtraActionsButton(
+        externalProgram,
+        ProgramLifecycle.DRAFT,
+      ),
+    )
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.MANAGE_ADMINS),
+    ).toBeVisible()
+    await expect(
+      adminPrograms.getProgramExtraAction(
+        ProgramExtraAction.MANAGE_TRANSLATIONS,
+      ),
+    ).toBeVisible()
+    await expect(
+      adminPrograms.getProgramExtraAction(
+        ProgramExtraAction.MANAGE_APPLICATIONS,
+      ),
+    ).toBeHidden()
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.EXPORT),
+    ).toBeVisible()
+
+    // On active mode, 'applications' button is hidden
+    await adminPrograms.publishProgram(externalProgram)
+    await page.click(
+      adminPrograms.getProgramExtraActionsButton(
+        externalProgram,
+        ProgramLifecycle.ACTIVE,
+      ),
+    )
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.VIEW_APPLICATIONS),
+    ).toBeHidden()
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.EDIT),
+    ).toBeVisible()
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.MANAGE_ADMINS),
+    ).toBeVisible()
+    await expect(
+      adminPrograms.getProgramExtraAction(ProgramExtraAction.EXPORT),
+    ).toBeVisible()
   })
 })
