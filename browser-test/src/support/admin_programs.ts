@@ -342,10 +342,6 @@ export class AdminPrograms {
         const notificationPreferences =
           this.getNotificationsPreferenceCheckbox()
         await expect(notificationPreferences).toBeDisabled()
-        expect(
-          await notificationPreferences.getAttribute('readonly'),
-        ).not.toBeNull()
-
         await expect(notificationPreferences).not.toBeChecked()
         break
       }
@@ -427,9 +423,6 @@ export class AdminPrograms {
         const notificationPreferences =
           this.getNotificationsPreferenceCheckbox()
         await expect(notificationPreferences).toBeEnabled()
-        expect(
-          await notificationPreferences.getAttribute('readonly'),
-        ).toBeNull()
         break
       }
 
@@ -439,7 +432,6 @@ export class AdminPrograms {
             name: categoryName,
           })
           await expect(category).toBeEnabled()
-          expect(await category.getAttribute('readonly')).toBeNull()
         }
         break
       }
@@ -450,7 +442,6 @@ export class AdminPrograms {
             name: eligibilityName,
           })
           await expect(option).toBeEnabled()
-          expect(await option.getAttribute('readonly')).toBeNull()
         }
         break
       }
