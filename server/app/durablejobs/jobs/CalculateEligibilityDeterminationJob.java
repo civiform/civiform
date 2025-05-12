@@ -19,7 +19,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 
 /**
- * Calculate eligibility determination for application submitted before pre-compute eligibility
+ * Calculate the eligibility determination for applications submitted before the pre-compute eligibility
  * feature was implemented.
  */
 public final class CalculateEligibilityDeterminationJob extends DurableJob {
