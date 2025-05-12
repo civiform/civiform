@@ -67,7 +67,7 @@ toast.errorMessageOutline=Error: {0}
 button.close=Isara
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Pagsusuri
-# Button taxt that will go back to the previous page.
+# Button text that will go back to the previous page.
 button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
@@ -657,6 +657,8 @@ alert.submitted=Isinumite mo ang iyong aplikasyon sa {0}
 alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gumawa ng account
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
 
