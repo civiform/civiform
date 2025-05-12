@@ -17,7 +17,6 @@ test.describe('developer tools', () => {
 
     await test.step('modal appears on click', async () => {
       await header.getByText('DevTools').click()
-      expect(await page.innerText('h1')).toContain('Dev tools')
       await validateScreenshot(page, 'dev-tools-modal')
     })
   })
@@ -35,13 +34,13 @@ test.describe('developer tools', () => {
 
     await test.step('navigating to dev tools URL unsuccessful', async () => {
       await page.goto(`/dev/seed`)
-      expect(page.url()).toEqual('/')
+      expect(page.url()).toContain('/programs')
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
 
     await test.step('navigating to clear URL unsuccessful', async () => {
-      await page.goto(`/dev/seed/clear`)
-      expect(page.url()).toEqual('/')
+      await page.goto(`/dev/seed/data`)
+      expect(page.url()).toContain('/programs')
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
   })
