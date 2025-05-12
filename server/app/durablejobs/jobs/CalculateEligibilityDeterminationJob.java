@@ -6,6 +6,7 @@ import durablejobs.DurableJob;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
+import io.ebean.annotation.TxIsolation;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.EligibilityDetermination;
@@ -46,16 +47,16 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
   public void run() {
     logger.info("Starting job to calculate eligibility determination.");
 
-    try (Transaction jobTransaction = database.beginTransaction()) {
+    try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       jobTransaction.setBatchMode(true);
       int errorCount = 0;
 
       String filter =
           """
-          eligibility_determination = 'NOT_COMPUTED'
+          eligibility_determination = 'NOT_COMPUTED' AND lifecycle_stage = 'active'
           """;
       try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
-        while (query.hasNext()) {
+        while (query.hasNext() && errorCount < 10) {
           try {
             ApplicationModel application = query.next();
             logger.info(
@@ -77,12 +78,11 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
       }
 
       if (errorCount == 0) {
-        logger.info("Job succeeded");
         jobTransaction.commit();
+        logger.info("Job succeeded");
       } else {
         logger.error(
-            "Failed to compute eligibility determination for existing applications. All changes"
-                + " undone. Error: {}",
+            "Failed to compute eligibility determination for existing applications. Error: {}",
             errorCount);
         jobTransaction.rollback();
       }
