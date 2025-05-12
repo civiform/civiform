@@ -311,7 +311,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeDisabled()
+          expect(await stepTitle.getAttribute('readonly')).not.toBeNull()
           await expect(stepDescription).toBeDisabled()
+          expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isHidden()
           }
@@ -322,12 +324,17 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeDisabled()
+        expect(
+          await confirmationMessage.getAttribute('readonly'),
+        ).not.toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        expect(await longDescription.getAttribute('readonly')).not.toBeNull()
+
         break
       }
 
@@ -335,6 +342,10 @@ export class AdminPrograms {
         const notificationPreferences =
           this.getNotificationsPreferenceCheckbox()
         await expect(notificationPreferences).toBeDisabled()
+        expect(
+          await notificationPreferences.getAttribute('readonly'),
+        ).not.toBeNull()
+
         await expect(notificationPreferences).not.toBeChecked()
         break
       }
@@ -388,9 +399,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeEnabled()
-          // expect(stepTitle.getAttribute('readonly')).toBeNull()
+          expect(await stepTitle.getAttribute('readonly')).toBeNull()
           await expect(stepDescription).toBeEnabled()
-          // expect(stepDescription.getAttribute('readonly')).toBeNull()
+          expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isVisible()
           }
@@ -401,12 +412,14 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeEnabled()
+        expect(await confirmationMessage.getAttribute('readonly')).toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        expect(await longDescription.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -414,6 +427,9 @@ export class AdminPrograms {
         const notificationPreferences =
           this.getNotificationsPreferenceCheckbox()
         await expect(notificationPreferences).toBeEnabled()
+        expect(
+          await notificationPreferences.getAttribute('readonly'),
+        ).toBeNull()
         break
       }
 
@@ -423,6 +439,7 @@ export class AdminPrograms {
             name: categoryName,
           })
           await expect(category).toBeEnabled()
+          expect(await category.getAttribute('readonly')).toBeNull()
         }
         break
       }
@@ -433,6 +450,7 @@ export class AdminPrograms {
             name: eligibilityName,
           })
           await expect(option).toBeEnabled()
+          expect(await option.getAttribute('readonly')).toBeNull()
         }
         break
       }
