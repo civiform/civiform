@@ -57,8 +57,9 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
           """;
       try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
         while (query.hasNext() && errorCount < 10) {
+          ApplicationModel application = null;
           try {
-            ApplicationModel application = query.next();
+            application = query.next();
             logger.info(
                 "Calculating eligibility determination for application id {}", application.id);
             ProgramModel pm = application.getProgram();
@@ -72,7 +73,12 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
             application.save();
           } catch (RuntimeException e) {
             errorCount++;
-            logger.error("Error message {}", e.getMessage());
+            if (application != null) {
+              logger.error(
+                  "Error processing application ID {}: {}", application.id, e.getMessage());
+            } else {
+              logger.error("Error message: {}", e.getMessage());
+            }
           }
         }
       }
