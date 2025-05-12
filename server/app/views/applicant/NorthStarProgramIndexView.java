@@ -135,7 +135,12 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             Optional.empty(),
             messages.at(MessageKey.ALERT_NO_PROGRAMS_AVAILABLE.getKeyName()),
             AlertType.INFO,
-            ImmutableList.of(),
+            /* additionalText= */ ImmutableList.of(),
+            /* customText= */ Optional.empty(),
+            /* ariaLabel= */ Optional.of(
+                messages.at(
+                    MessageKey.HEADING_INFORMATION_ARIA_LABEL_PREFIX.getKeyName(),
+                    messages.at(MessageKey.ALERT_NO_PROGRAMS_AVAILABLE.getKeyName()))),
             /* isSlim= */ true);
     context.setVariable("noProgramsAlertSettings", noProgramsAlertSettings);
 

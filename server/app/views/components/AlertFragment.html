@@ -51,10 +51,15 @@
       <p
         class="usa-alert__text"
         th:utext="${alertSettings.getFormattedAlertText(alertSettings.text, ariaLabelForNewTabs)}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
       ></p>
     </div>
     <div th:if="${alertSettings.unescapedDescription()} == false">
-      <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
+      <p
+        class="usa-alert__text"
+        th:text="${alertSettings.text}"
+        th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
+      ></p>
     </div>
 
     <!--/* padding-left-205 indents the list */-->
