@@ -6,6 +6,7 @@
   th:classappend="${alertSettings.isSlim ? 'usa-alert--slim' : ''}"
   aria-live="polite"
   th:attr="role=${role != null ? role : 'alert'}"
+  th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
 >
   <div class="usa-alert__body">
     <th:block
@@ -51,15 +52,10 @@
       <p
         class="usa-alert__text"
         th:utext="${alertSettings.getFormattedAlertText(alertSettings.text, ariaLabelForNewTabs)}"
-        th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
       ></p>
     </div>
     <div th:if="${alertSettings.unescapedDescription()} == false">
-      <p
-        class="usa-alert__text"
-        th:text="${alertSettings.text}"
-        th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
-      ></p>
+      <p class="usa-alert__text" th:text="${alertSettings.text}"></p>
     </div>
 
     <!--/* padding-left-205 indents the list */-->
