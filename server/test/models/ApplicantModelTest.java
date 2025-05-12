@@ -151,7 +151,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
     assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
     assertThat(applicant.getLastName().get()).isEqualTo(lastName);
-    assertThat(applicant.getSuffix().isEmpty());
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
     assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
@@ -180,7 +180,7 @@ public class ApplicantModelTest extends ResetPostgres {
     assertThat(applicant.getFirstName().get()).isEqualTo(firstName);
     assertThat(applicant.getMiddleName().get()).isEqualTo(middleName);
     assertThat(applicant.getLastName().get()).isEqualTo(lastName);
-    assertThat(!applicant.getSuffix().isPresent());
+    assertThat(applicant.getSuffix()).isEmpty();
     assertThat(applicant.getEmailAddress().get()).isEqualTo(emailAddress);
     assertThat(applicant.getCountryCode().get()).isEqualTo(countryCode);
     assertThat(applicant.getPhoneNumber().get()).isEqualTo(phoneNumber);
