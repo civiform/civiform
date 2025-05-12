@@ -24,6 +24,7 @@ export function init() {
   }
 
   addEventListenerToElements(
+    
     '.file-upload-action-button',
     'click',
     (e: Event) => {
