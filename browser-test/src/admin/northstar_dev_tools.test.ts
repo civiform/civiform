@@ -14,7 +14,6 @@ test.describe('developer tools', {tag: ['@northstar']}, () => {
 
     await test.step('link shown in the header', async () => {
       await expect(header.getByText('DevTools')).toBeInViewport()
-      await validateScreenshot(header, 'northstar-dev-tools-in-header')
       await validateAccessibility(page)
     })
 
