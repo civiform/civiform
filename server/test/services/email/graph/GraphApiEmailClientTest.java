@@ -1,9 +1,6 @@
 package services.email.graph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -63,7 +60,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
   }
 
   @Test
-  public void send_success_nonProd() throws ApiException {
+  public void send_success_nonProd() {
     String toAddress = "recipient@example.com";
     String subject = "Test Subject";
     String body = "Test Body";
@@ -90,7 +87,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
   }
 
   @Test
-  public void send_success_prod() throws ApiException {
+  public void send_success_prod() {
     when(mockEnvironment.isProd()).thenReturn(true);
 
     String toAddress = "recipient@example.com";
@@ -120,7 +117,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
   }
 
   @Test
-  public void send_success_prod_noEmailSet() throws ApiException {
+  public void send_success_prod_noEmailSet() {
     when(mockEnvironment.isProd()).thenReturn(true);
     when(mockSettingsManifest.getGraphApiEmailAccount()).thenReturn(Optional.empty());
 
@@ -151,7 +148,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
   }
 
   @Test
-  public void send_failure_prod() throws ApiException {
+  public void send_failure_prod() {
     when(mockEnvironment.isProd()).thenReturn(true);
 
     String toAddress = "recipient@example.com";
@@ -170,7 +167,7 @@ public class GraphApiEmailClientTest extends ResetPostgres {
   }
 
   @Test
-  public void send_failure_nonProd() throws ApiException {
+  public void send_failure_nonProd() {
     when(mockEnvironment.isProd()).thenReturn(false);
 
     String toAddress = "recipient@example.com";
