@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Little Explorers Preschool",
+    "address": "123 Maple St, Seattle, WA 98101",
+    "latitude": 47.6101,
+    "longitude": -122.3421
+  },
+  {
+    "name": "Bright Beginnings Academy",
+    "address": "456 Pine St, Seattle, WA 98101",
+    "latitude": 47.6119,
+    "longitude": -122.335
+  },
+  {
+    "name": "Rainier Kids Center",
+    "address": "789 Rainier Ave S, Seattle, WA 98144",
+    "latitude": 47.5902,
+    "longitude": -122.308
+  },
+  {
+    "name": "Greenwood Daycare",
+    "address": "101 Greenwood Ave N, Seattle, WA 98103",
+    "latitude": 47.6941,
+    "longitude": -122.355
+  },
+  {
+    "name": "Capitol Hill Child Care",
+    "address": "202 Broadway E, Seattle, WA 98102",
+    "latitude": 47.6215,
+    "longitude": -122.3208
+  }
+]

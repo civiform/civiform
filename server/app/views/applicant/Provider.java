@@ -1,28 +1,28 @@
 package views.applicant;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
-public class Provider {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class Provider {
 
   private String name;
   private String address;
   private double latitude;
   private double longitude;
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setAddress(String address) {
+  public Provider(
+          @JsonProperty("address") String address,
+          @JsonProperty("name") String name,
+          @JsonProperty("latitude") int latitude,
+          @JsonProperty("longitude") int longitude) {
     this.address = address;
-  }
-
-  public void setLatitude(double latitude) {
+    this.name = name;
     this.latitude = latitude;
-  }
-
-  public void setLongitude(double longitude) {
     this.longitude = longitude;
   }
 
@@ -43,3 +43,4 @@ public class Provider {
         + "}";
   }
 }
+

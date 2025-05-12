@@ -4,21 +4,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.AssetsFinder;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
-import java.util.ArrayList;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 import modules.ThymeleafModule;
-import org.jetbrains.annotations.NotNull;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Messages;
+import play.libs.Json;
 import play.mvc.Http.Request;
 import services.DeploymentType;
 import services.MessageKey;
@@ -129,7 +136,7 @@ public class MapsView extends NorthStarBaseView {
                   ProgramCardsSectionParamsFactory.SectionType.UNFILTERED_PROGRAMS));
     }
 
-    List<Provider> allProviders = getProviderList();
+    JsonNode allProviders = getProviderList();
 
     context.setVariable("myApplicationsSection", myApplicationsSection);
     context.setVariable("allProviders", allProviders);
@@ -152,41 +159,21 @@ public class MapsView extends NorthStarBaseView {
 
     return templateEngine.process("applicant/MapsTemplate", context);
   }
+  private static JsonNode getProviderList() {
+    File resource;
+    FileInputStream inputStream;
+    JsonNode providers = null;
 
-  @NotNull
-  private static List<Provider> getProviderList() {
-    List<Provider> providerStats = new ArrayList<>();
-    Provider provider = new Provider();
-    provider.setName("Little Explorers Preschool");
-    provider.setAddress("123 Maple St, Seattle, WA 98101");
-    provider.setLatitude(47.6101);
-    provider.setLongitude(-122.3421);
-    providerStats.add(provider);
-    provider = new Provider();
-    provider.setName("Bright Beginnings Academy");
-    provider.setAddress("456 Pine St, Seattle, WA 98101");
-    provider.setLatitude(47.6119);
-    provider.setLongitude(-122.335);
-    providerStats.add(provider);
-    provider = new Provider();
-    provider.setName("Rainier Kids Center");
-    provider.setAddress("789 Rainier Ave S, Seattle, WA 98144");
-    provider.setLatitude(47.5902);
-    provider.setLongitude(-122.308);
-    providerStats.add(provider);
-    provider = new Provider();
-    provider.setName("Greenwood Daycare");
-    provider.setAddress("101 Greenwood Ave N, Seattle, WA 98103");
-    provider.setLatitude(47.6941);
-    provider.setLongitude(-122.355);
-    providerStats.add(provider);
-    provider = new Provider();
-    provider.setName("Capitol Hill Child Care");
-    provider.setAddress("202 Broadway E, Seattle, WA 98102");
-    provider.setLatitude(47.6215);
-    provider.setLongitude(-122.3208);
-    providerStats.add(provider);
-    return providerStats;
+    try {
+      resource = new File(System.getProperty("user.dir") + "/app/views/applicant/" + "mapDataExample.json");
+      inputStream = new FileInputStream(resource);
+      providers = Json.parse(inputStream);
+
+    } catch (FileNotFoundException e) {
+      System.out.println(e.getMessage());
+    }
+
+    return providers;
   }
 
   private ProgramSectionParams getCommonIntakeFormSection(

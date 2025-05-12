@@ -32,7 +32,8 @@ export function init() {
 
 export function addLocationToMyList(providerName: string, providerAddress: string) {
   if (selectedProviderNames.includes(providerName)) {
-    alert(`${providerName} has already been added!`)
+    // do nothing
+    console.log(`${providerName} has already been added!`)
   } else {
     // Copy the selected provider template
     const newField = assertNotNull(
@@ -42,7 +43,7 @@ export function addLocationToMyList(providerName: string, providerAddress: strin
     newField.removeAttribute('id')
     newField.innerHTML=`<td>${providerName}</td><td>${providerAddress}</td>`
 
-    // Add to the end of selected-providers table.
+    // Add to the end of selected providers table.
     const selectedProviders = assertNotNull(
       document.getElementById('selected-providers'),
     )
