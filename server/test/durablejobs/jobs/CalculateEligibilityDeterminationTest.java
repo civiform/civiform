@@ -78,6 +78,8 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
 
     CalculateEligibilityDeterminationJob job =
         new CalculateEligibilityDeterminationJob(applicantService, jobModel);
