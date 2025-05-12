@@ -7,11 +7,11 @@ import {
 } from '../support'
 
 test.describe('developer tools', () => {
-  test.afterEach(async ({ page }) => {
+  test.afterEach(async ({page}) => {
     // Ensure the 'staging_disable_demo_mode_logins' flag is DISABLED for each test
     // unless a specific test intends to enable it.
-    await disableFeatureFlag(page, 'staging_disable_demo_mode_logins');
-  });
+    await disableFeatureFlag(page, 'staging_disable_demo_mode_logins')
+  })
   test('dev link exists', async ({page}) => {
     const header = page.locator('nav')
 
