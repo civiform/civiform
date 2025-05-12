@@ -67,7 +67,7 @@ toast.errorMessageOutline=Ошибка: {0}.
 button.close=Закрыть
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Проверить ответы
-# Button taxt that will go back to the previous page.
+# Button text that will go back to the previous page.
 button.goBack=Go back
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
@@ -657,6 +657,8 @@ alert.submitted=Вы отправили заявку на участие в пр
 alert.createAccount=Чтобы вернуться к заявке позже, создайте аккаунт
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Сохранив информацию в аккаунте, вы сможете проверять статус заявки и быстро подавать новые.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Войти с существующим аккаунтом
 
