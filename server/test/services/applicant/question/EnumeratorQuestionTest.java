@@ -199,7 +199,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("one", "two", "three");
     assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
-    assertThat(enumeratorQuestion.getValidationErrors());
   }
 
   @Test
