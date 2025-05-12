@@ -60,11 +60,12 @@
         </button>
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
-          <div class="grid-row grid-gap-1">
-            <button
-              th:if="${showDebugTools}"
-              th:replace="~{this :: showDebugTools}"
-            ></button>
+          <div class="grid-row grid-gap-1" >
+            <div th:if="${showDebugTools}">
+              <button
+                th:replace="~{this :: showDebugTools}"
+              ></button>
+            </div>
             <div>
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
