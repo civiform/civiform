@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.AbstractContext;
 import org.thymeleaf.context.ITemplateContext;
@@ -50,6 +51,7 @@ public final class ThymeleafModule extends AbstractModule {
 
     templateEngine.setTemplateResolver(fileTemplateResolver);
     templateEngine.setMessageResolver(new PlayMessageResolver(messagesApi));
+    templateEngine.addDialect(new LayoutDialect());
     templateEngine.addDialect(new HtmxDialect(new ObjectMapper()));
     templateEngine.addDialect(new CiviFormProcessorDialect(assetsFinder, environment));
 

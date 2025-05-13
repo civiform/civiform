@@ -65,6 +65,7 @@ import services.MessageKey;
 import services.Path;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
+import services.apibridge.Dispatcher;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -128,6 +129,7 @@ public final class ApplicantService {
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
   private final Database database;
+  private final Dispatcher dispatcher;
 
   @Inject
   public ApplicantService(
@@ -148,7 +150,8 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      Dispatcher dispatcher) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -175,6 +178,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
+    this.dispatcher = checkNotNull(dispatcher);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -409,6 +413,15 @@ public final class ApplicantService {
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
     if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
+
+      applicant.setApplicantData(
+          dispatcher
+              .dispatchAll(applicant.getApplicantData(), programDefinition.bridgeDefinitions())
+              .toCompletableFuture()
+              .join());
+
+      // -----------------
+
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(

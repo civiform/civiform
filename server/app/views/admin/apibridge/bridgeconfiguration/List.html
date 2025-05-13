@@ -1,0 +1,71 @@
+<!doctype html>
+<html layout:decorate="~{admin/apibridge/Layout}">
+  <head>
+    <title>list</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <style type="text/css">
+        tr.htmx-swapping td {
+          opacity: 0;
+          transition: opacity 1s ease-out;
+        }
+      </style>
+      <div>
+        <h1>List Bridge Configurations</h1>
+        <input hidden th:value="${csrfToken}" name="csrfToken" />
+
+        <table
+          class="usa-table"
+          th:fragment="validationErrors(validationErrors, questionRendererParams)"
+        >
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th>ID</th>
+              <th>HostUri</th>
+              <th>UriPath</th>
+              <th>CompatibilityLevel</th>
+              <th>Description</th>
+              <th>GlobalBridgeDefinition</th>
+            </tr>
+          </thead>
+          <!--      <tbody hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s">-->
+          <tbody hx-target="closest tr" hx-swap="outerHTML swap:1s">
+            <tr th:each="item: ${model.list}">
+              <td>
+                <a
+                  class="usa-button"
+                  th:href="${routesBridgeConfigurationController.edit(item.getId()).url()}"
+                  >edit</a
+                >
+              </td>
+              <td>
+                <form>
+                  <input hidden th:value="${csrfToken}" name="csrfToken" />
+                  <button
+                    class="usa-button usa-button--secondary"
+                    th:hx-delete="${routesBridgeConfigurationController.hxDelete(item.getId()).url()}"
+                  >
+                    delete
+                  </button>
+                </form>
+              </td>
+              <td th:text="${item.getId()}"></td>
+              <td th:text="${item.getHostUri()}"></td>
+              <td th:text="${item.getUriPath()}"></td>
+              <td th:text="${item.getCompatibilityLevel()}"></td>
+              <td th:text="${item.getDescription()}"></td>
+              <td>
+                <pre
+                  th:text="${presenter.prettyPrintJson(item.getGlobalBridgeDefinition())}"
+                ></pre>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>

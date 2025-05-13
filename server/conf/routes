@@ -156,6 +156,17 @@ GET     /admin/reporting/:programSlug               controllers.admin.AdminRepor
 GET     /admin/reporting/:programSlug/download      controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName      controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
+# Admin api bridge
+GET     /admin/api-bridge/discovery                 controllers.admin.apibridge.DiscoveryController.discovery(request: Request)
+POST    /admin/api-bridge/hx/discovery              controllers.admin.apibridge.DiscoveryController.hxDiscoveryPopulate(request: Request)
+POST    /admin/api-bridge/hx/add                    controllers.admin.apibridge.DiscoveryController.hxAdd(request: Request)
+GET     /admin/api-bridge                           controllers.admin.apibridge.BridgeConfigurationController.list(request: Request)
+GET     /admin/api-bridge/:id                       controllers.admin.apibridge.BridgeConfigurationController.edit(request: Request, id: Long)
+POST    /admin/api-bridge/:id                       controllers.admin.apibridge.BridgeConfigurationController.save(request: Request, id: Long)
+DELETE  /admin/api-bridge/hx/delete/:id             controllers.admin.apibridge.BridgeConfigurationController.hxDelete(request: Request, id: Long)
+GET     /admin/api-bridge/program-bridge/:id        controllers.admin.apibridge.ProgramBridgeController.edit(request: Request, id: Long)
+POST    /admin/api-bridge/program-bridge/:id        controllers.admin.apibridge.ProgramBridgeController.save(request: Request, id: Long)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey             controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)

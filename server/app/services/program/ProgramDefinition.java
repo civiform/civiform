@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.ApplicationStep;
+import models.BridgeDefinition;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -157,6 +158,9 @@ public abstract class ProgramDefinition {
    */
   @JsonProperty("applicationSteps")
   public abstract ImmutableList<ApplicationStep> applicationSteps();
+
+  @JsonProperty("bridgeDefinitions")
+  public abstract ImmutableList<BridgeDefinition> bridgeDefinitions();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -858,6 +862,9 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("applicationSteps")
     public abstract Builder setApplicationSteps(ImmutableList<ApplicationStep> applicationSteps);
+
+    @JsonProperty("bridgeDefinitions")
+    public abstract Builder setBridgeDefinitions(ImmutableList<BridgeDefinition> bridgeDefinitions);
 
     public abstract Builder setSummaryImageFileKey(Optional<String> fileKey);
 

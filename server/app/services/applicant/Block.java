@@ -50,7 +50,7 @@ public final class Block {
 
   private final BlockDefinition blockDefinition;
   private final ApplicantModel applicant;
-  private final ApplicantData applicantData;
+  private ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
