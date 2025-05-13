@@ -165,7 +165,7 @@ public class MapsView extends NorthStarBaseView {
     JsonNode providers = null;
 
     try {
-      resource = new File(System.getProperty("user.dir") + "/app/views/applicant/" + "mapDataExample.json");
+      resource = new File(System.getProperty("user.dir") + "/app/views/applicant/" + "mapDataExampleGeoJSON.json");
       inputStream = new FileInputStream(resource);
       providers = Json.parse(inputStream);
 
