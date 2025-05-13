@@ -35,8 +35,6 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ApplicationStatusesRepository;
@@ -88,7 +86,6 @@ public final class ProgramService {
   private static final String MISSING_APPLICATION_STEP_MSG =
       "The program must contain at least one application step";
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
@@ -681,7 +678,6 @@ public final class ProgramService {
     if (!maybeCommonIntakeForm.isPresent()) {
       return;
     }
-    // Uses return data that wasn't updated.
     ProgramDefinition draftCommonIntakeProgramDefinition =
         programRepository.getShallowProgramDefinition(
             programRepository.createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram()));
@@ -737,11 +733,8 @@ public final class ProgramService {
     // Note: It's unclear that we actually want to update an existing draft this way, as it would
     // effectively reset the  draft which is not part of any user flow. Given the interdependency of
     // draft updates this is likely to cause issues as in #2179.
-    var program = this.getFullProgramDefinition(id).toProgram();
-    logger.warn("Program pre change\n\n{}", program);
-    var updatedProgram = programRepository.createOrUpdateDraft(program);
-    logger.warn("Program after change\n\n{}", updatedProgram);
-    return programRepository.getShallowProgramDefinition(updatedProgram);
+    return programRepository.getShallowProgramDefinition(
+        programRepository.createOrUpdateDraft(this.getFullProgramDefinition(id).toProgram()));
   }
 
   private ImmutableSet<CiviFormError> validateProgramData(
