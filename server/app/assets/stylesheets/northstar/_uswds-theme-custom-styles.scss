@@ -553,19 +553,19 @@ main {
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: $theme-color-info;
+    border-right-color: color($theme-color-info);
   }
 
   .usa-alert--warning {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: $theme-color-warning;
+    border-right-color: color($theme-color-warning);
   }
 
   .usa-alert--success {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: $theme-color-success;
+    border-right-color: color($theme-color-success);
   }
 
   .usa-alert .usa-alert__heading,
