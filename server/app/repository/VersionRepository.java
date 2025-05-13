@@ -695,7 +695,8 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as they likely updated the Database before
-    //  calling this, and if it's not it should be in a transaction.
+    //  calling this and the reads here should be in a transaction  with them.
+    //  Short of that manage a transaction here.
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
       VersionModel activeVersion = getActiveVersion();
@@ -758,48 +759,55 @@ public final class VersionRepository {
     }
   }
 
-  /** Updates all questions referenced in {@block} to their latest versions. */
+  /** Updates all questions referenced in {@code block} to their latest versions */
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as this method reads from the DB, and the
-    //  caller likely read/updated it and will seemingly save the response.
-    BlockDefinition.Builder updatedBlock =
-        block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
-    // Update questions contained in this block.
-    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-      Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
-      logger.trace(
-          "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
-      updatedBlock.addQuestion(
-          question.loadCompletely(
-              programDefinitionId,
-              questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
-    }
-    // Update questions referenced in this block's predicate(s)
-    if (block.visibilityPredicate().isPresent()) {
-      PredicateDefinition oldPredicate = block.visibilityPredicate().get();
-      updatedBlock.setVisibilityPredicate(
-          PredicateDefinition.create(
-              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
-    }
-    if (block.eligibilityDefinition().isPresent()) {
-      EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
-      PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
-      PredicateDefinition newPredicate =
-          PredicateDefinition.create(
-              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+    //  caller likely read/updated it and will seemingly save the response
+    //  this provides.
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
+      BlockDefinition.Builder updatedBlock =
+          block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+      // Update questions contained in this block.
+      for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+        Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
+        logger.trace(
+            "Updating question ID {} to new ID {}.",
+            question.id(),
+            updatedQuestion.orElseThrow().id);
+        updatedBlock.addQuestion(
+            question.loadCompletely(
+                programDefinitionId,
+                questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
+      }
+      // Update questions referenced in this block's predicate(s)
+      if (block.visibilityPredicate().isPresent()) {
+        PredicateDefinition oldPredicate = block.visibilityPredicate().get();
+        updatedBlock.setVisibilityPredicate(
+            PredicateDefinition.create(
+                updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
+      }
+      if (block.eligibilityDefinition().isPresent()) {
+        EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
+        PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
+        PredicateDefinition newPredicate =
+            PredicateDefinition.create(
+                updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
 
-      updatedBlock.setEligibilityDefinition(
-          eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
+        updatedBlock.setEligibilityDefinition(
+            eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
+      }
+      if (block.optionalPredicate().isPresent()) {
+        PredicateDefinition oldPredicate = block.optionalPredicate().get();
+        updatedBlock.setOptionalPredicate(
+            Optional.of(
+                PredicateDefinition.create(
+                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action())));
+      }
+      transaction.commit();
+      return updatedBlock.build();
     }
-    if (block.optionalPredicate().isPresent()) {
-      PredicateDefinition oldPredicate = block.optionalPredicate().get();
-      updatedBlock.setOptionalPredicate(
-          Optional.of(
-              PredicateDefinition.create(
-                  updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action())));
-    }
-    return updatedBlock.build();
   }
 
   /**
