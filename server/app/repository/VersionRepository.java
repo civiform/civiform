@@ -700,7 +700,7 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as they likely updated the Database before
-    //  calling this and the reads here should be in a transaction  with them.
+    //  calling this and the reads here should be in a transaction with them.
     //  Short of that manage a transaction here.
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
