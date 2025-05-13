@@ -683,6 +683,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+    verifyApplicationStatusChange(application, Optional.of(adminAccount), Optional.of(start));
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
     ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
@@ -840,7 +841,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
         new ProfileUtilsNoOpTester(
-            instanceOf(SessionStore.class), instanceOf(ProfileFactory.class), profileTester);
+            instanceOf(SessionStore.class), profileFactory, profileTester);
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),
