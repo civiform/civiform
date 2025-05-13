@@ -127,6 +127,8 @@ public class ProgramModel extends BaseModel {
    */
   @DbJsonB private ImmutableList<ApplicationStep> applicationSteps;
 
+  @DbJsonB private ImmutableList<BridgeDefinition> bridgeDefinitions;
+
   @ManyToMany(mappedBy = "programs")
   @JoinTable(
       name = "versions_programs",
@@ -193,6 +195,7 @@ public class ProgramModel extends BaseModel {
         definition.localizedSummaryImageDescription().orElse(null);
     this.summaryImageFileKey = definition.summaryImageFileKey().orElse(null);
     this.applicationSteps = definition.applicationSteps();
+    this.bridgeDefinitions = definition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -241,6 +244,7 @@ public class ProgramModel extends BaseModel {
     this.acls = programAcls;
     this.categories = categories;
     this.applicationSteps = applicationSteps;
+    this.bridgeDefinitions = ImmutableList.of();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -265,6 +269,7 @@ public class ProgramModel extends BaseModel {
     summaryImageFileKey = programDefinition.summaryImageFileKey().orElse(null);
     categories = programDefinition.categories();
     applicationSteps = programDefinition.applicationSteps();
+    bridgeDefinitions = programDefinition.bridgeDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -292,7 +297,8 @@ public class ProgramModel extends BaseModel {
             .setEligibilityIsGating(eligibilityIsGating)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
-            .setApplicationSteps(ImmutableList.copyOf(applicationSteps));
+            .setApplicationSteps(ImmutableList.copyOf(applicationSteps))
+            .setBridgeDefinitions(ImmutableList.copyOf(bridgeDefinitions));
 
     setLocalizedConfirmationMessage(builder);
     setLocalizedSummaryImageDescription(builder);

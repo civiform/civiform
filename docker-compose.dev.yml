@@ -46,6 +46,8 @@ services:
 
   mock-web-services:
     image: civiform-mock-web-services
+    ports:
+      - 8000:8000
 
   db:
     image: postgres:16.8@sha256:301bcb60b8a3ee4ab7e147932723e3abd1cef53516ce5210b39fd9fe5e3602ae
@@ -83,7 +85,7 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
 
-  grafana:  
+  grafana:
     profiles: ['monitoring']
     image: grafana/grafana@sha256:263cbefd5d9b179893c47c415daab4da5c1f3d6770154741eca4f45c81119884
     depends_on:

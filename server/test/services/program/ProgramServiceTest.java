@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
+import static support.FakeRequestBuilder.fakeRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -39,6 +40,8 @@ import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.i18n.Lang;
 import play.inject.BindingKey;
+import play.mvc.Http.Request;
+import repository.ApplicationStatusesRepository;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -71,6 +74,8 @@ public class ProgramServiceTest extends ResetPostgres {
   private ProgramService ps;
   private SyncCacheApi programDefCache;
   private CategoryRepository categoryRepository;
+  private final Request request = fakeRequest();
+  private ApplicationStatusesRepository applicationStatusesRepo;
 
   @Before
   public void setProgramServiceImpl() {
@@ -79,6 +84,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .qualifiedWith(new NamedCacheImpl("full-program-definition"));
     programDefCache = instanceOf(programDefKey.asScala());
     ps = instanceOf(ProgramService.class);
+    applicationStatusesRepo = instanceOf(ApplicationStatusesRepository.class);
   }
 
   @Before
@@ -969,7 +975,8 @@ public class ProgramServiceTest extends ResetPostgres {
                     ProgramType.DEFAULT,
                     ImmutableList.of(),
                     /* categoryIds= */ ImmutableList.of(),
-                    ImmutableList.of(new ApplicationStep("title", "description"))))
+                    ImmutableList.of(new ApplicationStep("title", "description")),
+                    ImmutableList.of()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -995,7 +1002,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
@@ -1036,7 +1044,8 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
-                ImmutableList.of(new ApplicationStep("title", "description")))
+                ImmutableList.of(new ApplicationStep("title", "description")),
+                ImmutableList.of())
             .getResult();
 
     QuestionDefinition foundQuestion =
@@ -1064,7 +1073,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -1094,7 +1104,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     // check that the confirmation screen message saved
     LocalizedStrings expectedUsString =
@@ -1119,7 +1130,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
     assertThat(secondProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(
@@ -1143,7 +1155,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
     assertThat(thirdProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
@@ -1188,7 +1201,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1237,7 +1251,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1278,7 +1293,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1325,7 +1341,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.COMMON_INTAKE_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1374,7 +1391,8 @@ public class ProgramServiceTest extends ResetPostgres {
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1432,7 +1450,8 @@ public class ProgramServiceTest extends ResetPostgres {
                 new ApplicationStep("new step one title", "step one description"),
                 new ApplicationStep("step two title", "new step two description"),
                 new ApplicationStep("new step three title", "new step three description"),
-                new ApplicationStep("step four title", "step four description")));
+                new ApplicationStep("step four title", "step four description")),
+            ImmutableList.of());
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();

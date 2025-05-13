@@ -1,0 +1,41 @@
+<table class="usa-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Uri</th>
+      <th>UriPath</th>
+      <th>CompatibilityLevel</th>
+      <th>Description</th>
+      <th>RequestSchema</th>
+      <th>ResponseSchema</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="item: ${model.list.endpoints.entrySet()}">
+      <td>
+        <form th:hx-post="${routesDiscoveryController.hxAdd().url()}">
+          <label>
+            <input hidden name="hostUri" th:value="${model.hostUri}" />
+            <input hidden name="uriPath" th:value="${item.getKey()}" />
+            <input hidden name="csrfToken" th:value="${csrfToken}" />
+            <input class="usa-button" type="submit" value="add" />
+          </label>
+        </form>
+      </td>
+      <td><pre th:text="${item.getKey()}"></pre></td>
+      <td th:text="${item.getValue().uri()}"></td>
+      <td th:text="${item.getValue().compatibilityLevel()}"></td>
+      <td th:text="${item.getValue().description()}"></td>
+      <td>
+        <pre
+          th:text="${presenter.prettyPrintJson(item.getValue().requestSchema())}"
+        ></pre>
+      </td>
+      <td>
+        <pre
+          th:text="${presenter.prettyPrintJson(item.getValue().responseSchema())}"
+        ></pre>
+      </td>
+    </tr>
+  </tbody>
+</table>

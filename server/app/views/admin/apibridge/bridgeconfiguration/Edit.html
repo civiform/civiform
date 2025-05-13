@@ -1,0 +1,154 @@
+<!doctype html>
+<html layout:decorate="~{admin/apibridge/Layout}">
+  <head>
+    <title>bridgeedit</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <style type="text/css">
+        .usa-form {
+          max-width: 56rem;
+        }
+      </style>
+
+      <div>
+        <h1>Edit API Bridge Configuration</h1>
+        <div>
+          <a
+            class="usa-link"
+            th:href="${routesBridgeConfigurationController.list().url()}"
+            >back</a
+          >
+        </div>
+        <form
+          class="usa-form"
+          method="post"
+          th:action="${routesBridgeConfigurationController.edit(model.id).url()}"
+        >
+          <input hidden th:value="${csrfToken}" name="csrfToken" />
+          <input hidden th:value="${model.id}" name="id" />
+          <div>
+            <span>ID: </span>
+            <span th:text="${model.id}"></span>
+          </div>
+          <div>
+            <span>Create Time: </span>
+            <span th:text="${model.createTime}"></span>
+          </div>
+          <div>
+            <span>Update Time: </span>
+            <span th:text="${model.updateTime}"></span>
+          </div>
+          <div>
+            <label class="usa-label" for="hostUri">Host URI</label>
+            <input
+              id="hostUri"
+              name="hostUri"
+              class="usa-input"
+              th:value="${model.hostUri}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="uriPath">URI Path</label>
+            <input
+              id="uriPath"
+              name="uriPath"
+              class="usa-input"
+              th:value="${model.uriPath}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="compatibilityLevel"
+              >Compatibility Level</label
+            >
+            <input
+              id="compatibilityLevel"
+              name="compatibilityLevel"
+              class="usa-input"
+              th:value="${model.compatibilityLevel}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="description">Description</label>
+            <input
+              id="description"
+              name="description"
+              class="usa-input"
+              th:value="${model.description}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="isEnabled">Is Enabled</label>
+            <input
+              id="isEnabled"
+              name="isEnabled"
+              class="usa-input"
+              th:value="${model.isEnabled}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="requestSchema">Request Schema</label>
+            <textarea
+              id="requestSchema"
+              name="requestSchema"
+              class="usa-textarea"
+              th:text="${presenter.prettyPrintJson(model.requestSchema)}"
+            ></textarea>
+          </div>
+          <div>
+            <label class="usa-label" for="requestSchemaChecksum"
+              >Request Schema Checksum</label
+            >
+            <input
+              id="requestSchemaChecksum"
+              name="requestSchemaChecksum"
+              class="usa-input"
+              th:value="${model.requestSchemaChecksum}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="responseSchema"
+              >Response Schema</label
+            >
+            <textarea
+              id="responseSchema"
+              name="responseSchema"
+              class="usa-textarea"
+              th:text="${presenter.prettyPrintJson(model.responseSchema)}"
+            ></textarea>
+          </div>
+          <div>
+            <label class="usa-label" for="responseSchemaChecksum"
+              >Response Schema Checksum</label
+            >
+            <input
+              id="responseSchemaChecksum"
+              name="responseSchemaChecksum"
+              class="usa-input"
+              th:value="${model.responseSchemaChecksum}"
+            />
+          </div>
+          <div>
+            <label class="usa-label" for="globalBridgeDefinition"
+              >Global Bridge Definition</label
+            >
+            <textarea
+              id="globalBridgeDefinition"
+              name="globalBridgeDefinition"
+              class="usa-textarea"
+              th:text="${presenter.prettyPrintJson(model.globalBridgeDefinition)}"
+            ></textarea>
+          </div>
+          <div>
+            <input type="submit" class="usa-button" value="Save" />
+            <input
+              type="reset"
+              class="usa-button usa-button--unstyled"
+              value="Reset"
+            />
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
