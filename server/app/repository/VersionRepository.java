@@ -646,8 +646,11 @@ public final class VersionRepository {
           ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
           logger.trace("Submitting update.");
           database.update(updatedProgram);
-          // After the fact comment: This appears to be a no-op since it is a local
-          // object and not returned.
+          // TODO(#10553): Investigate this code smell.
+          // This appears to be a no-op since it is a local object and not
+          // returned. As well the input param is not refreshed so callers
+          // may expect it to have been. Previously this was also created as
+          // an overwrite of the input param draftProgram.
           updatedProgram.refresh();
         });
   }
