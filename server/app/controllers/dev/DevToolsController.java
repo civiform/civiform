@@ -2,6 +2,7 @@ package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import actions.DemoModeDisabledAction;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
@@ -26,6 +27,7 @@ import play.cache.NamedCache;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.TransactionManager;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
@@ -36,6 +38,7 @@ import services.settings.SettingsService;
 import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
+@With(DemoModeDisabledAction.class)
 public class DevToolsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
