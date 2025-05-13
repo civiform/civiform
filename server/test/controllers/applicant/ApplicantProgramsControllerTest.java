@@ -326,7 +326,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void showInfoDisabledProgram() {
-    ProgramModel disabledProgram = resourceCreator.insertActiveDisabledProgram("disabledProgram");
+    resourceCreator.insertActiveDisabledProgram("disabledProgram");
 
     Map<String, String> flashData = new HashMap<>();
     flashData.put("redirected-from-program-slug", "disabledProgram");
