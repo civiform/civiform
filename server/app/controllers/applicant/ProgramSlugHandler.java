@@ -24,7 +24,9 @@ import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import views.applicant.NorthStarProgramOverviewView;
 
@@ -149,6 +151,11 @@ public final class ProgramSlugHandler {
       long applicantId,
       ProgramDefinition activeProgramDefinition,
       ApplicationPrograms relevantPrograms) {
+    // External programs don't have an overview or review page
+    if (activeProgramDefinition.programType().equals(ProgramType.EXTERNAL)) {
+      return Results.badRequest(new ProgramNotFoundException(programSlug).getMessage());
+    }
+
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 

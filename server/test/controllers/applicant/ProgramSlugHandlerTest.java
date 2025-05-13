@@ -18,6 +18,7 @@ import controllers.WithMockedProfiles;
 import java.util.Locale;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
@@ -31,7 +32,9 @@ import repository.AccountRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.applicant.NorthStarProgramOverviewView;
@@ -362,5 +365,36 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(content).contains("<title>test program - Program Overview</title>");
+  }
+
+  @Test
+  public void showProgram_withExternalProgram_returnsBadRequest() {
+    // Create an external program
+    ProgramModel externalProgram =
+        ProgramBuilder.newActiveProgram(
+                "External Program",
+                "External Program",
+                "",
+                DisplayMode.PUBLIC,
+                ProgramType.EXTERNAL)
+            .build();
+
+    // Set up applicant
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+    CiviFormController controller = instanceOf(CiviFormController.class);
+
+    // Call showProgram with the external program's slug
+    Result result =
+        instanceOf(ProgramSlugHandler.class)
+            .showProgram(controller, fakeRequest(), externalProgram.getSlug())
+            .toCompletableFuture()
+            .join();
+
+    // Verify the result is a bad request, since external programs don't support a program link
+    assertThat(result.status()).isEqualTo(play.mvc.Http.Status.BAD_REQUEST);
+    assertThat(contentAsString(result))
+        .contains(new ProgramNotFoundException(externalProgram.getSlug()).getMessage());
   }
 }
