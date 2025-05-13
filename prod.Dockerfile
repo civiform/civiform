@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1@sha256:4c68376a702446fc3c79af22de146a148bc3367e73c25a5803d453b6b3f722fb
+# syntax=docker/dockerfile:1@sha256:9857836c9ee4268391bb5b09f9f157f3c91bb15821bb77969642813b0d00518d
 # For production images, use the adoptium.net official JRE & JDK docker images.
 FROM --platform=linux/amd64 eclipse-temurin:17.0.15_6-jdk-alpine@sha256:ca5c0c9763d21cf1617cb68ef8c17228a202cd0358fa6d7510a1bbdbd49c74da AS stage1
 

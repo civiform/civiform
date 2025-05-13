@@ -82,6 +82,20 @@ export enum ProgramCategories {
   UTILITIES = 'Utilities',
 }
 
+export enum ProgramLifecycle {
+  DRAFT = 'Draft',
+  ACTIVE = 'Active',
+}
+
+export enum ProgramExtraAction {
+  VIEW_APPLICATIONS = 'Applications',
+  EDIT = 'Edit',
+  EXPORT = 'Export program',
+  MANAGE_ADMINS = 'Manage program admins',
+  MANAGE_APPLICATIONS = 'Manage application statuses',
+  MANAGE_TRANSLATIONS = 'Manage translations',
+}
+
 /**
  * List of buttons that are displayed in the program information header. This
  * list is not exhaustive, as fields are added when needed by a test.
@@ -297,7 +311,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeDisabled()
+          expect(await stepTitle.getAttribute('readonly')).not.toBeNull()
           await expect(stepDescription).toBeDisabled()
+          expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isHidden()
           }
@@ -308,12 +324,17 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeDisabled()
+        expect(
+          await confirmationMessage.getAttribute('readonly'),
+        ).not.toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        expect(await longDescription.getAttribute('readonly')).not.toBeNull()
+
         break
       }
 
@@ -374,7 +395,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeEnabled()
+          expect(await stepTitle.getAttribute('readonly')).toBeNull()
           await expect(stepDescription).toBeEnabled()
+          expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isVisible()
           }
@@ -385,12 +408,14 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeEnabled()
+        expect(await confirmationMessage.getAttribute('readonly')).toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        expect(await longDescription.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -1636,6 +1661,23 @@ export class AdminPrograms {
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
         'highlight other programs to apply for. (optional)',
+    })
+  }
+
+  getProgramExtraActionsButton(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+  ): string {
+    return this.withinProgramCardSelector(
+      programName,
+      lifecycle,
+      '.cf-with-dropdown',
+    )
+  }
+
+  getProgramExtraAction(action: ProgramExtraAction): Locator {
+    return this.page.getByRole('button', {
+      name: action,
     })
   }
 

@@ -170,12 +170,14 @@ class AdminPrograms {
   ) {
     if (shouldDisable) {
       fieldElement.disabled = true
+      fieldElement.readOnly = true
       fieldElement.classList.add(
         this.DISABLED_TEXT_CLASS,
         this.DISABLED_BACKGROUND_CLASS,
       )
     } else {
       fieldElement.disabled = false
+      fieldElement.readOnly = false
     }
   }
 

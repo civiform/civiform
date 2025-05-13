@@ -1088,8 +1088,16 @@ test.describe(
         applicantQuestions,
       )
 
-      // Verify program card shows both the Accepted status and image
       await loginAsTestUser(page)
+      await test.step('verify no available programs info alert appears', async () => {
+        await expect(
+          page.getByText(
+            'You have started or submitted an application for all programs that are available at this time.',
+          ),
+        ).toBeVisible()
+      })
+
+      // Verify program card shows both the Accepted status and image
       await validateScreenshot(page, 'ns-program-image-with-status')
     })
 

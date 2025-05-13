@@ -220,8 +220,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                 applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
             .toCompletableFuture()
             .join();
-    assertThat(
-        application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
   }
 
   private ApplicationModel createSubmittedAppAtInstant(

@@ -71,8 +71,8 @@ public class ApplicationModelTest extends ResetPostgres {
     ApplicationModel application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
-    assertThat(
-        application.getEligibilityDetermination().equals(EligibilityDetermination.NOT_COMPUTED));
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NOT_COMPUTED);
   }
 
   @Test
@@ -83,7 +83,8 @@ public class ApplicationModelTest extends ResetPostgres {
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     application.setEligibilityDetermination(EligibilityDetermination.ELIGIBLE);
-    assertThat(application.getEligibilityDetermination().equals(EligibilityDetermination.ELIGIBLE));
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.ELIGIBLE);
   }
 
   @Test
@@ -94,8 +95,8 @@ public class ApplicationModelTest extends ResetPostgres {
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     application.setEligibilityDetermination(EligibilityDetermination.INELIGIBLE);
-    assertThat(
-        application.getEligibilityDetermination().equals(EligibilityDetermination.INELIGIBLE));
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.INELIGIBLE);
   }
 
   @Test
@@ -106,10 +107,8 @@ public class ApplicationModelTest extends ResetPostgres {
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
     application.setEligibilityDetermination(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
-    assertThat(
-        application
-            .getEligibilityDetermination()
-            .equals(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA));
+    assertThat(application.getEligibilityDetermination())
+        .isEqualTo(EligibilityDetermination.NO_ELIGIBILITY_CRITERIA);
   }
 
   @Test
