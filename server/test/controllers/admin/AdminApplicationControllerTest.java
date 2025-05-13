@@ -840,8 +840,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             adminAccount,
             instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
-        new ProfileUtilsNoOpTester(
-            instanceOf(SessionStore.class), profileFactory, profileTester);
+        new ProfileUtilsNoOpTester(instanceOf(SessionStore.class), profileFactory, profileTester);
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),
