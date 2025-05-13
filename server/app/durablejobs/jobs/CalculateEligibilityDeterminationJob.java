@@ -7,6 +7,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.annotation.TxIsolation;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import models.EligibilityDetermination;
@@ -51,34 +52,49 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
       jobTransaction.setBatchMode(true);
       int errorCount = 0;
 
-      String filter =
-          """
-          eligibility_determination = 'NOT_COMPUTED' AND lifecycle_stage = 'active'
-          """;
-      try (var query = database.find(ApplicationModel.class).where().raw(filter).findIterate()) {
+      try (var query =
+          database
+              .find(ApplicationModel.class)
+              .where()
+              .eq("eligibility_determination", EligibilityDetermination.NOT_COMPUTED)
+              .eq("lifecycle_stage", "active")
+              .findIterate()) {
         while (query.hasNext() && errorCount < 10) {
-          ApplicationModel application = null;
+          Optional<ApplicationModel> applicationOptional = Optional.empty();
+          Long currentApplicationId = null;
           try {
-            application = query.next();
-            logger.info(
-                "Calculating eligibility determination for application id {}", application.id);
-            ProgramModel pm = application.getProgram();
-            ProgramDefinition programDefinition = pm.getProgramDefinition();
-            ReadOnlyApplicantProgramService roAppProgramService =
-                applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
-            EligibilityDetermination eligibilityDetermination =
-                applicantService.calculateEligibilityDetermination(
-                    programDefinition, roAppProgramService);
-            application.setEligibilityDetermination(eligibilityDetermination);
-            application.save();
+            applicationOptional = Optional.ofNullable(query.next());
+            if (applicationOptional.isPresent()) {
+              ApplicationModel application = applicationOptional.get();
+              currentApplicationId = application.id; // Capture the ID here
+              logger.info(
+                  "Calculating eligibility determination for application id {}",
+                  application.id); // Use the captured ID
+
+              ProgramModel pm = application.getProgram();
+              ProgramDefinition programDefinition = pm.getProgramDefinition();
+              ReadOnlyApplicantProgramService roAppProgramService =
+                  applicantService.getReadOnlyApplicantProgramService(
+                      application, programDefinition);
+              EligibilityDetermination eligibilityDetermination =
+                  applicantService.calculateEligibilityDetermination(
+                      programDefinition, roAppProgramService);
+              application.setEligibilityDetermination(eligibilityDetermination);
+              application.save();
+            } else {
+              logger.warn("Query returned a null application despite hasNext() being true.");
+              errorCount++;
+            }
           } catch (RuntimeException e) {
             errorCount++;
-            if (application != null) {
-              logger.error(
-                  "Error processing application ID {}: {}", application.id, e.getMessage());
-            } else {
-              logger.error("Error message: {}", e.getMessage());
-            }
+            final Long finalApplicationId = currentApplicationId;
+            applicationOptional.ifPresentOrElse(
+                app ->
+                    logger.error(
+                        "Error processing application ID {}: {}",
+                        finalApplicationId != null ? finalApplicationId : "unknown",
+                        e.getMessage()),
+                () -> logger.error("Error message: {}", e.getMessage()));
           }
         }
       }
@@ -87,9 +103,9 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
         jobTransaction.commit();
         logger.info("Job succeeded");
       } else {
-        logger.error(
-            "Failed to compute eligibility determination for existing applications. Error: {}",
-            errorCount);
+        String errorMessage = String.format("Stopping early after %d errors", errorCount);
+        logger.error(errorMessage);
+        persistedDurableJobModel.appendErrorMessage(errorMessage);
         jobTransaction.rollback();
       }
     }
