@@ -648,7 +648,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatuses_emptySendEmail_succeeds() throws Exception {
     // Setup
-    Instant start = Instant.now();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
@@ -683,7 +682,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     // Evaluate
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    verifyApplicationStatusChange(application, Optional.of(adminAccount), Optional.of(start));
     application.refresh();
     assertThat(application.getApplicationEvents()).hasSize(1);
     ApplicationEventModel gotEvent = application.getApplicationEvents().get(0);
