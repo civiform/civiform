@@ -556,13 +556,13 @@ main {
   .usa-alert--warning {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: #ffbe2e;
+    border-right-color: color($theme-color-warning);
   }
 
   .usa-alert--success {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: #00a91c;
+    border-right-color: color($theme-color-success);
   }
 
   .usa-alert .usa-alert__heading,
