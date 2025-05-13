@@ -20,7 +20,6 @@ public class SessionControllerTest {
   private SessionController controller;
   private ProfileUtils profileUtils;
   private CiviFormProfileData mockProfileData;
-  private CiviFormProfile mockProfile;
   private SettingsManifest mockSettingsManifest;
   private Clock clock;
 
@@ -29,7 +28,7 @@ public class SessionControllerTest {
     profileUtils = mock(ProfileUtils.class);
     mockSettingsManifest = mock(SettingsManifest.class);
     clock = mock(Clock.class);
-    mockProfile = mock(CiviFormProfile.class);
+    CiviFormProfile mockProfile = mock(CiviFormProfile.class);
     mockProfileData = mock(CiviFormProfileData.class);
 
     when(mockProfile.getProfileData()).thenReturn(mockProfileData);

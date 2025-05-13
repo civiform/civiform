@@ -175,7 +175,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     var programId = programDefinition.id();
 
     ApplicantModel tiApplicant = createApplicant();
-    AccountModel tiAccount = createTIWithMockedProfile(tiApplicant);
+    createTIWithMockedProfile(tiApplicant);
 
     Result result =
         blockController

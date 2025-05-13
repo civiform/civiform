@@ -10,6 +10,10 @@ test.describe('Viewing API docs', () => {
     await enableFeatureFlag(page, 'api_generated_docs_enabled')
   })
 
+  test.use({
+    bypassCSP: true,
+  })
+
   test('Views OpenApi Schema', async ({page, adminPrograms}) => {
     await test.step('Login as admin and publish drafts', async () => {
       await page.goto('/')
