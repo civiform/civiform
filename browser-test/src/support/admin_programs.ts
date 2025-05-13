@@ -311,7 +311,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeDisabled()
+          expect(await stepTitle.getAttribute('readonly')).not.toBeNull()
           await expect(stepDescription).toBeDisabled()
+          expect(await stepDescription.getAttribute('readonly')).not.toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isHidden()
           }
@@ -322,12 +324,17 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeDisabled()
+        expect(
+          await confirmationMessage.getAttribute('readonly'),
+        ).not.toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
+        expect(await longDescription.getAttribute('readonly')).not.toBeNull()
+
         break
       }
 
@@ -388,7 +395,9 @@ export class AdminPrograms {
             name: `Step ${indexPlusOne} description`,
           })
           await expect(stepTitle).toBeEnabled()
+          expect(await stepTitle.getAttribute('readonly')).toBeNull()
           await expect(stepDescription).toBeEnabled()
+          expect(await stepDescription.getAttribute('readonly')).toBeNull()
           if (indexPlusOne == 1) {
             await stepTitle.locator('span').isVisible()
           }
@@ -399,12 +408,14 @@ export class AdminPrograms {
       case FormField.CONFIRMATION_MESSAGE: {
         const confirmationMessage = this.getConfirmationMessageField()
         await expect(confirmationMessage).toBeEnabled()
+        expect(await confirmationMessage.getAttribute('readonly')).toBeNull()
         break
       }
 
       case FormField.LONG_DESCRIPTION: {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeEnabled()
+        expect(await longDescription.getAttribute('readonly')).toBeNull()
         break
       }
 
