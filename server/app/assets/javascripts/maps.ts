@@ -38,7 +38,6 @@ export function init() {
           const popup = L.DomUtil.create('div', 'infoWindow')
           popup.innerHTML = `<strong>${feature.properties.name}</strong><br>${feature.properties.address}<br><a class="usa-button-outline" href="www.google.com" target="_blank">See more</a><br><button id="add-to-my-list" class="add-to-my-list usa-button">Add to my list</button>`
           layer.bindPopup(popup).on('popupopen', (a) => {
-            console.log(a)
             const popUp = a.target.getPopup()
             popUp
               .getElement()
