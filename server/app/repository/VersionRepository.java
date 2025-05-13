@@ -404,18 +404,20 @@ public final class VersionRepository {
    * <p>This can return active or obsolete versions. Versions flagged as deleted are excluded.
    */
   public Optional<VersionModel> getPreviousVersion(VersionModel version) {
-    return database
-        .find(VersionModel.class)
-        .where()
-        .lt("id", version.id)
-        .not()
-        .eq("lifecycle_stage", LifecycleStage.DELETED)
-        .orderBy()
-        .desc("id")
-        .setMaxRows(1)
-        .setLabel("VersionModel.findPrevious")
-        .setProfileLocation(profileLocationBuilder.create("getPreviousVersion"))
-        .findOneOrEmpty();
+    VersionModel previousVersion =
+        database
+            .find(VersionModel.class)
+            .where()
+            .lt("id", version.id)
+            .not()
+            .eq("lifecycle_stage", LifecycleStage.DELETED)
+            .orderBy()
+            .desc("id")
+            .setMaxRows(1)
+            .setLabel("VersionModel.findPrevious")
+            .setProfileLocation(profileLocationBuilder.create("getPreviousVersion"))
+            .findOne();
+    return Optional.ofNullable(previousVersion);
   }
 
   /**
