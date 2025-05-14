@@ -87,6 +87,13 @@ export enum ProgramLifecycle {
   ACTIVE = 'Active',
 }
 
+export enum ProgramAction {
+  EDIT = 'Edit',
+  PUBLISH = 'Publish',
+  SHARE = 'Share link',
+  VIEW = 'View',
+}
+
 export enum ProgramExtraAction {
   VIEW_APPLICATIONS = 'Applications',
   EDIT = 'Edit',
@@ -474,18 +481,26 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies the extra action are visible when the extra actions dropdown is
-   * opened for a program's card on a specific lifecycle
+   * Verifies a program card has the given actions visible
    *
    * @param programName - Name of the program
    * @param lifecycle - Lifecycle of the program
-   * @param extraActions - Extra actions to verify
+   * @param actions - Actions that should be visible on the card
+   * @param extraActions - Extra actions that should be visible on the extra
+   * actions dropdown
    */
-  async expectProgramExtraActionsVisible(
+  async expectProgramActionsVisible(
     programName: string,
     lifecycle: ProgramLifecycle,
+    actions: ProgramAction[],
     extraActions: ProgramExtraAction[],
   ) {
+    for (const action of actions) {
+      const actionButton = this.getProgramAction(programName, lifecycle, action)
+      await expect(actionButton).toBeVisible()
+    }
+
+    await this.getProgramExtraActionsButton(programName, lifecycle).click()
     for (const action of extraActions) {
       const actionButton = this.getProgramExtraAction(
         programName,
@@ -497,18 +512,26 @@ export class AdminPrograms {
   }
 
   /**
-   * Verifies the extra action are hidden when the extra actions dropdown is
-   * opened in a program's card on a specific lifecycle
+   * Verifies a program card has the given actions hidden
    *
    * @param programName - Name of the program
    * @param lifecycle - Lifecycle of the program
-   * @param extraActions - Extra actions to verify
+   * @param actions - Actions that should be hidden on the card
+   * @param extraActions - Extra actions that should be hidden on the extra
+   * actions dropdown
    */
-  async expectProgramExtraActionsHidden(
+  async expectProgramActionsHidden(
     programName: string,
     lifecycle: ProgramLifecycle,
+    actions: ProgramAction[],
     extraActions: ProgramExtraAction[],
   ) {
+    for (const action of actions) {
+      const actionButton = this.getProgramAction(programName, lifecycle, action)
+      await expect(actionButton).toBeHidden()
+    }
+
+    await this.getProgramExtraActionsButton(programName, lifecycle).click()
     for (const action of extraActions) {
       const actionButton = this.getProgramExtraAction(
         programName,
@@ -1709,6 +1732,17 @@ export class AdminPrograms {
       .locator('div.cf-admin-program-card')
       .filter({has: this.page.getByText(programName)})
       .filter({has: this.page.getByText(lifecycle)})
+  }
+
+  getProgramAction(
+    programName: string,
+    lifecycle: string,
+    action: ProgramAction,
+  ) {
+    const programCard = this.getProgramCard(programName, lifecycle)
+    return programCard.getByRole('button', {
+      name: action,
+    })
   }
 
   getProgramExtraActionsButton(
