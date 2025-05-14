@@ -550,7 +550,7 @@ main {
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
-    border-right-color: #00bde3;
+    border-right-color: color($theme-color-info);
   }
 
   .usa-alert--warning {
@@ -610,16 +610,6 @@ main {
 
   .usa-radio__input {
     position: fixed;
-  }
-
-  #summary-multiline-list {
-    margin: 0;
-    text-align: left;
-    padding-left: 0;
-  }
-
-  .summary-answer {
-    text-align: left;
   }
 
   #summary-multiline-list {

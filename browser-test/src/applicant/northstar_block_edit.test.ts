@@ -3,6 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  setDirRtl,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
