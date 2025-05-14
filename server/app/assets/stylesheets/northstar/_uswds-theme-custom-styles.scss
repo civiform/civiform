@@ -621,4 +621,37 @@ main {
   .summary-answer {
     text-align: left;
   }
+
+  #summary-multiline-list {
+    margin: 0;
+    text-align: left;
+    padding-left: 0;
+  }
+
+  .summary-answer {
+    text-align: left;
+  }
+
+  /* Prevent `position: absolute` from breaking CSS when usa-sr-only elements are focused on when rendering rtl. */
+  .usa-sr-only {
+    position: fixed;
+  }
+
+  /* Make numbered text render correctly in rtl. */
+  .usa-step-indicator__total-steps {
+    unicode-bidi: plaintext;
+  }
+
+  /* Flip the breadcrumb arrow image so it points the correct direction for rtl. */
+  .usa-breadcrumb__link::before {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
+
+  // Styles for RTL on mobile
+  @media (max-width: 47.9em) {
+    .usa-breadcrumb__list {
+      padding-inline-start: 2ex;
+    }
+  }
 }
