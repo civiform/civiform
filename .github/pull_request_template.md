@@ -12,7 +12,7 @@ Remove this section if the title of the pull request can be used as the default 
 
 Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)
 
-- [ ] Added the correct label: < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database >
+- [ ] Added the correct label (see [docs](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-appropriate-labels) for more info): < feature | enhancement | bug | under-development | dependencies | infrastructure | ignore-for-release | database > 
 - [ ] Assigned to a specific person, `civiform/developers`, or a [more specific round-robin list](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#adding-reviewers)
 - [ ] Added an additional reviewer from outside your organization as FYI (if the primary reviewer is in the same organization as you)
 - [ ] Removed the release notes section if the title is sufficient for the release notes description, or put more details in that section.
