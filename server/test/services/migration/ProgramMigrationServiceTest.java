@@ -4,6 +4,7 @@ import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_PREDICATES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -743,6 +744,42 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(
             versionRepository.getProgramNamesForVersion(versionRepository.getDraftVersion().get()))
         .containsExactlyInAnyOrder(PROGRAM_NAME_1, PROGRAM_NAME_2);
+  }
+
+  @Test
+  public void validateQuestionKeyUniqueness_noConflicts_doesNotThrow() {
+    service.validateQuestionKeyUniqueness(QUESTIONS_1_2);
+  }
+
+  @Test
+  public void validateQuestionKeyUniqueness_importTwoConflictingKeys_throws() {
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(QUESTION_1, createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+
+    Exception e =
+        assertThrows(
+            RuntimeException.class, () -> service.validateQuestionKeyUniqueness(questions));
+
+    assertThat(e)
+        .hasMessageContaining(
+            "Question keys (Admin IDs with non-letter characters removed and spaces transformed to"
+                + " underscores) must be unique. Duplicate question keys found:");
+  }
+
+  @Test
+  public void validateQuestionKeyUniqueness_existingKeyConflictHasDifferentName_throws() {
+    resourceCreator.insertQuestion(QUESTION_1_NAME);
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+
+    Exception e =
+        assertThrows(
+            RuntimeException.class, () -> service.validateQuestionKeyUniqueness(questions));
+
+    assertThat(e)
+        .hasMessageContaining(
+            "Please change the Admin ID so it either matches the existing one, or compiles to a"
+                + " different question key.");
   }
 
   // Helper methods to create test questions

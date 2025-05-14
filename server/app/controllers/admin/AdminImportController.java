@@ -244,6 +244,9 @@ public class AdminImportController extends CiviFormController {
         questions = ImmutableList.copyOf(updatedQuestionsMap.values());
       }
 
+      if (duplicateHandlingOptionsEnabled) {
+        programMigrationService.validateQuestionKeyUniqueness(questions);
+      }
       ImmutableSet<CiviFormError> questionErrors =
           questions.stream()
               .map(
