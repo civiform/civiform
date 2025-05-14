@@ -536,6 +536,14 @@ main {
     padding-inline-start: 40px;
   }
 
+  .usa-logo {
+    margin-inline-start: 16px;
+  }
+
+  .usa-banner__inner {
+    padding-inline-start: 16px;
+  }
+
   // -- start
   /* Make the info/alert icons appear to the right of the label in RTL languages. */
   .usa-alert__body::before {
