@@ -1365,13 +1365,13 @@ test.describe(
           has: page.getByText(externalProgramAName),
         })
         await expect(
-          externalProgramCard.getByRole('button', {name: 'View in new window'}),
+          externalProgramCard.getByRole('button', {name: 'View in new tab'}),
         ).toBeVisible()
 
         await validateAccessibility(page)
       })
 
-      await test.step("card for external program A opens a modal which redirects to the extenal program A's site", async () => {
+      await test.step('card for external program A opens a modal', async () => {
         await applicantQuestions.clickApplyProgramButton(externalProgramAName)
 
         // Verify external program modal is visible
@@ -1386,31 +1386,49 @@ test.describe(
             "To go to the program's website where you can get more details and apply, click Continue",
           ),
         ).toBeVisible()
-        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
         await expect(continueButton).toBeVisible()
         await expect(modal.getByRole('button', {name: 'Go back'})).toBeVisible()
+      })
 
-        // Clicking continue should redirect to the external program A's site
+      await test.step("accepting external program A modal redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
         await continueButton.click()
-        await expect(page).toHaveURL(externalProgramALink)
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramALink)
+
+        await newPage.close()
       })
 
       await test.step('go back to the applicant home page', async () => {
         await page.goto(BASE_URL)
       })
 
-      await test.step("card for external program B opens a modal which redirects to the external program B's site", async () => {
+      await test.step('card for external program B opens a modal', async () => {
         await applicantQuestions.clickApplyProgramButton(externalProgramBName)
 
-        // Verify external program modal is visible. We don't need to check
-        // every element since last step verified it
+        // We don't need to check each modal element's visibility since
+        // previous step verified them
         const modal = page.getByRole('dialog', {state: 'visible'})
-        const continueButton = modal.getByRole('button', {name: 'Continue'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
         await expect(continueButton).toBeVisible()
+      })
 
-        // Clicking continue should redirect to the external program B's site
+      await test.step("accepting external program B modal redirects to the program's external site", async () => {
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+
+        const pagePromise = page.context().waitForEvent('page')
         await continueButton.click()
-        await expect(page).toHaveURL(externalProgramBLink)
+        const newPage = await pagePromise
+        await newPage.waitForLoadState()
+        expect(newPage.url()).toMatch(externalProgramBLink)
+
+        await newPage.close()
       })
     })
 
