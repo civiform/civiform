@@ -7,6 +7,7 @@ import {
   validateScreenshot,
 } from '../support'
 import {
+  ProgramAction,
   ProgramCategories,
   ProgramExtraAction,
   ProgramLifecycle,
@@ -565,42 +566,41 @@ test.describe('Program list page.', () => {
     )
     await expectProgramListElements(adminPrograms, [externalProgram])
 
-    // On draft mode, 'manage applications' button is hidden
-    await adminPrograms
-      .getProgramExtraActionsButton(externalProgram, ProgramLifecycle.DRAFT)
-      .click()
-    await adminPrograms.expectProgramExtraActionsVisible(
+    // On draft mode, 'manage applications' extra action is hidden
+    await adminPrograms.expectProgramActionsVisible(
       externalProgram,
       ProgramLifecycle.DRAFT,
+      [ProgramAction.PUBLISH, ProgramAction.EDIT],
       [
         ProgramExtraAction.MANAGE_ADMINS,
         ProgramExtraAction.MANAGE_TRANSLATIONS,
         ProgramExtraAction.EXPORT,
       ],
     )
-    await adminPrograms.expectProgramExtraActionsHidden(
+    await adminPrograms.expectProgramActionsHidden(
       externalProgram,
       ProgramLifecycle.DRAFT,
+      [],
       [ProgramExtraAction.MANAGE_APPLICATIONS],
     )
 
-    // On active mode, 'applications' button is hidden
+    // On active mode, 'share' action and 'applications' extra action are
+    // hidden
     await adminPrograms.publishProgram(externalProgram)
-    await adminPrograms
-      .getProgramExtraActionsButton(externalProgram, ProgramLifecycle.ACTIVE)
-      .click()
-    await adminPrograms.expectProgramExtraActionsVisible(
+    await adminPrograms.expectProgramActionsVisible(
       externalProgram,
       ProgramLifecycle.ACTIVE,
+      [ProgramAction.VIEW],
       [
         ProgramExtraAction.EDIT,
         ProgramExtraAction.MANAGE_ADMINS,
         ProgramExtraAction.EXPORT,
       ],
     )
-    await adminPrograms.expectProgramExtraActionsHidden(
+    await adminPrograms.expectProgramActionsHidden(
       externalProgram,
       ProgramLifecycle.ACTIVE,
+      [ProgramAction.SHARE],
       [ProgramExtraAction.VIEW_APPLICATIONS],
     )
   })
