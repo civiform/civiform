@@ -864,19 +864,19 @@ export class AdminPrograms {
 
   async expectDraftProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Draft')),
+      this.getProgramCard(programName, ProgramLifecycle.DRAFT),
     ).toBeVisible()
   }
 
   async expectDoesNotHaveDraftProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Draft')),
+      this.getProgramCard(programName, ProgramLifecycle.DRAFT),
     ).toBeHidden()
   }
 
   async expectActiveProgram(programName: string) {
     await expect(
-      this.page.locator(this.programCardSelector(programName, 'Active')),
+      this.getProgramCard(programName, ProgramLifecycle.ACTIVE),
     ).toBeVisible()
   }
 
