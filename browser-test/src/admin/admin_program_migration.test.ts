@@ -1,6 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramLifecycle,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -655,19 +659,18 @@ test.describe('program migration', () => {
       // but long term this needs to be written in a way that better targets the
       // card selector
       await expect(
-        page
-          .locator(
-            adminPrograms.programCardSelector(
-              'Comprehensive Sample Program',
-              'Draft',
-            ),
+        adminPrograms
+          .getProgramCard(
+            'Comprehensive Sample Program',
+            ProgramLifecycle.DRAFT,
           )
           .first(),
       ).toBeVisible()
 
       await expect(
-        page.locator(
-          adminPrograms.programCardSelector('Minimal Sample Program', 'Draft'),
+        adminPrograms.getProgramCard(
+          'Minimal Sample Program',
+          ProgramLifecycle.DRAFT,
         ),
       ).toBeVisible()
     })

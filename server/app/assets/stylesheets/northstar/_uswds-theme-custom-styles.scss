@@ -526,9 +526,14 @@ main {
 [dir='rtl'] {
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
-    position: relative;
+    position: absolute;
     display: inline-block;
     margin-inline-end: 10px;
+    right: 8px;
+  }
+
+  .usa-checkbox__label {
+    padding-inline-start: 40px;
   }
 
   .usa-logo {
@@ -602,6 +607,19 @@ main {
   }
   // -- end
 
+  .usa-radio__label::before {
+    display: inline-block;
+    right: 1rem;
+  }
+
+  .usa-radio__label > p {
+    margin-inline-start: 2.5rem;
+  }
+
+  .usa-radio__input {
+    position: fixed;
+  }
+
   #summary-multiline-list {
     margin: 0;
     text-align: left;
@@ -620,5 +638,18 @@ main {
   /* Make numbered text render correctly in rtl. */
   .usa-step-indicator__total-steps {
     unicode-bidi: plaintext;
+  }
+
+  /* Flip the breadcrumb arrow image so it points the correct direction for rtl. */
+  .usa-breadcrumb__link::before {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
+
+  // Styles for RTL on mobile
+  @media (max-width: 47.9em) {
+    .usa-breadcrumb__list {
+      padding-inline-start: 2ex;
+    }
   }
 }

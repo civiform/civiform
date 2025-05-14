@@ -18,6 +18,7 @@ import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -152,6 +153,53 @@ public final class ProgramMigrationService {
     } catch (RuntimeException | JsonProcessingException e) {
       return ErrorAnd.error(
           ImmutableSet.of(String.format("JSON is incorrectly formatted: %s", e.getMessage())));
+    }
+  }
+
+  /**
+   * Question keys are derived from Question Admin IDs in {@link QuestionDefinition} with {@code
+   * adminId().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_")}. Question keys in the imported
+   * JSON must be unique from one another AND if a question key exists in the DB, the question name
+   * must be exactly similar to that in the DB.
+   *
+   * @throws RuntimeException if there are any issues with the uniqueness of question keys
+   */
+  public void validateQuestionKeyUniqueness(ImmutableList<QuestionDefinition> questions) {
+    Map<String, ImmutableList<String>> questionKeysToNames = new HashMap<>();
+    for (QuestionDefinition question : questions) {
+      Optional<QuestionModel> conflictingQ = questionRepository.findConflictingQuestion(question);
+      if (conflictingQ.isPresent()
+          && !conflictingQ.get().getQuestionDefinition().getName().equals(question.getName())) {
+        throw new RuntimeException(
+            String.format(
+                "Question key %s (Admin ID \"%s\" with non-letter characters removed and spaces"
+                    + " transformed to underscores) is already in use by question %s. Please change"
+                    + " the Admin ID so it either matches the existing one, or compiles to a"
+                    + " different question key.",
+                question.getQuestionNameKey(),
+                question.getName(),
+                conflictingQ.get().getQuestionDefinition().getName()));
+      }
+      questionKeysToNames.merge(
+          question.getQuestionNameKey(),
+          ImmutableList.of(question.getName()),
+          (ImmutableList<String> a, ImmutableList<String> b) -> {
+            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            builder.addAll(a);
+            builder.addAll(b);
+            return builder.build();
+          });
+    }
+    ImmutableList<ImmutableList<String>> duplicateKeys =
+        questionKeysToNames.values().stream()
+            .filter(names -> names.size() > 1)
+            .collect(ImmutableList.toImmutableList());
+    if (!duplicateKeys.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Question keys (Admin IDs with non-letter characters removed and spaces transformed"
+                  + " to underscores) must be unique. Duplicate question keys found: %s",
+              duplicateKeys));
     }
   }
 

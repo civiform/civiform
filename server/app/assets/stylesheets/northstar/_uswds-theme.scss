@@ -28,5 +28,7 @@ https://designsystem.digital.gov/utilities/.
   $flex-settings: (responsive: true),
   $flex-direction-settings: (responsive: true),
   $align-self-settings: (responsive: true),
-  $justify-content-settings: (responsive: true)
+  $justify-content-settings: (responsive: true),
+  $theme-utility-breakpoints-custom: ('none-width': 0px),
+  $theme-breadcrumb-min-width: 'none-width'
 );
