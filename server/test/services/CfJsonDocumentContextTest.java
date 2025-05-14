@@ -342,17 +342,19 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"children\":[{},{\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]}}");
+            """
+{"applicant":{"children":[{},{"pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
   }
 
   @Test
   public void putRepeatedEntities_withPrexistingData() {
     CfJsonDocumentContext data =
         new CfJsonDocumentContext(
-            "{\"applicant\":{\"children\":[{},{\"entity_name\":\"an old name\",\"pets\":["
-                + "{\"entity_name\":\"bubbles\"},"
-                + "{\"entity_name\":\"luna\"},"
-                + "{\"entity_name\":\"taco\"}]}]}}");
+            """
+            {"applicant":{"children":[{},{"entity_name":"an old name","pets":[\
+            {"entity_name":"bubbles"},\
+            {"entity_name":"luna"},\
+            {"entity_name":"taco"}]}]}}""");
     Path path = Path.create("applicant.children[]");
     ImmutableList<String> childrenNames = ImmutableList.of("alice", "bob");
 
@@ -360,7 +362,8 @@ public class CfJsonDocumentContextTest {
 
     assertThat(data.asJsonString())
         .isEqualTo(
-            "{\"applicant\":{\"children\":[{\"entity_name\":\"alice\"},{\"entity_name\":\"bob\",\"pets\":[{\"entity_name\":\"bubbles\"},{\"entity_name\":\"luna\"},{\"entity_name\":\"taco\"}]}]}}");
+            """
+{"applicant":{"children":[{"entity_name":"alice"},{"entity_name":"bob","pets":[{"entity_name":"bubbles"},{"entity_name":"luna"},{"entity_name":"taco"}]}]}}""");
   }
 
   @Test
@@ -403,9 +406,10 @@ public class CfJsonDocumentContextTest {
   public void readString_withRepeatedEntity_findsCorrectValue() throws Exception {
     CfJsonDocumentContext data =
         new CfJsonDocumentContext(
-            "{\"applicant\":{\"children\":["
-                + "{\"entity\":\"first child\",\"name\":{\"first\":\"Billy\", \"last\": \"Bob\"}},"
-                + "{\"entity\": \"second child\"}]}}");
+            """
+            {"applicant":{"children":[\
+            {"entity":"first child","name":{"first":"Billy", "last": "Bob"}},\
+            {"entity": "second child"}]}}""");
 
     Optional<String> found = data.readString(Path.create("applicant.children[0].name.first"));
 
@@ -423,7 +427,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readString_returnsEmptyWhenTypeMismatch() {
-    String testData = "{ \"applicant\": { \"object\": { \"number\": 27 } } }";
+    String testData =
+        """
+        { "applicant": { "object": { "number": 27 } } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.object"));
@@ -433,7 +439,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readString_returnsEmptyForLists() {
-    String testData = "{ \"applicant\": { \"list\":[\"hello\", \"world\"] } }";
+    String testData =
+        """
+        { "applicant": { "list":["hello", "world"] } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<String> found = data.readString(Path.create("applicant.list"));
@@ -443,7 +451,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readLong_findsCorrectValue() throws Exception {
-    String testData = "{ \"applicant\": { \"age\": 30 } }";
+    String testData =
+        """
+        { "applicant": { "age": 30 } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.age"));
@@ -453,7 +463,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readDouble_findsCorrectValue() throws Exception {
-    String testData = "{ \"applicant\": { \"monthly_income\": 99.9 } }";
+    String testData =
+        """
+        { "applicant": { "monthly_income": 99.9 } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Double> found = data.readDouble(Path.create("applicant.monthly_income"));
@@ -472,7 +484,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readLong_returnsEmptyWhenTypeMismatch() {
-    String testData = "{ \"applicant\": { \"object\": { \"name\": \"John\" } } }";
+    String testData =
+        """
+        { "applicant": { "object": { "name": "John" } } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<Long> found = data.readLong(Path.create("applicant.object.name"));
@@ -482,7 +496,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readLongList_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":[1, 2]}}";
+    String testData =
+        """
+        {"applicant":{"favorite_fruits":[1, 2]}}""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -493,7 +509,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readLongList_withOneValue_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":[1]}}";
+    String testData =
+        """
+        {"applicant":{"favorite_fruits":[1]}}""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found =
@@ -512,7 +530,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
-    String testData = "{ \"applicant\": { \"object\": { \"name\": \"Khalid\" } } }";
+    String testData =
+        """
+        { "applicant": { "object": { "name": "Khalid" } } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<Long>> found = data.readLongList(Path.create("applicant.object.name"));
@@ -522,7 +542,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void readStringList_findsCorrectValue() {
-    String testData = "{\"applicant\":{\"favorite_fruits\":[\"apple\", \"orange\"]}}";
+    String testData =
+        """
+        {"applicant":{"favorite_fruits":["apple", "orange"]}}""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     Optional<ImmutableList<String>> found =
@@ -617,24 +639,28 @@ public class CfJsonDocumentContextTest {
   @Test
   public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
     String testData =
-        "{ \"deeply\": { \"nested\": { \"value\": \"long text to stop formatter de-wrapping\" } }"
-            + " }";
+        """
+        { "deeply": { "nested": { "value": "long text to stop formatter de-wrapping" } }\
+         }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply"));
 
     assertThat(prettyJson)
         .isEqualTo(
-            "{\n"
-                + "  \"nested\" : {\n"
-                + "    \"value\" : \"long text to stop formatter de-wrapping\"\n"
-                + "  }\n"
-                + "}");
+            """
+            {
+              "nested" : {
+                "value" : "long text to stop formatter de-wrapping"
+              }
+            }""");
   }
 
   @Test
   public void asPrettyJsonString_prettyPrintsNullString() {
-    String testData = "{ \"deeply\": { \"nested\": { \"age\": \"null\" } } }";
+    String testData =
+        """
+        { "deeply": { "nested": { "age": "null" } } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -645,7 +671,9 @@ public class CfJsonDocumentContextTest {
 
   @Test
   public void asPrettyJsonString_prettyPrintsNullValue() {
-    String testData = "{ \"deeply\": { \"nested\": { \"age\": null } } }";
+    String testData =
+        """
+        { "deeply": { "nested": { "age": null } } }""";
     CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
 
     String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
@@ -688,12 +716,16 @@ public class CfJsonDocumentContextTest {
     data.putString(Path.create("applicant.things[2]"), "horse");
     data.putString(Path.create("applicant.stuff"), "cars");
 
-    String expected = "{\"applicant\":{\"things\":[\"dog\",\"cat\",\"horse\"],\"stuff\":\"cars\"}}";
+    String expected =
+        """
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.things[0]"));
 
-    String nextExpected = "{\"applicant\":{\"stuff\":\"cars\"}}";
+    String nextExpected =
+        """
+        {"applicant":{"stuff":"cars"}}""";
     assertThat(data.asJsonString()).isEqualTo(nextExpected);
   }
 
@@ -705,7 +737,9 @@ public class CfJsonDocumentContextTest {
     data.putString(Path.create("applicant.things[2]"), "horse");
     data.putString(Path.create("applicant.stuff"), "cars");
 
-    String expected = "{\"applicant\":{\"things\":[\"dog\",\"cat\",\"horse\"],\"stuff\":\"cars\"}}";
+    String expected =
+        """
+        {"applicant":{"things":["dog","cat","horse"],"stuff":"cars"}}""";
     assertThat(data.asJsonString()).isEqualTo(expected);
 
     data.maybeClearArray(Path.create("applicant.cars"));

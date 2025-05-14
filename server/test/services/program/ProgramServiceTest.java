@@ -2486,6 +2486,8 @@ public class ProgramServiceTest extends ResetPostgres {
         ps.addBlockToProgram(programDefinition.id());
     Optional<LocalizedStrings> firstEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "first custom eligibility message"));
+    // See commented out tests below
+    @SuppressWarnings("unused")
     Optional<LocalizedStrings> secondEligibilityMsg =
         Optional.of(LocalizedStrings.of(Locale.US, "second custom eligibility message"));
 
