@@ -49,26 +49,6 @@ svg {
 }
 // -- end
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-/* Override margin values to support RTL languages. */
-.usa-identifier__logos {
-  margin-right: 0;
-  margin-inline-end: 1rem;
-}
-
-.cf-header-logo {
-  padding-inline-end: 1rem;
-=======
-/* Make the checkbox appear to the right of the label in RTL languages. */
-[dir='rtl'] .usa-checkbox__label::before {
-  position: relative;
-  display: inline-block;
-  margin-inline-end: 10px;
->>>>>>> 47551e72e (style checkbox for rtl)
-}
-=======
 [dir='rtl'] {
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
@@ -76,7 +56,6 @@ svg {
     display: inline-block;
     margin-inline-end: 10px;
   }
->>>>>>> a30c83c7a (group rtl stylings together to help make css more readable)
 
   // -- start
   /* Make the info/alert icons appear to the right of the label in RTL languages. */
@@ -136,8 +115,6 @@ svg {
   // -- end
 }
 
-=======
->>>>>>> 142032ee3 (move rtl styles to end of css file)
 /* Override margin values to support RTL languages. */
 .usa-identifier__logos {
   margin-right: 0;
@@ -615,7 +592,6 @@ main {
 [dir='rtl'] {
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
-<<<<<<< HEAD
     position: absolute;
     display: inline-block;
     margin-inline-end: 10px;
@@ -632,11 +608,9 @@ main {
 
   .usa-banner__inner {
     padding-inline-start: 16px;
-=======
     position: relative;
     display: inline-block;
     margin-inline-end: 10px;
->>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   .usa-banner__icon {
@@ -654,27 +628,15 @@ main {
     right: 1.625rem;
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: color($theme-color-info);
-=======
-  .usa-alert:not(.usa-alert--warning) {
-=======
-  .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
->>>>>>> d2259749c (fix success alert border)
-    border-left-width: 0px;
-    border-right-width: 8px;
-    border-right-color: #00bde3;
->>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   .usa-alert--warning {
     border-left-width: 0px;
     border-right-width: 8px;
-<<<<<<< HEAD
     border-right-color: color($theme-color-warning);
   }
 
@@ -682,9 +644,6 @@ main {
     border-left-width: 0px;
     border-right-width: 8px;
     border-right-color: color($theme-color-success);
-=======
-    border-right-color: #ffbe2e;
->>>>>>> 142032ee3 (move rtl styles to end of css file)
   }
 
   .usa-alert--success {
@@ -726,8 +685,6 @@ main {
     padding-right: 20px;
   }
   // -- end
-<<<<<<< HEAD
-<<<<<<< HEAD
 
   .usa-radio__label::before {
     display: inline-block;
@@ -741,23 +698,16 @@ main {
   .usa-radio__input {
     position: fixed;
   }
-=======
->>>>>>> ded13f797 (fix answer text alignment on program summary page)
 
   #summary-multiline-list {
     margin: 0;
     text-align: left;
     padding-left: 0;
   }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 2fc99ad9b (fix text alignment on mobile)
 
   .summary-answer {
     text-align: left;
   }
-<<<<<<< HEAD
 
   /* Prevent `position: absolute` from breaking CSS when usa-sr-only elements are focused on when rendering rtl. */
   .usa-sr-only {
@@ -781,10 +731,4 @@ main {
       padding-inline-start: 2ex;
     }
   }
-=======
->>>>>>> 142032ee3 (move rtl styles to end of css file)
-=======
->>>>>>> ded13f797 (fix answer text alignment on program summary page)
-=======
->>>>>>> 2fc99ad9b (fix text alignment on mobile)
 }
