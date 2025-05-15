@@ -526,9 +526,10 @@ main {
 [dir='rtl'] {
   /* Make the checkbox appear to the right of the label in RTL languages. */
   .usa-checkbox__label::before {
-    position: relative;
+    position: absolute;
     display: inline-block;
     margin-inline-end: 10px;
+    right: 8px;
   }
 
   .usa-checkbox__label {
