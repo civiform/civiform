@@ -213,8 +213,8 @@ button.startSurvey=アンケートを開始
 button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=確認して {0} に申請
-# The text on a button to view program on a new window. This is used for external programs.
-button.viewInNewWindow=View in new window
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
