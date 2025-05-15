@@ -87,8 +87,9 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     await test.step('Validate screenshot', async () => {
       await validateScreenshot(
         page,
-        'upsell-north-star-right-to-left-desktop',
+        'upsell-north-star',
         /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
       )
     })
 
