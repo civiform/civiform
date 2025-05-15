@@ -213,8 +213,8 @@ button.startSurvey=بدء الاستطلاع
 button.viewAndApply=عرض طلب الانضمام وإرساله
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=عرض طلب الانضمام وإرساله إلى "{0}"
-# The text on a button to view program on a new window. This is used for external programs.
-button.viewInNewWindow=View in new window
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=المتابعة إلى الطلب
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
