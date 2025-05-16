@@ -650,6 +650,10 @@ main {
     transform: scaleX(-1);
   }
 
+  .usa-modal__close {
+    margin-left: 0;
+  }
+
   // Styles for RTL on desktop
   @media (min-width: 64em) {
     .usa-banner__inner {
