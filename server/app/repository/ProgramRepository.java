@@ -279,7 +279,7 @@ public final class ProgramRepository {
       transaction.end();
       // After the fact comment: potential infinite loop here for systemic
       // issues. Unclear from the original 2021 PR what situation warranted
-      // catching IllegalStageException, and then also retrying when the
+      // catching IllegalStateException, and then also retrying when the
       // exception is typically for un-retryable things.
       return createOrUpdateDraft(existingProgram);
     } finally {
