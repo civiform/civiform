@@ -67,9 +67,7 @@
             <div>
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
-            <th:block
-              th:if="${enabledLanguages != null and #maps.size(enabledLanguages) > 1}"
-            >
+            <th:block th:if="${enabledLanguages.size() > 1}">
               <button th:replace="~{this :: languageSelector}"></button>
             </th:block>
           </div>
