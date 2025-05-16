@@ -799,22 +799,22 @@ export class AdminPrograms {
   async gotoEditDraftProgramPage(
     programName: string,
     isProgramDisabled: boolean = false,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
     await this.gotoAdminProgramsPage(isProgramDisabled)
 
-    if (createNewDraft) {
+    if (lifecycle === ProgramLifecycle.ACTIVE) {
       await this.expectActiveProgram(programName)
       await this.selectProgramExtraAction(
         programName,
-        ProgramLifecycle.ACTIVE,
+        lifecycle,
         ProgramExtraAction.EDIT,
       )
     } else {
       await this.expectDraftProgram(programName)
       await this.getProgramAction(
         programName,
-        ProgramLifecycle.DRAFT,
+        lifecycle,
         ProgramAction.EDIT,
       ).click()
     }
@@ -885,9 +885,13 @@ export class AdminPrograms {
 
   async goToProgramDescriptionPage(
     programName: string,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
-    await this.gotoEditDraftProgramPage(programName, false, createNewDraft)
+    await this.gotoEditDraftProgramPage(
+      programName,
+      /* isProgramDisabled= */ false,
+      lifecycle,
+    )
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
   }
