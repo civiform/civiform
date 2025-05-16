@@ -544,6 +544,10 @@ main {
     padding-inline-start: 16px;
   }
 
+  .usa-input-prefix + input {
+    padding-inline-start: 2.5rem;
+  }
+
   // -- start
   /* Make the info/alert icons appear to the right of the label in RTL languages. */
   .usa-alert__body::before {
