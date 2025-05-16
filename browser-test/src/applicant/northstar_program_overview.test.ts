@@ -10,7 +10,7 @@ import {
   validateScreenshot,
   setDirRtl,
 } from '../support'
-import {Eligibility} from '../support/admin_programs'
+import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
   const programName = 'test'
@@ -45,7 +45,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         programName,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
       await page
         .getByRole('textbox', {name: 'Long program description (optional)'})
@@ -131,7 +131,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         programName,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
       await page
         .getByRole('textbox', {name: 'Long program description (optional)'})
@@ -241,7 +241,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
       await loginAsAdmin(page)
       await adminPrograms.goToProgramDescriptionPage(
         secondProgram,
-        /* createNewDraft= */ true,
+        ProgramLifecycle.ACTIVE,
       )
       await adminPrograms.chooseEligibility(Eligibility.IS_NOT_GATING)
       await adminPrograms.submitProgramDetailsEdits()

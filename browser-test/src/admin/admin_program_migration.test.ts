@@ -68,7 +68,10 @@ test.describe('program migration', () => {
     })
 
     await test.step('load export page', async () => {
-      await adminPrograms.goToExportProgramPage(programName, 'DRAFT')
+      await adminPrograms.goToExportProgramPage(
+        programName,
+        ProgramLifecycle.DRAFT,
+      )
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
@@ -185,7 +188,7 @@ test.describe('program migration', () => {
     await page.goto('/')
     await adminPrograms.goToExportProgramPage(
       'Comprehensive Sample Program',
-      'DRAFT',
+      ProgramLifecycle.DRAFT,
     )
     let downloadedComprehensiveProgram =
       await adminProgramMigration.downloadJson()
@@ -315,7 +318,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
@@ -329,7 +332,7 @@ test.describe('program migration', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage(
         'Minimal Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
@@ -501,7 +504,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
@@ -515,7 +518,7 @@ test.describe('program migration', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage(
         'Minimal Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
@@ -737,7 +740,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
