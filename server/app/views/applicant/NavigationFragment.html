@@ -67,7 +67,9 @@
             <div>
               <button th:replace="~{this :: loginOrLogout}"></button>
             </div>
-            <button th:replace="~{this :: languageSelector}"></button>
+            <th:block th:if="${enabledLanguages.size() > 1}">
+              <button th:replace="~{this :: languageSelector}"></button>
+            </th:block>
           </div>
         </div>
       </nav>
@@ -265,7 +267,7 @@
   </th:block>
 </th:block>
 
-<div th:fragment="languageSelector">
+<div th:fragment="languageSelector" data-testid="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />
