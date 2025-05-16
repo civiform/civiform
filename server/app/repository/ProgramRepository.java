@@ -220,7 +220,7 @@ public final class ProgramRepository {
     // Otherwise, it will be creating a new transaction.
     // After the fact note: Based on the docs this isn't a savepoint as the
     // above says, because setNestedUseSavepoint() was not called, other code
-    // does use is FWIW.
+    // does do that FWIW.
     // https://ebean.io/docs/transactions/savepoints
     Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
