@@ -646,6 +646,10 @@ main {
     transform: scaleX(-1);
   }
 
+  .usa-modal__close {
+    margin-left: 0;
+  }
+
   // Styles for RTL on mobile
   @media (max-width: 47.9em) {
     .usa-breadcrumb__list {
