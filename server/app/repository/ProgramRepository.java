@@ -279,7 +279,7 @@ public final class ProgramRepository {
       transaction.end();
       // After the fact comment: potential infinite loop here for systemic
       // issues. Unclear from the original 2021 PR what situation warranted
-      // catching/ IllegalStageException, and then also retrying when the
+      // catching IllegalStageException, and then also retrying when the
       // exception is typically for un-retryable things.
       return createOrUpdateDraft(existingProgram);
     } finally {
@@ -471,7 +471,7 @@ public final class ProgramRepository {
   }
 
   /**
-   * Adds an ExpressionList to {@code query} that searches applications based on the implied
+   * Add an ExpressionList to {@code query} that searches applications based on the implied
    * contents of {@code search}.
    *
    * <p>A phone number only search is done if {@code search} contains no alphabetic characters and
