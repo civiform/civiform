@@ -92,6 +92,7 @@ export enum ProgramAction {
   PUBLISH = 'Publish',
   SHARE = 'Share link',
   VIEW = 'View',
+  VIEW_APPLICATIONS = 'Applications',
 }
 
 export enum ProgramExtraAction {
@@ -500,6 +501,10 @@ export class AdminPrograms {
       await expect(actionButton).toBeVisible()
     }
 
+    if (extraActions.length === 0) {
+      return
+    }
+
     await this.getProgramExtraActionsButton(programName, lifecycle).click()
     for (const action of extraActions) {
       const actionButton = this.getProgramExtraAction(
@@ -529,6 +534,10 @@ export class AdminPrograms {
     for (const action of actions) {
       const actionButton = this.getProgramAction(programName, lifecycle, action)
       await expect(actionButton).toBeHidden()
+    }
+
+    if (extraActions.length === 0) {
+      return
     }
 
     await this.getProgramExtraActionsButton(programName, lifecycle).click()
