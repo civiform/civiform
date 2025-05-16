@@ -1,3 +1,4 @@
+import type {Page} from '@playwright/test'
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
@@ -201,5 +202,17 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
     await selectApplicantLanguageNorthstar(page, 'es-US')
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
+  })
+
+  test.describe('Language Selector Visibility', () => {
+    test('shows language selector when multiple languages are enabled', async ({
+      page,
+    }: {
+      page: Page
+    }) => {
+      page.locator('[data-testid="languageSelector"]')
+      const selector = page.locator('[data-testid="languageSelector"]')
+      await expect(selector).toHaveCount(1, {timeout: 10000})
+    })
   })
 })
