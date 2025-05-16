@@ -7,6 +7,7 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
+  setDirRtl,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -181,6 +182,37 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
 
       await page.click('text="Apply to programs"')
       await applicantQuestions.expectLoginModal()
+    })
+
+    test('renders upsell page right to left correctly', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      // Fill out pre-screener form, with eligible response
+      await applicantQuestions.applyProgram(
+        preScreenerProgramName,
+        /* northStarEnabled= */ true,
+        // pre-screener programs skip the program overview page
+        /* showProgramOverviewPage= */ false,
+      )
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.clickSubmitApplication()
+
+      await applicantQuestions.expectPreScreenerConfirmationPageNorthStar(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+      await setDirRtl(page)
+      await validateAccessibility(page)
+
+      await validateScreenshot(
+        page.locator('main'),
+        'north-star-pre-screener-upsell-right-to-left',
+        /* fullPage= */ true,
+        /* mobileScreenshot= */ true,
+      )
     })
 
     test('shows pre-screener form as submitted after completion', async ({
