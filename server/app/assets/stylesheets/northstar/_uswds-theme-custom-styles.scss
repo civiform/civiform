@@ -544,6 +544,10 @@ main {
     padding-inline-start: 16px;
   }
 
+  .usa-banner__icon {
+    margin-inline-end: 0.5rem;
+  }
+
   // -- start
   /* Make the info/alert icons appear to the right of the label in RTL languages. */
   .usa-alert__body::before {
@@ -648,6 +652,13 @@ main {
 
   .usa-modal__close {
     margin-left: 0;
+  }
+
+  // Styles for RTL on desktop
+  @media (min-width: 64em) {
+    .usa-banner__inner {
+      padding-inline-start: 2rem;
+    }
   }
 
   // Styles for RTL on mobile
