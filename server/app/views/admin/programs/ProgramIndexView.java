@@ -16,7 +16,6 @@ import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
@@ -26,7 +25,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LiTag;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import models.ProgramTab;
@@ -498,8 +496,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
 
     if (draftProgram.isPresent()) {
-      List<ButtonTag> draftRowActions = Lists.newArrayList();
-      List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
+      ImmutableList.Builder<ButtonTag> draftRowActions = ImmutableList.builder();
+      ImmutableList.Builder<ButtonTag> draftRowExtraActions = ImmutableList.builder();
 
       // Add the trigger button belonging to the modal that matches each draft program
       publishSingleProgramModals.stream()
@@ -509,43 +507,33 @@ public final class ProgramIndexView extends BaseHtmlView {
                   draftRowActions.add(modal.getButton());
                 }
               });
-
       draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
 
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
-      Optional<ButtonTag> maybeManageTranslationsLink =
-          renderManageTranslationsLink(draftProgram.get());
-      maybeManageTranslationsLink.ifPresent(draftRowExtraActions::add);
-      Optional<ButtonTag> manageApplicationsLink =
-          maybeRenderManageApplications(draftProgram.get());
-      manageApplicationsLink.ifPresent(draftRowExtraActions::add);
+      maybeRenderManageTranslationsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
+      maybeRenderManageApplications(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
 
       draftRow =
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
                   .setProgram(draftProgram.get())
-                  .setRowActions(ImmutableList.copyOf(draftRowActions))
-                  .setExtraRowActions(ImmutableList.copyOf(draftRowExtraActions))
+                  .setRowActions(draftRowActions.build())
+                  .setExtraRowActions(draftRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
                   .build());
     }
 
     if (activeProgram.isPresent()) {
-      List<ButtonTag> activeRowActions = Lists.newArrayList();
-      List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+      ImmutableList.Builder<ButtonTag> activeRowActions = ImmutableList.builder();
+      ImmutableList.Builder<ButtonTag> activeRowExtraActions = ImmutableList.builder();
 
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
-      ProgramType programType = activeProgram.get().programType();
-      if (programType.equals(ProgramType.DEFAULT)
-          || programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-        activeRowActions.add(renderShareLink(activeProgram.get()));
-      }
+      maybeRenderShareLink(activeProgram.get()).ifPresent(activeRowActions::add);
 
-      Optional<ButtonTag> applicationsLink =
-          maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
-      applicationsLink.ifPresent(activeRowExtraActions::add);
+      maybeRenderViewApplicationsLink(activeProgram.get(), profile, request)
+          .ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
@@ -557,8 +545,8 @@ public final class ProgramIndexView extends BaseHtmlView {
           Optional.of(
               ProgramCardFactory.ProgramCardData.ProgramRow.builder()
                   .setProgram(activeProgram.get())
-                  .setRowActions(ImmutableList.copyOf(activeRowActions))
-                  .setExtraRowActions(ImmutableList.copyOf(activeRowExtraActions))
+                  .setRowActions(activeRowActions.build())
+                  .setExtraRowActions(activeRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
                   .build());
@@ -589,13 +577,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of("Contains " + text + " universal questions ");
   }
 
-  ButtonTag renderShareLink(ProgramDefinition program) {
+  Optional<ButtonTag> maybeRenderShareLink(ProgramDefinition program) {
+    if (program.programType().equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     String programLink =
         baseUrl
             + controllers.applicant.routes.ApplicantProgramsController.show(program.slug()).url();
-    return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
-        .withClass(ButtonStyles.CLEAR_WITH_ICON)
-        .withData("copyable-program-link", programLink);
+    return Optional.of(
+        makeSvgTextButton("Share link", Icons.CONTENT_COPY)
+            .withClass(ButtonStyles.CLEAR_WITH_ICON)
+            .withData("copyable-program-link", programLink));
   }
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
@@ -626,7 +619,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, viewLink);
   }
 
-  private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
+  private Optional<ButtonTag> maybeRenderManageTranslationsLink(ProgramDefinition program) {
     return layout.createManageTranslationsButton(
         program.adminName(),
         /* buttonId= */ Optional.of("program-translations-link-" + program.id()),
