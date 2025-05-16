@@ -471,8 +471,8 @@ public final class ProgramRepository {
   }
 
   /**
-   * Add an ExpressionList to {@code query} that searches applications based on the implied
-   * contents of {@code search}.
+   * Add an ExpressionList to {@code query} that searches applications based on the implied contents
+   * of {@code search}.
    *
    * <p>A phone number only search is done if {@code search} contains no alphabetic characters and
    * some numeric characters. All other characters are removed.
