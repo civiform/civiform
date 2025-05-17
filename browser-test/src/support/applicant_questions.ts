@@ -320,12 +320,34 @@ export class ApplicantQuestions {
 
     // If we are as a guest, we will get a prompt to log in before continuing to the
     // application. Bypass this to continue as a guest.
-    const loginPromptButton = await this.page.$(
-      `[id^="bypass-login-prompt-button-"]:visible`,
+    const loginPromptButton = this.page.getByRole('button', {
+      name: 'Continue to application',
+    })
+
+    await expect(loginPromptButton).toBeVisible()
+    await loginPromptButton.click()
+
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickApplyProgramButton2(programName: string) {
+    await this.page.click(
+      `.cf-application-card:has-text("${programName}") .cf-apply-button`,
     )
-    if (loginPromptButton !== null) {
+
+    // If we are as a guest, we will get a prompt to log in before continuing to the
+    // application. Bypass this to continue as a guest.
+    const loginPromptButton = this.page.locator(
+      `[id^="bypass-login-prompt-button-"]`,
+    )
+
+    if (await loginPromptButton.isVisible()) {
       await loginPromptButton.click()
     }
+
+    // if (loginPromptButton !== null) {
+    //   await loginPromptButton.click()
+    // }
 
     await waitForPageJsLoad(this.page)
   }
