@@ -4,7 +4,6 @@ import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
   dismissModal,
-  waitForAnyModal,
   waitForAnyModalLocator,
   waitForPageJsLoad,
 } from './wait'
@@ -1303,7 +1302,7 @@ export class AdminPrograms {
 
   async openPublishAllDraftsModal() {
     await this.page.click('button:has-text("Publish all drafts")')
-    const modal = await waitForAnyModal(this.page)
+    const modal = await waitForAnyModalLocator(this.page)
     expect(await modal.innerText()).toContain(
       AdminPrograms.PUBLISH_ALL_MODAL_TITLE,
     )
@@ -1521,7 +1520,7 @@ export class AdminPrograms {
   async getNoteContent() {
     await this.page.locator(this.editNoteSelector()).click()
 
-    const editModal = await waitForAnyModal(this.page)
+    const editModal = await waitForAnyModalLocator(this.page)
     const noteContentArea = (await editModal.$('textarea'))!
     return noteContentArea.inputValue()
   }
@@ -1532,7 +1531,7 @@ export class AdminPrograms {
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
     await this.page.locator(this.editNoteSelector()).click()
 
-    return await waitForAnyModal(this.page)
+    return await waitForAnyModalLocator(this.page)
   }
 
   /**
@@ -1562,7 +1561,7 @@ export class AdminPrograms {
 
   async getJson(applyFilters: boolean): Promise<DownloadedApplication[]> {
     await this.page.getByRole('button', {name: 'Download'}).click()
-    await waitForAnyModal(this.page)
+    await waitForAnyModalLocator(this.page)
 
     if (applyFilters) {
       await this.page.check('text="Current results"')
@@ -1607,7 +1606,7 @@ export class AdminPrograms {
 
   async getCsv(applyFilters: boolean) {
     await this.page.getByRole('button', {name: 'Download'}).click()
-    await waitForAnyModal(this.page)
+    await waitForAnyModalLocator(this.page)
 
     if (applyFilters) {
       await this.page.check('text="Current results"')
