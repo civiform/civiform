@@ -1,11 +1,11 @@
-import {expect, test} from '../../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
-} from '../../support'
+} from '../support'
 
 test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
   const programName = 'Test program for navigation flows'
