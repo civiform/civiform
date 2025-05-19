@@ -67,6 +67,8 @@ toast.errorMessageOutline=Khalad: {0}
 button.close=Xidh
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Dib u eeg
+# Button text that will go back to the previous page.
+button.goBack=Dib u noqo
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=Biloow xog-uruurin
 button.viewAndApply=Eeg oo codso
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Eeg oo codso {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Ku sii soco codsiga
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm waxay kaa caawisaa helida barnaamijyada
 content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamijyada iyo adeegyada
 # Main home page heading
 heading.homepage=Halkan ka codso caawimaada dawladda
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Ku codso barnaamijyada dawladda hab onlayn ah
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # Main home page intro text
 content.homepageIntro=Si aad u hesho caawimo xagga cuntada, gaadiidka, daryeelka ilmaha, adeegyada guriga iyo waxyaabo kale oo badan, guji mid ka mid ah xulashooyinkan hoose. Waxaad codsan kartaa hal barnaamij markiiba.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Sahami adeegyada aad u qalmi karto. CiviForm waxay dib u isticmaashaa macluumaadkaaga si ay kaaga caawiso inaad si dhakhso leh u hesho.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=La gudbiyay
 label.submittedOn=La gudbiyay {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} markay tahay {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Tani waxay furi doontaa websayd kale
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Si aad u aado websaydka barnaamijka halkaas oo aad ka heli karto tafaasiil dheeri ah oo aad codsato, guji Sii wad(Continue)
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted=Waxaad gudbisay arjigaagii {0}
 alert.createAccount=Si aad u gasho codsigaga hadhow, samee akoon
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Waxaad hubin kartaa heerka codsigaaga oo aad si dhakhso ah u codsan kartaa barnaamijyada kale marka aad akoon ku kaydiso macluumaadkaaga.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Ku gal akoon horay u sii jiray
 

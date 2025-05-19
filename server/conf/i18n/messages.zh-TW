@@ -67,6 +67,8 @@ toast.errorMessageOutline=發生錯誤: {0}
 button.close=關閉
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=檢查
+# Button text that will go back to the previous page.
+button.goBack=返回
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=開始填寫問卷調查
 button.viewAndApply=查看及申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=查看及申請「{0}」
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=繼續申請
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm 可協助您尋找自己可能有資格
 content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
 heading.homepage=在這裡申請政府協助
+# Main home page heading, updated to be more generic
+heading.homepage.v2=線上申請政府計畫
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
 content.homepageIntro=如要取得食物、交通運輸、兒童照護、公用事業和其他領域的相關協助，請在下方點按任一選項。請注意，您一次只能申請一項計畫。
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=瀏覽您可能符合資格的服務。CiviForm 會重複使用您的資訊，協助您快速找到這類服務。
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=已提交
 label.submittedOn=已於 {0}提交
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn=已於 {1}{0}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=這會開啟其他網站
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=如要前往計畫的網站，以便查看更多資訊及完成申請程序，請點選「繼續」
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted=您已提交「{0}」的申請書
 alert.createAccount=如果想在之後存取申請書，請建立帳戶
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=只要在帳戶中儲存相關資訊，就能查看申請書狀態，還可以快速申請其他計畫。
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=登入現有帳戶
 

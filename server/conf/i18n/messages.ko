@@ -67,6 +67,8 @@ toast.errorMessageOutline=오류: {0}
 button.close=닫기
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=검토
+# Button text that will go back to the previous page.
+button.goBack=돌아가기
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=설문조사 시작
 button.viewAndApply=보기 및 신청
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=보기 및 {0} 신청
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=애플리케이션으로 계속하기
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm을 통해 {0}에서 자격 요건에 �
 content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
 heading.homepage=여기에서 정부 지원 신청
+# Main home page heading, updated to be more generic
+heading.homepage.v2=온라인으로 정부 프로그램 신청
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
 content.homepageIntro=식품, 교통, 아동 돌봄, 공공 서비스 등에 관한 지원을 받으려면 아래 옵션 중 하나를 클릭하세요. 한 번에 프로그램 한 개만 신청할 수 있습니다.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=자격 요건을 충족하는 서비스를 살펴보세요. CiviForm은 한 번 입력한 정보를 다시 활용해 더 빠르게 신청할 수 있도록 도와줍니다.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=제출됨
 label.submittedOn={0}에 제출됨
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={1} 에 {0}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=다른 웹사이트가 열립니다.
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=자세한 내용을 확인하고 신청할 수 있는 프로그램 웹사이트로 이동하려면 '계속'을 클릭하세요.
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted={0} 신청을 제출했습니다.
 alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드세요
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=계정에 정보를 저장하면 신청 상태를 확인하고 다른 프로그램을 빠르게 신청할 수 있습니다.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=기존 계정에 로그인
 
