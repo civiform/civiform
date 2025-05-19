@@ -68,7 +68,7 @@ button.close=إغلاق
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=مراجعة الإجابات
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=الرجوع
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=يفتح الرابط علامة تبويب جديدة
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=توفير الوقت الذي يستغرقه طلب ا
 # Main home page heading
 heading.homepage=طلب مساعدة حكومية هنا
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=التسجيل في برامج حكومية على الإنترنت
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=يمكنك تسجيل الدخول إلى حسابك على "{0}" أو إنشاء حساب جديد وإرسال طلب للانضمام إلى البرامج بدون الحاجة إلى إدخال المعلومات نفسها مرة أخرى. يمكنك أيضًا تعديل الطلبات في أي وقت والاطّلاع على حالتها.
 # Main home page intro text
 content.homepageIntro=للحصول على مساعدة بشأن الطعام والنقل ورعاية الأطفال والمرافق والمزيد، يُرجى النقر على أحد الخيارات أدناه. يمكنك إرسال طلب للانضمام إلى برنامج واحد في كل مرة.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=يمكنك الاطّلاع على الخدمات التي قد يكون حسابك مؤهلاً للانضمام إليها. يُعيد تطبيق CiviForm استخدام المعلومات لمساعدتك في الحصول عليها بشكل أسرع.
 # The label for the program filter buttons
 label.programFilters=فلاتر البرامج
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=تم الإرسال في ‎{0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} في ‎{1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=تفتح هذه البطاقة موقعًا إلكترونيًا مختلفًا
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=للانتقال إلى موقع البرنامج الإلكتروني حيث يمكنك التسجيل والاطّلاع على تفاصيل إضافية، يُرجى النقر على "متابعة"
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
