@@ -176,6 +176,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
   }
 
   private String getGoBackToAdminUrl(ProgramDefinition programDefinition) {
-    return controllers.admin.routes.AdminProgramPreviewController.back(programDefinition.id()).url();
+    return controllers.admin.routes.AdminProgramPreviewController.back(programDefinition.id())
+        .url();
   }
 }
