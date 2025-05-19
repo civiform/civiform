@@ -68,7 +68,7 @@ button.close=Isara
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Pagsusuri
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=Bumalik
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=magbubukas sa bagong tab
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=Makatipid ng oras sa pag-apply sa mga programa at serbi
 # Main home page heading
 heading.homepage=Mag-apply para sa tulong mula sa pamahalaan dito
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=Mag-apply para sa mga programa ng pamahalaan online
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Mag-log in sa iyong {0} account o gumawa ng account at mag-apply sa mga programa nang hindi kinakailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon anumang oras at tumingin sa mga status ng iyong aplikasyon.
 # Main home page intro text
 content.homepageIntro=Para makakuha ng tulong sa pagkain, transportasyon, pangangalaga sa bata, utility, at higit pa, i-click ang isa sa mga opsyon sa ibaba. Puwede kang mag-apply sa isang programa sa bawat pagkakataon.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=Tuklasin ang mga serbisyo kung saan posibleng kwalipikado ka. Ginagamit ulit ng CiviForm ang iyong impormasyon para matulungan kang mas mabilis na makuha ang mga ito.
 # The label for the program filter buttons
 label.programFilters=Mga filter ng programa
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=Naisumite noong {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} noong {1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=Magbubukas ito ng ibang website
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=Para pumunta sa website ng programa kung saan makakakuha ka ng higit pang detalye at makakapag-apply ka, i-click ang Magpatuloy
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
