@@ -648,7 +648,6 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatuses_emptySendEmail_succeeds() throws Exception {
     // Setup
-    Instant start = Instant.now();
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
@@ -839,8 +838,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             adminAccount,
             instanceOf(AccountRepository.class));
     ProfileUtils profileUtilsNoOpTester =
-        new ProfileUtilsNoOpTester(
-            instanceOf(SessionStore.class), instanceOf(ProfileFactory.class), profileTester);
+        new ProfileUtilsNoOpTester(instanceOf(SessionStore.class), profileFactory, profileTester);
     return new AdminApplicationController(
         instanceOf(ProgramService.class),
         instanceOf(ApplicantService.class),

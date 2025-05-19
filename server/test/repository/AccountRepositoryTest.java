@@ -39,12 +39,16 @@ public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
+
   // Clock that is within the default session duration (less than 10 hours)
+  @SuppressWarnings("TimeInStaticInitializer")
   public static final Clock VALID_SESSION_CLOCK =
       Clock.fixed(Instant.now().minusSeconds(10), ZoneId.systemDefault());
-  // Clock is outside of the default session duration (greater than 10 hours / 36000 seconds)
+
+  // Clock is outside of the default session duration (greater than 10 hours)
+  @SuppressWarnings("TimeInStaticInitializer")
   public static final Clock INVALID_SESSION_CLOCK =
-      Clock.fixed(Instant.now().minusSeconds(37000), ZoneId.systemDefault());
+      Clock.fixed(Instant.now().minus(11, ChronoUnit.HOURS), ZoneId.systemDefault());
 
   private AccountRepository repo;
   private SettingsManifest mockSettingsManifest;

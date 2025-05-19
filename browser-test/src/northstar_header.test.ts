@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   validateAccessibility,
   enableFeatureFlag,
+  setDirRtl,
 } from './support'
 
 test.describe('Header', {tag: ['@northstar']}, () => {
@@ -79,6 +80,15 @@ test.describe('Header', {tag: ['@northstar']}, () => {
     await test.step('Clicking the button again collapses the banner', async () => {
       await usaBannerButtonLocator.click()
       await expect(usaBannerContentLocator).toBeHidden()
+    })
+
+    await test.step('Renders correctly in right to left mode', async () => {
+      await setDirRtl(page)
+      await usaBannerButtonLocator.click()
+      await validateScreenshot(
+        page.getByRole('complementary'),
+        'government-banner-right-to-left',
+      )
     })
   })
 

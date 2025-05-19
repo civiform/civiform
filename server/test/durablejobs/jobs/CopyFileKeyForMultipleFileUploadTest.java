@@ -203,12 +203,10 @@ public class CopyFileKeyForMultipleFileUploadTest extends ResetPostgres {
 
     applicant.refresh();
 
-    RepeatedEntity latestEnumeratorEntity =
-        RepeatedEntity.createRepeatedEntities(
-                (EnumeratorQuestionDefinition) enumeratorQuestion.getQuestionDefinition(),
-                Optional.empty(),
-                applicant.getApplicantData())
-            .get(0);
+    RepeatedEntity.createRepeatedEntities(
+        (EnumeratorQuestionDefinition) enumeratorQuestion.getQuestionDefinition(),
+        Optional.empty(),
+        applicant.getApplicantData());
 
     RepeatedEntity latestNestedEntity =
         enumeratorEntity

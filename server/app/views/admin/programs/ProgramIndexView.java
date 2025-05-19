@@ -537,7 +537,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
 
       activeRowActions.add(renderViewLink(activeProgram.get(), request));
-      activeRowActions.add(renderShareLink(activeProgram.get()));
+      ProgramType programType = activeProgram.get().programType();
+      if (programType.equals(ProgramType.DEFAULT)
+          || programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+        activeRowActions.add(renderShareLink(activeProgram.get()));
+      }
 
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);

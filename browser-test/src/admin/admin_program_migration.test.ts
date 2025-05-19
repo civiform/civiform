@@ -1,6 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
-import {ProgramType, ProgramVisibility} from '../support/admin_programs'
+import {
+  ProgramLifecycle,
+  ProgramType,
+  ProgramVisibility,
+} from '../support/admin_programs'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -655,19 +659,18 @@ test.describe('program migration', () => {
       // but long term this needs to be written in a way that better targets the
       // card selector
       await expect(
-        page
-          .locator(
-            adminPrograms.programCardSelector(
-              'Comprehensive Sample Program',
-              'Draft',
-            ),
+        adminPrograms
+          .getProgramCard(
+            'Comprehensive Sample Program',
+            ProgramLifecycle.DRAFT,
           )
           .first(),
       ).toBeVisible()
 
       await expect(
-        page.locator(
-          adminPrograms.programCardSelector('Minimal Sample Program', 'Draft'),
+        adminPrograms.getProgramCard(
+          'Minimal Sample Program',
+          ProgramLifecycle.DRAFT,
         ),
       ).toBeVisible()
     })
@@ -743,21 +746,7 @@ test.describe('program migration', () => {
       )
     })
 
-    let downloadedMinimalProgram: string
-    await test.step('export minimal program', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminPrograms.goToExportProgramPage(
-        'Minimal Sample Program',
-        'DRAFT',
-      )
-      downloadedMinimalProgram = await adminProgramMigration.downloadJson()
-      expect(downloadedMinimalProgram).toContain('minimal-sample-program')
-    })
-
-    await test.step('import comprehensive program', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      await adminProgramMigration.goToImportPage()
-
+    await test.step('edit the comprehensive program JSON', () => {
       // Replace the admin name so you don't get an error
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'comprehensive-sample-program',
@@ -774,15 +763,26 @@ test.describe('program migration', () => {
         'Sample Checkbox-new',
       )
       // Replace the question text of a question so we can overwrite its existing definition
+      // or check that reusing the existing definition did not update its definition
       downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
         'How many pets do you have?',
         'How many LARGE pets do you have?',
       )
+      downloadedComprehensiveProgram = downloadedComprehensiveProgram.replace(
+        'What is your favorite color?',
+        'What is your LEAST favorite color?',
+      )
+    })
 
+    await test.step('import comprehensive program', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminProgramMigration.goToImportPage()
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
+    })
 
+    await test.step('check imported comprehensive program', async () => {
       // Assert the title and admin name are shown
       await expect(
         page.getByRole('heading', {
@@ -852,12 +852,18 @@ test.describe('program migration', () => {
         'Sample Date Question',
         true,
       )
-      // Select "overwrite" on a few questions to validate the UI (default is "duplicate")
+      // Select "overwrite" and "duplicate" on a few questions to validate the UI (default is "reuse")
       await adminProgramMigration.selectOverwriteExistingForQuestion(
         'Sample Address Question',
       )
       await adminProgramMigration.selectOverwriteExistingForQuestion(
         'Sample Number Question',
+      )
+      await adminProgramMigration.selectCreateDuplicateForQuestion(
+        'Sample Currency Question',
+      )
+      await adminProgramMigration.selectCreateDuplicateForQuestion(
+        'Sample Email Question',
       )
       // Check that the UI looks the same
       await validateScreenshot(
@@ -883,7 +889,7 @@ test.describe('program migration', () => {
         'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
         ALERT_WARNING,
       )
-      // Select "overwrite" on a few questions to validate the backend behavior
+      // Select "overwrite" and "duplicate" on a few questions to validate the backend behavior
       await adminProgramMigration.selectOverwriteExistingForQuestion(
         // Has the same definition - basically just won't create a duplicate
         'Sample Address Question',
@@ -891,6 +897,12 @@ test.describe('program migration', () => {
       await adminProgramMigration.selectOverwriteExistingForQuestion(
         // Changes the question text
         'Sample Number Question',
+      )
+      await adminProgramMigration.selectCreateDuplicateForQuestion(
+        'Sample Currency Question',
+      )
+      await adminProgramMigration.selectCreateDuplicateForQuestion(
+        'Sample Email Question',
       )
       await adminProgramMigration.clickButton('Save')
       await adminProgramMigration.expectAlert(
@@ -907,16 +919,32 @@ test.describe('program migration', () => {
       )
       await expect(page.locator('#header_edit_button')).toBeVisible()
       await page.getByText('Screen 1').click()
+      // We overwrote this definition, so we shouldn't see a duplicate name
       await expect(
         page.getByTestId('question-admin-name-Sample Address Question'),
       ).toContainText('Sample Address Question')
       await expect(
         page.getByTestId('question-admin-name-Sample Address Question'),
       ).not.toContainText('Sample Address Question -_-')
+      // We created duplicates, so we should see the de-duped/suffixed name
+      await expect(
+        page.getByTestId('question-admin-name-Sample Currency Question -_- a'),
+      ).toContainText('Sample Currency Question -_- a')
       await page.getByText('Screen 2').click()
+      await expect(
+        page.getByTestId('question-admin-name-Sample Email Question -_- a'),
+      ).toContainText('Sample Email Question -_- a')
+      // We overwrote this definition, so we should see the updated question text
       await expect(
         page.getByTestId('question-admin-name-Sample Number Question'),
       ).toContainText('How many LARGE pets do you have?')
+      // We reused the existing definition, so we shouldn't see this text update
+      await expect(
+        page.getByTestId('question-admin-name-Sample Text Question'),
+      ).toContainText('What is your favorite color?')
+      await expect(
+        page.getByTestId('question-admin-name-Sample Text Question'),
+      ).not.toContainText('What is your LEAST favorite color?')
     })
   })
 })

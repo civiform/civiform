@@ -18,6 +18,7 @@ import controllers.admin.AdminImportController;
 import controllers.admin.ProgramMigrationWrapper;
 import controllers.admin.ProgramMigrationWrapper.DuplicateQuestionHandlingOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -152,6 +153,53 @@ public final class ProgramMigrationService {
     } catch (RuntimeException | JsonProcessingException e) {
       return ErrorAnd.error(
           ImmutableSet.of(String.format("JSON is incorrectly formatted: %s", e.getMessage())));
+    }
+  }
+
+  /**
+   * Question keys are derived from Question Admin IDs in {@link QuestionDefinition} with {@code
+   * adminId().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_")}. Question keys in the imported
+   * JSON must be unique from one another AND if a question key exists in the DB, the question name
+   * must be exactly similar to that in the DB.
+   *
+   * @throws RuntimeException if there are any issues with the uniqueness of question keys
+   */
+  public void validateQuestionKeyUniqueness(ImmutableList<QuestionDefinition> questions) {
+    Map<String, ImmutableList<String>> questionKeysToNames = new HashMap<>();
+    for (QuestionDefinition question : questions) {
+      Optional<QuestionModel> conflictingQ = questionRepository.findConflictingQuestion(question);
+      if (conflictingQ.isPresent()
+          && !conflictingQ.get().getQuestionDefinition().getName().equals(question.getName())) {
+        throw new RuntimeException(
+            String.format(
+                "Question key %s (Admin ID \"%s\" with non-letter characters removed and spaces"
+                    + " transformed to underscores) is already in use by question %s. Please change"
+                    + " the Admin ID so it either matches the existing one, or compiles to a"
+                    + " different question key.",
+                question.getQuestionNameKey(),
+                question.getName(),
+                conflictingQ.get().getQuestionDefinition().getName()));
+      }
+      questionKeysToNames.merge(
+          question.getQuestionNameKey(),
+          ImmutableList.of(question.getName()),
+          (ImmutableList<String> a, ImmutableList<String> b) -> {
+            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            builder.addAll(a);
+            builder.addAll(b);
+            return builder.build();
+          });
+    }
+    ImmutableList<ImmutableList<String>> duplicateKeys =
+        questionKeysToNames.values().stream()
+            .filter(names -> names.size() > 1)
+            .collect(ImmutableList.toImmutableList());
+    if (!duplicateKeys.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Question keys (Admin IDs with non-letter characters removed and spaces transformed"
+                  + " to underscores) must be unique. Duplicate question keys found: %s",
+              duplicateKeys));
     }
   }
 
@@ -338,6 +386,9 @@ public final class ProgramMigrationService {
       boolean duplicateHandlingEnabled) {
     ProgramDefinition updatedProgram = programDefinition;
     // Get the overwritten admin names
+    // TODO: #9628 - Validate that repeated questions are not being reused/overwritten if their
+    // parent question was duplicated with a new admin name. If a parent question is duplicated, the
+    // repeated questions must also be duplicated (or updated, if it's new).
     ImmutableList<String> overwrittenQuestions =
         Utils.getQuestionNamesForDuplicateHandling(
             duplicateHandlingOptions,
@@ -368,8 +419,24 @@ public final class ProgramMigrationService {
           questionDefinitions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
+      ImmutableList<String> reusedQuestionNames =
+          Utils.getQuestionNamesForDuplicateHandling(
+              duplicateHandlingOptions,
+              ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
+      // Get the questions that will be reused
+      ImmutableList<QuestionDefinition> reusedQuestions =
+          questionDefinitions.stream()
+              .filter(q -> reusedQuestionNames.contains(q.getName()))
+              .collect(ImmutableList.toImmutableList());
+      // Need IDs of currently saved Qs
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-          updateEnumeratorIdsAndSaveAllQuestions(questionDefinitions, questionsOnJsonById);
+          updateEnumeratorIdsAndSaveQuestions(
+              // Only save questions that are not reused from the question bank
+              questionDefinitions.stream()
+                  .filter(q -> !reusedQuestionNames.contains(q.getName()))
+                  .collect(ImmutableList.toImmutableList()),
+              reusedQuestions,
+              questionsOnJsonById);
 
       ImmutableList<BlockDefinition> updatedBlockDefinitions =
           Utils.updateBlockDefinitions(programDefinition, questionsOnJsonById, updatedQuestionsMap);
@@ -399,32 +466,50 @@ public final class ProgramMigrationService {
   }
 
   /**
-   * Save all questions and then update enumerator child questions with the correct ids of their
-   * newly saved parent questions.
+   * Save the specified questions and then update enumerator child questions with the correct ids of
+   * their newly saved/reused parent questions.
+   *
+   * @param questionsToWrite questions that should be written to the repository, either because they
+   *     have a new adminName or updated configuration
+   * @param questionsToReuseFromBank full question definitions that are being reused from the bank
+   * @param questionsOnJsonById a map of question IDs to the question definitions from the JSON
+   * @return a map of question names to the fully updated question definitions
    */
   @VisibleForTesting
-  ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveAllQuestions(
-      ImmutableList<QuestionDefinition> questionDefinitions,
+  ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveQuestions(
+      ImmutableList<QuestionDefinition> questionsToWrite,
+      ImmutableList<QuestionDefinition> questionsToReuseFromBank,
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
 
     // Save all the questions
     ImmutableList<QuestionModel> newlySavedQuestions =
-        questionRepository.bulkCreateQuestions(questionDefinitions);
+        questionRepository.bulkCreateQuestions(questionsToWrite);
 
-    ImmutableMap<String, QuestionDefinition> newlySaveQuestionsByAdminName =
-        newlySavedQuestions.stream()
-            .map(question -> question.getQuestionDefinition())
-            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    // Get the question IDs of the questions we are reusing from the question bank
+    ImmutableMap<String, QuestionDefinition> reusedQuestions =
+        questionRepository.getExistingQuestions(
+            questionsToReuseFromBank.stream()
+                .map(QuestionDefinition::getName)
+                .collect(ImmutableSet.toImmutableSet()));
+
+    // Store all relevant questions in one map of name -> definition
+    ImmutableMap<String, QuestionDefinition> allQuestionsByName =
+        ImmutableMap.<String, QuestionDefinition>builder()
+            .putAll(reusedQuestions)
+            .putAll(
+                newlySavedQuestions.stream()
+                    .map(question -> question.getQuestionDefinition())
+                    .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd)))
+            .build();
 
     ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
-        newlySavedQuestions.stream()
+        allQuestionsByName.values().stream()
             .map(
                 question -> {
-                  QuestionDefinition qd = question.getQuestionDefinition();
-                  if (qd.getEnumeratorId().isPresent()) {
+                  if (question.getEnumeratorId().isPresent()) {
                     // The child question was saved with the incorrect enumerator id so we need to
                     // update it
-                    Long oldEnumeratorId = qd.getEnumeratorId().get();
+                    Long oldEnumeratorId = question.getEnumeratorId().get();
                     // Use the old enumerator id to get the admin name of the parent question off
                     // the old question map
                     String parentQuestionAdminName =
@@ -432,12 +517,14 @@ public final class ProgramMigrationService {
                     // Use the admin name to get the updated id for the parent question off the new
                     // question map
                     Long newlySavedParentQuestionId =
-                        newlySaveQuestionsByAdminName.get(parentQuestionAdminName).getId();
+                        allQuestionsByName.get(parentQuestionAdminName).getId();
                     // Update the child question with the correct id and save the question
-                    qd = questionRepository.updateEnumeratorId(qd, newlySavedParentQuestionId);
-                    qd = questionRepository.createOrUpdateDraft(qd).getQuestionDefinition();
+                    question =
+                        questionRepository.updateEnumeratorId(question, newlySavedParentQuestionId);
+                    question =
+                        questionRepository.createOrUpdateDraft(question).getQuestionDefinition();
                   }
-                  return qd;
+                  return question;
                 })
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 

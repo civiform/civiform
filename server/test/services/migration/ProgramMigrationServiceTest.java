@@ -4,6 +4,7 @@ import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_ONE_
 import static controllers.admin.AdminImportControllerTest.PROGRAM_JSON_WITH_PREDICATES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.admin.ProgramMigrationWrapper;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,9 +61,12 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   private static final String QUESTION_1_NAME = "questionOne";
   private static final String QUESTION_2_NAME = "questionTwo";
   private static final String QUESTION_3_NAME = "questionThree";
+  private static final String QUESTION_4_NAME = "questionFour";
   private static final QuestionDefinition QUESTION_1 = createTextQuestion(QUESTION_1_NAME, 1L);
   private static final QuestionDefinition QUESTION_2 = createTextQuestion(QUESTION_2_NAME, 2L);
-  private static final ImmutableList<QuestionDefinition> QUESTIONS =
+  private static final QuestionDefinition QUESTION_3 =
+      createQuestion(QUESTION_3_NAME, 3L, QuestionType.ADDRESS);
+  private static final ImmutableList<QuestionDefinition> QUESTIONS_1_2 =
       ImmutableList.of(QUESTION_1, QUESTION_2);
   private static final String PROGRAM_NAME_1 = "Program 1";
   private static final String PROGRAM_NAME_2 = "Program 2";
@@ -402,7 +407,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ErrorAnd<ProgramModel, String> savedProgram =
         service.saveImportedProgram(
             programDefinition,
-            QUESTIONS,
+            QUESTIONS_1_2,
             ImmutableMap.of(
                 QUESTION_1_NAME,
                 ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE),
@@ -490,7 +495,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ErrorAnd<ProgramModel, String> savedProgram =
         service.saveImportedProgram(
             programDefinition,
-            QUESTIONS,
+            QUESTIONS_1_2,
             ImmutableMap.of(
                 QUESTION_1_NAME,
                 ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING),
@@ -506,61 +511,67 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void saveImportedProgram_duplicateHandlingEnabled_overwritesSpecifiedQuestions()
+  public void saveImportedProgram_duplicateHandlingEnabled_overwritesAndReusesSpecifiedQuestions()
       throws Exception {
     QuestionModel question1 = new QuestionModel(QUESTION_1);
     question1.addVersion(versionRepository.getActiveVersion()).save();
+    QuestionModel question2 = new QuestionModel(QUESTION_2);
+    question2.addVersion(versionRepository.getActiveVersion()).save();
     ProgramDefinition programDefinition =
         ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
             .withBlock("Block A")
             .withRequiredQuestionDefinition(QUESTION_1)
             .withRequiredQuestionDefinition(QUESTION_2)
+            .withRequiredQuestionDefinition(QUESTION_3)
             .buildDefinition();
 
-    // Verify the "current" definition of Question 1
-    Optional<QuestionModel> activeQuestion1 =
-        versionRepository.getQuestionByNameForVersion(
-            QUESTION_1_NAME, versionRepository.getActiveVersion());
-    activeQuestion1.get().loadQuestionDefinition();
-    assertThat(activeQuestion1.get().getQuestionDefinition().getQuestionText())
+    // Verify the "current" definitions of Questions 1 & 2
+    ImmutableMap<String, QuestionDefinition> currentQuestions =
+        questionRepository.getExistingQuestions(
+            ImmutableSet.of(QUESTION_1_NAME, QUESTION_2_NAME, QUESTION_3_NAME));
+    assertThat(currentQuestions).hasSize(2);
+    assertThat(currentQuestions.get(QUESTION_1_NAME).getQuestionText())
         .isEqualTo(QUESTION_1.getQuestionText());
+    assertThat(currentQuestions.get(QUESTION_2_NAME).getQuestionText())
+        .isEqualTo(QUESTION_2.getQuestionText());
     assertThat(versionRepository.getDraftVersion()).isEmpty();
 
-    ErrorAnd<ProgramModel, String> savedProgram =
-        service.saveImportedProgram(
-            programDefinition,
-            ImmutableList.of(
-                new QuestionDefinitionBuilder()
-                    .setName(QUESTION_1_NAME)
-                    .setId(QUESTION_1.getId())
-                    .setQuestionType(QuestionType.TEXT)
-                    .setQuestionText(LocalizedStrings.withDefaultValue("Some new text"))
-                    .setDescription(QUESTION_1_NAME)
-                    .build(),
-                QUESTION_2),
-            ImmutableMap.of(
-                QUESTION_1_NAME,
-                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING),
-            /* withDuplicates= */ true,
-            /* duplicateHandlingEnabled= */ true);
+    service.saveImportedProgram(
+        programDefinition,
+        ImmutableList.of(
+            new QuestionDefinitionBuilder()
+                .setName(QUESTION_1_NAME)
+                .setId(QUESTION_1.getId())
+                .setQuestionType(QuestionType.TEXT)
+                .setQuestionText(LocalizedStrings.withDefaultValue("Question one new text"))
+                .setDescription(QUESTION_1_NAME)
+                .build(),
+            new QuestionDefinitionBuilder()
+                .setName(QUESTION_2_NAME)
+                .setId(QUESTION_2.getId())
+                .setQuestionType(QuestionType.TEXT)
+                .setQuestionText(LocalizedStrings.withDefaultValue("Question two new text"))
+                .setDescription(QUESTION_2_NAME)
+                .build(),
+            QUESTION_3),
+        ImmutableMap.of(
+            QUESTION_1_NAME,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING,
+            QUESTION_2_NAME,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING),
+        /* withDuplicates= */ true,
+        /* duplicateHandlingEnabled= */ true);
 
-    ImmutableList<ProgramQuestionDefinition> savedQs =
-        savedProgram
-            .getResult()
-            .getProgramDefinition()
-            .getBlockDefinitionByIndex(0)
-            .get()
-            .programQuestionDefinitions();
-    QuestionModel savedQuestion1 =
-        questionRepository.lookupQuestion(savedQs.get(0).id()).toCompletableFuture().join().get();
-    savedQuestion1.loadQuestionDefinition();
-    assertThat(savedQuestion1.getQuestionDefinition().getName()).isEqualTo(QUESTION_1_NAME);
-    assertThat(savedQuestion1.getQuestionDefinition().getQuestionText().getDefault())
-        .isEqualTo("Some new text");
-    QuestionModel savedQuestion2 =
-        questionRepository.lookupQuestion(savedQs.get(1).id()).toCompletableFuture().join().get();
-    savedQuestion2.loadQuestionDefinition();
-    assertThat(savedQuestion2.getQuestionDefinition().getName()).isEqualTo(QUESTION_2_NAME);
+    currentQuestions =
+        questionRepository.getExistingQuestions(
+            ImmutableSet.of(QUESTION_1_NAME, QUESTION_2_NAME, QUESTION_3_NAME));
+    assertThat(currentQuestions).hasSize(3);
+    assertThat(currentQuestions.get(QUESTION_1_NAME).getQuestionText().getDefault())
+        .isEqualTo("Question one new text");
+    assertThat(currentQuestions.get(QUESTION_2_NAME).getQuestionText())
+        .isEqualTo(QUESTION_2.getQuestionText());
+    assertThat(currentQuestions.get(QUESTION_3_NAME).getQuestionText())
+        .isEqualTo(QUESTION_3.getQuestionText());
   }
 
   @Test
@@ -582,7 +593,7 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ErrorAnd<ProgramModel, String> savedProgram =
         service.saveImportedProgram(
             programDefinition,
-            QUESTIONS,
+            QUESTIONS_1_2,
             ImmutableMap.of(),
             /* withDuplicates= */ false,
             /* duplicateHandlingEnabled= */ false);
@@ -618,15 +629,14 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateEnumeratorIdsAndSaveAllQuestions_noEnumeratorIds_savesProgramAndQuestions()
+  public void updateEnumeratorIdsAndSaveQuestions_noEnumeratorIds_savesProgramAndQuestions()
       throws Exception {
     // Create question definitions without enumerator IDs
-    ImmutableList<QuestionDefinition> questionDefinitions =
-        ImmutableList.of(QUESTION_1, QUESTION_2);
+    ImmutableList<QuestionDefinition> questionsToWrite = ImmutableList.of(QUESTION_1, QUESTION_2);
 
     ImmutableMap<String, QuestionDefinition> result =
-        service.updateEnumeratorIdsAndSaveAllQuestions(
-            questionDefinitions, ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2));
+        service.updateEnumeratorIdsAndSaveQuestions(
+            questionsToWrite, ImmutableList.of(), ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2));
 
     assertThat(result).hasSize(2);
     assertThat(result).containsKeys(QUESTION_1_NAME, QUESTION_2_NAME);
@@ -638,23 +648,31 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
   @Test
   public void
-      updateEnumeratorIdsAndSaveAllQuestions_withEnumeratorIds_updatesProgramQuestionsBeforeSaving()
+      updateEnumeratorIdsAndSaveQuestions_withEnumeratorIds_updatesProgramQuestionsBeforeSaving()
           throws Exception {
     // Create child questions with enumerator IDs
     QuestionDefinition childQuestion1 =
         createTextQuestionWithEnumerator(QUESTION_2_NAME, 2L, Optional.of(QUESTION_1.getId()));
     QuestionDefinition childQuestion2 =
         createTextQuestionWithEnumerator(QUESTION_3_NAME, 3L, Optional.of(QUESTION_1.getId()));
-    ImmutableList<QuestionDefinition> questionDefinitions =
+    QuestionDefinition childQuestion3 =
+        createTextQuestionWithEnumerator(QUESTION_4_NAME, 4L, Optional.of(QUESTION_1.getId()));
+    QuestionModel childQuestion3model = new QuestionModel(childQuestion3);
+    childQuestion3model.addVersion(versionRepository.getActiveVersion()).save();
+
+    ImmutableList<QuestionDefinition> questionsToWrite =
         ImmutableList.of(QUESTION_1, childQuestion1, childQuestion2);
 
     ImmutableMap<String, QuestionDefinition> result =
-        service.updateEnumeratorIdsAndSaveAllQuestions(
-            questionDefinitions,
-            ImmutableMap.of(1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2));
+        service.updateEnumeratorIdsAndSaveQuestions(
+            questionsToWrite,
+            /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
+            ImmutableMap.of(
+                1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3));
 
-    assertThat(result).hasSize(3);
-    assertThat(result).containsKeys(QUESTION_1_NAME, QUESTION_2_NAME, QUESTION_3_NAME);
+    assertThat(result).hasSize(4);
+    assertThat(result)
+        .containsKeys(QUESTION_1_NAME, QUESTION_2_NAME, QUESTION_3_NAME, QUESTION_4_NAME);
     assertThat(result.get(QUESTION_1_NAME).getName()).isEqualTo(QUESTION_1.getName());
     assertThat(result.get(QUESTION_2_NAME).getName()).isEqualTo(childQuestion1.getName());
     assertThat(result.get(QUESTION_3_NAME).getName()).isEqualTo(childQuestion2.getName());
@@ -662,6 +680,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(result.get(QUESTION_2_NAME).getEnumeratorId())
         .hasValue(result.get(QUESTION_1_NAME).getId());
     assertThat(result.get(QUESTION_3_NAME).getEnumeratorId())
+        .hasValue(result.get(QUESTION_1_NAME).getId());
+    assertThat(result.get(QUESTION_4_NAME).getEnumeratorId())
         .hasValue(result.get(QUESTION_1_NAME).getId());
   }
 
@@ -726,6 +746,42 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         .containsExactlyInAnyOrder(PROGRAM_NAME_1, PROGRAM_NAME_2);
   }
 
+  @Test
+  public void validateQuestionKeyUniqueness_noConflicts_doesNotThrow() {
+    service.validateQuestionKeyUniqueness(QUESTIONS_1_2);
+  }
+
+  @Test
+  public void validateQuestionKeyUniqueness_importTwoConflictingKeys_throws() {
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(QUESTION_1, createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+
+    Exception e =
+        assertThrows(
+            RuntimeException.class, () -> service.validateQuestionKeyUniqueness(questions));
+
+    assertThat(e)
+        .hasMessageContaining(
+            "Question keys (Admin IDs with non-letter characters removed and spaces transformed to"
+                + " underscores) must be unique. Duplicate question keys found:");
+  }
+
+  @Test
+  public void validateQuestionKeyUniqueness_existingKeyConflictHasDifferentName_throws() {
+    resourceCreator.insertQuestion(QUESTION_1_NAME);
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(createTextQuestion(QUESTION_1_NAME + "01_023", 2L));
+
+    Exception e =
+        assertThrows(
+            RuntimeException.class, () -> service.validateQuestionKeyUniqueness(questions));
+
+    assertThat(e)
+        .hasMessageContaining(
+            "Please change the Admin ID so it either matches the existing one, or compiles to a"
+                + " different question key.");
+  }
+
   // Helper methods to create test questions
   private static QuestionDefinition createTextQuestion(String name, Long id) {
     try {
@@ -740,9 +796,12 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     return createQuestionWithEnumerator(name, id, enumeratorId, QuestionType.TEXT);
   }
 
-  private static QuestionDefinition createQuestion(String name, Long id, QuestionType type)
-      throws UnsupportedQuestionTypeException {
-    return createQuestionWithEnumerator(name, id, Optional.empty(), type);
+  private static QuestionDefinition createQuestion(String name, Long id, QuestionType type) {
+    try {
+      return createQuestionWithEnumerator(name, id, Optional.empty(), type);
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static QuestionDefinition createQuestionWithEnumerator(

@@ -56,6 +56,7 @@ public enum MessageKey {
   ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
+  ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"), // North Star only
   ALERT_SUBMITTED("alert.submitted"), // North Star only
   ARIA_LABEL_CATEGORIES("ariaLabel.categories"), // North Star only
   ARIA_LABEL_EDIT("ariaLabel.edit"),
@@ -135,7 +136,7 @@ public enum MessageKey {
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
-  BUTTON_VIEW_IN_NEW_WINDOW("button.viewInNewWindow"),
+  BUTTON_VIEW_IN_NEW_TAB("button.viewInNewTab"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),

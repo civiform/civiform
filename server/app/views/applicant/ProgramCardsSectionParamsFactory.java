@@ -158,7 +158,7 @@ public final class ProgramCardsSectionParamsFactory {
     String description = program.localizedShortDescription().getOrDefault(preferredLocale);
 
     if (program.programType().equals(ProgramType.EXTERNAL)) {
-      buttonText = MessageKey.BUTTON_VIEW_IN_NEW_WINDOW;
+      buttonText = MessageKey.BUTTON_VIEW_IN_NEW_TAB;
     }
 
     cardBuilder

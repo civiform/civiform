@@ -151,9 +151,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
 
   @Test
   public void insertStatusEvents_changeApplicationStatus_succeeds() {
-    // For  application1, we will change the status from "Status" to "Denied".
+    // For application1, we will change the status from "Status" to "Denied".
     // For application2, we will change the status from "Status" to no status.
-    Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
     AccountModel actor = resourceCreator.insertAccount();
     ApplicantModel applicant1 = resourceCreator.insertApplicantWithAccount();

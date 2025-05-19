@@ -1074,6 +1074,13 @@ test.describe('program creation', () => {
       await adminPrograms.expectFormFieldDisabled(FormField.PROGRAM_CATEGORIES)
       await adminPrograms.expectFormFieldDisabled(FormField.APPLICATION_STEPS)
     })
+
+    await test.step('click pre-screener toggle and confirm fields are re-enabled', async () => {
+      await adminPrograms.clickPreScreenerFormToggle()
+      await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_ELIGIBILITY)
+      await adminPrograms.expectFormFieldEnabled(FormField.PROGRAM_CATEGORIES)
+      await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_STEPS)
+    })
   })
 
   test('correctly renders pre-screener form change confirmation modal', async ({
