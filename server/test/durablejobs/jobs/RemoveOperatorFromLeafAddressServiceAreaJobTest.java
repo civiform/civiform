@@ -12,7 +12,6 @@ import io.ebean.annotation.TxIsolation;
 import java.time.Instant;
 import models.JobType;
 import models.PersistedDurableJobModel;
-import models.ProgramModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 
@@ -966,15 +965,5 @@ public class RemoveOperatorFromLeafAddressServiceAreaJobTest extends ResetPostgr
     SqlRow sqlRow = database.sqlQuery(selectSql).setParameter("id", id).findOne();
 
     return sqlRow.getString("block_definitions");
-  }
-
-  /** Find the {@link ProgramModel} from the supplied id */
-  private ProgramModel findProgramModelById(Long id) {
-    ProgramModel programModel = database.find(ProgramModel.class).where().idEq(id).findOne();
-
-    assertThat(programModel).isNotNull();
-    assertThat(programModel.id).isEqualTo(id);
-
-    return programModel;
   }
 }

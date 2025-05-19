@@ -1,4 +1,4 @@
-<div id="sample-question" class="margin-y-4">
+<div id="sample-question" class="margin-y-4 flex-5">
   <th:block th:if="${question.getType().getLabel() == 'File Upload'}">
     <div
       th:replace="~{questiontypes/FileUploadQuestionFragment :: file-upload(${question}, ${questionRendererParams})}"

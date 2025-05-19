@@ -1,6 +1,5 @@
 <div
   th:fragment="devTools"
-  th:if="${showDebugTools}"
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
@@ -443,13 +442,14 @@
         <div class="usa-modal__footer">
           <ul class="usa-button-group">
             <li class="usa-button-group__item">
-              <button
-                type="button"
+              <a
                 class="usa-button"
                 th:text="#{button.continue}"
-                th:data-redirect-to="${externalLink}"
+                th:href="${externalLink}"
+                target="_blank"
+                rel="noopener noreferrer"
                 data-close-modal
-              ></button>
+              ></a>
             </li>
             <li class="usa-button-group__item">
               <button

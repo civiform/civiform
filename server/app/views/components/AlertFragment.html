@@ -6,6 +6,7 @@
   th:classappend="${alertSettings.isSlim ? 'usa-alert--slim' : ''}"
   aria-live="polite"
   th:attr="role=${role != null ? role : 'alert'}"
+  th:aria-label="${alertSettings.ariaLabel.isPresent() && alertSettings.isSlim}? ${alertSettings.ariaLabel.get()}"
 >
   <div class="usa-alert__body">
     <th:block
