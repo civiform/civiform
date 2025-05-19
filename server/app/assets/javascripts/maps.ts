@@ -8,48 +8,32 @@ let selectedProviderNames: Array<string> = []
 
 export function init() {
   selectedProviderNames = []
-  const providers = JSON.parse(
+  const providersGeoJson = JSON.parse(
     document.getElementById('all-providers')?.getAttribute('value') as string,
   )
   const map = L.map('map').setView([47.6062, -122.3321], 12) // Seattle coords
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: '&copy; Esri'
     }
-).addTo(map)
-  providers.forEach((provider: GeoJsonObject) => {
-    // const popup = L.DomUtil.create('div', 'infoWindow')
-    // popup.innerHTML = `<strong>${provider.name}</strong><br>${provider.address}<br><a class="usa-button-outline" href="www.google.com" target="_blank">See more</a><br><button id="add-to-my-list" class="add-to-my-list usa-button">Add to my list</button>`
-    // L.marker([provider.latitude, provider.longitude])
-    //   .addTo(map)
-    //   .bindPopup(popup)
-    //   .on('popupopen', (a) => {
-    //     const popUp = a.target.getPopup()
-    //     popUp
-    //       .getElement()
-    //       .querySelector('#add-to-my-list')
-    //       .addEventListener('click', () => {
-    //         addLocationToMyList(provider.name, provider.address)
-    //     })
-    // })
-
-    L.geoJSON(provider,
-      {
-        onEachFeature: function (feature, layer) {
-          const popup = L.DomUtil.create('div', 'infoWindow')
-          popup.innerHTML = `<strong>${feature.properties.name}</strong><br>${feature.properties.address}<br><a class="usa-button-outline" href="www.google.com" target="_blank">See more</a><br><button id="add-to-my-list" class="add-to-my-list usa-button">Add to my list</button>`
-          layer.bindPopup(popup).on('popupopen', (a) => {
-            const popUp = a.target.getPopup()
-            popUp
-              .getElement()
-              .querySelector('#add-to-my-list')
-              .addEventListener('click', () => {
-                addLocationToMyList(feature.properties.name, feature.properties.address)
-              })
-          })
-        }
+  ).addTo(map)
+  L.geoJSON(providersGeoJson,
+    {
+      onEachFeature: function (feature, layer) {
+        console.log(feature)
+        const popup = L.DomUtil.create('div', 'infoWindow')
+        popup.innerHTML = `<strong>${feature.properties.name}</strong><br>${feature.properties.address}<br><a class="usa-button-outline" href="www.google.com" target="_blank">See more</a><br><button id="add-to-my-list" class="add-to-my-list usa-button">Add to my list</button>`
+        layer.bindPopup(popup).on('popupopen', (a) => {
+          const popUp = a.target.getPopup()
+          popUp
+            .getElement()
+            .querySelector('#add-to-my-list')
+            .addEventListener('click', () => {
+              addLocationToMyList(feature.properties.name, feature.properties.address)
+            })
+        })
       }
-    ).addTo(map);
-  })
+    }
+  ).addTo(map);
 }
 
 export function addLocationToMyList(providerName: string, providerAddress: string) {
