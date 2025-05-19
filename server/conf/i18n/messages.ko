@@ -68,7 +68,7 @@ button.close=닫기
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=검토
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=돌아가기
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=새 탭에서 열림
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=프로그램 및 서비스 신청 시간 절약하기
 # Main home page heading
 heading.homepage=여기에서 정부 지원 신청
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=온라인으로 정부 프로그램 신청
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력하지 않고도 여러 프로그램을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 # Main home page intro text
 content.homepageIntro=식품, 교통, 아동 돌봄, 공공 서비스 등에 관한 지원을 받으려면 아래 옵션 중 하나를 클릭하세요. 한 번에 프로그램 한 개만 신청할 수 있습니다.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=자격 요건을 충족하는 서비스를 살펴보세요. CiviForm은 한 번 입력한 정보를 다시 활용해 더 빠르게 신청할 수 있도록 도와줍니다.
 # The label for the program filter buttons
 label.programFilters=프로그램 필터
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn={0}에 제출됨
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={1} 에 {0}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=다른 웹사이트가 열립니다.
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=자세한 내용을 확인하고 신청할 수 있는 프로그램 웹사이트로 이동하려면 '계속'을 클릭하세요.
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
