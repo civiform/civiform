@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -67,6 +68,7 @@ public final class ProgramMigrationService {
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
   private final QuestionService questionService;
+  private final TransactionManager transactionManager;
   private final VersionRepository versionRepository;
 
   @Inject
@@ -87,6 +89,7 @@ public final class ProgramMigrationService {
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
     this.questionService = checkNotNull(questionService);
+    this.transactionManager = new TransactionManager();
     this.versionRepository = checkNotNull(versionRepository);
   }
 
@@ -384,8 +387,6 @@ public final class ProgramMigrationService {
           duplicateHandlingOptions,
       boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
-    ProgramDefinition updatedProgram = programDefinition;
-    // Get the overwritten admin names
     // TODO: #9628 - Validate that repeated questions are not being reused/overwritten if their
     // parent question was duplicated with a new admin name. If a parent question is duplicated, the
     // repeated questions must also be duplicated (or updated, if it's new).
@@ -393,7 +394,52 @@ public final class ProgramMigrationService {
         Utils.getQuestionNamesForDuplicateHandling(
             duplicateHandlingOptions,
             ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    ImmutableList<String> duplicateQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
+    ImmutableList<String> reusedQuestionNames =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
+    if (duplicateHandlingEnabled) {
+      // All reads and writes associated with saving a program should happen atomically, so we wrap
+      // them in this top-level transaction.
+      return transactionManager.execute(
+          /* synchronousWork= */ () -> {
+            return doSaveProgram(
+                programDefinition,
+                questionDefinitions,
+                overwrittenQuestions,
+                duplicateQuestions,
+                reusedQuestionNames,
+                withDuplicates,
+                duplicateHandlingEnabled);
+          },
+          /* onSerializationFailure= */ () -> {
+            return ErrorAnd.error(
+                ImmutableSet.of("Failed to save the program to the database. Please try again"));
+          });
+    }
+    return doSaveProgram(
+        programDefinition,
+        questionDefinitions,
+        overwrittenQuestions,
+        duplicateQuestions,
+        reusedQuestionNames,
+        withDuplicates,
+        duplicateHandlingEnabled);
+  }
 
+  private ErrorAnd<ProgramModel, String> doSaveProgram(
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ImmutableList<String> overwrittenQuestions,
+      ImmutableList<String> duplicateQuestions,
+      ImmutableList<String> reusedQuestionNames,
+      boolean withDuplicates,
+      boolean duplicateHandlingEnabled) {
+    ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
       if (duplicateHandlingEnabled) {
         if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
@@ -403,26 +449,16 @@ public final class ProgramMigrationService {
                       + " existing drafts. Please publish all drafts and try again."));
         }
         // When admins can select how to handle duplicate questions, we do not show admins a
-        // de-duped/suffixed admin name before saving the imported program. We must calculate that
-        // name at this point.
+        // de-duped/suffixed admin name before saving the imported program. We must calculate
+        // that name at this point.
         questionDefinitions =
             ImmutableList.copyOf(
-                overwriteDuplicateNames(
-                        questionDefinitions,
-                        Utils.getQuestionNamesForDuplicateHandling(
-                            duplicateHandlingOptions,
-                            ProgramMigrationWrapper.DuplicateQuestionHandlingOption
-                                .CREATE_DUPLICATE))
-                    .values());
+                overwriteDuplicateNames(questionDefinitions, duplicateQuestions).values());
       }
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
           questionDefinitions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-      ImmutableList<String> reusedQuestionNames =
-          Utils.getQuestionNamesForDuplicateHandling(
-              duplicateHandlingOptions,
-              ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
       // Get the questions that will be reused
       ImmutableList<QuestionDefinition> reusedQuestions =
           questionDefinitions.stream()
