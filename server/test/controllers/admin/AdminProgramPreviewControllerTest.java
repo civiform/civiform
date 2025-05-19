@@ -40,7 +40,8 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void preview_noProfile_throwsException() {
-    assertThatThrownBy(() -> controller.preview(fakeRequest(), /*programId =*/ 0, /*programSlug =*/ "test"))
+    assertThatThrownBy(
+            () -> controller.preview(fakeRequest(), /* programId= */ 0, /* programSlug= */ "test"))
         .isInstanceOf(RuntimeException.class);
   }
 

@@ -44,9 +44,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
     this.questionService = checkNotNull(questionService);
   }
 
-  /**
-   * Retrieves the admin's user profile and redirects to the application overview page.
-   */
+  /** Retrieves the admin's user profile and redirects to the application overview page. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result preview(Request request, long programId, String programSlug) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
