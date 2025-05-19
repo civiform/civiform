@@ -153,6 +153,7 @@ public class MapsView extends NorthStarBaseView {
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);
     context.setVariable("applicantId", applicantId);
+    
 
     // Toasts
     context.setVariable("bannerMessage", bannerMessage);

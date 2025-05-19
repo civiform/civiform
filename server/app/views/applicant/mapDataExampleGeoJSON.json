@@ -27,7 +27,8 @@
       "type": "Feature",
       "properties": {
         "name": "Rainier Kids Center",
-        "address": "789 Rainier Ave S, Seattle, WA 98144"
+        "address": "789 Rainier Ave S, Seattle, WA 98144",
+        "open_late": true
       },
       "geometry": {
         "type": "Point",
@@ -38,7 +39,8 @@
       "type": "Feature",
       "properties": {
         "name": "Greenwood Daycare",
-        "address": "101 Greenwood Ave N, Seattle, WA 98103"
+        "address": "101 Greenwood Ave N, Seattle, WA 98103",
+        "open_late": true
       },
       "geometry": {
         "type": "Point",
