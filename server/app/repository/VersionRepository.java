@@ -629,30 +629,31 @@ public final class VersionRepository {
    * on a draft program.
    */
   public void updateQuestionVersions(ProgramModel draftProgram) {
-    transactionManager.execute(
-        () -> {
-          Preconditions.checkArgument(
-              isInactive(draftProgram), "input program must not be active.");
-          Preconditions.checkArgument(
-              isDraft(draftProgram), "input program must be in the current draft version.");
-          ProgramDefinition.Builder updatedDefinition =
-              programRepository.getShallowProgramDefinition(draftProgram).toBuilder()
-                  .setBlockDefinitions(ImmutableList.of());
-          for (BlockDefinition block :
-              programRepository.getShallowProgramDefinition(draftProgram).blockDefinitions()) {
-            logger.trace("Updating screen (block) {}.", block.id());
-            updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
-          }
-          ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
-          logger.trace("Submitting update.");
-          database.update(updatedProgram);
-          // TODO(#10553): Investigate this code smell.
-          // This appears to be a no-op since it is a local object and not
-          // returned. As well the input param is not refreshed so callers
-          // may expect it to have been. Previously this was also created as
-          // an overwrite of the input param draftProgram.
-          updatedProgram.refresh();
-        });
+    // Reviewed
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.SERIALIZABLE))) {
+      Preconditions.checkArgument(isInactive(draftProgram), "input program must not be active.");
+      Preconditions.checkArgument(
+          isDraft(draftProgram), "input program must be in the current draft version.");
+      ProgramDefinition.Builder updatedDefinition =
+          programRepository.getShallowProgramDefinition(draftProgram).toBuilder()
+              .setBlockDefinitions(ImmutableList.of());
+      for (BlockDefinition block :
+          programRepository.getShallowProgramDefinition(draftProgram).blockDefinitions()) {
+        logger.trace("Updating screen (block) {}.", block.id());
+        updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
+      }
+      ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
+      logger.trace("Submitting update.");
+      database.update(updatedProgram);
+      // TODO(#10553): Investigate this code smell.
+      // This appears to be a no-op since it is a local object and not
+      // returned. As well the input param is not refreshed so callers
+      // may expect it to have been. Previously this was also created as
+      // an overwrite of the input param draftProgram.
+      updatedProgram.refresh();
+      transaction.commit();
+    }
   }
 
   public boolean isInactive(QuestionModel question) {
@@ -698,11 +699,7 @@ public final class VersionRepository {
    * @throws IllegalStateException if there are any issues.
    */
   private void validateProgramQuestionState() {
-    transactionManager.logIfNotInTransaction();
-    // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as they likely updated the Database before
-    //  calling this and the reads here should be in a transaction with them.
-    //  Short of that manage a transaction here.
+    // Reviewed DO NOT SUBMIT
     try (Transaction transaction =
         database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
       VersionModel activeVersion = getActiveVersion();
@@ -767,11 +764,7 @@ public final class VersionRepository {
 
   /** Updates all questions referenced in {@code block} to their latest versions */
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
-    // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as this method reads from the DB, and the
-    //  caller likely read/updated it and will seemingly save the response
-    //  this provides.
-    transactionManager.logIfNotInTransaction();
+    // Reviewed DO NOT SUBMIT
     try (Transaction transaction =
         database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
       BlockDefinition.Builder updatedBlock =
@@ -825,50 +818,51 @@ public final class VersionRepository {
    */
   @VisibleForTesting
   PredicateExpressionNode updatePredicateNodeVersions(PredicateExpressionNode node) {
-    // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as this method reads from the DB, and the
-    //  caller likely read/updated it and will seemingly save the response.
-    transactionManager.logIfNotInTransaction();
+    // reviewed DO NOT SUBMIT
     try (Transaction transaction =
         database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
-      try {
-        switch (node.getType()) {
-          case AND:
-            AndNode and = node.getAndNode();
-            ImmutableList<PredicateExpressionNode> updatedAndChildren =
-                and.children().stream()
-                    .map(this::updatePredicateNodeVersions)
-                    .collect(toImmutableList());
-            return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
-          case OR:
-            OrNode or = node.getOrNode();
-            // This looses the transaction
-            ImmutableList<PredicateExpressionNode> updatedOrChildren =
-                or.children().stream()
-                    .map(this::updatePredicateNodeVersions)
-                    .collect(toImmutableList());
-            return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
-          case LEAF_OPERATION:
-            LeafOperationExpressionNode leaf = node.getLeafOperationNode();
-            Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
-            return PredicateExpressionNode.create(
-                leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
-          case LEAF_ADDRESS_SERVICE_AREA:
-            LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
-            Optional<QuestionModel> updatedQuestion =
-                getLatestVersionOfQuestion(leafAddress.questionId());
-            return PredicateExpressionNode.create(
-                leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
-        }
-      } finally {
-        transaction.commit();
-      }
-      // ErrorProne will require the switch to handle all types since there isn't a default, we
-      // should
-      // never get here.
-      throw new AssertionError(
-          String.format("Predicate type is unhandled and must be: %s", node.getType()));
+      var returnValue = updatePredicateNodeVersionsTransactionRequired(node);
+      transaction.commit();
+      return returnValue;
     }
+  }
+
+  // "Internal" to have the transaction semantics only once since this is
+  // recursive.
+  private PredicateExpressionNode updatePredicateNodeVersionsTransactionRequired(
+      PredicateExpressionNode node) {
+    switch (node.getType()) {
+      case AND:
+        AndNode and = node.getAndNode();
+        ImmutableList<PredicateExpressionNode> updatedAndChildren =
+            and.children().stream()
+                .map(this::updatePredicateNodeVersionsTransactionRequired)
+                .collect(toImmutableList());
+        return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
+      case OR:
+        OrNode or = node.getOrNode();
+        // This looses the transaction
+        ImmutableList<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream()
+                .map(this::updatePredicateNodeVersionsTransactionRequired)
+                .collect(toImmutableList());
+        return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
+      case LEAF_OPERATION:
+        LeafOperationExpressionNode leaf = node.getLeafOperationNode();
+        Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
+        return PredicateExpressionNode.create(
+            leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      case LEAF_ADDRESS_SERVICE_AREA:
+        LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
+        Optional<QuestionModel> updatedQuestion =
+            getLatestVersionOfQuestion(leafAddress.questionId());
+        return PredicateExpressionNode.create(
+            leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
+    }
+    // ErrorProne will require the switch to handle all types since there isn't a default, we
+    // should never get here.
+    throw new AssertionError(
+        String.format("Predicate type is unhandled and must be: %s", node.getType()));
   }
 
   /**
@@ -911,6 +905,9 @@ public final class VersionRepository {
    */
   public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       VersionModel version) {
+    // TODO(#10557): This would be a good place to require the caller to
+    //  manage the transaction as this method reads from the DB and the caller
+    //  reasonably wants that in sync with the passed in DB object.
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
       ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
