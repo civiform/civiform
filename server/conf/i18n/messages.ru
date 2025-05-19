@@ -68,7 +68,7 @@ button.close=Закрыть
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Проверить ответы
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=Назад
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=страница откроется в новой вкладке
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=Экономьте время на подаче зая�
 # Main home page heading
 heading.homepage=Подайте заявку на государственную поддержку
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=Подавайте онлайн-заявки на участие в государственных программах
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Войдите в свой аккаунт, зарегистрированный в сервисе "{0}", чтобы подавать заявки на участие в программах и не вводить свои данные повторно. Вы также сможете изменять заполненные заявки и проверять их статус в любое время. Если у вас нет аккаунта, вы можете его создать.
 # Main home page intro text
 content.homepageIntro=Если вы нуждаетесь в помощи, например с питанием, передвижением, уходом за детьми или оплатой коммунальных услуг, выберите нужный вариант ниже. За раз можно подать заявку только в одной категории.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=Узнайте, какие услуги могут быть вам доступны. Вам не нужно каждый раз вводить свои данные.
 # The label for the program filter buttons
 label.programFilters=Фильтры по категориям программ
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=Заявка подана {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} {1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=Страница откроется на другом сайте
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=Чтобы перейти на сайт программы, где вы сможете узнать о ней больше и подать заявку, нажмите "Продолжить".
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
