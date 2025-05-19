@@ -46,6 +46,7 @@ export enum FormField {
   NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
+  PROGRAM_EXTERNAL_LINK,
 }
 
 export enum ProgramType {
@@ -213,7 +214,73 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates a program with given name.
+   * Creates a pre-screener with the given parameters
+   *
+   * @param {boolean} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addPreScreenerNS(
+    programName: string,
+    shortDescription: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required on North Star. Disabled
+    // fields must have an empty or undefined value, since disabled elements
+    // are readonly and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description =*/ '',
+      shortDescription,
+      /* externalLink= */ '',
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.PRE_SCREENER,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates an external program with the given parameters
+   *
+   * @param {string} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {string} externalLink - Link to the external program
+   * @param {ProgramVisibility} programVisibility - Visibility of the program
+   */
+  async addExternalProgram(
+    programName: string,
+    shortDescription: string,
+    externalLink: string,
+    programVisibility: ProgramVisibility,
+  ) {
+    // Only add values for fields that are required. Disabled fields must not
+    // have an empty or undefined value, since disabled elements are readonly
+    // and cannot be edited
+    return this.addProgram(
+      programName,
+      /* description= */ '',
+      shortDescription,
+      externalLink,
+      programVisibility,
+      /* adminDescription= */ '',
+      ProgramType.EXTERNAL,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
+   * Creates a program with given name. Optional fields check for value
+   * existence before adding it to the form. Disabled fields must not receive a
+   * value, since disabled elements are readonly and cannot be edited
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
    * to the database and then the admin will be redirected to the next page in the
@@ -240,7 +307,7 @@ export class AdminPrograms {
       '\n' +
       '\n' +
       'This link should be autodetected: https://www.example.com\n',
-    eligibility = Eligibility.IS_GATING,
+    eligibility = undefined,
     submitNewProgram = true,
     applicationSteps = [{title: 'title', description: 'description'}],
   ) {
@@ -252,34 +319,59 @@ export class AdminPrograms {
     await this.page.fill('#program-slug', slugify(programName))
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
-    await this.page.fill('#program-display-description-textarea', description)
-
     await this.page.fill(
       '#program-display-short-description-textarea',
       shortDescription,
     )
-    await this.page.fill('#program-external-link-input', externalLink)
-    await this.page.fill(
-      '#program-confirmation-message-textarea',
-      confirmationMessage,
-    )
+
+    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
+    // When enabled, form has program type options. Otherwise, form has a
+    // pre-screener checkbox.
+    // IMPORTANT: Select the program type first since some of the next fields
+    // are disabled based on the program type.
+    const hasProgramTypeOptions = await this.page
+      .getByTestId('program-type-options')
+      .isVisible()
+    if (hasProgramTypeOptions) {
+      await this.selectProgramType(programType)
+    } else if (programType === ProgramType.PRE_SCREENER) {
+      await this.clickPreScreenerFormToggle()
+    }
+
+    if (eligibility) {
+      await this.chooseEligibility(eligibility)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.chooseEligibility(eligibility)
+    // This method adds an external link by default. The external link field is
+    // disabled for default programs and pre-screeners in North Star. Therefore,
+    // tests will fail if we try to add default external link to a disabled
+    // field.
+    // TODO(#10630): Ideally, this method should not have a default value for
+    // the external link (or any field, for that matter) but that would require
+    // updating lots of tests. Thus, for now we will fix this by only adding the
+    // external link if its field is enabled. We can fix this when we clean up
+    // the tests for North Star, since there will be less tests to migrate.
+    const externalLinkEnabled = await this.page
+      .getByRole('textbox', {name: 'Link to program website'})
+      .isEnabled()
+    if (externalLinkEnabled) {
+      await this.page.fill('#program-external-link-input', externalLink)
+    }
 
-    // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
-    // When enabled, form has program type options. Otherwise, form has a
-    // pre-screener checkbox.
-    const externalProgramsFeatureEnabled =
-      await this.getProgramTypeOption(programType).isVisible()
-    if (externalProgramsFeatureEnabled) {
-      await this.selectProgramType(programType)
-    } else if (programType === ProgramType.PRE_SCREENER) {
-      await this.clickPreScreenerFormToggle()
+    if (description.length > 0) {
+      await this.page.fill('#program-display-description-textarea', description)
+    }
+
+    if (confirmationMessage.length) {
+      await this.page.fill(
+        '#program-confirmation-message-textarea',
+        confirmationMessage,
+      )
     }
 
     if (programType === ProgramType.DEFAULT) {
@@ -342,7 +434,6 @@ export class AdminPrograms {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
         expect(await longDescription.getAttribute('readonly')).not.toBeNull()
-
         break
       }
 
@@ -373,6 +464,13 @@ export class AdminPrograms {
           await expect(option).toBeDisabled()
           await expect(option).not.toBeChecked()
         }
+        break
+      }
+
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeDisabled()
+        expect(await externalLink.getAttribute('readonly')).not.toBeNull()
         break
       }
 
@@ -451,6 +549,13 @@ export class AdminPrograms {
           })
           await expect(option).toBeEnabled()
         }
+        break
+      }
+
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeEnabled()
+        expect(await externalLink.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -1715,6 +1820,12 @@ export class AdminPrograms {
   getProgramTypeOption(programType: string): Locator {
     return this.page.getByRole('radio', {
       name: programType,
+    })
+  }
+
+  getExternalLinkField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Link to program website',
     })
   }
 

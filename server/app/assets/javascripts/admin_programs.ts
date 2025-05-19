@@ -96,6 +96,20 @@ class AdminPrograms {
       /* shouldHide= */ disableProgramEligibility,
     )
 
+    // Program external link
+    const externalLink = document.getElementById(
+      'program-external-link-input',
+    ) as HTMLInputElement
+    const isNorthstarEnabled = externalLink.dataset.northstarEnabled === 'true'
+    const disableExternalLink =
+      (programType === ProgramType.DEFAULT ||
+        programType === ProgramType.COMMON_INTAKE_FORM) &&
+      isNorthstarEnabled
+    this.updateTextFieldElementDisabledState(
+      /* fieldElement= */ externalLink,
+      /* shouldDisable= */ disableExternalLink,
+    )
+
     // Notification preferences
     const disableNotificationPreferences = programType === ProgramType.EXTERNAL
     this.updateUSWDSCheckboxesDisabledState(
@@ -104,16 +118,13 @@ class AdminPrograms {
     )
 
     // Long program description
-    const longDescription = document.getElementById(
-      'program-display-description-textarea',
-    ) as HTMLInputElement
     const disableLongDescription =
       (programType === ProgramType.COMMON_INTAKE_FORM ||
         programType === ProgramType.EXTERNAL) &&
-      longDescription.dataset.northstarEnabled === 'true'
+      isNorthstarEnabled
     this.updateTextFieldSelectorsDisabledState(
-      /* fieldElement= */ 'textarea[id="program-display-description-textarea"]',
-      /* shouldDisable= */ disableLongDescription,
+      'textarea[id="program-display-description-textarea"]',
+      disableLongDescription,
     )
 
     // Application steps
