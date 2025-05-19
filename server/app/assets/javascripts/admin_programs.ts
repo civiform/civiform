@@ -103,16 +103,31 @@ class AdminPrograms {
       /* shouldDisable= */ disableNotificationPreferences,
     )
 
-    // Long program description
-    const longDescription = document.getElementById(
-      'program-display-description-textarea',
+    // External link
+    const externalLink = document.getElementById(
+      'program-external-link-input',
     ) as HTMLInputElement
+    const isNorthstarEnabled = externalLink.dataset.northstarEnabled === 'true'
+    const disableExternalLink =
+      (programType === ProgramType.DEFAULT ||
+        programType === ProgramType.COMMON_INTAKE_FORM) &&
+      isNorthstarEnabled
+    this.updateTextFieldElementDisabledState(
+      /* fieldElement= */ externalLink,
+      /* shouldDisable= */ disableExternalLink,
+    )
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="program-external-link-input"]',
+      /* shouldHide= */ programType !== ProgramType.EXTERNAL,
+    )
+
+    // Long program description
     const disableLongDescription =
       (programType === ProgramType.COMMON_INTAKE_FORM ||
         programType === ProgramType.EXTERNAL) &&
-      longDescription.dataset.northstarEnabled === 'true'
-    this.updateTextFieldElementDisabledState(
-      /* fieldElement= */ longDescription,
+      isNorthstarEnabled
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldElement= */ 'textarea[id="program-display-description-textarea"]',
       /* shouldDisable= */ disableLongDescription,
     )
 
