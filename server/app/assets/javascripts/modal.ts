@@ -73,7 +73,8 @@ export class ModalController {
   constructor() {
     const modalContainer = document.querySelector('#modal-container')
     if (modalContainer == null) {
-      throw new Error('Modal Container display not found!')
+      // The modal container may not be found if northstar is enabled.
+      return
     }
 
     const modals = Array.from(
