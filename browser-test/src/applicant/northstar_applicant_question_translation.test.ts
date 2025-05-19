@@ -211,7 +211,7 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
       page: Page
     }) => {
       const selector = page.locator('[data-testid="languageSelector"]')
-      await expect(selector).toHaveCount(1, {timeout: 10000})
+      await expect(selector).toHaveCount(1)
     })
   })
 })
