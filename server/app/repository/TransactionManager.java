@@ -120,4 +120,13 @@ public final class TransactionManager {
             + "coding error or a more severe issue.",
         sce);
   }
+
+  public void logIfNotInTransaction() {
+    if (DB.currentTransaction() == null) {
+      logger.error(
+          """
+TransactionManager: Call stack detected without a transaction. Please report this to the CiviForm team.
+""");
+    }
+  }
 }

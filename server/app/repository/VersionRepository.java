@@ -698,12 +698,13 @@ public final class VersionRepository {
    * @throws IllegalStateException if there are any issues.
    */
   private void validateProgramQuestionState() {
+    transactionManager.logIfNotInTransaction();
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as they likely updated the Database before
     //  calling this and the reads here should be in a transaction with them.
     //  Short of that manage a transaction here.
     try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
+        database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
       VersionModel activeVersion = getActiveVersion();
       ImmutableList<QuestionDefinition> newActiveQuestions =
           getQuestionsForVersionWithoutCache(activeVersion).stream()
@@ -770,8 +771,9 @@ public final class VersionRepository {
     //  manage the transaction as this method reads from the DB, and the
     //  caller likely read/updated it and will seemingly save the response
     //  this provides.
+    transactionManager.logIfNotInTransaction();
     try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
+        database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
       BlockDefinition.Builder updatedBlock =
           block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
       // Update questions contained in this block.
@@ -826,37 +828,47 @@ public final class VersionRepository {
     // TODO(#10557): This would be a good place to require the caller to
     //  manage the transaction as this method reads from the DB, and the
     //  caller likely read/updated it and will seemingly save the response.
-    switch (node.getType()) {
-      case AND:
-        AndNode and = node.getAndNode();
-        ImmutableList<PredicateExpressionNode> updatedAndChildren =
-            and.children().stream()
-                .map(this::updatePredicateNodeVersions)
-                .collect(toImmutableList());
-        return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
-      case OR:
-        OrNode or = node.getOrNode();
-        ImmutableList<PredicateExpressionNode> updatedOrChildren =
-            or.children().stream()
-                .map(this::updatePredicateNodeVersions)
-                .collect(toImmutableList());
-        return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
-      case LEAF_OPERATION:
-        LeafOperationExpressionNode leaf = node.getLeafOperationNode();
-        Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
-        return PredicateExpressionNode.create(
-            leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
-      case LEAF_ADDRESS_SERVICE_AREA:
-        LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
-        Optional<QuestionModel> updatedQuestion =
-            getLatestVersionOfQuestion(leafAddress.questionId());
-        return PredicateExpressionNode.create(
-            leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
+    transactionManager.logIfNotInTransaction();
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.mandatory().setIsolation(TxIsolation.REPEATABLE_READ))) {
+      try {
+        switch (node.getType()) {
+          case AND:
+            AndNode and = node.getAndNode();
+            ImmutableList<PredicateExpressionNode> updatedAndChildren =
+                and.children().stream()
+                    .map(this::updatePredicateNodeVersions)
+                    .collect(toImmutableList());
+            return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
+          case OR:
+            OrNode or = node.getOrNode();
+            // This looses the transaction
+            ImmutableList<PredicateExpressionNode> updatedOrChildren =
+                or.children().stream()
+                    .map(this::updatePredicateNodeVersions)
+                    .collect(toImmutableList());
+            return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
+          case LEAF_OPERATION:
+            LeafOperationExpressionNode leaf = node.getLeafOperationNode();
+            Optional<QuestionModel> updated = getLatestVersionOfQuestion(leaf.questionId());
+            return PredicateExpressionNode.create(
+                leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+          case LEAF_ADDRESS_SERVICE_AREA:
+            LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
+            Optional<QuestionModel> updatedQuestion =
+                getLatestVersionOfQuestion(leafAddress.questionId());
+            return PredicateExpressionNode.create(
+                leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
+        }
+      } finally {
+        transaction.commit();
+      }
+      // ErrorProne will require the switch to handle all types since there isn't a default, we
+      // should
+      // never get here.
+      throw new AssertionError(
+          String.format("Predicate type is unhandled and must be: %s", node.getType()));
     }
-    // ErrorProne will require the switch to handle all types since there isn't a default, we should
-    // never get here.
-    throw new AssertionError(
-        String.format("Predicate type is unhandled and must be: %s", node.getType()));
   }
 
   /**
