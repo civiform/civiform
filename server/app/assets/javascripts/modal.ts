@@ -73,8 +73,11 @@ export class ModalController {
   constructor() {
     const modalContainer = document.querySelector('#modal-container')
     if (modalContainer == null) {
-      // The modal container may not be found if northstar is enabled.
-      return
+      if (document.querySelectorAll('.cf-ns-modal').length > 0) {
+        // There is a northstar modal, so the legacy modal may not exist
+        return
+      }
+      throw new Error('Modal Container display not found!')
     }
 
     const modals = Array.from(
