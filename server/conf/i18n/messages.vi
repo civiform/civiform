@@ -68,7 +68,7 @@ button.close=Đóng
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Xem lại
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=Quay lại
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=mở trong một thẻ mới
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=Tiết kiệm thời gian đăng ký các chương trì
 # Main home page heading
 heading.homepage=Đăng ký nhận trợ cấp của chính phủ tại đây
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=Nộp đơn trực tuyến xin tham gia các chương trình của chính phủ
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Hãy đăng nhập vào tài khoản {0} của bạn hoặc tạo một tài khoản rồi đăng ký tham gia các chương trình mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký bất cứ lúc nào và kiểm tra trạng thái của đơn đăng ký.
 # Main home page intro text
 content.homepageIntro=Để được trợ giúp về thực phẩm, phương tiện đi lại, dịch vụ chăm sóc trẻ em, tiện ích và nhiều dịch vụ khác, hãy nhấp vào một trong các lựa chọn sau. Mỗi lần, bạn chỉ có thể đăng ký một chương trình.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=Tìm hiểu những dịch vụ bạn có thể đủ tiêu chuẩn nhận. CiviForm sẽ tái sử dụng thông tin bạn cung cấp để giúp bạn nhận được các dịch vụ nhanh hơn.
 # The label for the program filter buttons
 label.programFilters=Bộ lọc chương trình
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=Đã nộp vào {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} vào {1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=Thao tác này sẽ mở một trang web khác
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=Nếu muốn biết thêm chi tiết và nộp đơn, hãy nhấp vào Tiếp tục để truy cập trang web của chương trình
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
