@@ -68,7 +68,7 @@ button.close=關閉
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=檢查
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=返回
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=在新分頁中開啟
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=在提出計畫和服務申請時節省時間
 # Main home page heading
 heading.homepage=在這裡申請政府協助
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=線上申請政府計畫
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=請登入您的「{0}」帳戶或建立新帳戶，這樣一來，您就不必在申請參加計畫時一再輸入相同的資訊，還可隨時編輯申請書及查看申請狀態。
 # Main home page intro text
 content.homepageIntro=如要取得食物、交通運輸、兒童照護、公用事業和其他領域的相關協助，請在下方點按任一選項。請注意，您一次只能申請一項計畫。
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=瀏覽您可能符合資格的服務。CiviForm 會重複使用您的資訊，協助您快速找到這類服務。
 # The label for the program filter buttons
 label.programFilters=計畫篩選條件
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=已於 {0}提交
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn=已於 {1}{0}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=這會開啟其他網站
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=如要前往計畫的網站，以便查看更多資訊及完成申請程序，請點選「繼續」
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
