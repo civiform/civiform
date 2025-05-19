@@ -92,6 +92,7 @@ export enum ProgramAction {
   PUBLISH = 'Publish',
   SHARE = 'Share link',
   VIEW = 'View',
+  VIEW_APPLICATIONS = 'Applications',
 }
 
 export enum ProgramExtraAction {
@@ -500,6 +501,10 @@ export class AdminPrograms {
       await expect(actionButton).toBeVisible()
     }
 
+    if (extraActions.length === 0) {
+      return
+    }
+
     await this.getProgramExtraActionsButton(programName, lifecycle).click()
     for (const action of extraActions) {
       const actionButton = this.getProgramExtraAction(
@@ -529,6 +534,10 @@ export class AdminPrograms {
     for (const action of actions) {
       const actionButton = this.getProgramAction(programName, lifecycle, action)
       await expect(actionButton).toBeHidden()
+    }
+
+    if (extraActions.length === 0) {
+      return
     }
 
     await this.getProgramExtraActionsButton(programName, lifecycle).click()
@@ -657,19 +666,6 @@ export class AdminPrograms {
     return this.questionCardSelectorInProgramView(questionName) + ' ' + selector
   }
 
-  // TODO(#10513): Migrate callers to use getProgramCard
-  programCardSelector(programName: string, lifecycle: string) {
-    return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
-  }
-
-  withinProgramCardSelector(
-    programName: string,
-    lifecycle: string,
-    selector: string,
-  ) {
-    return this.programCardSelector(programName, lifecycle) + ' ' + selector
-  }
-
   /**
    * Selects a button in the extra rows dropdown for a program
    *
@@ -720,6 +716,12 @@ export class AdminPrograms {
     await this.expectProgramImagePage()
   }
 
+  /**
+   * Opens the manage program page by clicking on a program's card extra action.
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -733,21 +735,21 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
-  async goToExportProgramPage(programName: string, lifecycle: string) {
+  /**
+   * Opens the export program page by clicking on a program's card extra action.
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
+  async goToExportProgramPage(
+    programName: string,
+    lifecycle: ProgramLifecycle,
+  ) {
     await this.gotoAdminProgramsPage()
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        lifecycle,
-        '.cf-with-dropdown',
-      ),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        lifecycle,
-        ':text("Export program")',
-      ),
+    await this.selectProgramExtraAction(
+      programName,
+      lifecycle,
+      ProgramExtraAction.EXPORT,
     )
     await waitForPageJsLoad(this.page)
   }
@@ -795,41 +797,54 @@ export class AdminPrograms {
     }
   }
 
+  /**
+   * Opens the export program page by clicking on a program's card action or
+   * extra action (depending on the program lifecycle)
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoEditDraftProgramPage(
     programName: string,
     isProgramDisabled: boolean = false,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
     await this.gotoAdminProgramsPage(isProgramDisabled)
 
-    if (createNewDraft) {
+    if (lifecycle === ProgramLifecycle.ACTIVE) {
       await this.expectActiveProgram(programName)
       await this.selectProgramExtraAction(
         programName,
-        ProgramLifecycle.ACTIVE,
+        lifecycle,
         ProgramExtraAction.EDIT,
       )
     } else {
       await this.expectDraftProgram(programName)
-      await this.page.click(
-        this.withinProgramCardSelector(
-          programName,
-          'Draft',
-          'button :text("Edit")',
-        ),
-      )
+      await this.getProgramAction(
+        programName,
+        lifecycle,
+        ProgramAction.EDIT,
+      ).click()
     }
 
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
   }
 
+  /**
+   * Opens the view program page by clicking on a program's card action
+   * Admin must be a CiviForm admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async gotoViewActiveProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectActiveProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Active', ':text("View")'),
-    )
+    await this.getProgramAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramAction.VIEW,
+    ).click()
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockReadOnlyPage(programName)
   }
@@ -878,9 +893,13 @@ export class AdminPrograms {
 
   async goToProgramDescriptionPage(
     programName: string,
-    createNewDraft: boolean = false,
+    lifecycle: ProgramLifecycle = ProgramLifecycle.DRAFT,
   ) {
-    await this.gotoEditDraftProgramPage(programName, false, createNewDraft)
+    await this.gotoEditDraftProgramPage(
+      programName,
+      /* isProgramDisabled= */ false,
+      lifecycle,
+    )
     await this.page.click('button:has-text("Edit program details")')
     await waitForPageJsLoad(this.page)
   }
@@ -1348,18 +1367,23 @@ export class AdminPrograms {
     await this.expectDraftProgram(programName)
   }
 
+  /**
+   * Opens the applications page by clicking on a program's card action
+   * Admin must be a Program admin, otherwise the extra action won't be visible
+   *
+   * @param programName - Name of the program
+   */
   async viewApplications(programName: string) {
     // Navigate back to the main page for the program admin.
     await this.page.goto(BASE_URL)
     await waitForPageJsLoad(this.page)
 
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'ACTIVE',
-        'button :text("Applications")',
-      ),
-    )
+    await this.expectActiveProgram(programName)
+    await this.getProgramAction(
+      programName,
+      ProgramLifecycle.ACTIVE,
+      ProgramAction.VIEW_APPLICATIONS,
+    ).click()
     await waitForPageJsLoad(this.page)
   }
 

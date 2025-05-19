@@ -4,6 +4,8 @@ import {
   enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
+  loginAsProgramAdmin,
+  logout,
   validateScreenshot,
 } from '../support'
 import {
@@ -551,57 +553,82 @@ test.describe('Program list page.', () => {
   })
 
   test('external program card actions', async ({page, adminPrograms}) => {
-    await enableFeatureFlag(page, 'external_program_cards_enabled')
-    await loginAsAdmin(page)
-
     const externalProgram = 'External'
-    await adminPrograms.addProgram(
-      externalProgram,
-      /* description= */ '',
-      'short program description',
-      'https://usa.gov',
-      ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.EXTERNAL,
-    )
-    await expectProgramListElements(adminPrograms, [externalProgram])
 
-    // On draft mode, 'manage applications' extra action is hidden
-    await adminPrograms.expectProgramActionsVisible(
-      externalProgram,
-      ProgramLifecycle.DRAFT,
-      [ProgramAction.PUBLISH, ProgramAction.EDIT],
-      [
-        ProgramExtraAction.MANAGE_ADMINS,
-        ProgramExtraAction.MANAGE_TRANSLATIONS,
-        ProgramExtraAction.EXPORT,
-      ],
-    )
-    await adminPrograms.expectProgramActionsHidden(
-      externalProgram,
-      ProgramLifecycle.DRAFT,
-      [],
-      [ProgramExtraAction.MANAGE_APPLICATIONS],
-    )
+    await test.step('add external program as a CiviForm admin', async () => {
+      await enableFeatureFlag(page, 'external_program_cards_enabled')
+      await loginAsAdmin(page)
 
-    // On active mode, 'share' action and 'applications' extra action are
-    // hidden
-    await adminPrograms.publishProgram(externalProgram)
-    await adminPrograms.expectProgramActionsVisible(
-      externalProgram,
-      ProgramLifecycle.ACTIVE,
-      [ProgramAction.VIEW],
-      [
-        ProgramExtraAction.EDIT,
-        ProgramExtraAction.MANAGE_ADMINS,
-        ProgramExtraAction.EXPORT,
-      ],
-    )
-    await adminPrograms.expectProgramActionsHidden(
-      externalProgram,
-      ProgramLifecycle.ACTIVE,
-      [ProgramAction.SHARE],
-      [ProgramExtraAction.VIEW_APPLICATIONS],
-    )
+      await adminPrograms.addProgram(
+        externalProgram,
+        /* description= */ '',
+        'short program description',
+        'https://usa.gov',
+        ProgramVisibility.PUBLIC,
+        'admin description',
+        ProgramType.EXTERNAL,
+      )
+      await expectProgramListElements(adminPrograms, [externalProgram])
+    })
+
+    await test.step('verify external program cards on program list for Civiform admin', async () => {
+      // On draft mode, 'manage applications' extra action is hidden
+      await adminPrograms.expectProgramActionsVisible(
+        externalProgram,
+        ProgramLifecycle.DRAFT,
+        [ProgramAction.PUBLISH, ProgramAction.EDIT],
+        [
+          ProgramExtraAction.MANAGE_ADMINS,
+          ProgramExtraAction.MANAGE_TRANSLATIONS,
+          ProgramExtraAction.EXPORT,
+        ],
+      )
+      await adminPrograms.expectProgramActionsHidden(
+        externalProgram,
+        ProgramLifecycle.DRAFT,
+        [],
+        [ProgramExtraAction.MANAGE_APPLICATIONS],
+      )
+
+      // On active mode, 'share' action and 'applications' extra action are
+      // hidden
+      await adminPrograms.publishProgram(externalProgram)
+      await adminPrograms.expectProgramActionsVisible(
+        externalProgram,
+        ProgramLifecycle.ACTIVE,
+        [ProgramAction.VIEW],
+        [
+          ProgramExtraAction.EDIT,
+          ProgramExtraAction.MANAGE_ADMINS,
+          ProgramExtraAction.EXPORT,
+        ],
+      )
+      await adminPrograms.expectProgramActionsHidden(
+        externalProgram,
+        ProgramLifecycle.ACTIVE,
+        [ProgramAction.SHARE],
+        [ProgramExtraAction.VIEW_APPLICATIONS],
+      )
+
+      await logout(page)
+    })
+
+    await test.step('verify external program cards on program list for Program admin', async () => {
+      await loginAsProgramAdmin(page)
+
+      // All actions for program admins are hidden
+      await adminPrograms.expectProgramActionsVisible(
+        externalProgram,
+        ProgramLifecycle.ACTIVE,
+        [],
+        [],
+      )
+      await adminPrograms.expectProgramActionsHidden(
+        externalProgram,
+        ProgramLifecycle.ACTIVE,
+        [ProgramAction.SHARE, ProgramAction.VIEW_APPLICATIONS],
+        [],
+      )
+    })
   })
 })
