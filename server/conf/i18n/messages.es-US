@@ -68,7 +68,7 @@ button.close=Cerrar
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Revisar
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=Volver
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=se abre en una pestaña nueva
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=Ahorra tiempo cuando te inscribas en programas y servic
 # Main home page heading
 heading.homepage=Solicita asistencia del gobierno aquí
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=Envía una solicitud de inscripción a los programas del gobierno en línea
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Accede a tu cuenta de {0} o crea una para enviar solicitudes de inscripción a programas sin necesidad de volver a ingresar la misma información. También puedes ver el estado de tus solicitudes y modificarlas en cualquier momento.
 # Main home page intro text
 content.homepageIntro=Para recibir ayuda para el cuidado infantil, alimento, transporte, servicios públicos y más, haz clic en una de las opciones que se encuentran a continuación. Puedes enviar una solicitud a un programa a la vez.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=Descubre más servicios para los que cumples con los requisitos. CiviForm reutiliza tu información para ayudarte a acceder a ellos más rápido.
 # The label for the program filter buttons
 label.programFilters=Filtros del programa
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=Enviada el {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} el {1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=Se abrirá un sitio web diferente
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=Para ir al sitio web del programa donde puedes obtener más detalles y enviar tu solicitud, haz clic en el botón para continuar
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
