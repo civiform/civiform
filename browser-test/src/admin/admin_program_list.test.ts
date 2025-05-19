@@ -572,42 +572,41 @@ test.describe('Program list page.', () => {
     })
 
     await test.step('verify external program cards on program list for Civiform admin', async () => {
-      // On draft mode, 'manage applications' extra action is hidden
+      // On draft mode, 'manage admins' and 'manage applications' extra actions
+      // are hidden
       await adminPrograms.expectProgramActionsVisible(
         externalProgram,
         ProgramLifecycle.DRAFT,
         [ProgramAction.PUBLISH, ProgramAction.EDIT],
-        [
-          ProgramExtraAction.MANAGE_ADMINS,
-          ProgramExtraAction.MANAGE_TRANSLATIONS,
-          ProgramExtraAction.EXPORT,
-        ],
+        [ProgramExtraAction.MANAGE_TRANSLATIONS, ProgramExtraAction.EXPORT],
       )
       await adminPrograms.expectProgramActionsHidden(
         externalProgram,
         ProgramLifecycle.DRAFT,
         [],
-        [ProgramExtraAction.MANAGE_APPLICATIONS],
+        [
+          ProgramExtraAction.MANAGE_ADMINS,
+          ProgramExtraAction.MANAGE_APPLICATIONS,
+        ],
       )
 
-      // On active mode, 'share' action and 'applications' extra action are
-      // hidden
+      // On active mode, 'share' action, and 'manage admins' and 'manage
+      // applications' extra actions are hidden
       await adminPrograms.publishProgram(externalProgram)
       await adminPrograms.expectProgramActionsVisible(
         externalProgram,
         ProgramLifecycle.ACTIVE,
         [ProgramAction.VIEW],
-        [
-          ProgramExtraAction.EDIT,
-          ProgramExtraAction.MANAGE_ADMINS,
-          ProgramExtraAction.EXPORT,
-        ],
+        [ProgramExtraAction.EDIT, ProgramExtraAction.EXPORT],
       )
       await adminPrograms.expectProgramActionsHidden(
         externalProgram,
         ProgramLifecycle.ACTIVE,
         [ProgramAction.SHARE],
-        [ProgramExtraAction.VIEW_APPLICATIONS],
+        [
+          ProgramExtraAction.MANAGE_ADMINS,
+          ProgramExtraAction.VIEW_APPLICATIONS,
+        ],
       )
 
       await logout(page)
