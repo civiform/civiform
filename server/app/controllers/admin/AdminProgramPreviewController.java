@@ -49,11 +49,11 @@ public final class AdminProgramPreviewController extends CiviFormController {
    * can preview the program.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result preview(Request request, long programId) {
+  public Result preview(Request request, long programId, String programSlug) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     try {
-      return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
+      return redirect(applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }
