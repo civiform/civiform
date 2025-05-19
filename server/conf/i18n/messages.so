@@ -68,7 +68,7 @@ button.close=Xidh
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Dib u eeg
 # Button text that will go back to the previous page.
-button.goBack=Go back
+button.goBack=Dib u noqo
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=waxay ku furaysaa bog cusub
 # Aria-label for the primary navigation
@@ -234,14 +234,14 @@ content.saveTimeServices=Si aad u ilaaliso wakhtiga markaad codsanayso barnaamij
 # Main home page heading
 heading.homepage=Halkan ka codso caawimaada dawladda
 # Main home page heading, updated to be more generic
-heading.homepage.v2=Apply for government programs online
+heading.homepage.v2=Ku codso barnaamijyada dawladda hab onlayn ah
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Gal akoonkaaga {0} ama samee akoon oo codso barnaamijyada adigoon galineyn isla macluumaadkii markale. Waxaad sidoo kale wax ka beddeli kartaa codsiyada wakhti kasta oo hubin kartaa heerarka codsigaagu marayo.
 # Main home page intro text
 content.homepageIntro=Si aad u hesho caawimo xagga cuntada, gaadiidka, daryeelka ilmaha, adeegyada guriga iyo waxyaabo kale oo badan, guji mid ka mid ah xulashooyinkan hoose. Waxaad codsan kartaa hal barnaamij markiiba.
 # Main home page intro text, updated to be more generic
-content.homepageIntro.v2=Discover services you may qualify for. CiviForm reuses your information to help you get them faster.
+content.homepageIntro.v2=Sahami adeegyada aad u qalmi karto. CiviForm waxay dib u isticmaashaa macluumaadkaaga si ay kaaga caawiso inaad si dhakhso leh u hesho.
 # The label for the program filter buttons
 label.programFilters=Shaandhaynada barnaamijka
 # The label for the program filter checkboxes
@@ -297,9 +297,9 @@ label.submittedOn=La gudbiyay {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} markay tahay {1}
 # Title of the external program modal that opens when a user clicks on an external program card.
-title.externalProgramModal=This will open a different website
+title.externalProgramModal=Tani waxay furi doontaa websayd kale
 # Content of the external program modal that opens when a user clicks on an external program card.
-content.externalProgramModal=To go to the program''s website where you can get more details and apply, click Continue
+content.externalProgramModal=Si aad u aado websaydka barnaamijka halkaas oo aad ka heli karto tafaasiil dheeri ah oo aad codsato, guji Sii wad(Continue)
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
