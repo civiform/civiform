@@ -46,7 +46,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.settingsManifest = checkNotNull(settingsManifest);
-}
+  }
 
   /** Retrieves the admin's user profile and redirects to the application overview page. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -55,9 +55,11 @@ public final class AdminProgramPreviewController extends CiviFormController {
 
     try {
       if (settingsManifest.getNorthStarApplicantUi(request)) {
-        return redirect(applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
+        return redirect(
+            applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
       } else {
-        return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
+        return redirect(
+            applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
       }
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
