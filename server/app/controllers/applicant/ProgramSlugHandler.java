@@ -123,7 +123,6 @@ public final class ProgramSlugHandler {
                 programDefinitionStage =
                     programService.getActiveFullProgramDefinitionAsync(programSlug);
               }
-
               return programDefinitionStage
                   .thenApply(
                       activeProgramDefinition ->
