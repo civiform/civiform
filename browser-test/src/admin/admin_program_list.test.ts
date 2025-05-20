@@ -257,14 +257,10 @@ test.describe('Program list page.', () => {
     const preScreenerProgram = 'Pre screener program'
     const externalProgram = 'External'
     await adminPrograms.addProgram(program)
-    await adminPrograms.addProgram(
+    await adminPrograms.addPreScreenerNS(
       preScreenerProgram,
-      'program description',
       'short program description',
-      'https://usa.gov',
       ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.PRE_SCREENER,
     )
     await adminPrograms.addProgram(
       externalProgram,

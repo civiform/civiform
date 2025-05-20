@@ -213,6 +213,37 @@ export class AdminPrograms {
   }
 
   /**
+   * Creates a pre-screener with the given fields. Only the required fields for
+   * a pre-screener in North Star are filled in.
+   * If a test needs to add an optional field, add a new parameter with a
+   * default value to this function.
+   *
+   * @param {boolean} programName - Name of the program
+   * @param {string} shortDescription - Short description of the program
+   * @param {ProgramVisibility} visibility - Visibility of the program
+   */
+  async addPreScreenerNS(
+    programName: string,
+    shortDescription: string,
+    visibility: ProgramVisibility,
+  ) {
+    return this.addProgram(
+      programName,
+      /* description =*/ '',
+      shortDescription,
+      /* externalLink= */ '',
+      visibility,
+      /* adminDescription= */ '',
+      ProgramType.PRE_SCREENER,
+      /* selectedTI= */ 'none',
+      /* confirmationMessage= */ '',
+      /* eligibility= */ undefined,
+      /* submitNewProgram= */ true,
+      /* applicationSteps= */ [],
+    )
+  }
+
+  /**
    * Creates a program with given name.
    *
    * @param {boolean} submitNewProgram - If true, the new program will be submitted
@@ -258,7 +289,6 @@ export class AdminPrograms {
       '#program-display-short-description-textarea',
       shortDescription,
     )
-    await this.page.fill('#program-external-link-input', externalLink)
     await this.page.fill(
       '#program-confirmation-message-textarea',
       confirmationMessage,
@@ -269,7 +299,13 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.chooseEligibility(eligibility)
+    if (eligibility) {
+      await this.chooseEligibility(eligibility)
+    }
+
+    if (externalLink.length > 0) {
+      await this.page.fill('#program-external-link-input', externalLink)
+    }
 
     // Program type selector varies with the EXTERNAL_PROGRAM_CARDS feature.
     // When enabled, form has program type options. Otherwise, form has a
