@@ -702,14 +702,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminPrograms.addProgram(
+      await adminPrograms.addPreScreenerNS(
         preScreenerFormProgramName,
-        'program description',
         'short program description',
-        'https://usa.gov',
         ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.PRE_SCREENER,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
@@ -1153,14 +1149,10 @@ test.describe(
       await test.step('create program with image as admin', async () => {
         await loginAsAdmin(page)
         const preScreenerFormProgramName = 'Benefits finder'
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerFormProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)
