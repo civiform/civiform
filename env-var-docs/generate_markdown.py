@@ -256,6 +256,8 @@ def removeprefix(text, prefix):
 
 
 def version_key(path: str):
+    # Expected input is a path to an env-var-docs markdown, e.g.
+    # docs/it-manual/sre-playbook/server-environment-variables/v2.40.0.md
     filename = path.rsplit("/", 1)[-1]
     ver = filename.lstrip("v").rstrip(".md")
     parts = ver.split(".")
