@@ -21,6 +21,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 
 /** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
@@ -28,6 +29,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
   private final PdfExporterService pdfExporterService;
   private final ProgramService programService;
   private final QuestionService questionService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramPreviewController(
@@ -36,13 +38,15 @@ public final class AdminProgramPreviewController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes) {
+      ApplicantRoutes applicantRoutes,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-  }
+    this.settingsManifest = checkNotNull(settingsManifest);
+}
 
   /** Retrieves the admin's user profile and redirects to the application overview page. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -50,7 +54,11 @@ public final class AdminProgramPreviewController extends CiviFormController {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     try {
-      return redirect(applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
+      if (settingsManifest.getNorthStarApplicantUi(request)) {
+        return redirect(applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
+      } else {
+        return redirect(applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
+      }
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }
