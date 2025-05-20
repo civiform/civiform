@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -510,7 +511,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
             disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
             disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
 
-    ImmutableList<QuestionModel> savedQuestions =
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
         transactionManager.execute(
             () -> {
               return repo.bulkCreateQuestions(questionsToSave);
