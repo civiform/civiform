@@ -509,7 +509,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               });
       draftRowActions.add(renderEditLink(/* isActive= */ false, draftProgram.get(), request));
 
-      draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
+      maybeRenderManageProgramAdminsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageTranslationsLink(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       maybeRenderManageApplications(draftProgram.get()).ifPresent(draftRowExtraActions::add);
       draftRowExtraActions.add(renderExportProgramLink(draftProgram.get()));
@@ -537,8 +537,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (draftProgram.isEmpty()) {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
-        activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
+      maybeRenderManageProgramAdminsLink(activeProgram.get()).ifPresent(activeRowExtraActions::add);
       activeRowExtraActions.add(renderExportProgramLink(activeProgram.get()));
 
       activeRow =
@@ -686,13 +686,19 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.empty();
   }
 
-  private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
+  private Optional<ButtonTag> maybeRenderManageProgramAdminsLink(ProgramDefinition program) {
+    // External programs don't have program administrators, since they cannot edit external programs
+    ProgramType programType = program.programType();
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      return Optional.empty();
+    }
+
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage program admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
-    return asRedirectElement(button, adminLink);
+    return Optional.of(asRedirectElement(button, adminLink));
   }
 
   private ButtonTag renderExportProgramLink(ProgramDefinition program) {
