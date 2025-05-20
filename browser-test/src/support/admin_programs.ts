@@ -46,6 +46,7 @@ export enum FormField {
   NOTIFICATION_PREFERENCES,
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
+  PROGRAM_EXTERNAL_LINK
 }
 
 export enum ProgramType {
@@ -213,8 +214,8 @@ export class AdminPrograms {
   }
 
   /**
-   * Creates a pre-screener with the given fields. Only the required fields for
-   * a pre-screener in North Star are filled in.
+   * Creates a pre-screener with the given fields, which are all the ones
+   * required for creating a pre-screener in North Star.
    *
    * @param {boolean} programName - Name of the program
    * @param {string} shortDescription - Short description of the program
@@ -254,7 +255,7 @@ export class AdminPrograms {
     programName: string,
     description = 'program description',
     shortDescription = 'short program description',
-    externalLink = 'https://usa.gov',
+    externalLink = '',
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
     programType: ProgramType = ProgramType.DEFAULT,
@@ -291,6 +292,10 @@ export class AdminPrograms {
       '#program-confirmation-message-textarea',
       confirmationMessage,
     )
+
+    if (externalLink.length > 0) {
+      await this.page.fill('#program-external-link-input', externalLink)
+    }
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
@@ -376,7 +381,6 @@ export class AdminPrograms {
         const longDescription = this.getLongDescriptionField()
         await expect(longDescription).toBeDisabled()
         expect(await longDescription.getAttribute('readonly')).not.toBeNull()
-
         break
       }
 
@@ -407,6 +411,13 @@ export class AdminPrograms {
           await expect(option).toBeDisabled()
           await expect(option).not.toBeChecked()
         }
+        break
+      }
+
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeDisabled()
+        expect(await externalLink.getAttribute('readonly')).not.toBeNull()
         break
       }
 
@@ -485,6 +496,13 @@ export class AdminPrograms {
           })
           await expect(option).toBeEnabled()
         }
+        break
+      }
+
+      case FormField.PROGRAM_EXTERNAL_LINK: {
+        const externalLink = this.getExternalLinkField()
+        await expect(externalLink).toBeEnabled()
+        expect(await externalLink.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -1758,6 +1776,12 @@ export class AdminPrograms {
   getProgramTypeOption(programType: string): Locator {
     return this.page.getByRole('radio', {
       name: programType,
+    })
+  }
+
+  getExternalLinkField(): Locator {
+    return this.page.getByRole('textbox', {
+      name: 'Link to program website',
     })
   }
 

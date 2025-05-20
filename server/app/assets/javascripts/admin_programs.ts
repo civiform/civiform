@@ -103,16 +103,31 @@ class AdminPrograms {
       /* shouldDisable= */ disableNotificationPreferences,
     )
 
-    // Long program description
-    const longDescription = document.getElementById(
-      'program-display-description-textarea',
+    // External link
+    const externalLink = document.getElementById(
+      'program-external-link-input',
     ) as HTMLInputElement
+    const isNorthstarEnabled = externalLink.dataset.northstarEnabled === 'true'
+    const disableExternalLink =
+      (programType === ProgramType.DEFAULT ||
+        programType === ProgramType.COMMON_INTAKE_FORM) &&
+      isNorthstarEnabled
+    this.updateTextFieldElementDisabledState(
+      /* fieldElement= */ externalLink,
+      /* shouldDisable= */ disableExternalLink,
+    )
+    this.hideRequiredIndicators(
+      /* fieldSelector= */ 'label[for="program-external-link-input"]',
+      /* shouldHide= */ disableExternalLink,
+    )
+
+    // Long program description
     const disableLongDescription =
       (programType === ProgramType.COMMON_INTAKE_FORM ||
         programType === ProgramType.EXTERNAL) &&
-      longDescription.dataset.northstarEnabled === 'true'
-    this.updateTextFieldElementDisabledState(
-      /* fieldElement= */ longDescription,
+      isNorthstarEnabled
+    this.updateTextFieldSelectorsDisabledState(
+      /* fieldElement= */ 'textarea[id="program-display-description-textarea"]',
       /* shouldDisable= */ disableLongDescription,
     )
 
@@ -129,7 +144,11 @@ class AdminPrograms {
       /* shouldDisable= */ disableApplicationSteps,
     )
     this.hideRequiredIndicators(
-      /* fieldSelector= */ '#apply-step-1-div',
+      /* fieldSelector= */ 'label[for="apply-step-1-title"]',
+      /* shouldHide= */ disableApplicationSteps,
+    )
+    this.hideRequiredIndicators(
+      /* fieldSelector= */ 'label[for="apply-step-1-description"]',
       /* shouldHide= */ disableApplicationSteps,
     )
 
@@ -211,15 +230,28 @@ class AdminPrograms {
    * @param {boolean} shouldHide - Whether to show or hide the required indicator
    */
   static hideRequiredIndicators(fieldSelector: string, shouldHide: boolean) {
-    const field = document.querySelector(fieldSelector)
-    const requiredIndicators = field?.querySelectorAll('span')
-    requiredIndicators?.forEach((indicator) => {
-      if (shouldHide) {
-        indicator.classList.add('hidden')
-      } else {
-        indicator.classList.remove('hidden')
-      }
-    })
+    const labelElement = document.querySelector(fieldSelector)
+    if (!labelElement) {
+      return
+    }
+
+    let requiredSpan = labelElement.querySelector(
+      'span.text-red-600.font-semibold',
+    )
+    if (!requiredSpan) {
+      // If the required indicator is not present, add it.
+      requiredSpan = document.createElement('span')
+      requiredSpan.className = 'text-red-600 font-semibold'
+      requiredSpan.setAttribute('aria-hidden', 'true')
+      requiredSpan.innerHTML = '&nbsp;*'
+      labelElement.appendChild(requiredSpan)
+    }
+
+    if (shouldHide) {
+      requiredSpan.classList.add('hidden')
+    } else {
+      requiredSpan.classList.remove('hidden')
+    }
   }
 
   static attachEventListenersToEditTIButton() {

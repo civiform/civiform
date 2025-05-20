@@ -153,12 +153,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
+    boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
+    boolean isNorthStartEnabled = settingsManifest.getNorthStarApplicantUi(request);
+
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
+    boolean disableExternalLink = (isDefaultProgram || isCommonIntakeForm) && isNorthStartEnabled;
     boolean disableLongDescription =
-        (isCommonIntakeForm || isExternalProgram)
-            && settingsManifest.getNorthStarApplicantUi(request);
+        (isCommonIntakeForm || isExternalProgram) && isNorthStartEnabled;
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
@@ -290,6 +293,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("externalLink")
             .setLabelText("Link to program website (optional)")
             .setValue(externalLink)
+            .setRequired(!disableExternalLink)
+            .setDisabled(disableExternalLink)
+            .setReadOnly(disableExternalLink)
+            .setAttribute(
+                "data-northstar-enabled",
+                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
@@ -313,12 +322,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
-            .setLabelText("Long program description (optional)")
+            .setLabelText("Long program description")
             .setMarkdownSupported(true)
             .setValue(displayDescription)
-            .setAttribute(
-                "data-northstar-enabled",
-                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
             .setDisabled(disableLongDescription)
             .setReadOnly(disableLongDescription)
             .getTextareaTag()
