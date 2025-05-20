@@ -227,12 +227,12 @@ public final class ProgramRepository {
     try {
       // Replace the existing draft if present.
       VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
-      Optional<ProgramModel> existingProgramDraftOpt =
+      Optional<ProgramModel> optionalExistingProgramDraft =
           versionRepository
               .get()
               .getProgramByNameForVersion(existingProgram.adminName(), draftVersion);
-      if (existingProgramDraftOpt.isPresent()) {
-        ProgramModel existingProgramDraft = existingProgramDraftOpt.get();
+      if (optionalExistingProgramDraft.isPresent()) {
+        ProgramModel existingProgramDraft = optionalExistingProgramDraft.get();
         if (!existingProgramDraft.id.equals(existingProgram.id())) {
           // This may be indicative of a coding error, as it does a reset of the draft and not an
           // update of the draft, so log it.
