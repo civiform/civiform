@@ -241,9 +241,14 @@ public final class ProgramRepository {
               existingProgramDraft.id,
               existingProgram.id());
         }
+        // After the fact comment: This appears to largely be a no-op outside
+        // the previous warning if block.  If that block doesn't trigger then
+        // the ids are the same and nothing is being changed.
         ProgramModel updatedDraft =
             existingProgram.toBuilder().setId(existingProgramDraft.id).build().toProgram();
-        return updateProgramSync(updatedDraft);
+        updateProgramSync(updatedDraft);
+        transaction.commit();
+        return updatedDraft;
       }
 
       // Create a draft.
