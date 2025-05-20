@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
@@ -20,18 +21,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import models.AccountModel;
+import models.DisplayMode;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.ErrorAnd;
+import services.program.ProgramDefinition;
+import services.program.ProgramType;
 
 public class TransactionManagerTest extends ResetPostgres {
   TransactionManager transactionManager;
   AccountRepository accountRepo;
+  ProgramRepository programRepo;
+  VersionRepository versionRepo;
 
   @Before
   public void setUp() {
     transactionManager = instanceOf(TransactionManager.class);
     accountRepo = instanceOf(AccountRepository.class);
+    programRepo = instanceOf(ProgramRepository.class);
+    versionRepo = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -414,5 +423,51 @@ public class TransactionManagerTest extends ResetPostgres {
 
     // Outside of both transactions, we should see the new account
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void execute_nestedBatch_throws() {
+    Supplier<Long> work =
+        () -> {
+          try (Transaction innerTransaction =
+              DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+            innerTransaction.setBatchMode(true);
+
+            new AccountModel().insert();
+
+            // Assert that from within this inner transaction, we see the new account
+            assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+            innerTransaction.commit();
+          }
+          // Interestingly, this account stuff won't throw.
+          AccountModel account = new AccountModel();
+          account.insert();
+          account.refresh();
+
+          // This call to insert a program *will* throw
+          ProgramModel savedProgram =
+              programRepo.insertProgramSync(
+                  new ProgramModel(
+                      ProgramDefinition.builder()
+                          .setId(5L)
+                          .setAdminName("new program")
+                          .setAdminDescription("Some description")
+                          .setExternalLink("http://google.com")
+                          .setDisplayMode(DisplayMode.PUBLIC)
+                          .setProgramType(ProgramType.DEFAULT)
+                          .setEligibilityIsGating(false)
+                          .setAcls(new ProgramAcls())
+                          .setCategories(ImmutableList.of())
+                          .setApplicationSteps(ImmutableList.of())
+                          .build(),
+                      versionRepo.getDraftVersionOrCreate()));
+
+          return savedProgram.id;
+        };
+
+    Exception e = assertThrows(RuntimeException.class, () -> transactionManager.execute(work));
+
+    assertThat(e).isInstanceOf(NullPointerException.class);
+    assertThat(e).hasMessageContaining("The id is null");
   }
 }
