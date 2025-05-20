@@ -544,8 +544,16 @@ main {
     padding-inline-start: 16px;
   }
 
+  .usa-banner__button {
+    margin-inline-start: 0.5rem;
+  }
+
   .usa-banner__icon {
     margin-inline-end: 0.5rem;
+  }
+
+  .usa-input-prefix + input {
+    padding-inline-start: 2.5rem;
   }
 
   // -- start

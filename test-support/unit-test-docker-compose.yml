@@ -36,6 +36,7 @@ services:
       - AWS_ACCESS_KEY_ID=testAccessKey
       - AWS_SECRET_ACCESS_KEY=testSecretKey
       - AWS_SESSION_TOKEN=testSession
+      - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration

@@ -67,6 +67,8 @@ toast.errorMessageOutline=Erreur : {0}
 button.close=Fermer
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=Vérifier
+# Button text that will go back to the previous page.
+button.goBack=Retour
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=s''ouvre dans un nouvel onglet
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=Répondre à l''enquête
 button.viewAndApply=Afficher et faire une demande
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Afficher {0} et faire une demande
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Remplir la demande
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm vous aide à trouver des programmes aux
 content.saveTimeServices=Inscrivez-vous plus rapidement à des programmes et des services
 # Main home page heading
 heading.homepage=Demandez une aide gouvernementale
+# Main home page heading, updated to be more generic
+heading.homepage.v2=Inscrivez-vous en ligne à des programmes gouvernementaux
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=Connectez-vous à votre compte {0} ou créez un compte, et inscrivez-vous à des programmes sans avoir à saisir de nouveau les mêmes informations. Vous pouvez également modifier vos demandes à tout moment et vérifier leur état.
 # Main home page intro text
 content.homepageIntro=Pour obtenir de l''aide pour l''alimentation, les transports, la garde d''enfants, l''énergie et plus, cliquez sur une des options ci-dessous. Vous ne pouvez demander votre inscription qu''à un programme à la fois.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=Découvrez les services auxquels vous êtes peut-être éligible. CiviForm réutilise vos informations pour vous aider à y accéder plus rapidement.
 # The label for the program filter buttons
 label.programFilters=Filtres des programmes
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=Envoyée
 label.submittedOn=Envoyée le {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} le {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=Ce lien mène vers un autre site Web
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=Cliquez sur "Continuer" pour accéder au site Web du programme où vous pourrez consulter plus de détails et vous inscrire
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted=Vous avez envoyé votre demande d''inscription au {0}
 alert.createAccount=Créez un compte pour accéder plus tard à votre demande
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=En enregistrant vos informations dans un compte, vous pourrez consulter l''état d''une demande et vous inscrire rapidement à d''autres programmes.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Se connecter à un compte existant
 

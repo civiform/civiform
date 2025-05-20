@@ -67,6 +67,8 @@ toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
 button.close=ປິດ
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=ກວດສອບ
+# Button text that will go back to the previous page.
+button.goBack=ກັບຄືນ
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=ເປີດໃນແຖບໃໝ່
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=ເລີ່ມເຮັດແບບສຳຫຼວດ
 button.viewAndApply=ເບິ່ງ ແລະ ນຳໃຊ້
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=ເບິ່ງ ແລະ ນຳໃຊ້ກັບ {0}
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ສືບຕໍ່ສະໝັກ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອ
 content.saveTimeServices=ປະຢັດເວລາໃນການສະໝັກໂຄງການ ແລະ ບໍລິການ
 # Main home page heading
 heading.homepage=ສະໝັກຮັບຄວາມຊ່ວຍເຫຼືອຈາກລັດຖະບານຢູ່ບ່ອນນີ້
+# Main home page heading, updated to be more generic
+heading.homepage.v2=ນຳໃຊ້ສຳລັບໂປຣແກຣມອອນລາຍຂອງລັດຖະບານ
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກເຂົ້າຮ່ວມໂຄງການໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
 # Main home page intro text
 content.homepageIntro=ເພື່ອຮັບຄວາມຊ່ວຍເຫຼືອກ່ຽວກັບອາຫານ, ການຂົນສົ່ງ, ການເບິ່ງແຍງເດັກນ້ອຍ, ສາທາລະນຸປະໂພກ ແລະ ອື່ນໆ, ກະລຸນາຄລິກຕົວເລືອກໃດໜຶ່ງລຸ່ມນີ້. ທ່ານສາມາດສະໝັກໄດ້ເທື່ອລະໂຄງການ.
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=ຄົ້ນພົບບໍລິການທີ່ທ່ານອາດມີສິດ. CiviForm ຈະໃຊ້ຂໍ້ມູນຂອງທ່ານຄືນໃໝ່ເພື່ອຊ່ວຍທ່ານເຂົ້າເຖິງພວກມັນໄດ້ໄວຂຶ້ນ.
 # The label for the program filter buttons
 label.programFilters=ຕົວກັ່ນຕອງໂຄງການ
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=ສົ່ງແລ້ວ
 label.submittedOn=ສົ່ງເມື່ອ {0}
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={0} ເມື່ອ {1}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=ນີ້ຈະເປີດເວັບໄຊອື່ນ
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=ໄປຫາເວັບໄຊຂອງໂປຣແກຣມເຊິ່ງທ່ານຈະສາມາດເບິ່ງລາຍລະອຽດເພີ່ມເຕີມ ແລະ ສະໝັກໄດ້, ຄລິກດຳເດີນການຕໍ່
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂອງ�
 alert.createAccount=ເພື່ອເຂົ້າເຖິງໃບສະໝັກຂອງທ່ານໃນພາຍຫຼັງ, ໃຫ້ສ້າງບັນຊີ
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=ທ່ານສາມາດກວດສອບສະຖານະຂອງໃບສະໝັກຂອງທ່ານ ແລະ ສະໝັກໂຄງການອື່ນໆໄດ້ຢ່າງວ່ອງໄວເມື່ອທ່ານບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້ໃນບັນຊີ.
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ເຂົ້າສູ່ລະບົບບັນຊີທີ່ມີຢູ່ແລ້ວ
 

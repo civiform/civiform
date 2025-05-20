@@ -67,6 +67,8 @@ toast.errorMessageOutline=エラー: {0}
 button.close=閉じる
 # Button text that will navigate the applicant to a page where they can review previous answers
 button.review=確認
+# Button text that will go back to the previous page.
+button.goBack=戻る
 # Indicator for screen readers that a link will open in a new tab. Meant to be used with aria label text eg. "Program details, opens in a new tab"
 link.opensNewTabSr=新しいタブで開く
 # Aria-label for the primary navigation
@@ -211,6 +213,8 @@ button.startSurvey=アンケートを開始
 button.viewAndApply=確認して申請
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=確認して {0} に申請
+# The text on a button to view program on a new tab. This is used for external programs.
+button.viewInNewTab=View in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=申請に進む
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -229,11 +233,15 @@ content.findProgramsDescription=CiviForm は、{0} で対象となり得るプ�
 content.saveTimeServices=プログラムやサービスの申請時間を短縮
 # Main home page heading
 heading.homepage=政府の補助を申請するにはこちらから
+# Main home page heading, updated to be more generic
+heading.homepage.v2=行政サービスをオンラインで申請する
 # Long form description of the site shown to the applicant when they are not logged in.
 # {0} represents the authentication provider's name
 content.guestDescription={0} アカウントにログインするか、アカウントを作成すると、同じ内容を再度入力することなくプログラムに申し込めます。また、申請内容はいつでも編集でき、申請状況の確認も可能です。
 # Main home page intro text
 content.homepageIntro=食料、交通、育児、公共料金などに関する支援を受けるには、以下のオプションのいずれかをクリックしてください。一度に申請できるプログラムは 1 つのみです。
+# Main home page intro text, updated to be more generic
+content.homepageIntro.v2=利用できるサービスを探すCiviForm では、入力済みの情報を再利用することで、申請をよりスムーズに進められるようにします。
 # The label for the program filter buttons
 label.programFilters=プログラム フィルタ
 # The label for the program filter checkboxes
@@ -288,6 +296,10 @@ label.submitted=送信済み
 label.submittedOn={0}に送信済み
 # Informational tag on a submitted application card. The first paramater is the status applied to an application. The second parameter is the date the status was applied.
 label.statusOn={1}に{0}
+# Title of the external program modal that opens when a user clicks on an external program card.
+title.externalProgramModal=外部サイトへ移動します
+# Content of the external program modal that opens when a user clicks on an external program card.
+content.externalProgramModal=詳細の確認や申請を行うには、[続行] をクリックしてプログラムのウェブサイトへ移動してください
 
 #------------------------------------------------------------------------------------------------------#
 # TRUSTED INTERMEDIARY DASHBOARD PAGE - text when adding, editing, deleting, or searching for a client #
@@ -645,6 +657,8 @@ alert.submitted={0} の申請を送信しました
 alert.createAccount=後から申請にアクセスするには、アカウントを作成してください
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=アカウントに情報を保存すると、申請のステータスを確認したり、他のプログラムにすぐに申請したりできます。
+# Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
+alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=既存のアカウントにログイン
 

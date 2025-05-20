@@ -68,7 +68,10 @@ test.describe('program migration', () => {
     })
 
     await test.step('load export page', async () => {
-      await adminPrograms.goToExportProgramPage(programName, 'DRAFT')
+      await adminPrograms.goToExportProgramPage(
+        programName,
+        ProgramLifecycle.DRAFT,
+      )
 
       const jsonPreview = await adminProgramMigration.expectJsonPreview()
       expect(jsonPreview).toContain(programName)
@@ -185,7 +188,7 @@ test.describe('program migration', () => {
     await page.goto('/')
     await adminPrograms.goToExportProgramPage(
       'Comprehensive Sample Program',
-      'DRAFT',
+      ProgramLifecycle.DRAFT,
     )
     let downloadedComprehensiveProgram =
       await adminProgramMigration.downloadJson()
@@ -315,7 +318,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
@@ -329,7 +332,7 @@ test.describe('program migration', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage(
         'Minimal Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
@@ -501,7 +504,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
@@ -515,7 +518,7 @@ test.describe('program migration', () => {
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.goToExportProgramPage(
         'Minimal Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedMinimalProgram = await adminProgramMigration.downloadJson()
       expect(downloadedMinimalProgram).toContain('minimal-sample-program')
@@ -737,7 +740,7 @@ test.describe('program migration', () => {
     await test.step('export comprehensive program', async () => {
       await adminPrograms.goToExportProgramPage(
         'Comprehensive Sample Program',
-        'DRAFT',
+        ProgramLifecycle.DRAFT,
       )
       downloadedComprehensiveProgram =
         await adminProgramMigration.downloadJson()
@@ -815,7 +818,7 @@ test.describe('program migration', () => {
 
       // Assert the warning about duplicate question names is shown
       await adminProgramMigration.expectAlert(
-        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        'This program will add 1 new question to the question bank and contains 16 duplicate questions that must be resolved.',
         ALERT_WARNING,
       )
 
@@ -852,19 +855,25 @@ test.describe('program migration', () => {
         'Sample Date Question',
         true,
       )
-      // Select "overwrite" and "duplicate" on a few questions to validate the UI (default is "reuse")
-      await adminProgramMigration.selectOverwriteExistingForQuestion(
-        'Sample Address Question',
+      // The default option is "reuse", but we test the top-level selector changes all questions to "overwrite"
+      await adminProgramMigration.selectToplevelOverwriteExisting()
+      await adminProgramMigration.expectAllQuestionsHaveDuplicateHandlingOption(
+        adminProgramMigration.OVERWRITE_EXISTING,
       )
-      await adminProgramMigration.selectOverwriteExistingForQuestion(
-        'Sample Number Question',
+      // Select "reuse" and "duplicate" on a few questions to validate the UI, also resetting the top-level selector
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          ['Sample Address Question', adminProgramMigration.USE_EXISTING],
+          ['Sample Number Question', adminProgramMigration.USE_EXISTING],
+          ['Sample Currency Question', adminProgramMigration.CREATE_DUPLICATE],
+          ['Sample Email Question', adminProgramMigration.CREATE_DUPLICATE],
+        ]),
       )
-      await adminProgramMigration.selectCreateDuplicateForQuestion(
-        'Sample Currency Question',
+      await adminProgramMigration.expectOptionSelected(
+        page.getByTestId('toplevel-duplicate-handling'),
+        'Decide for each duplicate question individually',
       )
-      await adminProgramMigration.selectCreateDuplicateForQuestion(
-        'Sample Email Question',
-      )
+
       // Check that the UI looks the same
       await validateScreenshot(
         page.locator('main'),
@@ -878,7 +887,7 @@ test.describe('program migration', () => {
       await expect(page.getByRole('textbox')).toHaveValue('')
     })
 
-    await test.step('save the comprehensive sample program', async () => {
+    await test.step('submit the comprehensive sample program JSON', async () => {
       // Publish all drafts so we can overwrite questions without an error
       await adminPrograms.publishAllDrafts()
       await adminProgramMigration.goToImportPage()
@@ -886,23 +895,22 @@ test.describe('program migration', () => {
         downloadedComprehensiveProgram,
       )
       await adminProgramMigration.expectAlert(
-        'Importing this program will add 1 new question and 16 duplicate questions to the question bank.',
+        'This program will add 1 new question to the question bank and contains 16 duplicate questions that must be resolved.',
         ALERT_WARNING,
       )
+    })
+
+    await test.step('save the comprehensive sample program', async () => {
       // Select "overwrite" and "duplicate" on a few questions to validate the backend behavior
-      await adminProgramMigration.selectOverwriteExistingForQuestion(
-        // Has the same definition - basically just won't create a duplicate
-        'Sample Address Question',
-      )
-      await adminProgramMigration.selectOverwriteExistingForQuestion(
-        // Changes the question text
-        'Sample Number Question',
-      )
-      await adminProgramMigration.selectCreateDuplicateForQuestion(
-        'Sample Currency Question',
-      )
-      await adminProgramMigration.selectCreateDuplicateForQuestion(
-        'Sample Email Question',
+      await adminProgramMigration.selectDuplicateHandlingForQuestions(
+        new Map([
+          // Has the same definition - basically just won't create a duplicate
+          ['Sample Address Question', adminProgramMigration.OVERWRITE_EXISTING],
+          // Changes the question text
+          ['Sample Number Question', adminProgramMigration.OVERWRITE_EXISTING],
+          ['Sample Currency Question', adminProgramMigration.CREATE_DUPLICATE],
+          ['Sample Email Question', adminProgramMigration.CREATE_DUPLICATE],
+        ]),
       )
       await adminProgramMigration.clickButton('Save')
       await adminProgramMigration.expectAlert(
@@ -912,7 +920,7 @@ test.describe('program migration', () => {
       await validateScreenshot(page, 'saved-program-success')
     })
 
-    await test.step('navigate to the program edit page', async () => {
+    await test.step('confirm info on program edit page', async () => {
       await adminProgramMigration.clickButton('View program')
       await expect(page.locator('#program-title')).toContainText(
         'Comprehensive Sample Program New',
