@@ -291,7 +291,7 @@ public final class SampleQuestionDefinitions {
                   LocalizedStrings.of(
                       ImmutableMap.of(
                           Lang.forCode("en-US").toLocale(),
-                          "What is your name?",
+                          "How many pets do you have?",
                           Lang.forCode("ar").toLocale(),
                           "كم عدد الحيوانات الأليفة لديك؟")))
               .setQuestionHelpText(
