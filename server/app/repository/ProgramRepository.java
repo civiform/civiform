@@ -332,7 +332,7 @@ public final class ProgramRepository {
   }
 
   /** Get the current active or draft program with the provided slug. */
-  public CompletableFuture<ProgramModel> getActiveOrDraftProgramFromSlug(String slug) {
+  public CompletableFuture<ProgramModel> getDraftOrActiveProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
           ImmutableList<ProgramModel> activePrograms =
@@ -343,14 +343,14 @@ public final class ProgramRepository {
               versionRepository
                   .get()
                   .getProgramsForVersion(versionRepository.get().getDraftVersion());
-          Optional<ProgramModel> foundActiveProgram =
-              activePrograms.stream()
-                  .filter(activeProgram -> activeProgram.getSlug().equals(slug))
+          Optional<ProgramModel> foundDraftProgram =
+              draftPrograms.stream()
+                  .filter(draftProgram -> draftProgram.getSlug().equals(slug))
                   .findFirst();
 
-          return foundActiveProgram.orElseGet(
+          return foundDraftProgram.orElseGet(
               () ->
-                  draftPrograms.stream()
+                  activePrograms.stream()
                       .filter(activeProgram -> activeProgram.getSlug().equals(slug))
                       .findFirst()
                       .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug))));

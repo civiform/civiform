@@ -48,7 +48,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> preview(Request request, String programSlug) {
-    return programSlugHandler.showProgram(this, request, programSlug);
+    return programSlugHandler.showProgramPreview(this, request, programSlug);
   }
 
   /**

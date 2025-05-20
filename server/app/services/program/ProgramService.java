@@ -289,7 +289,7 @@ public final class ProgramService {
   public CompletionStage<ProgramDefinition> getActiveOrDraftFullProgramDefinitionAsync(
       String programSlug) {
     return programRepository
-        .getActiveOrDraftProgramFromSlug(programSlug)
+        .getDraftOrActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
   }
 

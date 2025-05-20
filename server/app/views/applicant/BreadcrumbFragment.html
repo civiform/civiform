@@ -12,7 +12,8 @@
             ></a>
           </li>
           <li class="usa-breadcrumb__list-item">
-            <a th:href="${programOverviewUrl}" class="usa-breadcrumb__link">
+            <!-- If a user is admin, they should only be here when they are previewing a program -->
+            <a th:href="|${userIsAdmin ? '/admin' : ''}${programOverviewUrl}${userIsAdmin ? '/preview' : ''}|" class="usa-breadcrumb__link">
               <span><th:block th:text="${title}"></th:block></span>
             </a>
           </li>
