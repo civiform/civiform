@@ -248,13 +248,13 @@ public final class ProgramSlugHandler {
 
     if (activeProgramDefinition.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
       return redirectToFirstBlockEditPage(
-        activeProgramDefinition.id(), applicantId, programSlug, request, profile);
+          activeProgramDefinition.id(), applicantId, programSlug, request, profile);
     }
 
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
-                    != DisplayMode.DISABLED // If the program is disabled,
-                // redirect to review page because that will trigger the ProgramDisabledAction.
+                != DisplayMode.DISABLED // If the program is disabled,
+        // redirect to review page because that will trigger the ProgramDisabledAction.
         ? Results.ok(
                 northStarProgramOverviewView.render(
                     messagesApi.preferred(request),
@@ -286,16 +286,15 @@ public final class ProgramSlugHandler {
   }
 
   private Result redirectToFirstBlockEditPage(
-    long programId,
-    long applicantId,
-    String programSlug,
-    Http.Request request,
-    CiviFormProfile profile) {
-    return Results
-      .redirect(applicantRoutes.edit(profile, applicantId, programId))
-      .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
-      // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
-      // get used again.
-      .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+      long programId,
+      long applicantId,
+      String programSlug,
+      Http.Request request,
+      CiviFormProfile profile) {
+    return Results.redirect(applicantRoutes.edit(profile, applicantId, programId))
+        .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
+        // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
+        // get used again.
+        .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
   }
 }
