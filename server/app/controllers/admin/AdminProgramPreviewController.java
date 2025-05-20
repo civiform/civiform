@@ -29,7 +29,6 @@ public final class AdminProgramPreviewController extends CiviFormController {
   private final PdfExporterService pdfExporterService;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramPreviewController(
@@ -38,14 +37,12 @@ public final class AdminProgramPreviewController extends CiviFormController {
       ProgramService programService,
       QuestionService questionService,
       VersionRepository versionRepository,
-      ApplicantRoutes applicantRoutes,
-      SettingsManifest settingsManifest) {
+      ApplicantRoutes applicantRoutes) {
     super(profileUtils, versionRepository);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.pdfExporterService = checkNotNull(pdfExporterService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Retrieves the admin's user profile and redirects to the application overview page. */
@@ -54,13 +51,7 @@ public final class AdminProgramPreviewController extends CiviFormController {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     try {
-      if (settingsManifest.getNorthStarApplicantUi(request)) {
-        return redirect(
-            applicantRoutes.show(profile, profile.getApplicant().get().id, programSlug));
-      } else {
-        return redirect(
-            applicantRoutes.review(profile, profile.getApplicant().get().id, programId));
-      }
+      return redirect(applicantRoutes.edit(profile, profile.getApplicant().get().id, programId));
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }

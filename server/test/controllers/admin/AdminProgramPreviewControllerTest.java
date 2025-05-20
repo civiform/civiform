@@ -28,8 +28,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   public void preview_redirectsToProgramReviewPage() {
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long programId = 0;
-    String programSlug = "test";
-    Result result = controller.preview(fakeRequest(), programId, programSlug);
+    Result result = controller.preview(fakeRequest(), programId);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
@@ -40,8 +39,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void preview_noProfile_throwsException() {
-    assertThatThrownBy(
-            () -> controller.preview(fakeRequest(), /* programId= */ 0, /* programSlug= */ "test"))
+    assertThatThrownBy(() -> controller.preview(fakeRequest(), /*p rogramId =*/ 0))
         .isInstanceOf(RuntimeException.class);
   }
 

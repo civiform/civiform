@@ -261,7 +261,7 @@ public final class ProgramService {
   public CompletionStage<ProgramDefinition> getActiveFullProgramDefinitionAsync(
       String programSlug) {
     return programRepository
-        .getActiveOrDraftProgramFromSlug(programSlug)
+        .getActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
   }
 

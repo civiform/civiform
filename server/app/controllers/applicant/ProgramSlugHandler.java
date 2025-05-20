@@ -123,25 +123,23 @@ public final class ProgramSlugHandler {
                 programDefinitionStage =
                     programService.getActiveFullProgramDefinitionAsync(programSlug);
               }
-              CompletionStage<Result> program =
-                  programDefinitionStage
-                      .thenApply(
-                          activeProgramDefinition ->
-                              redirectToOverviewOrReviewPage(
-                                  controller,
-                                  request,
-                                  programSlug,
-                                  profile,
-                                  applicantId,
-                                  activeProgramDefinition,
-                                  relevantPrograms))
-                      .exceptionally(
-                          ex ->
-                              controller
-                                  .notFound(ex.getMessage())
-                                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
 
-              return program;
+              return programDefinitionStage
+                  .thenApply(
+                      activeProgramDefinition ->
+                          redirectToOverviewOrReviewPage(
+                              controller,
+                              request,
+                              programSlug,
+                              profile,
+                              applicantId,
+                              activeProgramDefinition,
+                              relevantPrograms))
+                  .exceptionally(
+                      ex ->
+                          controller
+                              .notFound(ex.getMessage())
+                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
             },
             classLoaderExecutionContext.current());
   }
