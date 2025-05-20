@@ -279,6 +279,21 @@ public final class ProgramService {
   }
 
   /**
+   * Get the definition of a given program. Gets the active or draft version for the slug (looks for
+   * active first; gets draft if active doesn't exist).
+   *
+   * @param programSlug the slug of the program to retrieve
+   * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
+   *     ProgramDraftNotFoundException} is thrown if a draft is not available.
+   */
+  public CompletionStage<ProgramDefinition> getActiveOrDraftFullProgramDefinitionAsync(
+      String programSlug) {
+    return programRepository
+        .getActiveOrDraftProgramFromSlug(programSlug)
+        .thenComposeAsync(this::getFullProgramDefinition, classLoaderExecutionContext.current());
+  }
+
+  /**
    * Get the program matching programId as well as all other versions of the program (i.e. all
    * programs with the same name).
    */
