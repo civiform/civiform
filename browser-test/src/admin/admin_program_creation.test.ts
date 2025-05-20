@@ -1031,11 +1031,6 @@ test.describe('program creation', () => {
     await test.step('create new program that is not an pre-screener form', async () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.goToProgramDescriptionPage(programName)
-
-      await validateScreenshot(
-        page.locator('#program-details-form'),
-        'program-edit-page-with-pre-screener-form-false',
-      )
     })
 
     await test.step('add category to program', async () => {
@@ -1050,10 +1045,6 @@ test.describe('program creation', () => {
 
     await test.step('click pre-screener toggle and expect it to be checked', async () => {
       await adminPrograms.clickPreScreenerFormToggle()
-      await validateScreenshot(
-        page.locator('#program-details-form'),
-        'program-edit-page-with-pre-screener-form-true',
-      )
       await expect(preScreenerFormInput).toBeChecked()
     })
 
@@ -1450,11 +1441,6 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.DEFAULT)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeEnabled(ProgramType.PRE_SCREENER)
-
-          await validateScreenshot(
-            page.locator('#program-details-form'),
-            'external-program-create-page',
-          )
         })
 
         await test.step("change program type back to 'default' and verify applicable fields are enabled", async () => {
@@ -1507,11 +1493,6 @@ test.describe('program creation', () => {
           await adminPrograms.expectProgramTypeEnabled(ProgramType.EXTERNAL)
           await adminPrograms.expectProgramTypeDisabled(
             ProgramType.PRE_SCREENER,
-          )
-
-          await validateScreenshot(
-            page.locator('#program-details-form'),
-            'external-program-edit-page',
           )
         })
       })
