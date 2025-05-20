@@ -702,51 +702,50 @@ public final class VersionRepository {
     //  manage the transaction as they likely updated the Database before
     //  calling this and the reads here should be in a transaction with them.
     //  Short of that manage a transaction here.
-    try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
-      VersionModel activeVersion = getActiveVersion();
-      ImmutableList<QuestionDefinition> newActiveQuestions =
-          getQuestionsForVersionWithoutCache(activeVersion).stream()
-              .map(questionRepository::getQuestionDefinition)
-              .collect(ImmutableList.toImmutableList());
-      // Check there aren't any duplicate questions in the new active version
-      validateNoDuplicateQuestions(newActiveQuestions);
-      ImmutableSet<Long> missingQuestionIds =
-          getProgramsForVersionWithoutCache(activeVersion).stream()
-              .map(
-                  program ->
-                      programRepository
-                          .getShallowProgramDefinition(program)
-                          .getQuestionIdsInProgram())
-              .flatMap(Collection::stream)
-              .filter(
-                  questionId ->
-                      !newActiveQuestions.stream()
-                          .map(QuestionDefinition::getId)
-                          .collect(ImmutableSet.toImmutableSet())
-                          .contains(questionId))
-              .collect(ImmutableSet.toImmutableSet());
-      if (missingQuestionIds.isEmpty()) {
-        transaction.commit();
-        return;
-      }
-      ImmutableSet<Long> programIdsMissingQuestions =
-          getProgramsForVersionWithoutCache(activeVersion).stream()
-              .filter(
-                  program ->
-                      programRepository
-                          .getShallowProgramDefinition(program)
-                          .getQuestionIdsInProgram()
-                          .stream()
-                          .anyMatch(missingQuestionIds::contains))
-              .map(program -> program.id)
-              .collect(ImmutableSet.toImmutableSet());
-      throw new IllegalStateException(
-          String.format(
-              "Illegal state encountered when attempting to publish a new version. Question IDs"
-                  + " %s found in program definitions %s not found in new active version.",
-              missingQuestionIds, programIdsMissingQuestions));
-    }
+    transactionManager.execute(
+        () -> {
+          VersionModel activeVersion = getActiveVersion();
+          ImmutableList<QuestionDefinition> newActiveQuestions =
+              getQuestionsForVersionWithoutCache(activeVersion).stream()
+                  .map(questionRepository::getQuestionDefinition)
+                  .collect(ImmutableList.toImmutableList());
+          // Check there aren't any duplicate questions in the new active version
+          validateNoDuplicateQuestions(newActiveQuestions);
+          ImmutableSet<Long> missingQuestionIds =
+              getProgramsForVersionWithoutCache(activeVersion).stream()
+                  .map(
+                      program ->
+                          programRepository
+                              .getShallowProgramDefinition(program)
+                              .getQuestionIdsInProgram())
+                  .flatMap(Collection::stream)
+                  .filter(
+                      questionId ->
+                          !newActiveQuestions.stream()
+                              .map(QuestionDefinition::getId)
+                              .collect(ImmutableSet.toImmutableSet())
+                              .contains(questionId))
+                  .collect(ImmutableSet.toImmutableSet());
+          if (missingQuestionIds.isEmpty()) {
+            return;
+          }
+          ImmutableSet<Long> programIdsMissingQuestions =
+              getProgramsForVersionWithoutCache(activeVersion).stream()
+                  .filter(
+                      program ->
+                          programRepository
+                              .getShallowProgramDefinition(program)
+                              .getQuestionIdsInProgram()
+                              .stream()
+                              .anyMatch(missingQuestionIds::contains))
+                  .map(program -> program.id)
+                  .collect(ImmutableSet.toImmutableSet());
+          throw new IllegalStateException(
+              String.format(
+                  "Illegal state encountered when attempting to publish a new version. Question IDs"
+                      + " %s found in program definitions %s not found in new active version.",
+                  missingQuestionIds, programIdsMissingQuestions));
+        });
   }
 
   /** Validate there are no duplicate question names. */
@@ -770,49 +769,49 @@ public final class VersionRepository {
     //  manage the transaction as this method reads from the DB, and the
     //  caller likely read/updated it and will seemingly save the response
     //  this provides.
-    try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
-      BlockDefinition.Builder updatedBlock =
-          block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
-      // Update questions contained in this block.
-      for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-        Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
-        logger.trace(
-            "Updating question ID {} to new ID {}.",
-            question.id(),
-            updatedQuestion.orElseThrow().id);
-        updatedBlock.addQuestion(
-            question.loadCompletely(
-                programDefinitionId,
-                questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
-      }
-      // Update questions referenced in this block's predicate(s)
-      if (block.visibilityPredicate().isPresent()) {
-        PredicateDefinition oldPredicate = block.visibilityPredicate().get();
-        updatedBlock.setVisibilityPredicate(
-            PredicateDefinition.create(
-                updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
-      }
-      if (block.eligibilityDefinition().isPresent()) {
-        EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
-        PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
-        PredicateDefinition newPredicate =
-            PredicateDefinition.create(
-                updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
-
-        updatedBlock.setEligibilityDefinition(
-            eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
-      }
-      if (block.optionalPredicate().isPresent()) {
-        PredicateDefinition oldPredicate = block.optionalPredicate().get();
-        updatedBlock.setOptionalPredicate(
-            Optional.of(
+    return transactionManager.execute(
+        () -> {
+          BlockDefinition.Builder updatedBlock =
+              block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+          // Update questions contained in this block.
+          for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+            Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
+            logger.trace(
+                "Updating question ID {} to new ID {}.",
+                question.id(),
+                updatedQuestion.orElseThrow().id);
+            updatedBlock.addQuestion(
+                question.loadCompletely(
+                    programDefinitionId,
+                    questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
+          }
+          // Update questions referenced in this block's predicate(s)
+          if (block.visibilityPredicate().isPresent()) {
+            PredicateDefinition oldPredicate = block.visibilityPredicate().get();
+            updatedBlock.setVisibilityPredicate(
                 PredicateDefinition.create(
-                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action())));
-      }
-      transaction.commit();
-      return updatedBlock.build();
-    }
+                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
+          }
+          if (block.eligibilityDefinition().isPresent()) {
+            EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
+            PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
+            PredicateDefinition newPredicate =
+                PredicateDefinition.create(
+                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+
+            updatedBlock.setEligibilityDefinition(
+                eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
+          }
+          if (block.optionalPredicate().isPresent()) {
+            PredicateDefinition oldPredicate = block.optionalPredicate().get();
+            updatedBlock.setOptionalPredicate(
+                Optional.of(
+                    PredicateDefinition.create(
+                        updatePredicateNodeVersions(oldPredicate.rootNode()),
+                        oldPredicate.action())));
+          }
+          return updatedBlock.build();
+        });
   }
 
   /**
@@ -899,26 +898,26 @@ public final class VersionRepository {
    */
   public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       VersionModel version) {
-    try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
-      ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
-      Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
-      for (ProgramModel program : getProgramsForVersion(version)) {
-        ImmutableSet<String> programQuestionNames =
-            getProgramQuestionNames(
-                programRepository.getShallowProgramDefinition(program), questionIdToNameLookup);
-        for (String questionName : programQuestionNames) {
-          if (!result.containsKey(questionName)) {
-            result.put(questionName, Sets.newHashSet());
+    return transactionManager.execute(
+        () -> {
+          ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
+          Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+          for (ProgramModel program : getProgramsForVersion(version)) {
+            ImmutableSet<String> programQuestionNames =
+                getProgramQuestionNames(
+                    programRepository.getShallowProgramDefinition(program), questionIdToNameLookup);
+            for (String questionName : programQuestionNames) {
+              if (!result.containsKey(questionName)) {
+                result.put(questionName, Sets.newHashSet());
+              }
+              result.get(questionName).add(programRepository.getShallowProgramDefinition(program));
+            }
           }
-          result.get(questionName).add(programRepository.getShallowProgramDefinition(program));
-        }
-      }
-      transaction.commit();
-      return result.entrySet().stream()
-          .collect(
-              ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
-    }
+          return result.entrySet().stream()
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        });
   }
 
   /** Returns the names of questions referenced by the program that are in the specified version. */
