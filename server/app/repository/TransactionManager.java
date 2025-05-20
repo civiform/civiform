@@ -46,9 +46,15 @@ public final class TransactionManager {
    * @param <T> the return type of the suppliers
    */
   public <T> T execute(Supplier<T> synchronousWork) {
+    return execute(TxScope.required(), synchronousWork);
+  }
+
+  // This is the main execution of caller code.  Other methods are wrappers
+  // of this.
+  private <T> T execute(TxScope scope, Supplier<T> synchronousWork) {
     checkNotNull(synchronousWork);
     try (Transaction transaction =
-        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        DB.beginTransaction(scope.setIsolation(TxIsolation.SERIALIZABLE))) {
       T result = synchronousWork.get();
       transaction.commit();
       return result;
@@ -57,7 +63,12 @@ public final class TransactionManager {
 
   /** Calls {@link #execute(Supplier)} but accepts a {@link Runnable}. */
   public void execute(Runnable synchronousWork) {
+    execute(TxScope.required(), synchronousWork);
+  }
+
+  private void execute(TxScope scope, Runnable synchronousWork) {
     execute(
+        scope,
         () -> {
           synchronousWork.run();
           return null;
@@ -111,6 +122,26 @@ public final class TransactionManager {
     }
 
     execute(synchronousWork);
+  }
+
+  /**
+   * Calls {@link #execute(Runnable)} using {@code TxScope.mandatory()}.
+   *
+   * <p>{@code TxScope.mandatory()} means a transaction must already be present for this transaction
+   * to succeed.
+   */
+  public void mandatory(Runnable synchronousWork) {
+    execute(TxScope.mandatory(), synchronousWork);
+  }
+
+  /**
+   * Calls {@link #execute(Supplier)} using {@code TxScope.mandatory()}.
+   *
+   * <p>{@code TxScope.mandatory()} means a transaction must already be present for this transaction
+   * to succeed.
+   */
+  public <T> T mandatory(Supplier<T> synchronousWork) {
+    return execute(TxScope.mandatory(), synchronousWork);
   }
 
   private void logRetriedException(SerializableConflictException sce) {
