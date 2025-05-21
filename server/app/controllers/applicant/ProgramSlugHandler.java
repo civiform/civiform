@@ -191,8 +191,7 @@ public final class ProgramSlugHandler {
               applicantRoutes.edit(profile, applicantId, activeProgramDefinition.id()))
           .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
           // If we had a redirectTo session key that redirected us here, remove it so that it
-          // doesn't
-          // get used again.
+          // doesn't get used again.
           .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
     }
 

@@ -30,7 +30,6 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
     String programSlug = "test-slug";
     Result result = controller.preview(fakeRequest(), programSlug).toCompletableFuture().join();
-    System.out.println(result.status());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
