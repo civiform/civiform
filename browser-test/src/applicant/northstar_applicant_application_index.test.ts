@@ -1555,6 +1555,29 @@ test.describe(
         await expect(continueButton).toBeVisible()
       })
 
+      await test.step('clicking outside the modal closes the modal', async () => {
+        const modalWrapper = page
+          .locator('.usa-modal-wrapper')
+          .filter({hasText: 'This will open a different website'})
+        const wrapperBox = await modalWrapper.boundingBox()
+        // Click in the wrapper top left corner, which should  be outside the
+        // actual amodal
+        if (wrapperBox) {
+          await page.mouse.click(wrapperBox.x, wrapperBox.y)
+        }
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        await expect(modal).toBeHidden()
+      })
+
+      await test.step('trigger the external program modal again', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
       await test.step("selecting 'continue' redirects to the program's external site", async () => {
         const modal = page.getByRole('dialog', {state: 'visible'})
         const continueButton = modal.getByRole('link', {name: 'Continue'})
