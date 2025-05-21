@@ -14,6 +14,7 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import jakarta.persistence.PersistenceException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -414,5 +415,15 @@ public class TransactionManagerTest extends ResetPostgres {
 
     // Outside of both transactions, we should see the new account
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void mandatory() {
+    transactionManager.execute(() -> transactionManager.mandatory(() -> {}));
+  }
+
+  @Test
+  public void mandatory_throwsWithoutTransaction() {
+    assertThrows(PersistenceException.class, () -> transactionManager.mandatory(() -> {}));
   }
 }
