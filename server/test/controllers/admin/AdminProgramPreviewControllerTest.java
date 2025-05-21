@@ -14,6 +14,8 @@ import org.junit.Test;
 import play.mvc.Result;
 import services.program.ProgramNotFoundException;
 
+import java.util.Locale;
+
 public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   private AdminProgramPreviewController controller;
@@ -26,15 +28,17 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void preview_redirectsToProgramReviewPage() {
+    ProgramModel program = resourceCreator().insertActiveProgram("test-slug");
     AccountModel adminAccount = createGlobalAdminWithMockedProfile();
-    long programId = 0;
-    String programSlug = "test";
+
+    String programSlug = "test-slug";
     Result result = controller.preview(fakeRequest(), programSlug).toCompletableFuture().join();
+    System.out.println(result.status());
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
             controllers.applicant.routes.ApplicantProgramReviewController.reviewWithApplicantId(
-                    adminAccount.ownedApplicantIds().get(0), programId)
+                    adminAccount.ownedApplicantIds().get(0), program.id)
                 .url());
   }
 
