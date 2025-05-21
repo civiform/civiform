@@ -137,6 +137,7 @@ public enum MessageKey {
   BUTTON_VIEW_AND_APPLY("button.viewAndApply"), // North Star only
   BUTTON_VIEW_AND_APPLY_SR("button.viewAndApplySr"), // North Star only
   BUTTON_VIEW_IN_NEW_TAB("button.viewInNewTab"),
+  BUTTON_VIEW_IN_NEW_TAB_SR("button.viewInNewTabSr"),
   BUTTON_HOME_PAGE("button.homePage"),
   CURRENCY_VALIDATION_MISFORMATTED("validation.currencyMisformatted"),
   CONTACT_INFO_LABEL("label.contactInfo"),

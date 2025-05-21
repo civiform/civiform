@@ -1399,7 +1399,9 @@ test.describe(
           has: page.getByText(externalProgramAName),
         })
         await expect(
-          externalProgramCard.getByRole('button', {name: 'View in new tab'}),
+          externalProgramCard.getByRole('button', {
+            name: 'View External Program A in new tab',
+          }),
         ).toBeVisible()
 
         await validateAccessibility(page)
