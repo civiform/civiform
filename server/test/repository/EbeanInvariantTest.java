@@ -10,6 +10,7 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Locale;
+import models.AccountModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,5 +141,118 @@ public class EbeanInvariantTest extends ResetPostgres {
       assertNotNull(questionModel.id);
       assertThat(questionModel.id).isGreaterThan(-1);
     }
+  }
+
+  /* Transactions */
+
+  /**
+   * When using TxScope.required(), as we should, inner transactions become part of outer ones with
+   * the top level one ultimately having control over commiting or not.
+   */
+  @Test
+  public void transaction_innerIsNotIsolated() {
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        // This commit is required to save the changes, but doesn't actually
+        // commit to the database because it isn't on the outermost transaction.
+        innerTransaction.commit();
+      }
+
+      // Assert that, back in the outer transaction, we see the new account
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+
+      // No commit to simulate that the outer transaction controls everything
+      // try-with-resources handles the rollback/end.
+    }
+
+    // Outside of both transactions, everything is rolled back.
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+  }
+
+  /**
+   * Not commiting in an inner transaction causes weirdness.
+   *
+   * <p>This is a good reason to use TransactionManage.execute()
+   */
+  @Test
+  public void transaction_mustCommitInInnerTransaction() {
+    final long outerAccountId;
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      // Enabling nested savepoints produces the expected behavior where
+      // nothing is saved from the transactions:
+      // outerTransaction.setNestedUseSavepoint();
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        // Not commiting seems to create the problem.
+        // A rollback is done here as expected.
+      }
+
+      // We don't see the inner as expected.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+      // From the logs we see a new transaction is used starting here.
+      // The issue is also triggered by this .insert(). The expected outcome
+      // where the last assert outside the transactions sees nothing happens
+      // without this insert.
+      var account = new AccountModel();
+      account.insert();
+      outerAccountId = account.id;
+      // We see the one in the outer.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+
+      // And here TXN logging shows a commit happens, despite it not being here.
+    }
+
+    // For some reason we see the outer one.
+    assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+  }
+
+  /**
+   * Rolling back some but not all of a transaction doesn't usually make sense for our code but
+   * nested savepoints is how to do that.
+   */
+  @Test
+  public void transaction_nestedSavePointsAllowForInnerRollbacks() {
+    final long outerAccountId;
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      outerTransaction.setNestedUseSavepoint();
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        // Decide we don't really want this
+        innerTransaction.rollback();
+      }
+
+      // We don't see the inner as expected.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+      // Add another.
+      var account = new AccountModel();
+      account.insert();
+      outerAccountId = account.id;
+      // We see the one in the outer.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+      // Keep this one.
+      outerTransaction.commit();
+    }
+
+    // We see only the out account as expected.
+    assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
   }
 }
