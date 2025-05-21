@@ -128,7 +128,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       // possible still better than not batching.
       // This does no additional select, Ebean already knows the ID, note
       // that other information like M2M relations are likely not updated
-      // which refresh() does..
+      // which refresh() does.
       // transaction.commit() is identical to flush it seems.
       questionModel.flush();
 
