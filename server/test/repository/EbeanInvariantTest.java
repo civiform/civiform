@@ -273,8 +273,9 @@ public class EbeanInvariantTest extends ResetPostgres {
 
         innerTransaction.commit();
       }
-      // Batch mode is now on out here too.
+      // Batch mode is now on out here too, somewhat unexpectedly.
       assertThat(outerTransaction.isBatchMode()).isTrue();
+
       var account = new AccountModel();
       account.insert();
       // In batch mode we don't get IDs without a refresh.
