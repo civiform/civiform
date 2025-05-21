@@ -255,4 +255,38 @@ public class EbeanInvariantTest extends ResetPostgres {
     // We see only the out account as expected.
     assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
   }
+
+  @Test
+  public void transaction_innerBatchModeEnablesForEntireTransaction() {
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Not set as expected.
+      assertThat(outerTransaction.isBatchMode()).isFalse();
+
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        innerTransaction.setBatchMode(true);
+        var account = new AccountModel();
+        account.insert();
+        // In batch mode we don't get IDs without a refresh.
+        assertNull(account.id);
+
+        innerTransaction.commit();
+      }
+      // Batch mode is now on out here too.
+      assertThat(outerTransaction.isBatchMode()).isTrue();
+      var account = new AccountModel();
+      account.insert();
+      // In batch mode we don't get IDs without a refresh.
+      assertNull(account.id);
+
+      // Turn off batch mode, which flushes the batch.
+      outerTransaction.setBatchMode(false);
+
+      account = new AccountModel();
+      account.insert();
+      // Outside of batch mode we now get IDs.
+      assertNotNull(account.id);
+    }
+  }
 }
