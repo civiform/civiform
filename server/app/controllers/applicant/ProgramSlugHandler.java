@@ -102,8 +102,9 @@ public final class ProgramSlugHandler {
     return profile
         .getApplicant()
         .thenComposeAsync(
-            (ApplicantModel applicant) -> showProgramPreviewWithApplicantId(
-                  controller, request, programSlug, applicant.id, profile),
+            (ApplicantModel applicant) ->
+                showProgramPreviewWithApplicantId(
+                    controller, request, programSlug, applicant.id, profile),
             classLoaderExecutionContext.current());
   }
 

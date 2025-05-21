@@ -14,8 +14,6 @@ import org.junit.Test;
 import play.mvc.Result;
 import services.program.ProgramNotFoundException;
 
-import java.util.Locale;
-
 public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   private AdminProgramPreviewController controller;
