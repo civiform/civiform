@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
+import static support.TestProgramUtility.createProgramWithNongatingEligibility;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -1747,7 +1748,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void
       submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
-    createProgramWithNongatingEligibility(questionDefinition);
+    programDefinition =
+        createProgramWithNongatingEligibility(
+            questionService, versionRepository, questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -3833,41 +3836,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .buildDefinition();
   }
 
-  private void createProgramWithNongatingEligibility(NameQuestionDefinition question) {
-    EligibilityDefinition eligibilityDef =
-        EligibilityDefinition.builder()
-            .setPredicate(
-                PredicateDefinition.create(
-                    PredicateExpressionNode.create(
-                        LeafOperationExpressionNode.create(
-                            question.getId(),
-                            Scalar.FIRST_NAME,
-                            Operator.EQUAL_TO,
-                            PredicateValue.of("eligible name"))),
-                    PredicateAction.ELIGIBLE_BLOCK))
-            .build();
-    programDefinition =
-        ProgramBuilder.newDraftProgram(
-                ProgramDefinition.builder()
-                    .setId(new Random().nextLong())
-                    .setAdminName("name")
-                    .setAdminDescription("desc")
-                    .setExternalLink("https://usa.gov")
-                    .setDisplayMode(DisplayMode.PUBLIC)
-                    .setProgramType(ProgramType.DEFAULT)
-                    .setEligibilityIsGating(false)
-                    .setAcls(new ProgramAcls())
-                    .setCategories(ImmutableList.of())
-                    .setApplicationSteps(
-                        ImmutableList.of(new ApplicationStep("title", "description")))
-                    .build())
-            .withBlock()
-            .withRequiredQuestionDefinitions(ImmutableList.of(question))
-            .withEligibilityDefinition(eligibilityDef)
-            .buildDefinition();
-    versionRepository.publishNewSynchronizedVersion();
-  }
-
   private Messages getMessages(Locale locale) {
     return messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
   }
@@ -4375,7 +4343,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getApplicantMayBeEligibleStatus() {
-    createProgramWithNongatingEligibility(questionDefinition);
+    programDefinition =
+        createProgramWithNongatingEligibility(
+            questionService, versionRepository, questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
@@ -4415,7 +4385,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getApplicationEligibilityStatus() {
-    createProgramWithNongatingEligibility(questionDefinition);
+    programDefinition =
+        createProgramWithNongatingEligibility(
+            questionService, versionRepository, questionDefinition);
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
