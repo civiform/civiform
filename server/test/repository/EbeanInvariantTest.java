@@ -60,7 +60,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     questionModel.save();
 
     assertNotNull(questionModel.id);
-    assertThat(questionModel.id).isGreaterThan(-1);
+    assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
   }
 
   @Test
@@ -71,7 +71,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     questionModel.insert();
 
     assertNotNull(questionModel.id);
-    assertThat(questionModel.id).isGreaterThan(-1);
+    assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
   }
 
   /* Note that we're not calling Transaction.commit() through the Transaction
@@ -88,7 +88,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       questionModel.save();
 
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
     }
   }
 
@@ -111,7 +111,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       questionModel.refresh();
 
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
     }
   }
 
@@ -139,7 +139,7 @@ public class EbeanInvariantTest extends ResetPostgres {
 
       // ID is now set.
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
     }
   }
 
