@@ -279,6 +279,7 @@ public class EbeanInvariantTest extends ResetPostgres {
 
         innerTransaction.commit();
       }
+
       // Batch mode is now on out here too, somewhat unexpectedly.
       assertThat(outerTransaction.isBatchMode()).isTrue();
 
