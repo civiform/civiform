@@ -85,9 +85,8 @@
       io.ebean.SQL -> for SQL and bind values
       io.ebean.TXN -> for Transaction commit and rollback events
   -->
-  <logger name="io.ebean.SQL" level="TRACE" />
-  <logger name="io.ebean.TXN" level="TRACE" />
-  <logger name="io.ebean.SUM" level="TRACE" />
+  <logger name="io.ebean.SQL" level="OFF" />
+  <logger name="io.ebean.TXN" level="OFF" />
 
   <!--
     If the environment variable LOGBACK_CONSOLE_APPENDER is set, then it will used as the
