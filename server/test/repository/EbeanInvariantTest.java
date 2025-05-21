@@ -104,6 +104,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       // Does a select statement for the ID which Ebean seems to know already,
       // this should update M2M properties too.
       questionModel.refresh();
+
       assertNotNull(questionModel.id);
       assertThat(questionModel.id).isGreaterThan(-1);
     }
