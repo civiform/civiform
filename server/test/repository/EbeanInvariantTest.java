@@ -209,7 +209,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       var account = new AccountModel();
       account.insert();
       outerAccountId = account.id;
-      // We see the one in the outer.
+      // We see the new one in the outer.
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
 
       // And here TXN logging shows a commit happens, despite it not being here.
@@ -246,7 +246,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       var account = new AccountModel();
       account.insert();
       outerAccountId = account.id;
-      // We see the one in the outer.
+      // We see the new one in the outer.
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
       // Keep this one.
       outerTransaction.commit();
