@@ -14,7 +14,6 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import jakarta.persistence.PersistenceException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -418,12 +417,12 @@ public class TransactionManagerTest extends ResetPostgres {
   }
 
   @Test
-  public void mandatory() {
-    transactionManager.execute(() -> transactionManager.mandatory(() -> {}));
+  public void throwIfTransactionNotPresent_inTransactionDoesNotThrow() {
+    transactionManager.execute(TransactionManager::throwIfTransactionNotPresent);
   }
 
   @Test
-  public void mandatory_throwsWithoutTransaction() {
-    assertThrows(PersistenceException.class, () -> transactionManager.mandatory(() -> {}));
+  public void throwIfTransactionNotPresent_noTransactionThrows() {
+    assertThrows(IllegalStateException.class, TransactionManager::throwIfTransactionNotPresent);
   }
 }

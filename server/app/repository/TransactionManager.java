@@ -124,24 +124,11 @@ public final class TransactionManager {
     execute(synchronousWork);
   }
 
-  /**
-   * Calls {@link #execute(Runnable)} using {@code TxScope.mandatory()}.
-   *
-   * <p>{@code TxScope.mandatory()} means a transaction must already be present for this transaction
-   * to succeed.
-   */
-  public void mandatory(Runnable synchronousWork) {
-    execute(TxScope.mandatory(), synchronousWork);
-  }
-
-  /**
-   * Calls {@link #execute(Supplier)} using {@code TxScope.mandatory()}.
-   *
-   * <p>{@code TxScope.mandatory()} means a transaction must already be present for this transaction
-   * to succeed.
-   */
-  public <T> T mandatory(Supplier<T> synchronousWork) {
-    return execute(TxScope.mandatory(), synchronousWork);
+  /** Throws {@code IllegalStateException} if a transaction is not present. */
+  public static void throwIfTransactionNotPresent() {
+    if (DB.getDefault().currentTransaction() == null) {
+      throw new IllegalStateException("A database transaction is required but not present");
+    }
   }
 
   private void logRetriedException(SerializableConflictException sce) {
@@ -150,14 +137,5 @@ public final class TransactionManager {
             + "this is working as intended. If there are more it may indicate a "
             + "coding error or a more severe issue.",
         sce);
-  }
-
-  public void logIfNotInTransaction() {
-    if (DB.currentTransaction() == null) {
-      logger.error(
-          """
-TransactionManager: Call stack detected without a transaction. Please report this to the CiviForm team.
-""");
-    }
   }
 }

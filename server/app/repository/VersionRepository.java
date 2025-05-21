@@ -630,30 +630,28 @@ public final class VersionRepository {
    */
   public void updateQuestionVersions(ProgramModel draftProgram) {
     // Reviewed
-    transactionManager.mandatory(
-        () -> {
-          Preconditions.checkArgument(
-              isInactive(draftProgram), "input program must not be active.");
-          Preconditions.checkArgument(
-              isDraft(draftProgram), "input program must be in the current draft version.");
-          ProgramDefinition.Builder updatedDefinition =
-              programRepository.getShallowProgramDefinition(draftProgram).toBuilder()
-                  .setBlockDefinitions(ImmutableList.of());
-          for (BlockDefinition block :
-              programRepository.getShallowProgramDefinition(draftProgram).blockDefinitions()) {
-            logger.trace("Updating screen (block) {}.", block.id());
-            updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
-          }
-          ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
-          logger.trace("Submitting update.");
-          database.update(updatedProgram);
-          // TODO(#10553): Investigate this code smell.
-          // This appears to be a no-op since it is a local object and not
-          // returned. As well the input param is not refreshed so callers
-          // may expect it to have been. Previously this was also created as
-          // an overwrite of the input param draftProgram.
-          updatedProgram.refresh();
-        });
+    TransactionManager.throwIfTransactionNotPresent();
+
+    Preconditions.checkArgument(isInactive(draftProgram), "input program must not be active.");
+    Preconditions.checkArgument(
+        isDraft(draftProgram), "input program must be in the current draft version.");
+    ProgramDefinition.Builder updatedDefinition =
+        programRepository.getShallowProgramDefinition(draftProgram).toBuilder()
+            .setBlockDefinitions(ImmutableList.of());
+    for (BlockDefinition block :
+        programRepository.getShallowProgramDefinition(draftProgram).blockDefinitions()) {
+      logger.trace("Updating screen (block) {}.", block.id());
+      updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
+    }
+    ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
+    logger.trace("Submitting update.");
+    database.update(updatedProgram);
+    // TODO(#10553): Investigate this code smell.
+    // This appears to be a no-op since it is a local object and not
+    // returned. As well the input param is not refreshed so callers
+    // may expect it to have been. Previously this was also created as
+    // an overwrite of the input param draftProgram.
+    updatedProgram.refresh();
   }
 
   public boolean isInactive(QuestionModel question) {
@@ -700,50 +698,49 @@ public final class VersionRepository {
    */
   private void validateProgramQuestionState() {
     // Reviewed DO NOT SUBMIT
-    transactionManager.mandatory(
-        () -> {
-          VersionModel activeVersion = getActiveVersion();
-          ImmutableList<QuestionDefinition> newActiveQuestions =
-              getQuestionsForVersionWithoutCache(activeVersion).stream()
-                  .map(questionRepository::getQuestionDefinition)
-                  .collect(ImmutableList.toImmutableList());
-          // Check there aren't any duplicate questions in the new active version
-          validateNoDuplicateQuestions(newActiveQuestions);
-          ImmutableSet<Long> missingQuestionIds =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
-                  .map(
-                      program ->
-                          programRepository
-                              .getShallowProgramDefinition(program)
-                              .getQuestionIdsInProgram())
-                  .flatMap(Collection::stream)
-                  .filter(
-                      questionId ->
-                          !newActiveQuestions.stream()
-                              .map(QuestionDefinition::getId)
-                              .collect(ImmutableSet.toImmutableSet())
-                              .contains(questionId))
-                  .collect(ImmutableSet.toImmutableSet());
-          if (missingQuestionIds.isEmpty()) {
-            return;
-          }
-          ImmutableSet<Long> programIdsMissingQuestions =
-              getProgramsForVersionWithoutCache(activeVersion).stream()
-                  .filter(
-                      program ->
-                          programRepository
-                              .getShallowProgramDefinition(program)
-                              .getQuestionIdsInProgram()
-                              .stream()
-                              .anyMatch(missingQuestionIds::contains))
-                  .map(program -> program.id)
-                  .collect(ImmutableSet.toImmutableSet());
-          throw new IllegalStateException(
-              String.format(
-                  "Illegal state encountered when attempting to publish a new version. Question IDs"
-                      + " %s found in program definitions %s not found in new active version.",
-                  missingQuestionIds, programIdsMissingQuestions));
-        });
+    TransactionManager.throwIfTransactionNotPresent();
+
+    VersionModel activeVersion = getActiveVersion();
+    ImmutableList<QuestionDefinition> newActiveQuestions =
+        getQuestionsForVersionWithoutCache(activeVersion).stream()
+            .map(questionRepository::getQuestionDefinition)
+            .collect(ImmutableList.toImmutableList());
+    // Check there aren't any duplicate questions in the new active version
+    validateNoDuplicateQuestions(newActiveQuestions);
+    ImmutableSet<Long> missingQuestionIds =
+        getProgramsForVersionWithoutCache(activeVersion).stream()
+            .map(
+                program ->
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram())
+            .flatMap(Collection::stream)
+            .filter(
+                questionId ->
+                    !newActiveQuestions.stream()
+                        .map(QuestionDefinition::getId)
+                        .collect(ImmutableSet.toImmutableSet())
+                        .contains(questionId))
+            .collect(ImmutableSet.toImmutableSet());
+    if (missingQuestionIds.isEmpty()) {
+      return;
+    }
+    ImmutableSet<Long> programIdsMissingQuestions =
+        getProgramsForVersionWithoutCache(activeVersion).stream()
+            .filter(
+                program ->
+                    programRepository
+                        .getShallowProgramDefinition(program)
+                        .getQuestionIdsInProgram()
+                        .stream()
+                        .anyMatch(missingQuestionIds::contains))
+            .map(program -> program.id)
+            .collect(ImmutableSet.toImmutableSet());
+    throw new IllegalStateException(
+        String.format(
+            "Illegal state encountered when attempting to publish a new version. Question IDs"
+                + " %s found in program definitions %s not found in new active version.",
+            missingQuestionIds, programIdsMissingQuestions));
   }
 
   /** Validate there are no duplicate question names. */
@@ -764,49 +761,45 @@ public final class VersionRepository {
   /** Updates all questions referenced in {@code block} to their latest versions */
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
     // Reviewed DO NOT SUBMIT
-    return transactionManager.mandatory(
-        () -> {
-          BlockDefinition.Builder updatedBlock =
-              block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
-          // Update questions contained in this block.
-          for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-            Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
-            logger.trace(
-                "Updating question ID {} to new ID {}.",
-                question.id(),
-                updatedQuestion.orElseThrow().id);
-            updatedBlock.addQuestion(
-                question.loadCompletely(
-                    programDefinitionId,
-                    questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
-          }
-          // Update questions referenced in this block's predicate(s)
-          if (block.visibilityPredicate().isPresent()) {
-            PredicateDefinition oldPredicate = block.visibilityPredicate().get();
-            updatedBlock.setVisibilityPredicate(
-                PredicateDefinition.create(
-                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
-          }
-          if (block.eligibilityDefinition().isPresent()) {
-            EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
-            PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
-            PredicateDefinition newPredicate =
-                PredicateDefinition.create(
-                    updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+    TransactionManager.throwIfTransactionNotPresent();
 
-            updatedBlock.setEligibilityDefinition(
-                eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
-          }
-          if (block.optionalPredicate().isPresent()) {
-            PredicateDefinition oldPredicate = block.optionalPredicate().get();
-            updatedBlock.setOptionalPredicate(
-                Optional.of(
-                    PredicateDefinition.create(
-                        updatePredicateNodeVersions(oldPredicate.rootNode()),
-                        oldPredicate.action())));
-          }
-          return updatedBlock.build();
-        });
+    BlockDefinition.Builder updatedBlock =
+        block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+    // Update questions contained in this block.
+    for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
+      Optional<QuestionModel> updatedQuestion = getLatestVersionOfQuestion(question.id());
+      logger.trace(
+          "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
+      updatedBlock.addQuestion(
+          question.loadCompletely(
+              programDefinitionId,
+              questionRepository.getQuestionDefinition(updatedQuestion.orElseThrow())));
+    }
+    // Update questions referenced in this block's predicate(s)
+    if (block.visibilityPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.visibilityPredicate().get();
+      updatedBlock.setVisibilityPredicate(
+          PredicateDefinition.create(
+              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
+    }
+    if (block.eligibilityDefinition().isPresent()) {
+      EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
+      PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
+      PredicateDefinition newPredicate =
+          PredicateDefinition.create(
+              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+
+      updatedBlock.setEligibilityDefinition(
+          eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
+    }
+    if (block.optionalPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.optionalPredicate().get();
+      updatedBlock.setOptionalPredicate(
+          Optional.of(
+              PredicateDefinition.create(
+                  updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action())));
+    }
+    return updatedBlock.build();
   }
 
   /**
@@ -818,7 +811,9 @@ public final class VersionRepository {
   @VisibleForTesting
   PredicateExpressionNode updatePredicateNodeVersions(PredicateExpressionNode node) {
     // reviewed DO NOT SUBMIT
-    return transactionManager.mandatory(() -> updatePredicateNodeVersionsTransactionRequired(node));
+    TransactionManager.throwIfTransactionNotPresent();
+
+    return updatePredicateNodeVersionsTransactionRequired(node);
   }
 
   // "Internal" to have the transaction semantics only once since this is
