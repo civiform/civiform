@@ -102,9 +102,25 @@ public final class ProgramSlugHandler {
     return profile
         .getApplicant()
         .thenComposeAsync(
-            (ApplicantModel applicant) ->
-                showProgramPreviewWithApplicantId(
-                    controller, request, programSlug, applicant.id, profile),
+            (ApplicantModel applicant) -> {
+              CompletionStage<ProgramDefinition> programDefinitionStage =
+                  programService.getActiveOrDraftFullProgramDefinitionAsync(programSlug);
+              return programDefinitionStage
+                  .thenApply(
+                      activeOrDraftProgramDefinition ->
+                          redirectToOverviewOrReviewPage(
+                              controller,
+                              request,
+                              programSlug,
+                              profile,
+                              applicant.id,
+                              activeOrDraftProgramDefinition,
+                              null))
+                  .exceptionally(
+                      ex ->
+                          Results.notFound(ex.getMessage())
+                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
+            },
             classLoaderExecutionContext.current());
   }
 
@@ -156,36 +172,6 @@ public final class ProgramSlugHandler {
             classLoaderExecutionContext.current());
   }
 
-  public CompletionStage<Result> showProgramPreviewWithApplicantId(
-      CiviFormController controller,
-      Http.Request request,
-      String programSlug,
-      Long applicantId,
-      CiviFormProfile profile) {
-    return applicantService
-        .relevantProgramsForApplicant(applicantId, profile, request)
-        .thenComposeAsync(
-            (ApplicationPrograms relevantPrograms) -> {
-              CompletionStage<ProgramDefinition> programDefinitionStage =
-                  programService.getActiveOrDraftFullProgramDefinitionAsync(programSlug);
-              return programDefinitionStage
-                  .thenApply(
-                      activeOrDraftProgramDefinition ->
-                          redirectPreviewPage(
-                              controller,
-                              request,
-                              programSlug,
-                              profile,
-                              applicantId,
-                              activeOrDraftProgramDefinition))
-                  .exceptionally(
-                      ex ->
-                          Results.notFound(ex.getMessage())
-                              .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
-            },
-            classLoaderExecutionContext.current());
-  }
-
   private Result redirectToOverviewOrReviewPage(
       CiviFormController controller,
       Http.Request request,
@@ -199,17 +185,32 @@ public final class ProgramSlugHandler {
       return Results.badRequest(new ProgramNotFoundException(programSlug).getMessage());
     }
 
+    // For pre-screener forms, redirect to the first block edit page
+    if (activeProgramDefinition.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
+      return Results.redirect(
+              applicantRoutes.edit(profile, applicantId, activeProgramDefinition.id()))
+          .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
+          // If we had a redirectTo session key that redirected us here, remove it so that it
+          // doesn't
+          // get used again.
+          .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
+    }
+
     CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
-    // If the program doesn't have any applications yet, find the program data
-    // for the program that we're trying to show so that we can check isProgramMaybeEligible.
-    Optional<ApplicantProgramData> optionalProgramData =
-        relevantPrograms.unapplied().stream()
-            .filter(
-                (ApplicantProgramData applicantProgramData) ->
-                    applicantProgramData.programId() == activeProgramDefinition.id())
-            .findFirst();
+    Optional<ApplicantProgramData> optionalProgramData = Optional.empty();
+
+    if (relevantPrograms != null) {
+      // If the program doesn't have any applications yet, find the program data
+      // for the program that we're trying to show so that we can check isProgramMaybeEligible.
+      optionalProgramData =
+          relevantPrograms.unapplied().stream()
+              .filter(
+                  (ApplicantProgramData applicantProgramData) ->
+                      applicantProgramData.programId() == activeProgramDefinition.id())
+              .findFirst();
+    }
 
     return settingsManifest.getNorthStarApplicantUi(request)
             && activeProgramDefinition.displayMode()
@@ -230,37 +231,6 @@ public final class ProgramSlugHandler {
             controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
   }
 
-  private Result redirectPreviewPage(
-      CiviFormController controller,
-      Http.Request request,
-      String programSlug,
-      CiviFormProfile profile,
-      long applicantId,
-      ProgramDefinition activeProgramDefinition) {
-    if (activeProgramDefinition.programType().equals(ProgramType.COMMON_INTAKE_FORM)) {
-      return redirectToFirstBlockEditPage(
-          activeProgramDefinition.id(), applicantId, programSlug, request, profile);
-    }
-
-    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
-
-    return settingsManifest.getNorthStarApplicantUi(request)
-        ? Results.ok(
-                northStarProgramOverviewView.render(
-                    messagesApi.preferred(request),
-                    request,
-                    applicantId,
-                    applicantPersonalInfo.join(),
-                    profile,
-                    activeProgramDefinition,
-                    Optional.empty()))
-            .as("text/html")
-            .removingFromSession(request, REDIRECT_TO_SESSION_KEY)
-        : redirectToReviewPage(
-            controller, activeProgramDefinition.id(), applicantId, programSlug, request, profile);
-  }
-
   private Result redirectToReviewPage(
       CiviFormController controller,
       long programId,
@@ -270,19 +240,6 @@ public final class ProgramSlugHandler {
       CiviFormProfile profile) {
     return controller
         .redirect(applicantRoutes.review(profile, applicantId, programId))
-        .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
-        // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
-        // get used again.
-        .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-  }
-
-  private Result redirectToFirstBlockEditPage(
-      long programId,
-      long applicantId,
-      String programSlug,
-      Http.Request request,
-      CiviFormProfile profile) {
-    return Results.redirect(applicantRoutes.edit(profile, applicantId, programId))
         .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.

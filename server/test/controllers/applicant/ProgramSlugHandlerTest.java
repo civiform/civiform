@@ -368,6 +368,55 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showProgramPreview_withNorthStarEnabled_loadsProgramOverview() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            mockSettingsManifest,
+            instanceOf(NorthStarProgramOverviewView.class),
+            instanceOf(MessagesApi.class));
+    Result result =
+        handler
+            .showProgramPreview(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("<title>test program - Program Overview</title>");
+  }
+
+  @Test
   public void showProgram_withExternalProgram_returnsBadRequest() {
     // Create an external program
     ProgramModel externalProgram =
