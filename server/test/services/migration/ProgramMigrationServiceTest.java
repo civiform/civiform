@@ -34,6 +34,7 @@ import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -78,15 +79,18 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
           instanceOf(ProgramRepository.class),
           instanceOf(QuestionRepository.class),
           instanceOf(QuestionService.class),
-          instanceOf(VersionRepository.class));
+          instanceOf(VersionRepository.class),
+          instanceOf(TransactionManager.class));
   ApplicationStatusesRepository applicationStatusesRepository;
   private QuestionRepository questionRepository;
+  private TransactionManager transactionManager;
   private VersionRepository versionRepository;
 
   @Before
   public void setup() {
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
     questionRepository = instanceOf(QuestionRepository.class);
+    transactionManager = instanceOf(TransactionManager.class);
     versionRepository = instanceOf(VersionRepository.class);
   }
 
@@ -105,7 +109,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             instanceOf(ProgramRepository.class),
             instanceOf(QuestionRepository.class),
             instanceOf(QuestionService.class),
-            instanceOf(VersionRepository.class));
+            instanceOf(VersionRepository.class),
+            instanceOf(TransactionManager.class));
 
     ErrorAnd<String, String> result =
         badMapperService.serialize(
@@ -255,7 +260,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   public void maybeOverwriteQuestionName_onlyOverwritesQuestionNamesIfAMatchIsFound() {
     ImmutableList<QuestionDefinition> questionsOne =
         service.deserialize(PROGRAM_JSON_WITH_PREDICATES).getResult().getQuestions();
-    questionRepository.bulkCreateQuestions(questionsOne);
+    // Execute in a transaction so bulkCreateQuestions doesn't throw
+    transactionManager.execute(
+        () -> {
+          questionRepository.bulkCreateQuestions(questionsOne);
+        });
 
     // There are two questions in PROGRAM_JSON_WITH_PREDICATES: "id-test" and "text test"
     // We want to update the admin name of one of them so we can test that it is not changed by the
@@ -575,6 +584,50 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void saveImportedProgram_duplicateHandlingEnabled_executesWithinTransaction()
+      throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
+            .withBlock("Block A")
+            .withRequiredQuestionDefinition(QUESTION_1)
+            .buildDefinition();
+    ProgramDefinition conflictingProgramDefinition =
+        ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
+            .withBlock("Block A")
+            .withRequiredQuestionDefinition(QUESTION_2)
+            .buildDefinition();
+
+    service.saveImportedProgram(
+        programDefinition,
+        ImmutableList.of(QUESTION_1),
+        ImmutableMap.of(),
+        /* withDuplicates= */ true,
+        /* duplicateHandlingEnabled= */ true);
+
+    ImmutableMap<String, QuestionDefinition> currentQuestions =
+        questionRepository.getExistingQuestions(ImmutableSet.of(QUESTION_1_NAME, QUESTION_2_NAME));
+    assertThat(currentQuestions).hasSize(1);
+
+    Exception e =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                service.saveImportedProgram(
+                    conflictingProgramDefinition,
+                    ImmutableList.of(QUESTION_2),
+                    ImmutableMap.of(),
+                    /* withDuplicates= */ true,
+                    /* duplicateHandlingEnabled= */ true));
+
+    assertThat(e).hasMessageContaining("Program program1 already has a draft!");
+    // Confirm that the questions (which are written before attempting to save the program) were
+    // rolled back since the transaction failed.
+    currentQuestions =
+        questionRepository.getExistingQuestions(ImmutableSet.of(QUESTION_1_NAME, QUESTION_2_NAME));
+    assertThat(currentQuestions).hasSize(1);
+  }
+
+  @Test
   public void saveImportedProgram_withoutDuplicates_putsAllProgramsInDraft() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram(PROGRAM_NAME_1)
@@ -634,9 +687,16 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     // Create question definitions without enumerator IDs
     ImmutableList<QuestionDefinition> questionsToWrite = ImmutableList.of(QUESTION_1, QUESTION_2);
 
+    // Execute in a transaction so bulkCreateQuestions doesn't throw
     ImmutableMap<String, QuestionDefinition> result =
-        service.updateEnumeratorIdsAndSaveQuestions(
-            questionsToWrite, ImmutableList.of(), ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2));
+        transactionManager.execute(
+            () -> {
+              return service.updateEnumeratorIdsAndSaveQuestions(
+                  questionsToWrite,
+                  ImmutableList.of(),
+                  ImmutableMap.of(1L, QUESTION_1, 2L, QUESTION_2),
+                  /* duplicateHandlingEnabled= */ true);
+            });
 
     assertThat(result).hasSize(2);
     assertThat(result).containsKeys(QUESTION_1_NAME, QUESTION_2_NAME);
@@ -663,12 +723,17 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ImmutableList<QuestionDefinition> questionsToWrite =
         ImmutableList.of(QUESTION_1, childQuestion1, childQuestion2);
 
+    // Execute in a transaction so bulkCreateQuestions doesn't throw
     ImmutableMap<String, QuestionDefinition> result =
-        service.updateEnumeratorIdsAndSaveQuestions(
-            questionsToWrite,
-            /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
-            ImmutableMap.of(
-                1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3));
+        transactionManager.execute(
+            () -> {
+              return service.updateEnumeratorIdsAndSaveQuestions(
+                  questionsToWrite,
+                  /* questionsToReuseFromBank= */ ImmutableList.of(childQuestion3),
+                  ImmutableMap.of(
+                      1L, QUESTION_1, 2L, childQuestion1, 3L, childQuestion2, 4L, childQuestion3),
+                  /* duplicateHandlingEnabled= */ true);
+            });
 
     assertThat(result).hasSize(4);
     assertThat(result)

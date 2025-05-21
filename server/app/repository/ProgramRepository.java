@@ -14,6 +14,7 @@ import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -207,7 +208,7 @@ public final class ProgramRepository {
   }
 
   /**
-   * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
+   * Makes {@code existingProgram} the DRAFT revision configuration of the program, creating a new
    * DRAFT if necessary.
    */
   public ProgramModel createOrUpdateDraft(ProgramModel existingProgram) {
@@ -215,30 +216,42 @@ public final class ProgramRepository {
   }
 
   public ProgramModel createOrUpdateDraft(ProgramDefinition existingProgram) {
-    VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
-    Optional<ProgramModel> existingDraftOpt =
-        versionRepository
-            .get()
-            .getProgramByNameForVersion(existingProgram.adminName(), draftVersion);
-    if (existingDraftOpt.isPresent()) {
-      ProgramModel existingDraft = existingDraftOpt.get();
-      if (!existingDraft.id.equals(existingProgram.id())) {
-        // This may be indicative of a coding error, as it does a reset of the draft and not an
-        // update of the draft, so log it.
-        logger.warn(
-            "Replacing Draft revision {} with definition from a different revision {}.",
-            existingDraft.id,
-            existingProgram.id());
-      }
-      ProgramModel updatedDraft =
-          existingProgram.toBuilder().setId(existingDraft.id).build().toProgram();
-      return updateProgramSync(updatedDraft);
-    }
-
-    // Inside a question update, this will be a savepoint rather than a full transaction.  Otherwise
-    // it will be creating a new transaction.
-    Transaction transaction = database.beginTransaction(TxScope.required());
+    // Inside a question update, this will be a savepoint rather than a full transaction.
+    // Otherwise, it will be creating a new transaction.
+    // After the fact note: Based on the docs this isn't a savepoint as the
+    // above says, because setNestedUseSavepoint() was not called, other code
+    // does do that FWIW.
+    // https://ebean.io/docs/transactions/savepoints
+    Transaction transaction =
+        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
     try {
+      // Replace the existing draft if present.
+      VersionModel draftVersion = versionRepository.get().getDraftVersionOrCreate();
+      Optional<ProgramModel> optionalExistingProgramDraft =
+          versionRepository
+              .get()
+              .getProgramByNameForVersion(existingProgram.adminName(), draftVersion);
+      if (optionalExistingProgramDraft.isPresent()) {
+        ProgramModel existingProgramDraft = optionalExistingProgramDraft.get();
+        if (!existingProgramDraft.id.equals(existingProgram.id())) {
+          // This may be indicative of a coding error, as it does a reset of the draft and not an
+          // update of the draft, so log it.
+          logger.warn(
+              "Replacing Draft revision {} with definition from a different revision {}.",
+              existingProgramDraft.id,
+              existingProgram.id());
+        }
+        // After the fact comment: This appears to largely be a no-op outside
+        // the previous warning if block.  If that block doesn't trigger then
+        // the ids are the same and nothing is being changed.
+        ProgramModel updatedDraft =
+            existingProgram.toBuilder().setId(existingProgramDraft.id).build().toProgram();
+        updateProgramSync(updatedDraft);
+        transaction.commit();
+        return updatedDraft;
+      }
+
+      // Create a draft.
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
       ProgramModel newDraft = new ProgramModel(existingProgram.toBuilder().build(), draftVersion);
@@ -269,6 +282,10 @@ public final class ProgramRepository {
       // We cannot have this transaction on the thread-local transaction stack when that
       // happens.
       transaction.end();
+      // After the fact comment: potential infinite loop here for systemic
+      // issues. Unclear from the original 2021 PR what situation warranted
+      // catching IllegalStateException, and then also retrying when the
+      // exception is typically for un-retryable things.
       return createOrUpdateDraft(existingProgram);
     } finally {
       // This may come after a prior call to `transaction.end` in the event of a precondition
@@ -458,6 +475,16 @@ public final class ProgramRepository {
         .query();
   }
 
+  /**
+   * Add an ExpressionList to {@code query} that searches applications based on the implied contents
+   * of {@code search}.
+   *
+   * <p>A phone number only search is done if {@code search} contains no alphabetic characters and
+   * some numeric characters. All other characters are removed.
+   *
+   * <p>Otherwise, a broad search is returned which includes a match on any of phone number,
+   * submitter email, and first name last name patterns.
+   */
   private ExpressionList<ApplicationModel> searchUsingPrimaryApplicantInfo(
       String search, ExpressionList<ApplicationModel> query) {
     // Remove all special characters
