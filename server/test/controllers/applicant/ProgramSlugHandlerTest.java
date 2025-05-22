@@ -428,7 +428,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-//    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
+    //    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -463,9 +463,9 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
     assertThat(result.redirectLocation())
-      .contains(
-        controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.id())
-          .url());
+        .contains(
+            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.id())
+                .url());
   }
 
   @Test

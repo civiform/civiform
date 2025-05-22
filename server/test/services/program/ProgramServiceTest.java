@@ -1629,7 +1629,8 @@ public class ProgramServiceTest extends ResetPostgres {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    CompletionStage<ProgramDefinition> found = ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
 
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
@@ -1637,9 +1638,10 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getActiveOrDraftProgramDefinitionAsync_getsDraftProgram() throws Exception {
     ProgramDefinition programDefinition =
-      ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+        ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
 
-    CompletionStage<ProgramDefinition> found = ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveOrDraftFullProgramDefinitionAsync(programDefinition.slug());
 
     assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
@@ -1647,7 +1649,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getActiveOrDraftProgramDefinitionAsync_getsActiveProgram() throws Exception {
     ProgramDefinition programDefinition =
-      ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
+        ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
     ProgramDefinition found = ps.getDraftFullProgramDefinition(programDefinition.slug());
 
