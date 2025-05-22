@@ -10,10 +10,13 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Locale;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.AccountModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -25,6 +28,7 @@ import services.question.types.TextQuestionDefinition;
  * <p>The following serves as documentation and verification of believed invariants in how Ebean
  * actually operates, and possibly serves as a guard for changes in future Ebean releases.
  */
+@RunWith(JUnitParamsRunner.class)
 public class EbeanInvariantTest extends ResetPostgres {
 
   private static final QuestionDefinition QUESTION_DEFINITION =
@@ -148,12 +152,19 @@ public class EbeanInvariantTest extends ResetPostgres {
   /**
    * When using TxScope.required(), as we should, inner transactions become part of outer ones with
    * the top level one ultimately having control over commiting or not.
+   *
+   * <p>Savepoints do not change this behavior. See later for Savepoint usage.
    */
   @Test
-  public void transaction_innerIsNotIsolated() {
+  @Parameters({"false", "true"})
+  public void transaction_innerIsNotIsolated(Boolean useSavepoint) {
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
     try (Transaction outerTransaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      if (useSavepoint) {
+        outerTransaction.setNestedUseSavepoint();
+      }
 
       try (Transaction innerTransaction =
           DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
