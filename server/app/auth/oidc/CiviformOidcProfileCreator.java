@@ -215,6 +215,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         getAuthorityId(profile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
+    logger.info("Authority id is " + authorityId);
 
     Optional<ApplicantModel> applicantOpt =
         accountRepositoryProvider
@@ -222,6 +223,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .lookupApplicantByAuthorityId(authorityId)
             .toCompletableFuture()
             .join();
+    logger.info("THIS is the applicantOpt " + applicantOpt);
     if (applicantOpt.isPresent()) {
       logger.debug("Found user using authority ID: {}", authorityId);
       return applicantOpt;
@@ -230,7 +232,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // For pre-existing deployments before April 2022, users will exist without an
     // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    logger.debug("Looking up user using email {}", userEmail);
+    logger.info("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
         .get()
         .lookupApplicantByEmail(userEmail)
