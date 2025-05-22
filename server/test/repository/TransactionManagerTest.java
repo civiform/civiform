@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
@@ -416,6 +417,10 @@ public class TransactionManagerTest extends ResetPostgres {
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
   }
 
+  @BindingAnnotations.RequiresTransaction
+  private void foo() {
+
+  }
   @Test
   public void throwIfTransactionNotPresent_inTransactionDoesNotThrow() {
     transactionManager.execute(TransactionManager::throwIfTransactionNotPresent);
@@ -423,6 +428,7 @@ public class TransactionManagerTest extends ResetPostgres {
 
   @Test
   public void throwIfTransactionNotPresent_noTransactionThrows() {
-    assertThrows(IllegalStateException.class, TransactionManager::throwIfTransactionNotPresent);
+    // This fails due to no Exception.
+    assertThrows(IllegalStateException.class, this::foo);
   }
 }

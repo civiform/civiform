@@ -2,6 +2,8 @@ package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations;
+import com.google.inject.Provides;
 import io.ebean.DB;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
@@ -9,6 +11,8 @@ import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
