@@ -271,7 +271,7 @@ public class EbeanInvariantTest extends ResetPostgres {
    * While we don't use batch mode often, be careful about its semantics.
    *
    * <p>In a previous test we see that IDs aren't auto loaded when it is on, and here we see that
-   * enabling Batches is sticky for the entire transaction beyond when it is set.
+   * enabling batches is sticky for the entire transaction beyond when it is set.
    */
   @Test
   public void transaction_innerBatchModeEnablesForEntireTransaction() {
