@@ -190,7 +190,7 @@ public class EbeanInvariantTest extends ResetPostgres {
   /**
    * Not commiting in an inner transaction causes weirdness.
    *
-   * <p>This is a good reason to use TransactionManage.execute()
+   * <p>This is a good reason to use TransactionManager.execute()
    */
   @Test
   public void transaction_mustCommitInInnerTransaction() {
@@ -241,29 +241,29 @@ public class EbeanInvariantTest extends ResetPostgres {
     try (Transaction outerTransaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
 
+      // Add in the outer transaction.
+      var account = new AccountModel();
+      account.insert();
+      outerAccountId = account.id;
+      assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+
       outerTransaction.setNestedUseSavepoint();
       try (Transaction innerTransaction =
           DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
         new AccountModel().insert();
         // Assert that from within this inner transaction, we see the new account
-        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(2);
         // Decide we don't really want this
         innerTransaction.rollback();
       }
 
-      // We don't see the inner as expected.
-      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
-      // Add another.
-      var account = new AccountModel();
-      account.insert();
-      outerAccountId = account.id;
-      // We see the new one in the outer.
-      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+      // We only see the outer data and not the inner as expected.
+      assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
       // Keep this one.
       outerTransaction.commit();
     }
 
-    // We see only the out account as expected.
+    // We still only see the outer data.
     assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
   }
 
@@ -306,6 +306,9 @@ public class EbeanInvariantTest extends ResetPostgres {
       account.insert();
       // Outside of batch mode we now get IDs.
       assertNotNull(account.id);
+
+      // All 3 are present in the DB.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(3);
     }
   }
 }
