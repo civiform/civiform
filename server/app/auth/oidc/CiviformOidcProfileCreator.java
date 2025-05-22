@@ -228,9 +228,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<ApplicantModel> accountOpt =
         accountRepositoryProvider
             .get()
-            .lookupAccountByAuthorityId(authorityId)
-            .toCompletableFuture()
-            .join();
+            .lookupAccountByAuthorityId(authorityId);
     
     logger.info("THIS is the accountOpt " + accountOpt);
     
