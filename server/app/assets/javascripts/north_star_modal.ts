@@ -148,6 +148,17 @@ export class NorthStarModalController {
         }
       }
       document.addEventListener('keydown', escapeKeyHandler)
+
+      // Add listener to hide modal when clicking outside the modal
+      modalWrapper.addEventListener('click', (event) => {
+        // Find the actual modal dialog within the wrapper
+        const modalDialog = modalWrapper.querySelector('.usa-modal')
+
+        // Hide modal if the click was outside the modal dialog
+        if (modalDialog && !modalDialog.contains(event.target as Node)) {
+          hideModal(modalWrapper, triggerButton)
+        }
+      })
     })
   }
 
