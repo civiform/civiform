@@ -133,11 +133,10 @@ public class EbeanInvariantTest extends ResetPostgres {
       assertNull(questionModel.id);
 
       // Flushing sends the batch to the DB prematurely.
-      // Needing to flush in a batch may indicate a data flow smell, but is
-      // possible still better than not batching.
-      // This does no additional select, Ebean already knows the ID, note
-      // that other information like M2M relations are likely not updated
-      // which refresh() does.
+      // Needing to flush in a batch may indicate a data flow smell, but is possibly still better
+      // than not batching.
+      // This does no additional select, Ebean already knows the ID, note that other information
+      // like M2M relations are likely not updated which refresh() does.
       // transaction.commit() is identical to flush it seems.
       questionModel.flush();
 
@@ -169,17 +168,17 @@ public class EbeanInvariantTest extends ResetPostgres {
       try (Transaction innerTransaction =
           DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
         new AccountModel().insert();
-        // Assert that from within this inner transaction, we see the new account
+        // Within the inner transaction we see the new account.
         assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
         // This commit is required to save the changes, but doesn't actually
         // commit to the database because it isn't on the outermost transaction.
         innerTransaction.commit();
       }
 
-      // Assert that, back in the outer transaction, we see the new account
+      // In the outer transaction we see the new account.
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
 
-      // No commit to simulate that the outer transaction controls everything
+      // Note: No commit to simulate that the outer transaction controls everything
       // try-with-resources handles the rollback/end.
     }
 
@@ -198,6 +197,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
     try (Transaction outerTransaction =
         DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      new AccountModel().insert();
 
       // Enabling nested savepoints produces the expected behavior where
       // nothing is saved from the transactions:
@@ -206,13 +206,16 @@ public class EbeanInvariantTest extends ResetPostgres {
           DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
         new AccountModel().insert();
         // Assert that from within this inner transaction, we see the new account
-        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(2);
         // Not commiting seems to create the problem.
         // A rollback is done here as expected.
       }
 
-      // We don't see the inner as expected.
+      // WARNING: We don't see the inner data as expected, but we also don't see the first one
+      // made before innerTransaction! The inner rollback affected everything since the start of the
+      // outer transaction. If we used setNestedUseSavepoint() the initial data would still exist.
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+
       // From the logs we see a new transaction is used starting here.
       // The issue is also triggered by this .insert(). The expected outcome
       // where the last assert outside the transactions sees nothing happens
@@ -223,7 +226,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       // We see the new one in the outer.
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
 
-      // And here TXN logging shows a commit happens, despite it not being here.
+      // WARNING: TXN logging shows a commit happens, despite it not being here.
     }
 
     // For some reason we see the outer one.
@@ -291,7 +294,7 @@ public class EbeanInvariantTest extends ResetPostgres {
         innerTransaction.commit();
       }
 
-      // Batch mode is now on out here too, somewhat unexpectedly.
+      // WARNING: Batch mode is on out here too, somewhat unexpectedly.
       assertThat(outerTransaction.isBatchMode()).isTrue();
 
       var account = new AccountModel();
