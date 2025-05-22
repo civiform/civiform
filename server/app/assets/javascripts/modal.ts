@@ -73,7 +73,7 @@ export class ModalController {
   constructor() {
     const modalContainer = document.querySelector('#modal-container')
     if (modalContainer == null) {
-      console.info('Legacy modal Container not initialized.')
+      console.info('Legacy modal container not initialized.')
       return
     }
 
