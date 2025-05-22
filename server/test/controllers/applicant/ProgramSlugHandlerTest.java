@@ -428,7 +428,6 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
-    //    when(mockSettingsManifest.getNorthStarApplicantUi(any())).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
