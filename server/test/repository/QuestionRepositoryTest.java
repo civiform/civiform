@@ -2,7 +2,10 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -20,15 +23,19 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends ResetPostgres {
-
+  private static final TestQuestionBank disconnectedQuestionBank =
+      new TestQuestionBank(/* canSave= */ false);
   private QuestionRepository repo;
+  private TransactionManager transactionManager;
   private VersionRepository versionRepo;
 
   @Before
   public void setupQuestionRepository() {
     repo = instanceOf(QuestionRepository.class);
+    transactionManager = instanceOf(TransactionManager.class);
     versionRepo = instanceOf(VersionRepository.class);
   }
 
@@ -191,18 +198,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   @Test
   public void insertQuestion() {
-    QuestionDefinition questionDefinition =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("question")
-                .setDescription("applicant's name")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
-    QuestionModel question = new QuestionModel(questionDefinition);
-
-    repo.insertQuestion(question).toCompletableFuture().join();
-    long id = question.id;
+    repo.insertQuestion(disconnectedQuestionBank.nameApplicantName()).toCompletableFuture().join();
+    long id = testQuestionBank.nameApplicantName().id;
     QuestionModel q = repo.lookupQuestion(id).toCompletableFuture().join().get();
 
     assertThat(q.id).isEqualTo(id);
@@ -495,6 +492,33 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .getQuestionTags()
                 .contains(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isFalse();
+  }
+
+  @Test
+  public void bulkCreateQuestions_withoutTransaction_throws() {
+    Exception e =
+        assertThrows(
+            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
+
+    assertThat(e)
+        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
+  }
+
+  @Test
+  public void bulkCreateQuestions_createsAllQuestions() {
+    ImmutableList<QuestionDefinition> questionsToSave =
+        ImmutableList.of(
+            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
+            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
+
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
+        transactionManager.execute(
+            () -> {
+              return repo.bulkCreateQuestions(questionsToSave);
+            });
+
+    assertThat(savedQuestions).hasSize(2);
+    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -68,6 +69,7 @@ public final class ProgramMigrationService {
   private final QuestionRepository questionRepository;
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ProgramMigrationService(
@@ -76,7 +78,8 @@ public final class ProgramMigrationService {
       ProgramRepository programRepository,
       QuestionRepository questionRepository,
       QuestionService questionService,
-      VersionRepository versionRepository) {
+      VersionRepository versionRepository,
+      TransactionManager transactionManager) {
     // These extra modules let ObjectMapper serialize Guava types like ImmutableList.
     this.objectMapper =
         checkNotNull(objectMapper)
@@ -88,6 +91,7 @@ public final class ProgramMigrationService {
     this.questionRepository = checkNotNull(questionRepository);
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
+    this.transactionManager = checkNotNull(transactionManager);
   }
 
   /**
@@ -384,8 +388,6 @@ public final class ProgramMigrationService {
           duplicateHandlingOptions,
       boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
-    ProgramDefinition updatedProgram = programDefinition;
-    // Get the overwritten admin names
     // TODO: #9628 - Validate that repeated questions are not being reused/overwritten if their
     // parent question was duplicated with a new admin name. If a parent question is duplicated, the
     // repeated questions must also be duplicated (or updated, if it's new).
@@ -393,7 +395,50 @@ public final class ProgramMigrationService {
         Utils.getQuestionNamesForDuplicateHandling(
             duplicateHandlingOptions,
             ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING);
+    ImmutableList<String> duplicatedQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
+    ImmutableList<String> reusedQuestions =
+        Utils.getQuestionNamesForDuplicateHandling(
+            duplicateHandlingOptions,
+            ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
 
+    if (duplicateHandlingEnabled) {
+      // Using a transaction batch could improve performance. Ebeans batching consistently
+      // misbehaves in this instance, since there are many nested transactions. So we do not enable
+      // batching.
+      return transactionManager.execute(
+          () ->
+              doSaveProgram(
+                  programDefinition,
+                  questionDefinitions,
+                  overwrittenQuestions,
+                  duplicatedQuestions,
+                  reusedQuestions,
+                  withDuplicates,
+                  duplicateHandlingEnabled));
+    }
+
+    return doSaveProgram(
+        programDefinition,
+        questionDefinitions,
+        overwrittenQuestions,
+        duplicatedQuestions,
+        reusedQuestions,
+        withDuplicates,
+        duplicateHandlingEnabled);
+  }
+
+  private ErrorAnd<ProgramModel, String> doSaveProgram(
+      ProgramDefinition programDefinition,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      ImmutableList<String> overwrittenQuestions,
+      ImmutableList<String> duplicatedQuestions,
+      ImmutableList<String> reusedQuestions,
+      boolean withDuplicates,
+      boolean duplicateHandlingEnabled) {
+    ProgramDefinition updatedProgram = programDefinition;
     if (questionDefinitions != null) {
       if (duplicateHandlingEnabled) {
         if (overwrittenQuestions.size() > 0 && draftIsPopulated()) {
@@ -407,36 +452,27 @@ public final class ProgramMigrationService {
         // name at this point.
         questionDefinitions =
             ImmutableList.copyOf(
-                overwriteDuplicateNames(
-                        questionDefinitions,
-                        Utils.getQuestionNamesForDuplicateHandling(
-                            duplicateHandlingOptions,
-                            ProgramMigrationWrapper.DuplicateQuestionHandlingOption
-                                .CREATE_DUPLICATE))
-                    .values());
+                overwriteDuplicateNames(questionDefinitions, duplicatedQuestions).values());
       }
       ImmutableMap<Long, QuestionDefinition> questionsOnJsonById =
           questionDefinitions.stream()
               .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
 
-      ImmutableList<String> reusedQuestionNames =
-          Utils.getQuestionNamesForDuplicateHandling(
-              duplicateHandlingOptions,
-              ProgramMigrationWrapper.DuplicateQuestionHandlingOption.USE_EXISTING);
       // Get the questions that will be reused
-      ImmutableList<QuestionDefinition> reusedQuestions =
+      ImmutableList<QuestionDefinition> reusedQuestionDefinitions =
           questionDefinitions.stream()
-              .filter(q -> reusedQuestionNames.contains(q.getName()))
+              .filter(q -> reusedQuestions.contains(q.getName()))
               .collect(ImmutableList.toImmutableList());
       // Need IDs of currently saved Qs
       ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
           updateEnumeratorIdsAndSaveQuestions(
               // Only save questions that are not reused from the question bank
               questionDefinitions.stream()
-                  .filter(q -> !reusedQuestionNames.contains(q.getName()))
+                  .filter(q -> !reusedQuestions.contains(q.getName()))
                   .collect(ImmutableList.toImmutableList()),
-              reusedQuestions,
-              questionsOnJsonById);
+              reusedQuestionDefinitions,
+              questionsOnJsonById,
+              duplicateHandlingEnabled);
 
       ImmutableList<BlockDefinition> updatedBlockDefinitions =
           Utils.updateBlockDefinitions(programDefinition, questionsOnJsonById, updatedQuestionsMap);
@@ -473,17 +509,21 @@ public final class ProgramMigrationService {
    *     have a new adminName or updated configuration
    * @param questionsToReuseFromBank full question definitions that are being reused from the bank
    * @param questionsOnJsonById a map of question IDs to the question definitions from the JSON
+   * @param duplicateHandlingEnabled whether duplicate handling is enabled
    * @return a map of question names to the fully updated question definitions
    */
   @VisibleForTesting
   ImmutableMap<String, QuestionDefinition> updateEnumeratorIdsAndSaveQuestions(
       ImmutableList<QuestionDefinition> questionsToWrite,
       ImmutableList<QuestionDefinition> questionsToReuseFromBank,
-      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById) {
+      ImmutableMap<Long, QuestionDefinition> questionsOnJsonById,
+      boolean duplicateHandlingEnabled) {
 
     // Save all the questions
-    ImmutableList<QuestionModel> newlySavedQuestions =
-        questionRepository.bulkCreateQuestions(questionsToWrite);
+    ImmutableMap<String, QuestionDefinition> newlySavedQuestions =
+        duplicateHandlingEnabled
+            ? questionRepository.bulkCreateQuestions(questionsToWrite)
+            : questionRepository.bulkCreateQuestionsInTransaction(questionsToWrite);
 
     // Get the question IDs of the questions we are reusing from the question bank
     ImmutableMap<String, QuestionDefinition> reusedQuestions =
@@ -496,14 +536,11 @@ public final class ProgramMigrationService {
     ImmutableMap<String, QuestionDefinition> allQuestionsByName =
         ImmutableMap.<String, QuestionDefinition>builder()
             .putAll(reusedQuestions)
-            .putAll(
-                newlySavedQuestions.stream()
-                    .map(question -> question.getQuestionDefinition())
-                    .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd)))
+            .putAll(newlySavedQuestions)
             .build();
 
     ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
-        allQuestionsByName.values().stream()
+        newlySavedQuestions.values().stream()
             .map(
                 question -> {
                   if (question.getEnumeratorId().isPresent()) {
@@ -527,8 +564,10 @@ public final class ProgramMigrationService {
                   return question;
                 })
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-
-    return fullyUpdatedQuestions;
+    return ImmutableMap.<String, QuestionDefinition>builder()
+        .putAll(reusedQuestions)
+        .putAll(fullyUpdatedQuestions)
+        .build();
   }
 
   /**
