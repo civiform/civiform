@@ -50,6 +50,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
 
     try (Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       jobTransaction.setBatchMode(true);
+      jobTransaction.setBatchSize(50);
       int errorCount = 0;
 
       try (var query =
