@@ -39,6 +39,7 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
 
   @Override
   protected String emailAttributeName() {
+    logger.info("email attribute name is " + CommonProfileDefinition.EMAIL);
     return CommonProfileDefinition.EMAIL;
   }
 
