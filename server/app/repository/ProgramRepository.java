@@ -57,6 +57,7 @@ public final class ProgramRepository {
   private final SyncCacheApi programCache;
   private final SyncCacheApi programDefCache;
   private final SyncCacheApi versionsByProgramCache;
+  private final TransactionManager transactionManager;
 
   @Inject
   public ProgramRepository(
@@ -73,6 +74,7 @@ public final class ProgramRepository {
     this.programCache = checkNotNull(programCache);
     this.programDefCache = checkNotNull(programDefCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
+    this.transactionManager = new TransactionManager();
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
@@ -334,28 +336,30 @@ public final class ProgramRepository {
   /** Get the current active or draft program with the provided slug. */
   public CompletableFuture<ProgramModel> getDraftOrActiveProgramFromSlug(String slug) {
     return supplyAsync(
-        () -> {
-          ImmutableList<ProgramModel> activePrograms =
-              versionRepository
-                  .get()
-                  .getProgramsForVersion(versionRepository.get().getActiveVersion());
-          ImmutableList<ProgramModel> draftPrograms =
-              versionRepository
-                  .get()
-                  .getProgramsForVersion(versionRepository.get().getDraftVersion());
-          Optional<ProgramModel> foundDraftProgram =
-              draftPrograms.stream()
-                  .filter(draftProgram -> draftProgram.getSlug().equals(slug))
-                  .findFirst();
+        () ->
+            transactionManager.execute(
+                () -> {
+                  ImmutableList<ProgramModel> activePrograms =
+                      versionRepository
+                          .get()
+                          .getProgramsForVersion(versionRepository.get().getActiveVersion());
+                  ImmutableList<ProgramModel> draftPrograms =
+                      versionRepository
+                          .get()
+                          .getProgramsForVersion(versionRepository.get().getDraftVersion());
+                  Optional<ProgramModel> foundDraftProgram =
+                      draftPrograms.stream()
+                          .filter(draftProgram -> draftProgram.getSlug().equals(slug))
+                          .findFirst();
 
-          return foundDraftProgram.orElseGet(
-              () ->
-                  activePrograms.stream()
-                      .filter(activeProgram -> activeProgram.getSlug().equals(slug))
-                      .findFirst()
-                      .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug))));
-        },
-        dbExecutionContext.current());
+                  return foundDraftProgram.orElseGet(
+                      () ->
+                          activePrograms.stream()
+                              .filter(activeProgram -> activeProgram.getSlug().equals(slug))
+                              .findFirst()
+                              .orElseThrow(
+                                  () -> new RuntimeException(new ProgramNotFoundException(slug))));
+                }));
   }
 
   public ImmutableList<AccountModel> getProgramAdministrators(String programName) {

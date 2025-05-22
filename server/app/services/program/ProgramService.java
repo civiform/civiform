@@ -280,7 +280,7 @@ public final class ProgramService {
 
   /**
    * Get the definition of a given program. Gets the active or draft version for the slug (looks for
-   * active first; gets draft if active doesn't exist).
+   * draft first; gets active if draft doesn't exist).
    *
    * @param programSlug the slug of the program to retrieve
    * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
