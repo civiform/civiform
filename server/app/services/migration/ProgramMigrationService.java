@@ -520,7 +520,7 @@ public final class ProgramMigrationService {
       boolean duplicateHandlingEnabled) {
 
     // Save all the questions
-    ImmutableList<QuestionModel> newlySavedQuestions =
+    ImmutableMap<String, QuestionDefinition> newlySavedQuestions =
         duplicateHandlingEnabled
             ? questionRepository.bulkCreateQuestions(questionsToWrite)
             : questionRepository.bulkCreateQuestionsInTransaction(questionsToWrite);
@@ -536,14 +536,11 @@ public final class ProgramMigrationService {
     ImmutableMap<String, QuestionDefinition> allQuestionsByName =
         ImmutableMap.<String, QuestionDefinition>builder()
             .putAll(reusedQuestions)
-            .putAll(
-                newlySavedQuestions.stream()
-                    .map(question -> question.getQuestionDefinition())
-                    .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd)))
+            .putAll(newlySavedQuestions)
             .build();
 
     ImmutableMap<String, QuestionDefinition> fullyUpdatedQuestions =
-        allQuestionsByName.values().stream()
+        newlySavedQuestions.values().stream()
             .map(
                 question -> {
                   if (question.getEnumeratorId().isPresent()) {
@@ -567,7 +564,10 @@ public final class ProgramMigrationService {
                   return question;
                 })
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
-    return fullyUpdatedQuestions;
+    return ImmutableMap.<String, QuestionDefinition>builder()
+        .putAll(reusedQuestions)
+        .putAll(fullyUpdatedQuestions)
+        .build();
   }
 
   /**

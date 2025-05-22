@@ -157,8 +157,11 @@ public final class QuestionRepository {
    * program.
    *
    * <p>Note: calls to this method *must* be inside a {@link Transaction}.
+   *
+   * @param questionDefinitions the questions to create
+   * @return a map of question admin ID to the question definition
    */
-  public ImmutableList<QuestionModel> bulkCreateQuestions(
+  public ImmutableMap<String, QuestionDefinition> bulkCreateQuestions(
       ImmutableList<QuestionDefinition> questionDefinitions) {
     if (database.currentTransaction() == null) {
       throw new IllegalStateException(
@@ -166,7 +169,7 @@ public final class QuestionRepository {
     }
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
 
-    ImmutableList<QuestionModel> updatedQuestions =
+    ImmutableMap<String, QuestionDefinition> updatedQuestions =
         questionDefinitions.stream()
             .map(
                 questionDefinition -> {
@@ -186,7 +189,8 @@ public final class QuestionRepository {
                     throw new RuntimeException(error);
                   }
                 })
-            .collect(ImmutableList.toImmutableList());
+            .map(QuestionModel::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
     return updatedQuestions;
   }
@@ -197,12 +201,12 @@ public final class QuestionRepository {
    *
    * <p>TODO: #9628 - Remove this method during cleanup
    */
-  public ImmutableList<QuestionModel> bulkCreateQuestionsInTransaction(
+  public ImmutableMap<String, QuestionDefinition> bulkCreateQuestionsInTransaction(
       ImmutableList<QuestionDefinition> questionDefinitions) {
     VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction = database.beginTransaction(TxIsolation.SERIALIZABLE)) {
       transaction.setBatchMode(true);
-      ImmutableList<QuestionModel> updatedQuestions =
+      ImmutableMap<String, QuestionDefinition> updatedQuestions =
           questionDefinitions.stream()
               .map(
                   questionDefinition -> {
@@ -222,7 +226,8 @@ public final class QuestionRepository {
                       throw new RuntimeException(error);
                     }
                   })
-              .collect(ImmutableList.toImmutableList());
+              .map(QuestionModel::getQuestionDefinition)
+              .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
 
       transaction.commit();
       return updatedQuestions;

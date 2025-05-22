@@ -747,7 +747,13 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(result.get(QUESTION_3_NAME).getEnumeratorId())
         .hasValue(result.get(QUESTION_1_NAME).getId());
     assertThat(result.get(QUESTION_4_NAME).getEnumeratorId())
-        .hasValue(result.get(QUESTION_1_NAME).getId());
+        .hasValueSatisfying(
+            id -> {
+              // Since we are reusing the child question, the enumerator ID should not be the newly
+              // saved parent question's ID.
+              // TODO: #9628 - disallow reusing a child question when the parent is newly saved
+              assertThat(id).isNotEqualTo(result.get(QUESTION_1_NAME).getId());
+            });
   }
 
   @Test
