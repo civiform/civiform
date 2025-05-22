@@ -20,6 +20,7 @@ public class TransactionModule extends AbstractModule {
   protected void configure() {
     // This is logged
     logger.error("In configure");
+    // This seemingly doesn't actually bind to the annotated method
     bindInterceptor(
       Matchers.any(), // can be refined to specific packages or classes
       Matchers.annotatedWith(BindingAnnotations.RequiresTransaction.class),
