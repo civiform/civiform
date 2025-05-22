@@ -10,9 +10,13 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Locale;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import models.AccountModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -24,6 +28,7 @@ import services.question.types.TextQuestionDefinition;
  * <p>The following serves as documentation and verification of believed invariants in how Ebean
  * actually operates, and possibly serves as a guard for changes in future Ebean releases.
  */
+@RunWith(JUnitParamsRunner.class)
 public class EbeanInvariantTest extends ResetPostgres {
 
   private static final QuestionDefinition QUESTION_DEFINITION =
@@ -59,7 +64,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     questionModel.save();
 
     assertNotNull(questionModel.id);
-    assertThat(questionModel.id).isGreaterThan(-1);
+    assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
   }
 
   @Test
@@ -70,7 +75,7 @@ public class EbeanInvariantTest extends ResetPostgres {
     questionModel.insert();
 
     assertNotNull(questionModel.id);
-    assertThat(questionModel.id).isGreaterThan(-1);
+    assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
   }
 
   /* Note that we're not calling Transaction.commit() through the Transaction
@@ -87,7 +92,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       questionModel.save();
 
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
     }
   }
 
@@ -110,7 +115,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       questionModel.refresh();
 
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
     }
   }
 
@@ -138,7 +143,172 @@ public class EbeanInvariantTest extends ResetPostgres {
 
       // ID is now set.
       assertNotNull(questionModel.id);
-      assertThat(questionModel.id).isGreaterThan(-1);
+      assertThat(questionModel.id).isGreaterThanOrEqualTo(0);
+    }
+  }
+
+  /* Transactions */
+
+  /**
+   * When using TxScope.required(), as we should, inner transactions become part of outer ones with
+   * the top level one ultimately having control over commiting or not.
+   *
+   * <p>Savepoints do not change this behavior. See later for Savepoint usage.
+   */
+  @Test
+  @Parameters({"false", "true"})
+  public void transaction_innerIsNotIsolated(Boolean useSavepoint) {
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      if (useSavepoint) {
+        outerTransaction.setNestedUseSavepoint();
+      }
+
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        // This commit is required to save the changes, but doesn't actually
+        // commit to the database because it isn't on the outermost transaction.
+        innerTransaction.commit();
+      }
+
+      // Assert that, back in the outer transaction, we see the new account
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+
+      // No commit to simulate that the outer transaction controls everything
+      // try-with-resources handles the rollback/end.
+    }
+
+    // Outside of both transactions, everything is rolled back.
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+  }
+
+  /**
+   * Not commiting in an inner transaction causes weirdness.
+   *
+   * <p>This is a good reason to use TransactionManager.execute()
+   */
+  @Test
+  public void transaction_mustCommitInInnerTransaction() {
+    final long outerAccountId;
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      // Enabling nested savepoints produces the expected behavior where
+      // nothing is saved from the transactions:
+      // outerTransaction.setNestedUseSavepoint();
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+        // Not commiting seems to create the problem.
+        // A rollback is done here as expected.
+      }
+
+      // We don't see the inner as expected.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+      // From the logs we see a new transaction is used starting here.
+      // The issue is also triggered by this .insert(). The expected outcome
+      // where the last assert outside the transactions sees nothing happens
+      // without this insert.
+      var account = new AccountModel();
+      account.insert();
+      outerAccountId = account.id;
+      // We see the new one in the outer.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+
+      // And here TXN logging shows a commit happens, despite it not being here.
+    }
+
+    // For some reason we see the outer one.
+    assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+  }
+
+  /**
+   * Rolling back some but not all of a transaction doesn't usually make sense for our code but
+   * nested savepoints is how to do that.
+   */
+  @Test
+  public void transaction_nestedSavePointsAllowForInnerRollbacks() {
+    final long outerAccountId;
+    assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(0);
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      // Add in the outer transaction.
+      var account = new AccountModel();
+      account.insert();
+      outerAccountId = account.id;
+      assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+
+      outerTransaction.setNestedUseSavepoint();
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        new AccountModel().insert();
+        // Assert that from within this inner transaction, we see the new account
+        assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(2);
+        // Decide we don't really want this
+        innerTransaction.rollback();
+      }
+
+      // We only see the outer data and not the inner as expected.
+      assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+      // Keep this one.
+      outerTransaction.commit();
+    }
+
+    // We still only see the outer data.
+    assertThat(DB.find(AccountModel.class).findIds()).containsExactly(outerAccountId);
+  }
+
+  /**
+   * While we don't use batch mode often, be careful about its semantics.
+   *
+   * <p>In a previous test we see that IDs aren't auto loaded when it is on, and here we see that
+   * enabling batches is sticky for the entire transaction beyond when it is set.
+   */
+  @Test
+  public void transaction_innerBatchModeEnablesForEntireTransaction() {
+    try (Transaction outerTransaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Not set as expected.
+      assertThat(outerTransaction.isBatchMode()).isFalse();
+
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        innerTransaction.setBatchMode(true);
+        var account = new AccountModel();
+        account.insert();
+        // In batch mode we don't get IDs without a refresh.
+        assertNull(account.id);
+
+        innerTransaction.commit();
+      }
+
+      // Batch mode is now on out here too, somewhat unexpectedly.
+      assertThat(outerTransaction.isBatchMode()).isTrue();
+
+      var account = new AccountModel();
+      account.insert();
+      // In batch mode we don't get IDs without a refresh.
+      assertNull(account.id);
+
+      // Turn off batch mode, which flushes the batch.
+      outerTransaction.setBatchMode(false);
+
+      account = new AccountModel();
+      account.insert();
+      // Outside of batch mode we now get IDs.
+      assertNotNull(account.id);
+
+      // All 3 are present in the DB.
+      assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(3);
     }
   }
 }
