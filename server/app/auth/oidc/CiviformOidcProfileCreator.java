@@ -242,10 +242,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // authority ID and will be keyed on their email.
     logger.info("email attribute name is " + emailAttributeName());
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
+    String userEmail2 = profile.getAttribute("email", String.class);
     logger.info("Looking up user using email {}", userEmail);
+    logger.info("Looking up user using email2 {}", userEmail2);
+    logger.info("Profile {}", profile);
     return accountRepositoryProvider
         .get()
-        .lookupApplicantByEmail(userEmail)
+        .lookupApplicantByEmail(userEmail2)
         .toCompletableFuture()
         .join();
   }
