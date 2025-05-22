@@ -224,6 +224,16 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .toCompletableFuture()
             .join();
     logger.info("THIS is the applicantOpt " + applicantOpt);
+
+    Optional<ApplicantModel> accountOpt =
+        accountRepositoryProvider
+            .get()
+            .lookupAccountByAuthorityId(authorityId)
+            .toCompletableFuture()
+            .join();
+    
+    logger.info("THIS is the accountOpt " + accountOpt);
+    
     if (applicantOpt.isPresent()) {
       logger.debug("Found user using authority ID: {}", authorityId);
       return applicantOpt;
@@ -231,6 +241,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     // For pre-existing deployments before April 2022, users will exist without an
     // authority ID and will be keyed on their email.
+    logger.info("email attribute name is " + emailAttributeName());
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
     logger.info("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
