@@ -225,7 +225,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .join();
     logger.info("THIS is the applicantOpt " + applicantOpt);
 
-    Optional<ApplicantModel> accountOpt =
+    Optional<AccountModel> accountOpt =
         accountRepositoryProvider
             .get()
             .lookupAccountByAuthorityId(authorityId);
