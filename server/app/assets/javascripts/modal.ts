@@ -73,9 +73,7 @@ export class ModalController {
   constructor() {
     const modalContainer = document.querySelector('#modal-container')
     if (modalContainer == null) {
-      console.error(
-        'Modal Container display not found',
-      )
+      console.error('Modal Container display not found')
       return
     }
 
