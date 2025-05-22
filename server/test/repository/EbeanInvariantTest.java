@@ -133,7 +133,7 @@ public class EbeanInvariantTest extends ResetPostgres {
       assertNull(questionModel.id);
 
       // Flushing sends the batch to the DB prematurely.
-      // Needing to flush in a batch may indicate a data flow smell, but is possible still better
+      // Needing to flush in a batch may indicate a data flow smell, but is possibly still better
       // than not batching.
       // This does no additional select, Ebean already knows the ID, note that other information
       // like M2M relations are likely not updated which refresh() does.
