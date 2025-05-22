@@ -11,9 +11,10 @@ public class ProgramFormBuilderTest {
 
   @Test
   public void buildApplicationStepDiv_buildsApplicationStepFormElement() {
-    DivTag applicationStepsDiv =
+    // Add application step #1 as a required field
+    DivTag applicationStepOneRequiredDiv =
         ProgramFormBuilder.buildApplicationStepDiv(0, ImmutableList.of(), /* isDisabled= */ false);
-    String renderedDiv = applicationStepsDiv.render();
+    String renderedDiv = applicationStepOneRequiredDiv.render();
 
     // field id
     assertThat(renderedDiv).contains("apply-step-1-title");
@@ -21,17 +22,25 @@ public class ProgramFormBuilderTest {
     // field name
     assertThat(renderedDiv).contains("applicationSteps[0][title]");
     assertThat(renderedDiv).contains("applicationSteps[0][description]");
-    // field label
-    assertThat(renderedDiv).contains("Step 1 title");
-    assertThat(renderedDiv).contains("Step 1 description");
+    // field label, which has the required indicator
+    assertThat(renderedDiv).contains("Step 1 title").contains("*");
+    assertThat(renderedDiv).contains("Step 1 description").contains("*");
 
-    DivTag optionalApplicationStepsDiv =
+    // Add application step #1 as an optional field
+    DivTag applicationStepOneOptionalDiv =
+        ProgramFormBuilder.buildApplicationStepDiv(0, ImmutableList.of(), /* isDisabled= */ true);
+    renderedDiv = applicationStepOneOptionalDiv.render();
+
+    assertThat(renderedDiv).contains("Step 1 title").doesNotContain("*");
+    assertThat(renderedDiv).contains("Step 1 description").doesNotContain("*");
+
+    // Add application step #2, which should always be an optional field
+    DivTag applicationStepTwoDiv =
         ProgramFormBuilder.buildApplicationStepDiv(1, ImmutableList.of(), /* isDisabled= */ false);
-    String renderedOptionalDiv = optionalApplicationStepsDiv.render();
+    String renderedOptionalDiv = applicationStepTwoDiv.render();
 
-    // field label for divs other than the first one are labeled "optional"
-    assertThat(renderedOptionalDiv).contains("Step 2 title (optional)");
-    assertThat(renderedOptionalDiv).contains("Step 2 description (optional)");
+    assertThat(renderedOptionalDiv).contains("Step 2 title").doesNotContain("*");
+    assertThat(renderedOptionalDiv).contains("Step 2 description").doesNotContain("*");
   }
 
   @Test

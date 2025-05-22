@@ -1729,7 +1729,7 @@ export class AdminPrograms {
 
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
-      name: 'Long program description (optional)',
+      name: 'Long program description',
     })
   }
 
@@ -1747,7 +1747,7 @@ export class AdminPrograms {
         'A custom message that will be shown on the confirmation page ' +
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
-        'highlight other programs to apply for. (optional)',
+        'highlight other programs to apply for.',
     })
   }
 
