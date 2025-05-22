@@ -48,7 +48,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .getByRole('textbox', {name: 'Long program description'})
         .fill(
           'This is the _program long description_ with markdown\n' +
             '[This is a link](https://www.example.com)\n' +
@@ -134,7 +134,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
         ProgramLifecycle.ACTIVE,
       )
       await page
-        .getByRole('textbox', {name: 'Long program description (optional)'})
+        .getByRole('textbox', {name: 'Long program description'})
         .fill('')
       await adminPrograms.submitProgramDetailsEdits()
       await adminPrograms.publishAllDrafts()
