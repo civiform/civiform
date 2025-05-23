@@ -72,7 +72,14 @@ export class AdminProgramMigration {
   async submitProgramJson(content: string) {
     await waitForPageJsLoad(this.page)
     await this.page.getByRole('textbox').fill(content)
-    await this.clickButton('Preview program')
+    await this.clickButtonWithSpinner('Preview program')
+  }
+
+  private async expectButtonDisabledAndSpinning(buttonText: string) {
+    const button = this.page.getByRole('button', {name: buttonText})
+    await expect(button).toBeDisabled()
+    await expect(button).toHaveClass(/(^|\s)htmx-request(\s|$)/)
+    await waitForPageJsLoad(this.page)
   }
 
   async expectAlert(alertText: string, alertType: string) {
@@ -100,6 +107,11 @@ export class AdminProgramMigration {
 
   async expectOptionSelected(question: Locator, option: string) {
     await expect(question.getByLabel(option)).toBeChecked()
+  }
+
+  async clickButtonWithSpinner(buttonText: string) {
+    await this.page.getByRole('button', {name: buttonText}).click()
+    await this.expectButtonDisabledAndSpinning(buttonText)
   }
 
   async clickButton(buttonText: string) {

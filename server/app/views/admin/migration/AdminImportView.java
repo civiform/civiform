@@ -133,10 +133,13 @@ public class AdminImportView extends BaseHtmlView {
                 .attr("hx-post", routes.AdminImportController.hxImportProgram().url())
                 .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
                 .attr("hx-swap", "outerHTML")
+                .attr("hx-indicator", "#hx-submit-button")
+                .attr("hx-disabled-elt", "#hx-submit-button")
                 .with(makeCsrfTokenInputTag(request), jsonInputElement)
                 .with(
                     submitButton("Preview program")
-                        .withClasses("usa-button", "usa-button--outline", "mb-5")));
+                        .withClasses("usa-button", "usa-button--outline", "mb-5")
+                        .withId("hx-submit-button")));
   }
 
   private DivTag renderBackButton() {

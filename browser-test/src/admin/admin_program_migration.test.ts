@@ -912,7 +912,7 @@ test.describe('program migration', () => {
           ['Sample Email Question', adminProgramMigration.CREATE_DUPLICATE],
         ]),
       )
-      await adminProgramMigration.clickButton('Save')
+      await adminProgramMigration.clickButtonWithSpinner('Save')
       await adminProgramMigration.expectAlert(
         'Your program has been successfully imported',
         ALERT_SUCCESS,
