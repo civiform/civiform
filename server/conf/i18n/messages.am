@@ -214,7 +214,9 @@ button.viewAndApply=አሳይ እና ተግብር
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=በ{0} ላይ አሳይ እና ተግብር
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=አዲስ ትር ላይ አሳይ
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=ማመልከቻዎን በኋላ ላይ ለመድረስ መ�
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=መረጃዎን በመለያ ውስጥ በሚያስቀምጡበት ጊዜ የማመልከቻዎን ሁኔታ ማረጋገጥ እና በፍጥነት ወደ ሌሎች ፕሮግራሞች ማመልከት ይችላሉ።
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=እርስዎ አሁን ላይ ለሚገኙ ሁሉም ፕሮግራሞች ማመልከቻ ጀምረዋል ወይም አስገብተዋል።
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ወደ ነባር መለያ ይግቡ
 
