@@ -255,13 +255,15 @@ export class AdminTranslations {
 
     // If there are multi-option inputs to translate, fill them in
     // with the provided translations in configText
-    const optionInputs = await this.page.$$('[name="options[]"]')
-    for (let index = 0; index < optionInputs.length; index++) {
-      await optionInputs[index].fill(configText[index])
+    const optionInputs = this.page.locator('[name="options[]"]')
+
+    const optionInputsCount = await optionInputs.count()
+    for (let index = 0; index < optionInputsCount; index++) {
+      await optionInputs.nth(index).fill(configText[index])
     }
 
-    const enumeratorInput = await this.page.$('[name="entityType"]')
-    if (enumeratorInput) {
+    const enumeratorInput = this.page.locator('[name="entityType"]')
+    if ((await enumeratorInput.count()) > 0) {
       await enumeratorInput.fill(configText[0])
     }
 
