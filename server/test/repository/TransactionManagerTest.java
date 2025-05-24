@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
@@ -414,5 +415,20 @@ public class TransactionManagerTest extends ResetPostgres {
 
     // Outside of both transactions, we should see the new account
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
+  }
+
+  @BindingAnnotations.RequiresTransaction
+  private void foo() {
+
+  }
+  @Test
+  public void throwIfTransactionNotPresent_inTransactionDoesNotThrow() {
+    transactionManager.execute(TransactionManager::throwIfTransactionNotPresent);
+  }
+
+  @Test
+  public void throwIfTransactionNotPresent_noTransactionThrows() {
+    // This fails due to no Exception.
+    assertThrows(IllegalStateException.class, this::foo);
   }
 }

@@ -5,12 +5,17 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 public final class BindingAnnotations {
 
+  @Target({ElementType.METHOD})
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface RequiresTransaction { }
   /**
    * Now represents "right now". Consumers should typically inject a @Now Provider<T> in the
    * constructor, otherwise the returned value will be "right now" when the constructor was called.
