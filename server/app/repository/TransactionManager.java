@@ -46,9 +46,15 @@ public final class TransactionManager {
    * @param <T> the return type of the suppliers
    */
   public <T> T execute(Supplier<T> synchronousWork) {
+    return execute(TxScope.required(), synchronousWork);
+  }
+
+  // This is the main execution of caller code.  Other methods are wrappers
+  // of this.
+  private <T> T execute(TxScope scope, Supplier<T> synchronousWork) {
     checkNotNull(synchronousWork);
     try (Transaction transaction =
-        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        DB.beginTransaction(scope.setIsolation(TxIsolation.SERIALIZABLE))) {
       T result = synchronousWork.get();
       transaction.commit();
       return result;
@@ -57,7 +63,12 @@ public final class TransactionManager {
 
   /** Calls {@link #execute(Supplier)} but accepts a {@link Runnable}. */
   public void execute(Runnable synchronousWork) {
+    execute(TxScope.required(), synchronousWork);
+  }
+
+  private void execute(TxScope scope, Runnable synchronousWork) {
     execute(
+        scope,
         () -> {
           synchronousWork.run();
           return null;
@@ -111,6 +122,17 @@ public final class TransactionManager {
     }
 
     execute(synchronousWork);
+  }
+
+  /** Throws {@code IllegalStateException} if a transaction is not present.
+   * <p>
+   * It would be cleaner if this were a method annotation but I/shane was
+   * unable to get that to work.
+   */
+  public static void throwIfTransactionNotPresent() {
+    if (DB.getDefault().currentTransaction() == null) {
+      throw new IllegalStateException("A database transaction is required but not present");
+    }
   }
 
   private void logRetriedException(SerializableConflictException sce) {

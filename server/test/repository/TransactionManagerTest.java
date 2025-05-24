@@ -415,4 +415,14 @@ public class TransactionManagerTest extends ResetPostgres {
     // Outside of both transactions, we should see the new account
     assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(1);
   }
+
+  @Test
+  public void throwIfTransactionNotPresent_inTransactionDoesNotThrow() {
+    transactionManager.execute(TransactionManager::throwIfTransactionNotPresent);
+  }
+
+  @Test
+  public void throwIfTransactionNotPresent_noTransactionThrows() {
+    assertThrows(IllegalStateException.class, TransactionManager::throwIfTransactionNotPresent);
+  }
 }
