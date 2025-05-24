@@ -91,7 +91,7 @@ class AdminPrograms {
       /* fieldSelectors= */ '[id^="program-eligibility"]',
       /* shouldDisable= */ disableProgramEligibility,
     )
-    this.hideRequiredIndicators(
+    this.updateRequiredIndicatorState(
       /* fieldSelector= */ '#program-eligibility',
       /* shouldHide= */ disableProgramEligibility,
     )
@@ -128,8 +128,12 @@ class AdminPrograms {
       /* fieldSelectors= */ 'textarea[id^="apply-step"]',
       /* shouldDisable= */ disableApplicationSteps,
     )
-    this.hideRequiredIndicators(
-      /* fieldSelector= */ '#apply-step-1-div',
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="apply-step-1-title"]',
+      /* shouldHide= */ disableApplicationSteps,
+    )
+    this.updateRequiredIndicatorState(
+      /* fieldSelector= */ 'label[for="apply-step-1-description"]',
       /* shouldHide= */ disableApplicationSteps,
     )
 
@@ -210,16 +214,32 @@ class AdminPrograms {
    * @param {string} fieldSelector - The selector for the field
    * @param {boolean} shouldHide - Whether to show or hide the required indicator
    */
-  static hideRequiredIndicators(fieldSelector: string, shouldHide: boolean) {
-    const field = document.querySelector(fieldSelector)
-    const requiredIndicators = field?.querySelectorAll('span')
-    requiredIndicators?.forEach((indicator) => {
-      if (shouldHide) {
-        indicator.classList.add('hidden')
-      } else {
-        indicator.classList.remove('hidden')
-      }
-    })
+  static updateRequiredIndicatorState(
+    fieldSelector: string,
+    shouldHide: boolean,
+  ) {
+    const labelElement = document.querySelector(fieldSelector)
+    if (!labelElement) {
+      return
+    }
+
+    let requiredSpan = labelElement.querySelector(
+      'span.text-red-600.font-semibold',
+    )
+    if (!requiredSpan) {
+      // Add the required indicator if is not present.
+      requiredSpan = document.createElement('span')
+      requiredSpan.className = 'text-red-600 font-semibold'
+      requiredSpan.setAttribute('aria-hidden', 'true')
+      requiredSpan.innerHTML = '&nbsp;*'
+      labelElement.appendChild(requiredSpan)
+    }
+
+    if (shouldHide) {
+      requiredSpan.classList.add('hidden')
+    } else {
+      requiredSpan.classList.remove('hidden')
+    }
   }
 
   static attachEventListenersToEditTIButton() {

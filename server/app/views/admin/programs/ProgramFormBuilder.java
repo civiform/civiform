@@ -200,7 +200,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
-            .setLabelText("Program note for administrative use only (optional)")
+            .setLabelText("Program note for administrative use only")
             .setValue(adminDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
@@ -288,7 +288,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
-            .setLabelText("Link to program website (optional)")
+            .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
@@ -313,7 +313,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
-            .setLabelText("Long program description (optional)")
+            .setLabelText("Long program description")
             .setMarkdownSupported(true)
             .setValue(displayDescription)
             .setAttribute(
@@ -345,8 +345,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText(
                 "A custom message that will be shown on the confirmation page after an application"
                     + " has been submitted. You can use this message to explain next steps of the"
-                    + " application process and/or highlight other programs to apply for."
-                    + " (optional)")
+                    + " application process and/or highlight other programs to apply for.")
             .setMarkdownSupported(true)
             .setValue(confirmationScreen)
             .setDisabled(disableConfirmationMessage)
@@ -501,8 +500,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       title.setLabelText("Step 1 title").setRequired(true);
       description.setLabelText("Step 1 description").setRequired(true);
     } else {
-      title.setLabelText("Step " + indexPlusOne + " title (optional)");
-      description.setLabelText("Step " + indexPlusOne + " description (optional)");
+      title.setLabelText("Step " + indexPlusOne + " title ");
+      description.setLabelText("Step " + indexPlusOne + " description ");
     }
 
     return div()
@@ -513,9 +512,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private FieldsetTag showCategoryCheckboxes(
       List<CategoryModel> categoryOptions, List<Long> categories, boolean isDisabled) {
     return fieldset(
-            legend(
-                    "Tag this program with 1 or more categories to make it easier to find"
-                        + " (optional)")
+            legend("Tag this program with 1 or more categories to make it easier to find")
                 .withClass("text-gray-600"),
             div(each(
                     categoryOptions,
