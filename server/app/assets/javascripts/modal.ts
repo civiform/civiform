@@ -52,6 +52,7 @@ export class ModalController {
    * redirect the user to that url, as if they had clicked the bypass element themselves.
    *
    * Returns a boolean indicating whether to skip showing the Modal if these cases are met.
+   * And sometimes it is checked.
    */
   private static avoidShowingModalAgain(modal: Element): boolean {
     const onlyShowOnceGroup = modal.getAttribute('only-show-once-group')
