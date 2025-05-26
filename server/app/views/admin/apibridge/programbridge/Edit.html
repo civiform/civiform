@@ -1,0 +1,55 @@
+<!doctype html>
+<html layout:decorate="~{admin/apibridge/Layout}">
+  <head>
+    <title>programedit</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <style type="text/css">
+        .usa-form {
+          max-width: 56rem;
+        }
+      </style>
+
+      <div>
+        <h1>Edit Program Bridge Definitions</h1>
+
+        <form
+          class="usa-form"
+          method="post"
+          th:action="${routesProgramBridgeController.save(model.programDefinition().id()).url()}"
+        >
+          <input hidden th:value="${csrfToken}" name="csrfToken" />
+          <input
+            hidden
+            th:value="${model.programDefinition().id()}"
+            name="id"
+          />
+          <div>
+            <span>ID: </span>
+            <span th:text="${model.programDefinition().id()}"></span>
+          </div>
+          <div>
+            <label class="usa-label" for="bridgeDefinitions"
+              >Bridge Definition</label
+            >
+            <textarea
+              id="bridgeDefinitions"
+              name="bridgeDefinitions"
+              class="usa-textarea"
+              th:text="${presenter.prettyPrintJson(model.getBridgeDefinitions())}"
+            ></textarea>
+          </div>
+          <div>
+            <input type="submit" class="usa-button" value="Save" />
+            <input
+              type="reset"
+              class="usa-button usa-button--unstyled"
+              value="Reset"
+            />
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

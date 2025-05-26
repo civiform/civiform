@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
@@ -97,7 +98,16 @@ abstract class ProgramBaseView extends BaseHtmlView {
                 headerButtons.stream()
                     .map(
                         headerButton ->
-                            renderHeaderButton(headerButton, programDefinition, request)));
+                            renderHeaderButton(headerButton, programDefinition, request)))
+            .with(
+                a().withStyle(
+                        "border: 1px solid black; padding: 1rem; margin: 1rem; background-color:"
+                            + " #ae0000; font-weight: bold; border-radius: 2rem; color: white;")
+                    .withHref(
+                        controllers.admin.apibridge.routes.ProgramBridgeController.edit(
+                                programDefinition.id())
+                            .url())
+                    .withText("EDIT BRIDGE DEF"));
 
     DivTag categoriesDiv =
         div(

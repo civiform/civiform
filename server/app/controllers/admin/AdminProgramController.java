@@ -312,7 +312,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getProgramType(),
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
-        ImmutableList.copyOf(applicationSteps));
+        ImmutableList.copyOf(applicationSteps),
+        ImmutableList.of());
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
   }
 

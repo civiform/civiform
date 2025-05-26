@@ -41,6 +41,7 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.AlertSettings;
+import services.apibridge.Dispatcher;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -100,6 +101,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final ProgramService programService;
   private final ApplicantRoutes applicantRoutes;
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
+  private final Dispatcher dispatcher;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -125,7 +127,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProgramService programService,
       VersionRepository versionRepository,
       ApplicantRoutes applicantRoutes,
-      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
+      EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator,
+      Dispatcher dispatcher) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -147,6 +150,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         checkNotNull(northStarApplicantProgramBlockEditView);
     this.northStarAddressCorrectionBlockView = checkNotNull(northStarAddressCorrectionBlockView);
     this.programService = checkNotNull(programService);
+    this.dispatcher = checkNotNull(dispatcher);
   }
 
   /**

@@ -1,0 +1,34 @@
+<!doctype html>
+<html layout:decorate="~{admin/apibridge/Layout}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>discovery</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div>
+        <h1>Bridge Discovery</h1>
+        <form
+          class="usa-form usa-form--large"
+          hx-target="#detailsTarget"
+          th:hx-post="${routesDiscoveryController.hxDiscoveryPopulate().url()}"
+        >
+          <fieldset>
+            <input hidden th:value="${csrfToken}" name="csrfToken" />
+            <label class="use-label" for="hostUri">Host Uri</label>
+            <input
+              class="usa-input"
+              id="hostUri"
+              name="hostUri"
+              value="http://mock-web-services:8000/adapter"
+            />
+            <input class="usa-button" type="submit" value="discover" />
+          </fieldset>
+        </form>
+
+        <div id="detailsTarget"></div>
+      </div>
+    </main>
+  </body>
+</html>

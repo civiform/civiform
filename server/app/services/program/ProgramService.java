@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 import models.AccountModel;
 import models.ApplicationModel;
 import models.ApplicationStep;
+import models.BridgeDefinition;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -550,7 +551,8 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
-      ImmutableList<ApplicationStep> applicationSteps)
+      ImmutableList<ApplicationStep> applicationSteps,
+      ImmutableList<BridgeDefinition> bridgeDefinitions)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
@@ -612,6 +614,7 @@ public final class ProgramService {
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)
+            .setBridgeDefinitions(bridgeDefinitions)
             .build()
             .toProgram();
 

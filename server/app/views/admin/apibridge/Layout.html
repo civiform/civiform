@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">
+      apibridge
+    </title>
+    <link th:href="${uswdsStylesheet}" type="text/css" rel="stylesheet" />
+    <script
+      th:nonce="${cspNonce}"
+      th:src="${uswdsJsInit}"
+      type="text/javascript"
+    ></script>
+  </head>
+  <body>
+    <style type="text/css">
+      body {
+        /*background-color: #999999;*/
+        margin: 1rem;
+      }
+      pre {
+        font-size: 0.9rem;
+      }
+      form {
+        /*min-width: 54rem;*/
+      }
+      .usa-table th,
+      .usa-table td,
+      .usa-input,
+      .usa-textarea {
+        background-color: inherit;
+        field-sizing: content;
+      }
+      .usa-textarea {
+        font-family: monospace;
+        font-size: 16px;
+        height: 48rem;
+      }
+    </style>
+    <header>
+      <ul class="usa-button-group">
+        <li class="usa-button-group__item">
+          <a
+            class="usa-button"
+            href="/admin/api-bridge"
+            th:classappend="${currentPage == 'list' ? '' : 'usa-button--outline'}"
+            >List</a
+          >
+        </li>
+        <li class="usa-button-group__item">
+          <a
+            class="usa-button"
+            href="/admin/api-bridge/discovery"
+            th:classappend="${currentPage == 'discovery' ? '' : 'usa-button--outline'}"
+            >Discovery</a
+          >
+        </li>
+      </ul>
+    </header>
+    <main layout:fragment="content"></main>
+
+    <script
+      th:nonce="${cspNonce}"
+      src="https://unpkg.com/htmx.org@2.0.4"
+      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      th:nonce="${cspNonce}"
+      th:src="${uswdsJsBundle}"
+      type="text/javascript"
+    ></script>
+  </body>
+</html>

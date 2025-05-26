@@ -7,6 +7,9 @@ import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
+import services.apibridge.ApiBridgeService;
+import services.apibridge.FakeApiBridgeService;
+import services.apibridge.IApiBridgeService;
 import services.geo.esri.EsriClient;
 
 /**
@@ -43,6 +46,16 @@ public final class EsriModule extends AbstractModule {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(
           String.format("Failed to load esri client class: %s", className), e);
+    }
+
+    configureApiBridge();
+  }
+
+  private void configureApiBridge() {
+    if (config.getBoolean("api_bridge_enabled")) {
+      bind(IApiBridgeService.class).to(ApiBridgeService.class);
+    } else {
+      bind(IApiBridgeService.class).to(FakeApiBridgeService.class);
     }
   }
 

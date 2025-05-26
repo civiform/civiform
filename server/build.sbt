@@ -38,6 +38,7 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.3.RELEASE",
+      "nz.net.ultraq.thymeleaf" % "thymeleaf-layout-dialect" % "3.4.0",
       "org.commonmark" % "commonmark" % "0.24.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.24.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
@@ -127,6 +128,8 @@ lazy val root = (project in file("."))
         "validation-api"
       ),
       "io.swagger" % "swagger-parser" % "1.0.74",
+
+      "com.networknt" % "json-schema-validator" % "1.5.5",
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.30",
