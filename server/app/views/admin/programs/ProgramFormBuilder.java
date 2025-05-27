@@ -205,7 +205,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program type
-        buildProgramTypeFieldset(settingsManifest, request, programType, programEditStatus),
+        buildProgramTypeFieldset(request, programType, programEditStatus),
         // Program Eligibility
         fieldset(
                 legend("Program eligibility gating")
@@ -358,10 +358,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent buildProgramTypeFieldset(
-      SettingsManifest settingsManifest,
-      Request request,
-      ProgramType programType,
-      ProgramEditStatus programEditStatus) {
+      Request request, ProgramType programType, ProgramEditStatus programEditStatus) {
     DomContent programTypeFieldset;
     if (settingsManifest.getExternalProgramCardsEnabled(request)) {
       // When creating a program, program type fields (if visible) are never disabled.
