@@ -659,6 +659,11 @@ main {
     transform: scaleX(-1);
   }
 
+  .usa-modal,
+  .usa-modal-content {
+    text-align: right;
+  }
+
   .usa-modal__close {
     margin-left: 0;
   }
