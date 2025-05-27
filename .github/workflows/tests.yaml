@@ -27,6 +27,12 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: bin/build-dev-oidc
+
+      - name: Build mock-web-services
+        env:
+          DOCKER_BUILDKIT: 1
+        run: bin/build-mock-web-services
+
       - name: Run tests
         run: bin/run-test-ci
 
@@ -217,4 +223,3 @@ jobs:
       - name: Print logs on failure
         if: failure()
         run: docker compose logs
-
