@@ -896,29 +896,25 @@ public final class VersionRepository {
    */
   public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       VersionModel version) {
-    // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as this method reads from the DB and the caller
-    //  reasonably wants that in sync with the passed in DB object.
-    try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.REPEATABLE_READ))) {
-      ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
-      Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
-      for (ProgramModel program : getProgramsForVersion(version)) {
-        ImmutableSet<String> programQuestionNames =
-            getProgramQuestionNames(
-                programRepository.getShallowProgramDefinition(program), questionIdToNameLookup);
-        for (String questionName : programQuestionNames) {
-          if (!result.containsKey(questionName)) {
-            result.put(questionName, Sets.newHashSet());
-          }
-          result.get(questionName).add(programRepository.getShallowProgramDefinition(program));
+    // Reviewed DO NOT SUBMIT
+    TransactionManager.throwIfTransactionNotPresent();
+
+    ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+    for (ProgramModel program : getProgramsForVersion(version)) {
+      ImmutableSet<String> programQuestionNames =
+          getProgramQuestionNames(
+              programRepository.getShallowProgramDefinition(program), questionIdToNameLookup);
+      for (String questionName : programQuestionNames) {
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
         }
+        result.get(questionName).add(programRepository.getShallowProgramDefinition(program));
       }
-      transaction.commit();
-      return result.entrySet().stream()
-          .collect(
-              ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
     }
+    return result.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   /** Returns the names of questions referenced by the program that are in the specified version. */
