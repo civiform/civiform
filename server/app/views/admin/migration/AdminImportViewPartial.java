@@ -142,7 +142,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     DivTag formButtons =
         div()
             .with(
-                submitButton("Save").withClasses("usa-button", "mr-2"),
+                submitButton("Save").withClasses("usa-button", "mr-2").withId("hx-submit-button"),
                 asRedirectElement(
                         button("Delete and start over"), routes.AdminImportController.index().url())
                     .withClasses("usa-button", "usa-button--outline"))
@@ -156,6 +156,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
             .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
             .attr("hx-swap", "outerHTML")
+            .attr("hx-indicator", "#hx-submit-button")
+            .attr("hx-disabled-elt", "#hx-submit-button")
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
@@ -167,8 +169,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .condWith(
                 duplicateHandlingOptionsEnabled && duplicateQuestionNames.size() > 1,
                 renderToplevelDuplicateQuestionHandlingOptions())
-            // TODO: #9628 - Add styling to signal that the program is saving, as it can take a few
-            // seconds
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
     for (BlockDefinition block : program.blockDefinitions()) {
