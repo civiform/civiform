@@ -267,7 +267,7 @@
   </th:block>
 </th:block>
 
-<div th:fragment="languageSelector" data-testid="languageSelector">
+<div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
     <input hidden th:value="${csrfToken}" name="csrfToken" />
     <input hidden th:value="${requestUri}" name="redirectLink" />

@@ -1,4 +1,3 @@
-import type {Page} from '@playwright/test'
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
@@ -207,11 +206,10 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
   test.describe('Language Selector Visibility', () => {
     test('shows language selector when multiple languages are enabled', async ({
       page,
-    }: {
-      page: Page
     }) => {
-      const selector = page.getByRole('button', {name: 'Select Language'})
-      await expect(selector).toHaveCount(1)
+      await expect(
+        page.getByRole('button', {name: 'Select Language'}),
+      ).toBeVisible()
     })
   })
 })
