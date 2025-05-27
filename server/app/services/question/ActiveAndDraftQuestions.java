@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import models.VersionModel;
 import org.apache.pekko.japi.Pair;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.DeletionStatus;
 import services.program.ProgramDefinition;
@@ -39,10 +40,12 @@ public final class ActiveAndDraftQuestions {
    * state.
    */
   public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
-    return new ActiveAndDraftQuestions(repository);
+    return new TransactionManager().execute(() -> new ActiveAndDraftQuestions(repository));
   }
 
   private ActiveAndDraftQuestions(VersionRepository repository) {
+    TransactionManager.throwIfTransactionNotPresent();
+
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     VersionModel withDraftEdits = repository.previewPublishNewSynchronizedVersion();

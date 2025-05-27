@@ -61,6 +61,7 @@ public final class VersionRepository {
   private static final QueryProfileLocationBuilder profileLocationBuilder =
       new QueryProfileLocationBuilder("VersionRepository");
   private final Database database;
+  private final TransactionManager transactionManager;
   private final ProgramRepository programRepository;
   private final QuestionRepository questionRepository;
   private final DatabaseExecutionContext databaseExecutionContext;
@@ -77,6 +78,7 @@ public final class VersionRepository {
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.database = DB.getDefault();
+    this.transactionManager = new TransactionManager();
     this.programRepository = checkNotNull(programRepository);
     this.questionRepository = checkNotNull(questionRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
@@ -112,98 +114,100 @@ public final class VersionRepository {
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
-    try (Transaction transaction =
-        database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
-      VersionModel draft = getDraftVersionOrCreate();
-      VersionModel active = getActiveVersion();
+    return transactionManager.execute(
+        () -> {
+          VersionModel draft = getDraftVersionOrCreate();
+          VersionModel active = getActiveVersion();
 
-      ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
-      ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
+          ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
+          ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
-      // Is a program being deleted in the draft version?
-      Predicate<ProgramModel> programIsDeletedInDraft =
-          program ->
-              draft.programIsTombstoned(
-                  programRepository.getShallowProgramDefinition(program).adminName());
-      // Is a question being deleted in the draft version?
-      Predicate<QuestionModel> questionIsDeletedInDraft =
-          question ->
-              draft.questionIsTombstoned(
-                  questionRepository.getQuestionDefinition(question).getName());
+          // Is a program being deleted in the draft version?
+          Predicate<ProgramModel> programIsDeletedInDraft =
+              program ->
+                  draft.programIsTombstoned(
+                      programRepository.getShallowProgramDefinition(program).adminName());
+          // Is a question being deleted in the draft version?
+          Predicate<QuestionModel> questionIsDeletedInDraft =
+              question ->
+                  draft.questionIsTombstoned(
+                      questionRepository.getQuestionDefinition(question).getName());
 
-      // Associate any active programs that aren't present in the draft with the draft.
-      getProgramsForVersionWithoutCache(active).stream()
-          // Exclude programs deleted in the draft.
-          .filter(not(programIsDeletedInDraft))
-          // Exclude programs that are in the draft already.
-          .filter(
-              activeProgram ->
-                  !draftProgramsNames.contains(
-                      programRepository.getShallowProgramDefinition(activeProgram).adminName()))
-          // For each active program not associated with the draft, associate it with the draft.
-          // The relationship between Programs and Versions is many-to-may. When updating the
-          // relationship, one of the EBean models needs to be saved. We update the Version
-          // side of the relationship rather than the Program side in order to prevent the
-          // save causing the "updated" timestamp to be changed for a Program. We intend for
-          // that timestamp only to be updated for actual changes to the program.
-          .forEach(draft::addProgram);
+          // Associate any active programs that aren't present in the draft with the draft.
+          getProgramsForVersionWithoutCache(active).stream()
+              // Exclude programs deleted in the draft.
+              .filter(not(programIsDeletedInDraft))
+              // Exclude programs that are in the draft already.
+              .filter(
+                  activeProgram ->
+                      !draftProgramsNames.contains(
+                          programRepository.getShallowProgramDefinition(activeProgram).adminName()))
+              // For each active program not associated with the draft, associate it with the draft.
+              // The relationship between Programs and Versions is many-to-may. When updating the
+              // relationship, one of the EBean models needs to be saved. We update the Version
+              // side of the relationship rather than the Program side in order to prevent the
+              // save causing the "updated" timestamp to be changed for a Program. We intend for
+              // that timestamp only to be updated for actual changes to the program.
+              .forEach(draft::addProgram);
 
-      // Associate any active questions that aren't present in the draft with the draft.
-      getQuestionsForVersionWithoutCache(active).stream()
-          // Exclude questions deleted in the draft.
-          .filter(not(questionIsDeletedInDraft))
-          // Exclude questions that are in the draft already.
-          .filter(
-              activeQuestion ->
-                  !draftQuestionNames.contains(
-                      questionRepository.getQuestionDefinition(activeQuestion).getName()))
-          // For each active question not associated with the draft, associate it with the draft.
-          // The relationship between Questions and Versions is many-to-may. When updating the
-          // relationship, one of the EBean models needs to be saved. We update the Version
-          // side of the relationship rather than the Question side in order to prevent the
-          // save causing the "updated" timestamp to be changed for a Question. We intend for
-          // that timestamp only to be updated for actual changes to the question.
-          .forEach(draft::addQuestion);
+          // Associate any active questions that aren't present in the draft with the draft.
+          getQuestionsForVersionWithoutCache(active).stream()
+              // Exclude questions deleted in the draft.
+              .filter(not(questionIsDeletedInDraft))
+              // Exclude questions that are in the draft already.
+              .filter(
+                  activeQuestion ->
+                      !draftQuestionNames.contains(
+                          questionRepository.getQuestionDefinition(activeQuestion).getName()))
+              // For each active question not associated with the draft, associate it with the
+              // draft.
+              // The relationship between Questions and Versions is many-to-may. When updating the
+              // relationship, one of the EBean models needs to be saved. We update the Version
+              // side of the relationship rather than the Question side in order to prevent the
+              // save causing the "updated" timestamp to be changed for a Question. We intend for
+              // that timestamp only to be updated for actual changes to the question.
+              .forEach(draft::addQuestion);
 
-      // Remove any questions / programs both added and archived in the current version.
-      getQuestionsForVersion(draft).stream()
-          .filter(questionIsDeletedInDraft)
-          .forEach(
-              questionToDelete -> {
-                draft.removeTombstoneForQuestion(questionToDelete);
-                draft.removeQuestion(questionToDelete);
-              });
-      getProgramsForVersion(draft).stream()
-          .filter(programIsDeletedInDraft)
-          .forEach(
-              programToDelete -> {
-                draft.removeTombstoneForProgram(programToDelete);
-                draft.removeProgram(programToDelete);
-              });
+          // Remove any questions / programs both added and archived in the current version.
+          getQuestionsForVersion(draft).stream()
+              .filter(questionIsDeletedInDraft)
+              .forEach(
+                  questionToDelete -> {
+                    draft.removeTombstoneForQuestion(questionToDelete);
+                    draft.removeQuestion(questionToDelete);
+                  });
+          getProgramsForVersion(draft).stream()
+              .filter(programIsDeletedInDraft)
+              .forEach(
+                  programToDelete -> {
+                    draft.removeTombstoneForProgram(programToDelete);
+                    draft.removeProgram(programToDelete);
+                  });
 
-      // Move forward the ACTIVE version.
-      active.setLifecycleStage(LifecycleStage.OBSOLETE);
-      draft.setLifecycleStage(LifecycleStage.ACTIVE);
+          // Move forward the ACTIVE version.
+          active.setLifecycleStage(LifecycleStage.OBSOLETE);
+          draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
-      switch (publishMode) {
-        case PUBLISH_CHANGES:
-          Preconditions.checkState(
-              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
-              "Must have at least 1 program or question in the draft version.");
-          draft.save();
-          active.save();
-          draft.refresh();
-          active.refresh();
-          validateProgramQuestionState();
-          break;
-        case DRY_RUN:
-          break;
-        default:
-          throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
-      }
-      transaction.commit();
-      return draft;
-    }
+          switch (publishMode) {
+            case PUBLISH_CHANGES:
+              Preconditions.checkState(
+                  !getProgramsForVersion(draft).isEmpty()
+                      || !getQuestionsForVersion(draft).isEmpty(),
+                  "Must have at least 1 program or question in the draft version.");
+              draft.save();
+              active.save();
+              draft.refresh();
+              active.refresh();
+              validateProgramQuestionState();
+              break;
+            case DRY_RUN:
+              break;
+            default:
+              throw new RuntimeException(
+                  String.format("unrecognized publishMode: %s", publishMode));
+          }
+          return draft;
+        });
   }
 
   /**
@@ -413,7 +417,6 @@ public final class VersionRepository {
             .setLabel("VersionModel.findPrevious")
             .setProfileLocation(profileLocationBuilder.create("getPreviousVersion"))
             .findOne();
-
     return Optional.ofNullable(previousVersion);
   }
 
@@ -626,6 +629,9 @@ public final class VersionRepository {
    * on a draft program.
    */
   public void updateQuestionVersions(ProgramModel draftProgram) {
+    // Reviewed
+    TransactionManager.throwIfTransactionNotPresent();
+
     Preconditions.checkArgument(isInactive(draftProgram), "input program must not be active.");
     Preconditions.checkArgument(
         isDraft(draftProgram), "input program must be in the current draft version.");
@@ -637,10 +643,15 @@ public final class VersionRepository {
       logger.trace("Updating screen (block) {}.", block.id());
       updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
-    draftProgram = new ProgramModel(updatedDefinition.build());
+    ProgramModel updatedProgram = new ProgramModel(updatedDefinition.build());
     logger.trace("Submitting update.");
-    database.update(draftProgram);
-    draftProgram.refresh();
+    database.update(updatedProgram);
+    // TODO(#10553): Investigate this code smell.
+    // This appears to be a no-op since it is a local object and not
+    // returned. As well the input param is not refreshed so callers
+    // may expect it to have been. Previously this was also created as
+    // an overwrite of the input param draftProgram.
+    updatedProgram.refresh();
   }
 
   public boolean isInactive(QuestionModel question) {
@@ -680,8 +691,15 @@ public final class VersionRepository {
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
-  /** Validate all programs have associated questions. */
+  /**
+   * Validate all programs have associated questions.
+   *
+   * @throws IllegalStateException if there are any issues.
+   */
   private void validateProgramQuestionState() {
+    // Reviewed DO NOT SUBMIT
+    TransactionManager.throwIfTransactionNotPresent();
+
     VersionModel activeVersion = getActiveVersion();
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
@@ -740,7 +758,11 @@ public final class VersionRepository {
     }
   }
 
+  /** Updates all questions referenced in {@code block} to their latest versions */
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
+    // Reviewed DO NOT SUBMIT
+    TransactionManager.throwIfTransactionNotPresent();
+
     BlockDefinition.Builder updatedBlock =
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
     // Update questions contained in this block.
@@ -788,19 +810,30 @@ public final class VersionRepository {
    */
   @VisibleForTesting
   PredicateExpressionNode updatePredicateNodeVersions(PredicateExpressionNode node) {
+    // reviewed DO NOT SUBMIT
+    TransactionManager.throwIfTransactionNotPresent();
+
+    return updatePredicateNodeVersionsTransactionRequired(node);
+  }
+
+  // "Internal" to have the transaction semantics only once since this is
+  // recursive.
+  private PredicateExpressionNode updatePredicateNodeVersionsTransactionRequired(
+      PredicateExpressionNode node) {
     switch (node.getType()) {
       case AND:
         AndNode and = node.getAndNode();
         ImmutableList<PredicateExpressionNode> updatedAndChildren =
             and.children().stream()
-                .map(this::updatePredicateNodeVersions)
+                .map(this::updatePredicateNodeVersionsTransactionRequired)
                 .collect(toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
       case OR:
         OrNode or = node.getOrNode();
+        // This looses the transaction
         ImmutableList<PredicateExpressionNode> updatedOrChildren =
             or.children().stream()
-                .map(this::updatePredicateNodeVersions)
+                .map(this::updatePredicateNodeVersionsTransactionRequired)
                 .collect(toImmutableList());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
@@ -815,8 +848,8 @@ public final class VersionRepository {
         return PredicateExpressionNode.create(
             leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
-    // ErrorProne will require the switch to handle all types since there isn't a default, we should
-    // never get here.
+    // ErrorProne will require the switch to handle all types since there isn't a default, we
+    // should never get here.
     throw new AssertionError(
         String.format("Predicate type is unhandled and must be: %s", node.getType()));
   }
@@ -826,26 +859,35 @@ public final class VersionRepository {
    * refer to the latest revision of all their questions.
    */
   public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
-    // Update all DRAFT program revisions that reference the question.
-    getProgramsForVersion(getDraftVersion()).stream()
-        .filter(
-            program ->
-                programRepository.getShallowProgramDefinition(program).hasQuestion(oldQuestionId))
-        .forEach(this::updateQuestionVersions);
+    // TODO(#10557): Callers should manage the transaction as this is likely
+    //  part of a larger operation.
+    transactionManager.execute(
+        () -> {
+          // Update all DRAFT program revisions that reference the question.
+          getProgramsForVersion(getDraftVersion()).stream()
+              .filter(
+                  program ->
+                      programRepository
+                          .getShallowProgramDefinition(program)
+                          .hasQuestion(oldQuestionId))
+              .forEach(this::updateQuestionVersions);
 
-    // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
-    // created.
-    getProgramsForVersion(getActiveVersion()).stream()
-        .filter(
-            program ->
-                programRepository.getShallowProgramDefinition(program).hasQuestion(oldQuestionId))
-        .filter(
-            program ->
-                getProgramByNameForVersion(
-                        programRepository.getShallowProgramDefinition(program).adminName(),
-                        getDraftVersion())
-                    .isEmpty())
-        .forEach(programRepository::createOrUpdateDraft);
+          // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
+          // created.
+          getProgramsForVersion(getActiveVersion()).stream()
+              .filter(
+                  program ->
+                      programRepository
+                          .getShallowProgramDefinition(program)
+                          .hasQuestion(oldQuestionId))
+              .filter(
+                  program ->
+                      getProgramByNameForVersion(
+                              programRepository.getShallowProgramDefinition(program).adminName(),
+                              getDraftVersion())
+                          .isEmpty())
+              .forEach(programRepository::createOrUpdateDraft);
+        });
   }
 
   /**
@@ -854,6 +896,9 @@ public final class VersionRepository {
    */
   public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       VersionModel version) {
+    // Reviewed DO NOT SUBMIT
+    TransactionManager.throwIfTransactionNotPresent();
+
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
     for (ProgramModel program : getProgramsForVersion(version)) {

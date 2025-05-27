@@ -113,6 +113,18 @@ public final class TransactionManager {
     execute(synchronousWork);
   }
 
+  /**
+   * Throws {@code IllegalStateException} if a transaction is not present.
+   *
+   * <p>It would be cleaner if this were a method annotation but I/shane was unable to get that to
+   * work.
+   */
+  public static void throwIfTransactionNotPresent() {
+    if (DB.getDefault().currentTransaction() == null) {
+      throw new IllegalStateException("A database transaction is required but not present");
+    }
+  }
+
   private void logRetriedException(SerializableConflictException sce) {
     logger.info(
         "DB concurrency collision occurred and retried. In isolation "
