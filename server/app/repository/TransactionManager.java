@@ -46,15 +46,9 @@ public final class TransactionManager {
    * @param <T> the return type of the suppliers
    */
   public <T> T execute(Supplier<T> synchronousWork) {
-    return execute(TxScope.required(), synchronousWork);
-  }
-
-  // This is the main execution of caller code.  Other methods are wrappers
-  // of this.
-  private <T> T execute(TxScope scope, Supplier<T> synchronousWork) {
     checkNotNull(synchronousWork);
     try (Transaction transaction =
-        DB.beginTransaction(scope.setIsolation(TxIsolation.SERIALIZABLE))) {
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       T result = synchronousWork.get();
       transaction.commit();
       return result;
@@ -63,12 +57,7 @@ public final class TransactionManager {
 
   /** Calls {@link #execute(Supplier)} but accepts a {@link Runnable}. */
   public void execute(Runnable synchronousWork) {
-    execute(TxScope.required(), synchronousWork);
-  }
-
-  private void execute(TxScope scope, Runnable synchronousWork) {
     execute(
-        scope,
         () -> {
           synchronousWork.run();
           return null;
