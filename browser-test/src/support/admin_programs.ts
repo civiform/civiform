@@ -248,8 +248,8 @@ export class AdminPrograms {
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    // program name must be in url-compatible form so we slugify it
-    await this.page.fill('#program-name-input', slugify(programName))
+    // program slug must be in url-compatible form so we slugify the program name
+    await this.page.fill('#program-slug', slugify(programName))
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)

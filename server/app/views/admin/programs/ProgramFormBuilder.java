@@ -7,6 +7,7 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
@@ -155,6 +156,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableList<Map<String, String>> applicationSteps) {
     boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
+    boolean isExternalProgramCardsEnabled =
+        settingsManifest.getExternalProgramCardsEnabled(request);
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
     boolean disableLongDescription =
         (isCommonIntakeForm || isExternalProgram)
@@ -194,8 +197,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(shortDescription)
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program url
-        programUrlField(adminName, programEditStatus),
+        // Program slug
+        iffElse(
+            isExternalProgramCardsEnabled,
+            buildProgramSlugFieldForExternalProgramsFeature(
+                adminName, programEditStatus, programType),
+            buildProgramSlugField(adminName, programEditStatus)),
         // Admin description
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
@@ -205,7 +212,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getTextareaTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Program type
-        buildProgramTypeFieldset(request, programType, programEditStatus),
+        buildProgramTypeFieldset(programType, programEditStatus, isExternalProgramCardsEnabled),
         // Program Eligibility
         fieldset(
                 legend("Program eligibility gating")
@@ -358,9 +365,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent buildProgramTypeFieldset(
-      Request request, ProgramType programType, ProgramEditStatus programEditStatus) {
+      ProgramType programType,
+      ProgramEditStatus programEditStatus,
+      Boolean isExternalProgramCardsEnabled) {
     DomContent programTypeFieldset;
-    if (settingsManifest.getExternalProgramCardsEnabled(request)) {
+    if (isExternalProgramCardsEnabled) {
       // When creating a program, program type fields (if visible) are never disabled.
       boolean defaultProgramFieldDisabled = false;
       boolean commonIntakeFieldDisabled = false;
@@ -561,7 +570,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return selectTiChecked ? tiDiv : tiDiv.isHidden();
   }
 
-  private DomContent programUrlField(String adminName, ProgramEditStatus programEditStatus) {
+  private DomContent buildProgramSlugField(String adminName, ProgramEditStatus programEditStatus) {
     if (programEditStatus != ProgramEditStatus.CREATION) {
       // Only allow editing the program URL at program creation time.
       String programUrl =
@@ -576,7 +585,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
               p(programUrl).withClasses(BaseStyles.FORM_FIELD));
     }
     return FieldWithLabel.input()
-        .setId("program-name-input")
+        .setId("program-slug")
         .setFieldName("adminName")
         .setLabelText(
             "Enter an identifier that will be used in this program's applicant-facing URL. This"
@@ -586,6 +595,44 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .setValue(adminName)
         .getInputTag()
         .withClass(SPACE_BETWEEN_FORM_ELEMENTS);
+  }
+
+  protected DomContent buildProgramSlugFieldForExternalProgramsFeature(
+      String adminName, ProgramEditStatus programEditStatus, ProgramType programType) {
+    if (programEditStatus == ProgramEditStatus.CREATION) {
+      String labelText =
+          " Create a program ID. This ID can only contain lowercase letters, numbers, and"
+              + " dashes. It will be used in the program’s applicant-facing URL (except for"
+              + " external programs), and it can’t be changed later.";
+      return FieldWithLabel.input()
+          .setId("program-slug")
+          .setFieldName("adminName")
+          .setLabelText(labelText)
+          .setRequired(true)
+          .setValue(adminName)
+          .getInputTag()
+          .withClass(SPACE_BETWEEN_FORM_ELEMENTS);
+    }
+
+    String labelText;
+    String fieldText;
+    if (programType.equals(ProgramType.EXTERNAL)) {
+      labelText = "The program ID. This ID can’t be changed.";
+      fieldText = adminName;
+    } else {
+      labelText = "The URL for this program. This URL can’t be changed";
+      fieldText =
+          baseUrl
+              + routes.ApplicantProgramsController.show(MainModule.SLUGIFIER.slugify(adminName))
+                  .url();
+    }
+
+    // Only allow editing this field at program creation time.
+    return div()
+        .withClass(SPACE_BETWEEN_FORM_ELEMENTS)
+        .with(
+            p(labelText).withClasses(BaseStyles.INPUT_LABEL),
+            p(fieldText).withClasses(BaseStyles.FORM_FIELD));
   }
 
   protected Modal buildConfirmCommonIntakeChangeModal(String existingCommonIntakeFormDisplayName) {
