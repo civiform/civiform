@@ -471,7 +471,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .getCheckboxTag());
   }
 
-  static DivTag buildApplicationStepDiv(
+  protected DivTag buildApplicationStepDiv(
       int i, ImmutableList<Map<String, String>> applicationSteps, boolean isDisabled) {
 
     // Fill in the existing application steps
