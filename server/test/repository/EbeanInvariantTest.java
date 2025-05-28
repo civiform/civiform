@@ -314,4 +314,51 @@ public class EbeanInvariantTest extends ResetPostgres {
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(3);
     }
   }
+
+  /**
+   * Database queries in a transaction will return the same Java object for the same database data.
+   * This makes complex workflows difficult as calling a utility method may change existing data.
+   *
+   * <p>Outside a transaction they do not.
+   */
+  @Test
+  public void transaction_sameObjectsInTransaction() {
+    final String ORIGINAL_EMAIL = "original@email.com";
+    final String UPDATED_EMAIL = "updated@email.com";
+    var account = new AccountModel();
+    account.setEmailAddress(ORIGINAL_EMAIL);
+    account.insert();
+
+    var accountId = account.id;
+
+    // Look up the account.
+    var outerAccount1 = database.find(AccountModel.class).setId(accountId).findOne();
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Look up the account in a transaction.
+      var innerAccount1 = database.find(AccountModel.class).setId(accountId).findOne();
+      assertThat(innerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+      // Look it up again.
+      var innerAccount2 = database.find(AccountModel.class).setId(accountId).findOne();
+      // Update this objects email.
+      innerAccount2.setEmailAddress(UPDATED_EMAIL);
+
+      // Account1 is updated too unexpectedly.
+      assertThat(innerAccount1.getEmailAddress()).isEqualTo(UPDATED_EMAIL);
+      // Account1 is the same object as Account2 actually.
+      assertThat(innerAccount1).isSameAs(innerAccount2);
+    }
+
+    // The outer account is the same.
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    var outerAccount2 = database.find(AccountModel.class).setId(accountId).findOne();
+    outerAccount2.setEmailAddress(UPDATED_EMAIL);
+
+    // Updating the second view doesn't change the first.
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+  }
 }
