@@ -114,7 +114,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private ProgramDefinition getDraftProgramDefinition(String programName) {
     return service
         .getActiveAndDraftPrograms()
-        .getDraftProgramDefinition(programName)
+        .getDraftOrActiveProgramDefinition(programName)
         .orElseThrow(
             () ->
                 new BadRequestException(

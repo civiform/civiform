@@ -232,6 +232,21 @@ public final class ActiveAndDraftPrograms {
     return versionedByName.get(name).second();
   }
 
+  // This method will now attempt to get the draft, and if not present, the active.
+  public Optional<ProgramDefinition> getDraftOrActiveProgramDefinition(String name) {
+    if (!versionedByName.containsKey(name)) {
+      return Optional.empty();
+    }
+
+    Optional<ProgramDefinition> draftProgram = versionedByName.get(name).second();
+    if (draftProgram.isPresent()) {
+      return draftProgram;
+    }
+
+    // If no draft is found, return the active program
+    return versionedByName.get(name).first();
+  }
+
   /** Returns the most recent version of the specified program, which may be active or a draft. */
   public ProgramDefinition getMostRecentProgramDefinition(String name) {
     return getDraftProgramDefinition(name).orElseGet(getActiveProgramDefinition(name)::get);
