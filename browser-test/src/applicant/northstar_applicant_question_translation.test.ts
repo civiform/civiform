@@ -202,4 +202,14 @@ test.describe('Admin can manage translations', {tag: ['@northstar']}, () => {
 
     expect(await page.innerText('main form')).toContain('miembro de la familia')
   })
+
+  test.describe('Language Selector Visibility', () => {
+    test('shows language selector when multiple languages are enabled', async ({
+      page,
+    }) => {
+      await expect(
+        page.getByRole('button', {name: 'Select Language'}),
+      ).toBeVisible()
+    })
+  })
 })

@@ -214,7 +214,9 @@ button.viewAndApply=보기 및 신청
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=보기 및 {0} 신청
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=새 탭에서 보기
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=애플리케이션으로 계속하기
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=나중에 신청서에 액세스하려면 계정을 만드�
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=계정에 정보를 저장하면 신청 상태를 확인하고 다른 프로그램을 빠르게 신청할 수 있습니다.
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=현재 이용할 수 있는 모든 프로그램의 신청을 시작했거나 신청서를 제출했습니다.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=기존 계정에 로그인
 

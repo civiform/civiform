@@ -214,7 +214,9 @@ button.viewAndApply=Узнать больше и подать заявку
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Узнать больше и подать заявку на участие в программе "{0}"
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=Открыть в новой вкладке
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Заполнить заявку
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=Чтобы вернуться к заявке позже, с
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Сохранив информацию в аккаунте, вы сможете проверять статус заявки и быстро подавать новые.
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=Вы создали или подали заявки на участие во всех программах, доступных в настоящее время.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Войти с существующим аккаунтом
 

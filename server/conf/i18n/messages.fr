@@ -214,7 +214,9 @@ button.viewAndApply=Afficher et faire une demande
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Afficher {0} et faire une demande
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=Afficher dans un nouvel onglet
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Remplir la demande
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=Créez un compte pour accéder plus tard à votre demande
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=En enregistrant vos informations dans un compte, vous pourrez consulter l''état d''une demande et vous inscrire rapidement à d''autres programmes.
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=Vous avez initié ou envoyé une candidature pour tous les programmes disponibles actuellement.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Se connecter à un compte existant
 

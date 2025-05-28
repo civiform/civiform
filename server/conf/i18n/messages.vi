@@ -214,7 +214,9 @@ button.viewAndApply=Xem và đăng ký
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Xem và đăng ký {0}
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=Xem trong thẻ mới
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=Tạo tài khoản để bạn có thể truy cập vào đ�
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Sau khi lưu thông tin vào một tài khoản, bạn sẽ có thể nhanh chóng kiểm tra trạng thái của đơn đăng ký, cũng như đăng ký các chương trình khác.
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=Bạn đã bắt đầu hoặc đã nộp đơn đăng ký tham gia tất cả các chương trình hiện có.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Đăng nhập vào tài khoản hiện có
 
