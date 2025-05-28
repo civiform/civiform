@@ -142,7 +142,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     DivTag formButtons =
         div()
             .with(
-                submitButton("Save").withClasses("usa-button", "mr-2"),
+                submitButton("Save").withClasses("usa-button", "mr-2").withId("hx-submit-button"),
                 asRedirectElement(
                         button("Delete and start over"), routes.AdminImportController.index().url())
                     .withClasses("usa-button", "usa-button--outline"))
@@ -156,6 +156,8 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             .attr("hx-post", routes.AdminImportController.hxSaveProgram().url())
             .attr("hx-target", "#" + AdminImportViewPartial.PROGRAM_DATA_ID)
             .attr("hx-swap", "outerHTML")
+            .attr("hx-indicator", "#hx-submit-button")
+            .attr("hx-disabled-elt", "#hx-submit-button")
             .with(makeCsrfTokenInputTag(request))
             .with(
                 FieldWithLabel.textArea()
@@ -164,8 +166,9 @@ public final class AdminImportViewPartial extends BaseHtmlView {
                     .getTextareaTag()
                     .withClass("hidden"))
             .condWith(!duplicateHandlingOptionsEnabled, formButtons)
-            // TODO: #9628 - Add styling to signal that the program is saving, as it can take a few
-            // seconds
+            .condWith(
+                duplicateHandlingOptionsEnabled && duplicateQuestionNames.size() > 1,
+                renderToplevelDuplicateQuestionHandlingOptions())
             .withAction(routes.AdminImportController.hxSaveProgram().url());
 
     for (BlockDefinition block : program.blockDefinitions()) {
@@ -282,6 +285,28 @@ public final class AdminImportViewPartial extends BaseHtmlView {
     AlertType alertType = AlertType.INFO;
     String alertMessage = "";
 
+    if (withDuplicateHandlingOptions) {
+      alertMessage += "This program ";
+      if (numNewQuestions > 0) {
+        alertMessage +=
+            String.format(
+                "will add %d new question%s to the question bank",
+                numNewQuestions, numNewQuestions > 1 ? "s" : "");
+        if (numDuplicateQuestions > 0) {
+          alertMessage += " and ";
+        }
+      }
+      if (numDuplicateQuestions > 0) {
+        alertType = AlertType.WARNING;
+        alertMessage +=
+            String.format(
+                "contains %d duplicate question%s that must be resolved",
+                numDuplicateQuestions, numDuplicateQuestions > 1 ? "s" : "");
+      }
+      alertMessage += ".";
+      return AlertComponent.renderSlimAlert(
+          alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
+    }
     if (withDuplicates || numNewQuestions > 0) {
       alertMessage += "Importing this program will add ";
     }
@@ -290,7 +315,6 @@ public final class AdminImportViewPartial extends BaseHtmlView {
       alertMessage += buildAlertWithNewQuestions(numNewQuestions);
 
       if (numDuplicateQuestions > 0) {
-        alertType = AlertType.WARNING;
         alertMessage += withDuplicates ? " and " : " to the question bank. ";
       } else if (withDuplicates || numDuplicateQuestions == 0) {
         alertMessage += " to the question bank.";
@@ -304,10 +328,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
         alertMessage += addExistingMessageToAlert(numDuplicateQuestions);
       }
     }
-    if (withDuplicateHandlingOptions) {
-      return AlertComponent.renderSlimAlert(
-          alertType, alertMessage, /* hidden= */ false, /* classes...= */ "mb-2");
-    }
+
     return AlertComponent.renderFullAlert(
         alertType,
         alertMessage,
@@ -541,8 +562,44 @@ public final class AdminImportViewPartial extends BaseHtmlView {
   }
 
   /**
-   * Renders a radio group with USWDS style. We prefer this to {@link RadioButtonQuestionRenderer}
-   * for higher information density.
+   * Radio group for handling all duplicate questions. Renders with USWDS style. We prefer this to
+   * {@link RadioButtonQuestionRenderer} for higher information density.
+   */
+  private static FieldsetTag renderToplevelDuplicateQuestionHandlingOptions() {
+    return fieldset()
+        .withName(AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD)
+        .withClasses("usa-fieldset", "my-4")
+        .withData("testid", "toplevel-duplicate-handling")
+        .with(
+            legend("How do you want to handle all duplicate questions?")
+                .withClasses("usa-legend", "font-semibold", "text-base"),
+            div("Selecting an option for any individual question will override this selection")
+                .withClasses("text-gray-500"),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "DECIDE_FOR_EACH",
+                "Decide for each duplicate question individually",
+                true),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "USE_EXISTING",
+                "Use the existing questions",
+                false),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "CREATE_DUPLICATE",
+                "Create new duplicate questions",
+                false),
+            renderRadioOption(
+                AdminProgramImportForm.TOPLEVEL_DUPLICATE_QUESTION_HANDLING_FIELD,
+                "OVERWRITE_EXISTING",
+                "Overwrite all instances of the existing questions",
+                false));
+  }
+
+  /**
+   * Radio group for handling a duplicate question. Renders with USWDS style. We prefer this to
+   * {@link RadioButtonQuestionRenderer} for higher information density.
    *
    * @param adminName the admin name of the question, used for both the cross-link to the question
    *     bank and the HTML form data specifying how to handle this duplicate question.
@@ -550,6 +607,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
    */
   private static FieldsetTag renderDuplicateQuestionHandlingOptions(String adminName) {
     return fieldset()
+        .withName(AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX)
         .withClasses("usa-fieldset", "shrink-0", "mb-4")
         .with(
             legend("How do you want to handle this duplicate question?")
@@ -569,7 +627,7 @@ public final class AdminImportViewPartial extends BaseHtmlView {
             renderRadioOption(
                 AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX + adminName,
                 "OVERWRITE_EXISTING",
-                span("Overwrite all instances of ").with(renderExistingQuestionLink(adminName)),
+                span("Overwrite all instances of the ").with(renderExistingQuestionLink(adminName)),
                 false));
   }
 

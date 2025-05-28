@@ -1,10 +1,13 @@
-import {expect} from '@playwright/test'
+import {expect, Locator} from '@playwright/test'
 import {Page} from 'playwright'
 import {waitForPageJsLoad} from './wait'
 import {readFileSync} from 'fs'
 
 export class AdminProgramMigration {
   public page!: Page
+  public USE_EXISTING = 'Use the existing question'
+  public CREATE_DUPLICATE = 'Create a new duplicate question'
+  public OVERWRITE_EXISTING = 'Overwrite all instances of the existing question'
 
   constructor(page: Page) {
     this.page = page
@@ -69,7 +72,14 @@ export class AdminProgramMigration {
   async submitProgramJson(content: string) {
     await waitForPageJsLoad(this.page)
     await this.page.getByRole('textbox').fill(content)
-    await this.clickButton('Preview program')
+    await this.clickButtonWithSpinner('Preview program')
+  }
+
+  private async expectButtonDisabledAndSpinning(buttonText: string) {
+    const button = this.page.getByRole('button', {name: buttonText})
+    await expect(button).toBeDisabled()
+    await expect(button).toHaveClass(/(^|\s)htmx-request(\s|$)/)
+    await waitForPageJsLoad(this.page)
   }
 
   async expectAlert(alertText: string, alertType: string) {
@@ -85,32 +95,45 @@ export class AdminProgramMigration {
     ).toBeVisible()
   }
 
+  async expectAllQuestionsHaveDuplicateHandlingOption(option: string) {
+    for (const question of await this.page
+      .locator('.cf-program-question')
+      .all()) {
+      if (await question.locator('fieldset').isVisible()) {
+        await this.expectOptionSelected(question, option)
+      }
+    }
+  }
+
+  async expectOptionSelected(question: Locator, option: string) {
+    await expect(question.getByLabel(option)).toBeChecked()
+  }
+
+  async clickButtonWithSpinner(buttonText: string) {
+    await this.page.getByRole('button', {name: buttonText}).click()
+    await this.expectButtonDisabledAndSpinning(buttonText)
+  }
+
   async clickButton(buttonText: string) {
     await this.page.getByRole('button', {name: buttonText}).click()
     await waitForPageJsLoad(this.page)
   }
 
-  async selectCreateDuplicateForQuestion(adminName: string) {
-    await this.selectDuplicateHandlingOptionForQuestion(
-      'Create a new duplicate question',
-      adminName,
-    )
-  }
-
-  async selectOverwriteExistingForQuestion(adminName: string) {
-    await this.selectDuplicateHandlingOptionForQuestion(
-      'Overwrite all instances',
-      adminName,
-    )
-  }
-
-  async selectDuplicateHandlingOptionForQuestion(
-    option: string,
-    adminName: string,
+  async selectDuplicateHandlingForQuestions(
+    questionsToOption: Map<string, string>,
   ) {
+    for (const [adminName, option] of questionsToOption) {
+      await this.page
+        .getByTestId('question-admin-name-' + adminName)
+        .getByText(option)
+        .click()
+    }
+  }
+
+  async selectToplevelOverwriteExisting() {
     await this.page
-      .getByTestId('question-admin-name-' + adminName)
-      .getByText(option)
+      .getByTestId('toplevel-duplicate-handling')
+      .getByText('Overwrite all instances of the existing questions')
       .click()
   }
 }

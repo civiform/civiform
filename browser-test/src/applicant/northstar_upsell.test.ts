@@ -4,10 +4,11 @@ import {
   disableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
-  testUserDisplayName,
   logout,
-  validateScreenshot,
+  setDirRtl,
+  testUserDisplayName,
   validateAccessibility,
+  validateScreenshot,
   AdminPrograms,
   ApplicantQuestions,
 } from '../support'
@@ -93,6 +94,21 @@ test.describe('Upsell tests', {tag: ['@northstar']}, () => {
     })
 
     await validateAccessibility(page)
+
+    await test.step('Validate page renders right to left on desktop', async () => {
+      await setDirRtl(page)
+      await validateScreenshot(page, 'upsell-north-star-right-to-left-desktop')
+    })
+
+    await test.step('validate screenshot mobile', async () => {
+      await page.setViewportSize({width: 360, height: 800})
+      await setDirRtl(page)
+      await validateScreenshot(
+        page,
+        'upsell-north-star-right-to-left-mobile',
+        /* fullPage= */ false,
+      )
+    })
 
     await test.step('Validate that user can return to the homepage without logging in', async () => {
       await applicantQuestions.clickBackToHomepageButton()

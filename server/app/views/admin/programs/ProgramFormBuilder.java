@@ -284,6 +284,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     /* label= */ "Disabled",
                     /* description= */ Optional.empty()))
             .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+        // Program external link
+        FieldWithLabel.input()
+            .setId("program-external-link-input")
+            .setFieldName("externalLink")
+            .setLabelText("Link to program website (optional)")
+            .setValue(externalLink)
+            .getInputTag()
+            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
         fieldset(
                 legend("Email notifications").withClass("text-gray-600"),
@@ -314,14 +322,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setDisabled(disableLongDescription)
             .setReadOnly(disableLongDescription)
             .getTextareaTag()
-            .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
-        // Program external link
-        FieldWithLabel.input()
-            .setId("program-external-link-input")
-            .setFieldName("externalLink")
-            .setLabelText("Link to program website (optional)")
-            .setValue(externalLink)
-            .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         h2("How to apply").withClasses("py-2", "mt-6", "font-semibold"),
         AlertComponent.renderSlimAlert(

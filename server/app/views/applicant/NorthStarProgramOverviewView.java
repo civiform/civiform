@@ -106,6 +106,7 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
     // This works for logged-in and logged-out applicants
     String actionUrl = applicantRoutes.edit(profile, applicantId, programDefinition.id()).url();
     context.setVariable("actionUrl", actionUrl);
+    context.setVariable("goBackToAdminUrl", getGoBackToAdminUrl(programDefinition));
 
     return templateEngine.process("applicant/ProgramOverviewTemplate", context);
   }
@@ -172,5 +173,10 @@ public class NorthStarProgramOverviewView extends NorthStarBaseView {
                           .toLowerCase(Locale.ROOT)));
             });
     return applicationStepsBuilder.build();
+  }
+
+  private String getGoBackToAdminUrl(ProgramDefinition programDefinition) {
+    return controllers.admin.routes.AdminProgramPreviewController.back(programDefinition.id())
+        .url();
   }
 }
