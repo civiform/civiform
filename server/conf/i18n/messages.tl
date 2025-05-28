@@ -214,7 +214,9 @@ button.viewAndApply=Tingnan at mag-apply
 # The screen reader text on a button to view and apply to a program. The variable represents the program name.
 button.viewAndApplySr=Tingnan at mag-apply sa {0}
 # The text on a button to view program on a new tab. This is used for external programs.
-button.viewInNewTab=View in new tab
+button.viewInNewTab=Tingnan sa bagong tab
+# The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
+button.viewInNewTabSr=View {0} in new tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
@@ -658,7 +660,7 @@ alert.createAccount=Para i-access ang iyong aplikasyon sa ibang pagkakataon, gum
 # Description text in an alert that explains how creating an account can help the user
 alert.createAccountDescription=Magagawa mong tingnan ang status ng iyong aplikasyon at mabilis na mag-apply sa ibang programa kapag na-save mo ang impormasyon mo sa isang account.
 # Informational alert to let the user know there are no additonal programs for them to start an application for at this time.
-alert.noProgramsAvailable=You have started or submitted an application for all programs that are available at this time.
+alert.noProgramsAvailable=Nagsimula o nagsumite ka ng application para sa lahat ng programang available sa panahong ito.
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=Mag-sign in sa kasalukuyang account
 

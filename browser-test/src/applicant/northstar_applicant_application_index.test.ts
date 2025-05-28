@@ -1399,7 +1399,9 @@ test.describe(
           has: page.getByText(externalProgramAName),
         })
         await expect(
-          externalProgramCard.getByRole('button', {name: 'View in new tab'}),
+          externalProgramCard.getByRole('button', {
+            name: 'View External Program A in new tab',
+          }),
         ).toBeVisible()
 
         await validateAccessibility(page)
@@ -1544,6 +1546,29 @@ test.describe(
         const goBackButton = modal.getByRole('button', {name: 'Go back'})
         await expect(goBackButton).toBeVisible()
         await goBackButton.click()
+        await expect(modal).toBeHidden()
+      })
+
+      await test.step('trigger the external program modal again', async () => {
+        await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
+        const continueButton = modal.getByRole('link', {name: 'Continue'})
+        await expect(continueButton).toBeVisible()
+      })
+
+      await test.step('clicking outside the modal closes the modal', async () => {
+        const modalWrapper = page
+          .locator('.usa-modal-wrapper')
+          .filter({hasText: 'This will open a different website'})
+        const wrapperBox = await modalWrapper.boundingBox()
+        // Click in the wrapper top left corner, which should  be outside the
+        // actual amodal
+        if (wrapperBox) {
+          await page.mouse.click(wrapperBox.x, wrapperBox.y)
+        }
+
+        const modal = page.getByRole('dialog', {state: 'visible'})
         await expect(modal).toBeHidden()
       })
 
