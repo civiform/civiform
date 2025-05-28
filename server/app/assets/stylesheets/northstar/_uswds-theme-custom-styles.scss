@@ -524,13 +524,9 @@ main {
 }
 
 [dir='rtl'] {
-  .usa-button {
+  .usa-button:not(.margin-left-0, .cf-apply-button) {
     margin-right: 0px;
     margin-left: 0.5rem;
-  }
-
-  .usa-nav-container .usa-button {
-    margin-left: 0px;
   }
 
   /* Make the checkbox appear to the right of the label in RTL languages. */
