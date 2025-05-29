@@ -52,7 +52,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   */
 
   @Test
-  public void healthcheck_http_200_returns_success_model() {
+  public void healthcheck_http200_returnsSuccessModel() {
     ErrorAnd<HealthcheckResponse, IProblemDetail> response =
         createApiBridgeService().healthcheck(BASE_URL).toCompletableFuture().join();
 
@@ -67,7 +67,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"400", "401", "429", "500"})
-  public void healthcheck_supported_error_response_codes_returns_error_model(
+  public void healthcheck_supportedErrorResponseCodes_returnsErrorModel(
       String emulatedResponseCode) {
     ErrorAnd<HealthcheckResponse, IProblemDetail> response =
         createApiBridgeService(emulatedResponseCode)
@@ -85,7 +85,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void healthcheck_unsupported_response_code_returns_error_model() {
+  public void healthcheck_unsupportedResponseCode_returnsErrorModel() {
     ErrorAnd<HealthcheckResponse, IProblemDetail> response =
         createApiBridgeService("999").healthcheck(BASE_URL).toCompletableFuture().join();
 
@@ -95,7 +95,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void healthcheck_handles_null_url_returns_error_model() {
+  public void healthcheck_handlesNullUrl_returnsErrorModel() {
     ErrorAnd<HealthcheckResponse, IProblemDetail> response =
         createApiBridgeService().healthcheck(null).toCompletableFuture().join();
 
@@ -105,7 +105,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void discovery_http_200_returns_success_model() {
+  public void discovery_http200_returnsSuccessModel() {
     ErrorAnd<DiscoveryResponse, IProblemDetail> response =
         createApiBridgeService().discovery(BASE_URL).toCompletableFuture().join();
 
@@ -119,8 +119,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"400", "401", "429", "500"})
-  public void discovery_supported_error_response_codes_returns_error_model(
-      String emulatedResponseCode) {
+  public void discovery_supportedErrorResponseCodes_returnsErrorModel(String emulatedResponseCode) {
     ErrorAnd<DiscoveryResponse, IProblemDetail> response =
         createApiBridgeService(emulatedResponseCode)
             .discovery(BASE_URL)
@@ -137,7 +136,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void discovery_unsupported_response_code_returns_error_model() {
+  public void discovery_unsupportedResponseCode_returnsErrorModel() {
     ErrorAnd<DiscoveryResponse, IProblemDetail> response =
         createApiBridgeService("999").discovery(BASE_URL).toCompletableFuture().join();
 
@@ -147,7 +146,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void discovery_handles_null_url_returns_error_model() {
+  public void discovery_handlesNullUrl_returnsErrorModel() {
     ErrorAnd<DiscoveryResponse, IProblemDetail> response =
         createApiBridgeService().discovery(null).toCompletableFuture().join();
 
@@ -165,7 +164,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void bridge_http_200_returns_success_model() {
+  public void bridge_http200_returnsSuccessModel() {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService()
             .bridge(BRIDGE_URL, createBridgeRequest())
@@ -183,8 +182,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
 
   @Test
   @Parameters({"400", "401", "404", "429", "500"})
-  public void bridge_supported_error_response_codes_returns_error_model(
-      String emulatedResponseCode) {
+  public void bridge_supportedErrorResponseCodes_returnsErrorModel(String emulatedResponseCode) {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService(emulatedResponseCode)
             .bridge(BRIDGE_URL, createBridgeRequest())
@@ -202,7 +200,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void bridge_http_422_error_response_code_returns_validation_error_model() {
+  public void bridge_http422ErrorResponseCode_returnsValidationErrorModel() {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService("422")
             .bridge(BRIDGE_URL, createBridgeRequest())
@@ -223,7 +221,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void bridge_unsupported_response_code_returns_error_model() {
+  public void bridge_unsupportedResponseCode_returnsErrorModel() {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService("999")
             .bridge(BRIDGE_URL, createBridgeRequest())
@@ -236,7 +234,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void bridge_handles_null_host_url_returns_error_model() {
+  public void bridge_handlesNullHostUrl_returnsErrorModel() {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService().bridge(null, createBridgeRequest()).toCompletableFuture().join();
 
@@ -246,7 +244,7 @@ public class ApiBridgeServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void bridge_handles_null_bridge_request_returns_error_model() {
+  public void bridge_handlesNullBridgeRequest_returnsErrorModel() {
     ErrorAnd<BridgeResponse, IProblemDetail> response =
         createApiBridgeService().bridge(BRIDGE_URL, null).toCompletableFuture().join();
 

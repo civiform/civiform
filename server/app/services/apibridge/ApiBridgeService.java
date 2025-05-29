@@ -88,8 +88,7 @@ public class ApiBridgeService implements WSBodyReadables {
       String fullBridgeUrl, BridgeRequest request) {
     try {
       String jsonBody = toJsonString(request);
-      logger.debug(fullBridgeUrl);
-      logger.debug(jsonBody);
+      logger.debug("URL: {} Body: {}", fullBridgeUrl, jsonBody);
 
       return wsClient
           .url(fullBridgeUrl)
