@@ -10,7 +10,6 @@ import {
   logout,
   normalizeElements,
   selectApplicantLanguageNorthstar,
-  setDirRtl,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -464,8 +463,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await logout(page)
       })
 
-      await test.step('change html to right to left', async () => {
-        await setDirRtl(page)
+      await test.step('change language to Arabic', async () => {
+        await selectApplicantLanguageNorthstar(page, 'ar')
       })
 
       await test.step('validate screenshot desktop', async () => {
@@ -935,8 +934,8 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
   test('formats index page correctly for right to left languages', async ({
     page,
   }) => {
-    await test.step('change html to right to left', async () => {
-      await setDirRtl(page)
+    await test.step('change language to Arabic', async () => {
+      await selectApplicantLanguageNorthstar(page, 'ar')
     })
 
     await test.step('validate screenshot desktop', async () => {

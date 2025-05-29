@@ -5,7 +5,7 @@ import {
   isLocalDevEnvironment,
   loginAsAdmin,
   logout,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -106,16 +106,6 @@ test.describe(
           )
         })
 
-        await test.step('Validate address correction page rendered right to left', async () => {
-          await setDirRtl(page)
-          await validateScreenshot(
-            page.locator('main'),
-            'verify-address-with-suggestions-right-to-left',
-            /* fullPage= */ true,
-            /* mobileScreenshot= */ true,
-          )
-        })
-
         await test.step('Confirm user can confirm address and submit', async () => {
           await applicantQuestions.clickConfirmAddress()
           await applicantQuestions.expectQuestionAnsweredOnReviewPageNorthstar(
@@ -124,6 +114,41 @@ test.describe(
           )
           await applicantQuestions.clickSubmitApplication()
           await logout(page)
+        })
+      })
+
+      test('Renders address correction page in right to left', async ({
+        page,
+        applicantQuestions,
+      }) => {
+        await test.step('Answer address question', async () => {
+          await applicantQuestions.applyProgram(
+            singleBlockSingleAddressProgram,
+            /* northStarEnabled= */ true,
+          )
+
+          await test.step('Set language to Arabic', async () => {
+            await selectApplicantLanguageNorthstar(page, 'ar')
+          })
+
+          await applicantQuestions.answerAddressQuestion(
+            'Legit Address',
+            '',
+            'Redlands',
+            'CA',
+            '92373',
+          )
+          // await applicantQuestions.clickContinue()
+          await page.click('text="متابعة"')
+        })
+
+        await test.step('Validate address correction page rendered right to left', async () => {
+          await validateScreenshot(
+            page.locator('main'),
+            'verify-address-with-suggestions-right-to-left',
+            /* fullPage= */ true,
+            /* mobileScreenshot= */ true,
+          )
         })
       })
 
