@@ -138,7 +138,6 @@ test.describe(
             'CA',
             '92373',
           )
-          // await applicantQuestions.clickContinue()
           await page.click('text="متابعة"')
         })
 
