@@ -1315,7 +1315,8 @@ public final class ApplicantService {
             relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled(request))) {
+                  && settingsManifest.getExternalProgramCardsEnabled(request)
+                  && settingsManifest.getNorthStarApplicantUi(request))) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
