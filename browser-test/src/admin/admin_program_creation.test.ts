@@ -227,18 +227,18 @@ test.describe('program creation', () => {
       /* submitNewProgram= */ false,
     )
 
-    // On initial program creation, expect an admin can fill in the program name.
-    expect(await page.locator('#program-name-input').count()).toEqual(1)
+    await test.step('On program creation, admin can fill in the program slug.', async () => {
+      expect(await page.locator('#program-slug').count()).toEqual(1)
 
-    await adminPrograms.submitProgramDetailsEdits()
-    await adminProgramImage.expectProgramImagePage()
+      await adminPrograms.submitProgramDetailsEdits()
+      await adminProgramImage.expectProgramImagePage()
+    })
 
-    // WHEN the admin goes back to the program details page
-    await adminProgramImage.clickBackButton()
-
-    // THEN they should not be able to modify the program name (used for the URL).
-    await adminPrograms.expectProgramEditPage(programName)
-    expect(await page.locator('#program-name-input').count()).toEqual(0)
+    await test.step('On program edit, admin cannot edit the program slug (which is used for the URL)', async () => {
+      await adminProgramImage.clickBackButton()
+      await adminPrograms.expectProgramEditPage(programName)
+      await expect(page.locator('#program-slug')).toBeHidden()
+    })
   })
 
   test('create program then go back can still go forward', async ({
