@@ -415,9 +415,6 @@ public final class ProgramMigrationService {
           duplicateHandlingOptions,
       boolean withDuplicates,
       boolean duplicateHandlingEnabled) {
-    // TODO: #9628 - Validate that repeated questions are not being reused/overwritten if their
-    // parent question was duplicated with a new admin name. If a parent question is duplicated, the
-    // repeated questions must also be duplicated (or updated, if it's new).
     ImmutableList<String> overwrittenQuestions =
         Utils.getQuestionNamesForDuplicateHandling(
             duplicateHandlingOptions,
@@ -474,6 +471,8 @@ public final class ProgramMigrationService {
                   "Overwriting question definitions is only supported when there are no"
                       + " existing drafts. Please publish all drafts and try again."));
         }
+        validateEnumeratorAndRepeatedQuestions(
+            questionDefinitions, overwrittenQuestions, duplicatedQuestions, reusedQuestions);
         // When admins can select how to handle duplicate questions, we do not show admins a
         // de-duped/suffixed admin name before saving the imported program. We must calculate that
         // name at this point.
@@ -518,6 +517,39 @@ public final class ProgramMigrationService {
         updatedProgram.adminName(), new StatusDefinitions());
 
     return ErrorAnd.of(savedProgram);
+  }
+
+  @VisibleForTesting
+  void validateEnumeratorAndRepeatedQuestions(
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> overwrittenQuestions,
+      ImmutableList<String> duplicatedQuestions,
+      ImmutableList<String> reusedQuestions) {
+    ImmutableMap<Long, ImmutableList<QuestionDefinition>> repeatedQsByEnumeratorId =
+        ImmutableMap.copyOf(
+            questions.stream()
+                .filter(QuestionDefinition::isRepeated)
+                .collect(
+                    Collectors.groupingBy(
+                        question -> question.getEnumeratorId().get(),
+                        ImmutableList.toImmutableList())));
+    // Ensure that if an enumerator is duplicated its repeated questions are not overwritten/reused
+    for (QuestionDefinition question : questions) {
+      if (question.isEnumerator() && duplicatedQuestions.contains(question.getName())) {
+        ImmutableList<QuestionDefinition> repeatedQs =
+            repeatedQsByEnumeratorId.get(question.getId());
+        for (QuestionDefinition repeatedQuestion : repeatedQs) {
+          if (overwrittenQuestions.contains(repeatedQuestion.getName())
+              || reusedQuestions.contains(repeatedQuestion.getName())) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Cannot overwrite/reuse repeated question %s because enumerator %s is"
+                        + " duplicated",
+                    repeatedQuestion.getName(), question.getName()));
+          }
+        }
+      }
+    }
   }
 
   private boolean draftIsPopulated() {
