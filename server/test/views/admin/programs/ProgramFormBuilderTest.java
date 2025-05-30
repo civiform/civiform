@@ -9,6 +9,8 @@ import com.typesafe.config.ConfigFactory;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -19,6 +21,21 @@ import services.settings.SettingsManifest;
 public class ProgramFormBuilderTest {
   private ProgramFormBuilder formBuilder;
   private Config config;
+
+  /**
+   * Counts the number of required indicator spans that are hidden in the rendered div.
+   *
+   * @param renderedDiv the HTML string to search for hidden required indicator spans
+   * @return the count of required indicator spans that have the "hidden" class
+   */
+  private int numberOfHiddenRequiredSpans(String renderedDiv) {
+    Pattern hiddenRequiredPattern =
+        Pattern.compile("class=\"required-indicator[^\"]*hidden[^\"]*\"");
+    Matcher matcher = hiddenRequiredPattern.matcher(renderedDiv);
+    int count = 0;
+    while (matcher.find()) count++;
+    return count;
+  }
 
   @Before
   public void setup() {
@@ -31,28 +48,43 @@ public class ProgramFormBuilderTest {
   }
 
   @Test
-  public void buildApplicationStepDiv_buildsApplicationStepFormElement() {
-    DivTag applicationStepsDiv =
+  public void buildApplicationStepDiv_requiredStepOne() {
+    DivTag stepOneRequiredDiv =
         formBuilder.buildApplicationStepDiv(0, ImmutableList.of(), /* isDisabled= */ false);
-    String renderedDiv = applicationStepsDiv.render();
+    String renderedDiv = stepOneRequiredDiv.render();
 
-    // field id
     assertThat(renderedDiv).contains("apply-step-1-title");
     assertThat(renderedDiv).contains("apply-step-1-description");
-    // field name
+
     assertThat(renderedDiv).contains("applicationSteps[0][title]");
     assertThat(renderedDiv).contains("applicationSteps[0][description]");
-    // field label
+
     assertThat(renderedDiv).contains("Step 1 title");
     assertThat(renderedDiv).contains("Step 1 description");
+    assertThat(numberOfHiddenRequiredSpans(renderedDiv)).isEqualTo(0);
+  }
 
-    DivTag optionalApplicationStepsDiv =
+  @Test
+  public void buildApplicationStepDiv_optionalStepOne() {
+    DivTag stepOneOptionalDiv =
+        formBuilder.buildApplicationStepDiv(0, ImmutableList.of(), /* isDisabled= */ true);
+    String renderedDiv = stepOneOptionalDiv.render();
+
+    assertThat(renderedDiv).contains("Step 1 title");
+    assertThat(renderedDiv).contains("Step 1 description");
+    assertThat(numberOfHiddenRequiredSpans(renderedDiv)).isEqualTo(2);
+  }
+
+  @Test
+  public void buildApplicationStepDiv_StepTwo() {
+    // Application step #2 is always an optional field
+    DivTag stepTwoDiv =
         formBuilder.buildApplicationStepDiv(1, ImmutableList.of(), /* isDisabled= */ false);
-    String renderedOptionalDiv = optionalApplicationStepsDiv.render();
+    String renderedDiv = stepTwoDiv.render();
 
-    // field label for divs other than the first one are labeled "optional"
-    assertThat(renderedOptionalDiv).contains("Step 2 title (optional)");
-    assertThat(renderedOptionalDiv).contains("Step 2 description (optional)");
+    assertThat(renderedDiv).contains("Step 2 title");
+    assertThat(renderedDiv).contains("Step 2 description");
+    assertThat(numberOfHiddenRequiredSpans(renderedDiv)).isEqualTo(2);
   }
 
   @Test
