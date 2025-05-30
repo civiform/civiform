@@ -3,7 +3,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
 } from '../support'
@@ -116,13 +116,11 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
   test('renders right to left on block edit page', async ({
     page,
     applicantQuestions,
-    applicantProgramOverview,
   }) => {
     await applicantQuestions.clickApplyProgramButton(programName)
-    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
-      programName,
-    )
-    await setDirRtl(page)
+    await selectApplicantLanguageNorthstar(page, 'ar')
+
+    await page.getByRole('link', {name: 'بدء الطلب'}).first().click()
 
     await validateScreenshot(
       page,
