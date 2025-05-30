@@ -602,7 +602,7 @@ public class FieldWithLabel {
         .withClass(
             labelText.isEmpty() ? "sr-only" : (isUSWDS ? "usa-label mt-0" : BaseStyles.INPUT_LABEL))
         .withText(text)
-        .condWith(required, ViewUtils.requiredQuestionIndicator())
+        .with(ViewUtils.requiredQuestionIndicator(required))
         // The DomContent is evaluated even if the condition is false, so provide
         // some defaults we will never use.
         .condWith(

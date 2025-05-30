@@ -242,8 +242,13 @@ public final class ViewUtils {
   }
 
   public static SpanTag requiredQuestionIndicator() {
+    return requiredQuestionIndicator(/* isVisible= */ true);
+  }
+
+  public static SpanTag requiredQuestionIndicator(Boolean isVisible) {
     return span(rawHtml("&nbsp;*"))
-        .withClasses("text-red-600", "font-semibold")
+        .withClasses(
+            "required-indicator", "text-red-600", "font-semibold", isVisible ? "" : "hidden")
         .attr("aria-hidden", true);
   }
 

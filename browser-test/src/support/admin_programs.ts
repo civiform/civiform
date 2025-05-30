@@ -248,8 +248,8 @@ export class AdminPrograms {
     await this.page.click('#new-program-button')
     await waitForPageJsLoad(this.page)
 
-    // program name must be in url-compatible form so we slugify it
-    await this.page.fill('#program-name-input', slugify(programName))
+    // program slug must be in url-compatible form so we slugify the program name
+    await this.page.fill('#program-slug', slugify(programName))
     await this.page.fill('#program-description-textarea', adminDescription)
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
@@ -987,15 +987,6 @@ export class AdminPrograms {
   async expectProgramBlockEditPage(programName = '') {
     expect(await this.page.innerText('id=program-title')).toContain(programName)
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
-    // Compare string case insensitively because style may not have been computed.
-    expect(
-      (await this.page.innerText('[for=block-name-input]')).toUpperCase(),
-    ).toEqual('SCREEN NAME')
-    expect(
-      (
-        await this.page.innerText('[for=block-description-textarea]')
-      ).toUpperCase(),
-    ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Add a question')
   }
 
@@ -1729,7 +1720,7 @@ export class AdminPrograms {
 
   getLongDescriptionField(): Locator {
     return this.page.getByRole('textbox', {
-      name: 'Long program description (optional)',
+      name: 'Long program description',
     })
   }
 
@@ -1747,7 +1738,7 @@ export class AdminPrograms {
         'A custom message that will be shown on the confirmation page ' +
         'after an application has been submitted. You can use this ' +
         'message to explain next steps of the application process and/or ' +
-        'highlight other programs to apply for. (optional)',
+        'highlight other programs to apply for.',
     })
   }
 

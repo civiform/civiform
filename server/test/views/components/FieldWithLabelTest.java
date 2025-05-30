@@ -176,7 +176,8 @@ public class FieldWithLabelTest {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setId("field-id");
     String rendered = fieldWithLabel.getNumberTag().render();
 
-    assertThat(rendered).doesNotContain("aria-");
+    assertThat(rendered)
+        .containsPattern("<div id=\"field-id-errors\" class=\"[^\"]*hidden[^\"]*\">");
   }
 
   @Test

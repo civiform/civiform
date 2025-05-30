@@ -117,10 +117,10 @@ export class AdminTranslations {
     await expect(programNameValue).toHaveValue(expectProgramName)
 
     if (programType === 'default' || !northStar) {
-      const programDescriptionValue = this.page.getByLabel(
-        'Program description',
-        {exact: true},
-      )
+      const programDescriptionValue = this.page.getByRole('textbox', {
+        name: 'Program description',
+        exact: true,
+      })
       await expect(programDescriptionValue).toHaveValue(
         expectProgramDescription,
       )
