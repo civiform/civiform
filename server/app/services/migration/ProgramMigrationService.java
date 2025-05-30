@@ -37,6 +37,7 @@ import repository.ProgramRepository;
 import repository.QuestionRepository;
 import repository.TransactionManager;
 import repository.VersionRepository;
+import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -158,6 +159,32 @@ public final class ProgramMigrationService {
       return ErrorAnd.error(
           ImmutableSet.of(String.format("JSON is incorrectly formatted: %s", e.getMessage())));
     }
+  }
+
+  /**
+   * Validates questions before they are rendered to the admin.
+   *
+   * @param questions The questions to validate.
+   * @param existingAdminNames The existing admin names of questions in the Question Bank.
+   * @param duplicateHandlingEnabled Whether duplicate handling is enabled.
+   * @return A set of validation errors.
+   */
+  public ImmutableSet<CiviFormError> validateQuestions(
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> existingAdminNames,
+      boolean duplicateHandlingEnabled) {
+    ImmutableSet<CiviFormError> questionErrors =
+        QuestionValidationUtils.validateQuestionOptionAdminNames(questions);
+    if (!questionErrors.isEmpty() || !duplicateHandlingEnabled) {
+      return questionErrors;
+    }
+    questionErrors = QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions);
+    if (!questionErrors.isEmpty()) {
+      return questionErrors;
+    }
+    return QuestionValidationUtils.validateRepeatedQuestions(
+        program, questions, existingAdminNames);
   }
 
   /**
