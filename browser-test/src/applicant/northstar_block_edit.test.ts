@@ -121,6 +121,8 @@ test.describe('Applicant block edit', {tag: ['@northstar']}, () => {
     await selectApplicantLanguageNorthstar(page, 'ar')
 
     await page.getByRole('link', {name: 'بدء الطلب'}).first().click()
+    // Dismiss toast saying the program's not fully translated.
+    await page.locator('#toast-container').getByText('x').click()
 
     await validateScreenshot(
       page,
