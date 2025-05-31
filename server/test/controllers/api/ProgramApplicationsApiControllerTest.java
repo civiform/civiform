@@ -11,10 +11,13 @@ import auth.ApiKeyGrants;
 import auth.UnauthorizedApiRequestException;
 import com.jayway.jsonpath.DocumentContext;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import models.ApiKeyModel;
+import models.ApplicantModel;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import models.ProgramModel;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -70,6 +73,76 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
     assertThat(resultJson.read("payload[0].application_id", Long.class))
         .isEqualTo(februaryApplication.id);
+  }
+
+  /**
+   * Tests that the Program Applications API correctly filters applications by date range,
+   * supporting both date-only and full timestamp filtering.
+   */
+  @Test
+  public void list_success_timedDateRange() {
+    ApplicantModel newApplicant = resourceCreator.insertApplicantWithAccount();
+
+    // Create morning application (submitted at 8:30 AM UTC on 2025-01-01)
+    ApplicationModel morningApplication =
+        new ApplicationModel(newApplicant, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
+    morningApplication.setApplicantData(newApplicant.getApplicantData());
+    morningApplication.setCreateTimeForTest(Instant.parse("2025-01-01T08:00:00.00Z"));
+    morningApplication.setSubmitTimeForTest(Instant.parse("2025-01-01T08:30:00.00Z"));
+    morningApplication.save();
+
+    // Create evening application (submitted at 4:30 PM UTC on 2025-01-01)
+    ApplicationModel eveningApplication =
+        new ApplicationModel(newApplicant, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
+    eveningApplication.setApplicantData(newApplicant.getApplicantData());
+    eveningApplication.setCreateTimeForTest(Instant.parse("2025-01-01T16:00:00.00Z"));
+    eveningApplication.setSubmitTimeForTest(Instant.parse("2025-01-01T16:30:30.00Z"));
+    eveningApplication.save();
+
+    // Test Case 1: Date-only filtering (should include entire day range)
+    // Using date-only format should capture all applications from 2025-01-01
+    String dateOnlyRequestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                fakeProgramWithEnumerator.getSlug(),
+                /* fromDate= */ Optional.of("2025-01-01"),
+                /* toDate= */ Optional.of("2025-01-02"),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    Result result = doRequest(dateOnlyRequestUrl);
+    assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
+
+    // Verify both applications are returned when using date-only filtering
+    DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
+    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(2);
+
+    // Results should be ordered by submission time (most recent first)
+    assertThat(resultJson.read("payload[0].application_id", Long.class))
+        .isEqualTo(eveningApplication.id);
+    assertThat(resultJson.read("payload[1].application_id", Long.class))
+        .isEqualTo(morningApplication.id);
+
+    // Test Case 2: Precise timestamp filtering (should only include applications within time
+    // window)
+    // Time range from 6:00 AM to 10:00 AM UTC should only capture the morning application
+    String requestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                fakeProgramWithEnumerator.getSlug(),
+                /* fromDate= */ Optional.of("2025-01-01T06:00:00.00Z"),
+                /* toDate= */ Optional.of("2025-01-01T10:00:00.00Z"),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.empty())
+            .url();
+
+    result = doRequest(requestUrl);
+    assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
+
+    // Verify only the morning application is returned (evening app at 4:30 PM is outside range)
+    resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
+    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
+    assertThat(resultJson.read("payload[0].application_id", Long.class))
+        .isEqualTo(morningApplication.id);
   }
 
   @Test
