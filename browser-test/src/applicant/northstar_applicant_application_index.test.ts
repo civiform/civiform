@@ -434,6 +434,7 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
         await expect(filterChips.getByText('Healthcare')).toBeVisible()
         await expect(filterChips.getByText('General')).toBeVisible()
         await expect(filterChips.getByText('Utilities')).toBeVisible()
+        await expect(page.locator('div.border-base-lighter')).toBeVisible()
       })
 
       await test.step('start applying to a program', async () => {
