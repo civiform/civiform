@@ -154,15 +154,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableSet<Long> selectedTi,
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
+    boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
     boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
-    boolean isNorthStartEnabled = settingsManifest.getNorthStarApplicantUi(request);
+    boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
     boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
     boolean disableLongDescription =
-        (isCommonIntakeForm || isExternalProgram) && isNorthStartEnabled;
+        (isCommonIntakeForm || isExternalProgram) && isNorthStarEnabled;
+    boolean disableExternalLink = (isDefaultProgram || isCommonIntakeForm) && isNorthStarEnabled;
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
@@ -298,6 +300,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("externalLink")
             .setLabelText("Link to program website")
             .setValue(externalLink)
+            .setRequired(isExternalProgram)
+            .setDisabled(disableExternalLink)
+            .setReadOnly(disableExternalLink)
+            .setAttribute(
+                "data-northstar-enabled",
+                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
             .getInputTag()
             .withClass(SPACE_BETWEEN_FORM_ELEMENTS),
         // Email notifications
@@ -324,9 +332,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Long program description")
             .setMarkdownSupported(true)
             .setValue(displayDescription)
-            .setAttribute(
-                "data-northstar-enabled",
-                String.valueOf(settingsManifest.getNorthStarApplicantUi(request)))
             .setDisabled(disableLongDescription)
             .setReadOnly(disableLongDescription)
             .getTextareaTag()
@@ -399,6 +404,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       programTypeFieldset =
           fieldset(
                   legend("Program type")
+                      .withData("testId", "program-type-options")
                       .withClass("text-gray-600")
                       .with(ViewUtils.requiredQuestionIndicator()),
                   buildUSWDSRadioOption(

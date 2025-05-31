@@ -16,11 +16,7 @@ import {
   waitForPageJsLoad,
 } from '../support'
 import {Locator, Page} from 'playwright'
-import {
-  ProgramCategories,
-  ProgramType,
-  ProgramVisibility,
-} from '../support/admin_programs'
+import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
 
 test.describe('applicant program index page', {tag: ['@northstar']}, () => {
@@ -358,14 +354,11 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
       })
 
       await test.step('add external program with categories', async () => {
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           /* externalLink= */ 'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
         await adminPrograms.selectProgramCategories(
           externalProgramName,
@@ -701,14 +694,10 @@ test.describe('applicant program index page', {tag: ['@northstar']}, () => {
     test.beforeEach(async ({page, adminPrograms}) => {
       await loginAsAdmin(page)
 
-      await adminPrograms.addProgram(
+      await adminPrograms.addPreScreenerNS(
         preScreenerFormProgramName,
-        'program description',
         'short program description',
-        'https://usa.gov',
         ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.PRE_SCREENER,
       )
 
       await adminPrograms.addProgramBlockUsingSpec(preScreenerFormProgramName, {
@@ -1152,14 +1141,10 @@ test.describe(
       await test.step('create program with image as admin', async () => {
         await loginAsAdmin(page)
         const preScreenerFormProgramName = 'Benefits finder'
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           preScreenerFormProgramName,
-          'program description',
           'short program description',
-          'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
 
         await adminPrograms.addProgram(programNameInProgressImage)
@@ -1311,14 +1296,11 @@ test.describe(
 
         // Feature flag must be enabled to be able to add an external program
         await enableFeatureFlag(page, 'external_program_cards_enabled')
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           /* externalLink= */ 'https://usa.gov',
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
         await adminPrograms.publishProgram(externalProgramName)
         await logout(page)
@@ -1356,23 +1338,17 @@ test.describe(
         await enableFeatureFlag(page, 'external_program_cards_enabled')
 
         await loginAsAdmin(page)
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramAName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           externalProgramALink,
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramBName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           externalProgramBLink,
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
         await adminPrograms.publishAllDrafts()
         await logout(page)
@@ -1491,16 +1467,12 @@ test.describe(
 
       await test.step("add an external program with 'Education' category", async () => {
         await loginAsAdmin(page)
-        await adminPrograms.addProgram(
+        await adminPrograms.addExternalProgram(
           externalProgramName,
-          /* description= */ '',
           /* shortDescription= */ 'description',
           externalProgramLink,
           ProgramVisibility.PUBLIC,
-          /* adminDescription= */ 'admin description',
-          ProgramType.EXTERNAL,
         )
-
         await adminPrograms.selectProgramCategories(
           externalProgramName,
           [ProgramCategories.EDUCATION],
