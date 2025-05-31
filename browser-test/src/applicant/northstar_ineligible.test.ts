@@ -8,7 +8,7 @@ import {
   validateAccessibility,
   loginAsTrustedIntermediary,
   ClientInformation,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
 } from '../support'
 
 test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
@@ -260,12 +260,12 @@ test.describe('North Star Ineligible Page Tests', {tag: ['@northstar']}, () => {
         /* northStarEnabled=*/ true,
       )
 
-      await applicantQuestions.answerNumberQuestion('0')
-      await applicantQuestions.clickContinue()
-    })
+      await test.step('Setup: set language to Arabic', async () => {
+        await selectApplicantLanguageNorthstar(page, 'ar')
+      })
 
-    await test.step('Setup: set html direction to rtl', async () => {
-      await setDirRtl(page)
+      await applicantQuestions.answerNumberQuestion('0')
+      await page.click('text="متابعة"')
     })
 
     await validateScreenshot(

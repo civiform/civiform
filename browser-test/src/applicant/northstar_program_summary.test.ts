@@ -4,7 +4,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
   validateToastMessage,
@@ -138,7 +138,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
       })
 
       await test.step('Verify program summary page renders right to left correctly', async () => {
-        await setDirRtl(page)
+        await selectApplicantLanguageNorthstar(page, 'ar')
         await validateScreenshot(
           page,
           'program-summary-right-to-left',
