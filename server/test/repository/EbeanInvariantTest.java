@@ -319,6 +319,8 @@ public class EbeanInvariantTest extends ResetPostgres {
    * Database queries in a transaction will return the same Java object for the same database data.
    * This makes complex workflows difficult as calling a utility method may change existing data.
    *
+   * <p>https://ebean.io/architecture/persistence-context
+   *
    * <p>Outside a transaction they do not.
    */
   @Test
