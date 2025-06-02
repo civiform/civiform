@@ -380,8 +380,8 @@ public class EbeanInvariantTest extends ResetPostgres {
   /**
    * One way around unintentional changes is to use savepoints and rollback the inner transaction.
    *
-   * <p>In CiviForm though we don't use savepoints in user requests, so this would be exceptional in
-   * our typical programming model.
+   * <p>In CiviForm though we don't use savepoints and rollbacks in user requests, so this would be
+   * exceptional in our typical programming model.
    */
   @Test
   public void transaction_sameObjectsInTransaction_canRollback() {
