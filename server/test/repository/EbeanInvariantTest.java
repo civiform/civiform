@@ -463,7 +463,7 @@ public class EbeanInvariantTest extends ResetPostgres {
    * exceptional in our typical programming model.
    */
   @Test
-  public void transaction_sameObjectsInTransaction_requiresNewGivesDifferentObjects() {
+  public void transaction_sameObjectsInTransaction_requiresNew_givesDifferentObjects() {
     final String ORIGINAL_EMAIL = "original@email.com";
     final String UPDATED_EMAIL = "updated@email.com";
     var account = new AccountModel();
@@ -510,7 +510,7 @@ public class EbeanInvariantTest extends ResetPostgres {
    * also use savepoints.
    */
   @Test
-  public void transaction_sameObjectsInTransaction_requiresNewAndSavepointsGivesSameObjects() {
+  public void transaction_sameObjectsInTransaction_requiresNewAndSavepoints_givesSameObjects() {
     final String ORIGINAL_EMAIL = "original@email.com";
     final String UPDATED_EMAIL = "updated@email.com";
     var account = new AccountModel();
