@@ -1084,6 +1084,24 @@ public final class ApplicantService {
   }
 
   /**
+   * Gets the latest draft application for a program and applicant.
+   *
+   * @param applicantId the ID of the applicant
+   * @param programSlug the slug of the program
+   * @return CompletionStage containing the Optional ApplicationModel - empty if no draft exists
+   */
+  public CompletionStage<Optional<ApplicationModel>> getLatestDraftApplication(
+      String programSlug, long applicantId) {
+    return applicationRepository
+        .getApplicationsForApplicant(applicantId, ImmutableSet.of(LifecycleStage.DRAFT))
+        .thenApply(
+            applications ->
+                applications.stream()
+                    .filter(application -> application.getProgram().getSlug().equals(programSlug))
+                    .findFirst());
+  }
+
+  /**
    * Get all active programs that are publicly visible, as if it was a brand new guest account, but
    * without requiring the account to be created yet.
    *
