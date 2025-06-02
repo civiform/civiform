@@ -7,7 +7,7 @@ import {
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -204,7 +204,7 @@ test.describe('Applicant navigation flow', {tag: ['@northstar']}, () => {
         /* wantTrustedIntermediary= */ false,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-      await setDirRtl(page)
+      await selectApplicantLanguageNorthstar(page, 'ar')
       await validateAccessibility(page)
 
       await validateScreenshot(
