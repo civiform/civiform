@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:9857836c9ee4268391bb5b09f9f157f3c91bb15821bb77969642813b0d00518d
-FROM localstack/localstack:4.3.0@sha256:f3cb1a79f3add997575e859c3a2808e6dae4b0de836661de255baa2b576868f8
+FROM localstack/localstack:4.4.0@sha256:b52c16663c70b7234f217cb993a339b46686e30a1a5d9279cb5feeb2202f837c
 
 # Localstack tries to connect to the host specified
 # by success_redirect_url upon successful upload of

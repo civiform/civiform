@@ -29,10 +29,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.9.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.18.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.3",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.3",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.18.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.19.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.19.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.19.0",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.19.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -43,19 +43,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20240325.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.31.40",
-      "software.amazon.awssdk" % "ses" % "2.31.40",
+      "software.amazon.awssdk" % "s3" % "2.31.54",
+      "software.amazon.awssdk" % "ses" % "2.31.54",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.15.4",
       "com.azure" % "azure-storage-blob" % "12.30.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.36.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.39.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.5",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.24.2",
+      "org.postgresql" % "postgresql" % "42.7.6",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.25.1",
       "com.h2database" % "h2" % "2.3.232" % Test,
 
       // Metrics collection and export for Prometheus
@@ -80,13 +80,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "12.0.0-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.1.2",
+      "org.pac4j" % "pac4j-core" % "6.1.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.1.2",
+      "org.pac4j" % "pac4j-http" % "6.1.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.1.2",
+      "org.pac4j" % "pac4j-oidc" % "6.1.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.1.2",
+      "org.pac4j" % "pac4j-saml" % "6.1.3",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.4",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.5",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.6",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.7",
@@ -122,15 +122,15 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.5.18",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.15" exclude (
+      "io.swagger" % "swagger-core" % "1.6.16" exclude (
         "javax.validation",
         "validation-api"
       ),
-      "io.swagger" % "swagger-parser" % "1.0.74",
+      "io.swagger" % "swagger-parser" % "1.0.75",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.30",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.27",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.32",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.29",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
@@ -302,9 +302,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.3",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.3"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.19.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.19.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

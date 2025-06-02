@@ -34,7 +34,6 @@ import services.migration.ProgramMigrationService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.admin.migration.AdminImportView;
@@ -250,21 +249,11 @@ public class AdminImportController extends CiviFormController {
       if (duplicateHandlingOptionsEnabled) {
         programMigrationService.validateQuestionKeyUniqueness(questions);
       }
+      ImmutableList<String> existingAdminNames =
+          programMigrationService.getExistingAdminNames(questions);
       ImmutableSet<CiviFormError> questionErrors =
-          questions.stream()
-              .map(
-                  question -> {
-                    if (question.getQuestionType().isMultiOptionType()) {
-                      MultiOptionQuestionDefinition multiOptionQuestion =
-                          (MultiOptionQuestionDefinition) question;
-                      return multiOptionQuestion
-                          .setValidateQuestionOptionAdminNames(false)
-                          .validate();
-                    }
-                    return question.validate();
-                  })
-              .flatMap(errors -> errors.stream())
-              .collect(ImmutableSet.toImmutableSet());
+          programMigrationService.validateQuestions(
+              program, questions, existingAdminNames, duplicateHandlingOptionsEnabled);
       if (!questionErrors.isEmpty()) {
         return ok(
             adminImportViewPartial
@@ -284,7 +273,7 @@ public class AdminImportController extends CiviFormController {
                   request,
                   program,
                   questions,
-                  programMigrationService.getExistingAdminNames(questions),
+                  existingAdminNames,
                   updatedQuestionsMap,
                   serializeResult.getResult(),
                   withDuplicates)
