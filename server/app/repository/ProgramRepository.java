@@ -448,10 +448,7 @@ public final class ProgramRepository {
             .fetch("applicant")
             .fetch("applicant.account.managedByGroup")
             .where()
-            .in("program_id", allProgramVersionsQuery(programId))
-            .in(
-                "lifecycle_stage",
-                ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
+            .in("program_id", allProgramVersionsQuery(programId));
 
     if (filters.submitTimeFilter().fromTime().isPresent()) {
       query = query.where().ge("submit_time", filters.submitTimeFilter().fromTime().get());
@@ -474,6 +471,14 @@ public final class ProgramRepository {
         query = query.where().eq("latest_status", toMatchStatus);
       }
     }
+
+    // TODO(#10730): Update all callers to set the lifecycle stage, so we don't use a default value
+    // here
+    List<LifecycleStage> applicableLifecycleStages =
+        filters.lifecycleStages().isEmpty()
+            ? List.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE)
+            : filters.lifecycleStages();
+    query.in("lifecycle_stage", applicableLifecycleStages);
 
     // Sort order is dictated by the pagination spec that was specified.
     PagedList<ApplicationModel> pagedQuery = paginationSpec.apply(query.query()).findPagedList();
