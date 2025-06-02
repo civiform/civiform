@@ -216,7 +216,7 @@ button.viewAndApplySr=በ{0} ላይ አሳይ እና ተግብር
 # The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=አዲስ ትር ላይ አሳይ
 # The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
-button.viewInNewTabSr=View {0} in new tab
+button.viewInNewTabSr={0}ን በአዲስ ትር ላይ ይመልከቱ
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
