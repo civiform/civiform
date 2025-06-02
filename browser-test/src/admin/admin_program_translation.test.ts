@@ -555,14 +555,10 @@ test.describe('Admin can manage program translations', () => {
 
       await test.step('Add a pre-screener program', async () => {
         await loginAsAdmin(page)
-        await adminPrograms.addProgram(
+        await adminPrograms.addPreScreenerNS(
           programName,
-          'description',
           'short description',
-          'https://www.example.com',
           ProgramVisibility.PUBLIC,
-          'admin description',
-          ProgramType.PRE_SCREENER,
         )
       })
 

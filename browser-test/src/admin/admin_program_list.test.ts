@@ -266,14 +266,11 @@ test.describe('Program list page.', () => {
       'admin description',
       ProgramType.PRE_SCREENER,
     )
-    await adminPrograms.addProgram(
+    await adminPrograms.addExternalProgram(
       externalProgram,
-      /* description= */ '',
       'short program description',
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
-      'admin description',
-      ProgramType.EXTERNAL,
     )
 
     // Pre-screener program should always be first. Then, order is by last modified.
@@ -559,14 +556,11 @@ test.describe('Program list page.', () => {
       await enableFeatureFlag(page, 'external_program_cards_enabled')
       await loginAsAdmin(page)
 
-      await adminPrograms.addProgram(
+      await adminPrograms.addExternalProgram(
         externalProgram,
-        /* description= */ '',
         'short program description',
         'https://usa.gov',
         ProgramVisibility.PUBLIC,
-        'admin description',
-        ProgramType.EXTERNAL,
       )
       await expectProgramListElements(adminPrograms, [externalProgram])
     })
