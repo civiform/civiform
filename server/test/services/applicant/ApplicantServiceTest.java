@@ -4475,4 +4475,99 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(eligibleApplication.getEligibilityDetermination())
         .isEqualTo(EligibilityDetermination.ELIGIBLE);
   }
+
+  @Test
+  public void getLatestDraftApplication() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("program-a", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+    ApplicationModel draftApplication =
+        applicationRepository
+            .createOrUpdateDraft(applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    Optional<ApplicationModel> result =
+        subject
+            .getLatestDraftApplication(activeProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(draftApplication.id);
+    assertThat(result.get().getProgram().id).isEqualTo(activeProgram.id);
+    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+  }
+
+  @Test
+  public void getLatestDraftApplication_whenProgramVersionChanges() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Create initial active program version
+    ProgramModel originalProgram =
+        ProgramBuilder.newActiveProgram("program a", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    // Start a draft application for the original program
+    ApplicationModel originalDraftApplication =
+        applicationRepository
+            .createOrUpdateDraft(applicant.id, originalProgram.id)
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    // Create a new draft version of the program
+    ProgramBuilder.newDraftProgram("program a", "desc")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank.nameApplicantName())
+        .build();
+
+    // Publish the new version, making it active
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Get the latest draft application for "program a"
+    Optional<ApplicationModel> result =
+        subject
+            .getLatestDraftApplication(originalProgram.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    // Verify the draft application is still associated with the original program version
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(originalDraftApplication.id);
+    assertThat(result.get().getProgram().id).isEqualTo(originalProgram.id);
+    assertThat(result.get().getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
+  }
+
+  @Test
+  public void getLatestDraftApplication_whenNoDraftApplication() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.nameApplicantName())
+            .build();
+
+    Optional<ApplicationModel> result =
+        subject
+            .getLatestDraftApplication(program.getSlug(), applicant.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
+  }
 }

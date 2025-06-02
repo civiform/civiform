@@ -463,7 +463,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramsController.edit(programDefinition.id())
+            controllers.applicant.routes.ApplicantProgramsController.edit(
+                    String.valueOf(programDefinition.id()), /* maybeProgramSlug= */ false)
                 .url());
   }
 

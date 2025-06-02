@@ -1679,6 +1679,25 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getActiveProgramId_success() {
+    ProgramDefinition activeProgram =
+        ProgramBuilder.newActiveProgram("test-program").buildDefinition();
+    CompletionStage<Long> result = ps.getActiveProgramId(activeProgram.slug());
+
+    assertThat(result.toCompletableFuture().join()).isEqualTo(activeProgram.id());
+  }
+
+  @Test
+  public void getActiveProgramId_error_programNotFound() {
+    CompletionStage<Long> result = ps.getActiveProgramId("nonexistent-program");
+
+    assertThatThrownBy(() -> result.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(java.lang.RuntimeException.class)
+        .hasMessageContaining("Program not found for slug: nonexistent-program");
+  }
+
+  @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L))
         .isInstanceOf(ProgramNotFoundException.class)

@@ -1162,6 +1162,21 @@ public final class ApplicantService {
         : Optional.empty();
   }
 
+  /**
+   * Returns the latest draft application of an applicant for a program if it exists, or empty
+   * otherwise.
+   */
+  public CompletionStage<Optional<ApplicationModel>> getLatestDraftApplication(
+      String programSlug, long applicantId) {
+    return applicationRepository
+        .getApplicationsForApplicant(applicantId, ImmutableSet.of(LifecycleStage.DRAFT))
+        .thenApply(
+            applications ->
+                applications.stream()
+                    .filter(application -> application.getProgram().getSlug().equals(programSlug))
+                    .findFirst());
+  }
+
   private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<ApplicationModel> applications,

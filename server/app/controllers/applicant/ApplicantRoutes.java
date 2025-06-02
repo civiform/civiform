@@ -93,7 +93,8 @@ public final class ApplicantRoutes {
   }
 
   public Call edit(long programId) {
-    return routes.ApplicantProgramsController.edit(programId);
+    return routes.ApplicantProgramsController.edit(
+        Long.toString(programId), /* maybeProgramSlug= */ false);
   }
 
   /**
@@ -109,7 +110,7 @@ public final class ApplicantRoutes {
       return controllers.applicant.routes.ApplicantProgramsController.editWithApplicantId(
           applicantId, programId);
     } else {
-      return routes.ApplicantProgramsController.edit(programId);
+      return edit(programId);
     }
   }
 

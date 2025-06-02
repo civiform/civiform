@@ -172,6 +172,17 @@ public final class ProgramSlugHandler {
             classLoaderExecutionContext.current());
   }
 
+  public CompletionStage<Long> getLatestProgramId(String programSlug, long applicantId) {
+    return applicantService
+        .getLatestDraftApplication(programSlug, applicantId)
+        .thenCompose(
+            draftApplication -> {
+              return draftApplication.isPresent()
+                  ? CompletableFuture.completedFuture(draftApplication.get().getProgram().id)
+                  : programService.getActiveProgramId(programSlug);
+            });
+  }
+
   private Result redirectToOverviewOrReviewPage(
       CiviFormController controller,
       Http.Request request,

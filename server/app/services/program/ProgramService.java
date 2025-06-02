@@ -143,6 +143,11 @@ public final class ProgramService {
     return versionRepository.getProgramNamesForVersion(versionRepository.getActiveVersion());
   }
 
+  /** Get the ID of the active program corresponding to the program slug */
+  public CompletionStage<Long> getActiveProgramId(String programSlug) {
+    return programRepository.getActiveProgramFromSlug(programSlug).thenApply(program -> program.id);
+  }
+
   /** Get the data object about the programs that are in the active or draft version. */
   public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
     return ActiveAndDraftPrograms.buildFromCurrentVersionsSynced(this, versionRepository);
