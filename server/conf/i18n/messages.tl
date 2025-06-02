@@ -216,7 +216,7 @@ button.viewAndApplySr=Tingnan at mag-apply sa {0}
 # The text on a button to view program on a new tab. This is used for external programs.
 button.viewInNewTab=Tingnan sa bagong tab
 # The screen reader text on a button to view program on a new tab. The variable represents the program name. This is used for external programs.
-button.viewInNewTabSr=View {0} in new tab
+button.viewInNewTabSr=Tingnan ang {0} sa bagong tab
 # The text for the button that allows a guest to bypass the login prompt modal.
 button.continueToApplication=Magpatuloy sa application
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
