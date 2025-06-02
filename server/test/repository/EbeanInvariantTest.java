@@ -314,4 +314,238 @@ public class EbeanInvariantTest extends ResetPostgres {
       assertThat(DB.find(AccountModel.class).findCount()).isEqualTo(3);
     }
   }
+
+  /*
+   * Ebean has an L1 cache that affects Transactions.  Within a Transaction, Ebean's Persistence
+   * Context returns the same Java object for the same logical DB data.
+   *
+   * The idea is to provide consistency in accessing database objects; however it runs counter to
+   * the typical programming model in CiviForm where the lookups are assumed to be different
+   * views of the same data.
+   *
+   * requriesNew() and savepoints change this behavior.
+   *
+   * <p>https://ebean.io/architecture/persistence-context
+   */
+
+  /** Basic example of the Transactional Persistence Context. */
+  @Test
+  public void transaction_sameObjectsInTransaction() {
+    final String ORIGINAL_EMAIL = "original@email.com";
+    final String UPDATED_EMAIL = "updated@email.com";
+    var account = new AccountModel();
+    account.setEmailAddress(ORIGINAL_EMAIL);
+    account.insert();
+
+    var accountId = account.id;
+
+    // Look up the account.
+    var outerAccount1 = database.find(AccountModel.class).setId(accountId).findOne();
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Look up the account in a transaction.
+      var innerAccount1 = database.find(AccountModel.class).setId(accountId).findOne();
+      assertThat(innerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+      // Look it up again.
+      var innerAccount2 = database.find(AccountModel.class).setId(accountId).findOne();
+      // Update this objects email.
+      innerAccount2.setEmailAddress(UPDATED_EMAIL);
+      innerAccount2.save();
+
+      // Note: Account1 is updated too unexpectedly.
+      assertThat(innerAccount1.getEmailAddress()).isEqualTo(UPDATED_EMAIL);
+      // Note: Account1 is actually the same object as Account2.
+      assertThat(innerAccount1).isSameAs(innerAccount2);
+      transaction.commit();
+    }
+
+    // The outer account is the same still though.
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    // Outside a transaction they are separate objects.
+    var outerAccount2 = database.find(AccountModel.class).setId(accountId).findOne();
+    outerAccount2.setEmailAddress(UPDATED_EMAIL);
+    outerAccount2.save();
+
+    // Account1 is not the same object as Account2.
+    assertThat(outerAccount1).isNotSameAs(outerAccount2);
+
+    // Updating the second view doesn't change the first.
+    assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+  }
+
+  /**
+   * One way around unintentional changes is to use savepoints and rollback the inner transaction.
+   *
+   * <p>In CiviForm though we don't use savepoints and rollbacks in user requests, so this would be
+   * exceptional in our typical programming model.
+   */
+  @Test
+  public void transaction_sameObjectsInTransaction_canRollback() {
+    final String ORIGINAL_EMAIL = "original@email.com";
+    final String UPDATED_EMAIL_1 = "updated1@email.com";
+    final String UPDATED_EMAIL_2 = "updated2@email.com";
+    var account = new AccountModel();
+    account.setEmailAddress(ORIGINAL_EMAIL);
+    account.insert();
+
+    var accountId = account.id;
+
+    // Look up the account outside of a transaction.
+    var outerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+    assertThat(outerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Note: MUST have nested savepoints on.
+      transaction.setNestedUseSavepoint();
+
+      // Let's update the outer account to show how it interacts with the transaction data.
+      outerAccount.setEmailAddress(UPDATED_EMAIL_1);
+      outerAccount.save();
+
+      // Look up the account in a transaction.
+      var innerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+      // Transaction updated the data and we see that.
+      assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_1);
+
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+        // Look it up again in another transaction.
+        var innerInnerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+        // Update this objects email in the inner transaction.
+        innerInnerAccount.setEmailAddress(UPDATED_EMAIL_2);
+        innerInnerAccount.save();
+
+        // innerAccount1 is updated also.
+        assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_2);
+        // innerAccount1 is the same object as Account2.
+        assertThat(innerAccount).isSameAs(innerInnerAccount);
+
+        // Note: outerAccount is unchanged as it's a different object.
+        assertThat(outerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_1);
+        // Note: If we refresh though, it sees the same database data in the transaction.
+        outerAccount.refresh();
+        assertThat(outerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_2);
+
+        // Rollback the transaction that changed the transaction object.
+        innerTransaction.rollback();
+        // Note: innerAccount1 object is still updated.
+        assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_2);
+        // Note: Until we refresh, let's refresh innerAccount2 to further exemplify they're the
+        // same object, and the importance of refreshing in a rollback.
+        innerInnerAccount.refresh();
+        // Note: It's back to the value set in the outer transaction.
+        assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_1);
+      }
+
+      // For good measure verify it's the same value in the outer transaction.
+      assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_1);
+      // Note: Let's try to keep everything done in the outer transaction.
+      transaction.commit();
+    }
+
+    // Note: Because it's a different object, our outerAccount still reflects the refreshed data in
+    // the inner transaction.
+    assertThat(outerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_2);
+    // Until we refresh it, then we get the commited changed in the outerTransaction.
+    outerAccount.refresh();
+    assertThat(outerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL_1);
+  }
+
+  /**
+   * Using requiresNew Scope uses a different transaction and as such gives a different object.
+   *
+   * <p>In CiviForm though we don't use different simultaneous transactions, so this would be
+   * exceptional in our typical programming model.
+   */
+  @Test
+  public void transaction_sameObjectsInTransaction_requiresNew_givesDifferentObjects() {
+    final String ORIGINAL_EMAIL = "original@email.com";
+    final String UPDATED_EMAIL = "updated@email.com";
+    var account = new AccountModel();
+    account.setEmailAddress(ORIGINAL_EMAIL);
+    account.insert();
+
+    var accountId = account.id;
+
+    var outerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+    assertThat(outerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+
+      // Look up the account in a transaction.
+      var innerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+      assertThat(innerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+      // Note: Creating a separate transaction scope.
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+        // Look it up again.
+        var innerInnerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+        // Update this objects email.
+        innerInnerAccount.setEmailAddress(UPDATED_EMAIL);
+        innerInnerAccount.save();
+        innerTransaction.commit();
+
+        // Note: innerAccount is NOT updated.
+        assertThat(innerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+        // Note:  innerAccount is NOT the same object as Account2.
+        assertThat(innerAccount).isNotSameAs(innerInnerAccount);
+      }
+
+      // And because they're different transactions, they see different views of the database.
+      innerAccount.refresh();
+      // innerAccount1 is unchanged relative to its transaction.
+      assertThat(innerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+    }
+  }
+
+  /**
+   * However, in comparison to the above test, for some unknown reason the above doesn't work if you
+   * also use savepoints.
+   */
+  @Test
+  public void transaction_sameObjectsInTransaction_requiresNewAndSavepoints_givesSameObjects() {
+    final String ORIGINAL_EMAIL = "original@email.com";
+    final String UPDATED_EMAIL = "updated@email.com";
+    var account = new AccountModel();
+    account.setEmailAddress(ORIGINAL_EMAIL);
+    account.insert();
+
+    var accountId = account.id;
+
+    // Look up the account.
+    var outerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+    assertThat(outerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+    try (Transaction transaction =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // Note: Using savepoints for some reason changes the persistence modeling of using a separate
+      // transaction.
+      transaction.setNestedUseSavepoint();
+
+      // Look up the account in a transaction.
+      var innerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+      assertThat(innerAccount.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
+
+      // Note: Creating a separate transaction.
+      try (Transaction innerTransaction =
+          DB.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+        // Look it up again.
+        var innerInnerAccount = database.find(AccountModel.class).setId(accountId).findOne();
+        // Update this objects email.
+        innerInnerAccount.setEmailAddress(UPDATED_EMAIL);
+
+        // Note: innerAccount is updated unexpectedly.
+        assertThat(innerAccount.getEmailAddress()).isEqualTo(UPDATED_EMAIL);
+        // Note: innerAccount is the same object as innerInnerAccount unexpectedly.
+        assertThat(innerAccount).isSameAs(innerInnerAccount);
+      }
+    }
+  }
 }
