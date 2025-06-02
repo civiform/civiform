@@ -359,6 +359,9 @@ public class EbeanInvariantTest extends ResetPostgres {
 
     var outerAccount2 = database.find(AccountModel.class).setId(accountId).findOne();
     outerAccount2.setEmailAddress(UPDATED_EMAIL);
+    
+    // Account1 is not the same object as Account2 actually.
+    assertThat(outerAccount1).isNotSameAs(outerAccount2);
 
     // Updating the second view doesn't change the first.
     assertThat(outerAccount1.getEmailAddress()).isEqualTo(ORIGINAL_EMAIL);
