@@ -8,7 +8,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
 } from '../support'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
@@ -418,7 +418,7 @@ test.describe('Applicant program overview', {tag: ['@northstar']}, () => {
 
   test('renders right to left', async ({page}) => {
     await page.goto(`/programs/${programName}`)
-    await setDirRtl(page)
+    await selectApplicantLanguageNorthstar(page, 'ar')
 
     await validateAccessibility(page)
 
