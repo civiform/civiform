@@ -697,7 +697,7 @@ public final class ProgramService {
         programRepository.getShallowProgramDefinition(
             programRepository.createOrUpdateDraft(maybePreScreenerForm.get().toProgram()));
     ProgramModel preScreenerProgram =
-      draftPreScreenerProgramDefinition.toBuilder()
+        draftPreScreenerProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
             .build()
             .toProgram();
@@ -1012,8 +1012,7 @@ public final class ProgramService {
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       LocalizationUpdate localizationUpdate,
       ProgramDefinition programDefinition) {
-    if (!programDefinition.isPreScreenerForm()
-        && !programDefinition.applicationSteps().isEmpty()) {
+    if (!programDefinition.isPreScreenerForm() && !programDefinition.applicationSteps().isEmpty()) {
       IntStream.range(0, programDefinition.applicationSteps().size())
           .forEach(
               i -> {

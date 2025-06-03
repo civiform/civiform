@@ -162,8 +162,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
-    boolean disableLongDescription =
-        (isPreScreenerForm || isExternalProgram) && isNorthStarEnabled;
+    boolean disableLongDescription = (isPreScreenerForm || isExternalProgram) && isNorthStarEnabled;
     boolean disableExternalLink = (isDefaultProgram || isPreScreenerForm) && isNorthStarEnabled;
     boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isPreScreenerForm || isExternalProgram;
