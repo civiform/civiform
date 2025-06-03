@@ -1747,7 +1747,7 @@ public final class ApplicantService {
   @AutoValue
   public abstract static class ApplicationPrograms {
     /**
-     * Common Intake Form, if it exists and hasn't been submitted, is populated here and not in
+     * Pre-Screener Form, if it exists and hasn't been submitted, is populated here and not in
      * inProgress or unapplied, regardless of its application status.
      */
     public abstract Optional<ApplicantProgramData> preScreenerForm();
@@ -1802,10 +1802,10 @@ public final class ApplicantService {
     }
 
     /**
-     * Returns all programs that are in progress, including the Common Intake Form, which usually is
+     * Returns all programs that are in progress, including the Pre-Screener Form, which usually is
      * not included in the inProgress list.
      */
-    public ImmutableList<ApplicantProgramData> inProgressIncludingCommonIntake() {
+    public ImmutableList<ApplicantProgramData> inProgressIncludingPreScreener() {
       ImmutableList.Builder<ApplicantProgramData> inProgress =
           new ImmutableList.Builder<ApplicantProgramData>();
 

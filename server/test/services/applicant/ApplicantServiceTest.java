@@ -2183,7 +2183,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().get(0),
             result.unapplied().get(0),
             result.unapplied().get(1));
-    assertThat(result.inProgressIncludingCommonIntake().stream().map(p -> p.program().id()))
+    assertThat(result.inProgressIncludingPreScreener().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(commonIntakeForm.id, programForDraft.id);
   }
 
