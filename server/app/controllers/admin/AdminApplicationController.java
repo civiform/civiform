@@ -146,7 +146,7 @@ public final class AdminApplicationController extends CiviFormController {
     }
 
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
-    SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
+    SubmittedApplicationFilter filters;
     if (shouldApplyFilters) {
       filters =
           SubmittedApplicationFilter.builder()
@@ -160,6 +160,8 @@ public final class AdminApplicationController extends CiviFormController {
                       .build())
               .setApplicationStatus(applicationStatus)
               .build();
+    } else {
+      filters = SubmittedApplicationFilter.EMPTY;
     }
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
@@ -186,7 +188,7 @@ public final class AdminApplicationController extends CiviFormController {
       throws ProgramNotFoundException {
     boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
-      SubmittedApplicationFilter filters = SubmittedApplicationFilter.EMPTY;
+      SubmittedApplicationFilter filters;
       if (shouldApplyFilters) {
         filters =
             SubmittedApplicationFilter.builder()
@@ -201,6 +203,8 @@ public final class AdminApplicationController extends CiviFormController {
                         .build())
                 .setApplicationStatus(applicationStatus)
                 .build();
+      } else {
+        filters = SubmittedApplicationFilter.EMPTY;
       }
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
