@@ -39,6 +39,7 @@ import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class VersionRepositoryTest extends ResetPostgres {
+  private TransactionManager transactionManager;
   private VersionRepository versionRepository;
   private SyncCacheApi questionsByVersionCache;
   private SyncCacheApi programsByVersionCache;
@@ -46,6 +47,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
   @Before
   public void setupVersionRepository() {
+    transactionManager = new TransactionManager();
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     questionsByVersionCache = instanceOf(SyncCacheApi.class);
     programsByVersionCache = instanceOf(SyncCacheApi.class);
@@ -682,8 +684,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     PredicateExpressionNode and =
         PredicateExpressionNode.create(AndNode.create(ImmutableList.of(leafOne, or)));
 
-    PredicateExpressionNode updated = versionRepository.updatePredicateNodeVersions(and);
-
+    PredicateExpressionNode updated =
+        transactionManager.execute(() -> versionRepository.updatePredicateNodeVersions(and));
     // The tree should have the same structure, just with question IDs for the draft version.
     PredicateExpressionNode expectedLeafOne =
         PredicateExpressionNode.create(
@@ -762,7 +764,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
     program.save();
 
-    versionRepository.updateQuestionVersions(program);
+    transactionManager.execute(() -> versionRepository.updateQuestionVersions(program));
     ProgramDefinition updated =
         versionRepository
             .getProgramByNameForVersion(
