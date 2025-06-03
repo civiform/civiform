@@ -3239,8 +3239,8 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void getCommonIntakeForm_ignoresObsoletePrograms() {
-    // No common intake form in the most recent version of any program, although some programs
-    // were previously marked as common intake.
+    // No pre-screener form in the most recent version of any program, although some programs
+    // were previously marked as pre-screener.
     ProgramBuilder.newObsoleteProgram("one")
         .withProgramType(ProgramType.COMMON_INTAKE_FORM)
         .build();

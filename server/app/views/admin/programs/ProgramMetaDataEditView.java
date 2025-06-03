@@ -71,7 +71,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
   /**
    * Renders the edit form with a modal that confirms whether or not the user wants to change which
-   * program is set to be the common intake form. Fields are pre-populated based on the content of
+   * program is set to be the pre-screener form. Fields are pre-populated based on the content of
    * programForm.
    */
   public Content renderChangeCommonIntakeConfirmation(

@@ -3311,7 +3311,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     EligibilityDefinition unansweredQuestionEligibilityDefinition =
         createEligibilityDefinition(unansweredQuestion, "Sza");
 
-    // Setup program for answering questions (not necessarily a common intake program)
+    // Setup program for answering questions (not necessarily a pre-screener program)
     ProgramModel programForAnsweringQuestions =
         ProgramBuilder.newDraftProgram("other program")
             .withBlock()
@@ -3571,7 +3571,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-    // Set up common intake form
+    // Set up pre-screener form
     NameQuestionDefinition question = createNameQuestion("question");
     ProgramModel commonIntakeForm =
         ProgramBuilder.newDraftProgram(

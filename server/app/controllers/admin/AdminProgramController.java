@@ -139,7 +139,7 @@ public final class AdminProgramController extends CiviFormController {
       return ok(newOneView.render(request, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangeCommonIntakeForm()) {
@@ -280,7 +280,7 @@ public final class AdminProgramController extends CiviFormController {
           editView.render(request, programDefinition, programEditStatus, programData, message));
     }
 
-    // If the user needs to confirm that they want to change the common intake form from a different
+    // If the user needs to confirm that they want to change the pre-screener form from a different
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangeCommonIntakeForm()) {

@@ -35,7 +35,7 @@ class AdminPrograms {
    * manage the disabled state of related form elements.
    */
   static attachProgramTypeChangeListener() {
-    // Listens for changes to the common intake checkbox.
+    // Listens for changes to the pre-screener checkbox.
     // TODO(#10363): This should be removed once EXTERNAL_PROGRAM_CARDS feature
     // is enabled by default, which is handled by the next listener.
     addEventListenerToElements('#common-intake-checkbox', 'click', () => {

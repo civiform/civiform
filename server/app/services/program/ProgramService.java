@@ -175,7 +175,7 @@ public final class ProgramService {
 
   /*
    * Looks at the most recent version of each program and returns the program marked as the
-   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   * pre-screener form if it exists. The most recent version may be in the draft or active stage.
    */
   public Optional<ProgramDefinition> getCommonIntakeForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
@@ -682,7 +682,7 @@ public final class ProgramService {
   }
 
   /**
-   * Clears the common intake form if it exists.
+   * Clears the pre-screener form if it exists.
    *
    * <p>If there is a program among the most recent versions of all programs marked as the common
    * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
@@ -822,7 +822,7 @@ public final class ProgramService {
       ProgramType programType,
       ImmutableSet.Builder<CiviFormError> errorsBuilder,
       ImmutableList<ApplicationStep> applicationSteps) {
-    // Common intake and external programs don't have application steps.
+    // Pre-screener and external programs don't have application steps.
     if (programType == ProgramType.COMMON_INTAKE_FORM || programType == ProgramType.EXTERNAL) {
       return errorsBuilder;
     }
@@ -1005,7 +1005,7 @@ public final class ProgramService {
   }
 
   /**
-   * If the program is not a common intake program and has application steps, validate that all the
+   * If the program is not a pre-screener program and has application steps, validate that all the
    * existing application steps have translations
    */
   private void validateApplicationSteps(

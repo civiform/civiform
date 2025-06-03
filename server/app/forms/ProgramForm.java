@@ -19,7 +19,7 @@ public final class ProgramForm {
   private String programTypeValue;
 
   // Represents whether or not the user has confirmed that they want to change which program is
-  // marked as the common intake form.
+  // marked as the pre-screener form.
   private Boolean confirmedChangeCommonIntakeForm;
   private Boolean eligibilityIsGating;
   private List<Long> tiGroups;

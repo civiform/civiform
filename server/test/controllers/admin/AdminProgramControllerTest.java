@@ -392,7 +392,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void create_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -427,7 +427,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void create_promptsUserToConfirmCommonIntakeChange() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
             .bodyForm(
@@ -508,7 +508,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void create_allowsChangingCommonIntakeAfterConfirming() {
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
 
     String adminName = "internal-program-name";
     String programName = "External program name";
@@ -824,7 +824,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
 
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
@@ -863,7 +863,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
 
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
@@ -949,7 +949,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("Existing One", "old description").build();
-    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old pre-screener").build();
 
     String newProgramName = "External program name";
     String newProgramDescription = "New external program description";

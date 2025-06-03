@@ -378,8 +378,7 @@ public final class ProgramMigrationService {
         .setAcls(new ProgramAcls())
         // Don't export environment specific notification preferences
         .setNotificationPreferences(ImmutableList.of())
-        // Explicitly set program type to DEFAULT so we don't import program as a
-        // pre-screener/common intake
+        // Explicitly set program type to DEFAULT so we don't import program as a pre-screener
         .setProgramType(ProgramType.DEFAULT)
         .build();
   }

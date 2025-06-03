@@ -131,7 +131,7 @@ public final class UpsellController extends CiviFormController {
         .thenComposeAsync(
             ignored -> {
               if (!isCommonIntake.join()) {
-                // Only the common intake form needs to get the applicant's eligible
+                // Only the pre-screener form needs to get the applicant's eligible
                 // programs this way.
                 Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
                 return CompletableFuture.completedFuture(result);

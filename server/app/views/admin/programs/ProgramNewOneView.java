@@ -58,7 +58,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
   /**
    * Renders the create form with a modal that confirms whether or not the user wants to change
-   * which program is set to be the common intake form. Fields are pre-populated based on the
+   * which program is set to be the pre-screener form. Fields are pre-populated based on the
    * content of programForm.
    */
   public Content renderChangeCommonIntakeConfirmation(

@@ -381,9 +381,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       boolean externalProgramFieldDisabled = false;
 
       // When editing a program:
-      //   - external program field is disabled when program type is default or common intake form,
+      //   - external program field is disabled when program type is default or pre-screener form,
       // since a program can be changed to external after creation.
-      //   - common intake and default program fields are disabled when program type is external
+      //   - pre-screener and default program fields are disabled when program type is external
       // program, since an external program cannot change type after creation.
       if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
         switch (programType) {
@@ -467,7 +467,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return each(
         programTypeFieldset,
         // Hidden checkbox used to signal whether or not the user has confirmed they want to
-        // change which program is marked as the common intake form.
+        // change which program is marked as the pre-screener form.
         FieldWithLabel.checkbox()
             .setId("confirmed-change-common-intake-checkbox")
             .setFieldName("confirmedChangeCommonIntakeForm")
