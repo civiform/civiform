@@ -58,12 +58,9 @@ test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
     await test.step('Updating IT email address updates the error page', async () => {
       await loginAsAdmin(page)
       await adminSettings.gotoAdminSettings()
-      await adminSettings.setStringSetting(
-        'IT_EMAIL_ADDRESS',
-        'it@email.com',
-      )
+      await adminSettings.setStringSetting('IT_EMAIL_ADDRESS', 'it@email.com')
       await adminSettings.saveChanges()
-      
+
       await page.goto('/error?exceptionId=1')
       await expect(
         page.getByRole('link', {
