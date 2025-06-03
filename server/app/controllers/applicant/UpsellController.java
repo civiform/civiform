@@ -99,7 +99,7 @@ public final class UpsellController extends CiviFormController {
       String submitTime) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-    CompletableFuture<Boolean> isCommonIntake =
+    CompletableFuture<Boolean> isPreScreener =
         programService
             .getFullProgramDefinitionAsync(programId)
             .thenApplyAsync(ProgramDefinition::isPreScreenerForm)
@@ -127,10 +127,10 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     return CompletableFuture.allOf(
-            isCommonIntake, account, roApplicantProgramService, relevantProgramsFuture)
+        isPreScreener, account, roApplicantProgramService, relevantProgramsFuture)
         .thenComposeAsync(
             ignored -> {
-              if (!isCommonIntake.join()) {
+              if (!isPreScreener.join()) {
                 // Only the pre-screener form needs to get the applicant's eligible
                 // programs this way.
                 Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
@@ -179,7 +179,7 @@ public final class UpsellController extends CiviFormController {
                         .setApplicantId(applicantId)
                         .setDateSubmitted(formattedDate);
 
-                if (isCommonIntake.join()) {
+                if (isPreScreener.join()) {
                   UpsellParams upsellParams =
                       paramsBuilder
                           .setEligiblePrograms(maybeEligiblePrograms.orElseGet(ImmutableList::of))
@@ -194,7 +194,7 @@ public final class UpsellController extends CiviFormController {
                           .build();
                   return ok(northStarUpsellView.render(upsellParams)).as(Http.MimeTypes.HTML);
                 }
-              } else if (isCommonIntake.join()) {
+              } else if (isPreScreener.join()) {
                 return ok(
                     cifUpsellView.render(
                         request,
