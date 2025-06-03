@@ -74,19 +74,19 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
    * program is set to be the pre-screener form. Fields are pre-populated based on the content of
    * programForm.
    */
-  public Content renderChangeCommonIntakeConfirmation(
+  public Content renderChangePreScreenerConfirmation(
       Request request,
       ProgramDefinition existingProgram,
       ProgramEditStatus programEditStatus,
       ProgramForm programForm,
-      String existingCommonIntakeFormDisplayName) {
+      String existingPreScreenerFormDisplayName) {
     return render(
         request,
         existingProgram,
         programEditStatus,
         Optional.of(programForm),
         Optional.empty(),
-        Optional.of(buildConfirmPreScreenerChangeModal(existingCommonIntakeFormDisplayName)));
+        Optional.of(buildConfirmPreScreenerChangeModal(existingPreScreenerFormDisplayName)));
   }
 
   private Content render(

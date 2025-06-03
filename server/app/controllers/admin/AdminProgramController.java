@@ -288,7 +288,7 @@ public final class AdminProgramController extends CiviFormController {
       if (maybePreScreenerForm.isPresent()
           && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
         return ok(
-            editView.renderChangeCommonIntakeConfirmation(
+            editView.renderChangePreScreenerConfirmation(
                 request,
                 programDefinition,
                 programEditStatus,
