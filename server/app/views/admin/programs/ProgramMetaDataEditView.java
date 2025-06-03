@@ -86,7 +86,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
         programEditStatus,
         Optional.of(programForm),
         Optional.empty(),
-        Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
+        Optional.of(buildConfirmPreScreenerChangeModal(existingCommonIntakeFormDisplayName)));
   }
 
   private Content render(

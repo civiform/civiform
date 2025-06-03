@@ -155,18 +155,18 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       ImmutableList<Long> categories,
       ImmutableList<Map<String, String>> applicationSteps) {
     boolean isDefaultProgram = programType.equals(ProgramType.DEFAULT);
-    boolean isCommonIntakeForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
+    boolean isPreScreenerForm = programType.equals(ProgramType.COMMON_INTAKE_FORM);
     boolean isExternalProgram = programType.equals(ProgramType.EXTERNAL);
     boolean isExternalProgramCardsEnabled =
         settingsManifest.getExternalProgramCardsEnabled(request);
     boolean isNorthStarEnabled = settingsManifest.getNorthStarApplicantUi(request);
 
-    boolean disableProgramEligibility = isCommonIntakeForm || isExternalProgram;
+    boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription =
-        (isCommonIntakeForm || isExternalProgram) && isNorthStarEnabled;
-    boolean disableExternalLink = (isDefaultProgram || isCommonIntakeForm) && isNorthStarEnabled;
+        (isPreScreenerForm || isExternalProgram) && isNorthStarEnabled;
+    boolean disableExternalLink = (isDefaultProgram || isPreScreenerForm) && isNorthStarEnabled;
     boolean disableEmailNotifications = isExternalProgram;
-    boolean disableApplicationSteps = isCommonIntakeForm || isExternalProgram;
+    boolean disableApplicationSteps = isPreScreenerForm || isExternalProgram;
     boolean disableConfirmationMessage = isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
@@ -244,7 +244,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         // Program categories
         iff(
             settingsManifest.getProgramFilteringEnabled(request) && !categoryOptions.isEmpty(),
-            showCategoryCheckboxes(categoryOptions, categories, isCommonIntakeForm)),
+            showCategoryCheckboxes(categoryOptions, categories, isPreScreenerForm)),
         // Program visibility
         fieldset(
                 legend("Program visibility")
@@ -377,7 +377,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     if (isExternalProgramCardsEnabled) {
       // When creating a program, program type fields (if visible) are never disabled.
       boolean defaultProgramFieldDisabled = false;
-      boolean commonIntakeFieldDisabled = false;
+      boolean preScreenerFieldDisabled = false;
       boolean externalProgramFieldDisabled = false;
 
       // When editing a program:
@@ -390,12 +390,12 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
           case DEFAULT:
           case COMMON_INTAKE_FORM:
             defaultProgramFieldDisabled = false;
-            commonIntakeFieldDisabled = false;
+            preScreenerFieldDisabled = false;
             externalProgramFieldDisabled = true;
             break;
           case EXTERNAL:
             defaultProgramFieldDisabled = true;
-            commonIntakeFieldDisabled = true;
+            preScreenerFieldDisabled = true;
             externalProgramFieldDisabled = false;
             break;
         }
@@ -432,7 +432,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                       /* name= */ PROGRAM_TYPE_FIELD_NAME,
                       /* value= */ ProgramType.COMMON_INTAKE_FORM.getValue(),
                       /* isChecked= */ programType.equals(ProgramType.COMMON_INTAKE_FORM),
-                      /* isDisabled= */ commonIntakeFieldDisabled,
+                      /* isDisabled= */ preScreenerFieldDisabled,
                       /* label= */ "Pre-screener",
                       /* description */ Optional.of(
                           "This program informational card will always appear at the top of the"
@@ -634,13 +634,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             p(fieldText).withClasses(BaseStyles.FORM_FIELD));
   }
 
-  protected Modal buildConfirmCommonIntakeChangeModal(String existingCommonIntakeFormDisplayName) {
+  protected Modal buildConfirmPreScreenerChangeModal(String existingPreScreenerFormDisplayName) {
     DivTag content =
         div()
             .withClasses("flex-row", "space-y-6")
             .with(
                 p("The pre-screener will be updated from ")
-                    .with(span(existingCommonIntakeFormDisplayName).withClass("font-bold"))
+                    .with(span(existingPreScreenerFormDisplayName).withClass("font-bold"))
                     .withText(" to the current program."))
             .with(p("Would you like to confirm the change?"))
             .with(

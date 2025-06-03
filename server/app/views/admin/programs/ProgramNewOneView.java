@@ -67,7 +67,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
         request,
         programForm,
         /* toastMessage= */ Optional.empty(),
-        Optional.of(buildConfirmCommonIntakeChangeModal(existingPreScreenerFormDisplayName)));
+        Optional.of(buildConfirmPreScreenerChangeModal(existingPreScreenerFormDisplayName)));
   }
 
   private Content render(
