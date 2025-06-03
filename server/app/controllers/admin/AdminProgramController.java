@@ -143,11 +143,11 @@ public final class AdminProgramController extends CiviFormController {
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangePreScreenerForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getPreScreenerForm();
-      if (maybeCommonIntakeForm.isPresent()) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()) {
         return ok(
             newOneView.renderChangePreScreenerConfirmation(
-                request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
+                request, programData, maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 
@@ -284,16 +284,16 @@ public final class AdminProgramController extends CiviFormController {
     // program to this one, show the confirmation dialog.
     if (programData.getProgramType().equals(ProgramType.COMMON_INTAKE_FORM)
         && !programData.getConfirmedChangePreScreenerForm()) {
-      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getPreScreenerForm();
-      if (maybeCommonIntakeForm.isPresent()
-          && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
+      Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
+      if (maybePreScreenerForm.isPresent()
+          && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
         return ok(
             editView.renderChangeCommonIntakeConfirmation(
                 request,
                 programDefinition,
                 programEditStatus,
                 programData,
-                maybeCommonIntakeForm.get().localizedName().getDefault()));
+                maybePreScreenerForm.get().localizedName().getDefault()));
       }
     }
 
