@@ -8,7 +8,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  setDirRtl,
+  selectApplicantLanguageNorthstar,
 } from '../../support'
 
 test.describe(
@@ -78,7 +78,7 @@ test.describe(
           programName,
           /* northStarEnabled= */ true,
         )
-        await setDirRtl(page)
+        await selectApplicantLanguageNorthstar(page, 'ar')
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'radio-options-right-to-left',
