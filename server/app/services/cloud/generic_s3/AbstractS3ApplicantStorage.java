@@ -5,19 +5,32 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static services.cloud.aws.AwsStorageUtils.PRESIGNED_URL_DURATION;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.applicant.ApplicantRequestedAction;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
+import services.cloud.aws.FileDeletionFailureException;
 import services.cloud.aws.SignedS3UploadRequest;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -29,24 +42,27 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
   private final Credentials credentials;
   private final String bucket;
   private final int fileLimitMb;
-  private final AbstractS3ApplicantStorage.Client client;
+  private final Client client;
+  private final GenericS3ClientWrapper s3ClientWrapper;
 
   public AbstractS3ApplicantStorage(
+    GenericS3ClientWrapper s3ClientWrapper,
       AbstractS3StorageUtils s3StorageUtils,
       AbstractS3Region region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
+    this.s3ClientWrapper = checkNotNull(s3ClientWrapper);
     this.s3StorageUtils = checkNotNull(s3StorageUtils);
     this.region = checkNotNull(region).get();
     this.credentials = checkNotNull(credentials);
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new AbstractS3ApplicantStorage.LocalStackClient(config, s3StorageUtils);
+      client = new LocalStackClient(config, s3StorageUtils);
     } else if (environment.isTest()) {
-      client = new AbstractS3ApplicantStorage.NullClient();
+      client = new NullClient();
     } else {
       client = new S3Client(s3StorageUtils);
     }
@@ -89,6 +105,34 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     return presignedGetObjectRequest.url().toString();
   }
 
+
+    private void deletePublicFiles(ImmutableList<String> fileKeys, int retries) {
+      AtomicInteger retryCount = new AtomicInteger(retries);
+      ImmutableList<ObjectIdentifier> fileKeyObjects =
+        fileKeys.stream()
+          .map(key -> ObjectIdentifier.builder().key(key).build())
+          .collect(ImmutableList.toImmutableList());
+      DeleteObjectsRequest request =
+        DeleteObjectsRequest.builder()
+          .bucket(bucket)
+          .delete(Delete.builder().objects(fileKeyObjects).build())
+          .build();
+      try {
+        s3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
+      } catch (FileDeletionFailureException e) {
+        if (retries > 0) {
+          deletePublicFiles(fileKeys, retryCount.decrementAndGet());
+        } else {
+          logger.error(
+            "failed to delete applicant files",
+            e.toString());
+       catch(URISyntaxException e){
+            throw new RuntimeException(e);
+          }
+        }
+      }
+    }
+
   @Override
   public SignedS3UploadRequest getSignedUploadRequest(
       String fileKey, String successActionRedirectUrl) {
@@ -120,6 +164,8 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     String actionLink();
 
     void close();
+    URI endpoint();
+
   }
 
   static class NullClient implements Client {
@@ -133,7 +179,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
       URL fakeUrl;
       try {
         fakeUrl = new URL("http://fake-url");
-      } catch (java.net.MalformedURLException e) {
+      } catch (MalformedURLException e) {
         throw new RuntimeException(e);
       }
       when(presignedGetObjectRequest.url()).thenReturn(fakeUrl);
@@ -153,6 +199,11 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
     @Override
     public void close() {}
+
+    @Override
+    public URI endpoint() {
+      return null;
+    }
   }
 
   class S3Client implements Client {
@@ -177,6 +228,11 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     @Override
     public void close() {
       presigner.close();
+    }
+
+    @Override
+    public URI endpoint() {
+      return null;
     }
   }
 
@@ -208,6 +264,11 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     @Override
     public void close() {
       presigner.close();
+    }
+
+    @Override
+    public URI endpoint() {
+      return null;
     }
   }
 }

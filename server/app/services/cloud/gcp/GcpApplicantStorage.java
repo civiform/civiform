@@ -9,6 +9,7 @@ import play.inject.ApplicationLifecycle;
 import services.cloud.StorageServiceName;
 import services.cloud.aws.Credentials;
 import services.cloud.generic_s3.AbstractS3ApplicantStorage;
+import services.cloud.generic_s3.GenericS3ClientWrapper;
 
 /** An GCP Simple Storage Service (S3) extension of {@link AbstractS3ApplicantStorage}. */
 @Singleton
@@ -19,13 +20,14 @@ public final class GcpApplicantStorage extends AbstractS3ApplicantStorage {
 
   @Inject
   public GcpApplicantStorage(
+    GenericS3ClientWrapper gcpS3ClientWrapper,
       GcpStorageUtils gcpStorageUtils,
       GcpRegion region,
       Credentials credentials,
       Config config,
       Environment environment,
       ApplicationLifecycle appLifecycle) {
-    super(gcpStorageUtils, region, credentials, config, environment, appLifecycle);
+    super(gcpS3ClientWrapper,gcpStorageUtils, region, credentials, config, environment, appLifecycle);
   }
 
   /** The bucket path defined in the conf file */

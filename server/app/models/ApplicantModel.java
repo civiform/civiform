@@ -55,6 +55,9 @@ public class ApplicantModel extends BaseModel {
 
     private final String suffixName;
 
+
+    private Instant lastActivityTime;
+
     Suffix(String suffixName) {
       this.suffixName = suffixName;
     }
@@ -70,6 +73,7 @@ public class ApplicantModel extends BaseModel {
 
   @WhenCreated private Instant whenCreated;
 
+  @WhenCreated private Instant lastActivityTime;
   private String preferredLocale;
 
   @Constraints.Required @DbJson private String object;
@@ -95,6 +99,10 @@ public class ApplicantModel extends BaseModel {
   /** Sets a new applicant data, overwriting any previous value. */
   public void setApplicantData(ApplicantData applicantData) {
     this.applicantData = applicantData;
+  }
+
+  public Instant getLastActivityTime() {
+    return this.lastActivityTime;
   }
 
   public ApplicantData getApplicantData() {
@@ -351,13 +359,17 @@ public class ApplicantModel extends BaseModel {
     return ImmutableList.copyOf(this.applications);
   }
 
-  public Instant getWhenCreated() {
-    return this.whenCreated;
-  }
+
 
   @VisibleForTesting
   public ApplicantModel setWhenCreated(Instant whenCreated) {
     this.whenCreated = whenCreated;
+    return this;
+  }
+
+  @VisibleForTesting
+  public ApplicantModel setLastActivityTime(Instant lastActivityTime) {
+    this.lastActivityTime = lastActivityTime;
     return this;
   }
 
