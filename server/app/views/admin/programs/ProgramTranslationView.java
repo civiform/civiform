@@ -293,7 +293,7 @@ public final class ProgramTranslationView extends TranslationFormView {
     // If north star is enabled, only show the long description field if the program is not a common
     // intake program
     boolean northStarIsOff = !settingsManifest.getNorthStarApplicantUi(request);
-    boolean isNotCommonIntake = !program.isCommonIntakeForm();
+    boolean isNotCommonIntake = !program.isPreScreenerForm();
     if (northStarIsOff || isNotCommonIntake) {
       applicantVisibleDetails.add(
           fieldWithDefaultLocaleTextHint(
