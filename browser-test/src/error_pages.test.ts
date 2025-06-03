@@ -55,18 +55,19 @@ test.describe('Error pages', {tag: ['@parallel-candidate']}, () => {
       ).toBeAttached()
     })
 
-    await test.step('Updating the support email address updates the error page', async () => {
+    await test.step('Updating IT email address updates the error page', async () => {
       await loginAsAdmin(page)
       await adminSettings.gotoAdminSettings()
       await adminSettings.setStringSetting(
-        'SUPPORT_EMAIL_ADDRESS',
-        'help@email.com',
+        'IT_EMAIL_ADDRESS',
+        'it@email.com',
       )
       await adminSettings.saveChanges()
+      
       await page.goto('/error?exceptionId=1')
       await expect(
         page.getByRole('link', {
-          name: 'help@email.com',
+          name: 'it@email.com',
         }),
       ).toBeAttached()
     })

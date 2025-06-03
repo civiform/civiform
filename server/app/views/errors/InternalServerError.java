@@ -65,12 +65,12 @@ public final class InternalServerError extends BaseHtmlView {
 
   private UnescapedText buildAdditionalInfo(
       Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
-    String supportEmail = settingsManifest.getSupportEmailAddress(requestHeader).get();
+    String recipientEmail = getRecipientEmailAddress(requestHeader);
     String emailLinkHref =
-        String.format("mailto:%s?body=[CiviForm Error ID: %s]", supportEmail, exceptionId);
+        String.format("mailto:%s?body=[CiviForm Error ID: %s]", recipientEmail, exceptionId);
     ATag emailAction =
         new LinkElement()
-            .setText(supportEmail)
+            .setText(recipientEmail)
             .setHref(emailLinkHref)
             .asAnchorText()
             .withClasses(ApplicantStyles.LINK);
@@ -81,5 +81,15 @@ public final class InternalServerError extends BaseHtmlView {
     String sanitizedDescription =
         TextFormatter.sanitizeHtml(String.format(descriptionText, emailAction.render()));
     return rawHtml(sanitizedDescription);
+  }
+
+  /** Get either the IT email address or the support email address */
+  private String getRecipientEmailAddress(Http.RequestHeader requestHeader) {
+    Optional<String> recipientEmailAddress =
+        settingsManifest.getItEmailAddress(requestHeader).isPresent()
+                && !settingsManifest.getItEmailAddress(requestHeader).get().isBlank()
+            ? settingsManifest.getItEmailAddress(requestHeader)
+            : settingsManifest.getSupportEmailAddress(requestHeader);
+    return recipientEmailAddress.orElse("");
   }
 }

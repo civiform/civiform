@@ -1985,7 +1985,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "IT_EMAIL_ADDRESS",
                           "This email address receives error notifications from CiviForm when"
-                              + " things break.",
+                              + " there is an internal server error or a durable job fails.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
