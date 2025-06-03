@@ -101,19 +101,23 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
                                       .name("fromDate")
                                       .type(DefinitionType.STRING.toString())
                                       .description(
-                                          "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
-                                              + " results to applications submitted on or after the"
-                                              + " provided date, in the CiviForm instance's local"
-                                              + " time."))
+                                          "An ISO-8601 formatted date-time with zone id (i.e."
+                                              + " YYYY-MM-DDTThh:mm:ssZ). Limits results to"
+                                              + " applications submitted on or after the provided"
+                                              + " date. Uses the CiviForm instance's local timezone"
+                                              + " when no timezone is provided, and the beginning"
+                                              + " of the day when no time is provided."))
                               .parameter(
                                   new QueryParameter()
                                       .name("toDate")
                                       .type(DefinitionType.STRING.toString())
                                       .description(
-                                          "An ISO-8601 formatted date (i.e. YYYY-MM-DD). Limits"
-                                              + " results to applications submitted before the"
-                                              + " provided date, in the CiviForm instance's"
-                                              + " local time."))
+                                          "An ISO-8601 formatted date-time with zone id (i.e."
+                                              + " YYYY-MM-DDTThh:mm:ssZ). Limits results to"
+                                              + " applications submitted before the provided date."
+                                              + " Uses the CiviForm instance's local timezone when"
+                                              + " no timezone is provided, and the beginning of the"
+                                              + " day when no time is provided."))
                               .parameter(
                                   new QueryParameter()
                                       .name("pageSize")
