@@ -1113,7 +1113,7 @@ public final class ApplicantService {
    * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
-   *     <p>Does not include the Common Intake Form.
+   *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
    *     auth.CiviFormProfile)}.
    */
@@ -1232,7 +1232,7 @@ public final class ApplicantService {
                 getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
 
             if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+              relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
             } else {
               inProgressPrograms.add(applicantProgramDataBuilder.build());
             }
@@ -1312,7 +1312,7 @@ public final class ApplicantService {
 
           ProgramType programType = program.programType();
           if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-            relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+            relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
               || (programType.equals(ProgramType.EXTERNAL)
                   && settingsManifest.getExternalProgramCardsEnabled(request)
@@ -1750,7 +1750,7 @@ public final class ApplicantService {
      * Common Intake Form, if it exists and hasn't been submitted, is populated here and not in
      * inProgress or unapplied, regardless of its application status.
      */
-    public abstract Optional<ApplicantProgramData> commonIntakeForm();
+    public abstract Optional<ApplicantProgramData> preScreenerForm();
 
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
@@ -1776,7 +1776,7 @@ public final class ApplicantService {
 
     @AutoValue.Builder
     abstract static class Builder {
-      abstract Builder setCommonIntakeForm(ApplicantProgramData value);
+      abstract Builder setPreScreenerForm(ApplicantProgramData value);
 
       abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
 
@@ -1792,8 +1792,8 @@ public final class ApplicantService {
       ImmutableList.Builder<ApplicantProgramData> allPrograms =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      if (commonIntakeForm().isPresent()) {
-        allPrograms.add(commonIntakeForm().get());
+      if (preScreenerForm().isPresent()) {
+        allPrograms.add(preScreenerForm().get());
       }
       allPrograms.addAll(inProgress());
       allPrograms.addAll(submitted());
@@ -1809,10 +1809,10 @@ public final class ApplicantService {
       ImmutableList.Builder<ApplicantProgramData> inProgress =
           new ImmutableList.Builder<ApplicantProgramData>();
 
-      commonIntakeForm()
+      preScreenerForm()
           .flatMap(ApplicantProgramData::latestApplicationLifecycleStage)
           .filter(stage -> stage.equals(LifecycleStage.DRAFT))
-          .ifPresent(programData -> inProgress.add(commonIntakeForm().get()));
+          .ifPresent(programData -> inProgress.add(preScreenerForm().get()));
 
       inProgress.addAll(inProgress());
       return inProgress.build();

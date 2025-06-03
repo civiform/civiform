@@ -2174,11 +2174,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
-            result.commonIntakeForm().get(),
+            result.preScreenerForm().get(),
             result.inProgress().get(0),
             result.submitted().get(0),
             result.unapplied().get(0),
@@ -2218,8 +2218,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.allPrograms().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
             commonIntakeForm.id, program1.id, program2.id, program3.id, programDefinition.id());
@@ -2276,7 +2276,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty(), Optional.empty());
-    assertThat(result.commonIntakeForm().isPresent()).isFalse();
+    assertThat(result.preScreenerForm().isPresent()).isFalse();
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
             result.inProgress().get(0),
@@ -2304,9 +2304,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isFalse();
 
     // CIF application in progress.
@@ -2323,11 +2323,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+    assertThat(result.preScreenerForm().isPresent()).isTrue();
+    assertThat(result.preScreenerForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().isPresent())
         .isTrue();
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+    assertThat(result.preScreenerForm().get().latestApplicationLifecycleStage().get())
         .isEqualTo(LifecycleStage.DRAFT);
 
     // CIF application submitted.

@@ -81,13 +81,13 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (isUnstartedCommonIntakeForm(applicationPrograms.commonIntakeForm())) {
+    if (isUnstartedCommonIntakeForm(applicationPrograms.preScreenerForm())) {
       intakeSection =
           Optional.of(
               getCommonIntakeFormSection(
                   messages,
                   request,
-                  applicationPrograms.commonIntakeForm().get(),
+                  applicationPrograms.preScreenerForm().get(),
                   profile,
                   applicantId,
                   personalInfo));
