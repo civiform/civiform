@@ -44,8 +44,8 @@ public final class ActiveAndDraftQuestions {
   private ActiveAndDraftQuestions(VersionRepository repository) {
     // Note: previewPublishNewSynchronizedVersion has an unexpected
     // interaction with active and draft when this method is called within a
-    // transaction. To mitigate that we don't reference them after it is
-    // calculated. See the issue for more details.
+    // transaction; it'll mutate the objects here which is undesired.
+    // See the issue for more details.
     // TODO(#10703): Fix this.
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
