@@ -146,7 +146,7 @@ public final class AdminProgramController extends CiviFormController {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
       if (maybeCommonIntakeForm.isPresent()) {
         return ok(
-            newOneView.renderChangeCommonIntakeConfirmation(
+            newOneView.renderChangePreScreenerConfirmation(
                 request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
     }
