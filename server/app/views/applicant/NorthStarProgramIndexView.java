@@ -81,19 +81,19 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
             .sorted()
             .collect(ImmutableList.toImmutableList());
 
-    if (isUnstartedCommonIntakeForm(applicationPrograms.commonIntakeForm())) {
+    if (isUnstartedCommonIntakeForm(applicationPrograms.preScreenerForm())) {
       intakeSection =
           Optional.of(
               getCommonIntakeFormSection(
                   messages,
                   request,
-                  applicationPrograms.commonIntakeForm().get(),
+                  applicationPrograms.preScreenerForm().get(),
                   profile,
                   applicantId,
                   personalInfo));
     }
 
-    if (!applicationPrograms.inProgressIncludingCommonIntake().isEmpty()
+    if (!applicationPrograms.inProgressIncludingPreScreener().isEmpty()
         || !applicationPrograms.submitted().isEmpty()) {
       myApplicationsSection =
           Optional.of(
@@ -103,7 +103,7 @@ public class NorthStarProgramIndexView extends NorthStarBaseView {
                   Optional.of(MessageKey.TITLE_MY_APPLICATIONS_SECTION_V2),
                   MessageKey.BUTTON_EDIT,
                   Stream.concat(
-                          applicationPrograms.inProgressIncludingCommonIntake().stream(),
+                          applicationPrograms.inProgressIncludingPreScreener().stream(),
                           applicationPrograms.submitted().stream())
                       .collect(ImmutableList.toImmutableList()),
                   /* preferredLocale= */ messages.lang().toLocale(),
