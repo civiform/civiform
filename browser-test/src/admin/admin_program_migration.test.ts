@@ -1189,7 +1189,7 @@ test.describe('program migration', () => {
         page.getByTestId('question-admin-name-Sample Text Question'),
       ).not.toContainText('What is your LEAST favorite color?')
     })
+    await adminPrograms.publishAllDrafts()
+    await adminPrograms.expectActiveProgram('Comprehensive Sample Program New')
   })
-  await adminPrograms.publishAllDrafts()
-  await logout(page)
 })
