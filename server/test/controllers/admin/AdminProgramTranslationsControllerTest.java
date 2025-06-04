@@ -132,7 +132,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void edit_programNotFound_returnsNotFound() {
     assertThatThrownBy(() -> controller.edit(fakeRequest(), "non-existent program name", "es-US"))
-        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .hasMessage("No draft or active found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -228,7 +228,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_programNotFound() {
     assertThatThrownBy(() -> controller.update(fakeRequest(), "non-existent program name", "es-US"))
-        .hasMessage("No draft found for program: \"non-existent program name\"")
+        .hasMessage("No draft or active found for program: \"non-existent program name\"")
         .isInstanceOf(BadRequestException.class);
   }
 
