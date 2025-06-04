@@ -27,8 +27,13 @@ def healthcheck() -> tuple[Response, int]:
         response_code = int(request.headers.get("Emulate-Response-Code", 200))
 
         match response_code:
-            case 400 | 401 | 429 | 500:
+            case 400 | 401 | 500:
                 response = create_problem_detail(response_code)
+            case 429:
+                response = create_problem_detail(response_code)
+                http_response = jsonify(response)
+                http_response.headers["Retry-After"] = "1"
+                return http_response, response_code
             case _:
                 response = HealthcheckResponse(
                     timestamp=int(time.time() + 1000))
@@ -47,8 +52,13 @@ def discovery() -> tuple[Response, int]:
         response_code = int(request.headers.get("Emulate-Response-Code", 200))
 
         match response_code:
-            case 400 | 401 | 429 | 500:
+            case 400 | 401 | 500:
                 response = create_problem_detail(response_code)
+            case 429:
+                response = create_problem_detail(response_code)
+                http_response = jsonify(response)
+                http_response.headers["Retry-After"] = "1"
+                return http_response, response_code
             case _:
                 response = DiscoveryResponse(
                     endpoints={
@@ -77,10 +87,15 @@ def bridge(slug: str) -> tuple[Response, int]:
         response_code = int(request.headers.get("Emulate-Response-Code", 200))
 
         match response_code:
-            case 400 | 401 | 404 | 429 | 500:
+            case 400 | 401 | 404 | 500:
                 response = create_problem_detail(response_code)
             case 422:
                 response = create_val_problem_detail()
+            case 429:
+                response = create_problem_detail(response_code)
+                http_response = jsonify(response)
+                http_response.headers["Retry-After"] = "1"
+                return http_response, response_code
             case _:
                 response = BridgeResponse(
                     compatibility_level=CompatibilityLevel.V1,
