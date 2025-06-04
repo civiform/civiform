@@ -1190,4 +1190,6 @@ test.describe('program migration', () => {
       ).not.toContainText('What is your LEAST favorite color?')
     })
   })
+  await adminPrograms.publishAllDrafts()
+  await logout(page)
 })
